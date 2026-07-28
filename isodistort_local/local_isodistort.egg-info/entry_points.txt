@@ -1,0 +1,2 @@
+[console_scripts]
+isodistort = local_isodistort.api.cli:main

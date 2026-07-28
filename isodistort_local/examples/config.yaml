@@ -1,0 +1,40 @@
+# 示例配置文件
+# ISODISTORT Local 批量计算配置
+
+# ISOTROPY安装路径（也可通过环境变量ISODATA设置）
+isotropy_path: ""
+
+# 是否使用WSL运行（Windows环境）
+use_wsl: false
+
+# 畸变计算配置
+distortion:
+  # 要计算的k点列表
+  k_points:
+    - GM    # Γ点 (0,0,0)
+    - X     # X点
+    - M     # M点
+    - R     # R点
+  
+  # 畸变类型
+  distortion_types:
+    - displacive    # 原子位移
+    - strain        # 晶格应变
+    # - occupational  # 占位有序
+    # - magnetic      # 磁矩
+  
+  # 计算方法: 1=枚举子群, 4=模式分解
+  method: 1
+  
+  # 模式振幅（用于生成CIF）
+  mode_amplitude: 1.0
+  strain_amplitude: 0.1
+
+# 输出配置
+output:
+  directory: ./output
+  formats:
+    - json
+    - csv
+    - report
+    - markdown
