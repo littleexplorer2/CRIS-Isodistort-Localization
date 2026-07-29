@@ -1,9 +1,25 @@
-"""
-项目入口脚本 - 快速演示
+"""示例入口脚本 - 快速演示如何使用 Python API
 
-直接运行: python main.py
+说明:
+- 本项目仅通过 Python API 使用（不再提供独立命令行脚本）。
+- 运行示例: `python examples\01_basic_workflow.py`
 """
-from local_isodistort.api.cli import main
+
+from pathlib import Path
+import sys
+
+
+def _print_quick_start():
+    here = Path(__file__).parent
+    example = here / "examples" / "01_basic_workflow.py"
+    print("local_isodistort - Quick start")
+    print()
+    if example.exists():
+        print(f"Run the example workflow: python {example}")
+    else:
+        print("Run your Python script and call the IsoDistort API from local_isodistort.api")
+
 
 if __name__ == "__main__":
-    main()
+    _print_quick_start()
+    sys.exit(0)

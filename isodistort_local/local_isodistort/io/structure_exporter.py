@@ -1,8 +1,7 @@
 """
-结构文件导出 - CIF / POSCAR / xyz 等常用格式
+结构文件导出 - CIF / POSCAR / xyz 格式，自动识别格式并导出
 
 对应阶段六，步骤11：标准结构文件导出
-实现方式：❌ 自研（基于 pymatgen 封装）
 """
 from pathlib import Path
 from pymatgen.core import Structure
@@ -22,7 +21,7 @@ class StructureExporter:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def to_cif(self, structure: Structure, filename: str,
-               symprec: float = None) -> Path:
+            symprec: float = None) -> Path:
         """
         导出为 CIF 格式
 
@@ -40,7 +39,7 @@ class StructureExporter:
         return path
 
     def to_poscar(self, structure: Structure, filename: str,
-                  comment: str = "") -> Path:
+                comment: str = "") -> Path:
         """导出为 VASP POSCAR 格式"""
         poscar = Poscar(structure, comment=comment)
         path = self.output_dir / f"{filename}.vasp"

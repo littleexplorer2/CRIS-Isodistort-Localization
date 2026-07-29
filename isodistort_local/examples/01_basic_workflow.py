@@ -42,9 +42,9 @@ def main():
     print("\n=== 步骤 5：导出结构 ===")
     iso.export("NaCl_distorted", formats=["cif", "poscar"])
 
-    # ---- 步骤 6：可视化对比 ----
+    # ---- 步骤 6：可视化对比 (内置可视化已移除) ----
     print("\n=== 步骤 6：结构对比 ===")
-    iso.visualize(compare=True)
+    print("已在输出目录导出 CIF 文件，使用 VESTA 或其他工具打开以查看畸变结构。")
 
 
 if __name__ == "__main__":

@@ -2,7 +2,6 @@
 结果序列化 - 将完整计算结果保存为 JSON
 
 对应阶段六：结果持久化与复现
-实现方式：❌ 自研
 """
 import json
 import numpy as np
@@ -17,7 +16,7 @@ class ResultSerializer:
     """
     计算结果序列化器
 
-    支持将完整计算流程的结果保存为 JSON，便于：
+    支持将 numpy 数组转化为 JSON 格式进行保存、加载，便于：
     1. 断点复算
     2. 结果复现
     3. 与在线版 ISODISTORT 对标调试
@@ -29,15 +28,15 @@ class ResultSerializer:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def save(self, data: dict, filename: str) -> Path:
-        """保存结果为 JSON"""
+        """在输出文件夹创建 JSON 格式的文件，并将计算结果保存到该文件中"""
         path = self.output_dir / f"{filename}.json"
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2,
-                      default=self._numpy_default)
+                    default=self._numpy_default)
         return path
 
     def load(self, filename: str) -> dict:
-        """加载 JSON 结果"""
+        """调用 JSON 库的load方法，加载 JSON 结果"""
         path = self.output_dir / f"{filename}.json"
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)

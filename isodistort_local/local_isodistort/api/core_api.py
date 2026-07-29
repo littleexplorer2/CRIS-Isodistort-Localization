@@ -33,7 +33,6 @@ from ..distortion import (
     PhasePath, DistortionMapper, DistortionEngine, DomainGenerator,
 )
 from ..io import StructureExporter, ResultSerializer
-from ..vis import StructureVisualizer
 from ..utils import get_config
 
 
@@ -63,7 +62,6 @@ class IsoDistort:
         # 输出层
         self._exporter = StructureExporter()
         self._serializer = ResultSerializer()
-        self._visualizer = StructureVisualizer()
 
         # 状态
         self.structure: Optional[Structure] = None
@@ -226,6 +224,17 @@ class IsoDistort:
         print(f"[畸变生成] 模式 {irrep_label}, 幅度 {amplitude}, "
               f"体积变化 {vol_change:+.4f}%")
 
+        # 默认导出畸变后的 CIF 文件
+        fname = f"distorted_{irrep_label}" if irrep_label else "distorted"
+        if amplitude is not None:
+            try:
+                amp_str = str(amplitude).replace(".", "p")
+                fname = f"{fname}_a{amp_str}"
+            except Exception:
+                pass
+        paths = self._exporter.auto_export(self.distorted_structure, fname, formats=["cif"])
+        if paths:
+            print(f"[默认导出] 已生成 CIF: {paths[0]}")
         return self.distorted_structure
 
     def generate_mixed_distortion(self, contributions: Dict[str, float],
@@ -235,6 +244,16 @@ class IsoDistort:
         self.distorted_structure = self._dist_engine.generate_mixed_mode(
             self.structure, contributions, all_disp, supercell
         )
+        # 默认导出混合畸变为 CIF
+        label = "mixed"
+        try:
+            keys = "+".join(sorted(contributions.keys()))
+            label = f"mixed_{keys}"
+        except Exception:
+            pass
+        paths = self._exporter.auto_export(self.distorted_structure, label, formats=["cif"])
+        if paths:
+            print(f"[默认导出] 已生成 CIF: {paths[0]}")
         return self.distorted_structure
 
     # ================================================================
@@ -263,26 +282,7 @@ class IsoDistort:
             print(f"  {p}")
         return paths
 
-    # ================================================================
-    # 阶段七：可视化
-    # ================================================================
-
-    def visualize(self, compare: bool = True):
-        """
-        步骤12：可视化结构
-
-        Args:
-            compare: 是否对比母相与畸变相
-        """
-        if compare and self.distorted_structure is not None:
-            self._visualizer.compare_structures(
-                self.structure, self.distorted_structure,
-                "Parent", "Distorted"
-            )
-        elif self.distorted_structure is not None:
-            self._visualizer.plot(self.distorted_structure, "Distorted Structure")
-        elif self.structure is not None:
-            self._visualizer.plot(self.structure, "Parent Structure")
+    # 阶段七：可视化（已删除 vis 依赖；可使用导出的 CIF 用外部程序查看）
 
     # ================================================================
     # 畴变体

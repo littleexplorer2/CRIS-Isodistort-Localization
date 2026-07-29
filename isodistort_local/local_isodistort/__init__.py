@@ -9,7 +9,7 @@ Local ISODISTORT - 本地化晶体畸变分析工具
     structure   - 晶体结构层：CIF 读写、对称处理、坐标变换
     distortion  - 畸变业务层：相变路径、模式映射、畸变生成
     io          - 结果输出层：结构文件导出
-    vis         - 可视化层：3D 结构预览
+    vis         - 可视化层：已移除（使用导出 CIF 并用外部工具如 VESTA 查看）
     api         - 对外接口：Python API + CLI
     utils       - 工具层：配置、异常、解析工具
 """

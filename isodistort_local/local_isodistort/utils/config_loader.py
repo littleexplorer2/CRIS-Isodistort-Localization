@@ -12,12 +12,16 @@ CONFIG_PATH = PROJECT_ROOT / "config" / "settings.yaml"
 
 
 class Config:
-    """全局配置单例"""
+    """全局配置单例
+    （创建实例）
+    加载yaml文件中的配置
+    设置 ISODATA 环境变量"""
 
     _instance = None
     _loaded = False
 
     def __new__(cls):
+        """重写 __new__ 方法以实现单例模式，这个类只有一个实例：检查instance是否为空，若为空则直接创建一个新实例"""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
@@ -30,11 +34,12 @@ class Config:
         self._loaded = True
 
     def _load_config(self):
+        """从 settings.yaml 加载配置"""
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             self._cfg = yaml.safe_load(f)
 
     def _setup_environment(self):
-        """设置 ISODATA 环境变量，供 iso/findsym 读取数据库"""
+        """读取 iso/findsym 所属的数据库路径信息，并将其设置为 ISODATA 环境变量"""
         data_dir = self.resolve_path(self._cfg["isobyu"]["data_dir"])
         os.environ["ISODATA"] = str(data_dir)
 

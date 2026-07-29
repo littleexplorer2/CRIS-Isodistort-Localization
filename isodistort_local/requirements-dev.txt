@@ -1,0 +1,12 @@
+# Development and test dependencies
+pytest>=7.0
+pytest-cov>=4.0
+black>=24.3
+isort>=5.12
+flake8>=6.0
+mypy>=1.9
+pre-commit>=3.4
+
+# Optional - for building docs or examples
+sphinx>=6.2
+sphinx-rtd-theme>=1.2
