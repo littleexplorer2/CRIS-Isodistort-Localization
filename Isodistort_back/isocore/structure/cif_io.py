@@ -28,8 +28,8 @@ def read_cif(file_path: str | Path, primitive: bool = False) -> Structure:
 
 
 def structure_from_params(lattice_params: list, species: list,
-                          coords: list, coords_are_cartesian: bool = False
-                          ) -> Structure:
+                        coords: list, coords_are_cartesian: bool = False
+                        ) -> Structure:
     """
     从参数直接构建 Structure 对象
 
@@ -55,7 +55,7 @@ def get_lattice_params(structure: Structure) -> tuple:
     return (lat.a, lat.b, lat.c, lat.alpha, lat.beta, lat.gamma)
 
 
-def get_atom_info(structure: structure) -> tuple:
+def get_atom_info(structure: Structure) -> tuple:
     """
     从 Structure 提取 findsym 所需的原子信息
 

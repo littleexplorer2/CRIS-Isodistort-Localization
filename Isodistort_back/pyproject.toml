@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "isodistort"
 version = "0.1.0"
 description = "ISODISTORT: offline crystal distortion analysis based on ISOTROPY suite"
-authors = [{ name = "CRIS Lab" }]
+authors = [{ name = "CRIS" }]
 requires-python = ">=3.9"
 dependencies = [
     "numpy>=1.21",

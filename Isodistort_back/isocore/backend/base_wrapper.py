@@ -112,7 +112,7 @@ class BaseWrapper(ABC):
 
     @staticmethod
     def _win_to_wsl_path(win_path: str) -> str:
-        """Windows 路径转 WSL 路径，如 C:\xxx -> /mnt/c/xxx"""
+        """Windows 路径转 WSL 路径，如 C:\\xxx -> /mnt/c/xxx"""
         path = Path(win_path)
         drive = path.drive.rstrip(":").lower()
         rest = str(path).replace(path.drive, "").replace("\\", "/")

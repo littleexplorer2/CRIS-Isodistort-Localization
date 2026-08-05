@@ -2,19 +2,21 @@
 ISOTROPY (iso) 封装 - 子群枚举、畸变模式计算、位点分裂、畴变体
 
 对应：
-  - 阶段二，步骤4：生成母群的所有各向同性子群列表
-  - 阶段三，步骤6：计算目标相变的畸变模式（序参量基矢）
-  - 阶段三，步骤7（理论部分）：Wyckoff 位点分裂分析
-  - 阶段五，步骤10（对称部分）：畴变体对称操作矩阵
+- 阶段二，步骤4：生成母群的所有各向同性子群列表
+- 阶段三，步骤6：计算目标相变的畸变模式（序参量基矢）
+- 阶段三，步骤7（理论部分）：Wyckoff 位点分裂分析
+- 阶段五，步骤10（对称部分）：畴变体对称操作矩阵
 
 封装方式：✅ 直接封装 iso 二进制
 """
+
 import re
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional, Tuple
 
 from .base_wrapper import BaseWrapper
 from ..utils import OutputParseError, parse_subgroup_list
+import numpy as np
 
 
 @dataclass
@@ -23,7 +25,7 @@ class SubgroupInfo:
     index: int                        # 子群序号（iso 内编号）
     space_group_number: int           # 空间群号
     space_group_symbol: str = ""      # 空间群符号
-    subgroup_index: int = 0           # 子群指数（母群阶数/子群阶数）
+    subgroup_index: int = 0           # 子群序号
     origin_choice: int = 1            # 原点选择
     transformation_matrix: List[List[float]] = field(default_factory=list)  # 坐标变换矩阵
 
@@ -67,7 +69,7 @@ class IsoWrapper(BaseWrapper):
     # ================================================================
 
     def list_subgroups(self, parent_sg: int,
-                       distortion_type: str = "displacement") -> List[SubgroupInfo]:
+                    distortion_type: str = "displacement") -> List[SubgroupInfo]:
         """
         列出给定空间群的所有各向同性子群
 
@@ -95,8 +97,8 @@ class IsoWrapper(BaseWrapper):
     # ================================================================
 
     def calc_distortion_modes(self, parent_sg: int, subgroup_idx: int,
-                              distortion_type: str = "displacement",
-                              wyckoff_letter: str = None) -> List[DistortionMode]:
+                            distortion_type: str = "displacement",
+                            wyckoff_letter: str = None) -> List[DistortionMode]:
         """
         计算指定相变路径下的畸变模式基矢
 
@@ -125,7 +127,7 @@ class IsoWrapper(BaseWrapper):
     # ================================================================
 
     def get_site_splitting(self, parent_sg: int, subgroup_idx: int,
-                           wyckoff_letter: str) -> List[Dict]:
+                        wyckoff_letter: str) -> List[Dict]:
         """
         计算母相 Wyckoff 位点在子群下的分裂情况
 
@@ -150,7 +152,7 @@ class IsoWrapper(BaseWrapper):
     # ================================================================
 
     def get_domain_operations(self, parent_sg: int,
-                              subgroup_idx: int) -> List[np.ndarray]:
+                            subgroup_idx: int) -> List[np.ndarray]:
         """
         获取各畴变体对应的对称操作矩阵
 

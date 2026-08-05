@@ -106,7 +106,7 @@ class IsoDistort:
     # ================================================================
 
     def list_subgroups(self, distortion_type: str = "displacement"
-                       ) -> List[SubgroupInfo]:
+                    ) -> List[SubgroupInfo]:
         """
         步骤4：枚举母相的所有各向同性子群
 
@@ -125,7 +125,7 @@ class IsoDistort:
         print(f"[子群枚举] 共找到 {len(self.subgroups)} 个各向同性子群")
         for sg in self.subgroups[:10]:  # 只打印前10个
             print(f"  #{sg.index:2d}  空间群 #{sg.space_group_number}  "
-                  f"{sg.space_group_symbol}")
+                f"{sg.space_group_symbol}")
         if len(self.subgroups) > 10:
             print(f"  ... 还有 {len(self.subgroups) - 10} 个")
 
@@ -222,7 +222,7 @@ class IsoDistort:
         vol_change = (self.distorted_structure.volume - self.structure.volume) \
                      / self.structure.volume * 100
         print(f"[畸变生成] 模式 {irrep_label}, 幅度 {amplitude}, "
-              f"体积变化 {vol_change:+.4f}%")
+            f"体积变化 {vol_change:+.4f}%")
 
         # 默认导出畸变后的 CIF 文件
         fname = f"distorted_{irrep_label}" if irrep_label else "distorted"
@@ -238,7 +238,7 @@ class IsoDistort:
         return self.distorted_structure
 
     def generate_mixed_distortion(self, contributions: Dict[str, float],
-                                   supercell: list = None) -> Structure:
+                                supercell: list = None) -> Structure:
         """生成多模式混合畸变"""
         all_disp = {k: v["displacements"] for k, v in self.mode_displacements.items()}
         self.distorted_structure = self._dist_engine.generate_mixed_mode(

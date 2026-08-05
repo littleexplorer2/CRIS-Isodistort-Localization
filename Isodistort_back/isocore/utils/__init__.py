@@ -9,6 +9,7 @@ from .exceptions import (
     SiteMappingError,
     CoordinateTransformError,
     DistortionError,
+    DistortionModeError,
     PhasePathError,
 )
 from .text_parser import (
@@ -26,7 +27,7 @@ __all__ = [
     "LocalIsodistortError",
     "WrapperRunError", "WrapperTimeoutError", "OutputParseError",
     "SiteMappingError", "CoordinateTransformError",
-    "DistortionError", "PhasePathError",
+    "DistortionError", "DistortionModeError", "PhasePathError",
     
     "extract_section", "parse_floats",
     "parse_space_group_number", "parse_wyckoff_sites", "parse_subgroup_list",

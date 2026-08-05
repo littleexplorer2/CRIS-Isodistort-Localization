@@ -27,8 +27,8 @@ class SiteMapper:
         self.tolerance = tolerance or cfg.position_tolerance
 
     def map_sites(self, parent_structure: Structure,
-                  parent_wyckoff_sites: List[Dict],
-                  child_site_splitting: Dict[str, List[Dict]]) -> Dict:
+                parent_wyckoff_sites: List[Dict],
+                child_site_splitting: Dict[str, List[Dict]]) -> Dict:
         """
         建立母相位点 -> 子相位点的映射关系
 
@@ -71,7 +71,7 @@ class SiteMapper:
         return mapping
 
     def match_atoms_to_child_sites(self, child_structure: Structure,
-                                   mapping: Dict) -> List[Dict]:
+                                mapping: Dict) -> List[Dict]:
         """
         将子结构中的原子与理论子位点一一匹配
 
@@ -99,7 +99,7 @@ class SiteMapper:
                     continue
 
                 if coordinates_are_equal(parent_coords, site.frac_coords,
-                                         self.tolerance):
+                                        self.tolerance):
                     dist = np.linalg.norm(parent_coords - site.frac_coords)
                     if dist < best_dist:
                         best_dist = dist

@@ -19,7 +19,7 @@ def cart_to_frac(coords: np.ndarray, lattice: Lattice) -> np.ndarray:
 
 
 def apply_affine_transform(coords: np.ndarray,
-                           transform_matrix: np.ndarray) -> np.ndarray:
+                        transform_matrix: np.ndarray) -> np.ndarray:
     """
     对坐标应用 4x4 仿射变换矩阵
 
@@ -58,7 +58,7 @@ def build_supercell(structure: Structure,
 
 
 def transform_lattice(lattice: Lattice,
-                      transform_matrix: np.ndarray) -> Lattice:
+                    transform_matrix: np.ndarray) -> Lattice:
     """
     对晶格基矢应用变换矩阵
 
@@ -74,7 +74,7 @@ def transform_lattice(lattice: Lattice,
 
 
 def coordinates_are_equal(c1: np.ndarray, c2: np.ndarray,
-                          tolerance: float = 1e-4) -> bool:
+                        tolerance: float = 1e-4) -> bool:
     """
     判断两个分数坐标是否等价（考虑周期性边界）
 
