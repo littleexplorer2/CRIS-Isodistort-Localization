@@ -21,7 +21,9 @@ def read_cif(file_path: str | Path, primitive: bool = False) -> Structure:
 
     Returns:
         Structure: pymatgen 晶体结构对象
-    """
+    
+    Relative path: isocore/structure/cif_io.py"""
+
     parser = CifParser(str(file_path))
     structure = parser.get_structures(primitive=primitive)[0]
     return structure
@@ -38,7 +40,9 @@ def structure_from_params(lattice_params: list, species: list,
         species: 元素符号列表
         coords: 坐标列表
         coords_are_cartesian: 是否笛卡尔坐标
-    """
+    
+    Relative path: isocore/structure/cif_io.py"""
+
     from pymatgen.core import Lattice
     lattice = Lattice.from_parameters(*lattice_params)
     return Structure(
@@ -50,7 +54,10 @@ def structure_from_params(lattice_params: list, species: list,
 
 
 def get_lattice_params(structure: Structure) -> tuple:
-    """获取结构的晶格参数 (a, b, c, alpha, beta, gamma)"""
+    """获取结构的晶格参数 (a, b, c, alpha, beta, gamma)
+
+    Relative path: isocore/structure/cif_io.py"""
+
     lat = structure.lattice
     return (lat.a, lat.b, lat.c, lat.alpha, lat.beta, lat.gamma)
 
@@ -61,7 +68,9 @@ def get_atom_info(structure: Structure) -> tuple:
 
     Returns:
         (atom_types, atom_positions): 去重后的种类列表，以及每个位点的坐标
-    """
+    
+    Relative path: isocore/structure/cif_io.py"""
+
     # 按等效位点合并（取每个 Wyckoff 的代表原子）
     # 简化实现：直接取所有不等价原子
     species = []

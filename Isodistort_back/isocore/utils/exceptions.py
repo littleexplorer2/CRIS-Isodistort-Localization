@@ -20,7 +20,10 @@ class WrapperError(IsodistortError):
 
 class WrapperRunError(WrapperError):
     """二进制程序运行失败"""
+
     def __init__(self, binary: str, returncode: int, stderr: str = ""):
+        """Relative path: isocore/utils/exceptions.py"""
+
         self.binary = binary
         self.returncode = returncode
         self.stderr = stderr
@@ -29,13 +32,19 @@ class WrapperRunError(WrapperError):
 
 class WrapperTimeoutError(WrapperError):
     """二进制程序运行超时"""
+
     def __init__(self, binary: str, timeout: float):
+        """Relative path: isocore/utils/exceptions.py"""
+
         super().__init__(f"{binary} 执行超时 ({timeout}s)")
 
 
 class OutputParseError(WrapperError):
     """输出解析失败"""
+
     def __init__(self, binary: str, message: str):
+        """Relative path: isocore/utils/exceptions.py"""
+        
         super().__init__(f"解析 {binary} 输出失败: {message}")
 
 

@@ -12,6 +12,8 @@ from isocore.structure import (
 
 def test_coordinate_utils():
     # wrap_to_unit_cell
+    """Relative path: tests/test_structure.py"""
+    
     coords = np.array([[1.2, -0.3, 0.5]])
     wrapped = wrap_to_unit_cell(coords)
     assert abs(wrapped[0, 0] - 0.2) < 1e-6
@@ -30,6 +32,8 @@ def test_coordinate_utils():
 
 def test_supercell():
     # 简单立方原胞
+    """Relative path: tests/test_structure.py"""
+
     lattice = Lattice.cubic(5.0)
     struct = Structure(lattice, ["Na"], [[0, 0, 0]])
     supercell = build_supercell(struct, [2, 2, 2])
@@ -39,6 +43,8 @@ def test_supercell():
 
 def test_symmetry_validator():
     # NaCl 结构
+    """Relative path: tests/test_structure.py"""
+
     lattice = Lattice.cubic(5.63)
     struct = Structure(
         lattice,

@@ -23,6 +23,7 @@ class SiteMapper:
     """
 
     def __init__(self, tolerance: float = None):
+        """Relative path: isocore/structure/site_mapping.py"""
         cfg = get_config()
         self.tolerance = tolerance or cfg.position_tolerance
 
@@ -40,7 +41,9 @@ class SiteMapper:
 
         Returns:
             dict: 完整的位点映射，包含每个原子对应的子位点信息
-        """
+        
+        Relative path: isocore/structure/site_mapping.py"""
+
         mapping = {
             "parent_sites": parent_wyckoff_sites,
             "site_correspondence": {},  # 母位点 -> 子位点列表
@@ -81,7 +84,9 @@ class SiteMapper:
 
         Returns:
             每个子位点对应的原子索引
-        """
+        
+        Relative path: isocore/structure/site_mapping.py"""
+
         assignments = []
         used_atoms = set()
 

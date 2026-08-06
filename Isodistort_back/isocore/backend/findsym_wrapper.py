@@ -19,6 +19,7 @@ from ..utils import (
 @dataclass
 class FindsymResult:
     """findsym 计算结果"""
+
     space_group_number: int          # 空间群号
     space_group_symbol: str = ""     # 空间群 Hermann-Mauguin 符号
     wyckoff_sites: List[dict] = field(default_factory=list)  # Wyckoff 位点信息
@@ -34,14 +35,16 @@ class FindsymWrapper(BaseWrapper):
     """
 
     def __init__(self):
+        """Relative path: isocore/backend/findsym_wrapper.py"""
+
         super().__init__()
         self.binary = self.cfg.findsym_bin
 
     def identify(self, lattice_params: List[float],
-                 atom_types: List[str],
-                 atom_positions: List[List[float]],
-                 centering: str = "P",
-                 title: str = "findsym input") -> FindsymResult:
+                atom_types: List[str],
+                atom_positions: List[List[float]],
+                centering: str = "P",
+                title: str = "findsym input") -> FindsymResult:
         """
         调用 findsym 识别空间群
 
@@ -54,7 +57,9 @@ class FindsymWrapper(BaseWrapper):
 
         Returns:
             FindsymResult: 识别结果
-        """
+        
+        Relative path: isocore/backend/findsym_wrapper.py"""
+
         assert len(atom_types) == len(atom_positions), \
             "atom_types 与 atom_positions 长度必须一致"
 
@@ -63,7 +68,6 @@ class FindsymWrapper(BaseWrapper):
         )
 
         stdout = self._run_binary(self.binary, input_text)
-
         return self._parse_output(stdout)
 
     # ---- 输入生成 ----
@@ -71,7 +75,10 @@ class FindsymWrapper(BaseWrapper):
     @staticmethod
     def _build_input(lattice_params, atom_types, atom_positions,
                      centering, title) -> str:
-        """生成 findsym 输入文件内容（关键字格式）"""
+        """生成 findsym 输入文件内容（关键字格式）
+
+        Relative path: isocore/backend/findsym_wrapper.py"""
+
         a, b, c, alpha, beta, gamma = lattice_params
         n_atoms = len(atom_types)
 
@@ -98,7 +105,10 @@ class FindsymWrapper(BaseWrapper):
 
     @staticmethod
     def _parse_output(text: str) -> FindsymResult:
-        """解析 findsym 输出"""
+        """解析 findsym 输出
+
+        Relative path: isocore/backend/findsym_wrapper.py"""
+        
         sg_num = parse_space_group_number(text)
         if sg_num is None:
             raise OutputParseError("findsym", "未找到空间群号")

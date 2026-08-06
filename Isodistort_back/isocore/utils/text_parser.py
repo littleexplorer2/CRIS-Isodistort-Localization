@@ -13,7 +13,9 @@ def extract_section(text: str, start_marker: str, end_marker: str = None) -> str
         text: 原始文本
         start_marker: 起始标记（包含该行）
         end_marker: 结束标记（不包含该行），为 None 则提取到末尾
-    """
+    
+    Relative path: isocore/utils/text_parser.py"""
+
     lines = text.splitlines()
     start_idx = None
     for i, line in enumerate(lines):
@@ -33,12 +35,17 @@ def extract_section(text: str, start_marker: str, end_marker: str = None) -> str
 
 
 def parse_floats(line: str) -> List[float]:
-    """从一行文本中提取所有浮点数"""
+    """从一行文本中提取所有浮点数
+
+    Relative path: isocore/utils/text_parser.py"""
+
     return [float(x) for x in re.findall(r"-?\d+\.?\d*(?:[eE][+-]?\d+)?", line)]
 
-
 def parse_space_group_number(text: str) -> Optional[int]:
-    """从 findsym 输出中提取空间群号"""
+    """从 findsym 输出中提取空间群号
+
+    Relative path: isocore/utils/text_parser.py"""
+
     m = re.search(r"Space Group\s+(\d+)", text)
     if m:
         return int(m.group(1))
@@ -51,7 +58,9 @@ def parse_wyckoff_sites(text: str) -> List[Dict]:
 
     Returns:
         list of dict: 每个位点包含 label, multiplicity, letter, position, occupancy
-    """
+    
+    Relative path: isocore/utils/text_parser.py"""
+
     sites = []
     lines = text.splitlines()
     in_section = False
@@ -87,7 +96,9 @@ def parse_subgroup_list(text: str) -> List[Dict]:
 
     Returns:
         list of dict: 每个子群包含 number, symbol, index, origin
-    """
+    
+    Relative path: isocore/utils/text_parser.py"""
+
     subgroups = []
     lines = text.splitlines()
     in_table = False

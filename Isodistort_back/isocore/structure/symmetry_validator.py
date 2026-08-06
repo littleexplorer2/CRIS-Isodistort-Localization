@@ -23,6 +23,8 @@ class SymmetryValidator:
     """
 
     def __init__(self, tolerance: float = None):
+        """Relative path: isocore/structure/symmetry_validator.py"""
+        
         cfg = get_config()
         self.tolerance = tolerance or cfg.position_tolerance
 
@@ -32,7 +34,9 @@ class SymmetryValidator:
 
         Returns:
             dict: 包含空间群号、空间群符号、Wyckoff位点、是否有序等信息
-        """
+        
+        Relative path: isocore/structure/symmetry_validator.py"""
+
         sga = SpacegroupAnalyzer(structure, symprec=self.tolerance)
 
         sg_number = sga.get_space_group_number()
@@ -56,9 +60,11 @@ class SymmetryValidator:
                 "equivalent_indices": indices,
             })
 
-        # 检查是否有部分占位（无序）
+        # 占位检查：同时覆盖混占与部分/超占位
         has_disorder = any(
-            sum(site.species.values()) != 1.0 for site in structure
+            (len(site.species) > 1)
+            or (not np.isclose(sum(site.species.values()), 1.0, atol=1e-8))
+            for site in structure
         )
 
         return {
@@ -71,7 +77,10 @@ class SymmetryValidator:
 
     @staticmethod
     def get_centering(structure: Structure) -> str:
-        """获取点阵中心类型 (P/I/F/A/B/C/R)"""
+        """获取点阵中心类型 (P/I/F/A/B/C/R)
+
+        Relative path: isocore/structure/symmetry_validator.py"""
+
         sga = SpacegroupAnalyzer(structure)
         sg_symbol = sga.get_space_group_symbol()
         # 简单提取第一个字母

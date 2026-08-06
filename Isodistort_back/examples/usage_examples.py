@@ -8,7 +8,10 @@ from isocore.api import IsoDistort
 
 
 def example_basic():
-    """基本用法：从 CIF 加载结构并生成单模式畸变。"""
+    """基本用法：从 CIF 加载结构并生成单模式畸变。
+    
+    Relative path: examples/usage_examples.py"""
+
     print("示例1: 基本工作流")
     print("=" * 50)
 
@@ -24,7 +27,10 @@ def example_basic():
 
 
 def example_mixed_modes():
-    """基本多模式叠加示例。"""
+    """基本多模式叠加示例。
+    
+    Relative path: examples/usage_examples.py"""
+
     print("\n\n示例2: 多模式混合")
     print("=" * 50)
 

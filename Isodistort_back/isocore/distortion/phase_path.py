@@ -41,7 +41,10 @@ class PhasePath:
     selected_irreps: List[str] = field(default_factory=list)  # 指定不可约表示
 
     def validate(self) -> bool:
-        """参数合法性校验"""
+        """参数合法性校验
+
+        Relative path: isocore/distortion/phase_path.py"""
+
         if self.parent_sg_number < 1 or self.parent_sg_number > 230:
             raise PhasePathError(f"母相空间群号 {self.parent_sg_number} 不合法")
 
@@ -58,8 +61,11 @@ class PhasePath:
 
     @classmethod
     def from_subgroup(cls, parent_sg: int, subgroup: SubgroupInfo,
-                      distortion_type: str = "displacement") -> "PhasePath":
-        """从子群信息快速构建相变路径"""
+                    distortion_type: str = "displacement") -> "PhasePath":
+        """从子群信息快速构建相变路径
+
+        Relative path: isocore/distortion/phase_path.py"""
+
         return cls(
             parent_sg_number=parent_sg,
             subgroup_index=subgroup.index,
@@ -69,7 +75,10 @@ class PhasePath:
         )
 
     def describe(self) -> str:
-        """人类可读的路径描述"""
+        """人类可读的路径描述
+
+        Relative path: isocore/distortion/phase_path.py"""
+
         return (
             f"空间群 #{self.parent_sg_number} → #{self.subgroup_sg_number} "
             f"({self.subgroup_symbol}), "

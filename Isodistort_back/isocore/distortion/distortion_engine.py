@@ -25,14 +25,15 @@ class DistortionEngine:
     """
 
     def __init__(self, mapper: DistortionMapper = None):
+        """Relative path: isocore/distortion/distortion_engine.py"""
         self.mapper = mapper or DistortionMapper()
         cfg = get_config()
         self.default_amplitude = cfg.defaults["default_amplitude"]
 
     def generate_single_mode(self, parent_structure: Structure,
-                             mode_displacements: np.ndarray,
-                             amplitude: float = None,
-                             supercell: List[int] = None) -> Structure:
+                            mode_displacements: np.ndarray,
+                            amplitude: float = None,
+                            supercell: List[int] = None) -> Structure:
         """
         生成单模式畸变后的结构
 
@@ -44,7 +45,9 @@ class DistortionEngine:
 
         Returns:
             Structure: 畸变后的结构
-        """
+        
+        Relative path: isocore/distortion/distortion_engine.py"""
+
         amplitude = amplitude or self.default_amplitude
         supercell = supercell or [1, 1, 1]
 
@@ -86,7 +89,9 @@ class DistortionEngine:
 
         Returns:
             Structure: 混合畸变后的结构
-        """
+        
+        Relative path: isocore/distortion/distortion_engine.py"""
+
         supercell = supercell or [1, 1, 1]
 
         # 叠加所有模式的位移
@@ -107,7 +112,7 @@ class DistortionEngine:
         )
 
     def apply_strain(self, structure: Structure,
-                     strain_tensor: np.ndarray) -> Structure:
+                    strain_tensor: np.ndarray) -> Structure:
         """
         应用晶格应变畸变
 
@@ -116,9 +121,10 @@ class DistortionEngine:
             strain_tensor: (3, 3) 应变张量
 
         Returns:
-            应变后的结构
-        """
-        # 形变梯度 F = I + ε
+            Structure: 应变后的结构
+        
+        Relative path: isocore/distortion/distortion_engine.py"""
+        
         F = np.eye(3) + strain_tensor
         new_lattice_matrix = structure.lattice.matrix @ F
 

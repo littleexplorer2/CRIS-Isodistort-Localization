@@ -27,11 +27,12 @@ class DistortionMapper:
     """
 
     def __init__(self, site_mapper: SiteMapper = None):
+        """Relative path: isocore/distortion/distortion_mapper.py"""
         self.site_mapper = site_mapper or SiteMapper()
 
     def map_modes_to_atoms(self, structure: Structure,
-                           wyckoff_sites: List[Dict],
-                           modes: List[DistortionMode]) -> Dict:
+                        wyckoff_sites: List[Dict],
+                        modes: List[DistortionMode]) -> Dict:
         """
         将畸变模式映射到结构中每个原子
 
@@ -48,7 +49,9 @@ class DistortionMapper:
                         "displacements": np.ndarray (N_atoms x 3),
                     }
                 }
-        """
+        
+        Relative path: isocore/distortion/distortion_mapper.py"""
+
         n_atoms = len(structure)
         result = {}
 
@@ -88,7 +91,9 @@ class DistortionMapper:
         实际使用时需根据 iso 输出的具体格式调整。
 
         TODO: 需与 iso 输出格式严格对齐，这是结果一致性的关键。
-        """
+        
+        Relative path: isocore/distortion/distortion_mapper.py"""
+
         if not mode.basis_vectors:
             return None
 
@@ -98,7 +103,10 @@ class DistortionMapper:
 
     @staticmethod
     def normalize_displacements(displacements: np.ndarray) -> np.ndarray:
-        """归一化位移向量（最大位移为 1）"""
+        """归一化位移向量（最大位移为 1）
+
+        Relative path: isocore/distortion/distortion_mapper.py"""
+
         max_norm = np.max(np.linalg.norm(displacements, axis=1))
         if max_norm > 0:
             return displacements / max_norm

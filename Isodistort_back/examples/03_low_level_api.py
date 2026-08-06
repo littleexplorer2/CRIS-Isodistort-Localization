@@ -8,7 +8,10 @@ from isocore.backend import IsoWrapper, FindsymWrapper
 
 
 def demo_find_sym():
-    """演示 findsym 空间群识别"""
+    """演示 findsym 空间群识别
+
+    Relative path: examples/03_low_level_api.py"""
+
     print("=== Findsym 空间群识别示例 ===")
     findsym = FindsymWrapper()
 
@@ -27,7 +30,10 @@ def demo_find_sym():
 
 
 def demo_list_subgroups():
-    """演示 iso 子群枚举"""
+    """演示 iso 子群枚举
+
+    Relative path: examples/03_low_level_api.py"""
+
     print("\n=== ISO 子群枚举示例 (空间群 225, Fm-3m) ===")
     iso = IsoWrapper()
 

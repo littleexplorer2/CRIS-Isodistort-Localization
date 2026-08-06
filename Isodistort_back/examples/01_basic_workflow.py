@@ -10,9 +10,10 @@
 """
 from isocore.api import IsoDistort
 
-
+# 初始化
 def main():
-    # 初始化
+    """Relative path: examples/01_basic_workflow.py"""
+    
     iso = IsoDistort()
 
     # ---- 步骤 1：加载结构 ----

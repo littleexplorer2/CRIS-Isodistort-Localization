@@ -24,17 +24,22 @@ class DomainGenerator:
     """
 
     def __init__(self, iso_wrapper: IsoWrapper = None):
+        """Relative path: isocore/distortion/domain_generator.py"""
+        
         self.iso = iso_wrapper or IsoWrapper()
 
     def get_domain_count(self, path: PhasePath) -> int:
-        """获取畴变体总数"""
+        """获取畴变体总数
+
+        Relative path: isocore/distortion/domain_generator.py"""
+
         ops = self.iso.get_domain_operations(
             path.parent_sg_number, path.subgroup_index
         )
         return len(ops)
 
     def generate_domains(self, distorted_structure: Structure,
-                         path: PhasePath) -> List[Structure]:
+                    path: PhasePath) -> List[Structure]:
         """
         生成所有畴变体结构
 
@@ -44,7 +49,9 @@ class DomainGenerator:
 
         Returns:
             List[Structure]: 所有畴变体结构
-        """
+        
+        Relative path: isocore/distortion/domain_generator.py"""
+
         domain_ops = self.iso.get_domain_operations(
             path.parent_sg_number, path.subgroup_index
         )
@@ -68,7 +75,9 @@ class DomainGenerator:
 
         Returns:
             变换后的结构
-        """
+        
+        Relative path: isocore/distortion/domain_generator.py"""
+
         # 分解：旋转部分 R (3x3)，平移部分 t (3,)
         R = op_matrix[:3, :3]
         t = op_matrix[:3, 3]

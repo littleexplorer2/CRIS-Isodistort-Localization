@@ -8,6 +8,8 @@ from isocore.api import IsoDistort
 
 
 def main():
+    """Relative path: examples/02_mixed_modes.py"""
+    
     iso = IsoDistort()
 
     # 加载结构

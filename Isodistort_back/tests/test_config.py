@@ -6,6 +6,8 @@ from isocore.utils import get_config
 
 
 def test_config_load():
+    """Relative path: tests/test_config.py"""
+    
     cfg = get_config()
     assert cfg.iso_bin.exists() or True, "iso 二进制路径可解析"
     assert cfg.findsym_bin.exists() or True, "findsym 二进制路径可解析"

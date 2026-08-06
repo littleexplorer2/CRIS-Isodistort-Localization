@@ -9,6 +9,8 @@ from isocore.distortion import DistortionEngine, DistortionMapper
 
 def test_distortion_engine_single_mode():
     # 简单立方
+    """Relative path: tests/test_distortion.py"""
+
     lattice = Lattice.cubic(5.0)
     struct = Structure(lattice, ["A", "B"], [[0, 0, 0], [0.5, 0.5, 0.5]])
 
@@ -35,6 +37,8 @@ def test_distortion_engine_single_mode():
 
 
 def test_distortion_engine_supercell():
+    """Relative path: tests/test_distortion.py"""
+
     lattice = Lattice.cubic(5.0)
     struct = Structure(lattice, ["A"], [[0, 0, 0]])
 
@@ -49,6 +53,8 @@ def test_distortion_engine_supercell():
 
 
 def test_mixed_mode():
+    """Relative path: tests/test_distortion.py"""
+    
     lattice = Lattice.cubic(5.0)
     struct = Structure(lattice, ["A"], [[0, 0, 0]])
 

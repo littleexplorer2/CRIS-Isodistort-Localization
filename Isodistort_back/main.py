@@ -10,6 +10,8 @@ from isocore.api import IsoDistort
 
 
 def _prompt(text: str, default: str | None = None) -> str:
+    """Relative path: main.py"""
+
     hint = f" [{default}]" if default is not None else ""
     while True:
         val = input(f"{text}{hint}: ").strip()
@@ -20,6 +22,8 @@ def _prompt(text: str, default: str | None = None) -> str:
 
 
 def _prompt_float(text: str, default: float) -> float:
+    """Relative path: main.py"""
+
     while True:
         raw = _prompt(text, str(default))
         try:
@@ -29,6 +33,8 @@ def _prompt_float(text: str, default: float) -> float:
 
 
 def _prompt_int(text: str, default: int) -> int:
+    """Relative path: main.py"""
+
     while True:
         raw = _prompt(text, str(default))
         try:
@@ -38,6 +44,8 @@ def _prompt_int(text: str, default: int) -> int:
 
 
 def _prompt_supercell(default_cell: List[int]) -> List[int]:
+    """Relative path: main.py"""
+
     default_str = ",".join(str(x) for x in default_cell)
     while True:
         raw = _prompt("请输入超胞参数 a,b,c", default_str)
@@ -57,6 +65,8 @@ def _prompt_supercell(default_cell: List[int]) -> List[int]:
 
 
 def _find_cif_candidates(root: Path, limit: int = 20) -> List[Path]:
+    """Relative path: main.py"""
+
     candidates: List[Path] = []
     for p in root.rglob("*.cif"):
         if p.is_file():
@@ -67,6 +77,8 @@ def _find_cif_candidates(root: Path, limit: int = 20) -> List[Path]:
 
 
 def _choose_cif(project_root: Path) -> str:
+    """Relative path: main.py"""
+
     print("\n=== 步骤 1：选择 CIF 文件 ===")
     candidates = _find_cif_candidates(project_root)
 
@@ -94,6 +106,8 @@ def _choose_cif(project_root: Path) -> str:
 
 
 def _choose_distortion_type() -> str:
+    """Relative path: main.py"""
+
     print("\n=== 步骤 2：选择畸变类型 ===")
     options = {
         1: "displacement",
@@ -110,6 +124,8 @@ def _choose_distortion_type() -> str:
 
 
 def _choose_subgroup_idx(subgroups) -> int:
+    """Relative path: main.py"""
+
     print("\n=== 步骤 3：选择子群路径 ===")
     if not subgroups:
         raise RuntimeError("未找到可选子群。")
@@ -125,6 +141,8 @@ def _choose_subgroup_idx(subgroups) -> int:
 
 
 def _choose_irrep_label(iso: IsoDistort) -> str | None:
+    """Relative path: main.py"""
+
     modes = iso.distortion_modes
     if not modes:
         return None
@@ -145,6 +163,8 @@ def _choose_irrep_label(iso: IsoDistort) -> str | None:
 
 
 def _choose_export_formats() -> List[str]:
+    """Relative path: main.py"""
+
     print("\n=== 步骤 6：导出格式 ===")
     print("可选格式：cif, poscar")
     raw = _prompt("请输入导出格式（逗号分隔）", "cif")
@@ -153,6 +173,8 @@ def _choose_export_formats() -> List[str]:
 
 
 def run_wizard() -> int:
+    """Relative path: main.py"""
+
     print("isodistort - Interactive Workflow")
     print("将按向导完成：加载 CIF -> 枚举子群 -> 选择路径 -> 生成畸变 -> 导出")
 
@@ -198,6 +220,8 @@ def run_wizard() -> int:
 
 
 def main() -> int:
+    """Relative path: main.py"""
+    
     try:
         return run_wizard()
     except KeyboardInterrupt:

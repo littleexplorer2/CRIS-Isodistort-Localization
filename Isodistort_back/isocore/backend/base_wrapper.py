@@ -25,11 +25,16 @@ class BaseWrapper(ABC):
     """
 
     def __init__(self):
+        """Relative path: isocore/backend/base_wrapper.py"""
+        
         self.cfg = get_config()
         self._use_wsl = self._detect_wsl_need()
 
     def _detect_wsl_need(self) -> bool:
-        """检测是否需要通过 WSL 调用 Linux 二进制"""
+        """检测是否需要通过 WSL 调用 Linux 二进制
+
+        Relative path: isocore/backend/base_wrapper.py"""
+
         import platform
         if platform.system() != "Windows":
             return False
@@ -48,7 +53,9 @@ class BaseWrapper(ABC):
 
         Returns:
             str: 程序标准输出
-        """
+        
+        Relative path: isocore/backend/base_wrapper.py"""
+
         extra_args = extra_args or []
 
         # 创建临时输入文件
@@ -112,7 +119,10 @@ class BaseWrapper(ABC):
 
     @staticmethod
     def _win_to_wsl_path(win_path: str) -> str:
-        """Windows 路径转 WSL 路径，如 C:\\xxx -> /mnt/c/xxx"""
+        """Windows 路径转 WSL 路径，如 C:\\xxx -> /mnt/c/xxx
+
+        Relative path: isocore/backend/base_wrapper.py"""
+
         path = Path(win_path)
         drive = path.drive.rstrip(":").lower()
         rest = str(path).replace(path.drive, "").replace("\\", "/")

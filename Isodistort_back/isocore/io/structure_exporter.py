@@ -16,6 +16,7 @@ class StructureExporter:
     """晶体结构导出器"""
 
     def __init__(self, output_dir: str | Path = None):
+        """Relative path: isocore/io/structure_exporter.py"""
         cfg = get_config()
         self.output_dir = Path(output_dir) if output_dir else cfg.output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -32,7 +33,9 @@ class StructureExporter:
 
         Returns:
             Path: 输出文件路径
-        """
+        
+        Relative path: isocore/io/structure_exporter.py"""
+
         writer = CifWriter(structure, symprec=symprec)
         path = self.output_dir / f"{filename}.cif"
         writer.write_file(str(path))
@@ -40,14 +43,20 @@ class StructureExporter:
 
     def to_poscar(self, structure: Structure, filename: str,
                 comment: str = "") -> Path:
-        """导出为 VASP POSCAR 格式"""
+        """导出为 VASP POSCAR 格式
+
+        Relative path: isocore/io/structure_exporter.py"""
+
         poscar = Poscar(structure, comment=comment)
         path = self.output_dir / f"{filename}.vasp"
         poscar.write_file(str(path))
         return path
 
     def to_xyz(self, structure: Structure, filename: str) -> Path:
-        """导出为 xyz 格式"""
+        """导出为 xyz 格式
+
+        Relative path: isocore/io/structure_exporter.py"""
+
         xyz = XYZ(structure)
         path = self.output_dir / f"{filename}.xyz"
         xyz.write_file(str(path))
@@ -63,7 +72,9 @@ class StructureExporter:
 
         Returns:
             list of Path: 所有输出文件路径
-        """
+        
+        Relative path: isocore/io/structure_exporter.py"""
+
         formats = formats or ["cif"]
         paths = []
         for fmt in formats:

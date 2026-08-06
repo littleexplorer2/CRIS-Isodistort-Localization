@@ -46,6 +46,8 @@ class IsoDistort:
     """
 
     def __init__(self):
+        """Relative path: isocore/api/core_api.py"""
+        
         self.cfg = get_config()
 
         # 底层封装
@@ -85,7 +87,9 @@ class IsoDistort:
 
         Returns:
             Structure: 加载后的结构对象
-        """
+        
+        Relative path: isocore/api/core_api.py"""
+
         self.structure = read_cif(cif_path)
         self.symmetry_info = self._sym_val.validate(self.structure)
 
@@ -97,7 +101,10 @@ class IsoDistort:
         return self.structure
 
     def set_structure(self, structure: Structure):
-        """直接设置 Structure 对象"""
+        """直接设置 Structure 对象
+
+        Relative path: isocore/api/core_api.py"""
+
         self.structure = structure
         self.symmetry_info = self._sym_val.validate(self.structure)
 
@@ -115,7 +122,9 @@ class IsoDistort:
 
         Returns:
             List[SubgroupInfo]: 子群列表
-        """
+        
+        Relative path: isocore/api/core_api.py"""
+
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")
 
@@ -146,7 +155,9 @@ class IsoDistort:
 
         Returns:
             PhasePath: 相变路径对象
-        """
+        
+        Relative path: isocore/api/core_api.py"""
+
         if not self.subgroups:
             self.list_subgroups(distortion_type)
 
@@ -204,7 +215,9 @@ class IsoDistort:
 
         Returns:
             Structure: 畸变后的结构
-        """
+        
+        Relative path: isocore/api/core_api.py"""
+
         if not self.mode_displacements:
             raise RuntimeError("请先选择相变路径 (select_path)")
 
@@ -239,7 +252,10 @@ class IsoDistort:
 
     def generate_mixed_distortion(self, contributions: Dict[str, float],
                                 supercell: list = None) -> Structure:
-        """生成多模式混合畸变"""
+        """生成多模式混合畸变
+
+        Relative path: isocore/api/core_api.py"""
+
         all_disp = {k: v["displacements"] for k, v in self.mode_displacements.items()}
         self.distorted_structure = self._dist_engine.generate_mixed_mode(
             self.structure, contributions, all_disp, supercell
@@ -270,7 +286,9 @@ class IsoDistort:
 
         Returns:
             list of Path: 导出文件路径
-        """
+        
+        Relative path: isocore/api/core_api.py"""
+
         if self.distorted_structure is None:
             raise RuntimeError("请先生成畸变结构 (generate_distortion)")
 
@@ -289,7 +307,10 @@ class IsoDistort:
     # ================================================================
 
     def generate_domains(self) -> list:
-        """生成所有畴变体结构"""
+        """生成所有畴变体结构
+
+        Relative path: isocore/api/core_api.py"""
+
         if self.distorted_structure is None or self.phase_path is None:
             raise RuntimeError("请先生成畸变结构并选择路径")
 

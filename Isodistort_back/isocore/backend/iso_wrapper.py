@@ -22,6 +22,7 @@ import numpy as np
 @dataclass
 class SubgroupInfo:
     """子群信息"""
+
     index: int                        # 子群序号（iso 内编号）
     space_group_number: int           # 空间群号
     space_group_symbol: str = ""      # 空间群符号
@@ -33,6 +34,7 @@ class SubgroupInfo:
 @dataclass
 class DistortionMode:
     """畸变模式（序参量）"""
+
     irrep_label: str                  # 不可约表示标号，如 GM4-
     dimension: int = 1                # 模式维度
     mode_type: str = "displacement"   # 类型: displacement/order/strain/magnetic
@@ -43,6 +45,7 @@ class DistortionMode:
 @dataclass
 class IsoResult:
     """iso 计算结果基类"""
+
     raw_output: str = ""
 
 
@@ -61,6 +64,8 @@ class IsoWrapper(BaseWrapper):
     """
 
     def __init__(self):
+        """Relative path: isocore/backend/iso_wrapper.py"""
+
         super().__init__()
         self.binary = self.cfg.iso_bin
 
@@ -83,7 +88,9 @@ class IsoWrapper(BaseWrapper):
 
         Returns:
             List[SubgroupInfo]: 子群列表
-        """
+        
+        Relative path: isocore/backend/iso_wrapper.py"""
+
         cmd_seq = self._cmd_enter_sg(parent_sg)
         cmd_seq += self._cmd_set_distortion_type(distortion_type)
         cmd_seq += "s\n"  # 列出子群
@@ -110,7 +117,9 @@ class IsoWrapper(BaseWrapper):
 
         Returns:
             List[DistortionMode]: 畸变模式列表
-        """
+        
+        Relative path: isocore/backend/iso_wrapper.py"""
+
         cmd_seq = self._cmd_enter_sg(parent_sg)
         cmd_seq += self._cmd_set_distortion_type(distortion_type)
         cmd_seq += f"{subgroup_idx}\n"  # 选择子群
@@ -138,7 +147,9 @@ class IsoWrapper(BaseWrapper):
 
         Returns:
             list of dict: 每个子位点包含 wyckoff_letter, multiplicity, site_symmetry
-        """
+        
+        Relative path: isocore/backend/iso_wrapper.py"""
+
         cmd_seq = self._cmd_enter_sg(parent_sg)
         cmd_seq += f"{subgroup_idx}\n"
         cmd_seq += f"p {wyckoff_letter}\n"  # 位点分裂
@@ -162,7 +173,9 @@ class IsoWrapper(BaseWrapper):
 
         Returns:
             list of 4x4 仿射变换矩阵
-        """
+        
+        Relative path: isocore/backend/iso_wrapper.py"""
+
         import numpy as np
 
         cmd_seq = self._cmd_enter_sg(parent_sg)
@@ -179,12 +192,18 @@ class IsoWrapper(BaseWrapper):
 
     @staticmethod
     def _cmd_enter_sg(sg_number: int) -> str:
-        """进入指定空间群的命令序列"""
+        """进入指定空间群的命令序列
+
+        Relative path: isocore/backend/iso_wrapper.py"""
+
         return f"{sg_number}\n"
 
     @staticmethod
     def _cmd_set_distortion_type(dtype: str) -> str:
-        """设置畸变类型命令"""
+        """设置畸变类型命令
+
+        Relative path: isocore/backend/iso_wrapper.py"""
+
         mapping = {
             "displacement": "1",  # 原子位移
             "order": "2",         # 原子有序
@@ -199,7 +218,10 @@ class IsoWrapper(BaseWrapper):
 
     @staticmethod
     def _parse_subgroup_list(text: str, parent_sg: int) -> List[SubgroupInfo]:
-        """解析子群列表输出"""
+        """解析子群列表输出
+
+        Relative path: isocore/backend/iso_wrapper.py"""
+
         subgroups_raw = parse_subgroup_list(text)
         result = []
         for sg in subgroups_raw:
@@ -212,7 +234,10 @@ class IsoWrapper(BaseWrapper):
 
     @staticmethod
     def _parse_distortion_modes(text: str) -> List[DistortionMode]:
-        """解析畸变模式输出"""
+        """解析畸变模式输出
+        
+        Relative path: isocore/backend/iso_wrapper.py"""
+
         modes = []
         lines = text.splitlines()
         current_mode = None
@@ -249,7 +274,10 @@ class IsoWrapper(BaseWrapper):
 
     @staticmethod
     def _parse_site_splitting(text: str) -> List[Dict]:
-        """解析位点分裂输出"""
+        """解析位点分裂输出
+
+        Relative path: isocore/backend/iso_wrapper.py"""
+
         sites = []
         lines = text.splitlines()
         in_section = False
@@ -271,7 +299,10 @@ class IsoWrapper(BaseWrapper):
 
     @staticmethod
     def _parse_domain_ops(text: str) -> list:
-        """解析畴对称操作（占位实现，待完善）"""
+        """解析畴对称操作（占位实现，待完善）
+
+        Relative path: isocore/backend/iso_wrapper.py"""
+
         import numpy as np
         # 简化实现：返回单位矩阵列表，实际需解析对称操作
         return [np.eye(4)]
