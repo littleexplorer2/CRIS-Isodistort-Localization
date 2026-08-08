@@ -31,7 +31,7 @@ class BaseWrapper(ABC):
         self._use_wsl = self._detect_wsl_need()
 
     def _detect_wsl_need(self) -> bool:
-        """检测是否需要通过 WSL 调用 Linux 二进制
+        """检测：在windows平台运行则自动通过 WSL 调用 Linux 二进制
 
         Relative path: isocore/backend/base_wrapper.py"""
 
@@ -58,14 +58,13 @@ class BaseWrapper(ABC):
 
         extra_args = extra_args or []
 
-        # 创建临时输入文件
+        # 创建临时输入文件并写入input_text，以及获取临时文件路径
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".in", delete=False,
             dir=str(self.cfg.temp_dir)
         ) as f_in:
             f_in.write(input_text)
-            in_path = f_in.name
-
+            in_path = f_in.name  # 输入文件在windows下的路径
         out_path = in_path.replace(".in", ".log")
 
         try:
@@ -73,7 +72,7 @@ class BaseWrapper(ABC):
                 # WSL 模式：将 Windows 路径转为 WSL 路径
                 wsl_in = self._win_to_wsl_path(in_path)
                 wsl_bin = self._win_to_wsl_path(str(binary_path))
-                # 输入重定向：wsl binary < input.in
+                # 输入参数运行wsl binary：wsl binary < input.in
                 cmd = ["wsl", wsl_bin] + extra_args
                 with open(in_path, "r") as f_stdin:
                     result = subprocess.run(
@@ -87,18 +86,8 @@ class BaseWrapper(ABC):
                         ))}
                     )
             else:
-                # 原生 Linux / macOS
-                cmd = [str(binary_path)] + extra_args
-                with open(in_path, "r") as f_stdin:
-                    result = subprocess.run(
-                        cmd,
-                        stdin=f_stdin,
-                        capture_output=True,
-                        text=True,
-                        timeout=self.cfg.timeout,
-                        env=os.environ.copy(),
-                    )
-
+                raise NotImplementedError("暂不支持在非 Windows 平台运行本程序。")
+            
             if result.returncode != 0:
                 raise WrapperRunError(
                     binary_path.name, result.returncode, result.stderr
@@ -123,7 +112,31 @@ class BaseWrapper(ABC):
 
         Relative path: isocore/backend/base_wrapper.py"""
 
-        path = Path(win_path)
+        if not win_path:
+            return win_path
+
+        # 已经是 WSL/Linux 路径时直接返回
+        if win_path.startswith("/"):
+            return win_path
+
+        abs_path = os.path.abspath(win_path)
+
+        # 优先使用 wsl 自带的 wslpath 方法，兼容中文、空格、UNC 等复杂路径场景
+        try:
+            result = subprocess.run(  # 调用子进程 wsl
+                ["wsl", "wslpath", "-a", abs_path],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            wsl_path = result.stdout.strip()
+            if wsl_path:
+                return wsl_path
+        except (subprocess.SubprocessError, OSError):
+            pass
+
+        # 当 wslpath 调用失败，程序手动拼接 WSL 挂载路径 C:\\x -> /mnt/c/x
+        path = Path(abs_path)
         drive = path.drive.rstrip(":").lower()
-        rest = str(path).replace(path.drive, "").replace("\\", "/")
+        rest = str(path).replace(path.drive, "", 1).replace("\\", "/")
         return f"/mnt/{drive}{rest}"

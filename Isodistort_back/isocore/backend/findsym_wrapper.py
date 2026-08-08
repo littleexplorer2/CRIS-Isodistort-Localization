@@ -4,7 +4,6 @@ FINDSYM 封装 - 空间群识别与 Wyckoff 位点分析
 对应阶段一，步骤2：母相空间群与 Wyckoff 位点识别
 封装方式：✅ 直接封装 findsym 二进制
 """
-import numpy as np
 from dataclasses import dataclass, field
 from typing import List, Tuple
 
@@ -74,7 +73,7 @@ class FindsymWrapper(BaseWrapper):
 
     @staticmethod
     def _build_input(lattice_params, atom_types, atom_positions,
-                     centering, title) -> str:
+                    centering, title) -> str:
         """生成 findsym 输入文件内容（关键字格式）
 
         Relative path: isocore/backend/findsym_wrapper.py"""
