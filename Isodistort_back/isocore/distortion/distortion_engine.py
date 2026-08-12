@@ -6,7 +6,7 @@
 """
 import numpy as np
 from pymatgen.core import Structure
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from .distortion_mapper import DistortionMapper
 from ..structure import build_supercell, wrap_to_unit_cell

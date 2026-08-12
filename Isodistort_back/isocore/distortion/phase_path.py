@@ -5,10 +5,12 @@
 实现方式：❌ 自研
 """
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import TYPE_CHECKING, List
 
 from ..utils import PhasePathError
-from ..backend import SubgroupInfo
+
+if TYPE_CHECKING:
+    from ..backend import SubgroupInfo
 
 
 DISTORTION_TYPES = {
@@ -17,6 +19,42 @@ DISTORTION_TYPES = {
     "strain": "晶格应变畸变",
     "magnetic": "磁矩畸变",
 }
+
+DEFAULT_DISTORTION_TYPES = ["displacement", "strain"]
+
+
+def normalize_distortion_types(distortion_types=None) -> List[str]:
+    """
+    标准化畸变类型输入。允许传入单个字符串、列表或 None。
+    
+    Args:
+        distortion_types: 可为 None、单个字符串或字符串列表
+
+    Returns:
+        List[str]: 标准化后的畸变类型列表，默认返回 ["displacement", "strain"]
+
+    Relative path: isocore/distortion/phase_path.py
+    """
+    if distortion_types is None:
+        result = DEFAULT_DISTORTION_TYPES.copy()
+    elif isinstance(distortion_types, str):
+        result = [distortion_types]
+    else:
+        result = list(distortion_types)
+
+    normalized = []
+    seen = set()
+    for raw_type in result:
+        key = str(raw_type).strip().lower()
+        if not key or key not in DISTORTION_TYPES:
+            continue
+        if key not in seen:
+            normalized.append(key)
+            seen.add(key)
+
+    if not normalized:
+        return DEFAULT_DISTORTION_TYPES.copy()
+    return normalized
 
 
 @dataclass
@@ -60,7 +98,7 @@ class PhasePath:
         return True
 
     @classmethod
-    def from_subgroup(cls, parent_sg: int, subgroup: SubgroupInfo,
+    def from_subgroup(cls, parent_sg: int, subgroup: "SubgroupInfo",
                     distortion_type: str = "displacement") -> "PhasePath":
         """从子群信息快速构建相变路径
 

@@ -6,7 +6,6 @@
 import json
 import numpy as np
 from pathlib import Path
-from dataclasses import asdict
 from typing import Any
 
 from ..utils import get_config

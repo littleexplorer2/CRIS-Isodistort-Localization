@@ -5,10 +5,9 @@ CIF 结构读写 - 基于 pymatgen 的晶体结构输入输出
 实现方式：❌ 自研（基于 pymatgen 库封装）
 """
 from pathlib import Path
-from typing import Optional
 
 from pymatgen.core import Structure
-from pymatgen.io.cif import CifParser, CifWriter
+from pymatgen.io.cif import CifParser
 
 
 def read_cif(file_path: str | Path, primitive: bool = False) -> Structure:

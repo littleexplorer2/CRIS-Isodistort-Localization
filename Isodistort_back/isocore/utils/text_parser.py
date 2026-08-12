@@ -2,7 +2,7 @@
 文本解析工具 - 用于解析 iso / findsym 的非结构化文本输出
 """
 import re
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Optional
 
 
 def extract_section(text: str, start_marker: str, end_marker: str = None) -> str:

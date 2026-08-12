@@ -1,8 +1,8 @@
-"""
-示例 3：底层 API 直接调用 - 仅使用 iso 计算子群
+"""示例 3：底层 API 直接调用（backend 层）。
 
-演示如何直接调用 backend 层的封装，
-不经过上层业务编排，适合高级用户做批量脚本计算。
+该示例跳过 `IsoDistort` 高层编排，直接调用：
+- `FindsymWrapper`（结构识别）
+- `IsoWrapper`（子群搜索，接近 Method 1 的底层能力）
 """
 from isocore.backend import IsoWrapper, FindsymWrapper
 
@@ -34,7 +34,7 @@ def demo_list_subgroups():
 
     Relative path: examples/03_low_level_api.py"""
 
-    print("\n=== ISO 子群枚举示例 (空间群 225, Fm-3m) ===")
+    print("\n=== ISO 子群枚举示例（对应 Method 1 的底层子群候选） ===")
     iso = IsoWrapper()
 
     subgroups = iso.list_subgroups(

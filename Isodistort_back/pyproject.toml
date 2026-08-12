@@ -12,6 +12,7 @@ dependencies = [
     "numpy>=1.21",
     "pymatgen>=2023.1.1",
     "pyyaml>=6.0",
+    "spglib>=1.16.0",
 ]
 
 [project.optional-dependencies]

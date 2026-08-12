@@ -9,7 +9,7 @@ from pymatgen.core import Structure
 from typing import List
 
 from ..backend import IsoWrapper
-from ..structure import apply_affine_transform, wrap_to_unit_cell
+from ..structure import wrap_to_unit_cell
 from .phase_path import PhasePath
 
 

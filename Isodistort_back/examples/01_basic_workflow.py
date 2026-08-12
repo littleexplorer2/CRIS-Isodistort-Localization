@@ -1,51 +1,58 @@
-"""
-示例 1：完整工作流 - 从 CIF 到畸变结构导出
+"""示例 1：与 Search Page 对齐的最小完整流程。
 
-演示 IsoDistort API 的标准使用流程：
-1. 加载 CIF 结构
-2. 枚举所有各向同性子群
-3. 选择相变路径
-4. 生成畸变结构
-5. 导出 CIF / POSCAR
+对应主入口 `main.py` 的菜单路径：
+1) Method 1 过滤候选子群
+2) Method 2 选择特定子群并计算模式
+3) Distortion Page 生成单模式并导出
 """
+
 from isocore.api import IsoDistort
 
-# 初始化
+
 def main():
     """Relative path: examples/01_basic_workflow.py"""
-    
+
     iso = IsoDistort()
 
-    # ---- 步骤 1：加载结构 ----
-    # 替换为你的 CIF 文件路径
-    cif_path = "../examples/sample_structures/NaCl.cif"
-    print("=== 步骤 1：加载结构 ===")
+    # 请替换为你自己的 parent CIF 文件路径
+    cif_path = "parent.cif"
+    print("=== Step 1: Load parent structure ===")
     iso.load_structure(cif_path)
 
-    # ---- 步骤 2：枚举子群 ----
-    print("\n=== 步骤 2：枚举各向同性子群 ===")
-    subgroups = iso.list_subgroups(distortion_type="displacement")
+    print("\n=== Step 2: Method 1 search ===")
+    method1 = iso.search_method_1(
+        distortion_types=["displacement", "strain"],
+        crystal_system=None,
+        maximal_subgroup_only=False,
+    )
+    if not method1:
+        raise RuntimeError("Method 1 未返回候选子群")
 
-    # ---- 步骤 3：选择相变路径 ----
-    # 选择第 3 个子群（示例，实际根据需要选择）
-    print("\n=== 步骤 3：选择相变路径 ===")
-    iso.select_path(subgroup_idx=3, distortion_type="displacement")
+    subgroup_idx = method1[0].subgroup.index
+    print(f"Method 1 首个候选 subgroup_idx = {subgroup_idx}")
 
-    # ---- 步骤 4：生成畸变结构 ----
-    print("\n=== 步骤 4：生成畸变结构 ===")
+    print("\n=== Step 3: Method 2 search ===")
+    method2 = iso.search_method_2(
+        subgroup_idx=subgroup_idx,
+        distortion_type="displacement",
+        k_point_label=None,
+        k_point_coordinates=None,
+        number_of_superposed_irs=1,
+    )
+    if not method2.modes:
+        raise RuntimeError("Method 2 未返回可用模式")
+
+    print("\n=== Step 4: Generate distortion ===")
     distorted = iso.generate_distortion(
-        irrep_label=None,  # None 表示使用第一个模式
-        amplitude=0.05,    # 畸变幅度
+        irrep_label=method2.modes[0].irrep_label,
+        amplitude=1.0,
         supercell=[1, 1, 1],
     )
+    print(f"生成完成，原子数 = {len(distorted)}")
 
-    # ---- 步骤 5：导出 ----
-    print("\n=== 步骤 5：导出结构 ===")
-    iso.export("NaCl_distorted", formats=["cif", "poscar"])
-
-    # ---- 步骤 6：可视化对比 (内置可视化已移除) ----
-    print("\n=== 步骤 6：结构对比 ===")
-    print("已在输出目录导出 CIF 文件，使用 VESTA 或其他工具打开以查看畸变结构。")
+    print("\n=== Step 5: Export ===")
+    iso.export("distorted_output", formats=["cif", "poscar"])
+    print("导出完成。")
 
 
 if __name__ == "__main__":

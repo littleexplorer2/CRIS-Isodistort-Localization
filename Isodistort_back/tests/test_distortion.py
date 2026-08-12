@@ -4,7 +4,18 @@
 import numpy as np
 from pymatgen.core import Structure, Lattice
 
-from isocore.distortion import DistortionEngine, DistortionMapper
+from isocore.distortion import DistortionEngine
+from isocore.distortion.phase_path import DEFAULT_DISTORTION_TYPES, normalize_distortion_types
+
+
+def test_default_distortion_modes():
+    """默认畸变模式应为 displacement + strain 两种。"""
+    assert DEFAULT_DISTORTION_TYPES == ["displacement", "strain"]
+    assert normalize_distortion_types(None) == ["displacement", "strain"]
+    assert normalize_distortion_types(["strain", "displacement", "strain"]) == [
+        "strain",
+        "displacement",
+    ]
 
 
 def test_distortion_engine_single_mode():

@@ -60,7 +60,7 @@ class FindsymWrapper(BaseWrapper):
         Relative path: isocore/backend/findsym_wrapper.py"""
 
         assert len(atom_types) == len(atom_positions), \
-            "atom_types 与 atom_positions 长度必须一致"
+            "判断：atom_types 与 atom_positions 长度必须一致"
 
         input_text = self._build_input(
             lattice_params, atom_types, atom_positions, centering, title

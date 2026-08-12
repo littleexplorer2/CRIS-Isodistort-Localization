@@ -15,7 +15,6 @@ from typing import List, Dict
 
 from ..backend import DistortionMode
 from ..structure import SiteMapper
-from ..utils import DistortionModeError
 
 
 class DistortionMapper:
