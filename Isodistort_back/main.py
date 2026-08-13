@@ -186,9 +186,10 @@ class IsoDistortConsoleApp:
                 self._show_state()
 
     def _banner(self) -> None:
+        """打印使用前说明"""
         _line()
         print("ISODISTORT Local Console")
-        print("目标：单文件入口，按官网 Search/Distortion 逻辑进行交互操作")
+        print("按官网 Search/Distortion 结构进行交互操作，以终端菜单方式完成 ISODISTORT 网站核心交互流程。")
         _line()
 
     def _load_parent_structure(self) -> None:
