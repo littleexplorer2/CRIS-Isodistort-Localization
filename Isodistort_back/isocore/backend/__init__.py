@@ -1,10 +1,25 @@
 """backend 包 - ISOTROPY 套件二进制封装层"""
 from .base_wrapper import BaseWrapper
-from .findsym_wrapper import FindsymWrapper, FindsymResult
-from .iso_wrapper import IsoWrapper, SubgroupInfo, DistortionMode, IsoResult
+from .findsym_wrapper import FindsymResult, FindsymWrapper
+from .iso_wrapper import (
+    BushMode,
+    DistortionMode,
+    DomainInfo,
+    IrrepInfo,
+    IsoWrapper,
+    KPointInfo,
+    SubgroupInfo,
+)
 
 __all__ = [
     "BaseWrapper",
-    "FindsymWrapper", "FindsymResult",
-    "IsoWrapper", "SubgroupInfo", "DistortionMode", "IsoResult",
+    "BushMode",
+    "DistortionMode",
+    "DomainInfo",
+    "FindsymResult",
+    "FindsymWrapper",
+    "IrrepInfo",
+    "IsoWrapper",
+    "KPointInfo",
+    "SubgroupInfo",
 ]

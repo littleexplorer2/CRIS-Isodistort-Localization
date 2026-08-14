@@ -4,9 +4,10 @@
 对应阶段六：结果持久化与复现
 """
 import json
-import numpy as np
 from pathlib import Path
 from typing import Any
+
+import numpy as np
 
 from ..utils import get_config
 
@@ -21,8 +22,12 @@ class ResultSerializer:
     3. 与在线版 ISODISTORT 对标调试
     """
 
-    def __init__(self, output_dir: str | Path = None):
-        """Relative path: isocore/io/result_serializer.py"""
+    def __init__(self, output_dir: str | Path | None = None):
+        """初始化结果序列化器
+
+        Args:
+            output_dir: 输出目录；None 时使用配置中的 output_dir
+        """
         cfg = get_config()
         self.output_dir = Path(output_dir) if output_dir else cfg.output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -44,7 +49,7 @@ class ResultSerializer:
         Relative path: isocore/io/result_serializer.py"""
 
         path = self.output_dir / f"{filename}.json"
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
 
     @staticmethod

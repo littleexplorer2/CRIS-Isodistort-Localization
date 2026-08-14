@@ -2,9 +2,9 @@
 配置加载器 - 读取 settings.yaml 并设置 ISODATA 环境变量
 """
 import os
-import yaml
 from pathlib import Path
 
+import yaml
 
 # 项目根目录（isodistort 包的上一级）
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -31,7 +31,7 @@ class Config:
 
     def __init__(self):
         """Relative path: isocore/utils/config_loader.py"""
-        
+
         if self._loaded:
             return
         self._load_config()
@@ -43,7 +43,7 @@ class Config:
 
         Relative path: isocore/utils/config_loader.py"""
 
-        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+        with open(CONFIG_PATH, encoding="utf-8") as f:
             self._cfg = yaml.safe_load(f)
 
     def _setup_environment(self):
@@ -92,17 +92,26 @@ class Config:
 
     @property
     def timeout(self) -> int:
-        """Relative path: isocore/utils/config_loader.py"""
+        """普通子进程调用超时（秒）。"""
         return self._cfg["runtime"]["timeout"]
 
     @property
+    def generation_timeout(self) -> int:
+        """子群数据库在线生成超时（秒）。
+
+        对应官网 “Generate isotropy subgroups”：非特殊 k 点的子群数据库
+        需在线生成，可能耗时数分钟到数小时，故单独配置更长超时。
+        """
+        return self._cfg["runtime"].get("generation_timeout", 3600)
+
+    @property
     def position_tolerance(self) -> float:
-        """Relative path: isocore/utils/config_loader.py"""
+        """原子位置容差（分数坐标）。"""
         return self._cfg["defaults"]["position_tolerance"]
 
     @property
     def defaults(self) -> dict:
-        """Relative path: isocore/utils/config_loader.py"""
+        """计算默认参数。"""
         return self._cfg["defaults"]
 
 

@@ -2,10 +2,12 @@
 测试：畸变引擎（不依赖二进制）
 """
 import numpy as np
-from pymatgen.core import Structure, Lattice
-
 from isocore.distortion import DistortionEngine
-from isocore.distortion.phase_path import DEFAULT_DISTORTION_TYPES, normalize_distortion_types
+from isocore.distortion.phase_path import (
+    DEFAULT_DISTORTION_TYPES,
+    normalize_distortion_types,
+)
+from pymatgen.core import Lattice, Structure
 
 
 def test_default_distortion_modes():
@@ -65,7 +67,7 @@ def test_distortion_engine_supercell():
 
 def test_mixed_mode():
     """Relative path: tests/test_distortion.py"""
-    
+
     lattice = Lattice.cubic(5.0)
     struct = Structure(lattice, ["A"], [[0, 0, 0]])
 

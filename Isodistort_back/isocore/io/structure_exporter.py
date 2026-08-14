@@ -4,6 +4,7 @@
 对应阶段六，步骤11：标准结构文件导出
 """
 from pathlib import Path
+
 from pymatgen.core import Structure
 from pymatgen.io.cif import CifWriter
 from pymatgen.io.vasp import Poscar
@@ -15,14 +16,18 @@ from ..utils import get_config
 class StructureExporter:
     """晶体结构导出器"""
 
-    def __init__(self, output_dir: str | Path = None):
-        """Relative path: isocore/io/structure_exporter.py"""
+    def __init__(self, output_dir: str | Path | None = None):
+        """初始化结构导出器
+
+        Args:
+            output_dir: 输出目录；None 时使用配置中的 output_dir
+        """
         cfg = get_config()
         self.output_dir = Path(output_dir) if output_dir else cfg.output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def to_cif(self, structure: Structure, filename: str,
-            symprec: float = None) -> Path:
+               symprec: float | None = None) -> Path:
         """
         导出为 CIF 格式
 
@@ -33,7 +38,7 @@ class StructureExporter:
 
         Returns:
             Path: 输出文件路径
-        
+
         Relative path: isocore/io/structure_exporter.py"""
 
         writer = CifWriter(structure, symprec=symprec)
@@ -63,7 +68,7 @@ class StructureExporter:
         return path
 
     def auto_export(self, structure: Structure, filename: str,
-                    formats: list = None) -> list:
+                    formats: list | None = None) -> list:
         """
         批量导出多种格式
 
@@ -72,7 +77,7 @@ class StructureExporter:
 
         Returns:
             list of Path: 所有输出文件路径
-        
+
         Relative path: isocore/io/structure_exporter.py"""
 
         formats = formats or ["cif"]

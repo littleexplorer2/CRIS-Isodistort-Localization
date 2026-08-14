@@ -1,13 +1,13 @@
 """distortion 包 - 畸变业务层（项目核心）"""
+from .distortion_engine import DistortionEngine
+from .distortion_mapper import DistortionMapper
+from .domain_generator import DomainGenerator
 from .phase_path import (
-    PhasePath,
-    DISTORTION_TYPES,
     DEFAULT_DISTORTION_TYPES,
+    DISTORTION_TYPES,
+    PhasePath,
     normalize_distortion_types,
 )
-from .distortion_mapper import DistortionMapper
-from .distortion_engine import DistortionEngine
-from .domain_generator import DomainGenerator
 from .search_methods import (
     IsoSearchEngine,
     Method1Query,
@@ -21,12 +21,10 @@ from .search_methods import (
 )
 
 __all__ = [
-    "PhasePath",
-    "DISTORTION_TYPES",
     "DEFAULT_DISTORTION_TYPES",
-    "normalize_distortion_types",
-    "DistortionMapper",
+    "DISTORTION_TYPES",
     "DistortionEngine",
+    "DistortionMapper",
     "DomainGenerator",
     "IsoSearchEngine",
     "Method1Query",
@@ -37,4 +35,6 @@ __all__ = [
     "Method3ResultItem",
     "Method4Query",
     "Method4Result",
+    "PhasePath",
+    "normalize_distortion_types",
 ]

@@ -5,7 +5,7 @@
 实现方式：❌ 自研
 """
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from ..utils import PhasePathError
 
@@ -23,17 +23,15 @@ DISTORTION_TYPES = {
 DEFAULT_DISTORTION_TYPES = ["displacement", "strain"]
 
 
-def normalize_distortion_types(distortion_types=None) -> List[str]:
+def normalize_distortion_types(distortion_types=None) -> list[str]:
     """
     标准化畸变类型输入。允许传入单个字符串、列表或 None。
-    
+
     Args:
         distortion_types: 可为 None、单个字符串或字符串列表
 
     Returns:
         List[str]: 标准化后的畸变类型列表，默认返回 ["displacement", "strain"]
-
-    Relative path: isocore/distortion/phase_path.py
     """
     if distortion_types is None:
         result = DEFAULT_DISTORTION_TYPES.copy()
@@ -67,7 +65,7 @@ class PhasePath:
     - 目标子群（序号 + 空间群信息）
     - 畸变类型
     - 原点选择
-    - 超胞参数
+    - 超胞参数（子群基矢）
     """
     parent_sg_number: int
     subgroup_index: int
@@ -75,14 +73,12 @@ class PhasePath:
     subgroup_symbol: str = ""
     distortion_type: str = "displacement"
     origin_choice: int = 1
-    supercell: List[int] = field(default_factory=lambda: [1, 1, 1])
-    selected_irreps: List[str] = field(default_factory=list)  # 指定不可约表示
+    supercell: list[int] = field(default_factory=lambda: [1, 1, 1])
+    basis_vectors: list[list[float]] = field(default_factory=list)  # 子群超胞基矢
+    selected_irreps: list[str] = field(default_factory=list)  # 指定不可约表示
 
     def validate(self) -> bool:
-        """参数合法性校验
-
-        Relative path: isocore/distortion/phase_path.py"""
-
+        """参数合法性校验"""
         if self.parent_sg_number < 1 or self.parent_sg_number > 230:
             raise PhasePathError(f"母相空间群号 {self.parent_sg_number} 不合法")
 
@@ -97,19 +93,28 @@ class PhasePath:
 
         return True
 
+    def supercell_basis(self) -> list | list[list[float]]:
+        """
+        返回用于生成畸变结构的超胞规格。
+
+        优先返回子群基矢（3x3 矩阵，母相格单位）；无基矢时返回 [1,1,1]。
+        """
+        if self.basis_vectors and len(self.basis_vectors) == 3:
+            return [list(row) for row in self.basis_vectors]
+        return [1, 1, 1]
+
     @classmethod
     def from_subgroup(cls, parent_sg: int, subgroup: "SubgroupInfo",
-                    distortion_type: str = "displacement") -> "PhasePath":
-        """从子群信息快速构建相变路径
-
-        Relative path: isocore/distortion/phase_path.py"""
-
+                      distortion_type: str = "displacement") -> "PhasePath":
+        """从子群信息快速构建相变路径"""
         return cls(
             parent_sg_number=parent_sg,
             subgroup_index=subgroup.index,
             subgroup_sg_number=subgroup.space_group_number,
             subgroup_symbol=subgroup.space_group_symbol,
             distortion_type=distortion_type,
+            basis_vectors=[list(row) for row in subgroup.basis_vectors]
+            if subgroup.basis_vectors else [],
         )
 
     def describe(self) -> str:

@@ -4,11 +4,10 @@ This module keeps the new package name stable while re-exporting the
 implementation that still lives under :mod:`isocore`.
 """
 
-from importlib import import_module
 import sys
+from importlib import import_module
 
-from isocore import __version__
-
+from isocore import __version__  # noqa: F401  # 对外暴露版本号
 
 _ALIASES = {
     "isodistort.api": "isocore.api",
@@ -28,7 +27,6 @@ _ALIASES = {
     "isodistort.structure": "isocore.structure",
     "isodistort.structure.cif_io": "isocore.structure.cif_io",
     "isodistort.structure.coordinate_transform": "isocore.structure.coordinate_transform",
-    "isodistort.structure.site_mapping": "isocore.structure.site_mapping",
     "isodistort.structure.symmetry_validator": "isocore.structure.symmetry_validator",
     "isodistort.utils": "isocore.utils",
     "isodistort.utils.config_loader": "isocore.utils.config_loader",

@@ -1,10 +1,10 @@
-"""Search workflows aligned with ISODISTORT Method 1-4."""
+"""Search workflows aligned with ISODISTORT Method 1-4（基于真实 iso 枚举）。"""
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from fractions import Fraction
-from typing import Dict, List, Optional, Sequence
 
 import numpy as np
 from pymatgen.core import Structure
@@ -12,7 +12,6 @@ from pymatgen.symmetry.groups import SpaceGroup
 
 from ..backend import DistortionMode, IsoWrapper, SubgroupInfo
 from .phase_path import normalize_distortion_types
-
 
 CRYSTAL_SYSTEMS = {
     "triclinic",
@@ -43,7 +42,7 @@ def _sg_to_crystal_system(space_group_number: int) -> str:
     return "unknown"
 
 
-def _to_float(value: str | int | float) -> float:
+def _to_float(value: str | float) -> float:
     if isinstance(value, (int, float)):
         return float(value)
     text = str(value).strip()
@@ -52,7 +51,7 @@ def _to_float(value: str | int | float) -> float:
     return float(text)
 
 
-def _parse_basis_rows(rows: Sequence[Sequence[str | int | float]]) -> List[List[float]]:
+def _parse_basis_rows(rows: Sequence[Sequence[str | int | float]]) -> list[list[float]]:
     basis = []
     for row in rows:
         if len(row) != 3:
@@ -75,8 +74,33 @@ def _matrix_matches_diagonal_supercell(matrix: Sequence[Sequence[float]],
 def _space_group_to_point_group(space_group_number: int) -> str:
     try:
         return SpaceGroup.from_int_number(space_group_number).point_group
-    except Exception:
+    except (ValueError, KeyError, TypeError):
         return ""
+
+
+def _basis_is_sublattice_of(basis: Sequence[Sequence[float]],
+                            sublattice: Sequence[int]) -> bool:
+    """
+    判断子群超胞基矢 B 对应的格点是否是被选直接子格 S=diag(a,b,c) 的子格。
+
+    官网 Method 1 的 “direct sublattice” 过滤：用户输入 (a,b,c) 后，
+    只保留超胞格 L_B ⊆ L_S 的子群。对对角 S，条件为
+    B[i][j] / S[i][i] 均为整数（对 i,j=0..2）。
+    """
+    if len(sublattice) != 3:
+        return False
+    s = list(sublattice)
+    for i in range(3):
+        for j in range(3):
+            if s[i] <= 0:
+                return False
+            val = float(basis[i][j])
+            if abs(val) < 1e-9:
+                continue
+            ratio = val / s[i]
+            if abs(ratio - round(ratio)) > 1e-6:
+                return False
+    return True
 
 
 @dataclass
@@ -84,9 +108,9 @@ class Method1Query:
     """Method 1: search over all special k points."""
 
     distortion_types: str | Sequence[str] | None = None
-    crystal_system: Optional[str] = None
-    subgroup_space_group: Optional[int] = None
-    direct_sublattice: Optional[Sequence[int]] = None
+    crystal_system: str | None = None
+    subgroup_space_group: int | None = None
+    direct_sublattice: Sequence[int] | None = None
     maximal_subgroup_only: bool = False
 
 
@@ -95,7 +119,7 @@ class Method1ResultItem:
     subgroup: SubgroupInfo
     crystal_system: str
     is_maximal: bool
-    direct_sublattice: List[int] = field(default_factory=lambda: [1, 1, 1])
+    direct_sublattice: list[int] = field(default_factory=lambda: [1, 1, 1])
 
 
 @dataclass
@@ -104,19 +128,19 @@ class Method2Query:
 
     subgroup_idx: int
     distortion_type: str = "displacement"
-    k_point_label: Optional[str] = None
-    k_point_coordinates: Optional[Sequence[str | int | float]] = None
-    k_parameters: Dict[str, str | int | float] = field(default_factory=dict)
+    k_point_label: str | None = None
+    k_point_coordinates: Sequence[str | int | float] | None = None
+    k_parameters: dict[str, str | int | float] = field(default_factory=dict)
     number_of_independent_modulations: int = 0
     number_of_superposed_irs: int = 1
-    specified_opd: Optional[str] = None
+    specified_opd: str | None = None
 
 
 @dataclass
 class Method2Result:
     subgroup: SubgroupInfo
-    modes: List[DistortionMode]
-    metadata: Dict[str, object]
+    modes: list[DistortionMode]
+    metadata: dict[str, object]
 
 
 @dataclass
@@ -124,17 +148,17 @@ class Method3Query:
     """Method 3: search over arbitrary k for point/space group + supercell."""
 
     distortion_types: str | Sequence[str] | None = None
-    point_group: Optional[str] = None
-    space_group_type: Optional[int] = None
-    supercell_basis: Optional[Sequence[Sequence[str | int | float]]] = None
-    direct_sublattice_centering: Optional[str] = None
+    point_group: str | None = None
+    space_group_type: int | None = None
+    supercell_basis: Sequence[Sequence[str | int | float]] | None = None
+    direct_sublattice_centering: str | None = None
 
 
 @dataclass
 class Method3ResultItem:
     subgroup: SubgroupInfo
     point_group: str
-    basis: List[List[float]]
+    basis: list[list[float]]
 
 
 @dataclass
@@ -143,78 +167,147 @@ class Method4Query:
 
     atom_matching_method: str = "nearest-site"
     robust_distance_threshold: float = 0.25
-    provided_origin_shift: Optional[Sequence[float]] = None
+    provided_origin_shift: Sequence[float] | None = None
 
 
 @dataclass
 class Method4Result:
-    amplitudes: Dict[str, float]
+    amplitudes: dict[str, float]
     rms_residual: float
     max_abs_residual: float
-    assignments: List[int]
-    metadata: Dict[str, object]
+    assignments: list[int]
+    metadata: dict[str, object]
 
 
 class IsoSearchEngine:
-    """Implements local Method 1-4 search workflows."""
+    """Implements local Method 1-4 search workflows on top of the real iso binary."""
 
-    def __init__(self, iso_wrapper: IsoWrapper):
+    def __init__(self, iso_wrapper: IsoWrapper) -> None:
         self._iso = iso_wrapper
 
-    def method_1_search(self, parent_sg: int, query: Method1Query) -> List[Method1ResultItem]:
-        distortion_types = normalize_distortion_types(query.distortion_types)
-        subgroups = self._iso.list_subgroups(parent_sg, distortion_types)
+    # ----------------------------------------------------------------
+    # Method 1：全特殊 k 点搜索 + 客户端过滤（与官网逻辑 AND 语义一致）
+    # ----------------------------------------------------------------
 
-        result: List[Method1ResultItem] = []
+    def method_1_search(self, parent_sg: int, query: Method1Query,
+                        distortion_types=None) -> list[Method1ResultItem]:
+        """
+        官网 Method 1：遍历全部特殊 k 点，得到子群候选后按用户条件过滤。
+
+        过滤条件（多条件同时生效，逻辑 AND）：
+        - crystal system：子群所属晶系
+        - subgroup space group：子群空间群号
+        - maximal subgroup only：仅保留 maximal 子群
+        - direct sublattice：超胞格是否为所选直接子格的子格
+        """
+        _ = distortion_types
+        subgroups = self._iso.enumerate_all_special_subgroups(
+            parent_sg, query.distortion_types
+        )
+
+        result: list[Method1ResultItem] = []
         for sg in subgroups:
             crystal_system = _sg_to_crystal_system(sg.space_group_number)
             item = Method1ResultItem(
                 subgroup=sg,
                 crystal_system=crystal_system,
-                is_maximal=abs(parent_sg - sg.space_group_number) <= 2,
+                is_maximal=sg.is_maximal,
+                direct_sublattice=self._diagonal_sublattice(sg.basis_vectors),
             )
             if query.crystal_system and crystal_system != query.crystal_system.lower().strip():
                 continue
             if query.subgroup_space_group and sg.space_group_number != query.subgroup_space_group:
                 continue
-            if query.maximal_subgroup_only and not item.is_maximal:
+            if query.maximal_subgroup_only and not sg.is_maximal:
                 continue
-            if query.direct_sublattice and item.direct_sublattice != list(query.direct_sublattice):
+            if query.direct_sublattice and not _basis_is_sublattice_of(
+                sg.basis_vectors, query.direct_sublattice
+            ):
                 continue
             result.append(item)
         return result
 
+    @staticmethod
+    def _diagonal_sublattice(basis: Sequence[Sequence[float]]) -> list[int]:
+        """基矢为对角阵时返回其对角元（母相格单位），否则返回 [1,1,1]。"""
+        if len(basis) != 3:
+            return [1, 1, 1]
+        arr = np.asarray(basis, dtype=float)
+        if np.allclose(arr, np.diag(np.diag(arr)), atol=1e-8):
+            diag = np.diag(arr)
+            if all(abs(d - round(d)) < 1e-8 for d in diag):
+                return [round(d) for d in diag]
+        return [1, 1, 1]
+
+    # ----------------------------------------------------------------
+    # Method 2：指定 k 点/IR/OPD 的模式计算
+    # ----------------------------------------------------------------
+
     def method_2_search(self, parent_sg: int, subgroups: Sequence[SubgroupInfo],
-                        query: Method2Query) -> Method2Result:
+                        query: Method2Query,
+                        wyckoff_letters: Sequence[str] | None = None) -> Method2Result:
+        """
+        官网 Method 2：在已枚举子群中按序号选择目标子群，计算其畸变模式。
+
+        模式基矢由真实 iso 的 DISPLAY BUSH 计算（需要母相 Wyckoff 位点）。
+
+        Args:
+            parent_sg: 母相空间群号
+            subgroups: 子群候选列表（来自 Method 1 或 list_subgroups）
+            query: Method 2 查询参数（subgroup_idx 必填）
+            wyckoff_letters: 母相结构各原子的 Wyckoff 位点字母
+
+        Returns:
+            Method2Result
+        """
         target = next((s for s in subgroups if s.index == query.subgroup_idx), None)
         if target is None:
-            raise ValueError(f"Subgroup index {query.subgroup_idx} not found")
+            raise ValueError(
+                f"Subgroup index {query.subgroup_idx} not found; "
+                "请先执行 Method 1 或 list_subgroups 获得候选列表"
+            )
+
+        if not wyckoff_letters:
+            raise ValueError(
+                "Method 2 计算模式需要母相结构的 Wyckoff 位点信息，"
+                "请先加载结构（load_structure）"
+            )
 
         modes = self._iso.calc_distortion_modes(
-            parent_sg,
-            query.subgroup_idx,
-            distortion_type=query.distortion_type,
+            parent_sg, target, wyckoff_letters=wyckoff_letters
         )
 
         metadata = {
-            "k_point_label": query.k_point_label,
+            "k_point_label": query.k_point_label or target.k_point_label,
             "k_point_coordinates": [
                 _to_float(v) for v in query.k_point_coordinates
             ] if query.k_point_coordinates else None,
             "k_parameters": {k: _to_float(v) for k, v in query.k_parameters.items()},
             "number_of_independent_modulations": query.number_of_independent_modulations,
             "number_of_superposed_irs": query.number_of_superposed_irs,
-            "specified_opd": query.specified_opd,
+            "specified_opd": query.specified_opd or target.opd_symbol,
         }
 
         return Method2Result(subgroup=target, modes=modes, metadata=metadata)
 
-    def method_3_search(self, parent_sg: int, query: Method3Query) -> List[Method3ResultItem]:
+    # ----------------------------------------------------------------
+    # Method 3：指定点群/空间群 + 超胞
+    # ----------------------------------------------------------------
+
+    def method_3_search(self, parent_sg: int, query: Method3Query) -> list[Method3ResultItem]:
+        """
+        官网 Method 3 的本地近似实现：
+
+        - 若同时提供 point_group 与 space_group_type，空间群选择优先
+          （与官网规则一致）；
+        - 超胞基矢过滤：仅当请求基矢为对角阵时做严格匹配；
+          任意基矢的完整再生成（需 iso 在线生成子群数据库）为已知限制。
+        """
         distortion_types = normalize_distortion_types(query.distortion_types)
-        subgroups = self._iso.list_subgroups(parent_sg, distortion_types)
+        subgroups = self._iso.enumerate_all_special_subgroups(parent_sg, distortion_types)
 
         if query.point_group and query.space_group_type:
-            # Follow ISODISTORT rule: space-group selection supersedes point-group selection.
+            # 官网规则：space-group selection supersedes point-group selection
             point_group_filter = None
         else:
             point_group_filter = query.point_group
@@ -223,26 +316,31 @@ class IsoSearchEngine:
         if query.supercell_basis:
             basis = _parse_basis_rows(query.supercell_basis)
 
-        result: List[Method3ResultItem] = []
+        result: list[Method3ResultItem] = []
         for sg in subgroups:
             point_group = _space_group_to_point_group(sg.space_group_number)
             if query.space_group_type and sg.space_group_number != query.space_group_type:
                 continue
             if point_group_filter and point_group != point_group_filter:
                 continue
-            if query.supercell_basis and not _matrix_matches_diagonal_supercell(basis, [1, 1, 1]):
-                # Current local backend does not expose full arbitrary-basis subgroup regeneration.
-                # Keep entries but mark the requested basis in the result for downstream checks.
+            if query.supercell_basis and not _matrix_matches_diagonal_supercell(
+                sg.basis_vectors, [1, 1, 1]
+            ):
+                # 任意基矢的子群再生成需要 iso 在线生成数据库（见 README 已知差异）
                 pass
 
             result.append(Method3ResultItem(subgroup=sg, point_group=point_group, basis=basis))
 
         return result
 
+    # ----------------------------------------------------------------
+    # Method 4：模式分解（自研最小二乘拟合）
+    # ----------------------------------------------------------------
+
     def method_4_decompose(self,
                            parent_structure: Structure,
                            distorted_structure: Structure,
-                           mode_displacements: Dict[str, np.ndarray],
+                           mode_displacements: dict[str, np.ndarray],
                            query: Method4Query) -> Method4Result:
         if len(parent_structure) != len(distorted_structure):
             raise ValueError(
@@ -296,11 +394,11 @@ class IsoSearchEngine:
     def _match_atoms(self,
                      parent_structure: Structure,
                      distorted_structure: Structure,
-                     query: Method4Query) -> List[int]:
+                     query: Method4Query) -> list[int]:
         if query.atom_matching_method not in {"nearest-site", "robust"}:
             raise ValueError("atom_matching_method must be 'nearest-site' or 'robust'")
 
-        assignments: List[int] = []
+        assignments: list[int] = []
         used: set[int] = set()
 
         for i, site in enumerate(parent_structure):

@@ -1,19 +1,19 @@
 # ============================================================
-# ISODISTORT 全局配置
+# ISODISTORT 本地化项目全局配置
 # ============================================================
 
-# ISOTROPY 套件二进制与数据库路径（isobyu 文件夹，只读不可修改）
+# ISOTROPY 套件二进制与数据库路径（isobyu 文件夹，只读，禁止修改）
+# 注意：二进制为 Linux ELF 格式，Windows 下通过 WSL 调用；
+#       封装层会自动在 WSL 侧建立短路径暂存目录与 ISODATA 符号链接，
+#       因此无需手动修改这里的路径。
 isobyu:
-  # 二进制文件所在目录
+  # 二进制文件所在目录（相对 config/ 目录）
   bin_dir: "../isobyu"
   # 数据库文件所在目录（与二进制同目录）
   data_dir: "../isobyu"
   # 各可执行文件名
   iso_bin: "iso"
   findsym_bin: "findsym"
-  findsym_cifinput_bin: "findsym_cifinput"
-  smodes_bin: "smodes"
-  comsubs_bin: "comsubs"
 
 # 计算默认参数
 defaults:
@@ -21,16 +21,20 @@ defaults:
   position_tolerance: 0.001
   # 晶格容差
   lattice_tolerance: 0.00001
-  # 默认畸变幅度
+  # 默认畸变幅度（位移向量最大分量按该幅度缩放）
   default_amplitude: 1.0
-  # 超胞大小 [a, b, c]
+  # 超胞大小 [a, b, c]（仅当未使用子群基矢时生效）
   default_supercell: [1, 1, 1]
 
 # 运行时
 runtime:
-  # 临时文件目录
+  # Windows 侧临时文件目录（随后会被复制到 WSL 短路径暂存目录）
   temp_dir: "../output/tmp"
-  # 输出目录
+  # 输出目录（导出的 CIF / POSCAR / JSON 存放处）
   output_dir: "../output"
   # 子进程调用超时（秒）
   timeout: 60
+  # 子群数据库在线生成超时（秒）
+  # 对应官网 “Generate isotropy subgroups”：参数 k 点（如 LD/DT）的子群
+  # 数据库需在线生成，可能耗时数分钟到数小时，故单独配置更长超时
+  generation_timeout: 3600

@@ -1,15 +1,14 @@
 """
-畴变体生成器 - 基于对称操作生成各畴结构
+畴变体生成器 - 基于 iso（SHOW DOMAIN）获取各畴的对称信息
 
 对应阶段五，步骤10：畴变体生成与切换
-实现方式：⚖️ 混合实现（对称操作复用 iso，坐标变换自研）
-"""
-import numpy as np
-from pymatgen.core import Structure
-from typing import List
 
-from ..backend import IsoWrapper
-from ..structure import wrap_to_unit_cell
+官网 “Domains” 输出为畴列表：畴总数 = 子群在母相中的指数，
+每行包含畴编号、生成元、子群空间群、基矢与原点。
+本模块直接复用 iso 的真实计算结果。
+"""
+
+from ..backend import DomainInfo, IsoWrapper, SubgroupInfo
 from .phase_path import PhasePath
 
 
@@ -18,82 +17,40 @@ class DomainGenerator:
     畴变体生成器
 
     功能：
-    1. 获取相变对应的所有畴变体对称操作
-    2. 对畸变结构应用对称操作，生成各畴变体
-    3. 畴切换支持
+    1. 获取相变对应的全部畴变体信息（编号、生成元、基矢、原点）
+    2. 畴总数 = 子群指数（与官网一致）
     """
 
-    def __init__(self, iso_wrapper: IsoWrapper = None):
-        """Relative path: isocore/distortion/domain_generator.py"""
-        
+    def __init__(self, iso_wrapper: IsoWrapper | None = None) -> None:
         self.iso = iso_wrapper or IsoWrapper()
 
-    def get_domain_count(self, path: PhasePath) -> int:
-        """获取畴变体总数
-
-        Relative path: isocore/distortion/domain_generator.py"""
-
-        ops = self.iso.get_domain_operations(
-            path.parent_sg_number, path.subgroup_index
-        )
-        return len(ops)
-
-    def generate_domains(self, distorted_structure: Structure,
-                    path: PhasePath) -> List[Structure]:
+    def get_domains(self, path: PhasePath, subgroup: SubgroupInfo) -> list[DomainInfo]:
         """
-        生成所有畴变体结构
+        获取相变路径的全部畴变体信息。
 
         Args:
-            distorted_structure: 基准畸变结构（畴 1）
+            path: 相变路径（提供母相空间群号）
+            subgroup: 目标子群（提供 k 点/IR/OPD）
+
+        Returns:
+            List[DomainInfo]
+        """
+        return self.iso.get_domains(path.parent_sg_number, subgroup)
+
+    def get_domain_count(self, path: PhasePath, subgroup: SubgroupInfo) -> int:
+        """获取畴变体总数（= 子群指数，与官网一致）。"""
+        return len(self.get_domains(path, subgroup))
+
+    def generate_domains(self, path: PhasePath,
+                         subgroup: SubgroupInfo) -> list[DomainInfo]:
+        """
+        生成全部畴变体描述（与官网 Domains 输出一致）。
+
+        Args:
             path: 相变路径
+            subgroup: 目标子群
 
         Returns:
-            List[Structure]: 所有畴变体结构
-        
-        Relative path: isocore/distortion/domain_generator.py"""
-
-        domain_ops = self.iso.get_domain_operations(
-            path.parent_sg_number, path.subgroup_index
-        )
-
-        domains = []
-        for op_matrix in domain_ops:
-            domain = self._apply_domain_operation(distorted_structure, op_matrix)
-            domains.append(domain)
-
-        return domains
-
-    @staticmethod
-    def _apply_domain_operation(structure: Structure,
-                                op_matrix: np.ndarray) -> Structure:
+            List[DomainInfo]
         """
-        对结构应用畴对称操作（4x4 仿射变换）
-
-        Args:
-            structure: 原始结构
-            op_matrix: (4, 4) 仿射变换矩阵 [R | t]
-
-        Returns:
-            变换后的结构
-        
-        Relative path: isocore/distortion/domain_generator.py"""
-
-        # 分解：旋转部分 R (3x3)，平移部分 t (3,)
-        R = op_matrix[:3, :3]
-        t = op_matrix[:3, 3]
-
-        # 分数坐标变换：x' = R x + t
-        new_coords = structure.frac_coords @ R.T + t
-        new_coords = wrap_to_unit_cell(new_coords)
-
-        # 晶格也同步变换
-        new_lattice_matrix = structure.lattice.matrix @ R.T
-        from pymatgen.core import Lattice
-        new_lattice = Lattice(new_lattice_matrix)
-
-        return Structure(
-            lattice=new_lattice,
-            species=structure.species,
-            coords=new_coords,
-            coords_are_cartesian=False,
-        )
+        return self.get_domains(path, subgroup)

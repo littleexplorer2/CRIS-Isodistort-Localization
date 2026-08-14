@@ -22,9 +22,9 @@ class SymmetryValidator:
     4. 获取 Wyckoff 位点分配
     """
 
-    def __init__(self, tolerance: float = None):
+    def __init__(self, tolerance: float | None = None):
         """Relative path: isocore/structure/symmetry_validator.py"""
-        
+
         cfg = get_config()
         self.tolerance = tolerance or cfg.position_tolerance
 
@@ -34,7 +34,7 @@ class SymmetryValidator:
 
         Returns:
             dict: 包含空间群号、空间群符号、Wyckoff位点、是否有序等信息
-        
+
         Relative path: isocore/structure/symmetry_validator.py"""
 
         sga = SpacegroupAnalyzer(structure, symprec=self.tolerance)
@@ -48,7 +48,7 @@ class SymmetryValidator:
         equivalent_indices = symm_structure.equivalent_indices
 
         wyckoff_sites = []
-        for label, indices in zip(wyckoff_labels, equivalent_indices):
+        for label, indices in zip(wyckoff_labels, equivalent_indices, strict=False):
             # label 形如 "4a"
             multiplicity = int(label[:-1])
             letter = label[-1]

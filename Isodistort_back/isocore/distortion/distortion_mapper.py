@@ -1,77 +1,108 @@
 """
-畸变模式映射器 - 将 iso 输出的抽象基矢映射到每个原子的位移向量
+畸变模式映射器 - 将 iso（DISPLAY BUSH）输出的模式基矢映射到每个原子的位移向量
 
 对应阶段四，步骤8：畸变基矢到原子坐标的映射
-实现方式：❌ 自研（项目核心难点）
 
-核心逻辑：
-iso 输出的畸变基矢是对应 Wyckoff 位点的抽象向量，
-需要将其分配到该位点的每个等效原子上，并完成母子群坐标变换，
-才能得到实际晶体中每个原子的位移方向。
+映射规则（基于实测 DISPLAY BUSH 输出）：
+- BUSH 每行给出某 Wyckoff 位点一个“代表原子”的位移向量（可能多个，
+  对应模式的不同分量）；本实现取第一个向量作为该位点的位移模式。
+- 若某位点只有一个代表原子行（常见于 Gamma 点均匀模式），则将该位移
+  均匀作用于该位点的全部等效原子。
+- 若某位点有多个代表原子行，则每个原子按“周期最近邻”匹配到最近的
+  代表原子，取其位移。
+
+已知差异（见 README）：
+- 位移向量为超胞分数坐标单位、最大分量为 1 的约定（与官网一致），
+  但尚未实现官网 As/Ap 振幅的 normfactor 归一化换算。
 """
+
 import numpy as np
 from pymatgen.core import Structure
-from typing import List, Dict
 
-from ..backend import DistortionMode
-from ..structure import SiteMapper
+from ..backend import BushMode, DistortionMode
 
 
 class DistortionMapper:
     """
     畸变模式 -> 原子位移 映射器
 
-    这是 ISODISTORT 最核心的自研模块，
-    负责将 iso 计算出的抽象群论模式基矢，转化为每个原子的实际位移向量。
+    负责将 iso 计算出的抽象模式基矢，转化为每个原子的实际位移向量。
     """
 
-    def __init__(self, site_mapper: SiteMapper = None):
-        """Relative path: isocore/distortion/distortion_mapper.py"""
-        self.site_mapper = site_mapper or SiteMapper()
+    def __init__(self) -> None:
+        pass
 
     def map_modes_to_atoms(self, structure: Structure,
-                        wyckoff_sites: List[Dict],
-                        modes: List[DistortionMode]) -> Dict:
+                           wyckoff_sites: list[dict],
+                           modes: list[DistortionMode]) -> dict:
         """
         将畸变模式映射到结构中每个原子
 
         Args:
             structure: 母相晶体结构
-            wyckoff_sites: 结构的 Wyckoff 位点分组信息
-            modes: iso 计算出的畸变模式列表
+            wyckoff_sites: 结构的 Wyckoff 位点分组信息（来自 SymmetryValidator）
+            modes: iso 计算出的畸变模式列表（含 bush_modes）
 
         Returns:
-            dict: 包含每个模式对应的原子位移向量
+            dict: 每个模式对应的原子位移向量
                 {
                     "irrep_label": {
-                        "mode_index": int,
+                        "mode": DistortionMode,
                         "displacements": np.ndarray (N_atoms x 3),
                     }
                 }
-        
-        Relative path: isocore/distortion/distortion_mapper.py"""
-
+        """
         n_atoms = len(structure)
-        result = {}
 
+        # Wyckoff 字母 -> 原子索引列表
+        letter_to_indices: dict[str, list[int]] = {}
+        for site_info in wyckoff_sites:
+            letter_to_indices.setdefault(
+                site_info["wyckoff_letter"], []
+            ).extend(site_info["equivalent_indices"])
+
+        result: dict[str, dict] = {}
         for mode in modes:
             displacements = np.zeros((n_atoms, 3))
 
-            # 按 Wyckoff 位点分配基矢
-            for site_info in wyckoff_sites:
-                letter = site_info["wyckoff_letter"]
-                indices = site_info["equivalent_indices"]
-                multiplicity = site_info["multiplicity"]
+            # 按位点字母分组 BUSH 行
+            by_letter: dict[str, list[BushMode]] = {}
+            for bush in mode.bush_modes:
+                by_letter.setdefault(bush.wyckoff_letter, []).append(bush)
 
-                # 获取该位点对应的模式基矢分量
-                site_basis = self._extract_site_basis(mode, letter, multiplicity)
-                if site_basis is None:
+            for letter, bushes in by_letter.items():
+                indices = letter_to_indices.get(letter, [])
+                if not indices:
                     continue
 
-                # 将基矢分配给每个等效原子
-                for i, atom_idx in enumerate(indices):
-                    if i < len(site_basis):
-                        displacements[atom_idx] = np.array(site_basis[i])
+                # 每个代表原子的位移（取第一个向量分量）
+                reps: list[tuple] = []
+                for bush in bushes:
+                    if bush.displacements:
+                        reps.append((
+                            np.asarray(bush.point, dtype=float),
+                            np.asarray(bush.displacements[0], dtype=float),
+                        ))
+                if not reps:
+                    continue
+
+                if len(reps) == 1:
+                    # 均匀模式：同一位移作用于该位点的全部等效原子
+                    disp = reps[0][1]
+                    for idx in indices:
+                        displacements[idx] = disp
+                else:
+                    # 多代表原子：按周期最近邻匹配
+                    for idx in indices:
+                        coord = np.asarray(structure[idx].frac_coords)
+                        best_disp = reps[0][1]
+                        best_dist = float("inf")
+                        for rep_point, rep_disp in reps:
+                            d = self._periodic_distance(coord, rep_point)
+                            if d < best_dist:
+                                best_dist = d
+                                best_disp = rep_disp
+                        displacements[idx] = best_disp
 
             result[mode.irrep_label] = {
                 "mode": mode,
@@ -81,31 +112,15 @@ class DistortionMapper:
         return result
 
     @staticmethod
-    def _extract_site_basis(mode: DistortionMode, wyckoff_letter: str,
-                            multiplicity: int) -> List[List[float]]:
-        """
-        从模式基矢中提取对应 Wyckoff 位点的分量
-
-        简化实现：假设基矢按位点顺序排列，每个位点占 multiplicity * 3 个分量。
-        实际使用时需根据 iso 输出的具体格式调整。
-
-        TODO: 需与 iso 输出格式严格对齐，这是结果一致性的关键。
-        
-        Relative path: isocore/distortion/distortion_mapper.py"""
-
-        if not mode.basis_vectors:
-            return None
-
-        # 简化版：直接返回基矢，假设每个基矢对应一个原子的 xyz 位移
-        # 实际 iso 输出格式需要根据具体输出解析
-        return mode.basis_vectors
+    def _periodic_distance(a: np.ndarray, b: np.ndarray) -> float:
+        """分数坐标的最小镜像距离。"""
+        delta = a - b
+        delta -= np.round(delta)
+        return float(np.linalg.norm(delta))
 
     @staticmethod
     def normalize_displacements(displacements: np.ndarray) -> np.ndarray:
-        """归一化位移向量（最大位移为 1）
-
-        Relative path: isocore/distortion/distortion_mapper.py"""
-
+        """归一化位移向量（最大位移为 1）"""
         max_norm = np.max(np.linalg.norm(displacements, axis=1))
         if max_norm > 0:
             return displacements / max_norm
