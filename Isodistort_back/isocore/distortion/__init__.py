@@ -2,9 +2,11 @@
 from .distortion_engine import DistortionEngine
 from .distortion_mapper import DistortionMapper
 from .domain_generator import DomainGenerator
+from .occupational_modes import OccupationalMode, OccupationalModeGenerator
 from .phase_path import (
     DEFAULT_DISTORTION_TYPES,
     DISTORTION_TYPES,
+    TYPE_ALIASES,
     PhasePath,
     normalize_distortion_types,
 )
@@ -23,6 +25,7 @@ from .search_methods import (
 __all__ = [
     "DEFAULT_DISTORTION_TYPES",
     "DISTORTION_TYPES",
+    "TYPE_ALIASES",
     "DistortionEngine",
     "DistortionMapper",
     "DomainGenerator",
@@ -35,6 +38,8 @@ __all__ = [
     "Method3ResultItem",
     "Method4Query",
     "Method4Result",
+    "OccupationalMode",
+    "OccupationalModeGenerator",
     "PhasePath",
     "normalize_distortion_types",
 ]

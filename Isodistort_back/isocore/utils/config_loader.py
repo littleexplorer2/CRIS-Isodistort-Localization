@@ -115,6 +115,14 @@ class Config:
         return int(self._cfg["runtime"].get("web_port", 8000))
 
     @property
+    def web_idle_timeout(self) -> int:
+        """网页端空闲自动停服时间（秒）。
+
+        页面关闭后心跳停止，超过该时长守护线程自动关闭服务并释放端口。
+        """
+        return int(self._cfg["runtime"].get("web_idle_timeout", 60))
+
+    @property
     def position_tolerance(self) -> float:
         """原子位置容差（分数坐标）。"""
         return self._cfg["defaults"]["position_tolerance"]

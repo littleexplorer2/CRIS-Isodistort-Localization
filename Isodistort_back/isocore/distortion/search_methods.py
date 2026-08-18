@@ -79,28 +79,23 @@ def _space_group_to_point_group(space_group_number: int) -> str:
 
 
 def _basis_is_sublattice_of(basis: Sequence[Sequence[float]],
-                            sublattice: Sequence[int]) -> bool:
+                            sublattice: Sequence[Sequence[float]]) -> bool:
     """
-    判断子群超胞基矢 B 对应的格点是否是被选直接子格 S=diag(a,b,c) 的子格。
+    判断子群超胞基矢 B 的格点是否是被选子格 S 的子格。
 
-    官网 Method 1 的 “direct sublattice” 过滤：用户输入 (a,b,c) 后，
-    只保留超胞格 L_B ⊆ L_S 的子群。对对角 S，条件为
-    B[i][j] / S[i][i] 均为整数（对 i,j=0..2）。
+    对应官网 Method 1 的 direct sublattice / Conventional lattice /
+    Primitive lattice 过滤：B 的每一行必须是 S 的整系数线性组合，
+    即 N = B @ inv(S) 的元素全部为整数（S 可为对角阵或任意 3x3 矩阵）。
     """
-    if len(sublattice) != 3:
+    b = np.asarray(basis, dtype=float)
+    s = np.asarray(sublattice, dtype=float)
+    if b.shape != (3, 3) or s.shape != (3, 3):
         return False
-    s = list(sublattice)
-    for i in range(3):
-        for j in range(3):
-            if s[i] <= 0:
-                return False
-            val = float(basis[i][j])
-            if abs(val) < 1e-9:
-                continue
-            ratio = val / s[i]
-            if abs(ratio - round(ratio)) > 1e-6:
-                return False
-    return True
+    try:
+        n = b @ np.linalg.inv(s)
+    except np.linalg.LinAlgError:
+        return False
+    return bool(np.allclose(n, np.round(n), atol=1e-6))
 
 
 @dataclass
@@ -108,9 +103,10 @@ class Method1Query:
     """Method 1: search over all special k points."""
 
     distortion_types: str | Sequence[str] | None = None
-    crystal_system: str | None = None
+    crystal_system: str | Sequence[str] | None = None  # 单个或列表（多选=OR）
     subgroup_space_group: int | None = None
     direct_sublattice: Sequence[int] | None = None
+    lattice: Sequence[Sequence[float]] | None = None  # 官网 conventional/primitive lattice（3x3 子格矩阵）
     maximal_subgroup_only: bool = False
 
 
@@ -127,7 +123,7 @@ class Method2Query:
     """Method 2: general method over specified k point(s)."""
 
     subgroup_idx: int
-    distortion_type: str = "displacement"
+    distortion_type: str | Sequence[str] = "displacive"
     k_point_label: str | None = None
     k_point_coordinates: Sequence[str | int | float] | None = None
     k_parameters: dict[str, str | int | float] = field(default_factory=dict)
@@ -152,6 +148,7 @@ class Method3Query:
     space_group_type: int | None = None
     supercell_basis: Sequence[Sequence[str | int | float]] | None = None
     direct_sublattice_centering: str | None = None
+    lattice_type: str = "direct"  # 官网 radio：direct（实空间子格）/ reciprocal（倒易超格）
 
 
 @dataclass
@@ -190,20 +187,37 @@ class IsoSearchEngine:
     # ----------------------------------------------------------------
 
     def method_1_search(self, parent_sg: int, query: Method1Query,
-                        distortion_types=None) -> list[Method1ResultItem]:
+                        distortion_types=None,
+                        subgroups: Sequence[SubgroupInfo] | None = None
+                        ) -> list[Method1ResultItem]:
         """
         官网 Method 1：遍历全部特殊 k 点，得到子群候选后按用户条件过滤。
 
-        过滤条件（多条件同时生效，逻辑 AND）：
-        - crystal system：子群所属晶系
+        过滤条件（多条件同时生效，逻辑 AND；同一条件内多选为 OR）：
+        - crystal system：子群所属晶系（单个或列表，列表任中其一即通过）
         - subgroup space group：子群空间群号
         - maximal subgroup only：仅保留 maximal 子群
-        - direct sublattice：超胞格是否为所选直接子格的子格
+        - direct sublattice / lattice：超胞格是否为所选子格的子格
+          （官网 direct sublattice / Conventional lattice / Primitive lattice）
+
+        Args:
+            parent_sg: 母相空间群号
+            query: Method 1 查询
+            distortion_types: 畸变类型（保留参数；类型过滤在模式计算阶段执行）
+            subgroups: 预枚举的子群候选（缓存复用）；None 时现场枚举
         """
         _ = distortion_types
-        subgroups = self._iso.enumerate_all_special_subgroups(
-            parent_sg, query.distortion_types
-        )
+        if subgroups is None:
+            subgroups = self._iso.enumerate_all_special_subgroups(
+                parent_sg, query.distortion_types
+            )
+
+        crystal_systems: set[str] | None = None
+        if query.crystal_system:
+            raw = query.crystal_system
+            if isinstance(raw, str):
+                raw = [raw]
+            crystal_systems = {x.strip().lower() for x in raw if x.strip()}
 
         result: list[Method1ResultItem] = []
         for sg in subgroups:
@@ -214,16 +228,20 @@ class IsoSearchEngine:
                 is_maximal=sg.is_maximal,
                 direct_sublattice=self._diagonal_sublattice(sg.basis_vectors),
             )
-            if query.crystal_system and crystal_system != query.crystal_system.lower().strip():
+            if crystal_systems and crystal_system not in crystal_systems:
                 continue
             if query.subgroup_space_group and sg.space_group_number != query.subgroup_space_group:
                 continue
             if query.maximal_subgroup_only and not sg.is_maximal:
                 continue
-            if query.direct_sublattice and not _basis_is_sublattice_of(
-                sg.basis_vectors, query.direct_sublattice
+            if query.lattice is not None and not _basis_is_sublattice_of(
+                sg.basis_vectors, query.lattice
             ):
                 continue
+            if query.lattice is None and query.direct_sublattice:
+                diag = np.diag([float(v) for v in query.direct_sublattice])
+                if not _basis_is_sublattice_of(sg.basis_vectors, diag):
+                    continue
             result.append(item)
         return result
 
@@ -267,15 +285,18 @@ class IsoSearchEngine:
                 "请先执行 Method 1 或 list_subgroups 获得候选列表"
             )
 
-        if not wyckoff_letters:
+        # wyckoff_letters 为 None 表示调用方未提供（误用）；空列表表示
+        # 作用域内无 Wyckoff 位置（如全部类型选 none）-> 直接返回空模式
+        if wyckoff_letters is None:
             raise ValueError(
                 "Method 2 计算模式需要母相结构的 Wyckoff 位置信息，"
                 "请先加载结构（load_structure）"
             )
-
-        modes = self._iso.calc_distortion_modes(
-            parent_sg, target, wyckoff_letters=wyckoff_letters
-        )
+        modes = []
+        if wyckoff_letters:
+            modes = self._iso.calc_distortion_modes(
+                parent_sg, target, wyckoff_letters=wyckoff_letters
+            )
 
         metadata = {
             "k_point_label": query.k_point_label or target.k_point_label,

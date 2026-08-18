@@ -170,12 +170,25 @@ def parse_vector_token(token: str, letter_value: float = 1.0) -> list[float]:
 
 
 def parse_coords_token(token: str) -> list[float]:
-    """解析形如 ``(0,1/2,-1/2)`` 的坐标 token（仅数字与分数）。"""
+    """解析形如 ``(0,1/2,-1/2)`` 的坐标 token（仅数字与分数）。
+
+    BUSH 输出中带自由参数的位点（如 ``(0,0,z)``）按参数=0 处理，
+    保证解析不中断（该行仅用于代表位点匹配，参数值不影响方向模式）。
+    """
     token = token.strip()
     inner = token.strip("()").strip()
     if not inner:
         return []
-    return [parse_fraction(p) for p in inner.split(",") if p.strip()]
+    out = []
+    for raw_part in inner.split(","):
+        part = raw_part.strip()
+        if not part:
+            continue
+        if re.search(r"[a-zA-Z]", part):
+            out.append(0.0)  # 自由参数（如 x/y/z）按 0 处理
+        else:
+            out.append(parse_fraction(part))
+    return out
 
 
 def parse_basis_token(token: str) -> list[list[float]]:
@@ -412,9 +425,12 @@ def parse_bush_table(text: str) -> list[dict[str, Any]]:
                                    (-1/4,-1/4,-1/4) (1,0,0)
         GM5-       P1(1)    d       (0,1/4,1/4)      (0,1,-1), (0,1,1)
 
+    带自由参数的位点（如 ``(0,0,z)``）会同时保存原始 token（point_raw），
+    供模式映射器用结构真实坐标解析；数值版 point 中参数按 0 处理。
+
     Returns:
         list of dict，每项（一个 Wyckoff 位置的一个代表原子）含:
-        irrep_label, opd_symbol, wyckoff_letter, point,
+        irrep_label, opd_symbol, wyckoff_letter, point, point_raw,
         displacements（可能含多个向量）
     """
     rows: list[dict[str, Any]] = []
@@ -430,6 +446,7 @@ def parse_bush_table(text: str) -> list[dict[str, Any]]:
                 "opd_symbol": m.group("dir"),
                 "wyckoff_letter": m.group("wyckoff"),
                 "point": parse_coords_token(m.group("point")),
+                "point_raw": m.group("point").strip("()").split(","),
                 "displacements": _parse_disp_tokens(m.group("disp")),
             }
             rows.append(current)
@@ -441,6 +458,7 @@ def parse_bush_table(text: str) -> list[dict[str, Any]]:
                 "opd_symbol": current["opd_symbol"],
                 "wyckoff_letter": current["wyckoff_letter"],
                 "point": parse_coords_token(m.group("point")),
+                "point_raw": m.group("point").strip("()").split(","),
                 "displacements": _parse_disp_tokens(m.group("disp")),
             })
     return rows

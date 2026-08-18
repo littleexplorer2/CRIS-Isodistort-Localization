@@ -13,14 +13,22 @@ if TYPE_CHECKING:
     from ..backend import SubgroupInfo
 
 
+# 畸变类型（对齐官网 Types of distortions 复选框：Displacive/Occupational/Strain/
+# Magnetic/Rotational）。旧名 displacement/order 作为别名保留（API/脚本兼容）。
 DISTORTION_TYPES = {
-    "displacement": "原子位移畸变",
-    "order": "原子有序化畸变",
+    "displacive": "原子位移畸变",
+    "occupational": "占据率（原子有序）畸变",
     "strain": "晶格应变畸变",
     "magnetic": "磁矩畸变",
+    "rotational": "转动畸变",
 }
 
-DEFAULT_DISTORTION_TYPES = ["displacement", "strain"]
+TYPE_ALIASES = {
+    "displacement": "displacive",   # 旧名（官网用 Displacive）
+    "order": "occupational",        # 旧名（官网用 Occupational）
+}
+
+DEFAULT_DISTORTION_TYPES = ["displacive", "strain"]
 
 
 def normalize_distortion_types(distortion_types=None) -> list[str]:
@@ -29,9 +37,10 @@ def normalize_distortion_types(distortion_types=None) -> list[str]:
 
     Args:
         distortion_types: 可为 None、单个字符串或字符串列表
+            （displacement/order 旧名会自动映射为 displacive/occupational）
 
     Returns:
-        List[str]: 标准化后的畸变类型列表，默认返回 ["displacement", "strain"]
+        List[str]: 标准化后的畸变类型列表，默认返回 ["displacive", "strain"]
     """
     if distortion_types is None:
         result = DEFAULT_DISTORTION_TYPES.copy()
@@ -44,6 +53,7 @@ def normalize_distortion_types(distortion_types=None) -> list[str]:
     seen = set()
     for raw_type in result:
         key = str(raw_type).strip().lower()
+        key = TYPE_ALIASES.get(key, key)
         if not key or key not in DISTORTION_TYPES:
             continue
         if key not in seen:
@@ -71,7 +81,7 @@ class PhasePath:
     subgroup_index: int
     subgroup_sg_number: int = 0
     subgroup_symbol: str = ""
-    distortion_type: str = "displacement"
+    distortion_type: str = "displacive"
     origin_choice: int = 1
     supercell: list[int] = field(default_factory=lambda: [1, 1, 1])
     basis_vectors: list[list[float]] = field(default_factory=list)  # 子群超胞基矢
@@ -105,14 +115,15 @@ class PhasePath:
 
     @classmethod
     def from_subgroup(cls, parent_sg: int, subgroup: "SubgroupInfo",
-                      distortion_type: str = "displacement") -> "PhasePath":
-        """从子群信息快速构建相变路径"""
+                      distortion_type: str = "displacive") -> "PhasePath":
+        """从子群信息快速构建相变路径（distortion_type 自动标准化）。"""
         return cls(
             parent_sg_number=parent_sg,
             subgroup_index=subgroup.index,
             subgroup_sg_number=subgroup.space_group_number,
             subgroup_symbol=subgroup.space_group_symbol,
-            distortion_type=distortion_type,
+            distortion_type=normalize_distortion_types(distortion_type)[0]
+            if normalize_distortion_types(distortion_type) else "displacive",
             basis_vectors=[list(row) for row in subgroup.basis_vectors]
             if subgroup.basis_vectors else [],
         )

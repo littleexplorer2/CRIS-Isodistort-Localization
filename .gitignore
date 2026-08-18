@@ -8,3 +8,6 @@ __pycache__/
 
 # Python virtual environments
 .venv/
+
+# Local webpage snapshots
+/webpage_info/

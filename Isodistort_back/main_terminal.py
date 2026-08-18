@@ -22,10 +22,17 @@ from isocore.i18n import get_language, set_language, t
 from isocore.utils import IsodistortError
 
 DISTORTION_TYPE_MAP = {
-    1: "displacement",
-    2: "order",
+    1: "displacive",
+    2: "occupational",
     3: "strain",
     4: "magnetic",
+    5: "rotational",
+}
+
+# 旧名兼容（displacement -> displacive，order -> occupational）
+_TYPE_ALIASES = {
+    "displacement": "displacive",
+    "order": "occupational",
 }
 
 
@@ -116,10 +123,11 @@ def _prompt_distortion_types(default: Sequence[str]) -> list[str]:
     """选择 Distortion Types（对应官网勾选框，逻辑 OR）。"""
     _line()
     print("Distortion Types")
-    print("  1. displacement（" + t("ui.type.displacement") + "）")
-    print("  2. order（" + t("ui.type.order") + "）")
+    print("  1. displacive（" + t("ui.type.displacive") + "）")
+    print("  2. occupational（" + t("ui.type.occupational") + "）")
     print("  3. strain（" + t("ui.type.strain") + "）")
     print("  4. magnetic（" + t("ui.type.magnetic") + "）")
+    print("  5. rotational（" + t("ui.type.rotational") + "）")
     default_raw = ",".join(default)
     raw = _prompt(t("ui.prompt.types"), default_raw)
 
@@ -127,8 +135,8 @@ def _prompt_distortion_types(default: Sequence[str]) -> list[str]:
     for token in [x.strip().lower() for x in raw.split(",") if x.strip()]:
         if token.isdigit() and int(token) in DISTORTION_TYPE_MAP:
             labels.append(DISTORTION_TYPE_MAP[int(token)])
-        elif token in DISTORTION_TYPE_MAP.values():
-            labels.append(token)
+        elif token in DISTORTION_TYPE_MAP.values() or token in _TYPE_ALIASES:
+            labels.append(_TYPE_ALIASES.get(token, token))
 
     dedup: list[str] = []
     seen = set()
@@ -138,7 +146,7 @@ def _prompt_distortion_types(default: Sequence[str]) -> list[str]:
             seen.add(label)
 
     if not dedup:
-        return ["displacement", "strain"]
+        return ["displacive", "strain"]
     return dedup
 
 
@@ -171,7 +179,15 @@ class IsoDistortConsoleApp:
     def __init__(self) -> None:
         self.project_root = Path(__file__).resolve().parent
         self.iso = IsoDistort()
-        self.distortion_types: list[str] = ["displacement", "strain"]
+        self.distortion_types: list[str] = ["displacive", "strain"]
+        self.distortion_scope: dict[str, list[str]] = {
+            "displacive": ["*"],
+            "occupational": [],
+            "strain": [],
+            "magnetic": [],
+            "rotational": [],
+        }
+        self.iso.set_distortion_scope(self.distortion_scope)
         self.last_method1: list = []  # Method 1 候选（Method1ResultItem 列表）
         self.last_method2 = None      # Method 2 结果
         self.last_method3: list = []  # Method 3 候选
@@ -221,19 +237,42 @@ class IsoDistortConsoleApp:
         except Exception as exc:  # noqa: BLE001 - CLI 边界：任何加载错误都转为提示
             print(t("load.failed", err=exc))
             return
+        self.iso.set_distortion_scope(self.distortion_scope)
         self.last_method1 = []
         self.last_method2 = None
         self.last_method3 = []
 
     def _set_distortion_types(self) -> None:
+        """选择 Distortion Types + 各类型的作用域物种（官网 all/none/Eu/Al）。"""
         self.distortion_types = _prompt_distortion_types(self.distortion_types)
-        print(f"当前启用类型: {', '.join(self.distortion_types)}")
+
+        species = self.iso.species()
+        for tp in self.distortion_types:
+            if tp == "strain":
+                continue  # 官网 Strain 行没有物种作用域复选框
+            print(f"  {tp} 作用域（当前结构物种: {', '.join(species) or '未加载'}"
+                  "；all=全部，none=不启用，或逗号分隔的物种，如 Eu,Al）")
+            raw = _prompt(f"  {tp} scope", "all").strip().lower()
+            if raw in ("all", "*", ""):
+                self.distortion_scope[tp] = ["*"]
+            elif raw == "none":
+                self.distortion_scope[tp] = []
+            else:
+                self.distortion_scope[tp] = [s for s in raw.split(",") if s]
+
+        self.iso.set_distortion_scope(self.distortion_scope)
+        scope_desc = ", ".join(
+            f"{tp}={','.join(v) if v else 'none'}"
+            for tp, v in self.distortion_scope.items()
+            if tp in self.distortion_types
+        )
+        print(f"当前启用类型: {', '.join(self.distortion_types)} | 作用域: {scope_desc}")
 
     def _switch_language(self) -> None:
-        """切换界面语言（zh / en / mixed）。"""
+        """切换界面语言（zh / en）。"""
         print(t("ui.lang.current", lang=get_language()))
         raw = _prompt(t("ui.lang.prompt"), "").strip().lower()
-        if raw in ("zh", "en", "mixed"):
+        if raw in ("zh", "en"):
             set_language(raw)
             print(t("ui.lang.current", lang=get_language()))
         else:
@@ -263,27 +302,29 @@ class IsoDistortConsoleApp:
         _line()
         print("Method 1: Search over all special k points")
 
-        crystal_system = _prompt(
-            t("m1.cs"),
-            "",
-        ).strip().lower()
-        crystal_system = crystal_system or None
+        # 晶系（网页：复选框多选=OR；终端：逗号分隔，如 tetragonal,orthorhombic）
+        raw_cs = _prompt(t("m1.cs"), "").strip().lower()
+        crystal_system = [x.strip() for x in raw_cs.split(",") if x.strip()] or None
 
         sg_raw = _prompt(t("m1.sg"), "").strip()
         subgroup_space_group = int(sg_raw) if sg_raw else None
 
         maximal_only = _prompt_yes_no(t("m1.maximal"), False)
 
-        direct_sublattice = None
-        if _prompt_yes_no(t("m1.sublattice"), False):
-            direct_sublattice = _prompt_supercell([1, 1, 1])
+        # 官网 Conventional lattice / Primitive lattice 过滤（与网页下拉同数据源）
+        lattice = self._prompt_lattice_selection()
+        lattice_matrix = None
+        if lattice:
+            lattice_matrix = self.iso.lattice_in_conventional_frame(
+                lattice["matrix"], lattice["frame"]
+            )
 
         print(t("m1.wait"))
         result = self.iso.search_method_1(
             distortion_types=self.distortion_types,
             crystal_system=crystal_system,
             subgroup_space_group=subgroup_space_group,
-            direct_sublattice=direct_sublattice,
+            lattice=lattice_matrix,
             maximal_subgroup_only=maximal_only,
         )
         self.last_method1 = result
@@ -300,6 +341,36 @@ class IsoDistortConsoleApp:
             )
         if len(result) > 30:
             print(f"  ... 还有 {len(result) - 30} 条")
+
+    def _prompt_lattice_selection(self) -> dict | None:
+        """官网 Conventional/Primitive lattice 下拉的终端版（0 = 不选）。"""
+        print("\nMethod 1 lattice 过滤（官网 Conventional/Primitive lattice，0=不选）")
+        try:
+            opts = self.iso.method1_options()
+        except IsodistortError as exc:
+            print(f"获取 lattice 选项失败: {exc}")
+            return None
+        conv = opts.get("conventional_lattices") or []
+        prim = opts.get("primitive_lattices") or []
+        print("  Conventional lattice:")
+        for i, lat in enumerate(conv, start=1):
+            print(f"    C{i:2d}. {lat['label']}")
+        print("  Primitive lattice:")
+        for i, lat in enumerate(prim, start=1):
+            print(f"    P{i:2d}. {lat['label']}")
+        raw = _prompt("选择（如 C3 或 P2；0=不选）", "0").strip().lower()
+        if raw in ("", "0"):
+            return None
+        if len(raw) >= 2 and raw[0] in ("c", "p"):
+            try:
+                idx = int(raw[1:]) - 1
+            except ValueError:
+                idx = -1
+            pool = conv if raw[0] == "c" else prim
+            if 0 <= idx < len(pool):
+                return {"matrix": pool[idx]["basis"], "frame": raw[0]}
+        print("序号无效，跳过 lattice 过滤。")
+        return None
 
     def _run_method_2(self) -> None:
         _line()
@@ -321,10 +392,8 @@ class IsoDistortConsoleApp:
         if subgroup_idx is None:
             return
 
-        dtype = _prompt(
-            "distortion_type (displacement/order/strain/magnetic)",
-            self.distortion_types[0] if self.distortion_types else "displacement",
-        ).strip().lower()
+        # 与网页一致：使用会话当前启用的畸变类型（含作用域），不做单独覆盖
+        dtype = self.distortion_types
 
         # k 点 / OPD 信息（官网在 Method 2 页选择 k 点、IR、OPD；
         # 本地已由枚举确定，此处仅作展示与确认）
@@ -342,7 +411,6 @@ class IsoDistortConsoleApp:
 
         n_mod = _prompt_int("independent modulations 数（incommensurate 时常用）", 0)
         n_superposed = _prompt_int("superposed IR 数", 1)
-        opd = _prompt("指定 OPD（留空使用子群默认 OPD）", "").strip() or None
 
         result = self.iso.search_method_2(
             subgroup_idx=subgroup_idx,
@@ -351,24 +419,27 @@ class IsoDistortConsoleApp:
             k_parameters={},
             number_of_independent_modulations=n_mod,
             number_of_superposed_irs=n_superposed,
-            specified_opd=opd,
         )
         self.last_method2 = result
 
-        print(f"Method 2: 模式数 {len(result.modes)}")
+        print(f"Method 2: 模式数 {len(result.modes) + len(self.iso.mode_occupancies)}")
         for mode in result.modes:
             sites = sorted({b.wyckoff_letter for b in mode.bush_modes})
             print(
                 f"  {mode.irrep_label:<8s} OPD={mode.opd_symbol:<6s} "
                 f"dim={mode.dimension:<2d} 位点={sites}"
             )
+        for label, entry in self.iso.mode_occupancies.items():
+            om = entry["mode"]
+            flag = "" if entry["validated"] else "（近似）"
+            print(f"  {label:<8s} occupational 占据率模式 位点={om.wyckoff_letter}{flag}")
 
         if _prompt_yes_no(t("m2.enter_dist"), True):
             self._generate_single_mode_flow()
 
     def _direct_kpoint_search(self) -> int | None:
         """直接 k 点搜索：k 点 -> IR -> OPD -> 子群（对齐官网 Method 2 流程）。"""
-        print("\n--- 选择 k 点 / Choose a k point ---")
+        print("\n--- 选择 k 点 ---")
         kpoints = self.iso.list_k_points()
         for i, kp in enumerate(kpoints, start=1):
             params = f"（参数: {','.join(kp.parameters)}）" if kp.parameters else ""
@@ -395,7 +466,7 @@ class IsoDistortConsoleApp:
                 print(t("m2.param_empty"))
                 return None
 
-        print("\n--- 选择不可约表示 / Choose an IR ---")
+        print("\n--- 选择不可约表示 ---")
         irreps = self.iso.list_irreps(kp.label, k_parameters)
         for i, ir in enumerate(irreps, start=1):
             print(f"  {i:2d}. {ir.label:<8s} dim={ir.dimension}")
@@ -426,12 +497,26 @@ class IsoDistortConsoleApp:
         if not subs:
             print(t("m2.no_subs"))
             return None
-        for i, sg in enumerate(subs, start=1):
-            print(
-                f"  {i:2d}. idx={sg.index} SG {sg.space_group_number} "
-                f"{sg.space_group_symbol:<10s} OPD={sg.opd_symbol:<4s} "
-                f"index={sg.subgroup_index} size={sg.size}"
-            )
+
+        # OPD 过滤（对齐网页 Method 2 的 OPD 下拉：列出不同序参量方向，可再过滤）
+        while True:
+            distinct_opds = sorted({sg.opd_symbol for sg in subs if sg.opd_symbol})
+            print(f"  OPD 方向: {', '.join(distinct_opds) or '-'}")
+            for i, sg in enumerate(subs, start=1):
+                print(
+                    f"  {i:2d}. idx={sg.index} SG {sg.space_group_number} "
+                    f"{sg.space_group_symbol:<10s} OPD={sg.opd_symbol:<4s} "
+                    f"index={sg.subgroup_index} size={sg.size}"
+                )
+            opd_choice = _prompt("按 OPD 过滤（输入方向符号，留空=全部）", "").strip()
+            if not opd_choice:
+                break
+            filtered = [sg for sg in subs if sg.opd_symbol == opd_choice]
+            if not filtered:
+                print("该 OPD 下无子群，请重试。")
+                continue
+            subs = filtered
+            break
         choice = _prompt_int(t("m2.choose_sg"), 1)
         if not (1 <= choice <= len(subs)):
             print(t("m2.range"))
@@ -447,11 +532,23 @@ class IsoDistortConsoleApp:
         sg_raw = _prompt(t("m3.sg"), "").strip()
         space_group_type = int(sg_raw) if sg_raw else None
 
+        # 官网 radio：direct（实空间子格，默认）/ reciprocal（倒易超格，本地不支持）
+        lattice_type = _prompt("lattice_type (direct/reciprocal)", "direct").strip().lower()
+        if lattice_type not in ("direct", "reciprocal"):
+            lattice_type = "direct"
+        if lattice_type == "reciprocal":
+            print("提示：本地引擎暂不支持 reciprocal（倒易空间超格）模式，"
+                  "将使用 direct 并给出后端错误提示。")
+
+        # 官网带心 radio：Default(d)/P/A/B/C/I/F/R
+        centering = _prompt(
+            "direct sublattice centering (d/P/A/B/C/I/F/R，留空=d)",
+            "d",
+        ).strip().upper() or "d"
+
         basis = None
         if _prompt_yes_no(t("m3.basis_q"), True):
             basis = _prompt_basis_matrix()
-
-        centering = _prompt(t("m3.centering"), "").strip() or None
 
         result = self.iso.search_method_3(
             distortion_types=self.distortion_types,
@@ -459,6 +556,7 @@ class IsoDistortConsoleApp:
             space_group_type=space_group_type,
             supercell_basis=basis,
             direct_sublattice_centering=centering,
+            lattice_type=lattice_type,
         )
         self.last_method3 = result
 
@@ -478,13 +576,11 @@ class IsoDistortConsoleApp:
         print("Method 4: Mode decomposition of a distorted structure")
         daughter_cif = _choose_cif(self.project_root, "请选择 Daughter CIF")
 
-        matching = _prompt("atom matching method (nearest-site/robust)", "nearest-site").strip()
-        threshold = _prompt_float("robust threshold（分数坐标距离）", 0.25)
-
+        # 与网页一致：使用官网默认匹配参数（nearest-site / 阈值 0.25）
         result = self.iso.search_method_4(
             distorted_cif_path=daughter_cif,
-            atom_matching_method=matching,
-            robust_distance_threshold=threshold,
+            atom_matching_method="nearest-site",
+            robust_distance_threshold=0.25,
             provided_origin_shift=None,
         )
 
@@ -522,14 +618,16 @@ class IsoDistortConsoleApp:
                 self._domains_flow()
 
     def _generate_single_mode_flow(self) -> None:
-        if not self.iso.mode_displacements:
+        if not self.iso.mode_displacements and not self.iso.mode_occupancies:
             print(t("ui.msg.no_modes"))
             return
 
-        labels = list(self.iso.mode_displacements.keys())
-        print("可用模式 / Available modes:")
+        labels = (list(self.iso.mode_displacements.keys())
+                  + list(self.iso.mode_occupancies.keys()))
+        print("可用模式：")
         for i, label in enumerate(labels, start=1):
-            print(f"  {i:2d}. {label}")
+            kind = "occ" if label in self.iso.mode_occupancies else "disp"
+            print(f"  {i:2d}. {label}  ({kind})")
 
         raw = _prompt(t("dist.choose_mode"), "1")
         if raw.isdigit():
@@ -548,7 +646,7 @@ class IsoDistortConsoleApp:
         )
         supercell = None
         if self.iso.phase_path is not None and self.iso.phase_path.basis_vectors:
-            print("将使用所选子群的超胞基矢 / Using the subgroup supercell basis.")
+            print("将使用所选子群的超胞基矢。")
         elif _prompt_yes_no(t("dist.supercell_q"), False):
             supercell = _prompt_supercell(
                 self.iso.cfg.defaults.get("default_supercell", [1, 1, 1])
@@ -560,7 +658,7 @@ class IsoDistortConsoleApp:
         print(t("ui.msg.generated", n=len(distorted)))
 
     def _generate_mixed_mode_flow(self) -> None:
-        if not self.iso.mode_displacements:
+        if not self.iso.mode_displacements and not self.iso.mode_occupancies:
             print(t("ui.msg.no_modes"))
             return
 
@@ -586,7 +684,7 @@ class IsoDistortConsoleApp:
 
         supercell = None
         if self.iso.phase_path is not None and self.iso.phase_path.basis_vectors:
-            print("将使用所选子群的超胞基矢 / Using the subgroup supercell basis.")
+            print("将使用所选子群的超胞基矢。")
         elif _prompt_yes_no(t("dist.supercell_q"), False):
             supercell = _prompt_supercell(
                 self.iso.cfg.defaults.get("default_supercell", [1, 1, 1])
@@ -602,7 +700,7 @@ class IsoDistortConsoleApp:
             print(t("ui.msg.no_export"))
             return
 
-        name = _prompt("导出文件名前缀 / File name prefix", "distorted_output")
+        name = _prompt("导出文件名前缀", "distorted_output")
         formats_raw = _prompt("导出格式（逗号分隔，如 cif,poscar）", "cif")
         formats = [x.strip().lower() for x in formats_raw.split(",") if x.strip()]
         paths = self.iso.export(name, formats=formats)
@@ -615,7 +713,7 @@ class IsoDistortConsoleApp:
         try:
             domains = self.iso.generate_domains()
         except IsodistortError as exc:
-            print(f"生成畴失败 / Domains failed: {exc}")
+            print(f"生成畴失败: {exc}")
             return
         print(t("ui.msg.domains_done", n=len(domains)))
         for d in domains[:20]:
@@ -642,10 +740,16 @@ class IsoDistortConsoleApp:
             print(f"  Parent structure: SG #{sg} ({sym}), atoms={n_atoms}")
 
         print(f"  Distortion types: {', '.join(self.distortion_types)}")
+        scope_desc = ", ".join(
+            f"{tp}={','.join(v) if v else 'none'}"
+            for tp, v in self.distortion_scope.items()
+            if tp in self.distortion_types
+        )
+        print(f"  Scope: {scope_desc}")
         print(f"  Last Method1 count: {len(self.last_method1)}")
         print(f"  Last Method3 count: {len(self.last_method3)}")
 
-        mode_count = len(self.iso.mode_displacements)
+        mode_count = len(self.iso.mode_displacements) + len(self.iso.mode_occupancies)
         print(f"  Available mapped modes: {mode_count}")
 
         if self.iso.distorted_structure is not None:

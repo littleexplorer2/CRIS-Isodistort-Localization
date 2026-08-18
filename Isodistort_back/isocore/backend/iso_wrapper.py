@@ -118,7 +118,8 @@ class BushMode:
     irrep_label: str
     opd_symbol: str
     wyckoff_letter: str
-    point: list[float]                       # 代表位点坐标
+    point: list[float]                       # 代表位点坐标（自由参数按 0）
+    point_raw: list[str] = field(default_factory=list)  # 原始坐标 token（含 x/y/z 等参数）
     displacements: list[list[float]] = field(default_factory=list)  # 位移向量（可多个，对应模式分量）
 
 
@@ -128,7 +129,7 @@ class DistortionMode:
 
     irrep_label: str                 # 不可约表示标号，如 GM4-
     dimension: int = 1               # 模式维度
-    mode_type: str = "displacement"  # 类型: displacement/order/strain/magnetic
+    mode_type: str = "displacive"    # 类型: displacive/occupational/strain/magnetic/rotational
     basis_vectors: list[list[float]] = field(default_factory=list)  # 兼容旧接口
     wyckoff_site: str = ""           # 对应 Wyckoff 位置
     k_point_label: str = ""          # k 点
@@ -493,7 +494,7 @@ class IsoWrapper(BaseWrapper):
                 mode = DistortionMode(
                     irrep_label=row["irrep_label"],
                     opd_symbol=row["opd_symbol"],
-                    mode_type="displacement",
+                    mode_type="displacive",
                     k_point_label=subgroup.k_point_label,
                 )
                 modes[key] = mode

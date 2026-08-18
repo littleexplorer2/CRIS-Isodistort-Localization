@@ -11,20 +11,25 @@ ISODISTORT 本地网页交互程序（web/server.py）
 
 与终端/API 的关系：
 - 底层复用 isocore.api.IsoDistort（同一套真实 iso/findsym 计算）
-- 界面语言：页面右上角 中/EN/中+EN 按钮切换（前端渲染）；服务器控制台输出
+- 界面语言：页面右上角语言下拉菜单（zh/en）切换（前端渲染）；服务器控制台输出
   跟随请求的 ?lang= 参数（未指定时用配置 runtime.language）
 """
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 import sys
 import threading
+import time
 import urllib.parse
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
+
+import numpy as np
+from pymatgen.symmetry.groups import SpaceGroup
 
 # 确保能导入 isocore（server.py 位于 Isodistort_back/web/）
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -32,6 +37,7 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 from isocore.api import IsoDistort  # noqa: E402
+from isocore.distortion import DISTORTION_TYPES  # noqa: E402
 from isocore.i18n import MESSAGES, TERMS_EN2ZH, set_language  # noqa: E402
 from isocore.utils import get_config  # noqa: E402
 
@@ -43,7 +49,15 @@ class WebSession:
 
     def __init__(self) -> None:
         self.iso = IsoDistort()
-        self.distortion_types: list[str] = ["displacement", "strain"]
+        self.distortion_types: list[str] = ["displacive", "strain"]
+        # 各畸变类型的作用域物种（官网 all/none/Eu/Al 复选框），"*"=全部
+        self.distortion_scope: dict[str, list[str]] = {
+            "displacive": ["*"],
+            "occupational": [],
+            "strain": [],
+            "magnetic": [],
+            "rotational": [],
+        }
         self.method1: list = []
         self.method2 = None
         self.method3: list = []
@@ -51,25 +65,103 @@ class WebSession:
 
 _SESSION = WebSession()
 
+# 230 个空间群（序号 + HM 符号），供 Method 1/3 下拉使用
+_SPACE_GROUPS = [
+    {"number": i, "symbol": SpaceGroup.from_int_number(i).symbol}
+    for i in range(1, 231)
+]
+
+
+def _space_groups() -> list[dict]:
+    return _SPACE_GROUPS
+
+
+# ------------------------------------------------------------
+# 生命周期管理：网页关闭 -> 自动停止服务并释放端口
+# - 页面打开后周期性发送心跳（/api/ping）；关闭页面前发送
+#   shutdown 信标（/api/shutdown）
+# - 守护线程检测：收到 shutdown 请求，或“页面曾打开但心跳超时”，
+#   则关闭 HTTPServer（释放端口）并退出进程
+# ------------------------------------------------------------
+class _Lifecycle:
+    """页面生命周期状态（模块级单例，守护线程与请求处理器共享）。"""
+
+    def __init__(self) -> None:
+        self.lock = threading.Lock()
+        self.page_seen = False          # 页面是否至少打开过一次（未打开则服务常驻）
+        self.page_heartbeat = 0.0       # 最近一次心跳/页面请求时间
+        self.shutdown_requested = False
+
+
+_LIFE = _Lifecycle()
+
+
+def _touch_heartbeat() -> None:
+    """页面活动刷新（任何页面请求都算活动）。"""
+    with _LIFE.lock:
+        _LIFE.page_heartbeat = time.time()
+
+
+def _mark_page_seen() -> None:
+    with _LIFE.lock:
+        _LIFE.page_seen = True
+
+
+def _request_shutdown() -> None:
+    """请求关闭服务（由 /api/shutdown 触发，稍后由守护线程执行）。"""
+    with _LIFE.lock:
+        _LIFE.shutdown_requested = True
+
+
+def _watchdog(server: HTTPServer, idle_timeout: float) -> None:
+    """守护线程：页面关闭（心跳停止）或收到 shutdown 后关闭服务。"""
+    while True:
+        time.sleep(2)
+        with _LIFE.lock:
+            stale = _LIFE.page_seen and (time.time() - _LIFE.page_heartbeat > idle_timeout)
+            stop = _LIFE.shutdown_requested or stale
+        if stop:
+            with contextlib.suppress(Exception):  # 关闭失败不影响退出
+                server.shutdown()
+            return
+
 
 def _state_summary() -> dict:
     """返回当前会话状态摘要（供前端展示）。"""
     iso = _SESSION.iso
+    modes = list(iso.mode_displacements.keys()) + list(iso.mode_occupancies.keys())
     summary = {
         "language": None,
         "structure": None,
         "subgroups": len(iso.subgroups),
-        "modes": list(iso.mode_displacements.keys()),
+        "modes": modes,
         "distorted_atoms": len(iso.distorted_structure) if iso.distorted_structure else None,
         "distortion_types": _SESSION.distortion_types,
+        "distortion_scope": _SESSION.distortion_scope,
+        "species": iso.species(),
     }
     if iso.structure is not None:
+        lattice = iso.structure.lattice
         summary["structure"] = {
             "space_group_number": iso.symmetry_info["space_group_number"],
             "space_group_symbol": iso.symmetry_info["space_group_symbol"],
             "atoms": len(iso.structure),
+            "preferences": iso.space_group_preferences(),
+            "lattice": {
+                "a": round(float(lattice.a), 6),
+                "b": round(float(lattice.b), 6),
+                "c": round(float(lattice.c), 6),
+                "alpha": round(float(lattice.alpha), 6),
+                "beta": round(float(lattice.beta), 6),
+                "gamma": round(float(lattice.gamma), 6),
+            },
             "wyckoff": [
-                {"letter": s["wyckoff_letter"], "species": s["species"]}
+                {
+                    "letter": s["wyckoff_letter"],
+                    "multiplicity": s["multiplicity"],
+                    "species": s["species"],
+                    "coordinates": [round(float(x), 6) for x in iso.structure[s["representative_index"]].frac_coords],
+                }
                 for s in iso.symmetry_info["wyckoff_sites"]
             ],
         }
@@ -151,7 +243,7 @@ class IsoHandler(BaseHTTPRequestHandler):
         return json.loads(raw.decode("utf-8"))
 
     def _query_lang(self) -> str:
-        """从查询参数取语言（?lang=zh|en|mixed），并应用到服务器端输出。
+        """从查询参数取语言（?lang=zh|en），并应用到服务器端输出。
 
         未指定时使用配置 runtime.language（默认 en）。
         """
@@ -159,8 +251,8 @@ class IsoHandler(BaseHTTPRequestHandler):
         qs = urllib.parse.parse_qs(parsed.query)
         default = get_config().language
         lang = (qs.get("lang") or [default])[0]
-        if lang not in ("zh", "en", "mixed"):
-            lang = default if default in ("zh", "en", "mixed") else "en"
+        if lang not in ("zh", "en"):
+            lang = default if default in ("zh", "en") else "en"
         try:
             set_language(lang)
         except ValueError:
@@ -188,20 +280,30 @@ class IsoHandler(BaseHTTPRequestHandler):
         path = parsed.path
 
         if path in ("/", "/index.html"):
+            _mark_page_seen()
+            _touch_heartbeat()
             self._serve_index()
+        elif path.startswith("/static/"):
+            _touch_heartbeat()
+            self._serve_static(path)
+        elif path == "/api/ping":
+            # 心跳：页面存活标记（关闭页面后心跳停止 -> 守护线程自动停服）
+            _touch_heartbeat()
+            self._send_json({"ok": True})
         elif path == "/api/state":
+            _touch_heartbeat()
             self._send_json({"ok": True, **{"state": _state_summary()},
                              "language": lang})
         elif path == "/api/i18n":
-            # mixed 模式：返回中文文案 + 术语表，前端自行做专有名词替换
-            messages = MESSAGES["zh"] if lang == "mixed" else MESSAGES.get(lang, MESSAGES["zh"])
+            _touch_heartbeat()
             self._send_json({
                 "ok": True,
                 "language": lang,
-                "messages": messages,
+                "messages": MESSAGES.get(lang, MESSAGES["zh"]),
                 "terms": TERMS_EN2ZH,
             })
         elif path == "/api/kpoints":
+            _touch_heartbeat()
             self._run(lambda: {
                 "kpoints": [
                     {"label": kp.label, "coordinates": kp.coordinates,
@@ -209,6 +311,10 @@ class IsoHandler(BaseHTTPRequestHandler):
                     for kp in _SESSION.iso.list_k_points()
                 ],
             })
+        elif path == "/api/space_groups":
+            # 230 个空间群的 序号+HM 符号（Method 3 下拉，对齐官网表单）
+            _touch_heartbeat()
+            self._send_json({"ok": True, "space_groups": _space_groups()})
         elif path == "/api/irreps":
             qs = urllib.parse.parse_qs(parsed.query)
             k = (qs.get("k") or [""])[0]
@@ -219,6 +325,10 @@ class IsoHandler(BaseHTTPRequestHandler):
                     for ir in _SESSION.iso.list_irreps(k, params)
                 ],
             })
+        elif path == "/api/method1_options":
+            # Method 1 下拉数据（对齐官网：可达子群空间群 + Conventional/Primitive lattice）
+            _touch_heartbeat()
+            self._run(lambda: {"options": _SESSION.iso.method1_options()})
         elif path == "/api/download":
             self._serve_download(parsed.query)
         else:
@@ -229,6 +339,13 @@ class IsoHandler(BaseHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         data = self._read_json()
+
+        if path == "/api/shutdown":
+            # 网页关闭/用户点击“停止服务”：先应答，再由守护线程关闭服务释放端口
+            _request_shutdown()
+            self._send_json({"ok": True, "shutdown": True})
+            return
+        _touch_heartbeat()
 
         if path == "/api/load_cif":
             self._run(lambda: self._api_load_cif(data))
@@ -270,21 +387,37 @@ class IsoHandler(BaseHTTPRequestHandler):
             raise ValueError("CIF 内容为空 / CIF content is empty")
         path = _write_upload(filename, content)
         _SESSION.iso.load_structure(path)
+        _SESSION.iso.set_distortion_scope(_SESSION.distortion_scope)
         _SESSION.method1, _SESSION.method2, _SESSION.method3 = [], None, []
         return {"state": _state_summary()}
 
     def _api_set_types(self, data: dict) -> dict:
-        types = data.get("types", ["displacement", "strain"])
-        valid = {"displacement", "order", "strain", "magnetic"}
-        _SESSION.distortion_types = [t for t in types if t in valid] or ["displacement", "strain"]
+        types = data.get("types", ["displacive", "strain"])
+        valid = set(DISTORTION_TYPES)
+        _SESSION.distortion_types = [t for t in types if t in valid] or ["displacive", "strain"]
+        scope = data.get("scope")
+        if scope is not None:
+            _SESSION.distortion_scope = {
+                tp: (["*"] if (v == "*" or v == "all") else
+                     (v if isinstance(v, list) else []))
+                for tp, v in scope.items() if tp in valid
+            }
+            # 同步到底层 IsoDistort（模式计算按作用域过滤）
+            _SESSION.iso.set_distortion_scope(_SESSION.distortion_scope)
         return {"state": _state_summary()}
 
     def _api_method1(self, data: dict) -> dict:
+        lattice = data.get("lattice")
+        if lattice is not None:
+            lattice = _SESSION.iso.lattice_in_conventional_frame(
+                lattice, data.get("frame", "conventional")
+            )
         result = _SESSION.iso.search_method_1(
             distortion_types=data.get("distortion_types", _SESSION.distortion_types),
             crystal_system=data.get("crystal_system") or None,
             subgroup_space_group=data.get("subgroup_space_group") or None,
             direct_sublattice=data.get("direct_sublattice"),
+            lattice=lattice,
             maximal_subgroup_only=bool(data.get("maximal_subgroup_only", False)),
         )
         _SESSION.method1 = result
@@ -301,9 +434,13 @@ class IsoHandler(BaseHTTPRequestHandler):
 
     def _api_method2(self, data: dict) -> dict:
         idx = int(data["subgroup_idx"])
-        result = _SESSION.iso.search_method_2(
+        iso = _SESSION.iso
+        iso.set_distortion_scope(_SESSION.distortion_scope)
+        result = iso.search_method_2(
             subgroup_idx=idx,
-            distortion_type=data.get("distortion_type", "displacement"),
+            distortion_type=data.get("distortion_type", _SESSION.distortion_types),
+            number_of_independent_modulations=int(data.get("nmod", 0) or 0),
+            number_of_superposed_irs=int(data.get("nsup", 1) or 1),
         )
         _SESSION.method2 = result
         modes = []
@@ -311,8 +448,20 @@ class IsoHandler(BaseHTTPRequestHandler):
             modes.append({
                 "irrep_label": m.irrep_label,
                 "opd_symbol": m.opd_symbol,
+                "mode_type": m.mode_type,
                 "wyckoff_sites": sorted({b.wyckoff_letter for b in m.bush_modes}),
                 "n_representatives": len(m.bush_modes),
+            })
+        for label, entry in iso.mode_occupancies.items():
+            om = entry["mode"]
+            modes.append({
+                "irrep_label": label,
+                "opd_symbol": om.irrep_label or "",
+                "mode_type": "occupational",
+                "wyckoff_sites": [om.wyckoff_letter],
+                "n_representatives": int(np.count_nonzero(om.pattern)),
+                "validated": entry["validated"],
+                "note": entry["note"],
             })
         return {"modes": modes, "state": _state_summary()}
 
@@ -323,6 +472,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             space_group_type=data.get("space_group_type") or None,
             supercell_basis=data.get("supercell_basis"),
             direct_sublattice_centering=data.get("direct_sublattice_centering") or None,
+            lattice_type=data.get("lattice_type", "direct"),
         )
         _SESSION.method3 = result
         return {"candidates": _method1_rows(result), "state": _state_summary()}
@@ -398,6 +548,27 @@ class IsoHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _serve_static(self, path: str) -> None:
+        """提供 web/static/ 下的静态资源（bootstrap.css / docs.css / help.jpg 等）。"""
+        rel = path[len("/static/"):]
+        file_path = (WEB_DIR / "static" / rel).resolve()
+        if not str(file_path).startswith(str((WEB_DIR / "static").resolve())):
+            self._send_json({"ok": False, "error": "invalid path"}, 403)
+            return
+        if not file_path.is_file():
+            self._send_json({"ok": False, "error": "not found"}, 404)
+            return
+        mime = "image/jpeg" if file_path.suffix.lower() in (".jpg", ".jpeg") else \
+            "text/css" if file_path.suffix.lower() == ".css" else \
+            "application/octet-stream"
+        body = file_path.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", f"{mime}; charset=utf-8" if "text/" in mime else mime)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
     def _serve_download(self, query: str) -> None:
         qs = urllib.parse.parse_qs(query)
         fname = (qs.get("file") or [""])[0]
@@ -419,32 +590,62 @@ class IsoHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 
+def _bind_server(host: str, preferred_port: int) -> HTTPServer | None:
+    """按“配置端口 → 顺延端口 → 系统空闲端口(0)”的顺序尝试绑定，保证成功。"""
+    candidates = list(range(preferred_port, preferred_port + 21))
+    candidates.append(0)  # 交给系统分配空闲端口，兜底保证可启动
+    for port in candidates:
+        try:
+            return HTTPServer((host, port), IsoHandler)
+        except OSError:
+            continue
+    return None
+
+
+def _open_browser(url: str) -> None:
+    """自动打开默认浏览器；失败时重试一次，并在控制台醒目输出网址。"""
+    opened = False
+    for opener in (webbrowser.open, webbrowser.open_new):
+        try:
+            if opener(url):
+                opened = True
+                break
+        except Exception:  # noqa: BLE001, S112 - 浏览器异常不应影响服务运行，继续尝试
+            continue
+    if not opened:
+        print(f"\n无法自动打开浏览器，请手动访问: {url}")
+
+
 def main() -> int:
     cfg = get_config()
-    port = cfg.web_port
     host = "127.0.0.1"
 
-    server = None
-    for _attempt in range(10):
-        try:
-            server = HTTPServer((host, port), IsoHandler)
-            break
-        except OSError:
-            port += 1
+    server = _bind_server(host, cfg.web_port)
     if server is None:
-        print(f"无法绑定端口 {cfg.web_port}-{port}，请检查占用。")
+        print(f"无法绑定端口（{cfg.web_port} 及顺延端口均被占用），请检查网络环境。")
         return 1
+    port = server.server_address[1]
 
     url = f"http://{host}:{port}/"
-    print("=" * 60)
-    print("ISODISTORT Local Web Console")
-    print(f"  URL: {url}")
-    print(f"  Language: {cfg.language}  (click the top-right button to switch)")
-    print("  Press Ctrl+C to stop")
-    print("=" * 60)
+    # flush=True：即使输出被重定向/记录，网址也立即可见
+    print("=" * 60, flush=True)
+    print("ISODISTORT Local Web Console", flush=True)
+    print(f"  URL: {url}", flush=True)
+    print(f"  Language: {cfg.language}  (use the top-right dropdown to switch)", flush=True)
+    idle = cfg.web_idle_timeout
+    print(f"  Auto-stop: shuts down ~{idle}s after the page is closed", flush=True)
+    print("  Press Ctrl+C to stop", flush=True)
+    print("=" * 60, flush=True)
 
-    # 自动打开浏览器
-    threading.Timer(1.0, webbrowser.open, args=[url]).start()
+    # 延迟自动打开浏览器（等待服务就绪）；无论成败都会在控制台给出网址
+    threading.Timer(1.0, _open_browser, args=[url]).start()
+
+    # 守护线程：网页关闭/心跳停止后自动停服并释放端口
+    watchdog = threading.Thread(
+        target=_watchdog, args=(server, float(idle)), daemon=True,
+        name="isodistort-web-watchdog",
+    )
+    watchdog.start()
 
     try:
         server.serve_forever()
@@ -452,6 +653,7 @@ def main() -> int:
         print("\n服务已停止 / Server stopped.")
     finally:
         server.server_close()
+    print("已退出并释放端口 / Exited, port released.", flush=True)
     return 0
 
 

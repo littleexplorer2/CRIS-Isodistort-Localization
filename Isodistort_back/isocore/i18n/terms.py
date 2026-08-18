@@ -27,6 +27,13 @@ TERMS_EN2ZH: dict[str, str] = {
     "space group": "空间群",                       # CT
     "point group": "点群",                         # CT
     "crystal system": "晶系",                      # CT
+    "triclinic": "三斜",                           # CT
+    "monoclinic": "单斜",                          # CT
+    "orthorhombic": "正交",                        # CT
+    "tetragonal": "四方",                          # CT
+    "trigonal": "三方",                            # CT
+    "hexagonal": "六方",                           # CT
+    "cubic": "立方",                               # CT
     "lattice": "点阵",                             # CT（“晶格”为通行同义词）
     "unit cell": "晶胞",                           # CT
     "primitive cell": "原胞",                      # CT
@@ -68,12 +75,17 @@ TERMS_EN2ZH: dict[str, str] = {
     "distorted structure": "畸变结构",             # [web]
     "distortion": "畸变",                          # [web]
     "displacement": "位移",                        # [web]
+    "displacive": "位移型",                        # [web]（官网 Displacive 畸变）
     "atomic displacement": "原子位移",             # [web]
     "order": "有序化",                             # [web]（原子有序）
+    "occupational": "占据型",                      # [web]（官网 Occupational 畸变）
+    "rotational": "转动型",                        # [web]（官网 Rotational 畸变）
     "atomic ordering": "原子有序化",               # [web]
     "strain": "应变",                              # [web]
     "lattice strain": "晶格应变",                  # [web]
     "magnetic moment": "磁矩",                     # [web]/[CT]
+    "all": "全部",                                 # [web]（作用域复选框）
+    "none": "无",                                  # [web]（作用域复选框）
     "mode": "模式",                                # [web]
     "symmetry mode": "对称模式",                   # [web]
     "mode amplitude": "模式幅度",                  # [web]
@@ -131,6 +143,7 @@ TERMS_EN2ZH: dict[str, str] = {
     "occupancy distortion": "占据率畸变",          # [web]
     "strain distortion": "应变畸变",               # [web]
     "magnetic distortion": "磁性畸变",             # [web]
+    "magnetic": "磁性",                            # CT
     "occupancy": "占据率",                         # CT
 
     # ---- 结构输出 / 文件（[web]）----

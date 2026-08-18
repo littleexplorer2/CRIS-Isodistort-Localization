@@ -1,181 +1,243 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ISODISTORT Local Console</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="titleTag">ISODISTORT: search</title>
+<link rel="stylesheet" href="/static/bootstrap.css">
+<link rel="stylesheet" href="/static/docs.css">
+<link rel="icon" href="data:,">
 <style>
-  :root { --bg:#f5f6f8; --card:#fff; --line:#dde1e6; --text:#1c2733; --accent:#2563eb; --accent2:#0f766e; }
-  * { box-sizing: border-box; }
-  body { font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; margin:0; background:var(--bg); color:var(--text); }
-  header { background:linear-gradient(90deg,#1e3a8a,#2563eb); color:#fff; padding:14px 24px;
-           display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
-  header h1 { font-size:20px; margin:0; font-weight:600; }
-  #langBtn { background:#fff; color:#1e3a8a; border:none; border-radius:6px; padding:6px 14px;
-             font-size:14px; cursor:pointer; font-weight:600; }
-  main { max-width:1100px; margin:16px auto; padding:0 16px; display:flex; flex-direction:column; gap:14px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
-  .card h2 { margin:0 0 10px; font-size:16px; color:#1e3a8a; }
-  .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:6px 0; }
-  label { font-size:13px; }
-  input[type=text], input[type=number], select { padding:5px 8px; border:1px solid var(--line); border-radius:6px; font-size:13px; }
-  button { background:var(--accent); color:#fff; border:none; border-radius:6px; padding:6px 14px;
-           font-size:13px; cursor:pointer; }
-  button:hover { filter:brightness(1.08); }
-  button.secondary { background:var(--accent2); }
-  button:disabled { opacity:.5; cursor:not-allowed; }
-  table { border-collapse:collapse; width:100%; font-size:12.5px; margin-top:8px; }
-  th, td { border:1px solid var(--line); padding:4px 8px; text-align:left; white-space:nowrap; }
-  th { background:#eef2f7; }
-  .mono { font-family: Consolas, monospace; font-size:12px; }
-  .info { background:#eef6ff; border:1px solid #bfdbfe; border-radius:8px; padding:8px 12px; font-size:13px; margin-top:8px; }
-  .error { background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:8px 12px; font-size:13px; margin-top:8px; color:#b91c1c; }
-  .ok { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:8px 12px; font-size:13px; margin-top:8px; color:#15803d; }
-  #status { font-size:12.5px; color:#64748b; padding:4px 2px; }
-  details { margin-top:6px; }
-  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  @media (max-width: 800px) { .grid2 { grid-template-columns:1fr; } }
-  .scroll { max-height:320px; overflow:auto; }
+  /* docs.css 的 body 规则带官网网格背景图（未随资源包保存），此处覆盖掉 */
+  body { padding-top: 0px; background-image: none; }
+  div.pad { padding-right: 50px; padding-left: 50px; }
+  table.result { width: 100%; font-size: 13px; }
+  table.result tr.clickable { cursor: pointer; }
+  table.result tr.clickable:hover td { background: #f5f5f5; }
+  .scroll { max-height: 320px; overflow: auto; margin-top: 8px; }
+  .muted-hint { color: #999; font-size: 12px; }
+  #langSel { margin-top: 8px; }
+  #statusBox { margin-bottom: 14px; }
+  #typeTable { width: auto; }
+  #typeTable td { padding: 3px 10px 3px 0; white-space: nowrap; border: none; }
+  /* Bootstrap 2.x 的 label 默认 display:block，会竖排；官网为横排一行 */
+  #typeTable label { display: inline; font-weight: normal; margin-right: 10px; }
+  .m3-cent input[type=radio] { margin: 0 4px 0 8px; vertical-align: middle; }
+  .prefs input[type=radio], .prefs input[type=checkbox] { margin: 0 6px 0 8px; vertical-align: middle; }
+  #kpParams input { width: 60px; }
+  .navbar .nav.pull-right { margin-right: 0; }
+  #m1SysBox label { display: inline-block; margin-right: 10px; font-weight: normal; }
 </style>
 </head>
 <body>
-<header>
-  <h1>ISODISTORT Local Console</h1>
-  <button id="langBtn" onclick="toggleLang()">EN</button>
-</header>
-
-<main>
-  <!-- 状态栏 -->
-  <div class="card">
-    <h2 id="hStatus">Session</h2>
-    <div class="info" id="statusBox">-</div>
+<div class="navbar navbar-static-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="/">ISODISTORT</a>
+      <ul class="nav">
+        <li><a href="https://iso.byu.edu/isotropy.php" target="_blank" rel="noopener">SUITE</a></li>
+        <li><a href="https://iso.byu.edu/isodistorthelp.php" target="_blank" rel="noopener">HELP</a></li>
+      </ul>
+      <ul class="nav pull-right">
+        <li style="padding: 7px 10px 0 0;">
+          <label id="langLabel" for="langSel" style="color:#fff; font-size:13px; padding-right:6px;">Language</label>
+          <select id="langSel" onchange="onLangChange()" style="padding:4px 8px;">
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+          </select>
+        </li>
+        <li style="padding-top: 6px;">
+          <button id="btnStop" class="btn btn-danger" onclick="stopServer()">Stop</button>
+        </li>
+      </ul>
+    </div>
   </div>
+</div>
 
-  <!-- 1. Parent CIF -->
-  <div class="card">
-    <h2 id="hCif">1. Parent CIF</h2>
-    <div class="row">
+<div class="pad">
+  <h1 id="pageTitle">ISODISTORT: search</h1>
+  <p id="infoPara">—</p>
+  <div class="alert alert-info" id="statusBox">—</div>
+
+  <!-- ============ Parent CIF（对齐官网首页上传框） ============ -->
+  <div class="well">
+    <h3><span id="hCif">Parent CIF</span>
+      <a href="https://iso.byu.edu/isodistorthelp.php" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
+    </h3>
+    <p>
       <input type="file" id="cifFile" accept=".cif,.CIF">
-      <button onclick="loadCif()" id="btnLoadCif">Load</button>
-    </div>
-    <div id="cifInfo"></div>
+      <button class="btn btn-primary" id="btnLoadCif" onclick="loadCif()">Load</button>
+    </p>
+    <div id="cifMsg"></div>
   </div>
 
-  <!-- 2. Distortion Types -->
-  <div class="card">
-    <h2 id="hTypes">2. Distortion Types</h2>
-    <div class="row" id="typeBox"></div>
-    <button onclick="applyTypes()" class="secondary" id="btnTypes">Apply</button>
+  <!-- ============ Types of distortions（对齐官网：Strain 单选框 + 其余四类 all/none/物种复选框） ============ -->
+  <div class="well">
+    <h3><span id="hTypes">Types of distortions to be considered</span>
+      <button class="btn btn-primary" id="btnTypes" onclick="applyTypes()">Change</button>
+      <a href="https://iso.byu.edu/isodistorthelp.php#includedistortion" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
+    </h3>
+    <table id="typeTable">
+      <tbody id="typeBox"></tbody>
+    </table>
+    <div id="typesMsg"></div>
+    <b id="typeNote">Important: You must click on Change to implement any changes in the above type of distortions to be considered.</b>
   </div>
 
-  <div class="grid2">
-    <!-- Method 1 -->
-    <div class="card">
-      <h2 id="hM1">Method 1</h2>
-      <div class="row">
-        <label id="lCs">Crystal system</label>
-        <select id="m1Cs">
-          <option value="">-</option>
-          <option>triclinic</option><option>monoclinic</option><option>orthorhombic</option>
-          <option>tetragonal</option><option>trigonal</option><option>hexagonal</option><option>cubic</option>
-        </select>
-      </div>
-      <div class="row">
-        <label id="lSg">SG number</label>
-        <input type="number" id="m1Sg" min="1" max="230" style="width:80px">
-        <label><input type="checkbox" id="m1Max"> <span id="lMax">Maximal only</span></label>
-      </div>
-      <button onclick="runMethod1()" id="btnM1">Run Method 1</button>
-      <div id="m1Out" class="scroll"></div>
-    </div>
-
-    <!-- Method 2 -->
-    <div class="card">
-      <h2 id="hM2">Method 2</h2>
-      <div class="row">
-        <label id="lIdx">Subgroup idx</label>
-        <input type="number" id="m2Idx" style="width:80px">
-        <button onclick="runMethod2()" id="btnM2">Run Method 2</button>
-      </div>
-      <details>
-        <summary id="sDirect">Direct k-point search</summary>
-        <div class="row">
-          <select id="kpSelect" onchange="onKpChange()"></select>
-          <span id="kpParams"></span>
-        </div>
-        <div class="row"><select id="irSelect"></select></div>
-        <div class="row">
-          <label id="lGen">Generate DB if missing</label>
-          <input type="checkbox" id="genDb">
-          <button onclick="enumSubgroups()" class="secondary" id="btnSubs">List subgroups</button>
-        </div>
-        <div id="subOut" class="scroll"></div>
-      </details>
-      <div id="m2Out"></div>
-    </div>
+  <!-- ============ Method 1（对齐官网：晶系复选框 + 可达子群空间群 + Conventional/Primitive lattice + maximal） ============ -->
+  <div class="well">
+    <h3><span id="hM1">Method 1: Search over all special k points</span>
+      <button class="btn btn-primary" id="btnM1" onclick="runMethod1()">OK</button>
+      <a href="https://iso.byu.edu/isodistorthelp.php#isosub" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
+    </h3>
+    <p>
+      <span id="lCs">Crystal system(s):</span><br>
+      <span id="m1SysBox"></span><br>
+      <span id="lSgSel">Space-group symmetry:</span>
+      <select id="m1Sg" class="span4"></select>
+      <span class="muted-hint" id="m1SgHint"></span><br>
+      <span id="lConvLat">Conventional lattice:</span>
+      <select id="m1ConvLat" class="span4" onchange="onLatChange('conv')"></select><br>
+      <span id="lPrimLat">Primitive lattice:</span>
+      <select id="m1PrimLat" class="span4" onchange="onLatChange('prim')"></select><br>
+      <label><input type="checkbox" id="m1Max"> <span id="lMax">Maximal subgroups only</span></label>
+    </p>
+    <div id="m1Out" class="scroll"></div>
   </div>
 
-  <div class="grid2">
-    <!-- Method 3 -->
-    <div class="card">
-      <h2 id="hM3">Method 3</h2>
-      <div class="row">
-        <label id="lPg">Point group</label>
-        <input type="text" id="m3Pg" style="width:100px">
-        <label id="lSg3">Space group type</label>
-        <input type="number" id="m3Sg" min="1" max="230" style="width:80px">
-      </div>
-      <div class="row">
-        <label id="lBasis">Supercell basis (3 rows, comma)</label>
-        <input type="text" id="m3Basis" placeholder="1,0,0; 0,1,0; 0,0,1" style="width:220px">
-      </div>
-      <button onclick="runMethod3()" id="btnM3">Run Method 3</button>
-      <div id="m3Out" class="scroll"></div>
-    </div>
-
-    <!-- Method 4 -->
-    <div class="card">
-      <h2 id="hM4">Method 4</h2>
-      <div class="row"><input type="file" id="dauFile" accept=".cif,.CIF"></div>
-      <div class="row">
-        <label id="lMatch">Matching</label>
-        <select id="m4Match">
-          <option value="nearest-site">nearest-site</option>
-          <option value="robust">robust</option>
-        </select>
-        <label id="lThresh">Threshold</label>
-        <input type="number" id="m4Thresh" value="0.25" step="0.01" style="width:80px">
-        <button onclick="runMethod4()" class="secondary" id="btnM4">Run Method 4</button>
-      </div>
-      <div id="m4Out" class="scroll"></div>
-    </div>
+  <!-- ============ Method 2（对齐官网：k 点 + 参数 + 调制数 + IR/OPD + 叠加 IR 数） ============ -->
+  <div class="well">
+    <h3><span id="hM2">Method 2: General method - search over specific k points</span>
+      <button class="btn btn-primary" id="btnM2" onclick="listSubgroupsByKp()">OK</button>
+      <a href="https://iso.byu.edu/isodistorthelp.php#kpoint" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
+    </h3>
+    <p>
+      <span id="lKp">Specify k point:</span>
+      <select id="kpSelect" class="span4" onchange="onKpChange()"></select>
+      <span id="kpParams">a=<input id="p_a" class="span1" size="4"> b=<input id="p_b" class="span1" size="4"> g=<input id="p_g" class="span1" size="4"></span><br>
+      <span id="lIr">Irreducible representation (IR):</span>
+      <select id="irSelect" class="span4"></select>
+      <span id="lOpd">Order parameter direction (OPD):</span>
+      <select id="opdSelect" class="span4" onchange="enumSubgroups()"><option value="">—</option></select><br>
+      <span id="lNmod"># of independent incommensurate modulations:</span>
+      <input id="nmod" class="span1" value="0" size="2"><br>
+      <button class="btn btn-info" id="btnSubs" onclick="enumSubgroups()">List subgroups</button>
+      <span class="muted-hint" id="subsHint"></span>
+    </p>
+    <div id="subOut" class="scroll"></div>
+    <p>
+      <span id="lNsup">Change number of superposed IRs:</span>
+      <input id="nsup" class="span1" value="1" size="2">
+      <button class="btn btn-primary" id="btnNsup" onclick="applyNsup()">Change</button>
+      <a href="https://iso.byu.edu/isodistorthelp.php#coupledir" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
+    </p>
+    <b id="m2NsupNote">Important: You must click on Change to implement any changes in the number of superposed IRs.</b>
   </div>
 
-  <!-- Distortion Page -->
-  <div class="card">
-    <h2 id="hDist">Distortion Page</h2>
-    <div id="modeBox"></div>
-    <div class="row">
-      <button onclick="generateSingle()" id="btnGenS">Generate single-mode</button>
-      <button onclick="generateMixed()" class="secondary" id="btnGenM">Generate mixed</button>
-      <label id="lFmt">Formats</label>
-      <select id="expFmt"><option value="cif">cif</option><option value="cif,poscar">cif,poscar</option></select>
-      <button onclick="exportFiles()" id="btnExp">Export</button>
-      <button onclick="listDomains()" id="btnDom">Domains</button>
-    </div>
+  <!-- ============ Method 3（对齐官网：230 空间群 / 32 点群 + direct/reciprocal + 带心 + 3x3 基矢） ============ -->
+  <div class="well">
+    <h3><span id="hM3">Method 3: Search over arbitrary k points for specified space group and lattice</span>
+      <button class="btn btn-primary" id="btnM3" onclick="runMethod3()">OK</button>
+      <a href="https://iso.byu.edu/isodistorthelp.php#method3" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
+    </h3>
+    <p>
+      <span id="lSgSel3">Select either space group symmetry:</span>
+      <select id="m3Sg" class="span4"></select><br>
+      <span id="lPg">or point group (crystal class):</span>
+      <select id="m3Pg" class="span4"></select><br>
+      <label><input type="radio" name="m3LatType" value="direct" checked> <span id="m3Direct">Specify a real-space sublattice of the parent lattice with</span></label>
+      <span class="m3-cent">
+        <span id="m3CentDefault">Default</span><input type="radio" name="m3Cent" value="d" checked>
+        P<input type="radio" name="m3Cent" value="P">
+        A<input type="radio" name="m3Cent" value="A">
+        B<input type="radio" name="m3Cent" value="B">
+        C<input type="radio" name="m3Cent" value="C">
+        I<input type="radio" name="m3Cent" value="I">
+        F<input type="radio" name="m3Cent" value="F">
+        R<input type="radio" name="m3Cent" value="R"> <span id="m3CentEnd">centering.</span>
+      </span><br>
+      <label><input type="radio" name="m3LatType" value="reciprocal"> <span id="m3Reciprocal">Specify a primitive reciprocal-space superlattice</span></label><br>
+      <span id="lBasis">Choose a representative basis:</span><br>
+      a' = <input id="b11" class="span1" size="3" value="1">a + <input id="b12" class="span1" size="3" value="0">b + <input id="b13" class="span1" size="3" value="0">c<br>
+      b' = <input id="b21" class="span1" size="3" value="0">a + <input id="b22" class="span1" size="3" value="1">b + <input id="b23" class="span1" size="3" value="0">c<br>
+      c' = <input id="b31" class="span1" size="3" value="0">a + <input id="b32" class="span1" size="3" value="0">b + <input id="b33" class="span1" size="3" value="1">c
+    </p>
+    <div id="m3Out" class="scroll"></div>
+  </div>
+
+  <!-- ============ Method 4（对齐官网：仅上传畸变结构 CIF） ============ -->
+  <div class="well">
+    <h3><span id="hM4">Method 4: Mode decomposition of a distorted structure</span>
+      <button class="btn btn-primary" id="btnM4" onclick="runMethod4()">OK</button>
+      <a href="https://iso.byu.edu/isodistorthelp.php#method4" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
+    </h3>
+    <p>
+      <span id="lM4File">Upload distorted structure from CIF file:</span>
+      <input type="file" id="dauFile" accept=".cif,.CIF">
+    </p>
+    <div id="m4Out" class="scroll"></div>
+  </div>
+
+  <!-- ============ Distortion Page（模式生成/导出/畴） ============ -->
+  <div class="well">
+    <h3><span id="hDist">Distortion Page</span>
+      <a href="https://iso.byu.edu/isodistorthelp.php" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
+    </h3>
+    <div id="modesOut"></div>
+    <p id="modeBox"></p>
+    <p class="muted-hint" id="distNote"></p>
+    <p>
+      <button class="btn btn-primary" id="btnGenS" onclick="generateSingle()">Generate single-mode</button>
+      <button class="btn btn-info" id="btnGenM" onclick="generateMixed()">Generate mixed</button>
+      <span id="lFmt">Formats:</span>
+      <select id="expFmt">
+        <option value="cif">cif</option>
+        <option value="cif,poscar">cif,poscar</option>
+      </select>
+      <button class="btn btn-info" id="btnExp" onclick="exportFiles()">Export</button>
+      <button class="btn btn-info" id="btnDom" onclick="listDomains()">Domains</button>
+    </p>
     <div id="distOut"></div>
   </div>
 
-  <div id="status"></div>
-</main>
+  <!-- ============ Space-Group Preferences（对齐官网 settings 面板全部选项） ============ -->
+  <div class="well">
+    <h3><span id="hPrefs">Space-Group Preferences</span>
+      <a href="https://iso.byu.edu/isodistorthelp.php#settings" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
+    </h3>
+    <p class="muted-hint" id="prefsNote"></p>
+    <p class="prefs" style="font-size:13px;">
+      <span id="prefsMonoAxes">Monoclinic axes:</span>
+      a(b)c<input type="radio" disabled checked> c(-b)a<input type="radio" disabled>
+      ab(c)<input type="radio" disabled> ba(-c)<input type="radio" disabled>
+      (a)bc<input type="radio" disabled> (-a)cb<input type="radio" disabled><br>
+      <span id="prefsMonoCell">Monoclinic cell choice:</span>
+      1<input type="radio" disabled checked> 2<input type="radio" disabled> 3<input type="radio" disabled><br>
+      <span id="prefsOrthoAxes">Orthorhombic axes:</span>
+      abc<input type="radio" disabled checked> ba-c<input type="radio" disabled>
+      cab<input type="radio" disabled> -cba<input type="radio" disabled>
+      bca<input type="radio" disabled> a-cb<input type="radio" disabled><br>
+      <span id="prefsTrigAxes">Trigonal axes:</span>
+      <span id="prefsHex">hexagonal</span><input type="radio" disabled checked>
+      <span id="prefsRhombo">rhombohedral</span><input type="radio" disabled><br>
+      <span id="prefsOrigin">Origin choice:</span>
+      1<input type="radio" disabled> 2<input type="radio" disabled checked><br>
+      <span id="prefsSsg">Superspace group setting:</span>
+      <span id="prefsStandard">standard (IT-C)</span><input type="radio" disabled checked>
+      <span id="prefsBasic">basic (IT-A)</span><input type="radio" disabled><br>
+      <span class="muted-hint" id="prefsSsgNote"></span><br>
+      <label style="font-weight:normal;"><input type="checkbox" disabled>
+        <span id="prefsParentLike"></span></label>
+    </p>
+  </div>
+</div>
 
 <script>
 "use strict";
-/* ================= i18n ================= */
-let LANG = "zh";        // zh / en / mixed
-let MSG = {};           // 界面文案
-let TERMS = {};         // 科学术语（en -> zh）
-let ZH2EN = [];         // mixed 模式替换表（中文 -> 英文，按中文长度降序）
+/* ================= i18n（中英双语） ================= */
+let LANG = "en";
+let MSG = {};
+let TERMS = {};
 
 async function loadI18n(lang) {
   const r = await fetch(`/api/i18n?lang=${lang}`);
@@ -183,45 +245,40 @@ async function loadI18n(lang) {
   MSG = data.messages || {};
   TERMS = data.terms || {};
   LANG = data.language || lang;
-  // mixed 模式：长词先替换，避免短词误替换
-  ZH2EN = Object.entries(TERMS).map(([en, zh]) => [zh, en])
-          .sort((a, b) => b[0].length - a[0].length);
+  document.getElementById("langSel").value = LANG;
 }
 function t(key) {
   const s = MSG[key] || key;
   const args = Array.prototype.slice.call(arguments, 1);
-  let text = s.replace(/\{(\d+)\}/g, (m, i) => (args[Number(i)] !== undefined ? args[Number(i)] : m));
-  if (LANG === "mixed") {
-    for (const [zh, en] of ZH2EN) text = text.split(zh).join(en);
-  }
-  return text;
+  return s.replace(/\{(\d+)\}/g, (m, i) => (args[Number(i)] !== undefined ? args[Number(i)] : m));
 }
 function term(en) { return LANG === "en" ? en : (TERMS[en] || en); }
-function toggleLang() {
-  // 循环：zh -> en -> mixed -> zh
-  const order = { zh: "en", en: "mixed", mixed: "zh" };
-  loadI18n(order[LANG] || "zh").then(() => {
-    document.documentElement.lang = "zh";
+function onLangChange() {
+  const next = document.getElementById("langSel").value;
+  localStorage.setItem("isodistort_lang", next);
+  loadI18n(next).then(() => {
+    document.documentElement.lang = next === "zh" ? "zh" : "en";
     renderAll();
-    refreshStatus();
   });
 }
 
 /* ================= 会话状态 ================= */
-let STATE = null;       // /api/state
-let kpoints = [];       // k 点列表
-let irreps = [];        // 当前 IR 列表
-let subgroups = [];     // 当前子群列表
-let candidates = [];    // Method 1/3 候选
-let modes = [];         // Method 2 模式
-let amplitudes = {};    // 每个模式的幅度输入
+let STATE = null;
+let spaceGroups = [];       // 230 空间群（Method 3 用）
+let m1Options = null;       // Method 1 下拉数据（可达子群 + lattices）
+let kpoints = [];
+let irreps = [];
+let subgroups = [];
+let candidates = [];
+let modes = [];             // {irrep_label, opd_symbol, mode_type, wyckoff_sites, ...}
+let amplitudes = {};
 let domains = [];
+let nsupValue = 1;
 
 /* ================= 通用 ================= */
-async function api(path, body, method) {
-  const opts = { method: method || "GET", headers: {} };
+async function api(path, body) {
+  const opts = { method: body !== undefined ? "POST" : "GET", headers: {} };
   if (body !== undefined) {
-    opts.method = "POST";
     opts.headers["Content-Type"] = "application/json";
     opts.body = JSON.stringify(body);
   }
@@ -236,163 +293,437 @@ function fileText(file) {
     rd.readAsText(file, "utf-8");
   });
 }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c])); }
 function table(headers, rows) {
   if (!rows || !rows.length) return `<div class="info">-</div>`;
-  let h = "<table><thead><tr>" + headers.map(x => `<th>${x}</th>`).join("") + "</tr></thead><tbody>";
-  for (const r of rows) h += "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>";
+  let h = `<table class="table table-hover result"><thead><tr>${headers.map(x => `<th>${esc(x)}</th>`).join("")}</tr></thead><tbody>`;
+  for (const r of rows) h += `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`;
   return h + "</tbody></table>";
 }
-function showError(el, err) { el.innerHTML = `<div class="error">${err}</div>`; }
-function showOk(el, msg) { el.innerHTML = `<div class="ok">${msg}</div>`; }
+function clickableTable(headers, rows) {
+  if (!rows || !rows.length) return `<div class="info">-</div>`;
+  let h = `<table class="table table-hover result"><thead><tr>${headers.map(x => `<th>${esc(x)}</th>`).join("")}</tr></thead><tbody>`;
+  for (const r of rows) h += `<tr class="clickable" data-idx="${esc(r.idxKey)}">${r.cells.map(c => `<td>${c}</td>`).join("")}</tr>`;
+  return h + "</tbody></table>";
+}
+function bindRowClick(containerId) {
+  const out = document.getElementById(containerId);
+  out.onclick = (ev) => {
+    const tr = ev.target.closest("tr[data-idx]");
+    if (tr) computeModes(Number(tr.dataset.idx));
+  };
+}
+function showError(el, msg) { el.innerHTML = `<div class="alert alert-error">${esc(msg)}</div>`; }
+function showOk(el, msg) { el.innerHTML = `<div class="alert alert-success">${esc(msg)}</div>`; }
 
-/* ================= 状态栏 ================= */
+/* ================= 常量（对齐官网下拉选项） ================= */
+const CRYSTAL_SYSTEMS = ["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic"];
+const TYPE_NAMES = ["displacive", "occupational", "strain", "magnetic", "rotational"];
+// value = pymatgen 点群字符串（后端过滤用），标签 = 官网晶类名 + Schoenflies
+const POINT_GROUPS = [
+  ["1", "1", "C1", "triclinic"], ["-1", "-1", "Ci", "triclinic"],
+  ["2", "2", "C2", "monoclinic"], ["m", "m", "Cs", "monoclinic"], ["2/m", "2/m", "C2h", "monoclinic"],
+  ["222", "222", "D2", "orthorhombic"], ["mm2", "mm2", "C2v", "orthorhombic"], ["mmm", "mmm", "D2h", "orthorhombic"],
+  ["4", "4", "C4", "tetragonal"], ["-4", "-4", "S4", "tetragonal"], ["4/m", "4/m", "C4h", "tetragonal"],
+  ["422", "422", "D4", "tetragonal"], ["4mm", "4mm", "C4v", "tetragonal"], ["-42m", "-42m", "D2d", "tetragonal"],
+  ["4/mmm", "4/mmm", "D4h", "tetragonal"],
+  ["3", "3", "C3", "hexagonal"], ["-3", "-3", "C3i", "hexagonal"], ["32", "32", "D3", "hexagonal"],
+  ["3m", "3m", "C3v", "hexagonal"], ["-3m", "-3m", "D3d", "hexagonal"], ["6", "6", "C6", "hexagonal"],
+  ["-6", "-6", "C3h", "hexagonal"], ["6/m", "6/m", "C6h", "hexagonal"], ["622", "622", "D6", "hexagonal"],
+  ["6mm", "6mm", "C6v", "hexagonal"], ["-6m2", "-62m", "D3h", "hexagonal"], ["6/mmm", "6/mmm", "D6h", "hexagonal"],
+  ["23", "23", "T", "cubic"], ["m-3", "m-3", "Th", "cubic"], ["432", "432", "O", "cubic"],
+  ["-43m", "-43m", "Td", "cubic"], ["m-3m", "m-3m", "Oh", "cubic"],
+];
+const CENTERINGS = [["d", "Default"], ["P", "P"], ["A", "A"], ["B", "B"], ["C", "C"], ["I", "I"], ["F", "F"], ["R", "R"]];
+
+/* ================= 状态栏 + 页头（对齐官网 "Reading CIF file..." 段落） ================= */
 async function refreshStatus() {
   const d = await api("/api/state");
   STATE = d.state;
   const s = d.state;
-  let html;
-  if (!s.structure) html = t("st.noStruct");
-  else html = t("st.loaded", s.structure.space_group_number, s.structure.space_group_symbol, s.structure.atoms)
-    + " &nbsp;|&nbsp; " + term("Wyckoff position") + ": " + s.structure.wyckoff.map(w => w.letter).join(", ");
-  html += "<br>" + t("st.types") + ": " + s.distortion_types.join(", ")
+  const para = document.getElementById("infoPara");
+  if (!s.structure) {
+    para.textContent = t("st.noStruct");
+  } else {
+    const st = s.structure;
+    const lat = st.lattice;
+    let html = t("web.done") + "<br>"
+      + `Space Group: ${st.space_group_number} ${st.space_group_symbol}<br>`
+      + t("web.lattice") + ` a=${lat.a}, b=${lat.b}, c=${lat.c}, `
+      + `alpha=${lat.alpha}, beta=${lat.beta}, gamma=${lat.gamma}<br>`;
+    html += st.wyckoff.map(w =>
+      `${esc(w.species)}${w.multiplicity}${w.letter} (${w.coordinates.map(c => fmtCoord(c)).join(",")})`
+    ).join(", ");
+    html += "<br>" + t("web.prefs") + " " + esc(st.preferences);
+    para.innerHTML = html;
+  }
+  let status = t("st.types") + ": " + s.distortion_types.join(", ")
+    + " &nbsp;|&nbsp; " + t("st.scope") + ": " + formatScope(s)
     + " &nbsp;|&nbsp; " + t("st.subgroups") + ": " + s.subgroups
     + " &nbsp;|&nbsp; " + t("st.modes") + ": " + s.modes.length;
-  if (s.distorted_atoms != null) html += " &nbsp;|&nbsp; " + t("st.distorted") + ": " + s.distorted_atoms;
-  document.getElementById("statusBox").innerHTML = html;
+  if (s.distorted_atoms != null) status += " &nbsp;|&nbsp; " + t("st.distorted") + ": " + s.distorted_atoms;
+  document.getElementById("statusBox").innerHTML = status;
+  renderTypes();
+}
+function formatScope(s) {
+  const parts = [];
+  for (const tp of TYPE_NAMES) {
+    if (!s.distortion_types.includes(tp)) continue;
+    const v = (s.distortion_scope || {})[tp];
+    if (!v || !v.length) parts.push(`${tp}=none`);
+    else if (v.includes("*")) parts.push(`${tp}=all`);
+    else parts.push(`${tp}=${v.join(",")}`);
+  }
+  return parts.join(" ") || "-";
+}
+function fmtCoord(x) {
+  const v = Math.round(x * 10000) / 10000;
+  return (v === 0) ? "0" : String(v);
 }
 
-/* ================= 1. CIF ================= */
+/* ================= 1. 母相 CIF ================= */
 async function loadCif() {
   const f = document.getElementById("cifFile").files[0];
-  if (!f) { showError(document.getElementById("cifInfo"), t("err.noFile")); return; }
+  const msg = document.getElementById("cifMsg");
+  if (!f) { showError(msg, t("err.noFile")); return; }
   const content = await fileText(f);
+  document.getElementById("infoPara").textContent = t("web.reading");
   const d = await api("/api/load_cif", { filename: f.name, content });
-  if (!d.ok) { showError(document.getElementById("cifInfo"), d.error); return; }
-  showOk(document.getElementById("cifInfo"), t("ok.loaded"));
+  if (!d.ok) { showError(msg, d.error); document.getElementById("infoPara").textContent = "-"; return; }
+  showOk(msg, t("ok.loaded"));
+  m1Options = null;
   await refreshStatus();
   await refreshKpoints();
+  loadMethod1Options();   // 后台预取 Method 1 下拉数据（首次枚举较慢）
 }
 
-/* ================= 2. Types ================= */
+/* ================= 2. 畸变类型（官网 all/none/物种 复选框） ================= */
 function renderTypes() {
-  const types = ["displacement", "order", "strain", "magnetic"];
-  const cur = STATE ? STATE.distortion_types : ["displacement", "strain"];
-  document.getElementById("typeBox").innerHTML = types.map(tp =>
-    `<label><input type="checkbox" value="${tp}" ${cur.includes(tp) ? "checked" : ""}> ${term(tp)}</label>`
-  ).join(" ");
+  const species = STATE ? (STATE.species || []) : [];
+  const types = STATE ? STATE.distortion_types || [] : [];
+  const scope = STATE ? STATE.distortion_scope || {} : {};
+  const box = document.getElementById("typeBox");
+  let html = "";
+  for (const tp of TYPE_NAMES) {
+    if (tp === "strain") {
+      const on = types.includes("strain");
+      html += `<tr><td><label><input type="checkbox" id="tp_strain" ${on ? "checked" : ""}> ${esc(term("strain"))}</label></td></tr>`;
+      continue;
+    }
+    const sp = scope[tp] || [];
+    const active = types.includes(tp);
+    const allChecked = active && (!sp.length || sp.includes("*") || sp.length >= species.length);
+    const noneChecked = !active || !sp.length;
+    let row = `<tr><td><b>${esc(term(tp))}</b></td><td>`
+      + `<label><input type="checkbox" data-tp="${tp}" data-role="all" ${allChecked ? "checked" : ""}> ${esc(term("all"))}</label>`
+      + `<label><input type="checkbox" data-tp="${tp}" data-role="none" ${noneChecked ? "checked" : ""}> ${esc(term("none"))}</label>`;
+    for (const spc of species) {
+      const on = active && (sp.includes("*") || sp.includes(spc));
+      row += `<label><input type="checkbox" data-tp="${tp}" data-species="${esc(spc)}" ${on ? "checked" : ""}> ${esc(spc)}</label>`;
+    }
+    html += row + `</td></tr>`;
+  }
+  box.innerHTML = html;
+  // all/none 复选框联动
+  box.querySelectorAll("input[data-role]").forEach(cb => {
+    cb.onchange = () => {
+      const tp = cb.dataset.tp;
+      if (cb.dataset.role === "all") {
+        box.querySelectorAll(`input[data-tp="${tp}"][data-species]`).forEach(x => { x.checked = true; });
+        box.querySelector(`input[data-tp="${tp}"][data-role="none"]`).checked = false;
+      } else if (cb.dataset.role === "none") {
+        box.querySelectorAll(`input[data-tp="${tp}"][data-species]`).forEach(x => { x.checked = false; });
+        box.querySelector(`input[data-tp="${tp}"][data-role="all"]`).checked = false;
+      } else {
+        updateRowState(tp);
+      }
+    };
+  });
+  TYPE_NAMES.forEach(tp => {
+    box.querySelectorAll(`input[data-tp="${tp}"][data-species]`).forEach(cb => {
+      cb.onchange = () => updateRowState(tp);
+    });
+  });
+}
+function updateRowState(tp) {
+  const box = document.getElementById("typeBox");
+  const species = STATE ? (STATE.species || []) : [];
+  const spCbs = box.querySelectorAll(`input[data-tp="${tp}"][data-species]`);
+  const checked = [...spCbs].filter(x => x.checked);
+  box.querySelector(`input[data-tp="${tp}"][data-role="all"]`).checked =
+    checked.length > 0 && checked.length >= species.length;
+  box.querySelector(`input[data-tp="${tp}"][data-role="none"]`).checked = checked.length === 0;
+}
+function collectTypesAndScope() {
+  const box = document.getElementById("typeBox");
+  const species = STATE ? (STATE.species || []) : [];
+  const types = [];
+  const scope = {};
+  for (const tp of TYPE_NAMES) {
+    if (tp === "strain") {
+      if (document.getElementById("tp_strain").checked) types.push("strain");
+      continue;
+    }
+    const sp = [...box.querySelectorAll(`input[data-tp="${tp}"][data-species]:checked`)].map(x => x.value);
+    if (sp.length) {
+      types.push(tp);
+      scope[tp] = sp.length >= species.length ? ["*"] : sp;
+    } else {
+      scope[tp] = [];
+    }
+  }
+  return { types, scope };
 }
 async function applyTypes() {
-  const types = [...document.querySelectorAll("#typeBox input:checked")].map(i => i.value);
-  await api("/api/set_types", { types }, "POST");
+  const { types, scope } = collectTypesAndScope();
+  const d = await api("/api/set_types", { types, scope }, "POST");
+  if (!d.ok) { showError(document.getElementById("typesMsg"), d.error); return; }
+  showOk(document.getElementById("typesMsg"), t("ok.types"));
   await refreshStatus();
 }
 
-/* ================= k 点 / IR ================= */
+/* ================= 空间群下拉 ================= */
+async function refreshSpaceGroups() {
+  const d = await api("/api/space_groups");
+  spaceGroups = d.space_groups || [];
+  const opt = sg => `<option value="${sg.number}">${sg.number} ${esc(sg.symbol)}</option>`;
+  document.getElementById("m3Sg").innerHTML = `<option value="">${esc(t("l.noChoice"))}</option>` + spaceGroups.map(opt).join("");
+}
+
+/* ================= Method 1：下拉数据（可达子群 + Conventional/Primitive lattice） ================= */
+async function loadMethod1Options() {
+  const sgSel = document.getElementById("m1Sg");
+  const convSel = document.getElementById("m1ConvLat");
+  const primSel = document.getElementById("m1PrimLat");
+  if (!STATE || !STATE.structure) {
+    sgSel.innerHTML = `<option value="">—</option>`;
+    convSel.innerHTML = `<option value="">—</option>`;
+    primSel.innerHTML = `<option value="">—</option>`;
+    return;
+  }
+  const hint = document.getElementById("m1SgHint");
+  hint.textContent = t("st.wait") + "...";
+  try {
+    const d = await api("/api/method1_options");
+    m1Options = d.options || {};
+    const sgs = m1Options.space_groups || [];
+    // 序号右对齐 + 空间群符号，起始位置统一（对齐官网下拉格式）
+    sgSel.innerHTML = `<option value="">${esc(t("l.noChoice"))}</option>`
+      + sgs.map(sg => `<option value="${sg.number}">${String(sg.number).padStart(3)} ${esc(sg.symbol)}</option>`).join("");
+    convSel.innerHTML = `<option value="">${esc(t("l.noChoice"))}</option>`
+      + (m1Options.conventional_lattices || []).map(l =>
+          `<option value="${l.basis.map(r => r.join(",")).join(";")}">${esc(l.label)}</option>`).join("");
+    primSel.innerHTML = `<option value="">${esc(t("l.noChoice"))}</option>`
+      + (m1Options.primitive_lattices || []).map(l =>
+          `<option value="${l.basis.map(r => r.join(",")).join(";")}">${esc(l.label)}</option>`).join("");
+    hint.textContent = t("m1.sgHint", sgs.length);
+  } catch (e) {
+    hint.textContent = "-";
+  }
+}
+function onLatChange(kind) {
+  // Conventional / Primitive lattice 二选一（选择其一清空另一）
+  const conv = document.getElementById("m1ConvLat");
+  const prim = document.getElementById("m1PrimLat");
+  if (kind === "conv" && conv.value) prim.value = "";
+  if (kind === "prim" && prim.value) conv.value = "";
+}
+function selectedLattice() {
+  const conv = document.getElementById("m1ConvLat").value;
+  const prim = document.getElementById("m1PrimLat").value;
+  if (conv) return { lattice: parseBasis(conv), frame: "conventional" };
+  if (prim) return { lattice: parseBasis(prim), frame: "primitive" };
+  return null;
+}
+function parseBasis(encoded) {
+  return encoded.split(";").map(row => row.split(",").map(Number));
+}
+async function runMethod1() {
+  const out = document.getElementById("m1Out");
+  if (!STATE || !STATE.structure) { showError(out, t("err.noCif")); return; }
+  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
+  const cs = [...document.querySelectorAll("#m1SysBox input:checked")].map(i => i.value);
+  const sg = document.getElementById("m1Sg").value;
+  const body = {
+    distortion_types: STATE.distortion_types,
+    crystal_system: cs.length ? cs : null,
+    subgroup_space_group: sg ? Number(sg) : null,
+    maximal_subgroup_only: document.getElementById("m1Max").checked,
+  };
+  const lat = selectedLattice();
+  if (lat) { body.lattice = lat.lattice; body.frame = lat.frame; }
+  const d = await api("/api/method1", body, "POST");
+  if (!d.ok) { showError(out, d.error); return; }
+  candidates = d.candidates || [];
+  out.innerHTML = clickableTable(
+    [t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", term("crystal system"), term("maximal subgroup")],
+    candidates.map(c => ({
+      idxKey: c.index,
+      cells: [c.index, `${c.space_group_number} ${esc(c.space_group_symbol)}`, esc(c.k_point_label), esc(c.irrep_label), esc(c.opd_symbol), term(c.crystal_system), c.is_maximal ? "✓" : ""],
+    }))
+  );
+  bindRowClick("m1Out");
+  await refreshStatus();
+}
+
+/* ================= Method 2：k 点 / IR / OPD ================= */
 async function refreshKpoints() {
-  const d = await api("/api/kpoints");
-  kpoints = d.kpoints || [];
   const sel = document.getElementById("kpSelect");
-  sel.innerHTML = kpoints.map((k, i) => `<option value="${i}">${k.label} (${k.coordinates.join(",")})</option>`).join("");
-  onKpChange();
-  await refreshIrreps();
+  const irSel = document.getElementById("irSelect");
+  try {
+    const d = await api("/api/kpoints");
+    kpoints = d.kpoints || [];
+    sel.innerHTML = kpoints.map((k, i) =>
+      `<option value="${i}">${esc(k.label)} (${k.coordinates.join(",")})</option>`
+    ).join("");
+    irSel.innerHTML = "";
+    onKpChange();
+  } catch (e) {
+    kpoints = [];
+    sel.innerHTML = `<option value="">—</option>`;
+    irSel.innerHTML = `<option value="">—</option>`;
+  }
 }
 function onKpChange() {
-  const i = Number(document.getElementById("kpSelect").value || 0);
-  const kp = kpoints[i];
-  const box = document.getElementById("kpParams");
-  if (!kp || kp.is_special) { box.textContent = ""; return; }
-  box.innerHTML = kp.parameters.map(p => `${p}=<input type="text" id="p_${p}" style="width:60px" placeholder="1/2">`).join(" ");
-  refreshIrreps();  // 切换 k 点后联动刷新 IR 列表
+  // a/b/g 输入框固定显示（对齐官网）；参数 k 点必须填写对应参数
+  refreshIrreps();
 }
 async function refreshIrreps() {
   const i = Number(document.getElementById("kpSelect").value || 0);
   const kp = kpoints[i];
+  if (!kp) return;
   const params = collectParams(kp);
   const q = new URLSearchParams({ k: kp.label });
   if (params) q.set("params", params.join(","));
   const d = await api(`/api/irreps?${q.toString()}`);
   irreps = d.irreps || [];
   document.getElementById("irSelect").innerHTML =
-    irreps.map((ir, j) => `<option value="${j}">${ir.label} (${ir.dimension}D)</option>`).join("");
+    irreps.map((ir, j) => `<option value="${j}">${esc(ir.label)} (${ir.dimension}D)</option>`).join("");
+  document.getElementById("opdSelect").innerHTML = `<option value="">—</option>`;
 }
 function collectParams(kp) {
+  // 只收集该 k 点实际用到的参数（a/b/g），空值返回 null（特殊 k 点无参数）
+  const letters = (kp.parameters || []).filter(p => ["a", "b", "g"].includes(p));
+  if (!letters.length) return null;
   const vals = [];
-  for (const p of kp.parameters) {
+  for (const p of letters) {
     const el = document.getElementById("p_" + p);
     vals.push(el ? el.value.trim() : "");
   }
   return vals.some(v => !v) ? null : vals;
 }
+function selectedKp() { return kpoints[Number(document.getElementById("kpSelect").value || 0)]; }
+function selectedIr() { return irreps[Number(document.getElementById("irSelect").value || 0)]; }
+async function listSubgroupsByKp() {
+  if (!STATE || !STATE.structure) { showError(document.getElementById("subOut"), t("err.noCif")); return; }
+  await enumSubgroups();
+}
 async function enumSubgroups() {
-  const i = Number(document.getElementById("kpSelect").value || 0);
-  const j = Number(document.getElementById("irSelect").value || 0);
-  const kp = kpoints[i];
-  const ir = irreps[j];
-  if (!kp || !ir) return;
+  const kp = selectedKp();
+  const ir = selectedIr();
   const out = document.getElementById("subOut");
+  if (!kp || !ir) { showError(out, t("st.noSubs")); return; }
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
+  const opd = document.getElementById("opdSelect").value;
   const d = await api("/api/subgroups", {
-    k: kp.label, ir: ir.label, params: collectParams(kp),
-    generate: document.getElementById("genDb").checked,
+    k: kp.label, ir: ir.label, params: collectParams(kp), opd: opd || null, generate: false,
   }, "POST");
   if (!d.ok) { showError(out, d.error); return; }
   subgroups = d.subgroups || [];
-  out.innerHTML = table([t("hIdx"), "SG", "IR", "OPD", "s", "i"], subgroups.map(sg =>
-    [sg.index, `${sg.space_group_number} ${sg.space_group_symbol}`, sg.irrep_label, sg.opd_symbol, sg.size, sg.subgroup_index]
-  ));
-}
-
-/* ================= Method 1 ================= */
-async function runMethod1() {
-  const out = document.getElementById("m1Out");
-  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
-  const sg = document.getElementById("m1Sg").value;
-  const d = await api("/api/method1", {
-    crystal_system: document.getElementById("m1Cs").value || null,
-    subgroup_space_group: sg ? Number(sg) : null,
-    maximal_subgroup_only: document.getElementById("m1Max").checked,
-  }, "POST");
-  if (!d.ok) { showError(out, d.error); return; }
-  candidates = d.candidates || [];
-  out.innerHTML = table([t("hIdx"), "SG", t("hK"), "IR", "OPD", term("crystal system"), term("maximal subgroup")],
-    candidates.map(c => [c.index, `${c.space_group_number} ${c.space_group_symbol}`, c.k_point_label, c.irrep_label, c.opd_symbol, c.crystal_system, c.is_maximal ? "✓" : ""]));
+  // OPD 下拉：从结果中收集不同的序参量方向（对齐官网 IR 页的 OPD 选择）
+  const opdSel = document.getElementById("opdSelect");
+  if (!opd) {
+    const distinct = [...new Set(subgroups.map(sg => sg.opd_symbol).filter(Boolean))];
+    opdSel.innerHTML = `<option value="">—</option>`
+      + distinct.map(o => `<option value="${esc(o)}">${esc(o)}</option>`).join("");
+  }
+  document.getElementById("subsHint").textContent = t("ok.subs", subgroups.length) + " | " + t("hClick");
+  out.innerHTML = clickableTable([t("hIdx"), "SG", "IR", "OPD", "s", "i"], subgroups.map(sg => ({
+    idxKey: sg.index,
+    cells: [sg.index, `${sg.space_group_number} ${esc(sg.space_group_symbol)}`, esc(sg.irrep_label), esc(sg.opd_symbol), sg.size, sg.subgroup_index],
+  })));
+  bindRowClick("subOut");
   await refreshStatus();
 }
+function applyNsup() {
+  const raw = document.getElementById("nsup").value.trim();
+  const n = parseInt(raw, 10);
+  if (!Number.isInteger(n) || n < 1) {
+    showError(document.getElementById("subOut"), t("err.badNsup"));
+    return;
+  }
+  nsupValue = n;
+  showOk(document.getElementById("subOut"), t("ok.nsup", n));
+}
 
-/* ================= Method 2 ================= */
-async function runMethod2() {
-  const idx = document.getElementById("m2Idx").value;
-  const out = document.getElementById("m2Out");
-  if (idx === "") { showError(out, t("err.needIdx")); return; }
+/* ================= Method 2（选中子群 -> 计算模式） ================= */
+async function computeModes(idx) {
+  const out = document.getElementById("modesOut");
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
-  const d = await api("/api/method2", { subgroup_idx: Number(idx) }, "POST");
+  const d = await api("/api/method2", {
+    subgroup_idx: idx,
+    distortion_type: STATE ? STATE.distortion_types : undefined,
+    nmod: Number(document.getElementById("nmod").value || 0),
+    nsup: nsupValue,
+  }, "POST");
   if (!d.ok) { showError(out, d.error); return; }
   modes = d.modes || [];
+  amplitudes = {};
+  modes.forEach(m => { amplitudes[m.irrep_label] = m.mode_type === "occupational" ? 0.1 : 0.1; });
+  const rows = modes.map(m => {
+    let cell = esc(m.irrep_label);
+    if (m.mode_type === "occupational") {
+      cell += ` <span class="muted-hint">(occ${m.validated ? "" : " · " + t("occ.note")})</span>`;
+    } else {
+      cell += ` <span class="muted-hint">(${esc(term(m.mode_type))})</span>`;
+    }
+    return [cell, esc(m.opd_symbol), m.wyckoff_sites.join(","), m.n_representatives];
+  });
+  out.innerHTML = table([t("hIrrep"), "OPD", term("Wyckoff position"), t("hNrep")], rows);
   renderModes();
-  out.innerHTML = table([t("hIrrep"), "OPD", term("Wyckoff position"), t("hNrep")],
-    modes.map(m => [m.irrep_label, m.opd_symbol, m.wyckoff_sites.join(","), m.n_representatives]));
   await refreshStatus();
 }
 
 /* ================= Method 3 ================= */
+function collectBasis() {
+  const ids = ["b11", "b12", "b13", "b21", "b22", "b23", "b31", "b32", "b33"];
+  const rows = [];
+  for (let r = 0; r < 3; r++) {
+    const row = [];
+    for (let c = 0; c < 3; c++) {
+      let v = document.getElementById(ids[r * 3 + c]).value.trim();
+      if (!v) v = (r === c) ? "1" : "0";
+      row.push(v);
+    }
+    rows.push(row);
+  }
+  return rows;
+}
 async function runMethod3() {
   const out = document.getElementById("m3Out");
+  if (!STATE || !STATE.structure) { showError(out, t("err.noCif")); return; }
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
-  const basisRaw = document.getElementById("m3Basis").value.trim();
-  let basis = null;
-  if (basisRaw) {
-    basis = basisRaw.split(";").map(r => r.split(",").map(v => v.trim()).filter(Boolean));
-  }
   const sg = document.getElementById("m3Sg").value;
+  const pg = document.getElementById("m3Pg").value;
   const d = await api("/api/method3", {
-    point_group: document.getElementById("m3Pg").value.trim() || null,
+    distortion_types: STATE.distortion_types,
+    point_group: pg || null,
     space_group_type: sg ? Number(sg) : null,
-    supercell_basis: basis,
+    supercell_basis: collectBasis(),
+    direct_sublattice_centering: document.querySelector("input[name='m3Cent']:checked").value,
+    lattice_type: document.querySelector("input[name='m3LatType']:checked").value,
   }, "POST");
   if (!d.ok) { showError(out, d.error); return; }
   candidates = d.candidates || [];
-  out.innerHTML = table([t("hIdx"), "SG", t("hK"), "IR", term("point group")],
-    candidates.map(c => [c.index, `${c.space_group_number} ${c.space_group_symbol}`, c.k_point_label, c.irrep_label, c.crystal_system]));
+  out.innerHTML = clickableTable(
+    [t("hIdx"), "SG", t("hK"), t("hIrrep"), term("point group")],
+    candidates.map(c => ({
+      idxKey: c.index,
+      cells: [c.index, `${c.space_group_number} ${esc(c.space_group_symbol)}`, esc(c.k_point_label), esc(c.irrep_label), esc(c.point_group)],
+    }))
+  );
+  bindRowClick("m3Out");
+  await refreshStatus();
 }
 
 /* ================= Method 4 ================= */
@@ -404,11 +735,11 @@ async function runMethod4() {
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
   const d = await api("/api/method4", {
     filename: f.name, content,
-    atom_matching_method: document.getElementById("m4Match").value,
-    robust_distance_threshold: Number(document.getElementById("m4Thresh").value),
+    atom_matching_method: "nearest-site",
+    robust_distance_threshold: 0.25,
   }, "POST");
   if (!d.ok) { showError(out, d.error); return; }
-  out.innerHTML = table([t("hMode"), "amplitude"], Object.entries(d.amplitudes).slice(0, 20).map(([k, v]) => [k, (+v).toFixed(6)]))
+  out.innerHTML = table([t("hMode"), term("amplitude")], Object.entries(d.amplitudes).slice(0, 20).map(([k, v]) => [esc(k), (+v).toFixed(6)]))
     + `<div class="info">RMS ${d.rms_residual.toExponential(3)}</div>`;
 }
 
@@ -416,11 +747,11 @@ async function runMethod4() {
 function renderModes() {
   const box = document.getElementById("modeBox");
   if (!modes.length) { box.innerHTML = `<div class="info">${t("st.noModes")}</div>`; return; }
-  if (!Object.keys(amplitudes).length) modes.forEach(m => { amplitudes[m.irrep_label] = 0.1; });
-  box.innerHTML = modes.map(m =>
-    `<label><input type="number" step="0.01" value="${amplitudes[m.irrep_label]}" style="width:80px" data-ir="${m.irrep_label}">
-     ${m.irrep_label} (${m.opd_symbol})</label><br>`
-  ).join("");
+  box.innerHTML = modes.map(m => {
+    const occ = m.mode_type === "occupational";
+    const hint = occ && !m.validated ? ` <span class="muted-hint">${t("occ.note")}</span>` : "";
+    return `<label style="margin-right:14px; white-space:nowrap;"><input type="number" step="0.01" value="${amplitudes[m.irrep_label]}" style="width:70px" data-ir="${esc(m.irrep_label)}"> ${esc(m.irrep_label)} (${esc(m.opd_symbol)})${hint}</label>`;
+  }).join("");
 }
 function collectAmplitudes() {
   document.querySelectorAll("#modeBox input").forEach(el => {
@@ -440,8 +771,7 @@ async function generateSingle() {
 async function generateMixed() {
   collectAmplitudes();
   const out = document.getElementById("distOut");
-  const keys = Object.keys(amplitudes);
-  if (keys.length < 1) { showError(out, t("err.noModes")); return; }
+  if (Object.keys(amplitudes).length < 1) { showError(out, t("err.noModes")); return; }
   const d = await api("/api/mixed", { contributions: amplitudes }, "POST");
   if (!d.ok) { showError(out, d.error); return; }
   showOk(out, t("ok.generated", d.atoms));
@@ -452,63 +782,135 @@ async function exportFiles() {
   const fmt = document.getElementById("expFmt").value;
   const r = await api("/api/export", { filename: "web_distorted", formats: fmt.split(",") }, "POST");
   if (!r.ok) { showError(out, r.error); return; }
-  out.innerHTML = r.files.map(f => `<a href="/api/download?file=${encodeURIComponent(f)}">${f}</a><br>`).join("");
+  out.innerHTML = r.files.map(f => `<a href="/api/download?file=${encodeURIComponent(f)}">${esc(f)}</a><br>`).join("");
 }
 async function listDomains() {
   const out = document.getElementById("distOut");
   const d = await api("/api/domains", {}, "POST");
   if (!d.ok) { showError(out, d.error); return; }
   domains = d.domains || [];
-  out.innerHTML = table(["#", t("hGen"), "SG"], domains.map(x => [x.domain_number, x.generator, `${x.space_group_number} ${x.space_group_symbol}`]));
+  out.innerHTML = table(["#", t("hGen"), "SG"], domains.map(x => [x.domain_number, esc(x.generator), `${x.space_group_number} ${esc(x.space_group_symbol)}`]));
 }
 
-/* ================= 渲染 ================= */
+/* ================= 渲染（切换语言后调用） ================= */
 function renderAll() {
-  document.title = "ISODISTORT Local Console";
-  const label = { zh: "EN", en: "中", mixed: "中+EN" }[LANG] || "EN";
-  document.getElementById("langBtn").textContent = label;
-  document.getElementById("langBtn").title = LANG;
-  document.getElementById("hStatus").textContent = t("hStatus");
-  document.getElementById("hCif").textContent = "1. " + t("hCif");
-  document.getElementById("hTypes").textContent = "2. " + t("hTypes");
-  document.getElementById("hM1").textContent = "Method 1";
-  document.getElementById("hM2").textContent = "Method 2";
-  document.getElementById("hM3").textContent = "Method 3";
-  document.getElementById("hM4").textContent = "Method 4";
-  document.getElementById("hDist").textContent = t("hDist");
+  document.getElementById("titleTag").textContent = t("web.title");
+  document.getElementById("pageTitle").textContent = t("web.title");
+  document.getElementById("langLabel").textContent = LANG === "zh" ? "语言" : "Language";
+  document.getElementById("hCif").textContent = t("hCif");
   document.getElementById("btnLoadCif").textContent = t("btn.load");
-  document.getElementById("btnTypes").textContent = t("btn.apply");
-  document.getElementById("btnM1").textContent = t("btn.m1");
-  document.getElementById("btnM2").textContent = t("btn.m2");
-  document.getElementById("btnM3").textContent = t("btn.m3");
-  document.getElementById("btnM4").textContent = t("btn.m4");
+  document.getElementById("hTypes").textContent = t("types.title");
+  document.getElementById("btnTypes").textContent = t("btn.change");
+  document.getElementById("typeNote").textContent = t("type.note");
+  document.getElementById("hM1").textContent = t("m1.title");
+  document.getElementById("btnM1").textContent = t("btn.ok");
+  document.getElementById("lCs").textContent = t("l.cs");
+  document.getElementById("lSgSel").textContent = t("l.sgsel");
+  document.getElementById("lConvLat").textContent = t("l.convLat");
+  document.getElementById("lPrimLat").textContent = t("l.primLat");
+  document.getElementById("lMax").textContent = t("l.max");
+  document.getElementById("hM2").textContent = t("m2.title");
+  document.getElementById("btnM2").textContent = t("btn.ok");
+  document.getElementById("lKp").textContent = t("l.kp");
+  document.getElementById("lIr").textContent = t("l.ir");
+  document.getElementById("lOpd").textContent = t("l.opd");
+  document.getElementById("lNmod").textContent = t("l.nmod");
   document.getElementById("btnSubs").textContent = t("btn.subs");
+  document.getElementById("lNsup").textContent = t("l.nsup");
+  document.getElementById("btnNsup").textContent = t("btn.change");
+  document.getElementById("m2NsupNote").textContent = t("m2.nsup_note");
+  document.getElementById("hM3").textContent = t("m3.title");
+  document.getElementById("btnM3").textContent = t("btn.ok");
+  document.getElementById("lSgSel3").textContent = t("l.sgsel3");
+  document.getElementById("lPg").textContent = t("l.pg");
+  document.getElementById("m3Direct").textContent = t("m3.direct");
+  document.getElementById("m3Reciprocal").textContent = t("m3.reciprocal");
+  document.getElementById("m3CentDefault").textContent = t("m3.centDefault");
+  document.getElementById("m3CentEnd").textContent = t("m3.centEnd");
+  document.getElementById("lBasis").textContent = t("l.basis");
+  document.getElementById("hM4").textContent = t("m4.title");
+  document.getElementById("btnM4").textContent = t("btn.ok");
+  document.getElementById("lM4File").textContent = t("l.m4file");
+  document.getElementById("hDist").textContent = t("hDist");
   document.getElementById("btnGenS").textContent = t("btn.genS");
   document.getElementById("btnGenM").textContent = t("btn.genM");
+  document.getElementById("lFmt").textContent = t("l.fmt");
   document.getElementById("btnExp").textContent = t("btn.exp");
   document.getElementById("btnDom").textContent = t("btn.dom");
-  document.getElementById("lCs").textContent = term("crystal system");
-  document.getElementById("lSg").textContent = t("l.sg");
-  document.getElementById("lMax").textContent = t("l.max");
-  document.getElementById("lIdx").textContent = t("l.idx");
-  document.getElementById("sDirect").textContent = t("s.direct");
-  document.getElementById("lGen").textContent = t("l.gen");
-  document.getElementById("lPg").textContent = term("point group");
-  document.getElementById("lSg3").textContent = t("l.sg3");
-  document.getElementById("lBasis").textContent = t("l.basis");
-  document.getElementById("lMatch").textContent = t("l.match");
-  document.getElementById("lThresh").textContent = t("l.thresh");
-  document.getElementById("lFmt").textContent = t("l.fmt");
+  document.getElementById("distNote").textContent = t("dist.note");
+  document.getElementById("hPrefs").textContent = t("hPrefs");
+  document.getElementById("prefsNote").textContent = t("pref.note");
+  document.getElementById("prefsMonoAxes").textContent = t("prefs.monoAxes");
+  document.getElementById("prefsMonoCell").textContent = t("prefs.monoCell");
+  document.getElementById("prefsOrthoAxes").textContent = t("prefs.orthoAxes");
+  document.getElementById("prefsTrigAxes").textContent = t("prefs.trigAxes");
+  document.getElementById("prefsOrigin").textContent = t("prefs.origin");
+  document.getElementById("prefsSsg").textContent = t("prefs.ssg");
+  document.getElementById("prefsHex").textContent = t("prefs.hex");
+  document.getElementById("prefsRhombo").textContent = t("prefs.rhombo");
+  document.getElementById("prefsStandard").textContent = t("prefs.standard");
+  document.getElementById("prefsBasic").textContent = t("prefs.basic");
+  document.getElementById("prefsSsgNote").textContent = t("prefs.ssgNote");
+  document.getElementById("prefsParentLike").textContent = t("prefs.parentLike");
+  document.getElementById("btnStop").textContent = t("btn.stop");
+  renderSysBox();
+  renderPgSelect();
   renderTypes();
   renderModes();
   refreshStatus();
 }
+function renderSysBox() {
+  document.getElementById("m1SysBox").innerHTML = CRYSTAL_SYSTEMS.map(cs =>
+    `<label><input type="checkbox" value="${cs}"> ${esc(term(cs))}</label>`
+  ).join("");
+}
+function renderPgSelect() {
+  document.getElementById("m3Pg").innerHTML = `<option value="">${esc(t("l.noChoice"))}</option>` + POINT_GROUPS.map(pg =>
+    `<option value="${pg[0]}">${esc(term(pg[3]))}: ${pg[1]} ${pg[2]}</option>`
+  ).join("");
+}
+
+/* ================= 生命周期：心跳 / 关闭自动停服 ================= */
+let serverDown = false;
+function sendShutdown() {
+  try {
+    if (navigator.sendBeacon) navigator.sendBeacon("/api/shutdown");
+    else fetch("/api/shutdown", { method: "POST", keepalive: true, headers: { "Content-Type": "application/json" }, body: "{}" });
+  } catch (e) { /* 页面关闭阶段忽略异常 */ }
+}
+function stopServer() {
+  document.getElementById("btnStop").disabled = true;
+  document.getElementById("statusBox").innerHTML = `<b>${t("st.stopping")}</b>`;
+  fetch(`/api/shutdown?lang=${LANG}`, { method: "POST" }).catch(() => {});
+  setTimeout(() => {
+    document.body.innerHTML = `<div class="pad" style="margin-top:60px"><h1>${t("st.stopping")}</h1><p>${t("st.srvDown")}</p></div>`;
+  }, 400);
+}
+function startHeartbeat() {
+  setInterval(() => {
+    fetch(`/api/ping?lang=${LANG}`).then(r => {
+      if (!r.ok) throw new Error("bad");
+      serverDown = false;
+    }).catch(() => {
+      if (!serverDown) {
+        serverDown = true;
+        document.getElementById("statusBox").innerHTML = `<b>${t("st.srvDown")}</b>`;
+      }
+    });
+  }, 5000);
+}
 
 /* ================= 初始化 ================= */
 (async function init() {
-  // 空 lang：使用服务器配置默认语言（config/settings.yaml runtime.language）
-  await loadI18n("");
+  window.addEventListener("pagehide", sendShutdown);
+  window.addEventListener("beforeunload", sendShutdown);
+  startHeartbeat();
+  const saved = localStorage.getItem("isodistort_lang");
+  await loadI18n(saved || "");
   renderAll();
+  await refreshSpaceGroups();
+  await refreshKpoints();
+  loadMethod1Options();
 })();
 </script>
 </body>
