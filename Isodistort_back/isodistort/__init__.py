@@ -24,6 +24,7 @@ _ALIASES = {
     "isodistort.io": "isocore.io",
     "isodistort.io.structure_exporter": "isocore.io.structure_exporter",
     "isodistort.io.result_serializer": "isocore.io.result_serializer",
+    "isodistort.i18n": "isocore.i18n",
     "isodistort.structure": "isocore.structure",
     "isodistort.structure.cif_io": "isocore.structure.cif_io",
     "isodistort.structure.coordinate_transform": "isocore.structure.coordinate_transform",

@@ -2,13 +2,14 @@
 测试：结构层工具（不依赖二进制）
 """
 import numpy as np
+from pymatgen.core import Lattice, Structure
+
 from isocore.structure import (
     SymmetryValidator,
     build_supercell,
     coordinates_are_equal,
     wrap_to_unit_cell,
 )
-from pymatgen.core import Lattice, Structure
 
 
 def test_coordinate_utils():
@@ -61,7 +62,7 @@ def test_symmetry_validator():
 
     print("✅ 对称性校验测试通过")
     print(f"   空间群: #{result['space_group_number']} ({result['space_group_symbol']})")
-    print(f"   Wyckoff 位点: {[s['wyckoff_letter'] for s in result['wyckoff_sites']]}")
+    print(f"   Wyckoff 位置: {[s['wyckoff_letter'] for s in result['wyckoff_sites']]}")
 
 
 if __name__ == "__main__":

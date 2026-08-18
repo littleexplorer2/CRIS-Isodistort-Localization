@@ -8,7 +8,7 @@
 
 | 官网页面 | 官网功能 | 本地实现 |
 | --- | --- | --- |
-| Search Page | 上传母相 CIF、设置 Distortion Types | `main.py` 菜单 1/2 |
+| Search Page | 上传母相 CIF、设置 Distortion Types | 终端/网页/API 均可 |
 | Search Page | Method 1: Search over all special k points | 菜单 3（真实枚举全部特殊 k 点子群 + 过滤） |
 | Search Page | Method 2: General method - specific k points | 菜单 4（选择子群并计算畸变模式） |
 | Search Page | Method 3: Arbitrary k + point/space group + supercell | 菜单 5（本地近似实现，见“已知差异”） |
@@ -40,13 +40,29 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 2. 运行统一入口
+### 2. 三种启动方式
+
+本项目提供三种等效的启动/使用方式（底层共用同一套真实 iso/findsym 计算）：
+
+**方式 A：网页交互（推荐，图形界面 + 中/EN/中+EN 切换按钮）**
 
 ```powershell
-python main.py
+python main_web.py
 ```
 
-按菜单操作：
+（等价于 `python web\server.py`）启动后自动打开浏览器访问
+`http://127.0.0.1:8000/`（端口可在 `config/settings.yaml` 的 `runtime.web_port`
+修改；被占用时自动顺延）。页面右上角按钮可在三种界面模式间循环切换：
+`中`（全中文）→ `EN`（全英文）→ `中+EN`（核心专有名词英文、其余中文）。
+网页端仅依赖 Python 标准库，无需额外安装。
+
+**方式 B：终端交互菜单**
+
+```powershell
+python main_terminal.py
+```
+
+按菜单操作（主菜单第 9 项可随时在 zh / en / mixed 三种模式间切换）：
 
 ```text
 Search Page
@@ -58,65 +74,110 @@ Search Page
   6. Method 4 ...               （畸变结构模式分解）
   7. 进入 Distortion Page       （模式生成 / 导出 / 畴）
   8. 查看当前状态
+  9. 切换语言 / Switch Language
   0. 退出
 ```
+
+**方式 C：Python API**
+
+```python
+from isocore.api import IsoDistort
+
+iso = IsoDistort(language="en")     # 默认英语；可 "zh"（中文）/ "mixed"（中英混杂）
+# iso.set_language("mixed")         # 运行中可随时切换
+iso.load_structure("parent.cif")
+# ... 后续调用见“Python API 使用”一节
+```
+
+> 说明：项目**不提供**命令行子命令式调用（如 `isodistort run --xxx`），
+> 也不存在需要删除的 CLI 入口；`python main_terminal.py` / `python main_web.py`
+> 即全部启动方式。
+> 仓库中 `Isodistort_validate/` 的 `compare_cif.py`/`batch_compare.py` 属于独立的
+> 比对检测工具（有意保留其命令行接口，与本项目的启动方式无关）。
 
 > 首次执行 Method 1 需要枚举全部特殊 k 点（数十次 iso 调用），
 > 可能耗时 10~60 秒，与官网“数据库查询”等待一致，属正常现象。
 
 ### 3. 典型流程（对应官网）
 
-1. 菜单 1 加载母相 CIF（可用 `实验数据与GD代码/EuAl4 Springer (parent).cif` 试运行）
-2. 菜单 3 执行 Method 1，得到子群候选列表
+1. 加载母相 CIF（可用 `实验数据与GD代码/EuAl4 Springer (parent).cif` 试运行）
+2. 执行 Method 1，得到子群候选列表
 3. 记下目标子群的 `idx`
-4. 菜单 4 输入 `idx` 执行 Method 2，得到该路径的畸变模式
-   - 菜单 4 还支持“直接 k 点搜索”：选择 k 点 → IR → 子群（对齐官网 Method 2 流程；
+4. 执行 Method 2，输入 `idx` 得到该路径的畸变模式
+   - Method 2 还支持“直接 k 点搜索”：选择 k 点 → IR → 子群（对齐官网 Method 2 流程；
      参数 k 点需输入参数，首次查询会询问是否在线生成子群数据库）
-5. 菜单 7 → 1 生成单模式畸变（输入幅度），程序自动按子群基矢扩胞并导出 CIF
-6. 菜单 7 → 4 查看畴列表（畴数 = 子群指数，与官网一致）
+5. Distortion Page 生成单模式畸变（输入幅度），程序自动按子群基矢扩胞并导出 CIF
+6. 查看畴列表（畴数 = 子群指数，与官网一致）
 
 ## 四、Python API 使用
 
 ```python
 from isocore.api import IsoDistort
 
-iso = IsoDistort()
-iso.load_structure("parent.cif")          # 1. 加载母相
+iso = IsoDistort(language="en")              # 默认英语（配置 runtime.language）；
+                                             # 可 "zh"（中文）/ "mixed"（中英混杂）
+iso.load_structure("parent.cif")             # 1. 加载母相
+iso.set_language("mixed")                    # 运行中随时切换控制台输出语言
 
-m1 = iso.search_method_1(                  # 2. Method 1
+m1 = iso.search_method_1(                    # 2. Method 1
     distortion_types=["displacement", "strain"],
     crystal_system="tetragonal",
     maximal_subgroup_only=True,
 )
 
-m2 = iso.search_method_2(                  # 3. Method 2（子群序号来自 Method 1）
+m2 = iso.search_method_2(                    # 3. Method 2（子群序号来自 Method 1）
     subgroup_idx=m1[0].subgroup.index,
     distortion_type="displacement",
 )
 
-iso.generate_distortion(amplitude=0.1)     # 4. 生成畸变（默认按子群基矢扩胞）
+iso.generate_distortion(amplitude=0.1)       # 4. 生成畸变（默认按子群基矢扩胞）
 iso.export("distorted", formats=["cif", "poscar"])   # 5. 导出
-iso.generate_domains()                     # 6. 畴列表
+iso.generate_domains()                       # 6. 畴列表
 ```
+
+### 语言模式切换（三种方式统一）
+
+`isocore/i18n` 统一管理三种界面模式（进程级全局、线程安全）：
+
+| 模式 | 说明 |
+| --- | --- |
+| `zh` | 全中文 |
+| `en` | 全英文（**默认**，可在 `config/settings.yaml` 的 `runtime.language` 修改） |
+| `mixed` | 中英混杂：核心科学专有名词用英文（space group、Wyckoff position、order parameter、supercell、isotropy subgroup…），其余输入提示与输出提示用中文衔接 |
+
+| 使用方式 | 切换方法 |
+| --- | --- |
+| 网页端 | 页面右上角按钮循环切换 `中` → `EN` → `中+EN`（即时重渲染，无需刷新） |
+| 终端 | 主菜单第 9 项“切换语言”；或修改 `runtime.language` |
+| Python API | `IsoDistort(language="en")` 或运行中 `iso.set_language("mixed")` |
+
+- 界面文案目录：`isocore/i18n/messages.py`（zh/en 两套，键一一对应；mixed 由 zh + 术语表合成）
+- 科学术语对照表：`isocore/i18n/terms.py`（约 100 条，来源标注见下节）
+- 网页端术语经 `/api/i18n` 下发，与后端共用同一份术语表（单一数据源）
 
 ## 五、项目结构
 
 ```text
 Isodistort_back/
-├── main.py                  # 用户唯一入口（终端交互菜单）
+├── main_terminal.py         # 终端交互入口（方式 B）
+├── main_web.py              # 网页交互入口（方式 A：启动网页并自动打开浏览器）
+├── web/                     # 网页服务实现（纯标准库）
+│   ├── server.py            #   本地 HTTP 服务 + JSON API（自动打开浏览器）
+│   └── index.html           #   单页界面（中/EN/中+EN 切换按钮）
 ├── pyproject.toml           # 包配置
 ├── requirements.txt         # 运行时依赖
 ├── requirements-dev.txt     # 开发/测试依赖
 ├── README.md
 ├── config/
-│   └── settings.yaml        # 全局配置（二进制路径、容差、输出目录）
+│   └── settings.yaml        # 全局配置（二进制路径、容差、语言、端口、输出目录）
 ├── isobyu/                  # 官方二进制与数据库（只读，禁止修改）
 ├── isocore/                 # 核心实现
-│   ├── api/                 #   对外 Python API（IsoDistort）
+│   ├── api/                 #   对外 Python API（IsoDistort，方式 C）
 │   ├── backend/             #   iso / findsym 二进制封装（WSL 桥接 + 输出解析）
 │   ├── structure/           #   CIF 读写、对称分析、坐标变换
 │   ├── distortion/          #   子群搜索、模式映射、畸变生成、畴
 │   ├── io/                  #   导出（CIF/POSCAR/XYZ/JSON）
+│   ├── i18n/                #   中英双语 + 中英混杂：界面文案 + 科学术语对照表
 │   └── utils/               #   配置、异常、文本解析
 ├── isodistort/              # 兼容包名（isodistort.* 重导出 isocore.*）
 ├── examples/                # 可运行的示例脚本
@@ -142,7 +203,7 @@ ruff check .                 # 代码风格检查（配置见 pyproject.toml）
 
 1. **Distortion Types 过滤时机**：官网在 Search 阶段就按类型过滤子群；
    本地在搜索阶段保留全部子群，类型过滤在模式计算阶段（BUSH）由 iso 自动完成——
-   若某子群在你结构的 Wyckoff 位点上没有对应类型的模式，Method 2 会返回空模式列表。
+   若某子群在你结构的 Wyckoff 位置上没有对应类型的模式，Method 2 会返回空模式列表。
 2. **模式振幅语义**：官网使用 As/Ap（超胞归一化振幅 + normfactor）；
    本地将“位移向量（最大分量为 1）× 用户幅度”直接叠加到原子坐标上，
    方向模式与官网一致，数值换算待与官网导出 CIF 批量比对后校准。
@@ -198,3 +259,47 @@ python compare_cif.py `
 - **Method 1 耗时较长**：属正常（枚举全部特殊 k 点）；候选缓存可后续版本优化。
 - **导出文件名含 `+`/`-`**：如 `distorted_GM2+_a0p1.cif`，系模式标签所致，
   多数工具可正常读取。
+- **网页打不开**：确认 `python web\server.py` 已启动且端口未被占用；
+  浏览器需能访问 `127.0.0.1`。
+
+## 十、科学术语规范说明（重要）
+
+项目内全部界面文案、文档与代码注释中的科学术语按以下优先级规范：
+
+- **英文术语**：① ISODISTORT 官网（https://iso.byu.edu/isodistorthelp.php）用语；
+  ② 《International Tables for Crystallography》（ITC）英文原版。
+- **中文术语**：① 《晶体学名词》（全国科学技术名词审定委员会审定）；
+  ② 《国际晶体学表》中文译本。
+
+完整对照表见 `isocore/i18n/terms.py`（每条附来源标注：`[web]`/`[ITC]`/`[CT]`/`[com]`）。
+以下为常用词条摘录：
+
+| 英文（官网/ITC） | 中文（《晶体学名词》优先） | 说明 |
+| --- | --- | --- |
+| space group | 空间群 | CT |
+| point group | 点群 | CT |
+| crystal system | 晶系 | CT |
+| lattice | 点阵 | CT（“晶格”为通行同义词） |
+| primitive cell | 原胞 | CT |
+| conventional cell | 惯用晶胞 | CT |
+| supercell | 超胞 | [web] 官网超胞输入框用语 |
+| fractional coordinates | 分数坐标 | CT |
+| Wyckoff position | Wyckoff 位置 | CT 附录表 |
+| site symmetry | 位置对称性 | CT |
+| maximal subgroup | 极大子群 | CT |
+| irreducible representation (IR) | 不可约表示 (IR) | CT |
+| order parameter | 序参量 | 群论物理通行 |
+| isotropy subgroup | 各向同性子群 | [web]（Stokes-Hatch） |
+| parent structure | 母体结构 | [web]（“母相”为相变文献通行） |
+| distortion | 畸变 | [web] |
+| displacement | 位移 | [web] |
+| strain | 应变 | [web] |
+| occupancy | 占据率 | CT |
+| magnetic moment | 磁矩 | CT/[web] |
+| domain | 畴 | CT |
+| incommensurate / commensurate | 无公度 / 公度 | [web]/[ITC] |
+| superspace group | 超空间群 | [web]/[ITC] |
+| Hermann-Mauguin symbol | 赫尔曼-莫甘符号 | CT |
+
+代码内部使用的英文标识符（如 `wyckoff_letter`、`supercell`、`basis_vectors`）
+是 API 名称而非界面用语，与术语表不冲突。

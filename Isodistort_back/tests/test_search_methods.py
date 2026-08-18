@@ -5,6 +5,8 @@
 from dataclasses import dataclass
 
 import numpy as np
+from pymatgen.core import Lattice, Structure
+
 from isocore.backend import BushMode, DistortionMode, SubgroupInfo
 from isocore.distortion import (
     IsoSearchEngine,
@@ -13,7 +15,6 @@ from isocore.distortion import (
     Method3Query,
     Method4Query,
 )
-from pymatgen.core import Lattice, Structure
 
 
 @dataclass

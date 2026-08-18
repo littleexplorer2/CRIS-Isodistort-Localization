@@ -2,7 +2,7 @@
 文本解析工具 - 用于解析 iso / findsym 的非结构化文本输出
 
 包含两类解析器：
-1. findsym 输出解析：空间群号、Wyckoff 位点、晶格参数
+1. findsym 输出解析：空间群号、Wyckoff 位置、晶格参数
 2. iso 输出解析（实测自 iso 9.6.1）：
    - k 点列表（DISPLAY KPOINT）
    - 不可约表示列表（DISPLAY IRREP）
@@ -63,7 +63,7 @@ def parse_space_group_number(text: str) -> int | None:
 
 def parse_wyckoff_sites(text: str) -> list[dict]:
     """
-    从 findsym 输出中解析 Wyckoff 位点信息。
+    从 findsym 输出中解析 Wyckoff 位置信息。
 
     v6 格式：``Wyckoff position a``
     v7 格式：``Wyckoff position a (Na1)``
@@ -413,7 +413,7 @@ def parse_bush_table(text: str) -> list[dict[str, Any]]:
         GM5-       P1(1)    d       (0,1/4,1/4)      (0,1,-1), (0,1,1)
 
     Returns:
-        list of dict，每项（一个 Wyckoff 位点的一个代表原子）含:
+        list of dict，每项（一个 Wyckoff 位置的一个代表原子）含:
         irrep_label, opd_symbol, wyckoff_letter, point,
         displacements（可能含多个向量）
     """

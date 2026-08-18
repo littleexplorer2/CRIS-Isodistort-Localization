@@ -8,6 +8,12 @@
 运行前请把 CIF_PATH 改为你的母相 CIF 文件路径。
 """
 
+import sys
+from pathlib import Path
+
+# 允许直接以脚本方式运行（python examples/02_mixed_modes.py）
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from isocore.api import IsoDistort
 from isocore.utils import IsodistortError
 
@@ -23,7 +29,7 @@ def main() -> None:
         raise RuntimeError("Method 1 未返回候选子群")
 
     # 依次尝试候选，找到第一个能产生 ≥2 个模式的子群
-    # （部分候选在当前结构的 Wyckoff 位点上没有位移模式，跳过即可）
+    # （部分候选在当前结构的 Wyckoff 位置上没有位移模式，跳过即可）
     method2 = None
     for item in method1:
         try:

@@ -249,13 +249,13 @@ class IsoSearchEngine:
         """
         官网 Method 2：在已枚举子群中按序号选择目标子群，计算其畸变模式。
 
-        模式基矢由真实 iso 的 DISPLAY BUSH 计算（需要母相 Wyckoff 位点）。
+        模式基矢由真实 iso 的 DISPLAY BUSH 计算（需要母相 Wyckoff 位置）。
 
         Args:
             parent_sg: 母相空间群号
             subgroups: 子群候选列表（来自 Method 1 或 list_subgroups）
             query: Method 2 查询参数（subgroup_idx 必填）
-            wyckoff_letters: 母相结构各原子的 Wyckoff 位点字母
+            wyckoff_letters: 母相结构各原子的 Wyckoff 位置字母
 
         Returns:
             Method2Result
@@ -269,7 +269,7 @@ class IsoSearchEngine:
 
         if not wyckoff_letters:
             raise ValueError(
-                "Method 2 计算模式需要母相结构的 Wyckoff 位点信息，"
+                "Method 2 计算模式需要母相结构的 Wyckoff 位置信息，"
                 "请先加载结构（load_structure）"
             )
 

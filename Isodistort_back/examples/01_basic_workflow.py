@@ -8,7 +8,14 @@
 运行前请把 CIF_PATH 改为你的母相 CIF 文件路径。
 """
 
+import sys
+from pathlib import Path
+
+# 允许直接以脚本方式运行（python examples/01_basic_workflow.py）
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from isocore.api import IsoDistort
+from isocore.utils import IsodistortError
 
 # 请替换为你自己的 parent CIF 文件路径
 CIF_PATH = r"C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码\EuAl4 Springer (parent).cif"
@@ -29,17 +36,28 @@ def main() -> None:
     if not method1:
         raise RuntimeError("Method 1 未返回候选子群")
 
-    subgroup_idx = method1[0].subgroup.index
-    print(f"Method 1 首个候选 subgroup_idx = {subgroup_idx} "
-          f"({method1[0].subgroup.space_group_symbol})")
+    # 依次尝试候选，找到第一个能产生位移模式的子群
+    # （部分候选在当前结构的 Wyckoff 位置上没有位移模式，跳过即可）
+    method2 = None
+    for item in method1:
+        try:
+            res = iso.search_method_2(
+                subgroup_idx=item.subgroup.index,
+                distortion_type="displacement",
+            )
+        except (IsodistortError, ValueError, RuntimeError):
+            continue
+        if res.modes:
+            method2 = res
+            subgroup_idx = item.subgroup.index
+            print(f"选中子群 subgroup_idx = {subgroup_idx} "
+                  f"({item.subgroup.space_group_symbol})")
+            break
+    if method2 is None:
+        raise RuntimeError("Method 1 候选均无可用位移模式")
 
     print("\n=== Step 3: Method 2 search ===")
-    method2 = iso.search_method_2(
-        subgroup_idx=subgroup_idx,
-        distortion_type="displacement",
-    )
-    if not method2.modes:
-        raise RuntimeError("Method 2 未返回可用模式（可尝试 Method 1 的其他候选）")
+    print(f"模式数: {len(method2.modes)}")
 
     print("\n=== Step 4: Generate distortion ===")
     distorted = iso.generate_distortion(

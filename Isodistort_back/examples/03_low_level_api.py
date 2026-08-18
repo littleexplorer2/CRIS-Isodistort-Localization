@@ -4,6 +4,12 @@
 - `FindsymWrapper`（结构识别）
 - `IsoWrapper`（k 点枚举、子群枚举——Method 1 的底层能力）
 """
+import sys
+from pathlib import Path
+
+# 允许直接以脚本方式运行（python examples/03_low_level_api.py）
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from isocore.backend import FindsymWrapper, IsoWrapper
 
 
@@ -21,7 +27,7 @@ def demo_find_sym() -> None:
     )
 
     print(f"空间群: #{result.space_group_number} ({result.space_group_symbol})")
-    print(f"Wyckoff 位点数: {len(result.wyckoff_sites)}")
+    print(f"Wyckoff 位置数: {len(result.wyckoff_sites)}")
     for site in result.wyckoff_sites:
         print(f"  {site['wyckoff_letter']}: {len(site['atoms'])} 个等效点")
 

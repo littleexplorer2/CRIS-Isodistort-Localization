@@ -1,7 +1,13 @@
-"""与 main.py 菜单语义一致的 API 示例集合。
+"""与 main_terminal.py 菜单语义一致的 API 示例集合。
 
 运行前请把 CIF_PATH（与可选的 DAUGHTER_CIF）改为你的真实文件路径。
 """
+
+import sys
+from pathlib import Path
+
+# 允许直接以脚本方式运行（python examples/usage_examples.py）
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from isocore.api import IsoDistort
 from isocore.utils import IsodistortError
@@ -13,7 +19,7 @@ DAUGHTER_CIF = r"C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码\LD
 def _first_subgroup_with_modes(iso: IsoDistort, m1) -> "IsoDistort":
     """返回第一个能产生位移模式的 Method 2 结果。
 
-    部分候选在当前结构的 Wyckoff 位点上没有位移模式（官网同样只显示
+    部分候选在当前结构的 Wyckoff 位置上没有位移模式（官网同样只显示
     “允许位移的 IR”），逐个尝试并跳过即可。
     """
     for item in m1:
@@ -99,7 +105,7 @@ def example_method_4_decomposition() -> None:
 
 
 if __name__ == "__main__":
-    print("isodistort - 使用示例（与 main.py 流程对齐）")
+    print("isodistort - 使用示例（与 main_terminal.py 流程对齐）")
     print("=" * 60)
 
     # 按需取消注释：

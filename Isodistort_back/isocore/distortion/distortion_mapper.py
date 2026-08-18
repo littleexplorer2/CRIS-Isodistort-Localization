@@ -4,7 +4,7 @@
 对应阶段四，步骤8：畸变基矢到原子坐标的映射
 
 映射规则（基于实测 DISPLAY BUSH 输出）：
-- BUSH 每行给出某 Wyckoff 位点一个“代表原子”的位移向量（可能多个，
+- BUSH 每行给出某 Wyckoff 位置一个“代表原子”的位移向量（可能多个，
   对应模式的不同分量）；本实现取第一个向量作为该位点的位移模式。
 - 若某位点只有一个代表原子行（常见于 Gamma 点均匀模式），则将该位移
   均匀作用于该位点的全部等效原子。
@@ -40,7 +40,7 @@ class DistortionMapper:
 
         Args:
             structure: 母相晶体结构
-            wyckoff_sites: 结构的 Wyckoff 位点分组信息（来自 SymmetryValidator）
+            wyckoff_sites: 结构的 Wyckoff 位置分组信息（来自 SymmetryValidator）
             modes: iso 计算出的畸变模式列表（含 bush_modes）
 
         Returns:

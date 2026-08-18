@@ -1,7 +1,7 @@
 """
-FINDSYM 封装 - 空间群识别与 Wyckoff 位点分析
+FINDSYM 封装 - 空间群识别与 Wyckoff 位置分析
 
-对应阶段一，步骤2：母相空间群与 Wyckoff 位点识别
+对应阶段一，步骤2：母相空间群与 Wyckoff 位置识别
 
 调用方式（重要）：findsym v6/v7 的关键字输入**必须**以输入文件参数方式调用
 （``findsym inputfilename``），不能通过 stdin 传入。
@@ -23,7 +23,7 @@ class FindsymResult:
 
     space_group_number: int          # 空间群号
     space_group_symbol: str = ""     # 空间群 Hermann-Mauguin 符号
-    wyckoff_sites: list[dict] = field(default_factory=list)  # Wyckoff 位点信息
+    wyckoff_sites: list[dict] = field(default_factory=list)  # Wyckoff 位置信息
     lattice_params: tuple[float, ...] = ()  # 晶格参数 a,b,c,alpha,beta,gamma
     raw_output: str = ""             # 原始输出（调试用）
 
@@ -32,7 +32,7 @@ class FindsymWrapper(BaseWrapper):
     """
     FINDSYM 程序封装
 
-    功能：给定晶格参数与原子坐标，识别空间群、分配 Wyckoff 位点
+    功能：给定晶格参数与原子坐标，识别空间群、分配 Wyckoff 位置
     """
 
     def __init__(self) -> None:
@@ -112,7 +112,7 @@ class FindsymWrapper(BaseWrapper):
         sym_match = re.search(r"Space Group:?\s+\d+\s+(\S+)\s+(\S+)", text)
         sg_symbol = sym_match.group(2) if sym_match else ""
 
-        # Wyckoff 位点（v7 中位点行带原子标签后缀，如 "Wyckoff position a (Na1)"）
+        # Wyckoff 位置（v7 中位点行带原子标签后缀，如 "Wyckoff position a (Na1)"）
         sites = parse_wyckoff_sites(text)
 
         # 晶格参数

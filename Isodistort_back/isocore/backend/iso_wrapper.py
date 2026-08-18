@@ -9,7 +9,7 @@ iso（Isotropy 9.6.1）封装：k 点枚举、不可约表示、各向同性子�
     VALUE KVALUE <n>,<v1>,.. 设置 k 点参数（n 为参数个数，如 "1,1/4"）
     VALUE IRREP <label>     选择不可约表示（Miller-Love 记号）
     VALUE DIRECTION <sym>   选择序参量方向（如 P1）
-    VALUE WYCKOFF <letter>  选择 Wyckoff 位点（可多次）
+    VALUE WYCKOFF <letter>  选择 Wyckoff 位置（可多次）
     SHOW <flag>             控制 DISPLAY 输出内容
     DISPLAY KPOINT/IRREP/ISOTROPY/BUSH/PARENT
     QUIT
@@ -130,7 +130,7 @@ class DistortionMode:
     dimension: int = 1               # 模式维度
     mode_type: str = "displacement"  # 类型: displacement/order/strain/magnetic
     basis_vectors: list[list[float]] = field(default_factory=list)  # 兼容旧接口
-    wyckoff_site: str = ""           # 对应 Wyckoff 位点
+    wyckoff_site: str = ""           # 对应 Wyckoff 位置
     k_point_label: str = ""          # k 点
     opd_symbol: str = ""             # 序参量方向
     bush_modes: list[BushMode] = field(default_factory=list)  # 原子级位移模式
@@ -152,7 +152,7 @@ class IsoWrapper(BaseWrapper):
     3. list_subgroups   枚举（k 点, IR）对应的各向同性子群（Method 1/2/3 的核心）
     4. calc_distortion_modes  计算指定路径的畸变模式基矢（DISPLAY BUSH）
     5. get_domains      获取畴变体列表（Domains 输出）
-    6. get_wyckoff_letters  获取空间群的 Wyckoff 位点（含代表坐标）
+    6. get_wyckoff_letters  获取空间群的 Wyckoff 位置（含代表坐标）
     """
 
     def __init__(self) -> None:
@@ -434,13 +434,13 @@ class IsoWrapper(BaseWrapper):
         Args:
             parent_sg: 母相空间群号
             subgroup: 目标子群（须含 k_point_label / irrep_label / opd_symbol）
-            wyckoff_letters: 母相结构中各 Wyckoff 位点字母（来自 findsym）
+            wyckoff_letters: 母相结构中各 Wyckoff 位置字母（来自 findsym）
 
         Returns:
             List[DistortionMode]：每个模式含 BushMode 原子位移基矢
         """
         if not wyckoff_letters:
-            raise WrapperRunError("iso", 1, "未提供任何 Wyckoff 位点，无法计算模式。")
+            raise WrapperRunError("iso", 1, "未提供任何 Wyckoff 位置，无法计算模式。")
 
         if subgroup.k_parameters:
             # iso 的 DISPLAY BUSH 仅支持对称 k 点（“Selected irrep must belong
@@ -548,12 +548,12 @@ class IsoWrapper(BaseWrapper):
         return [DomainInfo(**row) for row in rows]
 
     # ================================================================
-    # Wyckoff 位点
+    # Wyckoff 位置
     # ================================================================
 
     def get_wyckoff_letters(self, parent_sg: int) -> list[dict]:
         """
-        获取空间群的全部 Wyckoff 位点（字母 + 代表坐标）。
+        获取空间群的全部 Wyckoff 位置（字母 + 代表坐标）。
 
         Returns:
             list of dict: 每项含 wyckoff_letter, coordinates（含自由参数的
@@ -591,7 +591,7 @@ class IsoWrapper(BaseWrapper):
     def get_site_splitting(self, *args, **kwargs):
         """已废弃：位点分裂由 findsym + 结构对称分析完成。"""
         raise NotImplementedError(
-            "get_site_splitting 已废弃：请使用 SymmetryValidator 获取 Wyckoff 位点。"
+            "get_site_splitting 已废弃：请使用 SymmetryValidator 获取 Wyckoff 位置。"
         )
 
     def get_domain_operations(self, *args, **kwargs):

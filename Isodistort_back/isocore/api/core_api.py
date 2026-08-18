@@ -39,6 +39,7 @@ from ..distortion import (
     Method4Query,
     PhasePath,
 )
+from ..i18n import get_language, set_language, t
 from ..io import StructureExporter
 from ..structure import (
     SymmetryValidator,
@@ -54,10 +55,19 @@ class IsoDistort:
     封装完整工作流：
         加载结构 → 识别对称 → 枚举子群（Method 1）→ 选择路径（Method 2）
         → 计算畸变模式 → 生成畸变结构 → 导出/畴
+
+    语言支持：``IsoDistort(language="en")`` 或 ``iso.set_language("zh")``
+    可随时切换控制台输出语言（终端/网页端通过 isocore.i18n 全局切换）。
     """
 
-    def __init__(self) -> None:
+    def __init__(self, language: str | None = None) -> None:
         self.cfg = get_config()
+
+        # 界面语言（None 时取配置 runtime.language，默认 zh）
+        if language is not None:
+            set_language(language)
+        else:
+            set_language(self.cfg.language)
 
         # 底层封装
         self._findsym = FindsymWrapper()
@@ -82,6 +92,14 @@ class IsoDistort:
         self.mode_displacements: dict = {}
         self.distorted_structure: Structure | None = None
 
+    def set_language(self, language: str) -> None:
+        """切换控制台/界面语言（"zh" 中文 / "en" English）。"""
+        set_language(language)
+
+    def get_language(self) -> str:
+        """当前语言（"zh" 或 "en"）。"""
+        return get_language()
+
     # ================================================================
     # 阶段一：结构输入与对称识别
     # ================================================================
@@ -104,7 +122,7 @@ class IsoDistort:
         sg_sym = self.symmetry_info["space_group_symbol"]
         n_atoms = len(self.structure)
 
-        print(f"[加载完成] 空间群 #{sg_num} ({sg_sym}), {n_atoms} 个原子")
+        print(t("load.done", sg=sg_num, sym=sg_sym, n=n_atoms))
         return self.structure
 
     def set_structure(self, structure: Structure) -> Structure:
@@ -123,7 +141,7 @@ class IsoDistort:
         self.distorted_structure = None
 
     def _wyckoff_letters(self) -> list[str]:
-        """当前结构各 Wyckoff 位点字母（用于 iso 模式计算）。"""
+        """当前结构各 Wyckoff 位置字母（用于 iso 模式计算）。"""
         if not self.symmetry_info:
             return []
         return [s["wyckoff_letter"] for s in self.symmetry_info["wyckoff_sites"]]
@@ -211,11 +229,11 @@ class IsoDistort:
             sg_num, distortion_type
         )
 
-        print(f"[子群枚举] 共找到 {len(self.subgroups)} 个各向同性子群")
+        print(t("subgroups.found", n=len(self.subgroups)))
         for sg in self.subgroups[:10]:
             print(f"  {sg.describe()}")
         if len(self.subgroups) > 10:
-            print(f"  ... 还有 {len(self.subgroups) - 10} 个")
+            print(t("subgroups.more", n=len(self.subgroups) - 10))
         return self.subgroups
 
     # ================================================================
@@ -244,7 +262,7 @@ class IsoDistort:
 
         target = next((sg for sg in self.subgroups if sg.index == subgroup_idx), None)
         if target is None:
-            raise ValueError(f"子群序号 {subgroup_idx} 不存在")
+            raise ValueError(t("subgroup.not_found", idx=subgroup_idx))
 
         self.phase_path = PhasePath.from_subgroup(
             self.symmetry_info["space_group_number"],
@@ -253,7 +271,7 @@ class IsoDistort:
         )
         self.phase_path.validate()
 
-        print(f"[路径选择] {self.phase_path.describe()}")
+        print(t("path.selected", desc=self.phase_path.describe()))
 
         # 计算畸变模式基矢（DISPLAY BUSH）
         self.distortion_modes = self._iso.calc_distortion_modes(
@@ -262,10 +280,10 @@ class IsoDistort:
             wyckoff_letters=self._wyckoff_letters(),
         )
 
-        print(f"[模式计算] 共 {len(self.distortion_modes)} 个畸变模式")
+        print(t("modes.found", n=len(self.distortion_modes)))
         for m in self.distortion_modes:
             n_sites = len({b.wyckoff_letter for b in m.bush_modes})
-            print(f"  {m.irrep_label:8s}  {m.opd_symbol:6s} 涉及位点 {n_sites} 个")
+            print(t("mode.sites", irrep=m.irrep_label, opd=m.opd_symbol, n=n_sites))
 
         # 映射到原子位移
         self.mode_displacements = self._dist_mapper.map_modes_to_atoms(
@@ -295,13 +313,13 @@ class IsoDistort:
             Structure: 畸变后的结构
         """
         if not self.mode_displacements:
-            raise RuntimeError("请先选择相变路径 (select_path) 或执行 Method 2")
+            raise RuntimeError(t("err.select_path_first"))
 
         if irrep_label is None:
             irrep_label = next(iter(self.mode_displacements))
 
         if irrep_label not in self.mode_displacements:
-            raise ValueError(f"模式 {irrep_label} 不存在")
+            raise ValueError(t("mode.invalid", label=irrep_label))
 
         disp = self.mode_displacements[irrep_label]["displacements"]
         if supercell is None and self.phase_path is not None:
@@ -313,9 +331,8 @@ class IsoDistort:
         )
 
         n_ratio = len(self.distorted_structure) / len(self.structure)
-        print(f"[畸变生成] 模式 {irrep_label}, 幅度 {amplitude}, "
-              f"原子数 {len(self.structure)} -> {len(self.distorted_structure)} "
-              f"(超胞倍数 {n_ratio:g})")
+        print(t("distortion.generated", irrep=irrep_label, amp=amplitude,
+                n1=len(self.structure), n2=len(self.distorted_structure), r=n_ratio))
 
         # 默认导出畸变后的 CIF 文件
         fname = f"distorted_{irrep_label}" if irrep_label else "distorted"
@@ -324,7 +341,7 @@ class IsoDistort:
             fname = f"{fname}_a{amp_str}"
         paths = self._exporter.auto_export(self.distorted_structure, fname, formats=["cif"])
         if paths:
-            print(f"[默认导出] 已生成 CIF: {paths[0]}")
+            print(t("export.default", path=paths[0]))
         return self.distorted_structure
 
     def generate_mixed_distortion(self, contributions: dict[str, float],
@@ -348,7 +365,7 @@ class IsoDistort:
             label = f"mixed_{keys}"
         paths = self._exporter.auto_export(self.distorted_structure, label, formats=["cif"])
         if paths:
-            print(f"[默认导出] 已生成 CIF: {paths[0]}")
+            print(t("export.default", path=paths[0]))
         return self.distorted_structure
 
     # ================================================================
@@ -367,12 +384,12 @@ class IsoDistort:
             list of Path: 导出文件路径
         """
         if self.distorted_structure is None:
-            raise RuntimeError("请先生成畸变结构 (generate_distortion)")
+            raise RuntimeError(t("err.generate_first"))
 
         paths = self._exporter.auto_export(
             self.distorted_structure, filename, formats
         )
-        print(f"[导出完成] 共 {len(paths)} 个文件:")
+        print(t("export.done", n=len(paths)))
         for p in paths:
             print(f"  {p}")
         return paths
@@ -387,17 +404,17 @@ class IsoDistort:
         畴总数 = 子群在母相中的指数；需要先选择路径（select_path / Method 2）。
         """
         if self.phase_path is None or not self.subgroups:
-            raise RuntimeError("请先选择相变路径 (select_path)")
+            raise RuntimeError(t("err.domains_need_path"))
 
         target = next(
             (sg for sg in self.subgroups
              if sg.index == self.phase_path.subgroup_index), None
         )
         if target is None:
-            raise RuntimeError("当前路径对应的子群不在候选列表中")
+            raise RuntimeError(t("err.domains_not_in_list"))
 
         domains = self._domain_gen.generate_domains(self.phase_path, target)
-        print(f"[畴生成] 共 {len(domains)} 个畴变体")
+        print(t("domains.found", n=len(domains)))
         return domains
 
     # ================================================================
@@ -430,7 +447,7 @@ class IsoDistort:
 
         # 记录过滤后的候选，供 Method 2 使用
         self.subgroups = [item.subgroup for item in result]
-        print(f"[Method 1] 过滤后得到 {len(result)} 条候选")
+        print(t("method1.result", n=len(result)))
         return result
 
     def search_method_2(self,
@@ -482,7 +499,7 @@ class IsoDistort:
             self.symmetry_info["wyckoff_sites"],
             self.distortion_modes,
         )
-        print(f"[Method 2] 子群 #{subgroup_idx} 共得到 {len(result.modes)} 个模式")
+        print(t("method2.result", idx=subgroup_idx, n=len(result.modes)))
         return result
 
     def search_method_3(self,
@@ -509,7 +526,7 @@ class IsoDistort:
         )
         parent_sg = self.symmetry_info["space_group_number"]
         result = self._search.method_3_search(parent_sg, query)
-        print(f"[Method 3] 约束搜索得到 {len(result)} 条候选")
+        print(t("method3.result", n=len(result)))
         return result
 
     def search_method_4(self,
@@ -542,8 +559,5 @@ class IsoDistort:
             query,
         )
 
-        print(
-            f"[Method 4] 分解完成，{len(result.amplitudes)} 个模式，"
-            f"RMS 残差 = {result.rms_residual:.6f}"
-        )
+        print(t("method4.result", n=len(result.amplitudes), rms=result.rms_residual))
         return result

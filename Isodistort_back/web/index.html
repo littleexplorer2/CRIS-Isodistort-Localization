@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ISODISTORT Local Console</title>
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --line:#dde1e6; --text:#1c2733; --accent:#2563eb; --accent2:#0f766e; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; margin:0; background:var(--bg); color:var(--text); }
+  header { background:linear-gradient(90deg,#1e3a8a,#2563eb); color:#fff; padding:14px 24px;
+           display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+  header h1 { font-size:20px; margin:0; font-weight:600; }
+  #langBtn { background:#fff; color:#1e3a8a; border:none; border-radius:6px; padding:6px 14px;
+             font-size:14px; cursor:pointer; font-weight:600; }
+  main { max-width:1100px; margin:16px auto; padding:0 16px; display:flex; flex-direction:column; gap:14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+  .card h2 { margin:0 0 10px; font-size:16px; color:#1e3a8a; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:6px 0; }
+  label { font-size:13px; }
+  input[type=text], input[type=number], select { padding:5px 8px; border:1px solid var(--line); border-radius:6px; font-size:13px; }
+  button { background:var(--accent); color:#fff; border:none; border-radius:6px; padding:6px 14px;
+           font-size:13px; cursor:pointer; }
+  button:hover { filter:brightness(1.08); }
+  button.secondary { background:var(--accent2); }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; margin-top:8px; }
+  th, td { border:1px solid var(--line); padding:4px 8px; text-align:left; white-space:nowrap; }
+  th { background:#eef2f7; }
+  .mono { font-family: Consolas, monospace; font-size:12px; }
+  .info { background:#eef6ff; border:1px solid #bfdbfe; border-radius:8px; padding:8px 12px; font-size:13px; margin-top:8px; }
+  .error { background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:8px 12px; font-size:13px; margin-top:8px; color:#b91c1c; }
+  .ok { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:8px 12px; font-size:13px; margin-top:8px; color:#15803d; }
+  #status { font-size:12.5px; color:#64748b; padding:4px 2px; }
+  details { margin-top:6px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width: 800px) { .grid2 { grid-template-columns:1fr; } }
+  .scroll { max-height:320px; overflow:auto; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ISODISTORT Local Console</h1>
+  <button id="langBtn" onclick="toggleLang()">EN</button>
+</header>
+
+<main>
+  <!-- 状态栏 -->
+  <div class="card">
+    <h2 id="hStatus">Session</h2>
+    <div class="info" id="statusBox">-</div>
+  </div>
+
+  <!-- 1. Parent CIF -->
+  <div class="card">
+    <h2 id="hCif">1. Parent CIF</h2>
+    <div class="row">
+      <input type="file" id="cifFile" accept=".cif,.CIF">
+      <button onclick="loadCif()" id="btnLoadCif">Load</button>
+    </div>
+    <div id="cifInfo"></div>
+  </div>
+
+  <!-- 2. Distortion Types -->
+  <div class="card">
+    <h2 id="hTypes">2. Distortion Types</h2>
+    <div class="row" id="typeBox"></div>
+    <button onclick="applyTypes()" class="secondary" id="btnTypes">Apply</button>
+  </div>
+
+  <div class="grid2">
+    <!-- Method 1 -->
+    <div class="card">
+      <h2 id="hM1">Method 1</h2>
+      <div class="row">
+        <label id="lCs">Crystal system</label>
+        <select id="m1Cs">
+          <option value="">-</option>
+          <option>triclinic</option><option>monoclinic</option><option>orthorhombic</option>
+          <option>tetragonal</option><option>trigonal</option><option>hexagonal</option><option>cubic</option>
+        </select>
+      </div>
+      <div class="row">
+        <label id="lSg">SG number</label>
+        <input type="number" id="m1Sg" min="1" max="230" style="width:80px">
+        <label><input type="checkbox" id="m1Max"> <span id="lMax">Maximal only</span></label>
+      </div>
+      <button onclick="runMethod1()" id="btnM1">Run Method 1</button>
+      <div id="m1Out" class="scroll"></div>
+    </div>
+
+    <!-- Method 2 -->
+    <div class="card">
+      <h2 id="hM2">Method 2</h2>
+      <div class="row">
+        <label id="lIdx">Subgroup idx</label>
+        <input type="number" id="m2Idx" style="width:80px">
+        <button onclick="runMethod2()" id="btnM2">Run Method 2</button>
+      </div>
+      <details>
+        <summary id="sDirect">Direct k-point search</summary>
+        <div class="row">
+          <select id="kpSelect" onchange="onKpChange()"></select>
+          <span id="kpParams"></span>
+        </div>
+        <div class="row"><select id="irSelect"></select></div>
+        <div class="row">
+          <label id="lGen">Generate DB if missing</label>
+          <input type="checkbox" id="genDb">
+          <button onclick="enumSubgroups()" class="secondary" id="btnSubs">List subgroups</button>
+        </div>
+        <div id="subOut" class="scroll"></div>
+      </details>
+      <div id="m2Out"></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <!-- Method 3 -->
+    <div class="card">
+      <h2 id="hM3">Method 3</h2>
+      <div class="row">
+        <label id="lPg">Point group</label>
+        <input type="text" id="m3Pg" style="width:100px">
+        <label id="lSg3">Space group type</label>
+        <input type="number" id="m3Sg" min="1" max="230" style="width:80px">
+      </div>
+      <div class="row">
+        <label id="lBasis">Supercell basis (3 rows, comma)</label>
+        <input type="text" id="m3Basis" placeholder="1,0,0; 0,1,0; 0,0,1" style="width:220px">
+      </div>
+      <button onclick="runMethod3()" id="btnM3">Run Method 3</button>
+      <div id="m3Out" class="scroll"></div>
+    </div>
+
+    <!-- Method 4 -->
+    <div class="card">
+      <h2 id="hM4">Method 4</h2>
+      <div class="row"><input type="file" id="dauFile" accept=".cif,.CIF"></div>
+      <div class="row">
+        <label id="lMatch">Matching</label>
+        <select id="m4Match">
+          <option value="nearest-site">nearest-site</option>
+          <option value="robust">robust</option>
+        </select>
+        <label id="lThresh">Threshold</label>
+        <input type="number" id="m4Thresh" value="0.25" step="0.01" style="width:80px">
+        <button onclick="runMethod4()" class="secondary" id="btnM4">Run Method 4</button>
+      </div>
+      <div id="m4Out" class="scroll"></div>
+    </div>
+  </div>
+
+  <!-- Distortion Page -->
+  <div class="card">
+    <h2 id="hDist">Distortion Page</h2>
+    <div id="modeBox"></div>
+    <div class="row">
+      <button onclick="generateSingle()" id="btnGenS">Generate single-mode</button>
+      <button onclick="generateMixed()" class="secondary" id="btnGenM">Generate mixed</button>
+      <label id="lFmt">Formats</label>
+      <select id="expFmt"><option value="cif">cif</option><option value="cif,poscar">cif,poscar</option></select>
+      <button onclick="exportFiles()" id="btnExp">Export</button>
+      <button onclick="listDomains()" id="btnDom">Domains</button>
+    </div>
+    <div id="distOut"></div>
+  </div>
+
+  <div id="status"></div>
+</main>
+
+<script>
+"use strict";
+/* ================= i18n ================= */
+let LANG = "zh";        // zh / en / mixed
+let MSG = {};           // 界面文案
+let TERMS = {};         // 科学术语（en -> zh）
+let ZH2EN = [];         // mixed 模式替换表（中文 -> 英文，按中文长度降序）
+
+async function loadI18n(lang) {
+  const r = await fetch(`/api/i18n?lang=${lang}`);
+  const data = await r.json();
+  MSG = data.messages || {};
+  TERMS = data.terms || {};
+  LANG = data.language || lang;
+  // mixed 模式：长词先替换，避免短词误替换
+  ZH2EN = Object.entries(TERMS).map(([en, zh]) => [zh, en])
+          .sort((a, b) => b[0].length - a[0].length);
+}
+function t(key) {
+  const s = MSG[key] || key;
+  const args = Array.prototype.slice.call(arguments, 1);
+  let text = s.replace(/\{(\d+)\}/g, (m, i) => (args[Number(i)] !== undefined ? args[Number(i)] : m));
+  if (LANG === "mixed") {
+    for (const [zh, en] of ZH2EN) text = text.split(zh).join(en);
+  }
+  return text;
+}
+function term(en) { return LANG === "en" ? en : (TERMS[en] || en); }
+function toggleLang() {
+  // 循环：zh -> en -> mixed -> zh
+  const order = { zh: "en", en: "mixed", mixed: "zh" };
+  loadI18n(order[LANG] || "zh").then(() => {
+    document.documentElement.lang = "zh";
+    renderAll();
+    refreshStatus();
+  });
+}
+
+/* ================= 会话状态 ================= */
+let STATE = null;       // /api/state
+let kpoints = [];       // k 点列表
+let irreps = [];        // 当前 IR 列表
+let subgroups = [];     // 当前子群列表
+let candidates = [];    // Method 1/3 候选
+let modes = [];         // Method 2 模式
+let amplitudes = {};    // 每个模式的幅度输入
+let domains = [];
+
+/* ================= 通用 ================= */
+async function api(path, body, method) {
+  const opts = { method: method || "GET", headers: {} };
+  if (body !== undefined) {
+    opts.method = "POST";
+    opts.headers["Content-Type"] = "application/json";
+    opts.body = JSON.stringify(body);
+  }
+  const r = await fetch(`${path}?lang=${LANG}`, opts);
+  return r.json();
+}
+function fileText(file) {
+  return new Promise((res, rej) => {
+    const rd = new FileReader();
+    rd.onload = () => res(String(rd.result));
+    rd.onerror = rej;
+    rd.readAsText(file, "utf-8");
+  });
+}
+function table(headers, rows) {
+  if (!rows || !rows.length) return `<div class="info">-</div>`;
+  let h = "<table><thead><tr>" + headers.map(x => `<th>${x}</th>`).join("") + "</tr></thead><tbody>";
+  for (const r of rows) h += "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>";
+  return h + "</tbody></table>";
+}
+function showError(el, err) { el.innerHTML = `<div class="error">${err}</div>`; }
+function showOk(el, msg) { el.innerHTML = `<div class="ok">${msg}</div>`; }
+
+/* ================= 状态栏 ================= */
+async function refreshStatus() {
+  const d = await api("/api/state");
+  STATE = d.state;
+  const s = d.state;
+  let html;
+  if (!s.structure) html = t("st.noStruct");
+  else html = t("st.loaded", s.structure.space_group_number, s.structure.space_group_symbol, s.structure.atoms)
+    + " &nbsp;|&nbsp; " + term("Wyckoff position") + ": " + s.structure.wyckoff.map(w => w.letter).join(", ");
+  html += "<br>" + t("st.types") + ": " + s.distortion_types.join(", ")
+    + " &nbsp;|&nbsp; " + t("st.subgroups") + ": " + s.subgroups
+    + " &nbsp;|&nbsp; " + t("st.modes") + ": " + s.modes.length;
+  if (s.distorted_atoms != null) html += " &nbsp;|&nbsp; " + t("st.distorted") + ": " + s.distorted_atoms;
+  document.getElementById("statusBox").innerHTML = html;
+}
+
+/* ================= 1. CIF ================= */
+async function loadCif() {
+  const f = document.getElementById("cifFile").files[0];
+  if (!f) { showError(document.getElementById("cifInfo"), t("err.noFile")); return; }
+  const content = await fileText(f);
+  const d = await api("/api/load_cif", { filename: f.name, content });
+  if (!d.ok) { showError(document.getElementById("cifInfo"), d.error); return; }
+  showOk(document.getElementById("cifInfo"), t("ok.loaded"));
+  await refreshStatus();
+  await refreshKpoints();
+}
+
+/* ================= 2. Types ================= */
+function renderTypes() {
+  const types = ["displacement", "order", "strain", "magnetic"];
+  const cur = STATE ? STATE.distortion_types : ["displacement", "strain"];
+  document.getElementById("typeBox").innerHTML = types.map(tp =>
+    `<label><input type="checkbox" value="${tp}" ${cur.includes(tp) ? "checked" : ""}> ${term(tp)}</label>`
+  ).join(" ");
+}
+async function applyTypes() {
+  const types = [...document.querySelectorAll("#typeBox input:checked")].map(i => i.value);
+  await api("/api/set_types", { types }, "POST");
+  await refreshStatus();
+}
+
+/* ================= k 点 / IR ================= */
+async function refreshKpoints() {
+  const d = await api("/api/kpoints");
+  kpoints = d.kpoints || [];
+  const sel = document.getElementById("kpSelect");
+  sel.innerHTML = kpoints.map((k, i) => `<option value="${i}">${k.label} (${k.coordinates.join(",")})</option>`).join("");
+  onKpChange();
+  await refreshIrreps();
+}
+function onKpChange() {
+  const i = Number(document.getElementById("kpSelect").value || 0);
+  const kp = kpoints[i];
+  const box = document.getElementById("kpParams");
+  if (!kp || kp.is_special) { box.textContent = ""; return; }
+  box.innerHTML = kp.parameters.map(p => `${p}=<input type="text" id="p_${p}" style="width:60px" placeholder="1/2">`).join(" ");
+  refreshIrreps();  // 切换 k 点后联动刷新 IR 列表
+}
+async function refreshIrreps() {
+  const i = Number(document.getElementById("kpSelect").value || 0);
+  const kp = kpoints[i];
+  const params = collectParams(kp);
+  const q = new URLSearchParams({ k: kp.label });
+  if (params) q.set("params", params.join(","));
+  const d = await api(`/api/irreps?${q.toString()}`);
+  irreps = d.irreps || [];
+  document.getElementById("irSelect").innerHTML =
+    irreps.map((ir, j) => `<option value="${j}">${ir.label} (${ir.dimension}D)</option>`).join("");
+}
+function collectParams(kp) {
+  const vals = [];
+  for (const p of kp.parameters) {
+    const el = document.getElementById("p_" + p);
+    vals.push(el ? el.value.trim() : "");
+  }
+  return vals.some(v => !v) ? null : vals;
+}
+async function enumSubgroups() {
+  const i = Number(document.getElementById("kpSelect").value || 0);
+  const j = Number(document.getElementById("irSelect").value || 0);
+  const kp = kpoints[i];
+  const ir = irreps[j];
+  if (!kp || !ir) return;
+  const out = document.getElementById("subOut");
+  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
+  const d = await api("/api/subgroups", {
+    k: kp.label, ir: ir.label, params: collectParams(kp),
+    generate: document.getElementById("genDb").checked,
+  }, "POST");
+  if (!d.ok) { showError(out, d.error); return; }
+  subgroups = d.subgroups || [];
+  out.innerHTML = table([t("hIdx"), "SG", "IR", "OPD", "s", "i"], subgroups.map(sg =>
+    [sg.index, `${sg.space_group_number} ${sg.space_group_symbol}`, sg.irrep_label, sg.opd_symbol, sg.size, sg.subgroup_index]
+  ));
+}
+
+/* ================= Method 1 ================= */
+async function runMethod1() {
+  const out = document.getElementById("m1Out");
+  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
+  const sg = document.getElementById("m1Sg").value;
+  const d = await api("/api/method1", {
+    crystal_system: document.getElementById("m1Cs").value || null,
+    subgroup_space_group: sg ? Number(sg) : null,
+    maximal_subgroup_only: document.getElementById("m1Max").checked,
+  }, "POST");
+  if (!d.ok) { showError(out, d.error); return; }
+  candidates = d.candidates || [];
+  out.innerHTML = table([t("hIdx"), "SG", t("hK"), "IR", "OPD", term("crystal system"), term("maximal subgroup")],
+    candidates.map(c => [c.index, `${c.space_group_number} ${c.space_group_symbol}`, c.k_point_label, c.irrep_label, c.opd_symbol, c.crystal_system, c.is_maximal ? "✓" : ""]));
+  await refreshStatus();
+}
+
+/* ================= Method 2 ================= */
+async function runMethod2() {
+  const idx = document.getElementById("m2Idx").value;
+  const out = document.getElementById("m2Out");
+  if (idx === "") { showError(out, t("err.needIdx")); return; }
+  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
+  const d = await api("/api/method2", { subgroup_idx: Number(idx) }, "POST");
+  if (!d.ok) { showError(out, d.error); return; }
+  modes = d.modes || [];
+  renderModes();
+  out.innerHTML = table([t("hIrrep"), "OPD", term("Wyckoff position"), t("hNrep")],
+    modes.map(m => [m.irrep_label, m.opd_symbol, m.wyckoff_sites.join(","), m.n_representatives]));
+  await refreshStatus();
+}
+
+/* ================= Method 3 ================= */
+async function runMethod3() {
+  const out = document.getElementById("m3Out");
+  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
+  const basisRaw = document.getElementById("m3Basis").value.trim();
+  let basis = null;
+  if (basisRaw) {
+    basis = basisRaw.split(";").map(r => r.split(",").map(v => v.trim()).filter(Boolean));
+  }
+  const sg = document.getElementById("m3Sg").value;
+  const d = await api("/api/method3", {
+    point_group: document.getElementById("m3Pg").value.trim() || null,
+    space_group_type: sg ? Number(sg) : null,
+    supercell_basis: basis,
+  }, "POST");
+  if (!d.ok) { showError(out, d.error); return; }
+  candidates = d.candidates || [];
+  out.innerHTML = table([t("hIdx"), "SG", t("hK"), "IR", term("point group")],
+    candidates.map(c => [c.index, `${c.space_group_number} ${c.space_group_symbol}`, c.k_point_label, c.irrep_label, c.crystal_system]));
+}
+
+/* ================= Method 4 ================= */
+async function runMethod4() {
+  const f = document.getElementById("dauFile").files[0];
+  const out = document.getElementById("m4Out");
+  if (!f) { showError(out, t("err.noFile")); return; }
+  const content = await fileText(f);
+  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
+  const d = await api("/api/method4", {
+    filename: f.name, content,
+    atom_matching_method: document.getElementById("m4Match").value,
+    robust_distance_threshold: Number(document.getElementById("m4Thresh").value),
+  }, "POST");
+  if (!d.ok) { showError(out, d.error); return; }
+  out.innerHTML = table([t("hMode"), "amplitude"], Object.entries(d.amplitudes).slice(0, 20).map(([k, v]) => [k, (+v).toFixed(6)]))
+    + `<div class="info">RMS ${d.rms_residual.toExponential(3)}</div>`;
+}
+
+/* ================= Distortion Page ================= */
+function renderModes() {
+  const box = document.getElementById("modeBox");
+  if (!modes.length) { box.innerHTML = `<div class="info">${t("st.noModes")}</div>`; return; }
+  if (!Object.keys(amplitudes).length) modes.forEach(m => { amplitudes[m.irrep_label] = 0.1; });
+  box.innerHTML = modes.map(m =>
+    `<label><input type="number" step="0.01" value="${amplitudes[m.irrep_label]}" style="width:80px" data-ir="${m.irrep_label}">
+     ${m.irrep_label} (${m.opd_symbol})</label><br>`
+  ).join("");
+}
+function collectAmplitudes() {
+  document.querySelectorAll("#modeBox input").forEach(el => {
+    amplitudes[el.dataset.ir] = Number(el.value);
+  });
+}
+async function generateSingle() {
+  collectAmplitudes();
+  const ir = Object.keys(amplitudes)[0];
+  const out = document.getElementById("distOut");
+  if (!ir) { showError(out, t("err.noModes")); return; }
+  const d = await api("/api/generate", { irrep_label: ir, amplitude: amplitudes[ir] }, "POST");
+  if (!d.ok) { showError(out, d.error); return; }
+  showOk(out, t("ok.generated", d.atoms));
+  await refreshStatus();
+}
+async function generateMixed() {
+  collectAmplitudes();
+  const out = document.getElementById("distOut");
+  const keys = Object.keys(amplitudes);
+  if (keys.length < 1) { showError(out, t("err.noModes")); return; }
+  const d = await api("/api/mixed", { contributions: amplitudes }, "POST");
+  if (!d.ok) { showError(out, d.error); return; }
+  showOk(out, t("ok.generated", d.atoms));
+  await refreshStatus();
+}
+async function exportFiles() {
+  const out = document.getElementById("distOut");
+  const fmt = document.getElementById("expFmt").value;
+  const r = await api("/api/export", { filename: "web_distorted", formats: fmt.split(",") }, "POST");
+  if (!r.ok) { showError(out, r.error); return; }
+  out.innerHTML = r.files.map(f => `<a href="/api/download?file=${encodeURIComponent(f)}">${f}</a><br>`).join("");
+}
+async function listDomains() {
+  const out = document.getElementById("distOut");
+  const d = await api("/api/domains", {}, "POST");
+  if (!d.ok) { showError(out, d.error); return; }
+  domains = d.domains || [];
+  out.innerHTML = table(["#", t("hGen"), "SG"], domains.map(x => [x.domain_number, x.generator, `${x.space_group_number} ${x.space_group_symbol}`]));
+}
+
+/* ================= 渲染 ================= */
+function renderAll() {
+  document.title = "ISODISTORT Local Console";
+  const label = { zh: "EN", en: "中", mixed: "中+EN" }[LANG] || "EN";
+  document.getElementById("langBtn").textContent = label;
+  document.getElementById("langBtn").title = LANG;
+  document.getElementById("hStatus").textContent = t("hStatus");
+  document.getElementById("hCif").textContent = "1. " + t("hCif");
+  document.getElementById("hTypes").textContent = "2. " + t("hTypes");
+  document.getElementById("hM1").textContent = "Method 1";
+  document.getElementById("hM2").textContent = "Method 2";
+  document.getElementById("hM3").textContent = "Method 3";
+  document.getElementById("hM4").textContent = "Method 4";
+  document.getElementById("hDist").textContent = t("hDist");
+  document.getElementById("btnLoadCif").textContent = t("btn.load");
+  document.getElementById("btnTypes").textContent = t("btn.apply");
+  document.getElementById("btnM1").textContent = t("btn.m1");
+  document.getElementById("btnM2").textContent = t("btn.m2");
+  document.getElementById("btnM3").textContent = t("btn.m3");
+  document.getElementById("btnM4").textContent = t("btn.m4");
+  document.getElementById("btnSubs").textContent = t("btn.subs");
+  document.getElementById("btnGenS").textContent = t("btn.genS");
+  document.getElementById("btnGenM").textContent = t("btn.genM");
+  document.getElementById("btnExp").textContent = t("btn.exp");
+  document.getElementById("btnDom").textContent = t("btn.dom");
+  document.getElementById("lCs").textContent = term("crystal system");
+  document.getElementById("lSg").textContent = t("l.sg");
+  document.getElementById("lMax").textContent = t("l.max");
+  document.getElementById("lIdx").textContent = t("l.idx");
+  document.getElementById("sDirect").textContent = t("s.direct");
+  document.getElementById("lGen").textContent = t("l.gen");
+  document.getElementById("lPg").textContent = term("point group");
+  document.getElementById("lSg3").textContent = t("l.sg3");
+  document.getElementById("lBasis").textContent = t("l.basis");
+  document.getElementById("lMatch").textContent = t("l.match");
+  document.getElementById("lThresh").textContent = t("l.thresh");
+  document.getElementById("lFmt").textContent = t("l.fmt");
+  renderTypes();
+  renderModes();
+  refreshStatus();
+}
+
+/* ================= 初始化 ================= */
+(async function init() {
+  // 空 lang：使用服务器配置默认语言（config/settings.yaml runtime.language）
+  await loadI18n("");
+  renderAll();
+})();
+</script>
+</body>
+</html>

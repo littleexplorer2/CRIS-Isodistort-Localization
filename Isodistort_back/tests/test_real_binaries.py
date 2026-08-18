@@ -8,6 +8,7 @@ import shutil
 import subprocess
 
 import pytest
+
 from isocore.backend import FindsymWrapper, IsoWrapper, SubgroupInfo
 
 

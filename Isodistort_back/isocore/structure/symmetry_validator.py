@@ -19,7 +19,7 @@ class SymmetryValidator:
     1. 确认结构的空间群（与 findsym 结果交叉验证）
     2. 检查原子位置容差
     3. 识别有序/无序占位
-    4. 获取 Wyckoff 位点分配
+    4. 获取 Wyckoff 位置分配
     """
 
     def __init__(self, tolerance: float | None = None):
@@ -43,7 +43,7 @@ class SymmetryValidator:
         sg_symbol = sga.get_space_group_symbol()
         symm_structure = sga.get_symmetrized_structure()
 
-        # Wyckoff 位点信息
+        # Wyckoff 位置信息
         wyckoff_labels = symm_structure.wyckoff_symbols
         equivalent_indices = symm_structure.equivalent_indices
 

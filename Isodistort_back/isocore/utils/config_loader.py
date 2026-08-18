@@ -105,6 +105,16 @@ class Config:
         return self._cfg["runtime"].get("generation_timeout", 3600)
 
     @property
+    def language(self) -> str:
+        """默认界面语言（"zh" 中文 / "en" English）。"""
+        return self._cfg["runtime"].get("language", "zh")
+
+    @property
+    def web_port(self) -> int:
+        """网页端监听端口（web/server.py 使用）。"""
+        return int(self._cfg["runtime"].get("web_port", 8000))
+
+    @property
     def position_tolerance(self) -> float:
         """原子位置容差（分数坐标）。"""
         return self._cfg["defaults"]["position_tolerance"]

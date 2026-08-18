@@ -35,8 +35,12 @@ select = ["E", "F", "W", "I", "UP", "B", "S", "BLE", "RUF", "PL"]
 # 中文代码库：全角标点在中文文案中是刻意用法，不做歧义告警；
 # PLR*（重构建议，如魔法数字/参数过多）对本项目过于教条，忽略
 ignore = ["RUF001", "RUF002", "RUF003", "PLR"]
-# 说明：BLE001 盲捕异常在 CLI 边界（main.py）与少数兼容场景按需放行（带 noqa）
+# 说明：BLE001 盲捕异常在 CLI 边界（main_terminal.py）与少数兼容场景按需放行（带 noqa）
 
 [tool.ruff.lint.per-file-ignores]
 # 测试文件使用 assert 断言属正常用法
 "**/tests/*.py" = ["S101"]
+
+[tool.ruff.lint.isort]
+# 本仓库包名（isocore/isodistort/web）为 first-party，保证导入排序一致
+known-first-party = ["isocore", "isodistort", "web"]
