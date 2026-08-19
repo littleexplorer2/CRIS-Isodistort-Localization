@@ -1,6 +1,6 @@
-# Isodistort Validate
+# ISODISTORT_VALIDATE
 
-用于比较 `Isodistort_back` 生成的 CIF 与官网导出的参考 CIF，帮助发现本地化 ISODISTORT 的输出回归。
+用于比较 `ISODISTORT` 生成的 CIF 与官网导出的参考 CIF，帮助发现本地化 ISODISTORT 的输出回归。
 
 ## 检查层次
 
@@ -16,13 +16,13 @@
 ## 安装
 
 ```powershell
-cd "C:\Users\devou\OneDrive\Desktop\CRIS\Isodistort_validate"
+cd "C:\Users\devou\OneDrive\Desktop\CRIS\ISODISTORT_VALIDATE"
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-也可以使用已经安装 `numpy`、`pymatgen`、`spglib` 的 `Isodistort_back\.venv`。
+也可以使用已经安装 `numpy`、`pymatgen`、`spglib` 的 `ISODISTORT\.venv`。
 
 ## 单对 CIF 比较
 
@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 ```powershell
 python compare_cif.py `
-  "C:\path\to\Isodistort_back\output\local.cif" `
+  "C:\path\to\ISODISTORT\output\local.cif" `
   "C:\path\to\official\official.cif"
 ```
 

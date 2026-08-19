@@ -16,7 +16,6 @@ import spglib
 from pymatgen.core import Structure
 from pymatgen.io.cif import CifFile, CifParser
 
-
 SPACE_GROUP_NUMBER_TAGS = ("_symmetry_Int_Tables_number", "_space_group_IT_number")
 SPACE_GROUP_SYMBOL_TAGS = ("_symmetry_space_group_name_H-M", "_space_group_name_H-M_alt")
 OCCUPANCY_TAG = "_atom_site_occupancy"

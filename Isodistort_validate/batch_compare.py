@@ -99,7 +99,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"错误: {exc}", file=sys.stderr)
         return 2
     if args.json:
-        print(json.dumps({"total": len(results), "passed": len(results) - failed, "failed": failed, "results": results}, ensure_ascii=False, indent=2))
+        summary = {"total": len(results), "passed": len(results) - failed,
+                   "failed": failed, "results": results}
+        print(json.dumps(summary, ensure_ascii=False, indent=2))
     else:
         for result in results:
             status = "PASS" if result["passed"] else "FAIL"

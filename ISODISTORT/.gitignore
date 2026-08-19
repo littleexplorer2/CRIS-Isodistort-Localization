@@ -1,0 +1,38 @@
+# ============================================================
+# ISODISTORT —— 子项目级 .gitignore（唯一生效位置，根目录不再维护）
+# ============================================================
+
+# ---------- Python 常规 ----------
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+build/
+dist/
+*.log
+
+# ---------- 虚拟环境 ----------
+.venv/
+
+# ---------- 测试 / 静态检查缓存 ----------
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ---------- 程序运行输出（导出的 CIF/POSCAR/JSON/临时上传） ----------
+output/
+
+# ---------- 开发者端测试数据（可重新生成/下载，不提交） ----------
+# 生成式 30-CIF 测试集：python tests_dev/make_cifs_30.py 重建
+tests_dev/cifs_30/
+# COD 外部结构（真实晶体数据，来源见 tests_dev/cifs_external/SOURCES.md）：
+# python tests_dev/fetch_cod_cifs.py 重新下载
+tests_dev/cifs_external/
+
+# ---------- ISOTROPY 套件二进制与数据库（大文件，不提交） ----------
+# isobyu/ 为 Linux ELF 二进制 + 各向同性数据库（仅 WSL 侧运行需要），
+# 体积大且不可再分发；部署时请将 ISOTROPY 套件文件放入 ISODISTORT/isobyu/
+# （具体文件清单见 README「部署要求」）。
+isobyu/
