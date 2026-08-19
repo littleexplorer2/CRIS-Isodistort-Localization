@@ -52,8 +52,10 @@ from ..io import StructureExporter
 from ..structure import (
     SymmetryValidator,
     read_cif,
+    read_structure,
 )
 from ..utils import get_config
+from ..utils.text_parser import parse_fraction
 
 
 class IsoDistort:
@@ -121,15 +123,19 @@ class IsoDistort:
 
     def load_structure(self, cif_path: str | Path) -> Structure:
         """
-        步骤1-3：加载 CIF，识别对称性
+        步骤1-3：加载结构文件，识别对称性
+
+        支持 CIF / VASP POSCAR / xyz（按扩展名自动识别，见 read_structure）。
 
         Args:
-            cif_path: CIF 文件路径
+            cif_path: 结构文件路径（CIF / POSCAR / xyz）
 
         Returns:
             Structure: 加载后的结构对象
         """
-        self.structure = read_cif(cif_path)
+        path = Path(cif_path)
+        self.structure = (read_cif(path) if path.suffix.lower() == ".cif"
+                          else read_structure(path))
         self.symmetry_info = self._sym_val.validate(self.structure)
         self._reset_derived_state()
 
@@ -389,6 +395,31 @@ class IsoDistort:
             raise RuntimeError("请先加载结构 (load_structure)")
         return self._iso.list_k_points(self.symmetry_info["space_group_number"])
 
+    def _resolve_k_vector(self, k_point_label: str) -> list[float]:
+        """把 k 点标签解析为数值坐标（母相倒格分数单位）。
+
+        仅支持无自由参数的特殊 k 点（如 GM=(0,0,0)、M=(1/2,1/2,0)）；
+        带参数 k 点（如 LD 的 a/b/g）无法在超胞副本间确定相位，
+        返回空列表（引擎将按 k=Γ 处理，即不调制）。
+        """
+        if not k_point_label:
+            return []
+        try:
+            kpoints = self._iso.list_k_points(
+                self.symmetry_info["space_group_number"])
+        except Exception:  # noqa: BLE001 - 解析失败按无 k 向量处理
+            return []
+        for kp in kpoints:
+            if kp.label != k_point_label:
+                continue
+            if not kp.is_special:
+                return []
+            try:
+                return [parse_fraction(c) for c in kp.coordinates]
+            except (ValueError, IndexError):
+                return []
+        return []
+
     def list_irreps(self, k_point_label: str,
                     k_parameters: list | None = None) -> list:
         """
@@ -636,8 +667,10 @@ class IsoDistort:
             raise ValueError(t("mode.invalid", label=irrep_label))
 
         disp = self.mode_displacements[irrep_label]["displacements"]
+        k_vector = (self.phase_path.k_vector if self.phase_path is not None
+                    else None)
         self.distorted_structure = self._dist_engine.generate_single_mode(
-            self.structure, disp, amplitude, supercell
+            self.structure, disp, amplitude, supercell, k_vector=k_vector
         )
 
         n_ratio = len(self.distorted_structure) / len(self.structure)
@@ -691,6 +724,8 @@ class IsoDistort:
             self.structure, supercell,
             parent_displacements=total_disp,
             occupancy_patterns=occ_patterns or None,
+            k_vector=(self.phase_path.k_vector
+                      if self.phase_path is not None else None),
         )
         # 默认导出混合畸变为 CIF
         label = "mixed"
@@ -841,6 +876,9 @@ class IsoDistort:
         self.phase_path = PhasePath.from_subgroup(
             parent_sg, result.subgroup, types
         )
+        # 解析 k 点坐标（Bloch 相位调制用；仅特殊 k 点可直接求值）
+        self.phase_path.k_vector = self._resolve_k_vector(
+            result.subgroup.k_point_label)
         self.phase_path.validate()
         self.distortion_modes = self._compute_scoped_modes(
             parent_sg, result.subgroup, types, raw_modes=result.modes

@@ -86,6 +86,7 @@ class PhasePath:
     supercell: list[int] = field(default_factory=lambda: [1, 1, 1])
     basis_vectors: list[list[float]] = field(default_factory=list)  # 子群超胞基矢
     selected_irreps: list[str] = field(default_factory=list)  # 指定不可约表示
+    k_vector: list[float] = field(default_factory=list)  # k 点坐标（母相倒格分数单位）
 
     def validate(self) -> bool:
         """参数合法性校验"""

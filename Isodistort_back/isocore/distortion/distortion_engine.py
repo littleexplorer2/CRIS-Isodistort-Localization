@@ -45,7 +45,10 @@ class DistortionEngine:
     def generate_single_mode(self, parent_structure: Structure,
                              mode_displacements: np.ndarray,
                              amplitude: float | None = None,
-                             supercell: SupercellSpec = None) -> Structure:
+                             supercell: SupercellSpec = None,
+                             k_vector: Sequence[float] | None = None,
+                             opd_direction: Sequence[float] | None = None,
+                             ) -> Structure:
         """
         生成单模式畸变后的结构
 
@@ -55,6 +58,10 @@ class DistortionEngine:
             amplitude: 畸变幅度（默认取配置 default_amplitude）
             supercell: 超胞规格，可为 [a,b,c] 整数列表或 3x3 矩阵
                 （子群基矢，母相格单位）
+            k_vector: k 点坐标（母相倒格分数单位，如 M=(1/2,1/2,0)）。
+                非零 k 点时超胞各副本按 Bloch 相位 cos(2π k·t) 调制
+                （t 为副本相对母相原胞的平移）；None/Γ 点则不调制。
+            opd_direction: 序参量方向（仅用于选择相位符号，保留接口）
 
         Returns:
             Structure: 畸变后的结构
@@ -65,21 +72,68 @@ class DistortionEngine:
                 f"位移向量长度 {mode_displacements.shape[0]} 与母相原子数 "
                 f"{len(parent_structure)} 不一致"
             )
+        if not np.all(np.isfinite(mode_displacements)):
+            raise ValueError(
+                "位移向量含 NaN/Inf，无法生成畸变结构（请检查模式计算是否出错）"
+            )
+        if not np.isfinite(amplitude):
+            raise ValueError(f"振幅必须为有限数值，收到 {amplitude!r}")
+
+        k = None if k_vector is None else np.asarray(k_vector, dtype=float)
+        if k is not None and np.all(np.abs(k) < 1e-9):
+            k = None  # Γ 点（k=0）无需相位调制
 
         # 1. 在母相原胞上应用位移
         scaled_disp = amplitude * np.asarray(mode_displacements, dtype=float)
-        new_frac_coords = parent_structure.frac_coords + scaled_disp
-        new_frac_coords = wrap_to_unit_cell(new_frac_coords)
 
-        distorted = Structure(
-            lattice=parent_structure.lattice,
-            species=parent_structure.species,
-            coords=new_frac_coords,
-            coords_are_cartesian=False,
-        )
+        if supercell is None or k is None:
+            new_frac_coords = parent_structure.frac_coords + scaled_disp
+            new_frac_coords = wrap_to_unit_cell(new_frac_coords)
+            distorted = Structure(
+                lattice=parent_structure.lattice,
+                species=parent_structure.species,
+                coords=new_frac_coords,
+                coords_are_cartesian=False,
+            )
+        else:
+            # 非零 k 点：先建超胞，再按 Bloch 相位逐副本施加位移
+            distorted = build_supercell(parent_structure, supercell)
+            basis = np.asarray(supercell, dtype=float)
+            # 每个超胞原子的母相分数坐标 = 超胞分数坐标 @ basis
+            parent_frac = np.asarray(distorted.frac_coords, dtype=float) @ basis
+            # 找到每个超胞原子对应的母相原子与其副本平移 t
+            pc = np.asarray(parent_structure.frac_coords, dtype=float)
+            new_coords = np.asarray(distorted.frac_coords, dtype=float).copy()
+            for j in range(len(distorted)):
+                best_i, best_dist = -1, float("inf")
+                for i in range(len(parent_structure)):
+                    if distorted[j].species_string != \
+                            parent_structure[i].species_string:
+                        continue
+                    d = parent_frac[j] - pc[i]
+                    d -= np.round(d)
+                    dist = float(np.linalg.norm(d))
+                    if dist < best_dist:
+                        best_dist, best_i = dist, i
+                if best_i < 0:
+                    continue
+                # 副本平移 t（整数，母相分数坐标单位）
+                t = parent_frac[j] - pc[best_i]
+                t_int = np.round(t)
+                phase = np.cos(2.0 * np.pi * float(np.dot(k, t_int)))
+                shift = phase * scaled_disp[best_i]
+                # 母相分数位移 -> 超胞分数位移：Δf_sc = Δf_parent @ inv(basis)
+                new_coords[j] = (np.asarray(distorted.frac_coords[j])
+                                 + shift @ np.linalg.inv(basis)) % 1.0
+            distorted = Structure(
+                lattice=distorted.lattice,
+                species=distorted.species,
+                coords=new_coords,
+                coords_are_cartesian=False,
+            )
 
         # 2. 扩胞（None / [1,1,1] 时保持原胞）
-        if supercell is not None:
+        if supercell is not None and k is None:
             distorted = build_supercell(distorted, supercell)
 
         return distorted
@@ -87,7 +141,8 @@ class DistortionEngine:
     def generate_mixed_mode(self, parent_structure: Structure,
                             mode_contributions: dict[str, float],
                             all_displacements: dict[str, np.ndarray],
-                            supercell: SupercellSpec = None) -> Structure:
+                            supercell: SupercellSpec = None,
+                            k_vector: Sequence[float] | None = None) -> Structure:
         """
         生成多模式混合畸变结构
 
@@ -96,6 +151,7 @@ class DistortionEngine:
             mode_contributions: {irrep_label: amplitude} 各模式的幅度
             all_displacements: {irrep_label: displacement_array} 所有模式的位移向量
             supercell: 超胞规格
+            k_vector: k 点坐标（Bloch 相位调制；None/Γ 点不调制）
 
         Returns:
             Structure: 混合畸变后的结构
@@ -111,13 +167,15 @@ class DistortionEngine:
             raise ValueError("未提供任何有效的模式贡献")
 
         return self.generate_single_mode(
-            parent_structure, total_disp, amplitude=1.0, supercell=supercell
+            parent_structure, total_disp, amplitude=1.0, supercell=supercell,
+            k_vector=k_vector,
         )
 
     def generate_modes(self, parent_structure: Structure,
                        supercell: SupercellSpec = None,
                        parent_displacements: np.ndarray | None = None,
                        occupancy_patterns: list[tuple[np.ndarray, float]] | None = None,
+                       k_vector: Sequence[float] | None = None,
                        ) -> Structure:
         """
         组合生成畸变结构：可同时施加原子位移与占据率（occupational）调制。
@@ -130,6 +188,7 @@ class DistortionEngine:
             occupancy_patterns: [(pattern, amplitude), ...]，pattern 为
                 长度 = 超胞原子数的 ±1 数组（+1 类保持全占据，-1 类占据率
                 1-amplitude）；None 表示无占据率调制
+            k_vector: k 点坐标（Bloch 相位调制；None/Γ 点不调制）
 
         Returns:
             Structure: 畸变后的结构（占据率调制时位点为部分占据）
@@ -143,10 +202,47 @@ class DistortionEngine:
         sc = build_supercell(parent_structure, supercell) if supercell is not None \
             else parent_structure.copy()
 
+        k = None if k_vector is None else np.asarray(k_vector, dtype=float)
+        if k is not None and np.all(np.abs(k) < 1e-9):
+            k = None
+
         coords = np.asarray(sc.frac_coords, dtype=float)
         if parent_displacements is not None:
-            idx = self._map_parent_indices(parent_structure, sc, supercell)
-            coords = coords + np.asarray(parent_displacements, dtype=float)[idx]
+            disp = np.asarray(parent_displacements, dtype=float)
+            basis = np.asarray(supercell, dtype=float) if supercell is not None \
+                else np.eye(3)
+            if k is None or supercell is None:
+                idx = self._map_parent_indices(parent_structure, sc, supercell)
+                # 位移以母相分数坐标为单位；超胞分数坐标需变换：
+                # Δf_sc = Δf_parent @ inv(basis)（basis=单位阵时不变）
+                shift = disp[idx] @ np.linalg.inv(basis)
+                coords = coords + shift
+            else:
+                # 非零 k 点：逐超胞副本按 Bloch 相位调制
+                basis = np.asarray(supercell, dtype=float)
+                parent_frac = coords @ basis
+                pc = np.asarray(parent_structure.frac_coords, dtype=float)
+                new_coords = coords.copy()
+                for j in range(len(sc)):
+                    best_i, best_dist = -1, float("inf")
+                    for i in range(len(parent_structure)):
+                        if sc[j].species_string != \
+                                parent_structure[i].species_string:
+                            continue
+                        d = parent_frac[j] - pc[i]
+                        d -= np.round(d)
+                        dist = float(np.linalg.norm(d))
+                        if dist < best_dist:
+                            best_dist, best_i = dist, i
+                    if best_i < 0:
+                        continue
+                    t_int = np.round(parent_frac[j] - pc[best_i])
+                    phase = np.cos(2.0 * np.pi
+                                   * float(np.dot(k, t_int)))
+                    shift = phase * disp[best_i]
+                    new_coords[j] = (coords[j]
+                                     + shift @ np.linalg.inv(basis)) % 1.0
+                coords = new_coords
             coords = wrap_to_unit_cell(coords)
 
         def _elem_symbol(spec) -> str:

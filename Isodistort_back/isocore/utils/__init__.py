@@ -8,6 +8,14 @@ from .exceptions import (
     WrapperRunError,
     WrapperTimeoutError,
 )
+from .self_check import (
+    check_linearity,
+    check_mode_orthogonality,
+    check_subgroup_rule,
+    check_symmetry_conservation,
+    check_zero_amplitude,
+    run_self_checks,
+)
 from .text_parser import (
     detect_blocked_generation,
     detect_missing_subgroup_db,
@@ -35,6 +43,11 @@ __all__ = [
     "PhasePathError",
     "WrapperRunError",
     "WrapperTimeoutError",
+    "check_linearity",
+    "check_mode_orthogonality",
+    "check_subgroup_rule",
+    "check_symmetry_conservation",
+    "check_zero_amplitude",
     "detect_blocked_generation",
     "detect_missing_subgroup_db",
     "extract_section",
@@ -52,4 +65,5 @@ __all__ = [
     "parse_subgroup_table",
     "parse_vector_token",
     "parse_wyckoff_sites",
+    "run_self_checks",
 ]

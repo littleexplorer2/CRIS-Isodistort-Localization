@@ -62,12 +62,11 @@ class DistortionMapper:
         n_atoms = len(structure)
         self._lattice_setup(structure)
 
-        # Wyckoff 字母 -> 原子索引列表
-        letter_to_indices: dict[str, list[int]] = {}
+        # 按 (字母, 物种) 分组：同一字母可能被多个物种共用（如 Fe/O 同在 k）
+        groups: list[tuple[str, list[int]]] = []
         for site_info in wyckoff_sites:
-            letter_to_indices.setdefault(
-                site_info["wyckoff_letter"], []
-            ).extend(site_info["equivalent_indices"])
+            groups.append((site_info["wyckoff_letter"],
+                           list(site_info["equivalent_indices"])))
 
         result: dict[str, dict] = {}
         for mode in modes:
@@ -78,46 +77,79 @@ class DistortionMapper:
             for bush in mode.bush_modes:
                 by_letter.setdefault(bush.wyckoff_letter, []).append(bush)
 
-            for letter, bushes in by_letter.items():
-                indices = letter_to_indices.get(letter, [])
-                if not indices:
+            for letter, indices in groups:
+                bushes = by_letter.get(letter, [])
+                if not bushes or not indices:
                     continue
 
                 # 解析每个代表点（含自由参数 -> 结构真实坐标）
+                # 多维模式（一个代表多个分量向量）取各分量之和
+                # （OPD 通用方向近似），模式级再归一化使最大位移为 1
                 reps: list[tuple[np.ndarray, np.ndarray]] = []
                 for bush in bushes:
                     if not bush.displacements:
                         continue
                     point = self._resolve_rep_point(bush, structure, indices)
-                    reps.append((point, np.asarray(bush.displacements[0], dtype=float)))
+                    vec = np.sum(
+                        np.asarray(bush.displacements, dtype=float), axis=0)
+                    reps.append((point, vec))
                 if not reps:
                     continue
 
-                if len(reps) == 1:
+                # 只保留能“模格点”匹配到本组原子的代表（同一字母不同物种时，
+                # 彼此的符号点取位约定可能不同，无法匹配的物种保持不动，
+                # 避免错误回退破坏对称性）
+                matched_reps = [
+                    (p, v) for p, v in reps
+                    if any(self._lattice_equiv(
+                        np.asarray(structure[i].frac_coords), p) for i in indices)
+                ]
+                if not matched_reps:
+                    continue  # 本组原子保持不动
+                if len(matched_reps) == 1:
                     # 均匀模式：同一位移作用于该位点的全部等效原子
-                    disp = reps[0][1]
+                    disp = matched_reps[0][1]
                     for idx in indices:
                         displacements[idx] = disp
                 else:
-                    # 多代表：按“模母相格点等价”分配（子轨道/带心副本同位移）
+                    # 多代表：优先按“周期等价”（模整数平移）把代表点分配给
+                    # 原子。非 Γ k 点模式中，BUSH 会为带心副本给出相位反号的
+                    # 独立代表（如 Im-3m H4-：`(0,0,0)→(1,0,1)` 与
+                    # `(-1/2,1/2,1/2)→(-1,0,-1)`），这两个代表相差原始格点
+                    # 平移、互为“模格点等价”，若按旧逻辑“首个代表胜出”会把
+                    # 全部原子分给同一代表、丢失 k 点相位（畸变退化为刚性平移）。
+                    # 代表点与原子分数坐标 mod 1 重合时即视为同一原子，直接
+                    # 采用该代表的位移；无法周期匹配时回退“模母相格点等价”
+                    # （子轨道/带心副本同位移，Γ 点均匀语义），最后退周期最近邻。
                     for idx in indices:
                         coord = np.asarray(structure[idx].frac_coords)
                         assigned = False
-                        for point, disp in reps:
-                            if self._lattice_equiv(coord, point):
+                        for point, disp in matched_reps:
+                            if self._periodic_equiv(coord, point):
                                 displacements[idx] = disp
                                 assigned = True
                                 break
                         if not assigned:
-                            # 回退：周期最近邻
-                            best_disp = reps[0][1]
+                            for point, disp in matched_reps:
+                                if self._lattice_equiv(coord, point):
+                                    displacements[idx] = disp
+                                    assigned = True
+                                    break
+                        if not assigned:
+                            # 回退：周期最近邻（仅本组代表内）
+                            best_disp = matched_reps[0][1]
                             best_dist = float("inf")
-                            for point, disp in reps:
+                            for point, disp in matched_reps:
                                 d = self._periodic_distance(coord, point)
                                 if d < best_dist:
                                     best_dist = d
                                     best_disp = disp
                             displacements[idx] = best_disp
+
+            # 模式级归一化：保持“最大位移分量 = 1”的幅度语义
+            max_norm = float(np.max(np.linalg.norm(displacements, axis=1)))
+            if max_norm > 1e-12:
+                displacements = displacements / max_norm
 
             result[mode.irrep_label] = {
                 "mode": mode,
@@ -145,47 +177,54 @@ class DistortionMapper:
                            indices: list[int]) -> np.ndarray:
         """把 BUSH 代表点解析为具体分数坐标。
 
-        带自由参数的代表点（如 ``(0,0,z)``、``(x,2x,z)``）中，每个字母
-        参数按其出现位置取该位点原子的实际坐标分量（如 z=0.38、x=1/3），
-        否则相反符号的代表点（``(0,0,z)`` 与 ``(0,0,-z)``）会解析成同一点，
-        导致相反位移的代表无法区分。
+        带自由参数的代表点（如 ``(0,0,z)``、``(x,2x,z)``、``(x+1/2,-y+1,-z)``）
+        中，字母参数按其表示的坐标分量取值：x/y/z（或 a/b/g）分别取位点
+        第一个原子的第 0/1/2 个分数坐标分量。否则相反符号的代表点
+        （``(0,0,z)`` 与 ``(0,0,-z)``）会解析成同一点，导致相反位移的
+        代表无法区分。
         """
+        _LETTER_AXIS = {"x": 0, "y": 1, "z": 2, "a": 0, "b": 1, "g": 2}
         tokens = [str(t).strip() for t in (bush.point_raw or [])]
         if not tokens or not any(_has_letter(t) for t in tokens):
             return np.asarray(bush.point, dtype=float)
         atom0 = np.asarray(structure[indices[0]].frac_coords, dtype=float)
         letters: dict[str, float] = {}
-        for i, tok in enumerate(tokens):
+        for tok in tokens:
             m = re.search(r"[a-zA-Z]", tok)
             if m and m.group() not in letters:
-                letters[m.group()] = float(atom0[i])
+                letters[m.group()] = float(
+                    atom0[_LETTER_AXIS.get(m.group(), 0)])
         point = self._eval_tokens(tokens, letters)
         return point if len(point) == 3 else np.asarray(bush.point, dtype=float)
 
     @staticmethod
-    def _eval_tokens(tokens: list[str], letters: dict[str, float]) -> np.ndarray:
-        """按字母参数表求值坐标 token（如 "2x" / "-z" / "1/2" / "-1/2a"）。"""
-        out = []
-        for tok in tokens:
-            m = re.fullmatch(
-                r"([+-]?(?:\d+(?:\.\d+)?(?:/\d+)?)?)([a-zA-Z]*)", tok
-            )
-            if not m:
-                out.append(0.0)
+    def _eval_token(tok: str, letters: dict[str, float]) -> float:
+        """求值单个坐标 token（可含常数项与线性组合）。
+
+        支持 ``1/2``、``x``、``-x``、``2x``、``-y+1``、``x-1/2``、
+        ``-x+3/2``、``y+1/2``、``-2a+1`` 等形式。
+        """
+        s = tok.replace(" ", "")
+        total = 0.0
+        for m in re.finditer(r"([+-]?)(\d+(?:\.\d+)?(?:/\d+)?)?([a-zA-Z]*)", s):
+            if not m.group(0):
                 continue
-            coeff_text = m.group(1)
-            alpha = m.group(2)
+            sign, coeff, alpha = m.group(1), m.group(2), m.group(3)
             if alpha:
-                val = letters.get(alpha, 0.0)
-                if not coeff_text:
-                    out.append(val)
-                elif coeff_text in ("+", "-"):
-                    out.append(val if coeff_text == "+" else -val)
-                else:
-                    out.append(float(Fraction(coeff_text)) * val)
+                base = letters.get(alpha, 0.0) * (
+                    float(Fraction(coeff)) if coeff else 1.0)
             else:
-                out.append(float(Fraction(coeff_text)) if coeff_text else 0.0)
-        return np.asarray(out, dtype=float)
+                base = float(Fraction(coeff)) if coeff else 0.0
+            total += base if sign != "-" else -base
+        return total
+
+    @staticmethod
+    def _eval_tokens(tokens: list[str], letters: dict[str, float]) -> np.ndarray:
+        """按字母参数表求值坐标 token 列表。"""
+        return np.asarray(
+            [DistortionMapper._eval_token(t, letters) for t in tokens],
+            dtype=float,
+        )
 
     def _lattice_equiv(self, a: np.ndarray, b: np.ndarray,
                        atol: float = 1e-3) -> bool:
@@ -193,6 +232,18 @@ class DistortionMapper:
         delta_cart = (a - b) @ self._conv_matrix
         n = delta_cart @ np.linalg.inv(self._prim_matrix)
         return bool(np.allclose(n, np.round(n), atol=atol))
+
+    @staticmethod
+    def _periodic_equiv(a: np.ndarray, b: np.ndarray,
+                        atol: float = 1e-3) -> bool:
+        """两个分数坐标是否周期等价（相差整数平移，mod 1 相等）。
+
+        用于把 BUSH 代表点匹配到具体原子：代表点与原子分数坐标在 [0,1) 内
+        重合即视为同一原子（如带心副本相位反号代表 `(-1/2,1/2,1/2)` 与
+        体心原子 `(1/2,1/2,1/2)` mod 1 相等）。
+        """
+        delta = a - b
+        return bool(np.allclose(delta - np.round(delta), 0.0, atol=atol))
 
     @staticmethod
     def _periodic_distance(a: np.ndarray, b: np.ndarray) -> float:
