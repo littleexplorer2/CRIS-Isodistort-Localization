@@ -25,7 +25,6 @@ from pathlib import Path
 import numpy as np
 from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.symmetry.groups import SpaceGroup
 
 from ..backend import (
     DistortionMode,
@@ -33,6 +32,7 @@ from ..backend import (
     IsoWrapper,
     SubgroupInfo,
 )
+from ..data.kpoints_official import KPOINT_OFFICIAL
 from ..distortion import (
     DISTORTION_TYPES,
     DistortionEngine,
@@ -55,6 +55,7 @@ from ..structure import (
     read_structure,
 )
 from ..utils import IsodistortError, get_config
+from ..utils.schoenflies import hm_symbol, schoenflies_symbol
 from ..utils.text_parser import parse_fraction
 
 
@@ -411,7 +412,8 @@ class IsoDistort:
                 numbers.append(sg.space_group_number)
         numbers.sort()  # 官网下拉按序号升序
         space_groups = [
-            {"number": n, "symbol": SpaceGroup.from_int_number(n).symbol}
+            {"number": n, "symbol": hm_symbol(n),
+             "schoenflies": schoenflies_symbol(n)}
             for n in numbers
         ]
         conventional = self._distinct_lattices([sg.basis_vectors for sg in subs])
@@ -438,11 +440,20 @@ class IsoDistort:
         Method 2 数据源：枚举母相的全部 k 点（官网 Method 2 的 k 点下拉列表）。
 
         Returns:
-            List[KPointInfo]
+            List[KPointInfo]（命中官网覆盖表时附带 Kovalev 编号与官网坐标）
         """
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")
-        return self._iso.list_k_points(self.symmetry_info["space_group_number"])
+        kpoints = self._iso.list_k_points(self.symmetry_info["space_group_number"])
+        override = KPOINT_OFFICIAL.get(self.symmetry_info["space_group_number"])
+        if override:
+            for kp in kpoints:
+                entry = override.get(kp.label.strip())
+                if entry is not None:
+                    kovalev, coords, _params = entry
+                    kp.kovalev = kovalev
+                    kp.coordinates = list(coords)
+        return kpoints
 
     def _resolve_k_vector(self, k_point_label: str) -> list[float]:
         """把 k 点标签解析为数值坐标（母相倒格分数单位）。

@@ -459,7 +459,7 @@ async function applyTypes() {
 async function refreshSpaceGroups() {
   const d = await api("/api/space_groups");
   spaceGroups = d.space_groups || [];
-  const opt = sg => `<option value="${sg.number}">${sg.number} ${esc(sg.symbol)}</option>`;
+  const opt = sg => `<option value="${sg.number}">${sg.number} ${esc(sg.symbol)} ${esc(sg.schoenflies || "")}</option>`;
   document.getElementById("m3Sg").innerHTML = `<option value="">${esc(t("l.noChoice"))}</option>` + spaceGroups.map(opt).join("");
 }
 
@@ -482,7 +482,7 @@ async function loadMethod1Options() {
     const sgs = m1Options.space_groups || [];
     // 序号右对齐 + 空间群符号，起始位置统一（对齐官网下拉格式）
     sgSel.innerHTML = `<option value="">${esc(t("l.noChoice"))}</option>`
-      + sgs.map(sg => `<option value="${sg.number}">${String(sg.number).padStart(3)} ${esc(sg.symbol)}</option>`).join("");
+      + sgs.map(sg => `<option value="${sg.number}">${String(sg.number).padStart(3)} ${esc(sg.symbol)} ${esc(sg.schoenflies || "")}</option>`).join("");
     convSel.innerHTML = `<option value="">${esc(t("l.noChoice"))}</option>`
       + (m1Options.conventional_lattices || []).map(l =>
           `<option value="${l.basis.map(r => r.join(",")).join(";")}">${esc(l.label)}</option>`).join("");
@@ -550,9 +550,10 @@ async function refreshKpoints() {
   renderKvecBox();
 }
 function kpOptionsHtml(selected) {
-  return kpoints.map((k, i) =>
-    `<option value="${i}"${i === (selected || 0) ? " selected" : ""}>${esc(k.label)} (${k.coordinates.join(",")})</option>`
-  ).join("");
+  return kpoints.map((k, i) => {
+    const kov = k.kovalev ? `, ${esc(k.kovalev)}` : "";
+    return `<option value="${i}"${i === (selected || 0) ? " selected" : ""}>${esc(k.label)}${kov} (${(k.coordinates || []).join(",")})</option>`;
+  }).join("");
 }
 function renderKvecBox() {
   const box = document.getElementById("kvecBox");

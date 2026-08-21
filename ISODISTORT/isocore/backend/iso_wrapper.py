@@ -54,6 +54,7 @@ class KPointInfo:
     coordinates: list[str]           # 坐标分量字符串，如 ["0","2a","0"]
     parameters: list[str]            # 自由参数字母，如 ["a"]
     is_special: bool                 # 无自由参数的特殊 k 点
+    kovalev: str | None = None       # 官网 Kovalev 编号（如 "k14"），本地无数据时为 None
 
     def __post_init__(self) -> None:
         self.parameters = sorted(

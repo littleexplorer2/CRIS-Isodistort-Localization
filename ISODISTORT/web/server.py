@@ -29,7 +29,6 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 import numpy as np
-from pymatgen.symmetry.groups import SpaceGroup
 
 # 确保能导入 isocore（server.py 位于 ISODISTORT/web/）
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -40,6 +39,7 @@ from isocore.api import IsoDistort  # noqa: E402
 from isocore.distortion import DISTORTION_TYPES  # noqa: E402
 from isocore.i18n import MESSAGES, TERMS_EN2ZH, set_language  # noqa: E402
 from isocore.utils import get_config  # noqa: E402
+from isocore.utils.schoenflies import hm_symbol, schoenflies_symbol  # noqa: E402
 
 WEB_DIR = Path(__file__).resolve().parent
 
@@ -65,9 +65,13 @@ class WebSession:
 
 _SESSION = WebSession()
 
-# 230 个空间群（序号 + HM 符号），供 Method 1/3 下拉使用
+# 230 个空间群（序号 + HM 符号 + Schoenflies 符号），供 Method 1/3 下拉使用
 _SPACE_GROUPS = [
-    {"number": i, "symbol": SpaceGroup.from_int_number(i).symbol}
+    {
+        "number": i,
+        "symbol": hm_symbol(i),
+        "schoenflies": schoenflies_symbol(i),
+    }
     for i in range(1, 231)
 ]
 
@@ -307,7 +311,8 @@ class IsoHandler(BaseHTTPRequestHandler):
             self._run(lambda: {
                 "kpoints": [
                     {"label": kp.label, "coordinates": kp.coordinates,
-                     "parameters": kp.parameters, "is_special": kp.is_special}
+                     "parameters": kp.parameters, "is_special": kp.is_special,
+                     "kovalev": kp.kovalev}
                     for kp in _SESSION.iso.list_k_points()
                 ],
             })

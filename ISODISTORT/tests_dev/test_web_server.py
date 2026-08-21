@@ -148,7 +148,9 @@ def test_space_groups_endpoint(server):
     data = _get(server.port, "/api/space_groups")
     assert data["ok"]
     assert len(data["space_groups"]) == 230
-    assert data["space_groups"][0] == {"number": 1, "symbol": "P1"}
+    assert data["space_groups"][0]["number"] == 1
+    assert data["space_groups"][0]["symbol"] == "P1"
+    assert data["space_groups"][0]["schoenflies"] == "C1-1"
     assert data["space_groups"][-1]["number"] == 230
 
 
