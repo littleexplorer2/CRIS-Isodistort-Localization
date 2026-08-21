@@ -105,7 +105,7 @@
     <div id="m1Out" class="scroll"></div>
   </div>
 
-  <!-- ============ Method 2（对齐官网：k 点 + 参数 + 调制数 + 叠加 IR 数） ============ -->
+  <!-- ============ Method 2（对齐官网：superposed IRs 时多组 k 点 + 参数 + 调制数） ============ -->
   <div class="well">
     <h3><span id="hM2">Method 2: General method - search over specific k points</span>
       <button class="btn btn-primary" id="btnM2" onclick="listSubgroupsByKp()">OK</button>
@@ -113,11 +113,8 @@
     </h3>
     <p>
       <span id="lKp">Specify k point:</span>
-      <select id="kpSelect" class="span4" onchange="onKpChange()"></select>
-      <span id="kpParams">a=<input id="p_a" class="span1" size="4"> b=<input id="p_b" class="span1" size="4"> g=<input id="p_g" class="span1" size="4"></span><br>
-      <span id="lNmod"># of independent incommensurate modulations:</span>
-      <input id="nmod" class="span1" value="0" size="2">
     </p>
+    <div id="kvecBox"></div>
     <div id="subOut" class="scroll"></div>
     <div id="modesBox"></div>
     <p>
@@ -140,8 +137,9 @@
       <select id="m3Sg" class="span4"></select><br>
       <span id="lPg">or point group (crystal class):</span>
       <select id="m3Pg" class="span4"></select><br>
-      <label><input type="radio" name="m3LatType" value="direct" checked> <span id="m3Direct">Specify a real-space sublattice of the parent lattice with</span></label>
-      <span class="m3-cent">
+      <label style="display:inline; font-weight:normal; white-space:nowrap;">
+        <input type="radio" name="m3LatType" value="direct" checked>
+        <span id="m3Direct">Specify a real-space sublattice of the parent lattice with</span>
         <span id="m3CentDefault">Default</span><input type="radio" name="m3Cent" value="d" checked>
         P<input type="radio" name="m3Cent" value="P">
         A<input type="radio" name="m3Cent" value="A">
@@ -150,7 +148,7 @@
         I<input type="radio" name="m3Cent" value="I">
         F<input type="radio" name="m3Cent" value="F">
         R<input type="radio" name="m3Cent" value="R"> <span id="m3CentEnd">centering.</span>
-      </span><br>
+      </label><br>
       <label><input type="radio" name="m3LatType" value="reciprocal"> <span id="m3Reciprocal">Specify a primitive reciprocal-space superlattice</span></label><br>
       <span id="lBasis">Choose a representative basis:</span><br>
       a' = <input id="b11" class="span1" size="3" value="1">a + <input id="b12" class="span1" size="3" value="0">b + <input id="b13" class="span1" size="3" value="0">c<br>
@@ -541,51 +539,75 @@ async function runMethod1() {
   await refreshStatus();
 }
 
-/* ================= Method 2：k 点 -> 子群（对齐官网：只选 k 点） ================= */
+/* ================= Method 2：多组 k 点 -> 子群（对齐官网 superposed IRs） ================= */
 async function refreshKpoints() {
-  const sel = document.getElementById("kpSelect");
   try {
     const d = await api("/api/kpoints");
     kpoints = d.kpoints || [];
-    sel.innerHTML = kpoints.map((k, i) =>
-      `<option value="${i}">${esc(k.label)} (${k.coordinates.join(",")})</option>`
-    ).join("");
-    onKpChange();
   } catch (e) {
     kpoints = [];
-    sel.innerHTML = `<option value="">—</option>`;
   }
+  renderKvecBox();
 }
-function onKpChange() {
-  // a/b/g 输入框固定显示（对齐官网）；切换 k 点后清除旧子群结果
+function kpOptionsHtml(selected) {
+  return kpoints.map((k, i) =>
+    `<option value="${i}"${i === (selected || 0) ? " selected" : ""}>${esc(k.label)} (${k.coordinates.join(",")})</option>`
+  ).join("");
+}
+function renderKvecBox() {
+  const box = document.getElementById("kvecBox");
+  const n = Math.max(1, nsupValue);
+  let html = "";
+  for (let i = 0; i < n; i++) {
+    const idx = i + 1;
+    html += `<div class="kvec-row">
+      ${t("l.kvec", idx)} <select id="kvec_${idx}" class="span3" onchange="onKpChange(${idx})">${kpOptionsHtml(0)}</select>
+      <span>a=<input id="p_a_${idx}" class="span1" size="4"> b=<input id="p_b_${idx}" class="span1" size="4"> g=<input id="p_g_${idx}" class="span1" size="4"></span>
+      <span id="lNmod">${t("l.nmod")}</span><input id="nmod_${idx}" class="span1" value="0" size="2">
+    </div>`;
+  }
+  box.innerHTML = html;
   document.getElementById("subOut").innerHTML = "";
 }
-function collectParams(kp) {
-  // 只收集该 k 点实际用到的参数（a/b/g），空值返回 null（特殊 k 点无参数）
+function selectedKp(i) {
+  const el = document.getElementById("kvec_" + i);
+  return kpoints[Number(el ? el.value : 0) || 0];
+}
+function collectParams(i) {
+  const kp = selectedKp(i);
+  if (!kp) return null;
   const letters = (kp.parameters || []).filter(p => ["a", "b", "g"].includes(p));
   if (!letters.length) return null;
   const vals = [];
   for (const p of letters) {
-    const el = document.getElementById("p_" + p);
+    const el = document.getElementById("p_" + p + "_" + i);
     vals.push(el ? el.value.trim() : "");
   }
   return vals.some(v => !v) ? null : vals;
 }
-function selectedKp() { return kpoints[Number(document.getElementById("kpSelect").value || 0)]; }
+function onKpChange(i) {
+  // 切换某组 k 点后清除该组旧子群结果
+  document.getElementById("subOut").innerHTML = "";
+}
 async function listSubgroupsByKp() {
   if (!STATE || !STATE.structure) { showError(document.getElementById("subOut"), t("err.noCif")); return; }
   await enumSubgroups();
 }
 async function enumSubgroups() {
-  const kp = selectedKp();
   const out = document.getElementById("subOut");
-  if (!kp) { showError(out, t("st.noSubs")); return; }
+  const n = Math.max(1, nsupValue);
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
-  const d = await api("/api/subgroups", {
-    k: kp.label, params: collectParams(kp), generate: false,
-  }, "POST");
-  if (!d.ok) { showError(out, d.error); return; }
-  subgroups = d.subgroups || [];
+  let merged = [];
+  for (let i = 1; i <= n; i++) {
+    const kp = selectedKp(i);
+    if (!kp) { showError(out, t("st.noSubs")); return; }
+    const d = await api("/api/subgroups", {
+      k: kp.label, params: collectParams(i), generate: false,
+    }, "POST");
+    if (!d.ok) { showError(out, d.error); return; }
+    merged = merged.concat(d.subgroups || []);
+  }
+  subgroups = merged;
   out.innerHTML = clickableTable([t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", "s", "i"], subgroups.map(sg => ({
     idxKey: sg.index,
     cells: [sg.index, `${sg.space_group_number} ${esc(sg.space_group_symbol)}`, esc(sg.k_point_label), esc(sg.irrep_label), esc(sg.opd_symbol), sg.size, sg.subgroup_index],
@@ -601,6 +623,7 @@ function applyNsup() {
     return;
   }
   nsupValue = n;
+  renderKvecBox();
   showOk(document.getElementById("subOut"), t("ok.nsup", n));
 }
 
@@ -608,10 +631,24 @@ function applyNsup() {
 async function computeModes(idx) {
   const out = document.getElementById("modesBox");
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
+  // 子群所属 k 点组 -> 该组的 independent incommensurate modulations
+  const sg = (subgroups || []).find(s => s.index === idx);
+  let nmod = 0;
+  if (sg && sg.k_point_label) {
+    const n = Math.max(1, nsupValue);
+    for (let i = 1; i <= n; i++) {
+      const kp = selectedKp(i);
+      if (kp && kp.label === sg.k_point_label) {
+        const el = document.getElementById("nmod_" + i);
+        nmod = Number(el ? el.value : 0) || 0;
+        break;
+      }
+    }
+  }
   const d = await api("/api/method2", {
     subgroup_idx: idx,
     distortion_type: STATE ? STATE.distortion_types : undefined,
-    nmod: Number(document.getElementById("nmod").value || 0),
+    nmod: nmod,
     nsup: nsupValue,
   }, "POST");
   if (!d.ok) { showError(out, d.error); return; }
