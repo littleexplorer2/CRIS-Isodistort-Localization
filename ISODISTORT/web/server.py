@@ -45,10 +45,15 @@ WEB_DIR = Path(__file__).resolve().parent
 
 
 class WebSession:
-    """网页会话：持有唯一 IsoDistort 实例（单用户本地工具）。"""
+    """网页会话：持有唯一 IsoDistort 实例（单用户本地工具）。
+
+    IsoDistort 构造较慢（FindsymWrapper 启动 WSL 环境检测，约 3-4 秒），
+    采用懒初始化：首次访问 ``iso`` 属性时才创建，避免拖慢模块导入
+    （否则 main_web.py 启动会阻塞数秒）。
+    """
 
     def __init__(self) -> None:
-        self.iso = IsoDistort()
+        self._iso = None
         self.distortion_types: list[str] = ["displacive", "strain"]
         # 各畸变类型的作用域物种（官网 all/none/Eu/Al 复选框），"*"=全部
         self.distortion_scope: dict[str, list[str]] = {
@@ -61,6 +66,12 @@ class WebSession:
         self.method1: list = []
         self.method2 = None
         self.method3: list = []
+
+    @property
+    def iso(self):
+        if self._iso is None:
+            self._iso = IsoDistort()
+        return self._iso
 
 
 _SESSION = WebSession()

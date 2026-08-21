@@ -291,7 +291,7 @@ function showOk(el, msg) { el.innerHTML = `<div class="alert alert-success">${es
 
 /* ================= 常量（对齐官网下拉选项） ================= */
 const CRYSTAL_SYSTEMS = ["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic"];
-const TYPE_NAMES = ["displacive", "occupational", "strain", "magnetic", "rotational"];
+const TYPE_NAMES = ["strain", "displacive", "occupational", "magnetic", "rotational"];
 // value = pymatgen 点群字符串（后端过滤用），标签 = 官网晶类名 + Schoenflies
 const POINT_GROUPS = [
   ["1", "1", "C1", "triclinic"], ["-1", "-1", "Ci", "triclinic"],
@@ -378,9 +378,11 @@ function renderTypes() {
   const box = document.getElementById("typeBox");
   let html = "";
   for (const tp of TYPE_NAMES) {
+    // 每个畸变类型一行（strain 与其它类型同级：均加粗标签）
     if (tp === "strain") {
       const on = types.includes("strain");
-      html += `<tr><td><label><input type="checkbox" id="tp_strain" ${on ? "checked" : ""}> ${esc(term("strain"))}</label></td></tr>`;
+      html += `<tr><td><b>${esc(term("strain"))}</b>`
+        + `<label style="margin-left:8px;font-weight:normal;"><input type="checkbox" id="tp_strain" ${on ? "checked" : ""}> ${esc(term("strain"))}</label></td></tr>`;
       continue;
     }
     const sp = scope[tp] || [];
@@ -457,10 +459,15 @@ async function applyTypes() {
 
 /* ================= 空间群下拉 ================= */
 async function refreshSpaceGroups() {
-  const d = await api("/api/space_groups");
-  spaceGroups = d.space_groups || [];
-  const opt = sg => `<option value="${sg.number}">${sg.number} ${esc(sg.symbol)} ${esc(sg.schoenflies || "")}</option>`;
-  document.getElementById("m3Sg").innerHTML = `<option value="">${esc(t("l.noChoice"))}</option>` + spaceGroups.map(opt).join("");
+  try {
+    const d = await api("/api/space_groups");
+    spaceGroups = d.space_groups || [];
+    const opt = sg => `<option value="${sg.number}">${sg.number} ${esc(sg.symbol)} ${esc(sg.schoenflies || "")}</option>`;
+    document.getElementById("m3Sg").innerHTML = `<option value="">${esc(t("l.noChoice"))}</option>` + spaceGroups.map(opt).join("");
+  } catch (e) {
+    spaceGroups = [];
+    document.getElementById("m3Sg").innerHTML = `<option value="">${esc(t("l.noChoice"))}</option>`;
+  }
 }
 
 /* ================= Method 1：下拉数据（可达子群 + Conventional/Primitive lattice） ================= */
