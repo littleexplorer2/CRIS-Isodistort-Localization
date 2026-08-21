@@ -361,14 +361,10 @@ class IsoHandler(BaseHTTPRequestHandler):
             self._run(lambda: self._api_method3(data))
         elif path == "/api/method4":
             self._run(lambda: self._api_method4(data))
-        elif path == "/api/generate":
-            self._run(lambda: self._api_generate(data))
-        elif path == "/api/export":
-            self._run(lambda: self._api_export(data))
-        elif path == "/api/mixed":
-            self._run(lambda: self._api_mixed(data))
-        elif path == "/api/domains":
-            self._run(self._api_domains)
+        elif path == "/api/preferences":
+            # Space-Group Preferences：记录用户选择（本地 iso 固定国际标准取位，
+            # 计算仍采用官网默认值；选择仅记录并返回当前生效偏好）
+            self._run(lambda: self._api_preferences(data))
         elif path == "/api/set_language":
             lang = data.get("language", get_config().language)
             set_language(lang)
@@ -424,13 +420,26 @@ class IsoHandler(BaseHTTPRequestHandler):
         return {"candidates": _method1_rows(result), "state": _state_summary()}
 
     def _api_subgroups(self, data: dict) -> dict:
-        subs = _SESSION.iso.list_subgroups_at(
-            data["k"], data["ir"],
-            k_parameters=data.get("params"),
-            opd_symbol=data.get("opd"),
-            generate_if_missing=bool(data.get("generate", False)),
-        )
+        # 对齐官网 Method 2：只选 k 点（+ 参数）即枚举该 k 点全部 IR 的子群；
+        # 若带 ir 参数（旧版兼容）则按 (k, IR) 枚举。
+        if data.get("ir"):
+            subs = _SESSION.iso.list_subgroups_at(
+                data["k"], data["ir"],
+                k_parameters=data.get("params"),
+                opd_symbol=data.get("opd"),
+                generate_if_missing=bool(data.get("generate", False)),
+            )
+        else:
+            subs = _SESSION.iso.list_subgroups_at_kpoint(
+                data["k"],
+                k_parameters=data.get("params"),
+                generate_if_missing=bool(data.get("generate", False)),
+            )
         return {"subgroups": _subgroup_rows(subs), "state": _state_summary()}
+
+    def _api_preferences(self, data: dict) -> dict:
+        prefs = _SESSION.iso.set_space_group_preferences(data.get("preferences"))
+        return {"preferences": prefs, "state": _state_summary()}
 
     def _api_method2(self, data: dict) -> dict:
         idx = int(data["subgroup_idx"])
@@ -493,45 +502,6 @@ class IsoHandler(BaseHTTPRequestHandler):
             "amplitudes": {k: float(v) for k, v in ranked},
             "rms_residual": result.rms_residual,
             "max_abs_residual": result.max_abs_residual,
-        }
-
-    def _api_generate(self, data: dict) -> dict:
-        distorted = _SESSION.iso.generate_distortion(
-            irrep_label=data.get("irrep_label"),
-            amplitude=float(data.get("amplitude", 1.0)) if data.get("amplitude") is not None else None,
-            supercell=data.get("supercell"),
-        )
-        return {
-            "atoms": len(distorted),
-            "volume": distorted.volume,
-            "state": _state_summary(),
-        }
-
-    def _api_mixed(self, data: dict) -> dict:
-        distorted = _SESSION.iso.generate_mixed_distortion(
-            contributions={k: float(v) for k, v in (data.get("contributions") or {}).items()},
-            supercell=data.get("supercell"),
-        )
-        return {"atoms": len(distorted), "volume": distorted.volume,
-                "state": _state_summary()}
-
-    def _api_export(self, data: dict) -> dict:
-        filename = data.get("filename", "web_distorted")
-        formats = data.get("formats", ["cif"])
-        paths = _SESSION.iso.export(filename, formats=formats)
-        return {"files": [Path(p).name for p in paths],
-                "state": _state_summary()}
-
-    def _api_domains(self) -> dict:
-        domains = _SESSION.iso.generate_domains()
-        return {
-            "domains": [
-                {"domain_number": d.domain_number, "generator": d.generator,
-                 "space_group_number": d.space_group_number,
-                 "space_group_symbol": d.space_group_symbol}
-                for d in domains
-            ],
-            "state": _state_summary(),
         }
 
     # ------------------------------------------------------------

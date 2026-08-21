@@ -148,7 +148,10 @@ MESSAGES: dict[str, dict[str, str]] = {
         # ---- 网页端（web/index.html）——对齐官网搜索页布局（2024 新增）----
         "web.title": "ISODISTORT：搜索",
         "hPrefs": "空间群偏好",
-        "pref.note": "这些偏好由本地引擎自动采用默认值（与官网默认一致）；本界面暂不提供修改。",
+        "pref.note": "这些偏好应用于后续畸变，不影响母相结构。",
+        "pref.applied": "偏好已记录。",
+        "pref.effective": "本地引擎采用国际标准取位（默认），自定义取位仅作记录。",
+        "prefs.important": "重要：必须点击「更改」以应用上述偏好的修改。",
         "types.title": "考虑的畸变类型",
         "btn.ok": "OK",
         "btn.change": "更改",
@@ -393,8 +396,13 @@ MESSAGES: dict[str, dict[str, str]] = {
         # ---- Web UI (web/index.html) - official search-page layout (new 2024) ----
         "web.title": "ISODISTORT: search",
         "hPrefs": "Space-Group Preferences",
-        "pref.note": ("These preferences are applied automatically with the official defaults; "
-                      "the local UI does not expose them for editing."),
+        "pref.note": ("These preferences apply to subsequent distortions but do not affect "
+                      "your parent structure):"),
+        "pref.applied": "Preferences recorded.",
+        "pref.effective": ("Local engine uses the international standard setting (default); "
+                           "custom settings are recorded only."),
+        "prefs.important": ("Important: You must click on Change to implement any changes "
+                            "in the above preferences."),
         "types.title": "Types of distortions to be considered",
         "btn.ok": "OK",
         "btn.change": "Change",

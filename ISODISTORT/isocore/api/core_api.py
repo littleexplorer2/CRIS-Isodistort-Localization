@@ -54,7 +54,7 @@ from ..structure import (
     read_cif,
     read_structure,
 )
-from ..utils import get_config
+from ..utils import IsodistortError, get_config
 from ..utils.text_parser import parse_fraction
 
 
@@ -164,6 +164,7 @@ class IsoDistort:
         self._special_subgroups_cache = None
         self._conv_to_prim_cache = None
         self.distorted_structure = None
+        self._preferences = None
 
     def _wyckoff_letters(self) -> list[str]:
         """当前结构各 Wyckoff 位置字母（用于 iso 模式计算）。"""
@@ -234,6 +235,38 @@ class IsoDistort:
                 "orthorhombic axes abc, origin choice 2, hexagonal axes, "
                 "SSG standard setting")
 
+    def set_space_group_preferences(self, preferences: dict | None = None) -> dict:
+        """记录 Space-Group Preferences 选择（对齐官网 settings 面板交互）。
+
+        官网允许用户修改这些偏好并影响后续子群枚举的取位。本地 iso 二进制
+        固定使用国际标准取位（International, new ed. with conventional basis
+        vectors），不支持自定义 setting（Syntax error），因此**计算仍采用
+        官网默认值**；此处仅记录用户选择供界面展示与状态查询，并返回当前
+        生效的偏好说明。
+
+        Args:
+            preferences: 可选 dict，键为 settingaxesm / settingcell /
+                settingaxeso / settingaxesh / settingorigin / settingssg /
+                parentlike（与官网表单字段名一致）
+
+        Returns:
+            dict: 当前生效的偏好（默认值 + 用户选择记录）
+        """
+        defaults = {
+            "settingaxesm": "a(b)c", "settingcell": "1",
+            "settingaxeso": "abc", "settingaxesh": "h",
+            "settingorigin": "2", "settingssg": "standard",
+            "parentlike": False,
+        }
+        self._preferences = dict(defaults)
+        if preferences:
+            for k in defaults:
+                if k in preferences and preferences[k] is not None:
+                    self._preferences[k] = preferences[k]
+        # 本地 iso 固定国际标准取位：自定义偏好仅记录，不影响计算
+        self._preferences["effective"] = "international (default)"
+        return dict(self._preferences)
+
     def _ensure_special_subgroups(self) -> list:
         """枚举全部特殊 k 点子群（线程安全缓存，Method 1 下拉与搜索共用）。"""
         if self.structure is None:
@@ -289,14 +322,23 @@ class IsoDistort:
             return False
         return bool(np.allclose(n, np.round(n), atol=1e-5))
 
-    def _distinct_lattices(self, bases) -> list[dict]:
+    def _distinct_lattices(self, bases, to_conventional: np.ndarray | None = None
+                           ) -> list[dict]:
         """从一组超胞基矢中提取去重后的 lattice 选项（对齐官网下拉）。
 
         去重按“格点等价”（GL(3,Z) 幺模变换）判定——旧实现只做行排序/符号
         归一，无法合并同一格点的不同基矢表达（如行置换、幺模变换），
-        导致选项数量远超官网（实测 I4/mmm 由 19 个降为 13 个，官网为 12）。
-        每类的显示代表取该类中“最简”的基矢（元素平方和最小，破平按字典序），
-        并按行列式绝对值升序排列。
+        导致选项数量远超官网。
+        每类的显示代表取该类中“最简”的基矢（元素平方和最小，破平按字典序）。
+
+        参数:
+            to_conventional: 分类后在“原胞坐标”下进行（basis @ T⁻¹），
+                显示时需转回惯用坐标（best @ to_conventional），与官网
+                Primitive lattice 下拉一致（官网选项为惯用坐标表达，
+                如原胞本身显示为 (-1/2,1/2,1/2),... 而非原胞坐标矩阵）。
+
+        顺序：保持首次出现顺序（官网下拉顺序 = 子群数据库枚举顺序，
+        不按行列式排序——旧实现按 det 排序会打乱官网顺序）。
         """
         classes: list[list[np.ndarray]] = []
         for b in bases:
@@ -326,9 +368,12 @@ class IsoDistort:
                 float(np.sum(m * m)),
                 tuple(float(x) for x in np.sort(np.round(m, 6), axis=0).flatten()),
             ))
+            if to_conventional is not None:
+                # 分类在原胞坐标下进行，显示前转回惯用坐标（官网同款）
+                best = best @ to_conventional
             key = tuple(tuple(float(x) for x in _norm(r)) for r in sorted(best, key=tuple))
             options.append((round(abs(np.linalg.det(best)), 6), key))
-        options.sort(key=lambda item: (item[0], item[1]))
+        # 保持首次出现的枚举顺序（官网下拉 = 子群数据库枚举顺序，不按 det 排序）
         return [
             {
                 "label": self._format_lattice(item[1]),
@@ -371,8 +416,12 @@ class IsoDistort:
         ]
         conventional = self._distinct_lattices([sg.basis_vectors for sg in subs])
         t_prim = np.linalg.inv(self._conv_to_prim())
+        # Primitive lattice：在原胞坐标下分类（basis @ T⁻¹，整数矩阵），
+        # 显示前转回惯用坐标（best @ T）——对齐官网 isoplattice 下拉
+        # （如“原胞本身”显示为 (-1/2,1/2,1/2),(1/2,-1/2,1/2),(1/2,1/2,-1/2)）。
         primitive = self._distinct_lattices(
-            [np.asarray(sg.basis_vectors, dtype=float) @ t_prim for sg in subs]
+            [np.asarray(sg.basis_vectors, dtype=float) @ t_prim for sg in subs],
+            to_conventional=self._conv_to_prim(),
         )
         return {
             "space_groups": space_groups,
@@ -468,6 +517,45 @@ class IsoDistort:
             generate_if_missing=generate_if_missing,
         )
         return self.subgroups
+
+    def list_subgroups_at_kpoint(self, k_point_label: str,
+                                 k_parameters: list | None = None,
+                                 generate_if_missing: bool = False) -> list:
+        """
+        Method 2 数据源：枚举指定 k 点下**全部不可约表示**的各向同性子群。
+
+        对齐官网 Method 2（General method - search over specific k points）：
+        官网只选择 k 点（及其参数 a/b/g）后提交，即返回该 k 点全部 IR 的
+        子群列表（不预先选择 IR / OPD）。
+
+        Args:
+            k_point_label: k 点标签
+            k_parameters: k 点参数（带参数 k 点必须提供）
+            generate_if_missing: 子群数据库缺失时是否自动在线生成
+
+        Returns:
+            List[SubgroupInfo]（按 k 点下 IR 的枚举顺序）
+        """
+        if self.structure is None:
+            raise RuntimeError("请先加载结构 (load_structure)")
+        irreps = self._iso.list_irreps(
+            self.symmetry_info["space_group_number"], k_point_label, k_parameters
+        )
+        merged: list = []
+        for ir in irreps:
+            try:
+                subs = self._iso.list_subgroups(
+                    self.symmetry_info["space_group_number"],
+                    k_point_label, ir.label,
+                    k_parameters=k_parameters,
+                    opd_symbol=None,
+                    generate_if_missing=generate_if_missing,
+                )
+            except IsodistortError:
+                continue  # 无子群的 IR（数据库缺失等）跳过
+            merged.extend(subs)
+        self.subgroups = merged
+        return merged
 
     def list_subgroups(self, distortion_type: str | list[str] | None = None
                        ) -> list[SubgroupInfo]:

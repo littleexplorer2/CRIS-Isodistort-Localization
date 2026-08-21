@@ -159,21 +159,10 @@ def _web_http_check(name: str, path: Path, expected: set[int],
     if m2 and not m2.get("ok"):
         rec["error"] = f"method2: {m2.get('error')}"
 
-    gen = None
-    if rec["m2_ok"] and rec["m2_modes"] > 0:
-        modes = [m for m in m2["modes"] if m.get("mode_type") == "displacive"]
-        if modes:
-            gen = _post("/api/generate",
-                        {"irrep_label": modes[0]["irrep_label"],
-                         "amplitude": 0.1})
-            rec["gen_ok"] = bool(gen.get("ok"))
-            rec["gen_atoms"] = gen.get("atoms")
-            if not gen.get("ok"):
-                rec["error"] = f"generate: {gen.get('error')}"
+    # 网页版对齐官网选项页：不含 Distortion Page（生成/导出/畴端点已移除），
+    # 抽查到 method2（子群枚举 + 模式计算）为止。
     rec["pass"] = (rec["load_ok"] and rec["web_sg"] in expected
-                   and rec["sorted_ok"] and rec["m1_ok"]
-                   and rec["m2_ok"] and (rec["m2_modes"] == 0
-                                         or rec.get("gen_ok")))
+                   and rec["sorted_ok"] and rec["m1_ok"] and rec["m2_ok"])
     return rec
 
 

@@ -76,12 +76,13 @@ python main_web.py
 
 - **Parent CIF**：上传母相 CIF；页头显示官网同款信息（空间群、点阵参数、Wyckoff 位置、`Default space-group preferences:` 行）。
 - **Types of distortions to be considered**：`Strain` 单复选框 + `Displacive` / `Occupational` / `Magnetic` / `Rotational` 四行，每行带 **all / none / 各物种** 复选框，选中的物种即该类型模式的作用域。
-- **Method 1**：晶系复选框（多选 OR）→ 可达子群空间群下拉（只列出与母相结构相容的子群，来自真实枚举并按会话缓存）→ Conventional/Primitive lattice 下拉（惯用格与原胞格两种坐标系的超胞基矢）→ Maximal subgroups only。
-- **Method 2**：k 点下拉 → a= / b= / g= 参数输入框（参数 k 点必填）→ IR 下拉 → OPD 下拉（按序参量方向过滤）→ `# of independent incommensurate modulations` → `List subgroups`；子群表格**点击一行**即计算该路径的畸变模式。
+- **Method 1**：晶系复选框（多选 OR）→ 可达子群空间群下拉（只列出与母相结构相容的子群，来自真实枚举并按会话缓存）→ Conventional/Primitive lattice 下拉（选项由真实枚举的子群基矢按格点等价去重生成，对齐官网语义）→ Maximal subgroups only。
+- **Method 2**：`Specify k point:` 下拉 → a= / b= / g= 参数输入框（参数 k 点必填）→ `# of independent incommensurate modulations`（默认 0）→ 点 **OK** 返回该 k 点**全部不可约表示**的子群列表（对齐官网，不预先选择 IR/OPD）→ 子群表格**点击一行**显示该路径的畸变模式基矢。
 - **Method 3**：空间群下拉或点群下拉（空间群优先）→ direct/reciprocal radio（reciprocal 本地暂不支持，会给出明确提示）→ 3×3 基矢输入。
 - **Method 4**：上传畸变 CIF → 幅度表 + RMS 残差（默认 nearest-site / 0.25，API 层可自定义）。
-- **Distortion Page**：模式幅度输入（occupational 模式标注「近似」）→ 单模式/混合生成 → 导出 → 畴。
-- **Space-Group Preferences**：完整显示官网 settings 面板选项（本地按官网默认值预选）。
+- **Space-Group Preferences**：与官网一致的可交互面板（Monoclinic axes / cell choice、Orthorhombic axes、Trigonal axes、Origin choice、Superspace group setting、parent-like basis vectors 单选/复选 + **Change** 按钮），并包含官网的三句提示语（"These preferences apply to subsequent distortions but do not affect your parent structure):"、"Note for superspace groups: ..."、"Important: You must click on Change ..."）。本地 iso 二进制固定采用国际标准取位（默认值），自定义选择会被记录并由界面提示生效设置（详见「与官网的已知差异」）。
+
+> 网页选项页与官网一致，**不包含 Distortion Page**（官网的畸变生成/导出/畴在独立页面）。本地对应的生成/导出/畴功能由**终端菜单第 7 项**与 **Python API**（`generate_distortion` / `export` / `generate_domains`）提供。
 
 页面右上角为**语言下拉菜单**（English / 中文），选中即切换。**关闭页面自动停服并释放端口**：页面每 5 秒发送心跳；关闭页面（或点击 Stop）发送 `shutdown` 信标；心跳停止超过 `runtime.web_idle_timeout`（默认 60 秒）也自动停服。浏览器从未打开过页面则服务常驻。
 
@@ -269,7 +270,7 @@ ruff check .                         # 代码风格检查（配置见 pyproject.
 7. **Method 4**：本地要求母相与子相原子数一致，且需先通过 Method 2 获得模式基矢再做最小二乘分解；网页端按官网默认 nearest-site/0.25，API 层可自定义匹配方法与阈值。
 8. **magnetic 类型**：本地枚举中 magnetic 相关不可约表示（带 `m` 前缀）不参与默认流程，磁畸变需自行扩展。
 9. **occupational（占据率）畸变（v1 近似）**：本地按子群超胞对选定物种的 Wyckoff 位点做 +1/-1 二分类占据率调制，并用 spglib 校验调制后超胞对称群是否等于目标子群；校验失败时界面标注「近似模式」。官网按 (k, IR, OPD) 精确计算每个轨道占据率的完整算法尚未实现。
-10. **Method 1 的 Conventional/Primitive lattice 选项**：官网选项来自其站点数据库；本地选项由真实枚举得到的子群超胞基矢生成，按格点等价（GL(3,Z) 幺模变换）去重、按行列式升序排列，选项数与官网同量级，具体集合可能因本地 iso 子群数据库与官网站点数据库的差异略有出入。
+10. **Method 1 的 Conventional/Primitive lattice 选项**：官网选项来自其站点数据库；本地选项由真实枚举得到的子群超胞基矢生成：Conventional 按惯用格点等价（GL(3,Z) 幺模变换）分类、Primitive 在原胞坐标下分类后转回惯用坐标显示（与官网 isoplattice 下拉的显示语义一致），均保持子群枚举顺序。因本地 iso 子群数据库与官网站点数据库的版本差异，个别子群基矢格不同（实测 EuAl4/I4/mmm：Conventional 13 vs 官网 12、Primitive 13 vs 官网 9，官网 12 个惯用格全部被本地覆盖）。
 11. **多物种共享 Wyckoff 字母时的模式映射**：当多个物种落在同一个 Wyckoff 位置（如 Pnma 钙钛矿中 A 位与 O1 同处 4c）时，iso 的 DISPLAY BUSH 只输出一份符号化代表点，本地映射器无法按位置区分物种。此类结构（P4/nmm、R-3c、Pnma 钙钛矿的 LaMnO₃/CaTiO₃ 等）被归类为共享字母限制，**不会静默输出错误结果**。规避：改用不同 Wyckoff 位置的母相模型，或结合官网输出。
 12. **多维模式的生成方向（v1 近似）**：官网按 OPD 方向确定多维 IR 各分量的权重；本地生成时取各分量等权求和再归一化（OPD 通用方向近似），对全对称（GM1+）模式与 1D 模式结果正确，特定 OPD 方向的多维模式方向可能与官网略有差异。
 13. **取位/原点约定差异（真实数据场景）**：当数据库记录的结构位点设置与 iso 的轨道符号化约定不一致时（如 COD 尖晶石 MgAl₂O₄ 的 O 32e），BUSH 的符号化代表点（`x,-x+1/4,...`）无法与结构实际位置对齐，模式映射结果不可用（畸变结构退化为 P1）。此类结构被归类为取位约定限制并明确标记，不属于静默错误。

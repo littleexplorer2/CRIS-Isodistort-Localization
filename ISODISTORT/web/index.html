@@ -105,7 +105,7 @@
     <div id="m1Out" class="scroll"></div>
   </div>
 
-  <!-- ============ Method 2（对齐官网：k 点 + 参数 + 调制数 + IR/OPD + 叠加 IR 数） ============ -->
+  <!-- ============ Method 2（对齐官网：k 点 + 参数 + 调制数 + 叠加 IR 数） ============ -->
   <div class="well">
     <h3><span id="hM2">Method 2: General method - search over specific k points</span>
       <button class="btn btn-primary" id="btnM2" onclick="listSubgroupsByKp()">OK</button>
@@ -115,16 +115,11 @@
       <span id="lKp">Specify k point:</span>
       <select id="kpSelect" class="span4" onchange="onKpChange()"></select>
       <span id="kpParams">a=<input id="p_a" class="span1" size="4"> b=<input id="p_b" class="span1" size="4"> g=<input id="p_g" class="span1" size="4"></span><br>
-      <span id="lIr">Irreducible representation (IR):</span>
-      <select id="irSelect" class="span4"></select>
-      <span id="lOpd">Order parameter direction (OPD):</span>
-      <select id="opdSelect" class="span4" onchange="enumSubgroups()"><option value="">—</option></select><br>
       <span id="lNmod"># of independent incommensurate modulations:</span>
-      <input id="nmod" class="span1" value="0" size="2"><br>
-      <button class="btn btn-info" id="btnSubs" onclick="enumSubgroups()">List subgroups</button>
-      <span class="muted-hint" id="subsHint"></span>
+      <input id="nmod" class="span1" value="0" size="2">
     </p>
     <div id="subOut" class="scroll"></div>
+    <div id="modesBox"></div>
     <p>
       <span id="lNsup">Change number of superposed IRs:</span>
       <input id="nsup" class="span1" value="1" size="2">
@@ -178,57 +173,37 @@
     <div id="m4Out" class="scroll"></div>
   </div>
 
-  <!-- ============ Distortion Page（模式生成/导出/畴） ============ -->
-  <div class="well">
-    <h3><span id="hDist">Distortion Page</span>
-      <a href="https://iso.byu.edu/isodistorthelp.php" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
-    </h3>
-    <div id="modesOut"></div>
-    <p id="modeBox"></p>
-    <p class="muted-hint" id="distNote"></p>
-    <p>
-      <button class="btn btn-primary" id="btnGenS" onclick="generateSingle()">Generate single-mode</button>
-      <button class="btn btn-info" id="btnGenM" onclick="generateMixed()">Generate mixed</button>
-      <span id="lFmt">Formats:</span>
-      <select id="expFmt">
-        <option value="cif">cif</option>
-        <option value="cif,poscar">cif,poscar</option>
-      </select>
-      <button class="btn btn-info" id="btnExp" onclick="exportFiles()">Export</button>
-      <button class="btn btn-info" id="btnDom" onclick="listDomains()">Domains</button>
-    </p>
-    <div id="distOut"></div>
-  </div>
-
-  <!-- ============ Space-Group Preferences（对齐官网 settings 面板全部选项） ============ -->
+  <!-- ============ Space-Group Preferences（对齐官网 settings 面板全部选项 + 交互） ============ -->
   <div class="well">
     <h3><span id="hPrefs">Space-Group Preferences</span>
+      <button class="btn btn-primary" id="btnPrefs" onclick="applyPreferences()">Change</button>
       <a href="https://iso.byu.edu/isodistorthelp.php#settings" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
     </h3>
-    <p class="muted-hint" id="prefsNote"></p>
+    <p class="muted-hint" id="prefsNote">These preferences apply to subsequent distortions but do not affect your parent structure):</p>
     <p class="prefs" style="font-size:13px;">
       <span id="prefsMonoAxes">Monoclinic axes:</span>
-      a(b)c<input type="radio" disabled checked> c(-b)a<input type="radio" disabled>
-      ab(c)<input type="radio" disabled> ba(-c)<input type="radio" disabled>
-      (a)bc<input type="radio" disabled> (-a)cb<input type="radio" disabled><br>
+      a(b)c<input type="radio" name="settingaxesm" value="a(b)c" checked> c(-b)a<input type="radio" name="settingaxesm" value="c(-b)a">
+      ab(c)<input type="radio" name="settingaxesm" value="ab(c)"> ba(-c)<input type="radio" name="settingaxesm" value="ba(-c)">
+      (a)bc<input type="radio" name="settingaxesm" value="(a)bc"> (-a)cb<input type="radio" name="settingaxesm" value="(-a)cb"><br>
       <span id="prefsMonoCell">Monoclinic cell choice:</span>
-      1<input type="radio" disabled checked> 2<input type="radio" disabled> 3<input type="radio" disabled><br>
+      1<input type="radio" name="settingcell" value="1" checked> 2<input type="radio" name="settingcell" value="2"> 3<input type="radio" name="settingcell" value="3"><br>
       <span id="prefsOrthoAxes">Orthorhombic axes:</span>
-      abc<input type="radio" disabled checked> ba-c<input type="radio" disabled>
-      cab<input type="radio" disabled> -cba<input type="radio" disabled>
-      bca<input type="radio" disabled> a-cb<input type="radio" disabled><br>
+      abc<input type="radio" name="settingaxeso" value="abc" checked> ba-c<input type="radio" name="settingaxeso" value="ba-c">
+      cab<input type="radio" name="settingaxeso" value="cab"> -cba<input type="radio" name="settingaxeso" value="-cba">
+      bca<input type="radio" name="settingaxeso" value="bca"> a-cb<input type="radio" name="settingaxeso" value="a-cb"><br>
       <span id="prefsTrigAxes">Trigonal axes:</span>
-      <span id="prefsHex">hexagonal</span><input type="radio" disabled checked>
-      <span id="prefsRhombo">rhombohedral</span><input type="radio" disabled><br>
+      <span id="prefsHex">hexagonal</span><input type="radio" name="settingaxesh" value="h" checked>
+      <span id="prefsRhombo">rhombohedral</span><input type="radio" name="settingaxesh" value="r"><br>
       <span id="prefsOrigin">Origin choice:</span>
-      1<input type="radio" disabled> 2<input type="radio" disabled checked><br>
+      1<input type="radio" name="settingorigin" value="1"> 2<input type="radio" name="settingorigin" value="2" checked><br>
       <span id="prefsSsg">Superspace group setting:</span>
-      <span id="prefsStandard">standard (IT-C)</span><input type="radio" disabled checked>
-      <span id="prefsBasic">basic (IT-A)</span><input type="radio" disabled><br>
-      <span class="muted-hint" id="prefsSsgNote"></span><br>
-      <label style="font-weight:normal;"><input type="checkbox" disabled>
-        <span id="prefsParentLike"></span></label>
+      <span id="prefsStandard">standard (IT-C)</span><input type="radio" name="settingssg" value="standard" checked>
+      <span id="prefsBasic">basic (IT-A)</span><input type="radio" name="settingssg" value="basic"><br>
+      <span class="muted-hint" id="prefsSsgNote">Note for superspace groups: If the standard setting is selected, none of the other setting selections will apply.</span><br>
+      <label style="font-weight:normal;"><input type="checkbox" name="parentlike" value="true">
+        <span id="prefsParentLike">Employ parent-like basis vectors (smallest supercell whose basis vectors are parallel to conventional parent basis vectors)</span></label>
     </p>
+    <b id="prefsImportant">Important: You must click on Change to implement any changes in the above preferences.</b>
   </div>
 </div>
 
@@ -566,40 +541,24 @@ async function runMethod1() {
   await refreshStatus();
 }
 
-/* ================= Method 2：k 点 / IR / OPD ================= */
+/* ================= Method 2：k 点 -> 子群（对齐官网：只选 k 点） ================= */
 async function refreshKpoints() {
   const sel = document.getElementById("kpSelect");
-  const irSel = document.getElementById("irSelect");
   try {
     const d = await api("/api/kpoints");
     kpoints = d.kpoints || [];
     sel.innerHTML = kpoints.map((k, i) =>
       `<option value="${i}">${esc(k.label)} (${k.coordinates.join(",")})</option>`
     ).join("");
-    irSel.innerHTML = "";
     onKpChange();
   } catch (e) {
     kpoints = [];
     sel.innerHTML = `<option value="">—</option>`;
-    irSel.innerHTML = `<option value="">—</option>`;
   }
 }
 function onKpChange() {
-  // a/b/g 输入框固定显示（对齐官网）；参数 k 点必须填写对应参数
-  refreshIrreps();
-}
-async function refreshIrreps() {
-  const i = Number(document.getElementById("kpSelect").value || 0);
-  const kp = kpoints[i];
-  if (!kp) return;
-  const params = collectParams(kp);
-  const q = new URLSearchParams({ k: kp.label });
-  if (params) q.set("params", params.join(","));
-  const d = await api(`/api/irreps?${q.toString()}`);
-  irreps = d.irreps || [];
-  document.getElementById("irSelect").innerHTML =
-    irreps.map((ir, j) => `<option value="${j}">${esc(ir.label)} (${ir.dimension}D)</option>`).join("");
-  document.getElementById("opdSelect").innerHTML = `<option value="">—</option>`;
+  // a/b/g 输入框固定显示（对齐官网）；切换 k 点后清除旧子群结果
+  document.getElementById("subOut").innerHTML = "";
 }
 function collectParams(kp) {
   // 只收集该 k 点实际用到的参数（a/b/g），空值返回 null（特殊 k 点无参数）
@@ -613,34 +572,23 @@ function collectParams(kp) {
   return vals.some(v => !v) ? null : vals;
 }
 function selectedKp() { return kpoints[Number(document.getElementById("kpSelect").value || 0)]; }
-function selectedIr() { return irreps[Number(document.getElementById("irSelect").value || 0)]; }
 async function listSubgroupsByKp() {
   if (!STATE || !STATE.structure) { showError(document.getElementById("subOut"), t("err.noCif")); return; }
   await enumSubgroups();
 }
 async function enumSubgroups() {
   const kp = selectedKp();
-  const ir = selectedIr();
   const out = document.getElementById("subOut");
-  if (!kp || !ir) { showError(out, t("st.noSubs")); return; }
+  if (!kp) { showError(out, t("st.noSubs")); return; }
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
-  const opd = document.getElementById("opdSelect").value;
   const d = await api("/api/subgroups", {
-    k: kp.label, ir: ir.label, params: collectParams(kp), opd: opd || null, generate: false,
+    k: kp.label, params: collectParams(kp), generate: false,
   }, "POST");
   if (!d.ok) { showError(out, d.error); return; }
   subgroups = d.subgroups || [];
-  // OPD 下拉：从结果中收集不同的序参量方向（对齐官网 IR 页的 OPD 选择）
-  const opdSel = document.getElementById("opdSelect");
-  if (!opd) {
-    const distinct = [...new Set(subgroups.map(sg => sg.opd_symbol).filter(Boolean))];
-    opdSel.innerHTML = `<option value="">—</option>`
-      + distinct.map(o => `<option value="${esc(o)}">${esc(o)}</option>`).join("");
-  }
-  document.getElementById("subsHint").textContent = t("ok.subs", subgroups.length) + " | " + t("hClick");
-  out.innerHTML = clickableTable([t("hIdx"), "SG", "IR", "OPD", "s", "i"], subgroups.map(sg => ({
+  out.innerHTML = clickableTable([t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", "s", "i"], subgroups.map(sg => ({
     idxKey: sg.index,
-    cells: [sg.index, `${sg.space_group_number} ${esc(sg.space_group_symbol)}`, esc(sg.irrep_label), esc(sg.opd_symbol), sg.size, sg.subgroup_index],
+    cells: [sg.index, `${sg.space_group_number} ${esc(sg.space_group_symbol)}`, esc(sg.k_point_label), esc(sg.irrep_label), esc(sg.opd_symbol), sg.size, sg.subgroup_index],
   })));
   bindRowClick("subOut");
   await refreshStatus();
@@ -656,9 +604,9 @@ function applyNsup() {
   showOk(document.getElementById("subOut"), t("ok.nsup", n));
 }
 
-/* ================= Method 2（选中子群 -> 计算模式） ================= */
+/* ================= Method 2（选中子群 -> 显示模式基矢） ================= */
 async function computeModes(idx) {
-  const out = document.getElementById("modesOut");
+  const out = document.getElementById("modesBox");
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
   const d = await api("/api/method2", {
     subgroup_idx: idx,
@@ -668,8 +616,6 @@ async function computeModes(idx) {
   }, "POST");
   if (!d.ok) { showError(out, d.error); return; }
   modes = d.modes || [];
-  amplitudes = {};
-  modes.forEach(m => { amplitudes[m.irrep_label] = m.mode_type === "occupational" ? 0.1 : 0.1; });
   const rows = modes.map(m => {
     let cell = esc(m.irrep_label);
     if (m.mode_type === "occupational") {
@@ -680,7 +626,6 @@ async function computeModes(idx) {
     return [cell, esc(m.opd_symbol), m.wyckoff_sites.join(","), m.n_representatives];
   });
   out.innerHTML = table([t("hIrrep"), "OPD", term("Wyckoff position"), t("hNrep")], rows);
-  renderModes();
   await refreshStatus();
 }
 
@@ -743,53 +688,26 @@ async function runMethod4() {
     + `<div class="info">RMS ${d.rms_residual.toExponential(3)}</div>`;
 }
 
-/* ================= Distortion Page ================= */
-function renderModes() {
-  const box = document.getElementById("modeBox");
-  if (!modes.length) { box.innerHTML = `<div class="info">${t("st.noModes")}</div>`; return; }
-  box.innerHTML = modes.map(m => {
-    const occ = m.mode_type === "occupational";
-    const hint = occ && !m.validated ? ` <span class="muted-hint">${t("occ.note")}</span>` : "";
-    return `<label style="margin-right:14px; white-space:nowrap;"><input type="number" step="0.01" value="${amplitudes[m.irrep_label]}" style="width:70px" data-ir="${esc(m.irrep_label)}"> ${esc(m.irrep_label)} (${esc(m.opd_symbol)})${hint}</label>`;
-  }).join("");
-}
-function collectAmplitudes() {
-  document.querySelectorAll("#modeBox input").forEach(el => {
-    amplitudes[el.dataset.ir] = Number(el.value);
-  });
-}
-async function generateSingle() {
-  collectAmplitudes();
-  const ir = Object.keys(amplitudes)[0];
-  const out = document.getElementById("distOut");
-  if (!ir) { showError(out, t("err.noModes")); return; }
-  const d = await api("/api/generate", { irrep_label: ir, amplitude: amplitudes[ir] }, "POST");
-  if (!d.ok) { showError(out, d.error); return; }
-  showOk(out, t("ok.generated", d.atoms));
+/* ================= Preferences（Space-Group Preferences 交互） ================= */
+async function applyPreferences() {
+  const get = name => {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : null;
+  };
+  const prefs = {
+    settingaxesm: get("settingaxesm"),
+    settingcell: get("settingcell"),
+    settingaxeso: get("settingaxeso"),
+    settingaxesh: get("settingaxesh"),
+    settingorigin: get("settingorigin"),
+    settingssg: get("settingssg"),
+    parentlike: document.querySelector("input[name='parentlike']").checked,
+  };
+  const d = await api("/api/preferences", { preferences: prefs }, "POST");
+  if (!d.ok) { return; }
+  showOk(document.getElementById("prefsImportant"),
+    t("pref.applied") + " | " + t("pref.effective"));
   await refreshStatus();
-}
-async function generateMixed() {
-  collectAmplitudes();
-  const out = document.getElementById("distOut");
-  if (Object.keys(amplitudes).length < 1) { showError(out, t("err.noModes")); return; }
-  const d = await api("/api/mixed", { contributions: amplitudes }, "POST");
-  if (!d.ok) { showError(out, d.error); return; }
-  showOk(out, t("ok.generated", d.atoms));
-  await refreshStatus();
-}
-async function exportFiles() {
-  const out = document.getElementById("distOut");
-  const fmt = document.getElementById("expFmt").value;
-  const r = await api("/api/export", { filename: "web_distorted", formats: fmt.split(",") }, "POST");
-  if (!r.ok) { showError(out, r.error); return; }
-  out.innerHTML = r.files.map(f => `<a href="/api/download?file=${encodeURIComponent(f)}">${esc(f)}</a><br>`).join("");
-}
-async function listDomains() {
-  const out = document.getElementById("distOut");
-  const d = await api("/api/domains", {}, "POST");
-  if (!d.ok) { showError(out, d.error); return; }
-  domains = d.domains || [];
-  out.innerHTML = table(["#", t("hGen"), "SG"], domains.map(x => [x.domain_number, esc(x.generator), `${x.space_group_number} ${esc(x.space_group_symbol)}`]));
 }
 
 /* ================= 渲染（切换语言后调用） ================= */
@@ -812,10 +730,7 @@ function renderAll() {
   document.getElementById("hM2").textContent = t("m2.title");
   document.getElementById("btnM2").textContent = t("btn.ok");
   document.getElementById("lKp").textContent = t("l.kp");
-  document.getElementById("lIr").textContent = t("l.ir");
-  document.getElementById("lOpd").textContent = t("l.opd");
   document.getElementById("lNmod").textContent = t("l.nmod");
-  document.getElementById("btnSubs").textContent = t("btn.subs");
   document.getElementById("lNsup").textContent = t("l.nsup");
   document.getElementById("btnNsup").textContent = t("btn.change");
   document.getElementById("m2NsupNote").textContent = t("m2.nsup_note");
@@ -831,14 +746,8 @@ function renderAll() {
   document.getElementById("hM4").textContent = t("m4.title");
   document.getElementById("btnM4").textContent = t("btn.ok");
   document.getElementById("lM4File").textContent = t("l.m4file");
-  document.getElementById("hDist").textContent = t("hDist");
-  document.getElementById("btnGenS").textContent = t("btn.genS");
-  document.getElementById("btnGenM").textContent = t("btn.genM");
-  document.getElementById("lFmt").textContent = t("l.fmt");
-  document.getElementById("btnExp").textContent = t("btn.exp");
-  document.getElementById("btnDom").textContent = t("btn.dom");
-  document.getElementById("distNote").textContent = t("dist.note");
   document.getElementById("hPrefs").textContent = t("hPrefs");
+  document.getElementById("btnPrefs").textContent = t("btn.change");
   document.getElementById("prefsNote").textContent = t("pref.note");
   document.getElementById("prefsMonoAxes").textContent = t("prefs.monoAxes");
   document.getElementById("prefsMonoCell").textContent = t("prefs.monoCell");
@@ -852,11 +761,11 @@ function renderAll() {
   document.getElementById("prefsBasic").textContent = t("prefs.basic");
   document.getElementById("prefsSsgNote").textContent = t("prefs.ssgNote");
   document.getElementById("prefsParentLike").textContent = t("prefs.parentLike");
+  document.getElementById("prefsImportant").textContent = t("prefs.important");
   document.getElementById("btnStop").textContent = t("btn.stop");
   renderSysBox();
   renderPgSelect();
   renderTypes();
-  renderModes();
   refreshStatus();
 }
 function renderSysBox() {
