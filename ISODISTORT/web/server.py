@@ -18,6 +18,7 @@ ISODISTORT 本地网页交互程序（web/server.py）
 from __future__ import annotations
 
 import contextlib
+import io
 import json
 import re
 import sys
@@ -25,6 +26,7 @@ import threading
 import time
 import urllib.parse
 import webbrowser
+import zipfile
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
@@ -36,8 +38,9 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 from isocore.api import IsoDistort  # noqa: E402
+from isocore.backend.official_client import fetch_official_subgroups  # noqa: E402
 from isocore.distortion import DISTORTION_TYPES  # noqa: E402
-from isocore.i18n import MESSAGES, TERMS_EN2ZH, set_language  # noqa: E402
+from isocore.i18n import MESSAGES, TERMS_EN2ZH, get_language, set_language  # noqa: E402
 from isocore.utils import get_config  # noqa: E402
 from isocore.utils.schoenflies import hm_symbol, schoenflies_symbol  # noqa: E402
 
@@ -54,10 +57,11 @@ class WebSession:
 
     def __init__(self) -> None:
         self._iso = None
-        self.distortion_types: list[str] = ["displacive", "strain"]
+        # 默认仅勾选 strain（对齐官网：其余畸变类型默认不勾选）
+        self.distortion_types: list[str] = ["strain"]
         # 各畸变类型的作用域物种（官网 all/none/Eu/Al 复选框），"*"=全部
         self.distortion_scope: dict[str, list[str]] = {
-            "displacive": ["*"],
+            "displacive": [],
             "occupational": [],
             "strain": [],
             "magnetic": [],
@@ -66,6 +70,9 @@ class WebSession:
         self.method1: list = []
         self.method2 = None
         self.method3: list = []
+        # 母相 CIF 原文（用于需要重新上传母相的场景，如“从 ISODISTORT 官网获取子群”）
+        self.parent_cif_content: str | None = None
+        self.parent_cif_name: str | None = None
 
     @property
     def iso(self):
@@ -347,6 +354,10 @@ class IsoHandler(BaseHTTPRequestHandler):
             self._run(lambda: {"options": _SESSION.iso.method1_options()})
         elif path == "/api/download":
             self._serve_download(parsed.query)
+        elif path == "/api/download_all":
+            # 一键下载全部输出文件（打包为 ZIP）
+            _touch_heartbeat()
+            self._serve_download_all()
         else:
             self._send_json({"ok": False, "error": f"Unknown path: {path}"}, 404)
 
@@ -377,10 +388,15 @@ class IsoHandler(BaseHTTPRequestHandler):
             self._run(lambda: self._api_method3(data))
         elif path == "/api/method4":
             self._run(lambda: self._api_method4(data))
-        elif path == "/api/preferences":
-            # Space-Group Preferences：记录用户选择（本地 iso 固定国际标准取位，
-            # 计算仍采用官网默认值；选择仅记录并返回当前生效偏好）
-            self._run(lambda: self._api_preferences(data))
+        elif path == "/api/generate":
+            # Distortion Page：按用户幅度生成（单/混合）畸变并导出 CIF
+            self._run(lambda: self._api_generate(data))
+        elif path == "/api/domains":
+            # Distortion Page：生成畴列表（官网 Domains 输出）
+            self._run(lambda: self._api_domains(data))
+        elif path == "/api/official_subgroups":
+            # 空结果恢复：把相同 k 点参数喂给 ISODISTORT 官网并读取其子群输出
+            self._run(lambda: self._api_official_subgroups(data))
         elif path == "/api/set_language":
             lang = data.get("language", get_config().language)
             set_language(lang)
@@ -401,12 +417,14 @@ class IsoHandler(BaseHTTPRequestHandler):
         _SESSION.iso.load_structure(path)
         _SESSION.iso.set_distortion_scope(_SESSION.distortion_scope)
         _SESSION.method1, _SESSION.method2, _SESSION.method3 = [], None, []
+        _SESSION.parent_cif_content = content
+        _SESSION.parent_cif_name = filename
         return {"state": _state_summary()}
 
     def _api_set_types(self, data: dict) -> dict:
-        types = data.get("types", ["displacive", "strain"])
+        types = data.get("types", ["strain"])
         valid = set(DISTORTION_TYPES)
-        _SESSION.distortion_types = [t for t in types if t in valid] or ["displacive", "strain"]
+        _SESSION.distortion_types = [t for t in types if t in valid] or ["strain"]
         scope = data.get("scope")
         if scope is not None:
             _SESSION.distortion_scope = {
@@ -428,7 +446,6 @@ class IsoHandler(BaseHTTPRequestHandler):
             distortion_types=data.get("distortion_types", _SESSION.distortion_types),
             crystal_system=data.get("crystal_system") or None,
             subgroup_space_group=data.get("subgroup_space_group") or None,
-            direct_sublattice=data.get("direct_sublattice"),
             lattice=lattice,
             maximal_subgroup_only=bool(data.get("maximal_subgroup_only", False)),
         )
@@ -453,9 +470,20 @@ class IsoHandler(BaseHTTPRequestHandler):
             )
         return {"subgroups": _subgroup_rows(subs), "state": _state_summary()}
 
-    def _api_preferences(self, data: dict) -> dict:
-        prefs = _SESSION.iso.set_space_group_preferences(data.get("preferences"))
-        return {"preferences": prefs, "state": _state_summary()}
+    def _api_official_subgroups(self, data: dict) -> dict:
+        """空结果恢复：把相同 k 点参数喂给 ISODISTORT 官网并读取其子群输出。
+
+        仅作为本地枚举为空时的备选（实验性，需联网）；失败会给出明确错误。
+        """
+        if not _SESSION.parent_cif_content:
+            raise ValueError("尚未加载母相 CIF / load a parent CIF first")
+        subs = fetch_official_subgroups(
+            _SESSION.parent_cif_content,
+            data.get("k", ""),
+            data.get("params"),
+            language=get_language(),
+        )
+        return {"subgroups": _subgroup_rows(subs), "source": "official"}
 
     def _api_method2(self, data: dict) -> dict:
         idx = int(data["subgroup_idx"])
@@ -465,7 +493,6 @@ class IsoHandler(BaseHTTPRequestHandler):
             subgroup_idx=idx,
             distortion_type=data.get("distortion_type", _SESSION.distortion_types),
             number_of_independent_modulations=int(data.get("nmod", 0) or 0),
-            number_of_superposed_irs=int(data.get("nsup", 1) or 1),
         )
         _SESSION.method2 = result
         modes = []
@@ -520,6 +547,60 @@ class IsoHandler(BaseHTTPRequestHandler):
             "max_abs_residual": result.max_abs_residual,
         }
 
+    def _api_generate(self, data: dict) -> dict:
+        """Distortion Page：按用户幅度生成畸变结构（对齐官网 Enter mode amplitudes）。
+
+        与终端畸变页 / Python API 的 generate_mixed_distortion 共用底层引擎，
+        支持位移模式与 occupational 占据率模式混合叠加。
+        """
+        iso = _SESSION.iso
+        if not iso.mode_displacements and not iso.mode_occupancies:
+            raise ValueError(
+                "请先运行 Method 2 计算模式 / run Method 2 to compute modes first"
+            )
+        contributions_raw = data.get("contributions", {})
+        valid = {**iso.mode_displacements, **iso.mode_occupancies}
+        contributions: dict[str, float] = {}
+        for label, amp in contributions_raw.items():
+            if label not in valid:
+                continue  # 忽略未知/已失效的模式标签
+            try:
+                value = float(amp)
+            except (TypeError, ValueError):
+                continue
+            if value != 0.0:
+                contributions[label] = value
+        if not contributions:
+            raise ValueError(
+                "没有有效的模式幅度 / no valid mode amplitude was provided"
+            )
+        iso.generate_mixed_distortion(contributions=contributions)
+        # 与 generate_mixed_distortion 相同的导出命名规则（mixed_<keys>.cif）
+        keys = "+".join(sorted(contributions.keys()))
+        filename = f"mixed_{keys}.cif" if keys else "mixed.cif"
+        return {
+            "atoms": len(iso.distorted_structure),
+            "filename": filename,
+            "download": f"/api/download?file={urllib.parse.quote(filename)}",
+        }
+
+    def _api_domains(self, data: dict) -> dict:
+        """Distortion Page：生成畴列表（官网 Domains 输出，畴数 = 子群指数）。"""
+        _ = data
+        iso = _SESSION.iso
+        domains = iso.generate_domains()
+        rows = [
+            {
+                "number": d.domain_number,
+                "generator": d.generator,
+                "space_group_number": d.space_group_number,
+                "space_group_symbol": d.space_group_symbol,
+                "subgroup_index": d.subgroup_index,
+            }
+            for d in domains
+        ]
+        return {"domains": rows, "count": len(rows)}
+
     # ------------------------------------------------------------
     # 静态文件 / 下载
     # ------------------------------------------------------------
@@ -571,6 +652,26 @@ class IsoHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "application/octet-stream")
         self.send_header("Content-Disposition", f'attachment; filename="{path.name}"')
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _serve_download_all(self) -> None:
+        """一键下载输出目录中的全部生成文件（打包为 ZIP）。"""
+        cfg = get_config()
+        out_dir = cfg.output_dir.resolve()
+        files = sorted(p for p in out_dir.iterdir() if p.is_file())
+        if not files:
+            self._send_json({"ok": False, "error": "输出目录为空 / no generated files yet"}, 404)
+            return
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+            for p in files:
+                zf.write(p, arcname=p.name)
+        body = buf.getvalue()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/zip")
+        self.send_header("Content-Disposition", 'attachment; filename="isodistort_outputs.zip"')
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)

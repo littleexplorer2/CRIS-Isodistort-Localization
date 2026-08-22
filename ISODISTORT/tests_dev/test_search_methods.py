@@ -101,11 +101,11 @@ def test_method_1_filters():
     assert len(maximal_only) == 2
 
 
-def test_method_1_direct_sublattice_filter():
+def test_method_1_lattice_filter():
     engine = _make_engine()
-    # 请求 (2,2,2) 直接子格：仅基矢可被 2 整除的子群保留
+    # 请求 (2,2,2) 子格（对角阵）：仅基矢可被 2 整除的子群保留
     items = engine.method_1_search(
-        225, Method1Query(direct_sublattice=[2, 2, 2])
+        225, Method1Query(lattice=[[2, 0, 0], [0, 2, 0], [0, 0, 2]])
     )
     # 桩数据中 index=2 (Pnma, 单位基矢) 被过滤
     assert len(items) == 0 or all(
@@ -120,13 +120,7 @@ def test_method_2_metadata_and_modes():
     result = engine.method_2_search(
         225,
         subs,
-        Method2Query(
-            subgroup_idx=1,
-            distortion_type="displacement",
-            k_point_label="X",
-            k_point_coordinates=["1/2", "0", "0"],
-            number_of_superposed_irs=2,
-        ),
+        Method2Query(subgroup_idx=1, distortion_type="displacement"),
         wyckoff_letters=["a", "b"],
     )
 
@@ -134,7 +128,10 @@ def test_method_2_metadata_and_modes():
     assert result.subgroup.space_group_number == 139
     assert len(result.modes) == 1
     assert result.modes[0].bush_modes[0].displacements == [[1.0, 0.0, 0.0]]
-    assert result.metadata["k_point_coordinates"] == [0.5, 0.0, 0.0]
+    # k / IR / OPD 元数据来自所选子群（k 点坐标等不再重复传参）
+    assert result.metadata["k_point_label"] == "X"
+    assert result.metadata["irrep_label"] == "X1"
+    assert result.metadata["number_of_independent_modulations"] == 0
 
 
 def test_method_2_unknown_index_raises():

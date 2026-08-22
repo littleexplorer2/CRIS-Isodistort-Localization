@@ -179,9 +179,10 @@ class IsoDistortConsoleApp:
     def __init__(self) -> None:
         self.project_root = Path(__file__).resolve().parent
         self.iso = IsoDistort()
-        self.distortion_types: list[str] = ["displacive", "strain"]
+        # 默认仅启用 strain（对齐官网默认勾选；其余类型需在菜单 2 中启用）
+        self.distortion_types: list[str] = ["strain"]
         self.distortion_scope: dict[str, list[str]] = {
-            "displacive": ["*"],
+            "displacive": [],
             "occupational": [],
             "strain": [],
             "magnetic": [],
@@ -368,7 +369,8 @@ class IsoDistortConsoleApp:
                 idx = -1
             pool = conv if raw[0] == "c" else prim
             if 0 <= idx < len(pool):
-                return {"matrix": pool[idx]["basis"], "frame": raw[0]}
+                # 下拉选项基矢均为惯用坐标表达（含 Primitive 选项），按 conventional 帧提交
+                return {"matrix": pool[idx]["basis"], "frame": "conventional"}
         print("序号无效，跳过 lattice 过滤。")
         return None
 
@@ -409,16 +411,16 @@ class IsoDistortConsoleApp:
             f"(index={target.subgroup_index}, size={target.size})"
         )
 
-        n_mod = _prompt_int("independent modulations 数（incommensurate 时常用）", 0)
-        n_superposed = _prompt_int("superposed IR 数", 1)
+        n_mod = _prompt_int("independent modulations 数（本地仅支持 0=公度）", 0)
+        if n_mod != 0:
+            # 官网该参数仅对参数 k 点（非公度）有意义，本地 iso 无法完成
+            print("提示：本地引擎不支持非公度调制，已按 0（公度）处理。")
+            n_mod = 0
 
         result = self.iso.search_method_2(
             subgroup_idx=subgroup_idx,
             distortion_type=dtype,
-            k_point_label=target.k_point_label,
-            k_parameters={},
             number_of_independent_modulations=n_mod,
-            number_of_superposed_irs=n_superposed,
         )
         self.last_method2 = result
 
@@ -538,17 +540,22 @@ class IsoDistortConsoleApp:
             lattice_type = "direct"
         if lattice_type == "reciprocal":
             print("提示：本地引擎暂不支持 reciprocal（倒易空间超格）模式，"
-                  "将使用 direct 并给出后端错误提示。")
+                  "已改用 direct（实空间子格）。")
+            lattice_type = "direct"
 
-        # 官网带心 radio：Default(d)/P/A/B/C/I/F/R
+        # 官网带心 radio：Default(d)/P/A/B/C/I/F/R；本地 Method 3 仅支持默认 d
         centering = _prompt(
-            "direct sublattice centering (d/P/A/B/C/I/F/R，留空=d)",
+            "direct sublattice centering (d/P/A/B/C/I/F/R，留空=d；本地仅支持 d)",
             "d",
         ).strip().upper() or "d"
+        if centering != "D":
+            print("提示：本地引擎 Method 3 仅支持默认带心 d，已将带心重置为 d。")
+            centering = "d"
 
         basis = None
         if _prompt_yes_no(t("m3.basis_q"), True):
             basis = _prompt_basis_matrix()
+            print("提示：基矢矩阵将按格点等价过滤候选（只保留子群超胞=该子格的候选）。")
 
         result = self.iso.search_method_3(
             distortion_types=self.distortion_types,

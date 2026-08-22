@@ -24,6 +24,23 @@ pip install -r requirements.txt
 
 也可以使用已经安装 `numpy`、`pymatgen`、`spglib` 的 `ISODISTORT\.venv`。
 
+## 统一终端入口
+
+使用 `main.py` 可以通过终端菜单统一运行单文件比较和批量回归：
+
+```powershell
+python main.py
+```
+
+菜单支持：
+
+- 比较一对本地/参考 CIF；
+- 批量比较两个目录中的 CIF；
+- 设置晶格、坐标和占据率/磁矩容差；
+- 选择是否忽略原子顺序或启用严格字节比较；
+- 输入参考文件 SHA-256 或批量 hash manifest；
+- 输出普通文本结果或 JSON 报告。
+
 ## 单对 CIF 比较
 
 两个输入都支持本机绝对路径：

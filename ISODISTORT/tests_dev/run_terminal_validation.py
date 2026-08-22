@@ -56,13 +56,17 @@ def _script(cif_path: str, subgroup_idx: int) -> str:
     """终端交互脚本（对齐当前 main_terminal.py 的提示顺序）。
 
     启动即出现 CIF 选择器：先输 0（手动输入路径）再给路径；
-    随后进入主菜单 -> Method 1（晶系/SG/maximal/lattice 均不过滤）
-    -> Method 2（从 Method 1 候选选择，nmod=0，nsup=1）
+    随后进入主菜单 -> 菜单 2 启用 displacive（默认仅 strain，需显式启用）
+    -> Method 1（晶系/SG/maximal/lattice 均不过滤）
+    -> Method 2（从 Method 1 候选选择，nmod=0）
     -> 进入畸变生成（选第 1 个模式，amplitude=0.1）-> 退出。
     """
     return "\n".join([
         "0",            # CIF 选择器：手动输入路径
         cif_path,
+        "2",            # 主菜单 2：设置畸变类型（默认仅 strain）
+        "displacive",   # 启用 displacive
+        "all",          # displacive 作用域：全部物种
         "3",            # 主菜单 3：Method 1
         "",             # 晶系（不过滤）
         "",             # 空间群号（不过滤）
@@ -72,7 +76,6 @@ def _script(cif_path: str, subgroup_idx: int) -> str:
         "1",            # 方式 1：从 Method 1 候选选择
         str(subgroup_idx),
         "0",            # independent modulations（默认 0）
-        "1",            # superposed IRs（默认 1）
         "y",            # 进入畸变生成
         "1",            # 选择第 1 个可用模式
         "0.1",          # amplitude

@@ -252,14 +252,6 @@ class DistortionMapper:
         delta -= np.round(delta)
         return float(np.linalg.norm(delta))
 
-    @staticmethod
-    def normalize_displacements(displacements: np.ndarray) -> np.ndarray:
-        """归一化位移向量（最大位移为 1）"""
-        max_norm = np.max(np.linalg.norm(displacements, axis=1))
-        if max_norm > 0:
-            return displacements / max_norm
-        return displacements
-
 
 def _has_letter(token: str) -> bool:
     """token 是否含字母（自由参数标记，如 x/y/z）。"""

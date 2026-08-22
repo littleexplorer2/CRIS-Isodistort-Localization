@@ -35,8 +35,7 @@ class ResultSerializer:
     def save(self, data: dict, filename: str) -> Path:
         """在输出文件夹创建 JSON 格式的文件，并将计算结果保存到该文件中
 
-        Relative path: isocore/io/result_serializer.py"""
-
+        """
         path = self.output_dir / f"{filename}.json"
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2,
@@ -46,8 +45,7 @@ class ResultSerializer:
     def load(self, filename: str) -> dict:
         """调用 JSON 库的load方法，加载 JSON 结果
 
-        Relative path: isocore/io/result_serializer.py"""
-
+        """
         path = self.output_dir / f"{filename}.json"
         with open(path, encoding="utf-8") as f:
             return json.load(f)
@@ -56,8 +54,7 @@ class ResultSerializer:
     def _numpy_default(obj: Any):
         """numpy 类型序列化兼容
 
-        Relative path: isocore/io/result_serializer.py"""
-
+        """
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         if isinstance(obj, np.integer):

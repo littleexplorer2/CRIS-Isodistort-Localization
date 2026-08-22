@@ -23,7 +23,6 @@
   /* Bootstrap 2.x 的 label 默认 display:block，会竖排；官网为横排一行 */
   #typeTable label { display: inline; font-weight: normal; margin-right: 10px; }
   .m3-cent input[type=radio] { margin: 0 4px 0 8px; vertical-align: middle; }
-  .prefs input[type=radio], .prefs input[type=checkbox] { margin: 0 6px 0 8px; vertical-align: middle; }
   #kpParams input { width: 60px; }
   .navbar .nav.pull-right { margin-right: 0; }
   #m1SysBox label { display: inline-block; margin-right: 10px; font-weight: normal; }
@@ -100,6 +99,7 @@
       <select id="m1ConvLat" class="span4" onchange="onLatChange('conv')"></select><br>
       <span id="lPrimLat">Primitive lattice:</span>
       <select id="m1PrimLat" class="span4" onchange="onLatChange('prim')"></select><br>
+      <span class="muted-hint" id="m1LatNote">Note: the local iso database (9.6.1) differs from the website's database; lattice options may differ from the official site.</span><br>
       <label><input type="checkbox" id="m1Max"> <span id="lMax">Maximal subgroups only</span></label>
     </p>
     <div id="m1Out" class="scroll"></div>
@@ -115,6 +115,11 @@
       <span id="lKp">Specify k point:</span>
     </p>
     <div id="kvecBox"></div>
+    <label style="font-weight:normal; margin:4px 0;">
+      <input type="checkbox" id="genSubgroupDb" onchange="onGenDbChange()">
+      <span id="lGenDb">Generate isotropy subgroups database if missing</span>
+    </label>
+    <div id="genDbWarn" class="muted-hint" style="display:none;"></div>
     <div id="subOut" class="scroll"></div>
     <div id="modesBox"></div>
     <p>
@@ -171,38 +176,39 @@
     <div id="m4Out" class="scroll"></div>
   </div>
 
-  <!-- ============ Space-Group Preferences（对齐官网 settings 面板全部选项 + 交互） ============ -->
+  <!-- ============ Distortion Page（对齐官网：模式幅度输入 + 生成 + 导出 + 畴） ============ -->
+  <div class="well">
+    <h3><span id="hDistPage">Distortion</span>
+      <button class="btn btn-primary" id="btnGen" onclick="generateDistortion()">Generate</button>
+      <button class="btn" id="btnDomains" onclick="showDomains()">Domains</button>
+      <a class="btn" id="btnDlAll" href="/api/download_all" download>Download all (ZIP)</a>
+      <a href="https://iso.byu.edu/isodistorthelp.php#modeamp" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
+    </h3>
+    <p class="muted-hint" id="distNote">Enter mode and strain amplitudes:</p>
+    <div id="distModes"></div>
+    <div id="distOut" class="scroll"></div>
+    <div id="domainsOut" class="scroll"></div>
+  </div>
+
+  <!-- ============ Space-Group Preferences（只读：本地引擎固定国际标准取位） ============ -->
   <div class="well">
     <h3><span id="hPrefs">Space-Group Preferences</span>
-      <button class="btn btn-primary" id="btnPrefs" onclick="applyPreferences()">Change</button>
       <a href="https://iso.byu.edu/isodistorthelp.php#settings" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
     </h3>
-    <p class="muted-hint" id="prefsNote">These preferences apply to subsequent distortions but do not affect your parent structure):</p>
-    <p class="prefs" style="font-size:13px;">
-      <span id="prefsMonoAxes">Monoclinic axes:</span>
-      a(b)c<input type="radio" name="settingaxesm" value="a(b)c" checked> c(-b)a<input type="radio" name="settingaxesm" value="c(-b)a">
-      ab(c)<input type="radio" name="settingaxesm" value="ab(c)"> ba(-c)<input type="radio" name="settingaxesm" value="ba(-c)">
-      (a)bc<input type="radio" name="settingaxesm" value="(a)bc"> (-a)cb<input type="radio" name="settingaxesm" value="(-a)cb"><br>
-      <span id="prefsMonoCell">Monoclinic cell choice:</span>
-      1<input type="radio" name="settingcell" value="1" checked> 2<input type="radio" name="settingcell" value="2"> 3<input type="radio" name="settingcell" value="3"><br>
-      <span id="prefsOrthoAxes">Orthorhombic axes:</span>
-      abc<input type="radio" name="settingaxeso" value="abc" checked> ba-c<input type="radio" name="settingaxeso" value="ba-c">
-      cab<input type="radio" name="settingaxeso" value="cab"> -cba<input type="radio" name="settingaxeso" value="-cba">
-      bca<input type="radio" name="settingaxeso" value="bca"> a-cb<input type="radio" name="settingaxeso" value="a-cb"><br>
-      <span id="prefsTrigAxes">Trigonal axes:</span>
-      <span id="prefsHex">hexagonal</span><input type="radio" name="settingaxesh" value="h" checked>
-      <span id="prefsRhombo">rhombohedral</span><input type="radio" name="settingaxesh" value="r"><br>
-      <span id="prefsOrigin">Origin choice:</span>
-      1<input type="radio" name="settingorigin" value="1"> 2<input type="radio" name="settingorigin" value="2" checked><br>
-      <span id="prefsSsg">Superspace group setting:</span>
-      <span id="prefsStandard">standard (IT-C)</span><input type="radio" name="settingssg" value="standard" checked>
-      <span id="prefsBasic">basic (IT-A)</span><input type="radio" name="settingssg" value="basic"><br>
-      <span class="muted-hint" id="prefsSsgNote">Note for superspace groups: If the standard setting is selected, none of the other setting selections will apply.</span><br>
-      <label style="font-weight:normal;"><input type="checkbox" name="parentlike" value="true">
-        <span id="prefsParentLike">Employ parent-like basis vectors (smallest supercell whose basis vectors are parallel to conventional parent basis vectors)</span></label>
-    </p>
-    <b id="prefsImportant">Important: You must click on Change to implement any changes in the above preferences.</b>
+    <p class="muted-hint" id="prefsNote">The local engine uses these fixed defaults (international standard setting).</p>
+    <table class="table table-hover" style="width:auto;">
+      <tbody>
+        <tr><td id="prefsMonoAxes">Monoclinic axes:</td><td>a(b)c</td></tr>
+        <tr><td id="prefsMonoCell">Monoclinic cell choice:</td><td>1</td></tr>
+        <tr><td id="prefsOrthoAxes">Orthorhombic axes:</td><td>abc</td></tr>
+        <tr><td id="prefsTrigAxes">Trigonal axes:</td><td><span id="prefsTrigValue">hexagonal</span></td></tr>
+        <tr><td id="prefsOrigin">Origin choice:</td><td>2</td></tr>
+        <tr><td id="prefsSsg">Superspace group setting:</td><td>standard (IT-C)</td></tr>
+      </tbody>
+    </table>
+    <b id="prefsFixedNote">Reason: the local iso binary only supports the international standard setting; custom settings cannot be applied locally.</b>
   </div>
+
 </div>
 
 <script>
@@ -247,6 +253,8 @@ let modes = [];             // {irrep_label, opd_symbol, mode_type, wyckoff_site
 let amplitudes = {};
 let domains = [];
 let nsupValue = 1;
+let genDbValue = false;  // 缺失时在线生成子群数据库（对应官网 Generate isotropy subgroups）
+let subgroupsOfficial = false;  // 当前子群列表是否来自官网（非本地枚举）
 
 /* ================= 通用 ================= */
 async function api(path, body) {
@@ -388,7 +396,9 @@ function renderTypes() {
     const sp = scope[tp] || [];
     const active = types.includes(tp);
     const allChecked = active && (!sp.length || sp.includes("*") || sp.length >= species.length);
-    const noneChecked = !active || !sp.length;
+    // none 仅在“该类型已启用但作用域无物种”时勾选；未启用的类型整行不做任何勾选
+    // （对齐官网：默认只勾 strain，其余类型 all/none/物种全部不勾选）
+    const noneChecked = active && !sp.length;
     let row = `<tr><td><b>${esc(term(tp))}</b></td><td>`
       + `<label><input type="checkbox" data-tp="${tp}" data-role="all" ${allChecked ? "checked" : ""}> ${esc(term("all"))}</label>`
       + `<label><input type="checkbox" data-tp="${tp}" data-role="none" ${noneChecked ? "checked" : ""}> ${esc(term("none"))}</label>`;
@@ -511,8 +521,11 @@ function onLatChange(kind) {
 function selectedLattice() {
   const conv = document.getElementById("m1ConvLat").value;
   const prim = document.getElementById("m1PrimLat").value;
+  // 注意：Conventional 与 Primitive 下拉的选项基矢均为母相惯用（conventional）
+  // 坐标表达（Primitive 选项是「同一子格在惯用坐标下的显示」），因此都按
+  // conventional 帧提交，后端不再做坐标变换（见 lattice_in_conventional_frame）。
   if (conv) return { lattice: parseBasis(conv), frame: "conventional" };
-  if (prim) return { lattice: parseBasis(prim), frame: "primitive" };
+  if (prim) return { lattice: parseBasis(prim), frame: "conventional" };
   return null;
 }
 function parseBasis(encoded) {
@@ -601,25 +614,91 @@ async function listSubgroupsByKp() {
   if (!STATE || !STATE.structure) { showError(document.getElementById("subOut"), t("err.noCif")); return; }
   await enumSubgroups();
 }
+function onGenDbChange() {
+  genDbValue = document.getElementById("genSubgroupDb").checked;
+  const warn = document.getElementById("genDbWarn");
+  warn.style.display = genDbValue ? "" : "none";
+  warn.textContent = t("m2.genDbWarn");
+}
+function retryWithLocalGen() {
+  // 空结果 -> 勾选“缺失时在线生成子群数据库”并重新枚举（本地 iso 生成）
+  document.getElementById("genSubgroupDb").checked = true;
+  genDbValue = true;
+  onGenDbChange();
+  enumSubgroups();
+}
+async function fetchOfficialSubgroups() {
+  const box = document.getElementById("subOut");
+  const out = document.getElementById("officialOut");
+  if (!STATE || !STATE.structure) { showError(box, t("err.noCif")); return; }
+  const kp = selectedKp(1);
+  if (!kp) { showError(box, t("st.noSubs")); return; }
+  out.innerHTML = `<div class="info">${t("m2.fetchOfficialWait")}</div>`;
+  let d;
+  try {
+    d = await api("/api/official_subgroups", {
+      k: kp.label, params: collectParams(1), generate: genDbValue,
+    }, "POST");
+  } catch (e) {
+    out.innerHTML = `<div class="alert alert-error">${esc(String(e))}</div>`;
+    return;
+  }
+  if (!d.ok) { out.innerHTML = `<div class="alert alert-error">${esc(d.error)}</div>`; return; }
+  const rows = (d.subgroups || []).map((sg, i) => ({ ...sg, index: i }));
+  if (!rows.length) {
+    out.innerHTML = `<div class="alert alert-warning">${t("m2.noSubsAtKp")}</div>`;
+    return;
+  }
+  subgroups = rows;
+  subgroupsOfficial = true;
+  box.innerHTML = `<div class="info">${t("m2.subsFound", rows.length)} (${esc(t("m2.official"))})</div>`
+    + clickableTable([t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", "s", "i"], rows.map(sg => ({
+      idxKey: sg.index,
+      cells: [sg.index, `${sg.space_group_number} ${esc(sg.space_group_symbol)}`, esc(sg.k_point_label), esc(sg.irrep_label), esc(sg.opd_symbol), sg.size, sg.subgroup_index],
+    })));
+  bindRowClick("subOut");
+  await refreshStatus();
+}
 async function enumSubgroups() {
   const out = document.getElementById("subOut");
   const n = Math.max(1, nsupValue);
+  const gen = genDbValue;
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
   let merged = [];
   for (let i = 1; i <= n; i++) {
     const kp = selectedKp(i);
     if (!kp) { showError(out, t("st.noSubs")); return; }
-    const d = await api("/api/subgroups", {
-      k: kp.label, params: collectParams(i), generate: false,
-    }, "POST");
+    // 逐 k 点给出进度反馈（官网 Method 2 = 枚举该 k 点全部 IR 的子群）
+    out.innerHTML = `<div class="info">${t("m2.enumKp", kp.label, i, n)}${gen ? " · " + t("m2.genDb") : ""}</div>`;
+    let d;
+    try {
+      d = await api("/api/subgroups", {
+        k: kp.label, params: collectParams(i), generate: gen,
+      }, "POST");
+    } catch (e) {
+      showError(out, String(e));
+      return;
+    }
     if (!d.ok) { showError(out, d.error); return; }
     merged = merged.concat(d.subgroups || []);
   }
+  if (!merged.length) {
+    // 空结果：明确提示 + 恢复动作（本地生成 / 从官网获取）
+    subgroups = [];
+    out.innerHTML = `<div class="alert alert-warning">${t("m2.noSubsAtKp")}</div>`
+      + `<p><button class="btn btn-primary" id="btnGenDbRetry" onclick="retryWithLocalGen()">${esc(t("m2.genDbRetry"))}</button>`
+      + ` <button class="btn" id="btnOfficial" onclick="fetchOfficialSubgroups()">${esc(t("m2.fetchOfficial"))}</button></p>`
+      + `<div id="officialOut" class="muted-hint"></div>`;
+    await refreshStatus();
+    return;
+  }
   subgroups = merged;
-  out.innerHTML = clickableTable([t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", "s", "i"], subgroups.map(sg => ({
-    idxKey: sg.index,
-    cells: [sg.index, `${sg.space_group_number} ${esc(sg.space_group_symbol)}`, esc(sg.k_point_label), esc(sg.irrep_label), esc(sg.opd_symbol), sg.size, sg.subgroup_index],
-  })));
+  subgroupsOfficial = false;
+  out.innerHTML = `<div class="info">${t("m2.subsFound", merged.length)}</div>`
+    + clickableTable([t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", "s", "i"], subgroups.map(sg => ({
+      idxKey: sg.index,
+      cells: [sg.index, `${sg.space_group_number} ${esc(sg.space_group_symbol)}`, esc(sg.k_point_label), esc(sg.irrep_label), esc(sg.opd_symbol), sg.size, sg.subgroup_index],
+    })));
   bindRowClick("subOut");
   await refreshStatus();
 }
@@ -641,6 +720,11 @@ async function computeModes(idx) {
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
   // 子群所属 k 点组 -> 该组的 independent incommensurate modulations
   const sg = (subgroups || []).find(s => s.index === idx);
+  // 官网来源的子群不在本地候选列表，且本地 iso 无法对参数 k 点计算位移模式
+  if (subgroupsOfficial) {
+    out.innerHTML = `<div class="alert alert-warning">${t("m2.officialNoModes")}</div>`;
+    return;
+  }
   let nmod = 0;
   if (sg && sg.k_point_label) {
     const n = Math.max(1, nsupValue);
@@ -670,7 +754,20 @@ async function computeModes(idx) {
     }
     return [cell, esc(m.opd_symbol), m.wyckoff_sites.join(","), m.n_representatives];
   });
-  out.innerHTML = table([t("hIrrep"), "OPD", term("Wyckoff position"), t("hNrep")], rows);
+  // 对齐官网“order parameter direction”页：显示所选子群的完整信息
+  // （空间群、k 点、IR、OPD、超胞基矢、原点、s、i）
+  let header = "";
+  if (sg) {
+    const basis = (sg.basis_vectors || []).map(r => "(" + r.join(",") + ")").join(" ");
+    const origin = (sg.origin || []).join(",");
+    header = `<div class="info">SG ${sg.space_group_number} ${esc(sg.space_group_symbol || "")}`
+      + ` · ${t("hK")}=${esc(sg.k_point_label)} · ${t("hIrrep")}=${esc(sg.irrep_label)}`
+      + ` · OPD=${esc(sg.opd_symbol)} · s=${sg.size} · i=${sg.subgroup_index}`
+      + (sg.is_maximal ? " · maximal" : "")
+      + `<br>${term("supercell")}: ${esc(basis)} · origin=(${esc(origin)})</div>`;
+  }
+  out.innerHTML = header + table([t("hIrrep"), "OPD", term("Wyckoff position"), t("hNrep")], rows);
+  renderDistModes();
   await refreshStatus();
 }
 
@@ -733,26 +830,52 @@ async function runMethod4() {
     + `<div class="info">RMS ${d.rms_residual.toExponential(3)}</div>`;
 }
 
-/* ================= Preferences（Space-Group Preferences 交互） ================= */
-async function applyPreferences() {
-  const get = name => {
-    const el = document.querySelector(`input[name="${name}"]:checked`);
-    return el ? el.value : null;
-  };
-  const prefs = {
-    settingaxesm: get("settingaxesm"),
-    settingcell: get("settingcell"),
-    settingaxeso: get("settingaxeso"),
-    settingaxesh: get("settingaxesh"),
-    settingorigin: get("settingorigin"),
-    settingssg: get("settingssg"),
-    parentlike: document.querySelector("input[name='parentlike']").checked,
-  };
-  const d = await api("/api/preferences", { preferences: prefs }, "POST");
-  if (!d.ok) { return; }
-  showOk(document.getElementById("prefsImportant"),
-    t("pref.applied") + " | " + t("pref.effective"));
+/* ================= Distortion Page（对齐官网：模式幅度 + 生成 + 畴） ================= */
+function renderDistModes() {
+  const box = document.getElementById("distModes");
+  const out = document.getElementById("distOut");
+  if (!modes || !modes.length) {
+    box.innerHTML = `<div class="info">${t("st.noModes")}</div>`;
+    out.innerHTML = "";
+    return;
+  }
+  let html = `<table class="table table-hover result" style="width:auto;"><tbody>`;
+  for (const m of modes) {
+    const tag = m.mode_type === "occupational" ? ` <span class="muted-hint">(occ)</span>` : "";
+    html += `<tr><td>${esc(m.irrep_label)}${tag}</td>`
+      + `<td>OPD ${esc(m.opd_symbol || "-")}</td>`
+      + `<td><input type="number" step="any" id="amp_${esc(m.irrep_label)}" value="0" style="width:90px;"> ${esc(term("amplitude"))}</td></tr>`;
+  }
+  box.innerHTML = html + `</tbody></table>`;
+}
+async function generateDistortion() {
+  const out = document.getElementById("distOut");
+  if (!modes || !modes.length) { showError(out, t("st.noModes")); return; }
+  const contributions = {};
+  for (const m of modes) {
+    const el = document.getElementById("amp_" + m.irrep_label);
+    if (!el) continue;
+    const v = parseFloat(el.value);
+    if (Number.isFinite(v) && v !== 0) contributions[m.irrep_label] = v;
+  }
+  if (!Object.keys(contributions).length) { showError(out, t("dist.noAmp")); return; }
+  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
+  const d = await api("/api/generate", { contributions }, "POST");
+  if (!d.ok) { showError(out, d.error); return; }
+  out.innerHTML = `<div class="alert alert-success">${t("dist.generated", d.atoms)}`
+    + ` <a href="${esc(d.download)}" download>${esc(t("dist.download"))}</a>`
+    + ` · <a href="/api/download_all?lang=${LANG}" download>${esc(t("dist.downloadAll"))}</a></div>`;
   await refreshStatus();
+}
+async function showDomains() {
+  const out = document.getElementById("domainsOut");
+  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
+  const d = await api("/api/domains", {}, "POST");
+  if (!d.ok) { showError(out, d.error); return; }
+  const rows = (d.domains || []).map(x => [x.number, esc(x.generator || "-"),
+    `${x.space_group_number} ${esc(x.space_group_symbol || "")}`, x.subgroup_index]);
+  out.innerHTML = `<h4>${esc(t("dist.domainsTitle"))} (${d.count})</h4>`
+    + table([t("hIdx"), t("hGen"), "SG", "index"], rows);
 }
 
 /* ================= 渲染（切换语言后调用） ================= */
@@ -771,14 +894,17 @@ function renderAll() {
   document.getElementById("lSgSel").textContent = t("l.sgsel");
   document.getElementById("lConvLat").textContent = t("l.convLat");
   document.getElementById("lPrimLat").textContent = t("l.primLat");
+  document.getElementById("m1LatNote").textContent = t("m1.latNote");
   document.getElementById("lMax").textContent = t("l.max");
   document.getElementById("hM2").textContent = t("m2.title");
   document.getElementById("btnM2").textContent = t("btn.ok");
   document.getElementById("lKp").textContent = t("l.kp");
-  document.getElementById("lNmod").textContent = t("l.nmod");
   document.getElementById("lNsup").textContent = t("l.nsup");
+  // lNmod 在 k 点行内动态创建：仅在已渲染时更新文案（不重渲染，保留用户选择）
+  document.querySelectorAll("#kvecBox [id='lNmod']").forEach(el => { el.textContent = t("l.nmod"); });
   document.getElementById("btnNsup").textContent = t("btn.change");
   document.getElementById("m2NsupNote").textContent = t("m2.nsup_note");
+  document.getElementById("lGenDb").textContent = t("lGenDb");
   document.getElementById("hM3").textContent = t("m3.title");
   document.getElementById("btnM3").textContent = t("btn.ok");
   document.getElementById("lSgSel3").textContent = t("l.sgsel3");
@@ -791,26 +917,28 @@ function renderAll() {
   document.getElementById("hM4").textContent = t("m4.title");
   document.getElementById("btnM4").textContent = t("btn.ok");
   document.getElementById("lM4File").textContent = t("l.m4file");
+  document.getElementById("hDistPage").textContent = t("dist.title");
+  document.getElementById("btnGen").textContent = t("dist.gen");
+  document.getElementById("btnDomains").textContent = t("dist.domainsBtn");
+  document.getElementById("btnDlAll").textContent = t("dist.downloadAll");
+  document.getElementById("btnDlAll").href = "/api/download_all?lang=" + LANG;
+  document.getElementById("distNote").textContent = t("dist.note");
   document.getElementById("hPrefs").textContent = t("hPrefs");
-  document.getElementById("btnPrefs").textContent = t("btn.change");
-  document.getElementById("prefsNote").textContent = t("pref.note");
+  document.getElementById("prefsNote").textContent = t("prefs.note");
   document.getElementById("prefsMonoAxes").textContent = t("prefs.monoAxes");
   document.getElementById("prefsMonoCell").textContent = t("prefs.monoCell");
   document.getElementById("prefsOrthoAxes").textContent = t("prefs.orthoAxes");
   document.getElementById("prefsTrigAxes").textContent = t("prefs.trigAxes");
+  document.getElementById("prefsTrigValue").textContent = term("hexagonal");
   document.getElementById("prefsOrigin").textContent = t("prefs.origin");
   document.getElementById("prefsSsg").textContent = t("prefs.ssg");
-  document.getElementById("prefsHex").textContent = t("prefs.hex");
-  document.getElementById("prefsRhombo").textContent = t("prefs.rhombo");
-  document.getElementById("prefsStandard").textContent = t("prefs.standard");
-  document.getElementById("prefsBasic").textContent = t("prefs.basic");
-  document.getElementById("prefsSsgNote").textContent = t("prefs.ssgNote");
-  document.getElementById("prefsParentLike").textContent = t("prefs.parentLike");
-  document.getElementById("prefsImportant").textContent = t("prefs.important");
+  document.getElementById("prefsFixedNote").textContent = t("prefs.fixedNote");
   document.getElementById("btnStop").textContent = t("btn.stop");
   renderSysBox();
   renderPgSelect();
   renderTypes();
+  renderDistModes();
+  onGenDbChange();
   refreshStatus();
 }
 function renderSysBox() {

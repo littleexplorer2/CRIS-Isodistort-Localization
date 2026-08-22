@@ -15,7 +15,6 @@ from isocore.structure import (
 
 def test_coordinate_utils():
     # wrap_to_unit_cell
-    """Relative path: tests_dev/test_structure.py"""
 
     coords = np.array([[1.2, -0.3, 0.5]])
     wrapped = wrap_to_unit_cell(coords)
@@ -35,7 +34,6 @@ def test_coordinate_utils():
 
 def test_supercell():
     # 简单立方原胞
-    """Relative path: tests_dev/test_structure.py"""
 
     lattice = Lattice.cubic(5.0)
     struct = Structure(lattice, ["Na"], [[0, 0, 0]])
@@ -99,7 +97,6 @@ def test_fractional_supercell_subcell_multi_species_merge():
 
 def test_symmetry_validator():
     # NaCl 结构（P 原胞：Na 与 Cl 各一个，晶系为 Pm-3m #221）
-    """Relative path: tests_dev/test_structure.py"""
 
     lattice = Lattice.cubic(5.63)
     struct = Structure(

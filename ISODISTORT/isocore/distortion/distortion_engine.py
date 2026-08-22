@@ -17,7 +17,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 import numpy as np
-from pymatgen.core import Lattice, Structure
+from pymatgen.core import Structure
 
 from ..structure import build_supercell, wrap_to_unit_cell
 from ..utils import get_config
@@ -32,9 +32,8 @@ class DistortionEngine:
 
     功能：
     1. 单模式畸变：按指定幅度生成畸变结构
-    2. 多模式混合：线性叠加多个不可约表示的畸变
-    3. 晶格应变畸变：同步更新晶格参数
-    4. 超胞构建：生成对应子群的超胞结构
+    2. 多模式混合：线性叠加多个不可约表示的畸变（generate_modes）
+    3. 超胞构建：生成对应子群的超胞结构
     """
 
     def __init__(self, mapper: DistortionMapper | None = None) -> None:
@@ -138,39 +137,6 @@ class DistortionEngine:
 
         return distorted
 
-    def generate_mixed_mode(self, parent_structure: Structure,
-                            mode_contributions: dict[str, float],
-                            all_displacements: dict[str, np.ndarray],
-                            supercell: SupercellSpec = None,
-                            k_vector: Sequence[float] | None = None) -> Structure:
-        """
-        生成多模式混合畸变结构
-
-        Args:
-            parent_structure: 母相结构
-            mode_contributions: {irrep_label: amplitude} 各模式的幅度
-            all_displacements: {irrep_label: displacement_array} 所有模式的位移向量
-            supercell: 超胞规格
-            k_vector: k 点坐标（Bloch 相位调制；None/Γ 点不调制）
-
-        Returns:
-            Structure: 混合畸变后的结构
-        """
-        total_disp: np.ndarray | None = None
-        for irrep, amp in mode_contributions.items():
-            if irrep not in all_displacements:
-                continue
-            contribution = amp * np.asarray(all_displacements[irrep], dtype=float)
-            total_disp = contribution if total_disp is None else total_disp + contribution
-
-        if total_disp is None:
-            raise ValueError("未提供任何有效的模式贡献")
-
-        return self.generate_single_mode(
-            parent_structure, total_disp, amplitude=1.0, supercell=supercell,
-            k_vector=k_vector,
-        )
-
     def generate_modes(self, parent_structure: Structure,
                        supercell: SupercellSpec = None,
                        parent_displacements: np.ndarray | None = None,
@@ -211,12 +177,15 @@ class DistortionEngine:
             disp = np.asarray(parent_displacements, dtype=float)
             basis = np.asarray(supercell, dtype=float) if supercell is not None \
                 else np.eye(3)
-            if k is None or supercell is None:
-                idx = self._map_parent_indices(parent_structure, sc, supercell)
+            if supercell is None:
+                # 无超胞：sc 与 parent 同序同原子，父原子索引即自身
+                idx = np.arange(len(parent_structure))
                 # 位移以母相分数坐标为单位；超胞分数坐标需变换：
                 # Δf_sc = Δf_parent @ inv(basis)（basis=单位阵时不变）
-                shift = disp[idx] @ np.linalg.inv(basis)
-                coords = coords + shift
+                coords = coords + disp[idx] @ np.linalg.inv(basis)
+            elif k is None:
+                idx = self._map_parent_indices(parent_structure, sc, supercell)
+                coords = coords + disp[idx] @ np.linalg.inv(basis)
             else:
                 # 非零 k 点：逐超胞副本按 Bloch 相位调制
                 basis = np.asarray(supercell, dtype=float)
@@ -298,27 +267,3 @@ class DistortionEngine:
                     best_dist, best_i = dist, i
             idx[j] = best_i
         return idx
-
-    def apply_strain(self, structure: Structure,
-                     strain_tensor: np.ndarray) -> Structure:
-        """
-        应用晶格应变畸变
-
-        Args:
-            structure: 原始结构
-            strain_tensor: (3, 3) 应变张量
-
-        Returns:
-            Structure: 应变后的结构
-        """
-        F = np.eye(3) + np.asarray(strain_tensor, dtype=float)
-        new_lattice_matrix = structure.lattice.matrix @ F
-
-        new_lattice = Lattice(new_lattice_matrix)
-
-        return Structure(
-            lattice=new_lattice,
-            species=structure.species,
-            coords=structure.frac_coords,
-            coords_are_cartesian=False,
-        )

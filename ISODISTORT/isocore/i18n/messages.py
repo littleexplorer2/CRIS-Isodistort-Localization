@@ -147,11 +147,6 @@ MESSAGES: dict[str, dict[str, str]] = {
         "hGen": "生成元",
         # ---- 网页端（web/index.html）——对齐官网搜索页布局（2024 新增）----
         "web.title": "ISODISTORT：搜索",
-        "hPrefs": "空间群偏好",
-        "pref.note": "这些偏好应用于后续畸变，不影响母相结构。",
-        "pref.applied": "偏好已记录。",
-        "pref.effective": "本地引擎采用国际标准取位（默认），自定义取位仅作记录。",
-        "prefs.important": "重要：必须点击「更改」以应用上述偏好的修改。",
         "types.title": "考虑的畸变类型",
         "btn.ok": "OK",
         "btn.change": "更改",
@@ -163,6 +158,9 @@ MESSAGES: dict[str, dict[str, str]] = {
         "l.convLat": "惯用格子（Conventional lattice）：",
         "l.primLat": "原胞格子（Primitive lattice）：",
         "m1.sgHint": "（{0} 个可达子群空间群，已按母相结构过滤）",
+        "m1.latNote": "注：本地 iso 数据库（9.6.1）与官网站点数据库的子群基矢存在版本差异，"
+                      "Conventional/Primitive lattice 下拉选项可能与官网略有不同；"
+                      "选项均由真实枚举生成，不影响子群枚举的正确性。",
         "err.badNsup": "叠加 IR 数必须是正整数。",
         "ok.nsup": "叠加 IR 数已设为 {0}。",
         "l.noChoice": "不选",
@@ -200,6 +198,23 @@ MESSAGES: dict[str, dict[str, str]] = {
         "l.opd": "序参量方向 (OPD)：",
         "l.nsup": "叠加不可约表示 (IR) 数：",
         "m2.nsup_note": "重要：必须点击「更改」以应用叠加 IR 数的修改。",
+        "m2.enumKp": "正在枚举 k 点 {0} 的全部不可约表示子群（第 {1}/{2} 组 k 点）…",
+        "m2.noSubsAtKp": "所选 k 点下没有可枚举的子群。参数 k 点（如 LD/DT）需先提供参数 a/b/g，"
+                        "或其子群数据库需在官网在线生成（本地默认不自动生成）。",
+        "m2.subsFound": "枚举完成：共 {0} 个子群。点击一行以查看其模式基矢"
+                        "（对应官网 order parameter direction 页）。",
+        "lGenDb": "缺失时在线生成子群数据库",
+        "m2.genDbWarn": "注意：在线生成子群数据库可能耗时数分钟到数小时"
+                        "（对应官网 Generate isotropy subgroups）；生成后缓存到暂存目录，"
+                        "之后可秒回。",
+        "m2.genDb": "（在线生成子群数据库）",
+        "m2.genDbRetry": "用本地生成子群数据库重试",
+        "m2.fetchOfficial": "从 ISODISTORT 官网获取",
+        "m2.fetchOfficialWait": "正在从 ISODISTORT 官网获取子群（需联网，可能较慢）…",
+        "m2.official": "来源：官网",
+        "m2.officialNoModes": "该子群列表来自官网。本地 iso 无法对参数 k 点计算位移模式"
+                              "（官网使用 (3+d) 维超空间机制）。如需计算模式，"
+                              "请改用特殊 k 点（GM/X/M/N/P）并用 Method 2 枚举。",
         "m3.direct": "指定母格子的实空间子格，带心：",
         "m3.reciprocal": "指定原胞倒易空间超格",
         "m3.centDefault": "默认",
@@ -209,19 +224,27 @@ MESSAGES: dict[str, dict[str, str]] = {
         "ui.type.displacive": "位移畸变",
         "ui.type.occupational": "占据率（有序）畸变",
         "ui.type.rotational": "转动畸变",
-        # ---- 网页端 Space-Group Preferences（对齐官网 settings 面板）----
+        # ---- 网页端 Distortion Page（对齐官网模式幅度/生成/畴）----
+        "dist.title": "畸变",
+        "dist.gen": "生成畸变",
+        "dist.domainsBtn": "生成畴",
+        "dist.noAmp": "请至少为一个模式设置非零幅度。",
+        "dist.generated": "已生成 {0} 个原子，下载 CIF：",
+        "dist.download": "下载 CIF",
+        "dist.downloadAll": "下载全部文件 (ZIP)",
+        "dist.domainsTitle": "畴列表",
+        # ---- 网页端 Space-Group Preferences（只读：本地固定国际标准取位）----
+        "hPrefs": "空间群偏好",
+        "prefs.note": "以下偏好为本地引擎固定采用的默认值（国际标准取位，即官网默认），无法在本地修改。",
         "prefs.monoAxes": "单斜轴：",
         "prefs.monoCell": "单斜胞型选择：",
         "prefs.orthoAxes": "正交轴：",
         "prefs.trigAxes": "三方轴：",
         "prefs.origin": "原点选择：",
         "prefs.ssg": "超空间群取位：",
-        "prefs.ssgNote": "注意：若选择标准取位（standard，IT-C），其他取位选项均不适用。",
-        "prefs.parentLike": "采用类母相基矢（与母相惯用基矢平行的最小超胞）",
-        "prefs.hex": "六方轴",
-        "prefs.rhombo": "菱面体轴",
-        "prefs.standard": "标准 (IT-C)",
-        "prefs.basic": "基本 (IT-A)",
+        "prefs.fixedNote": ("原因：本地 isobyu/iso 二进制只支持国际标准取位，自定义取位"
+                            "（轴/胞型/原点/SSG 等）会导致 Syntax error，因此官网的偏好"
+                            "修改面板在本地不可用；计算始终使用以上默认值。"),
         "m3.centEnd": "带心。",
         # ---- Method 流程提示（main_terminal.py）----
         "m1.cs": ("可选晶系（triclinic/monoclinic/orthorhombic/tetragonal/"
@@ -396,14 +419,6 @@ MESSAGES: dict[str, dict[str, str]] = {
         "hGen": "Generator",
         # ---- Web UI (web/index.html) - official search-page layout (new 2024) ----
         "web.title": "ISODISTORT: search",
-        "hPrefs": "Space-Group Preferences",
-        "pref.note": ("These preferences apply to subsequent distortions but do not affect "
-                      "your parent structure):"),
-        "pref.applied": "Preferences recorded.",
-        "pref.effective": ("Local engine uses the international standard setting (default); "
-                           "custom settings are recorded only."),
-        "prefs.important": ("Important: You must click on Change to implement any changes "
-                            "in the above preferences."),
         "types.title": "Types of distortions to be considered",
         "btn.ok": "OK",
         "btn.change": "Change",
@@ -416,6 +431,10 @@ MESSAGES: dict[str, dict[str, str]] = {
         "l.convLat": "Conventional lattice:",
         "l.primLat": "Primitive lattice:",
         "m1.sgHint": "({0} reachable subgroup space groups, filtered by the parent structure)",
+        "m1.latNote": ("Note: the local iso database (9.6.1) differs from the website's database "
+                       "in subgroup basis vectors, so the Conventional/Primitive lattice options "
+                       "may differ slightly from the official site; options are generated from "
+                       "real enumeration and do not affect the correctness of subgroup enumeration."),
         "err.badNsup": "Superposed IR count must be a positive integer.",
         "ok.nsup": "Superposed IR count set to {0}.",
         "l.noChoice": "no choice",
@@ -454,6 +473,27 @@ MESSAGES: dict[str, dict[str, str]] = {
         "l.nsup": "Change number of superposed IRs:",
         "m2.nsup_note": ("Important: You must click on Change to implement any changes in "
                          "the number of superposed IRs."),
+        "m2.enumKp": ("Enumerating subgroups over all irreps of k point {0} "
+                      "(k group {1}/{2})..."),
+        "m2.noSubsAtKp": ("No subgroups could be enumerated for the selected k point. "
+                          "Parametric k points (e.g. LD/DT) need parameter values a/b/g, "
+                          "or their subgroup database must be generated online "
+                          "(not auto-generated locally by default)."),
+        "m2.subsFound": ("Enumerated {0} subgroup(s). Click a row to view its mode basis "
+                         "(official order parameter direction page)."),
+        "lGenDb": "Generate isotropy subgroups database if missing",
+        "m2.genDbWarn": ("Note: generating the subgroup database may take minutes to hours "
+                         "(official 'Generate isotropy subgroups'); once generated it is cached "
+                         "to the temp directory and returns instantly afterward."),
+        "m2.genDb": "(generating subgroup database)",
+        "m2.genDbRetry": "Retry with local database generation",
+        "m2.fetchOfficial": "Fetch from the ISODISTORT website",
+        "m2.fetchOfficialWait": "Fetching subgroups from the ISODISTORT website (requires network, may be slow)...",
+        "m2.official": "source: website",
+        "m2.officialNoModes": ("This subgroup list came from the website. The local iso binary "
+                               "cannot compute displacement modes for parametric k points (the "
+                               "website uses a (3+d)-dim superspace mechanism). To compute modes, "
+                               "use a special k point (GM/X/M/N/P) and enumerate via Method 2."),
         "m3.direct": "Specify a real-space sublattice of the parent lattice with",
         "m3.reciprocal": "Specify a primitive reciprocal-space superlattice",
         "m3.centDefault": "Default",
@@ -465,21 +505,29 @@ MESSAGES: dict[str, dict[str, str]] = {
         "ui.type.displacive": "displacive distortion",
         "ui.type.occupational": "occupational (ordering) distortion",
         "ui.type.rotational": "rotational distortion",
-        # ---- Web UI: Space-Group Preferences (official settings panel) ----
+        # ---- Web UI: Distortion Page (mode amplitudes / generate / domains) ----
+        "dist.title": "Distortion",
+        "dist.gen": "Generate",
+        "dist.domainsBtn": "Domains",
+        "dist.noAmp": "Set a nonzero amplitude for at least one mode.",
+        "dist.generated": "Generated {0} atoms; download CIF:",
+        "dist.download": "Download CIF",
+        "dist.downloadAll": "Download all files (ZIP)",
+        "dist.domainsTitle": "Domains",
+        # ---- Web UI: Space-Group Preferences (read-only; local engine fixed to the international standard) ----
+        "hPrefs": "Space-Group Preferences",
+        "prefs.note": ("The local engine uses these fixed defaults (international standard setting, "
+                       "i.e. the website defaults); they cannot be modified locally."),
         "prefs.monoAxes": "Monoclinic axes:",
         "prefs.monoCell": "Monoclinic cell choice:",
         "prefs.orthoAxes": "Orthorhombic axes:",
         "prefs.trigAxes": "Trigonal axes:",
         "prefs.origin": "Origin choice:",
         "prefs.ssg": "Superspace group setting:",
-        "prefs.ssgNote": ("Note for superspace groups: If the standard setting is selected, "
-                          "none of the other setting selections will apply."),
-        "prefs.parentLike": ("Employ parent-like basis vectors (smallest supercell whose basis "
-                             "vectors are parallel to conventional parent basis vectors)"),
-        "prefs.hex": "hexagonal",
-        "prefs.rhombo": "rhombohedral",
-        "prefs.standard": "standard (IT-C)",
-        "prefs.basic": "basic (IT-A)",
+        "prefs.fixedNote": ("Reason: the local iso binary only supports the international standard setting; "
+                            "custom settings (axes/cell choice/origin/SSG etc.) cause a Syntax error, so the "
+                            "website's preference-editing panel is not available locally; computations always "
+                            "use the defaults above."),
         "m3.centEnd": "centering.",
         # ---- Method flow prompts (main_terminal.py) ----
         "m1.cs": ("Optional crystal system (triclinic/monoclinic/orthorhombic/tetragonal/"

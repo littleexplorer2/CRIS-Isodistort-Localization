@@ -12,9 +12,9 @@ from isocore.distortion.phase_path import (
 
 
 def test_default_distortion_modes():
-    """默认畸变模式应为 displacive + strain 两种（对齐官网 Displacive/Strain）。"""
-    assert DEFAULT_DISTORTION_TYPES == ["displacive", "strain"]
-    assert normalize_distortion_types(None) == ["displacive", "strain"]
+    """默认畸变类型应为 strain 单种（对齐官网：Types 面板默认只勾选 Strain）。"""
+    assert DEFAULT_DISTORTION_TYPES == ["strain"]
+    assert normalize_distortion_types(None) == ["strain"]
     assert normalize_distortion_types(["strain", "displacement", "strain"]) == [
         "strain",
         "displacive",  # 旧名 displacement 自动映射为 displacive
@@ -24,7 +24,6 @@ def test_default_distortion_modes():
 
 def test_distortion_engine_single_mode():
     # 简单立方
-    """Relative path: tests_dev/test_distortion.py"""
 
     lattice = Lattice.cubic(5.0)
     struct = Structure(lattice, ["A", "B"], [[0, 0, 0], [0.5, 0.5, 0.5]])
@@ -52,7 +51,6 @@ def test_distortion_engine_single_mode():
 
 
 def test_distortion_engine_supercell():
-    """Relative path: tests_dev/test_distortion.py"""
 
     lattice = Lattice.cubic(5.0)
     struct = Structure(lattice, ["A"], [[0, 0, 0]])
@@ -68,7 +66,6 @@ def test_distortion_engine_supercell():
 
 
 def test_mixed_mode():
-    """Relative path: tests_dev/test_distortion.py"""
 
     lattice = Lattice.cubic(5.0)
     struct = Structure(lattice, ["A"], [[0, 0, 0]])
@@ -76,11 +73,9 @@ def test_mixed_mode():
     disp_x = np.array([[1.0, 0.0, 0.0]])
     disp_y = np.array([[0.0, 1.0, 0.0]])
 
-    all_disp = {"mode_x": disp_x, "mode_y": disp_y}
-    contributions = {"mode_x": 0.1, "mode_y": 0.2}
-
     engine = DistortionEngine()
-    mixed = engine.generate_mixed_mode(struct, contributions, all_disp)
+    total_disp = 0.1 * disp_x + 0.2 * disp_y
+    mixed = engine.generate_modes(struct, parent_displacements=total_disp)
 
     dx = mixed[0].frac_coords[0]
     dy = mixed[0].frac_coords[1]

@@ -164,8 +164,6 @@ class IsoDistort:
         self.distorted_structure = None
         self._special_subgroups_cache = None
         self._conv_to_prim_cache = None
-        self.distorted_structure = None
-        self._preferences = None
 
     def _wyckoff_letters(self) -> list[str]:
         """当前结构各 Wyckoff 位置字母（用于 iso 模式计算）。"""
@@ -230,43 +228,12 @@ class IsoDistort:
     def space_group_preferences(self) -> str:
         """官网页头 “Default space-group preferences: ...” 行。
 
-        本地引擎采用官网默认值（国际取位/标准设定），与实际计算行为一致。
+        本地 iso 二进制固定采用国际标准取位（官网默认值），与实际计算行为一致，
+        因此仅提供只读说明，不提供可交互的偏好面板（自定义取位无法被本地引擎生效）。
         """
         return ("monoclinic axes a(b)c, monoclinic cell choice 1, "
                 "orthorhombic axes abc, origin choice 2, hexagonal axes, "
                 "SSG standard setting")
-
-    def set_space_group_preferences(self, preferences: dict | None = None) -> dict:
-        """记录 Space-Group Preferences 选择（对齐官网 settings 面板交互）。
-
-        官网允许用户修改这些偏好并影响后续子群枚举的取位。本地 iso 二进制
-        固定使用国际标准取位（International, new ed. with conventional basis
-        vectors），不支持自定义 setting（Syntax error），因此**计算仍采用
-        官网默认值**；此处仅记录用户选择供界面展示与状态查询，并返回当前
-        生效的偏好说明。
-
-        Args:
-            preferences: 可选 dict，键为 settingaxesm / settingcell /
-                settingaxeso / settingaxesh / settingorigin / settingssg /
-                parentlike（与官网表单字段名一致）
-
-        Returns:
-            dict: 当前生效的偏好（默认值 + 用户选择记录）
-        """
-        defaults = {
-            "settingaxesm": "a(b)c", "settingcell": "1",
-            "settingaxeso": "abc", "settingaxesh": "h",
-            "settingorigin": "2", "settingssg": "standard",
-            "parentlike": False,
-        }
-        self._preferences = dict(defaults)
-        if preferences:
-            for k in defaults:
-                if k in preferences and preferences[k] is not None:
-                    self._preferences[k] = preferences[k]
-        # 本地 iso 固定国际标准取位：自定义偏好仅记录，不影响计算
-        self._preferences["effective"] = "international (default)"
-        return dict(self._preferences)
 
     def _ensure_special_subgroups(self) -> list:
         """枚举全部特殊 k 点子群（线程安全缓存，Method 1 下拉与搜索共用）。"""
@@ -294,9 +261,13 @@ class IsoDistort:
                                       ) -> list[list[float]]:
         """把用户选择的 lattice 基矢换算到 iso 惯用（conventional）坐标系。
 
-        官网下拉的 Conventional lattice 选项即 iso 输出基矢（惯用坐标）；
-        Primitive lattice 选项为同一超胞在原胞坐标下的表达
-        （B_conv = B_prim @ T，见 _conv_to_prim）。
+        官网下拉的 Conventional lattice 与 Primitive lattice 选项基矢
+        均为母相惯用坐标表达（Primitive 选项是同一子格在惯用坐标下的显示，
+        如“原胞本身”显示为 (-1/2,1/2,1/2),...），因此 method1_options 返回的
+        选项直接以 frame="conventional" 提交即可，无需变换。
+
+        frame="primitive" 仅用于调用方持有“原胞坐标”表达的基矢时换算：
+        B_conv = B_prim @ T（T = _conv_to_prim()，见其实现）。
         """
         m = np.asarray(matrix, dtype=float)
         if frame == "primitive":
@@ -403,7 +374,13 @@ class IsoDistort:
         - space_groups：可达子群空间群（官网只列出与母相结构相容的对称性，
           不显示全部 230 个）
         - conventional_lattices / primitive_lattices：官网 Conventional lattice
-          与 Primitive lattice 下拉选项（由真实枚举得到的超胞基矢生成）
+          与 Primitive lattice 下拉选项。
+
+        选项由真实枚举的子群超胞基矢按格点等价（GL(3,Z)）分类生成：
+        Conventional 在惯用坐标下分类；Primitive 在原胞坐标下分类后转回惯用
+        坐标显示（与官网 isoplattice 下拉的显示语义一致）。注意：本地 iso 9.6.1
+        与官网站点数据库的子群基矢存在版本差异，选项数量可能与官网略有出入
+        （界面会给出提示，见 README 已知差异第 10 条）。
         """
         subs = self._ensure_special_subgroups()
         numbers: list[int] = []
@@ -416,6 +393,7 @@ class IsoDistort:
              "schoenflies": schoenflies_symbol(n)}
             for n in numbers
         ]
+
         conventional = self._distinct_lattices([sg.basis_vectors for sg in subs])
         t_prim = np.linalg.inv(self._conv_to_prim())
         # Primitive lattice：在原胞坐标下分类（basis @ T⁻¹，整数矩阵），
@@ -560,6 +538,7 @@ class IsoDistort:
                     k_point_label, ir.label,
                     k_parameters=k_parameters,
                     opd_symbol=None,
+                    start_index=len(merged),  # 各 IR 的序号连续编号，避免行点击串位
                     generate_if_missing=generate_if_missing,
                 )
             except IsodistortError:
@@ -893,7 +872,6 @@ class IsoDistort:
                         distortion_types: str | list[str] | None = None,
                         crystal_system: str | None = None,
                         subgroup_space_group: int | None = None,
-                        direct_sublattice: list[int] | None = None,
                         lattice: list[list[float]] | None = None,
                         maximal_subgroup_only: bool = False):
         """
@@ -903,7 +881,6 @@ class IsoDistort:
         - lattice：官网 Conventional lattice / Primitive lattice 下拉所选
           子格（3x3 矩阵，惯用坐标；Primitive 选项请先用
           lattice_in_conventional_frame 换算）
-        - direct_sublattice：旧版直接子格 (a,b,c)（对角阵，兼容保留）
 
         枚举结果按会话缓存，重复调用秒回。
         """
@@ -914,7 +891,6 @@ class IsoDistort:
             distortion_types=distortion_types,
             crystal_system=crystal_system,
             subgroup_space_group=subgroup_space_group,
-            direct_sublattice=direct_sublattice,
             lattice=lattice,
             maximal_subgroup_only=maximal_subgroup_only,
         )
@@ -930,20 +906,20 @@ class IsoDistort:
 
     def search_method_2(self,
                         subgroup_idx: int,
-                        distortion_type: str | list[str] = "displacive",
-                        k_point_label: str | None = None,
-                        k_point_coordinates: list | None = None,
-                        k_parameters: dict[str, str | int | float] | None = None,
-                        number_of_independent_modulations: int = 0,
-                        number_of_superposed_irs: int = 1,
-                        specified_opd: str | None = None):
+                        distortion_type: str | list[str] | None = None,
+                        number_of_independent_modulations: int = 0):
         """
         Method 2: General method - search over specific k points.
 
         在 Method 1 候选（或 list_subgroups 枚举）中按序号选择子群，
-        通过真实 iso（DISPLAY BUSH）计算其畸变模式基矢；
+        通过真实 iso（DISPLAY BUSH）计算其畸变模式基矢；k 点 / IR / OPD
+        由所选子群（SubgroupInfo）自身携带，无需（也不再接受）重复传参。
         按 self.distortion_scope 限定物种作用域（displacive/occupational 等），
         occupational 模式由本地生成器产生（存入 self.mode_occupancies）。
+        distortion_type 缺省时使用项目默认（DEFAULT_DISTORTION_TYPES，
+        对齐官网默认仅 Strain；本地 strain 不产生模式，需显式传
+        ["displacive"] 等以获得位移模式）。
+        number_of_independent_modulations 仅支持 0（公度调制）；非 0 会报错。
         """
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")
@@ -955,12 +931,7 @@ class IsoDistort:
         query = Method2Query(
             subgroup_idx=subgroup_idx,
             distortion_type=types,
-            k_point_label=k_point_label,
-            k_point_coordinates=k_point_coordinates,
-            k_parameters=k_parameters or {},
             number_of_independent_modulations=number_of_independent_modulations,
-            number_of_superposed_irs=number_of_superposed_irs,
-            specified_opd=specified_opd,
         )
 
         parent_sg = self.symmetry_info["space_group_number"]
@@ -1004,6 +975,9 @@ class IsoDistort:
         若 point_group 与 space_group_type 同时提供，按官网规则优先采用
         space_group_type。lattice_type 为官网 radio（direct/reciprocal）；
         本地引擎暂不支持 reciprocal（倒易超格）模式，会给出明确错误。
+
+        supercell_basis（3x3 实空间子格基矢）按格点等价过滤枚举出的特殊 k 点
+        子群；direct_sublattice_centering 仅支持默认 d（P/A/B/C/I/F/R 会明确报错）。
         """
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")

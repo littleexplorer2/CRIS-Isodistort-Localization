@@ -20,6 +20,7 @@ dist/
 .mypy_cache/
 .coverage
 htmlcov/
+.pytest-tmp/
 
 # ---------- 运行输出 / 比对产物 ----------
 output/

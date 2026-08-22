@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from fractions import Fraction
 
 import numpy as np
@@ -62,13 +62,46 @@ def _parse_basis_rows(rows: Sequence[Sequence[str | int | float]]) -> list[list[
     return basis
 
 
-def _matrix_matches_diagonal_supercell(matrix: Sequence[Sequence[float]],
-                                       supercell: Sequence[int]) -> bool:
-    if len(supercell) != 3:
+def _lattice_equivalent(a: Sequence[Sequence[float]],
+                        b: Sequence[Sequence[float]]) -> bool:
+    """两个 3x3 超胞基矢是否生成同一格点（GL(3,Z) 幺模等价）。
+
+    Method 3 的 supercell basis 过滤用：用户请求的实空间子格基矢与枚举出的
+    子群超胞基矢可相差一个幺模变换（行置换/带心重选）而仍表示同一格点。
+    """
+    a_arr = np.asarray(a, dtype=float)
+    b_arr = np.asarray(b, dtype=float)
+    if a_arr.shape != (3, 3) or b_arr.shape != (3, 3):
         return False
-    target = np.diag(np.array(supercell, dtype=float))
-    got = np.array(matrix, dtype=float)
-    return np.allclose(got, target, atol=1e-8)
+    if abs(abs(np.linalg.det(a_arr)) - abs(np.linalg.det(b_arr))) > 1e-6:
+        return False
+    try:
+        n = a_arr @ np.linalg.inv(b_arr)
+    except np.linalg.LinAlgError:
+        return False
+    return bool(np.allclose(n, np.round(n), atol=1e-5))
+
+
+def _validate_centering(value: str | None) -> str:
+    """校验 Method 3 的 direct_sublattice_centering（官网 d/P/A/B/C/I/F/R radio）。
+
+    本地引擎 Method 3 只枚举**特殊 k 点**子群（子群超胞基矢由 iso 数据库固定），
+    无法按用户任意指定的带心类型再生成子群数据库；因此仅接受官网默认 ``d``，
+    其余带心类型明确报错（而非静默忽略，避免误导用户以为过滤已生效）。
+    """
+    if value is None or str(value).strip() == "":
+        return "d"
+    key = str(value).strip().lower()
+    if key in ("d", "default"):
+        return "d"
+    raise ValueError(
+        f"本地引擎 Method 3 仅支持默认带心（d/default），收到 {value!r}。"
+        "自定义带心（P/A/B/C/I/F/R）需要按指定子格在线生成子群数据库，"
+        "本地 iso 二进制无法完成；请改用 Method 1 / Method 2，或在官网完成该搜索。 "
+        f"/ The local engine's Method 3 only supports the default centering (d); got {value!r}. "
+        "Custom centering (P/A/B/C/I/F/R) requires on-demand subgroup database generation "
+        "that the local iso binary cannot do."
+    )
 
 
 def _space_group_to_point_group(space_group_number: int) -> str:
@@ -105,7 +138,6 @@ class Method1Query:
     distortion_types: str | Sequence[str] | None = None
     crystal_system: str | Sequence[str] | None = None  # 单个或列表（多选=OR）
     subgroup_space_group: int | None = None
-    direct_sublattice: Sequence[int] | None = None
     lattice: Sequence[Sequence[float]] | None = None  # 官网 conventional/primitive lattice（3x3 子格矩阵）
     maximal_subgroup_only: bool = False
 
@@ -115,21 +147,15 @@ class Method1ResultItem:
     subgroup: SubgroupInfo
     crystal_system: str
     is_maximal: bool
-    direct_sublattice: list[int] = field(default_factory=lambda: [1, 1, 1])
 
 
 @dataclass
 class Method2Query:
-    """Method 2: general method over specified k point(s)."""
+    """Method 2: general method over a selected subgroup (k/IR/OPD 由子群自身携带)。"""
 
     subgroup_idx: int
     distortion_type: str | Sequence[str] = "displacive"
-    k_point_label: str | None = None
-    k_point_coordinates: Sequence[str | int | float] | None = None
-    k_parameters: dict[str, str | int | float] = field(default_factory=dict)
-    number_of_independent_modulations: int = 0
-    number_of_superposed_irs: int = 1
-    specified_opd: str | None = None
+    number_of_independent_modulations: int = 0  # 仅支持 0（公度）；非 0 报错
 
 
 @dataclass
@@ -197,8 +223,8 @@ class IsoSearchEngine:
         - crystal system：子群所属晶系（单个或列表，列表任中其一即通过）
         - subgroup space group：子群空间群号
         - maximal subgroup only：仅保留 maximal 子群
-        - direct sublattice / lattice：超胞格是否为所选子格的子格
-          （官网 direct sublattice / Conventional lattice / Primitive lattice）
+        - lattice：超胞格是否为所选子格的子格
+          （官网 Conventional lattice / Primitive lattice）
 
         Args:
             parent_sg: 母相空间群号
@@ -226,7 +252,6 @@ class IsoSearchEngine:
                 subgroup=sg,
                 crystal_system=crystal_system,
                 is_maximal=sg.is_maximal,
-                direct_sublattice=self._diagonal_sublattice(sg.basis_vectors),
             )
             if crystal_systems and crystal_system not in crystal_systems:
                 continue
@@ -238,24 +263,8 @@ class IsoSearchEngine:
                 sg.basis_vectors, query.lattice
             ):
                 continue
-            if query.lattice is None and query.direct_sublattice:
-                diag = np.diag([float(v) for v in query.direct_sublattice])
-                if not _basis_is_sublattice_of(sg.basis_vectors, diag):
-                    continue
             result.append(item)
         return result
-
-    @staticmethod
-    def _diagonal_sublattice(basis: Sequence[Sequence[float]]) -> list[int]:
-        """基矢为对角阵时返回其对角元（母相格单位），否则返回 [1,1,1]。"""
-        if len(basis) != 3:
-            return [1, 1, 1]
-        arr = np.asarray(basis, dtype=float)
-        if np.allclose(arr, np.diag(np.diag(arr)), atol=1e-8):
-            diag = np.diag(arr)
-            if all(abs(d - round(d)) < 1e-8 for d in diag):
-                return [round(d) for d in diag]
-        return [1, 1, 1]
 
     # ----------------------------------------------------------------
     # Method 2：指定 k 点/IR/OPD 的模式计算
@@ -285,6 +294,19 @@ class IsoSearchEngine:
                 "请先执行 Method 1 或 list_subgroups 获得候选列表"
             )
 
+        # 官网 nmod（# of independent incommensurate modulations）仅对非公度
+        # （参数 k 点）有意义；本地引擎只支持公度特殊 k 点（nmod=0），
+        # 非零值明确报错而非静默忽略。
+        if query.number_of_independent_modulations:
+            raise ValueError(
+                "本地引擎不支持非公度调制叠加"
+                "（number_of_independent_modulations 必须为 0）；"
+                "该参数仅对官网参数 k 点的 (3+d) 维超空间机制有意义，"
+                "本地 iso 二进制无法完成。 "
+                "/ The local engine does not support incommensurate modulation superposition "
+                "(number_of_independent_modulations must be 0)."
+            )
+
         # wyckoff_letters 为 None 表示调用方未提供（误用）；空列表表示
         # 作用域内无 Wyckoff 位置（如全部类型选 none）-> 直接返回空模式
         if wyckoff_letters is None:
@@ -299,14 +321,12 @@ class IsoSearchEngine:
             )
 
         metadata = {
-            "k_point_label": query.k_point_label or target.k_point_label,
-            "k_point_coordinates": [
-                _to_float(v) for v in query.k_point_coordinates
-            ] if query.k_point_coordinates else None,
-            "k_parameters": {k: _to_float(v) for k, v in query.k_parameters.items()},
+            # k 点 / IR / OPD 来自所选子群自身（查询时已确定，无需重复传参）
+            "k_point_label": target.k_point_label,
+            "irrep_label": target.irrep_label,
+            "opd_symbol": target.opd_symbol,
+            "k_parameters": list(target.k_parameters),
             "number_of_independent_modulations": query.number_of_independent_modulations,
-            "number_of_superposed_irs": query.number_of_superposed_irs,
-            "specified_opd": query.specified_opd or target.opd_symbol,
         }
 
         return Method2Result(subgroup=target, modes=modes, metadata=metadata)
@@ -321,8 +341,15 @@ class IsoSearchEngine:
 
         - 若同时提供 point_group 与 space_group_type，空间群选择优先
           （与官网规则一致）；
-        - 超胞基矢过滤：仅当请求基矢为对角阵时做严格匹配；
-          任意基矢的完整再生成（需 iso 在线生成子群数据库）为已知限制。
+        - supercell_basis（3x3 实空间子格基矢）：按格点等价（GL(3,Z)）过滤
+          枚举出的特殊 k 点子群超胞基矢——只保留「子群超胞 = 请求子格」的
+          候选，使该输入真正生效；
+        - direct_sublattice_centering：仅支持官网默认 d；P/A/B/C/I/F/R
+          明确报错（本地 iso 无法按任意带心再生成子群数据库）。
+
+        已知限制（见 README）：官网 Method 3 会为任意 (点群, 空间群, 子格)
+        在线生成新的子群数据库；本地只覆盖「特殊 k 点」子群，任意 k 点子群
+        无法枚举，属近似实现。
         """
         distortion_types = normalize_distortion_types(query.distortion_types)
         subgroups = self._iso.enumerate_all_special_subgroups(parent_sg, distortion_types)
@@ -333,7 +360,10 @@ class IsoSearchEngine:
         else:
             point_group_filter = query.point_group
 
-        basis = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+        # 带心：仅默认 d 合法；其余类型明确报错（不再静默忽略）
+        _validate_centering(query.direct_sublattice_centering)
+
+        basis: list[list[float]] | None = None
         if query.supercell_basis:
             basis = _parse_basis_rows(query.supercell_basis)
 
@@ -344,13 +374,14 @@ class IsoSearchEngine:
                 continue
             if point_group_filter and point_group != point_group_filter:
                 continue
-            if query.supercell_basis and not _matrix_matches_diagonal_supercell(
-                sg.basis_vectors, [1, 1, 1]
-            ):
-                # 任意基矢的子群再生成需要 iso 在线生成数据库（见 README 已知差异）
-                pass
-
-            result.append(Method3ResultItem(subgroup=sg, point_group=point_group, basis=basis))
+            if basis is not None and not _lattice_equivalent(sg.basis_vectors, basis):
+                # 子群超胞基矢与请求子格不同一格点 -> 不属于该子格搜索范围
+                continue
+            result.append(Method3ResultItem(
+                subgroup=sg,
+                point_group=point_group,
+                basis=[list(row) for row in sg.basis_vectors],
+            ))
 
         return result
 

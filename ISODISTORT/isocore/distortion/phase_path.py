@@ -1,8 +1,7 @@
 """
 相变路径管理 - 子群选择、畸变类型、参数组装与校验
 
-对应阶段二，步骤5：相变路径参数组装
-实现方式：❌ 自研
+对应阶段二，步骤5：相变路径参数组装（纯 Python 实现，不调用 iso 二进制）。
 """
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
@@ -28,7 +27,8 @@ TYPE_ALIASES = {
     "order": "occupational",        # 旧名（官网用 Occupational）
 }
 
-DEFAULT_DISTORTION_TYPES = ["displacive", "strain"]
+# 默认畸变类型（对齐官网：Types 面板默认只勾选 Strain，其余默认不勾选）
+DEFAULT_DISTORTION_TYPES = ["strain"]
 
 
 def normalize_distortion_types(distortion_types=None) -> list[str]:
@@ -130,10 +130,7 @@ class PhasePath:
         )
 
     def describe(self) -> str:
-        """人类可读的路径描述
-
-        Relative path: isocore/distortion/phase_path.py"""
-
+        """人类可读的路径描述"""
         return (
             f"空间群 #{self.parent_sg_number} → #{self.subgroup_sg_number} "
             f"({self.subgroup_symbol}), "

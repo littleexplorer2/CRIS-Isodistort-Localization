@@ -31,11 +31,9 @@ from ..utils import (
     WrapperRunError,
     detect_blocked_generation,
     detect_missing_subgroup_db,
-    extract_section,
     get_config,
     parse_bush_table,
     parse_domain_table,
-    parse_fraction,
     parse_irrep_table,
     parse_kpoint_table,
     parse_subgroup_table,
@@ -154,7 +152,6 @@ class IsoWrapper(BaseWrapper):
     3. list_subgroups   枚举（k 点, IR）对应的各向同性子群（Method 1/2/3 的核心）
     4. calc_distortion_modes  计算指定路径的畸变模式基矢（DISPLAY BUSH）
     5. get_domains      获取畴变体列表（Domains 输出）
-    6. get_wyckoff_letters  获取空间群的 Wyckoff 位置（含代表坐标）
     """
 
     def __init__(self) -> None:
@@ -549,53 +546,3 @@ class IsoWrapper(BaseWrapper):
             raise OutputParseError("iso", f"解析畴表失败: {exc}") from exc
         return [DomainInfo(**row) for row in rows]
 
-    # ================================================================
-    # Wyckoff 位置
-    # ================================================================
-
-    def get_wyckoff_letters(self, parent_sg: int) -> list[dict]:
-        """
-        获取空间群的全部 Wyckoff 位置（字母 + 代表坐标）。
-
-        Returns:
-            list of dict: 每项含 wyckoff_letter, coordinates（含自由参数的
-                位点坐标为 []，因为坐标由 x,y,z 参数化）
-        """
-        stdout = self._run_session(
-            f"VALUE PARENT {parent_sg}\nSHOW WYCKOFF VECTOR\nDISPLAY PARENT\n"
-        )
-        # 只解析 "Wyckoff Points" 之后的区段，避免程序横幅中的
-        # "International (new ed.)" 等文本被误认为位点
-        section = extract_section(stdout, "Wyckoff Points")
-        sites: list[dict] = []
-        for line in section.splitlines():
-            stripped = line.strip()
-            if not stripped or stripped.startswith("Wyckoff"):
-                continue
-            # 形如: a (0,0,0), b (1/2,1/2,1/2), c (1/4,1/4,1/4), e (x,0,0), ...
-            for m in re.finditer(r"([a-z])\s+\(([^()]*)\)", stripped):
-                raw = [c.strip() for c in m.group(2).split(",") if c.strip()]
-                coords: list[float] = []
-                if len(raw) == 3 and all(
-                    re.fullmatch(r"[+-]?\d+(?:/\d+)?", c) for c in raw
-                ):
-                    coords = [parse_fraction(c) for c in raw]
-                sites.append({
-                    "wyckoff_letter": m.group(1),
-                    "coordinates": coords,
-                })
-        return sites
-
-    # ================================================================
-    # 兼容旧接口（已弃用但保留签名，抛错提示新用法）
-    # ================================================================
-
-    def get_site_splitting(self, *args, **kwargs):
-        """已废弃：位点分裂由 findsym + 结构对称分析完成。"""
-        raise NotImplementedError(
-            "get_site_splitting 已废弃：请使用 SymmetryValidator 获取 Wyckoff 位置。"
-        )
-
-    def get_domain_operations(self, *args, **kwargs):
-        """已废弃：请使用 get_domains。"""
-        raise NotImplementedError("get_domain_operations 已废弃：请使用 get_domains。")
