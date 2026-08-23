@@ -433,6 +433,7 @@ class IsoHandler(BaseHTTPRequestHandler):
         path = _write_upload(filename, content)
         _SESSION.iso.load_structure(path)
         _SESSION.iso.set_distortion_scope(_SESSION.distortion_scope)
+        _SESSION.iso.set_distortion_types(_SESSION.distortion_types)
         _SESSION.method1, _SESSION.method2, _SESSION.method3 = [], None, []
         return {"state": _state_summary()}
 
@@ -449,6 +450,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             }
             # 同步到底层 IsoDistort（模式计算按作用域过滤）
             _SESSION.iso.set_distortion_scope(_SESSION.distortion_scope)
+        _SESSION.iso.set_distortion_types(_SESSION.distortion_types)
         return {"state": _state_summary()}
 
     def _api_method1(self, data: dict) -> dict:
@@ -521,6 +523,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             iso.subgroups = [item.subgroup for item in _SESSION.method3]
         # source 缺省/"subgroups"：沿用 _api_subgroups（k 点枚举）设置的列表
         iso.set_distortion_scope(_SESSION.distortion_scope)
+        iso.set_distortion_types(_SESSION.distortion_types)
         result = iso.search_method_2(
             subgroup_idx=idx,
             distortion_type=data.get("distortion_type", _SESSION.distortion_types),

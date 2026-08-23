@@ -209,6 +209,15 @@ MESSAGES: dict[str, dict[str, str]] = {
                                "（该 k 点在官网可正常生成子群）",
         "m2.subsFound": "枚举完成：共 {0} 个子群。点击一行以查看其模式基矢"
                         "（对应官网 order parameter direction 页）。",
+        "m2.filter": "筛选：",
+        "m2.clearFilter": "清除筛选",
+        "m2.showFiltered": "只显示筛选后的行",
+        "m2.downloadTxt": "下载筛选结果 (txt)",
+        "m2.downloadCsv": "下载筛选结果 (csv)",
+        "m2.filteredCount": "筛选后 {0} / 共 {1} 个",
+        "m2.paramKNote": "该子群属于参数 k 点（非公度）：iso 二进制只能枚举其子群，"
+                         "无法计算原子位移模式（官网用 (3+d) 维超空间机制）。"
+                         "下方子群枚举结果仍有效，可用上方筛选/下载。",
         "lGenDb": "缺失时在线生成子群数据库",
         "m2.genDbWarn": "注意：在线生成子群数据库可能耗时数分钟到数小时"
                         "（对应官网 Generate isotropy subgroups）；生成后缓存到暂存目录，"
@@ -486,6 +495,16 @@ MESSAGES: dict[str, dict[str, str]] = {
                                "website (this k point generates subgroups there)",
         "m2.subsFound": ("Enumerated {0} subgroup(s). Click a row to view its mode basis "
                          "(official order parameter direction page)."),
+        "m2.filter": "Filter:",
+        "m2.clearFilter": "Clear",
+        "m2.showFiltered": "Show filtered rows only",
+        "m2.downloadTxt": "Download filtered (txt)",
+        "m2.downloadCsv": "Download filtered (csv)",
+        "m2.filteredCount": "{0} / {1} after filtering",
+        "m2.paramKNote": ("This subgroup belongs to a parametric (incommensurate) k point: the local iso "
+                          "binary can only enumerate its subgroups, not compute displacement modes "
+                          "(the website uses a (3+d)-dimensional superspace mechanism). The subgroup "
+                          "enumeration below is still valid — use the filter/download above."),
         "lGenDb": "Generate isotropy subgroups database if missing",
         "m2.genDbWarn": ("Note: generating the subgroup database may take minutes to hours "
                          "(official 'Generate isotropy subgroups'); once generated it is cached "

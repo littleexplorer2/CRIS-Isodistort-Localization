@@ -197,7 +197,7 @@ def _validate_parent(name: str, path: Path, expected_sg: int | None) -> dict:
 
 
 def _official_ld1_comparison() -> dict:
-    """官网参考路径：EuAl4 -> LD1 参数 k 点（iso a=1/12，官网 g=1/6）-> P4mm #99。
+    """官网参考路径：EuAl4 -> LD1 参数 k 点（官网 g=1/6）-> P4mm #99。
 
     官网参考 CIF（LD1_C1_subgroup.cif）为 ISODISTORT 6.12.2 导出的
     **零振幅框架文件**（序参量全部为 0，仅含子群超胞与取位信息），
@@ -215,7 +215,7 @@ def _official_ld1_comparison() -> dict:
     })
     iso.load_structure(DATA_DIR / "EuAl4 Parent.cif")
     try:
-        subs = iso.list_subgroups_at("LD", "LD1", k_parameters=["1/12"])
+        subs = iso.list_subgroups_at("LD", "LD1", k_parameters=["1/6"])
     except Exception as exc:  # noqa: BLE001
         rec.update({"error": f"LD 子群枚举: {type(exc).__name__}: {exc}"})
         return rec
@@ -232,7 +232,7 @@ def _official_ld1_comparison() -> dict:
     }
     # 与官网头部对比（LD1 + C1 OPD -> P4mm，s=12，i=24，c 轴 6 倍超胞）
     official_header = {
-        "k": "LD (0,0,g), g=1/6 (iso 参数 a=1/12)",
+        "k": "LD (0,0,g), g=1/6",
         "ir": "LD1",
         "opd": "C1 (a,b)",
         "target": "99 P4mm",

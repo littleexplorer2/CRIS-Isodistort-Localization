@@ -104,9 +104,16 @@ def main() -> int:
         })
         subs = d.get("subgroups", []) or []
         ir_labels = sorted({s["irrep_label"] for s in subs})
+        ld5_opds = sorted({s["opd_symbol"] for s in subs if s["irrep_label"] == "LD5"})
         checks.append(("subgroups_generate", d.get("ok") is True and len(subs) > 0,
                        f"ok={d.get('ok')} n={len(subs)} irreps={ir_labels} "
-                       f"err={d.get('error')}"))
+                       f"LD5_opds={ld5_opds} err={d.get('error')}"))
+        checks.append(("subgroups_official_ir_set",
+                       ir_labels == ["LD1", "LD2", "LD5"],
+                       f"irreps={ir_labels} (expect LD1,LD2,LD5)"))
+        checks.append(("subgroups_ld5_opd_count",
+                       len(ld5_opds) == 16,
+                       f"LD5 n_opds={len(ld5_opds)} (expect 16)"))
         if not subs:
             raise SystemExit(_report(checks))
 

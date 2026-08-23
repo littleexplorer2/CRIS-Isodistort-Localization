@@ -254,6 +254,8 @@ let amplitudes = {};
 let domains = [];
 let nsupValue = 1;
 let genDbValue = false;  // 缺失时在线生成子群数据库（对应官网 Generate isotropy subgroups）
+let subFilters = {};     // 子群表列筛选（sg/k/irrep/opd/s/i 文本包含匹配）
+let showFilteredOnly = false;  // 表格是否只显示筛选后的行
 
 /* ================= 通用 ================= */
 async function api(path, body) {
@@ -666,13 +668,116 @@ async function enumSubgroups() {
     return;
   }
   subgroups = merged;
-  out.innerHTML = `<div class="info">${t("m2.subsFound", merged.length)}</div>`
-    + clickableTable([t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", "s", "i"], subgroups.map(sg => ({
-      idxKey: sg.index,
-      cells: [sg.index, `${sg.space_group_number} ${esc(sg.space_group_symbol)}`, esc(sg.k_point_label), esc(sg.irrep_label), esc(sg.opd_symbol), sg.size, sg.subgroup_index],
-    })));
+  subFilters = {};
+  showFilteredOnly = false;
+  renderSubgroupTable();
   bindRowClick("subOut", "subgroups");
   await refreshStatus();
+}
+/* 子群表筛选：Irrep / OPD / s / i 等列文本包含匹配（大小写不敏感） + 筛选结果下载 */
+function renderSubgroupTable() {
+  const out = document.getElementById("subOut");
+  if (!subgroups || !subgroups.length) { out.innerHTML = ""; return; }
+  const headers = [t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", "s", "i"];
+  const rows = subgroups.map(sg => [
+    String(sg.index), `${sg.space_group_number} ${sg.space_group_symbol}`,
+    sg.k_point_label, sg.irrep_label, sg.opd_symbol, String(sg.size), String(sg.subgroup_index),
+  ]);
+  const filtered = rows.filter(matchesSubgroupFilters);
+  const active = Object.values(subFilters).some(v => String(v || "").trim());
+  let html = `<div class="info">${t("m2.subsFound", subgroups.length)}</div>`;
+  // 筛选行：SG/k/Irrep/OPD/s/i 各列一个文本输入框（序号列不筛）
+  html += `<div class="filter-row" style="margin:4px 0;">${t("m2.filter")} `
+    + ["sg", "k", "irrep", "opd", "s", "i"].map(col =>
+      `<input class="span1" size="4" placeholder="${esc(col === "sg" ? "SG" : t("h" + col.charAt(0).toUpperCase() + col.slice(1)) || col)}" `
+      + `data-filtercol="${col}" value="${esc(subFilters[col] || "")}" oninput="onSubFilter()">`).join(" ")
+    + ` <button class="btn" onclick="clearSubFilters()">${esc(t("m2.clearFilter"))}</button></div>`;
+  html += `<div class="muted-hint" style="margin:2px 0;">`
+    + `<label style="font-weight:normal;"><input type="checkbox" id="showFilteredOnly" ${showFilteredOnly ? "checked" : ""} onchange="onShowFilteredOnly()"> ${esc(t("m2.showFiltered"))}</label>`
+    + ` &nbsp; <a href="#" onclick="downloadFilteredSubgroups(false);return false;">${esc(t("m2.downloadTxt"))}</a>`
+    + ` &nbsp; <a href="#" onclick="downloadFilteredSubgroups(true);return false;">${esc(t("m2.downloadCsv"))}</a>`
+    + ` &nbsp; <span id="subFilterCount">${active ? esc(t("m2.filteredCount", filtered.length, subgroups.length)) : ""}</span>`
+    + `</div>`;
+  const displayRows = showFilteredOnly ? filtered : rows;
+  // 用可点击表格渲染（idxKey = 子群 index，点击后按来源回查计算模式）
+  html += `<div id="subTableWrap">` + clickableTable(headers, displayRows.map(r => ({
+    idxKey: Number(r[0]), cells: [Number(r[0]), esc(r[1]), esc(r[2]), esc(r[3]), esc(r[4]), r[5], r[6]],
+  }))) + `</div>`;
+  out.innerHTML = html;
+  bindRowClick("subOut", "subgroups");
+}
+/* 只更新表格与计数（筛选输入时避免重建输入框丢失焦点） */
+function updateSubgroupTableBody() {
+  const rows = subgroups.map(sg => [
+    String(sg.index), `${sg.space_group_number} ${sg.space_group_symbol}`,
+    sg.k_point_label, sg.irrep_label, sg.opd_symbol, String(sg.size), String(sg.subgroup_index),
+  ]);
+  const filtered = rows.filter(matchesSubgroupFilters);
+  const active = Object.values(subFilters).some(v => String(v || "").trim());
+  const displayRows = showFilteredOnly ? filtered : rows;
+  const headers = [t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", "s", "i"];
+  const wrap = document.getElementById("subTableWrap");
+  if (wrap) {
+    wrap.innerHTML = clickableTable(headers, displayRows.map(r => ({
+      idxKey: Number(r[0]), cells: [Number(r[0]), esc(r[1]), esc(r[2]), esc(r[3]), esc(r[4]), r[5], r[6]],
+    })));
+    bindRowClick("subOut", "subgroups");
+  }
+  const cnt = document.getElementById("subFilterCount");
+  if (cnt) {
+    cnt.textContent = active ? t("m2.filteredCount", filtered.length, subgroups.length) : "";
+  }
+  const cb = document.getElementById("showFilteredOnly");
+  if (cb) cb.checked = showFilteredOnly;
+}
+function matchesSubgroupFilters(r) {
+  // r = [index, "SG号 符号", k, irrep, opd, s, i]
+  const vals = { idx: r[0], sg: r[1], k: r[2], irrep: r[3], opd: r[4], s: r[5], i: r[6] };
+  for (const col of ["idx", "sg", "k", "irrep", "opd", "s", "i"]) {
+    const f = String(subFilters[col] || "").trim().toLowerCase();
+    if (!f) continue;
+    if (!String(vals[col] || "").toLowerCase().includes(f)) return false;
+  }
+  return true;
+}
+function onSubFilter() {
+  // 读取当前筛选输入到 subFilters，再局部更新“计数 + 表格 + 复选框”，
+  // 不重渲整棵筛选区——否则 oninput 每次按键都会重建输入框并丢失焦点。
+  document.querySelectorAll("#subOut input[data-filtercol]").forEach(el => {
+    subFilters[el.dataset.filtercol] = el.value;
+  });
+  updateSubgroupTableBody();
+}
+function clearSubFilters() { subFilters = {}; renderSubgroupTable(); bindRowClick("subOut", "subgroups"); }
+function onShowFilteredOnly() {
+  showFilteredOnly = document.getElementById("showFilteredOnly").checked;
+  renderSubgroupTable();
+  bindRowClick("subOut", "subgroups");
+}
+function downloadFilteredSubgroups(csv) {
+  const headers = ["index", "space_group_number", "space_group_symbol", "k_point", "irrep", "OPD", "size", "subgroup_index"];
+  const rows = subgroups.filter(sg => matchesSubgroupFilters([
+    String(sg.index), `${sg.space_group_number} ${sg.space_group_symbol}`,
+    sg.k_point_label, sg.irrep_label, sg.opd_symbol, String(sg.size), String(sg.subgroup_index),
+  ]));
+  const data = rows.map(sg => [sg.index, sg.space_group_number, sg.space_group_symbol,
+    sg.k_point_label, sg.irrep_label, sg.opd_symbol, sg.size, sg.subgroup_index]);
+  const text = csv ? toCsv(headers, data)
+    : [headers.join("\t")].concat(data.map(r => r.join("\t"))).join("\n");
+  downloadText(text, `isodistort_subgroups_filtered.${csv ? "csv" : "txt"}`,
+               csv ? "text/csv" : "text/plain");
+}
+function toCsv(headers, rows) {
+  const q = v => { const s = String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  return "\ufeff" + [headers.map(q).join(",")].concat(rows.map(r => r.map(q).join(","))).join("\r\n");
+}
+function downloadText(text, filename, mime) {
+  const blob = new Blob([text], { type: `${mime};charset=utf-8` });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
 }
 function applyNsup() {
   const raw = document.getElementById("nsup").value.trim();
@@ -714,7 +819,23 @@ async function computeModes(idx, source) {
     nsup: nsupValue,
     source: source,
   }, "POST");
-  if (!d.ok) { showError(out, d.error); return; }
+  if (!d.ok) {
+    // 参数 k 点（非公度）子群：iso 无法计算位移模式属已知限制，
+    // 显示提示（非红色报错）并恢复子群列表，避免看起来像“计算后又弹出报错”。
+    const err = String(d.error || "");
+    const isParamK = (sg && sg.k_point_label && (sg.k_parameters || []).length)
+      || /参数.*k 点|parametric.*k point|k point of symmetry/.test(err);
+    if (isParamK) {
+      modes = [];
+      renderDistModes();
+      renderSubgroupTable();   // 恢复子群枚举表（保持可见，可继续筛选/下载）
+      out.innerHTML = `<div class="alert alert-warning">${esc(t("m2.paramKNote"))}</div>`;
+    } else {
+      showError(out, err);
+    }
+    await refreshStatus();
+    return;
+  }
   modes = d.modes || [];
   const rows = modes.map(m => {
     let cell = esc(m.irrep_label);

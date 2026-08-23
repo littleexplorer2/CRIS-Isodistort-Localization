@@ -32,8 +32,10 @@ from ..backend import (
     IsoWrapper,
     SubgroupInfo,
 )
-from ..data.kpoints_official import KPOINT_OFFICIAL
+from ..backend.smodes_wrapper import SmodesWrapper
+from ..data.kpoints_official import KPOINT_OFFICIAL, official_kparams_to_iso
 from ..distortion import (
+    DEFAULT_DISTORTION_TYPES,
     DISTORTION_TYPES,
     DistortionEngine,
     DistortionMapper,
@@ -105,6 +107,8 @@ class IsoDistort:
 
         # 畸变类型作用域（对齐官网 per-species 复选框）：type -> 物种列表（"*"=全部）
         self.distortion_scope: dict[str, list[str]] = {}
+        self.distortion_types: list[str] = DEFAULT_DISTORTION_TYPES.copy()
+        self._smodes = SmodesWrapper()
         self._special_subgroups_cache: list | None = None
         self._special_subgroups_lock = threading.Lock()
         self._conv_to_prim_cache: np.ndarray | None = None
@@ -195,6 +199,86 @@ class IsoDistort:
             elif isinstance(val, (list, tuple)):
                 species = [str(s) for s in val if str(s) != "*"]
                 self.distortion_scope[tp] = species if species else ["*"]
+
+    def set_distortion_types(self, distortion_types) -> None:
+        """设置当前考虑的畸变类型（对齐官网 Types 面板复选框）。"""
+        self.distortion_types = normalize_distortion_types(distortion_types)
+
+    def _iso_kpoint_raw(self, k_point_label: str):
+        """iso 原始 k 点信息（未应用官网显示覆盖）。"""
+        for kp in self._iso.list_k_points(self.symmetry_info["space_group_number"]):
+            if kp.label == k_point_label.strip():
+                return kp
+        return None
+
+    def _resolve_iso_kparams(self, k_point_label: str,
+                             k_parameters: list | None) -> list | None:
+        """官网 UI 参数 → iso KVALUE 参数；无参数或未收录时原样返回。"""
+        if not k_parameters:
+            return None
+        iso_kp = self._iso_kpoint_raw(k_point_label)
+        if iso_kp is None:
+            return list(k_parameters)
+        return official_kparams_to_iso(
+            self.symmetry_info["space_group_number"],
+            k_point_label,
+            k_parameters,
+            iso_kp,
+        )
+
+    def _is_parametric_kpoint(self, k_point_label: str) -> bool:
+        iso_kp = self._iso_kpoint_raw(k_point_label)
+        return bool(iso_kp and iso_kp.parameters)
+
+    def _filter_subgroups_for_search(self,
+                                     subgroups: list[SubgroupInfo],
+                                     k_point_label: str,
+                                     official_kparams: list | None) -> list[SubgroupInfo]:
+        """按 Distortion Types + 物种作用域过滤子群（对齐官网 Search 阶段）。"""
+        types = normalize_distortion_types(self.distortion_types)
+        mode_types = [tp for tp in types if tp in ("displacive", "rotational", "occupational")]
+        if not mode_types:
+            return subgroups
+
+        if self._is_parametric_kpoint(k_point_label):
+            species = self._union_scope_species(types)
+            active = self._smodes.active_irreps(
+                self.structure,
+                self.symmetry_info["space_group_number"],
+                self.symmetry_info["wyckoff_sites"],
+                k_point_label,
+                official_kparams,
+                species_filter=species if species else None,
+            )
+            if active:
+                return [sg for sg in subgroups if sg.irrep_label in active]
+            return subgroups
+
+        # 特殊 k 点：用 BUSH 探测各子群是否在作用域 Wyckoff 上有位移模式
+        if not any(tp in types for tp in ("displacive", "rotational")):
+            return subgroups
+        letters = self._letters_for_species(self._union_scope_species(types))
+        if not letters:
+            return []
+        parent_sg = self.symmetry_info["space_group_number"]
+        kept: list[SubgroupInfo] = []
+        for sg in subgroups:
+            try:
+                modes = self._iso.calc_distortion_modes(parent_sg, sg, letters)
+            except IsodistortError:
+                continue
+            if modes:
+                kept.append(sg)
+        return kept
+
+    def _tag_official_kparams(self, subgroups: list[SubgroupInfo],
+                              official_kparams: list | None) -> None:
+        """子群对象上保留官网参数（供界面显示），iso 内部值不暴露。"""
+        if not official_kparams:
+            return
+        tagged = list(official_kparams)
+        for sg in subgroups:
+            sg.k_parameters = tagged
 
     def _scope_species(self, type_name: str) -> set[str]:
         """某畸变类型作用域内的物种集合（未设置时默认全部物种）。"""
@@ -473,8 +557,9 @@ class IsoDistort:
         """
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")
+        iso_params = self._resolve_iso_kparams(k_point_label, k_parameters)
         return self._iso.list_irreps(
-            self.symmetry_info["space_group_number"], k_point_label, k_parameters
+            self.symmetry_info["space_group_number"], k_point_label, iso_params
         )
 
     def list_subgroups_at(self, k_point_label: str, irrep_label: str,
@@ -498,14 +583,19 @@ class IsoDistort:
         """
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")
+        iso_params = self._resolve_iso_kparams(k_point_label, k_parameters)
         self.subgroups = self._iso.list_subgroups(
             self.symmetry_info["space_group_number"],
             k_point_label,
             irrep_label,
-            k_parameters=k_parameters,
+            k_parameters=iso_params,
             opd_symbol=opd_symbol,
             generate_if_missing=generate_if_missing,
         )
+        self.subgroups = self._filter_subgroups_for_search(
+            self.subgroups, k_point_label, k_parameters
+        )
+        self._tag_official_kparams(self.subgroups, k_parameters)
         return self.subgroups
 
     def list_subgroups_at_kpoint(self, k_point_label: str,
@@ -528,8 +618,9 @@ class IsoDistort:
         """
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")
+        iso_params = self._resolve_iso_kparams(k_point_label, k_parameters)
         irreps = self._iso.list_irreps(
-            self.symmetry_info["space_group_number"], k_point_label, k_parameters
+            self.symmetry_info["space_group_number"], k_point_label, iso_params
         )
         merged: list = []
         first_err: IsodistortError | None = None
@@ -538,7 +629,7 @@ class IsoDistort:
                 subs = self._iso.list_subgroups(
                     self.symmetry_info["space_group_number"],
                     k_point_label, ir.label,
-                    k_parameters=k_parameters,
+                    k_parameters=iso_params,
                     opd_symbol=None,
                     start_index=len(merged),  # 各 IR 的序号连续编号，避免行点击串位
                     generate_if_missing=generate_if_missing,
@@ -549,6 +640,11 @@ class IsoDistort:
                     first_err = exc
                 continue
             merged.extend(subs)
+        merged = self._filter_subgroups_for_search(merged, k_point_label, k_parameters)
+        # 过滤后连续重编号
+        for j, sg in enumerate(merged):
+            sg.index = j
+        self._tag_official_kparams(merged, k_parameters)
         self.subgroups = merged
         if not merged and generate_if_missing and first_err is not None:
             # 已尝试本地生成但仍为空：抛出首个生成错误，便于界面/终端定位原因

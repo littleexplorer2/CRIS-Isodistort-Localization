@@ -10,6 +10,7 @@ from .iso_wrapper import (
     KPointInfo,
     SubgroupInfo,
 )
+from .smodes_wrapper import SmodesWrapper
 
 __all__ = [
     "BaseWrapper",
@@ -21,5 +22,6 @@ __all__ = [
     "IrrepInfo",
     "IsoWrapper",
     "KPointInfo",
+    "SmodesWrapper",
     "SubgroupInfo",
 ]

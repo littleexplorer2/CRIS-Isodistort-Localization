@@ -14,6 +14,7 @@ isobyu:
   # 各可执行文件名
   iso_bin: "iso"
   findsym_bin: "findsym"
+  smodes_bin: "smodes"   # 参数 k 点 IR 活性探测（Search 阶段过滤，只读）
 
 # 计算默认参数
 defaults:
