@@ -97,8 +97,12 @@ class Config:
 
     @property
     def language(self) -> str:
-        """默认界面语言（"zh" 中文 / "en" English）。"""
-        return self._cfg["runtime"].get("language", "zh")
+        """默认界面语言（"zh" 中文 / "en" English）。
+
+        与 settings.yaml 的 runtime.language（默认 "en"）保持一致；
+        仅当配置文件缺少该键时才使用此兜底值。
+        """
+        return self._cfg["runtime"].get("language", "en")
 
     @property
     def web_port(self) -> int:

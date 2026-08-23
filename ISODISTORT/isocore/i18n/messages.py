@@ -199,8 +199,14 @@ MESSAGES: dict[str, dict[str, str]] = {
         "l.nsup": "叠加不可约表示 (IR) 数：",
         "m2.nsup_note": "重要：必须点击「更改」以应用叠加 IR 数的修改。",
         "m2.enumKp": "正在枚举 k 点 {0} 的全部不可约表示子群（第 {1}/{2} 组 k 点）…",
-        "m2.noSubsAtKp": "所选 k 点下没有可枚举的子群。参数 k 点（如 LD/DT）需先提供参数 a/b/g，"
-                        "或其子群数据库需在官网在线生成（本地默认不自动生成）。",
+        "m2.noSubsAtKp": "本地未能枚举/生成该 k 点下的子群（常见于带参数 k 点如 LD/DT）。",
+        "m2.chooseNext": "请选择下一步：",
+        "m2.localCompute": "① 调用本地资源计算",
+        "m2.localComputeDesc": "用本机算力生成该 k 点的子群数据库（Generate isotropy subgroups，"
+                               "可能耗时数分钟到数小时，生成后缓存）",
+        "m2.gotoOfficial": "② 去 ISODISTORT 官网重试",
+        "m2.gotoOfficialDesc": "用相同母相 CIF 与 (k 点, 参数) 在官网执行 Method 2"
+                               "（该 k 点在官网可正常生成子群）",
         "m2.subsFound": "枚举完成：共 {0} 个子群。点击一行以查看其模式基矢"
                         "（对应官网 order parameter direction 页）。",
         "lGenDb": "缺失时在线生成子群数据库",
@@ -209,12 +215,6 @@ MESSAGES: dict[str, dict[str, str]] = {
                         "之后可秒回。",
         "m2.genDb": "（在线生成子群数据库）",
         "m2.genDbRetry": "用本地生成子群数据库重试",
-        "m2.fetchOfficial": "从 ISODISTORT 官网获取",
-        "m2.fetchOfficialWait": "正在从 ISODISTORT 官网获取子群（需联网，可能较慢）…",
-        "m2.official": "来源：官网",
-        "m2.officialNoModes": "该子群列表来自官网。本地 iso 无法对参数 k 点计算位移模式"
-                              "（官网使用 (3+d) 维超空间机制）。如需计算模式，"
-                              "请改用特殊 k 点（GM/X/M/N/P）并用 Method 2 枚举。",
         "m3.direct": "指定母格子的实空间子格，带心：",
         "m3.reciprocal": "指定原胞倒易空间超格",
         "m3.centDefault": "默认",
@@ -475,10 +475,15 @@ MESSAGES: dict[str, dict[str, str]] = {
                          "the number of superposed IRs."),
         "m2.enumKp": ("Enumerating subgroups over all irreps of k point {0} "
                       "(k group {1}/{2})..."),
-        "m2.noSubsAtKp": ("No subgroups could be enumerated for the selected k point. "
-                          "Parametric k points (e.g. LD/DT) need parameter values a/b/g, "
-                          "or their subgroup database must be generated online "
-                          "(not auto-generated locally by default)."),
+        "m2.noSubsAtKp": ("The local engine could not enumerate/generate subgroups for this k point "
+                          "(common for parametric k points such as LD/DT)."),
+        "m2.chooseNext": "Choose next step:",
+        "m2.localCompute": "① Compute with local resources",
+        "m2.localComputeDesc": "Use your machine to generate this k point's subgroup database "
+                               "(Generate isotropy subgroups; may take minutes to hours, then cached)",
+        "m2.gotoOfficial": "② Retry on the ISODISTORT website",
+        "m2.gotoOfficialDesc": "Run Method 2 with the same parent CIF and (k point, parameters) on the "
+                               "website (this k point generates subgroups there)",
         "m2.subsFound": ("Enumerated {0} subgroup(s). Click a row to view its mode basis "
                          "(official order parameter direction page)."),
         "lGenDb": "Generate isotropy subgroups database if missing",
@@ -487,13 +492,6 @@ MESSAGES: dict[str, dict[str, str]] = {
                          "to the temp directory and returns instantly afterward."),
         "m2.genDb": "(generating subgroup database)",
         "m2.genDbRetry": "Retry with local database generation",
-        "m2.fetchOfficial": "Fetch from the ISODISTORT website",
-        "m2.fetchOfficialWait": "Fetching subgroups from the ISODISTORT website (requires network, may be slow)...",
-        "m2.official": "source: website",
-        "m2.officialNoModes": ("This subgroup list came from the website. The local iso binary "
-                               "cannot compute displacement modes for parametric k points (the "
-                               "website uses a (3+d)-dim superspace mechanism). To compute modes, "
-                               "use a special k point (GM/X/M/N/P) and enumerate via Method 2."),
         "m3.direct": "Specify a real-space sublattice of the parent lattice with",
         "m3.reciprocal": "Specify a primitive reciprocal-space superlattice",
         "m3.centDefault": "Default",

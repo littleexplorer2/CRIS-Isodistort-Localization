@@ -19,7 +19,7 @@ from pathlib import Path
 
 from isocore.api import IsoDistort
 from isocore.i18n import get_language, set_language, t
-from isocore.utils import IsodistortError
+from isocore.utils import IsodistortError, get_config
 
 DISTORTION_TYPE_MAP = {
     1: "displacive",
@@ -82,13 +82,28 @@ def _prompt_yes_no(text: str, default_yes: bool = False) -> bool:
 
 
 def _find_cif_candidates(root: Path, limit: int = 30) -> list[Path]:
-    """在指定目录下查找 CIF 文件，返回前 limit 个结果，按路径排序。"""
+    """在指定目录下查找 CIF 文件，返回前 limit 个结果，按路径排序。
+
+    - 只扫描 ``root``（终端调用时为项目根目录）及其子目录下的 ``.cif``。
+    - 自动排除配置的输出目录与临时目录（``output_dir`` / ``temp_dir``）中的
+      CIF——这些多为程序生成的成品/上传暂存文件，不应出现在“输入母相 CIF”
+      候选列表里。如需加载某个输出文件，请用菜单的“手动输入路径”选项。
+    """
+    cfg = get_config()
+    exclude = {cfg.output_dir.resolve(), cfg.temp_dir.resolve()}
     found: list[Path] = []
     for path in root.rglob("*.cif"):
-        if path.is_file():
-            found.append(path)
-            if len(found) >= limit:
-                break
+        if not path.is_file():
+            continue
+        try:
+            if any(path.is_relative_to(ex) for ex in exclude):
+                continue
+        except ValueError:
+            # 相对/绝对路径不一致时无法判定包含，按“不排除”处理
+            pass
+        found.append(path)
+        if len(found) >= limit:
+            break
     return sorted(found)
 
 
@@ -151,25 +166,36 @@ def _prompt_distortion_types(default: Sequence[str]) -> list[str]:
 
 
 def _prompt_supercell(default_cell: Sequence[int]) -> list[int]:
-    raw = _prompt(t("ui.prompt.supercell"), ",".join(str(x) for x in default_cell))
-    parts = [x.strip() for x in raw.split(",") if x.strip()]
-    if len(parts) != 3:
-        raise ValueError("超胞必须输入 3 个整数")
-    values = [int(x) for x in parts]
-    if any(v < 1 for v in values):
-        raise ValueError("超胞参数必须 >= 1")
-    return values
+    default_raw = ",".join(str(x) for x in default_cell)
+    while True:
+        raw = _prompt(t("ui.prompt.supercell"), default_raw)
+        parts = [x.strip() for x in raw.split(",") if x.strip()]
+        if len(parts) != 3:
+            print("超胞必须输入 3 个整数")
+            continue
+        try:
+            values = [int(x) for x in parts]
+        except ValueError:
+            print("超胞参数必须为整数")
+            continue
+        if any(v < 1 for v in values):
+            print("超胞参数必须 >= 1")
+            continue
+        return values
 
 
 def _prompt_basis_matrix() -> list[list[str]]:
     print("请输入 3x3 基矢矩阵（每行 3 个值，可用分数如 1/2，用空格分隔）")
     rows: list[list[str]] = []
     for i in range(3):
-        row = _prompt(f"第 {i + 1} 行", "1 0 0" if i == 0 else "0 1 0" if i == 1 else "0 0 1")
-        parts = [x for x in row.split() if x]
-        if len(parts) != 3:
-            raise ValueError("每一行必须有 3 个值")
-        rows.append(parts)
+        while True:
+            row = _prompt(f"第 {i + 1} 行", "1 0 0" if i == 0 else "0 1 0" if i == 1 else "0 0 1")
+            parts = [x for x in row.split() if x]
+            if len(parts) != 3:
+                print("每一行必须有 3 个值")
+                continue
+            rows.append(parts)
+            break
     return rows
 
 
@@ -387,9 +413,10 @@ class IsoDistortConsoleApp:
             print(t("m2.no_candidates"))
             return
         else:
+            # 提示直接使用上方 Method 1 列表显示的 idx 值（过滤后 index 可能跳号，
+            # 不应再用连续的 0..len-1 范围误导）。与下方 sg.index 匹配逻辑一致。
             subgroup_idx = _prompt_int(
-                f"subgroup_idx（Method 1 候选序号，"
-                f"范围 0-{len(self.last_method1) - 1}）"
+                "subgroup_idx（Method 1 候选序号，直接输入上方列表显示的 idx 值）"
             )
         if subgroup_idx is None:
             return
@@ -646,6 +673,11 @@ class IsoDistortConsoleApp:
                 return
         else:
             irrep = raw.strip()
+        if irrep not in labels:
+            # 输入了不存在的模式标签：直接交给底层会抛 ValueError 导致程序退出，
+            # 这里先校验并友好提示后返回。
+            print(t("dist.mode_range"))
+            return
 
         amplitude = _prompt_float(
             "amplitude",

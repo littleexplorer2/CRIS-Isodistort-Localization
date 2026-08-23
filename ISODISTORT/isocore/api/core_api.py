@@ -18,6 +18,7 @@
     # 5. 导出
     iso.export("output", formats=["cif", "poscar"])
 """
+import re
 import threading
 from fractions import Fraction
 from pathlib import Path
@@ -28,7 +29,6 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from ..backend import (
     DistortionMode,
-    FindsymWrapper,
     IsoWrapper,
     SubgroupInfo,
 )
@@ -81,7 +81,6 @@ class IsoDistort:
             set_language(self.cfg.language)
 
         # 底层封装
-        self._findsym = FindsymWrapper()
         self._iso = IsoWrapper()
 
         # 业务层
@@ -164,12 +163,6 @@ class IsoDistort:
         self.distorted_structure = None
         self._special_subgroups_cache = None
         self._conv_to_prim_cache = None
-
-    def _wyckoff_letters(self) -> list[str]:
-        """当前结构各 Wyckoff 位置字母（用于 iso 模式计算）。"""
-        if not self.symmetry_info:
-            return []
-        return [s["wyckoff_letter"] for s in self.symmetry_info["wyckoff_sites"]]
 
     # ================================================================
     # 畸变类型作用域（对齐官网 Types 面板的 per-species 复选框）
@@ -431,6 +424,14 @@ class IsoDistort:
                     kovalev, coords, _params = entry
                     kp.kovalev = kovalev
                     kp.coordinates = list(coords)
+                    # 同步更新 parameters 与 is_special：前端 collectParams 依据
+                    # parameters 读取对应字母的输入框（a/b/g）。若沿用 iso 原参数
+                    # 字母（可能与官网坐标不一致，如 iso 用 'a' 官网用 'g'），会
+                    # 读错输入框、把错误值发给 iso，导致 "parameters not selected"。
+                    kp.parameters = sorted(
+                        {c for c in coords if re.search(r"[a-zA-Z]", c)}
+                    )
+                    kp.is_special = not kp.parameters
         return kpoints
 
     def _resolve_k_vector(self, k_point_label: str) -> list[float]:
@@ -531,6 +532,7 @@ class IsoDistort:
             self.symmetry_info["space_group_number"], k_point_label, k_parameters
         )
         merged: list = []
+        first_err: IsodistortError | None = None
         for ir in irreps:
             try:
                 subs = self._iso.list_subgroups(
@@ -541,10 +543,16 @@ class IsoDistort:
                     start_index=len(merged),  # 各 IR 的序号连续编号，避免行点击串位
                     generate_if_missing=generate_if_missing,
                 )
-            except IsodistortError:
-                continue  # 无子群的 IR（数据库缺失等）跳过
+            except IsodistortError as exc:
+                # 无子群的 IR（数据库缺失等）跳过；记录首个错误用于诊断
+                if first_err is None:
+                    first_err = exc
+                continue
             merged.extend(subs)
         self.subgroups = merged
+        if not merged and generate_if_missing and first_err is not None:
+            # 已尝试本地生成但仍为空：抛出首个生成错误，便于界面/终端定位原因
+            raise first_err
         return merged
 
     def list_subgroups(self, distortion_type: str | list[str] | None = None
@@ -607,6 +615,10 @@ class IsoDistort:
             target,
             types,
         )
+        # 解析 k 点坐标（Bloch 相位调制用；仅特殊 k 点可直接求值）。
+        # 与 search_method_2 保持一致，避免同一子群经不同入口产出的
+        # 畸变结构因 k_vector 缺失而把非 Γ k 点当 Γ 点处理。
+        self.phase_path.k_vector = self._resolve_k_vector(target.k_point_label)
         self.phase_path.validate()
 
         print(t("path.selected", desc=self.phase_path.describe()))
@@ -917,8 +929,8 @@ class IsoDistort:
         按 self.distortion_scope 限定物种作用域（displacive/occupational 等），
         occupational 模式由本地生成器产生（存入 self.mode_occupancies）。
         distortion_type 缺省时使用项目默认（DEFAULT_DISTORTION_TYPES，
-        对齐官网默认仅 Strain；本地 strain 不产生模式，需显式传
-        ["displacive"] 等以获得位移模式）。
+        对齐官网默认勾选：strain + displacive；本地 strain 不产生模式，
+        displacive 产生位移模式）。
         number_of_independent_modulations 仅支持 0（公度调制）；非 0 会报错。
         """
         if self.structure is None:
@@ -1013,6 +1025,8 @@ class IsoDistort:
         Method 4: Mode decomposition of a distorted structure.
 
         要求已经通过 Method 2 或 select_path 计算出可用模式。
+        畸变结构可以是母相的超胞（官网 Method 4 的常规情形）：原子数
+        不一致时自动把母相与模式位移提升到畸变结构的超胞坐标系再分解。
         """
         if self.structure is None:
             raise RuntimeError("请先加载母相结构 (load_structure)")
@@ -1020,7 +1034,17 @@ class IsoDistort:
             raise RuntimeError("请先通过 select_path 或 search_method_2 计算模式")
 
         distorted_structure = read_cif(distorted_cif_path)
+        parent = self.structure
         mode_disp = {k: v["displacements"] for k, v in self.mode_displacements.items()}
+        if len(distorted_structure) != len(parent):
+            # 超胞畸变：母相与模式位移提升到超胞坐标系（原实现直接报错，
+            # 导致任何超胞畸变都无法分解——与官网行为不一致）。
+            basis = self._resolve_distorted_supercell_basis(distorted_structure)
+            k_vec = (self.phase_path.k_vector
+                     if self.phase_path is not None else None)
+            parent, mode_disp = self._dist_engine.lift_mode_displacements(
+                parent, basis, mode_disp, k_vector=k_vec
+            )
         query = Method4Query(
             atom_matching_method=atom_matching_method,
             robust_distance_threshold=robust_distance_threshold,
@@ -1028,7 +1052,7 @@ class IsoDistort:
         )
 
         result = self._search.method_4_decompose(
-            self.structure,
+            parent,
             distorted_structure,
             mode_disp,
             query,
@@ -1036,3 +1060,36 @@ class IsoDistort:
 
         print(t("method4.result", n=len(result.amplitudes), rms=result.rms_residual))
         return result
+
+    def _resolve_distorted_supercell_basis(self, distorted: Structure
+                                           ) -> np.ndarray:
+        """确定母相 -> 畸变结构的超胞基矢 B（Ld = B @ Lp，原子数比 = |det B|）。
+
+        优先采用当前相变路径的子群基矢（本地生成畸变结构的标准情形）；
+        否则从两个晶格矩阵反推（B = Ld @ Lp⁻¹，应为近整数矩阵）。
+        两者都无法给出一致的整数超胞关系时，报出明确错误。
+        """
+        n_parent = len(self.structure)
+        n_dist = len(distorted)
+        candidates: list[np.ndarray] = []
+        if self.phase_path is not None and self.phase_path.basis_vectors:
+            candidates.append(
+                np.asarray(self.phase_path.supercell_basis(), dtype=float))
+        lp = np.asarray(self.structure.lattice.matrix, dtype=float)
+        ld = np.asarray(distorted.lattice.matrix, dtype=float)
+        try:
+            candidates.append(ld @ np.linalg.inv(lp))
+        except np.linalg.LinAlgError:
+            pass
+        for b in candidates:
+            if b.shape != (3, 3):
+                continue
+            if not np.allclose(b, np.round(b), atol=1e-4):
+                continue
+            det = abs(round(float(np.linalg.det(b))))
+            if det >= 1 and n_parent * det == n_dist:
+                return np.round(b).astype(int)
+        raise ValueError(
+            "畸变结构与母相原子数不一致，且无法确定超胞关系"
+            f"（母相 {n_parent} 原子，畸变 {n_dist} 原子）；"
+            "请确认畸变结构是当前母相/所选子群的超胞。")

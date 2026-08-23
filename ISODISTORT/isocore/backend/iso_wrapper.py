@@ -254,8 +254,10 @@ class IsoWrapper(BaseWrapper):
         （指定 k 点/IR）中“子群+序参量方向”列表。
 
         参数 k 点（如 LD、DT 等带 a/b/g 的点）说明：
-        - iso 要求 **先选择 IR、再设置 KVALUE**（顺序颠倒会报
-          “parameters not selected for k vector”）；
+        - DISPLAY ISOTROPY 流程要求 **先选择 IR 再设置 KVALUE**（实测 iso 9.6.1：
+          若在 IR 之前设置 KVALUE，DISPLAY ISOTROPY 会报
+          “parameters not selected for k vector”；注意与 list_irreps 的
+          DISPLAY IRREP 流程顺序相反）；
         - 参数 k 点的子群数据库默认不存在，iso 会询问是否在线生成
           （对应官网 “Generate isotropy subgroups”，可能耗时数分钟到数小时）。
           当 generate_if_missing=True 时自动应答并等待生成完成（生成的数据库
@@ -284,7 +286,11 @@ class IsoWrapper(BaseWrapper):
             f"VALUE IRREP {irrep_label}",
         ]
         if k_parameters:
-            # 注意顺序：iso 要求先选 IR 再设置 KVALUE
+            # 实测 iso 9.6.1（DISPLAY ISOTROPY 流程）：KVALUE 必须在选择 IR
+            # **之后**设置；若在 IR 之前设置，DISPLAY ISOTROPY 会报
+            # “parameters not selected for k vector”。
+            # （list_irreps 的 DISPLAY IRREP 流程则相反，需在 IR 选择前设置，
+            # 两者不要混用。）
             commands.append(self._kvalue_command(k_parameters))
         if opd_symbol:
             commands.append(f"VALUE DIRECTION {opd_symbol}")
@@ -297,7 +303,13 @@ class IsoWrapper(BaseWrapper):
         extra_input = ""
         timeout = None
         if generate_if_missing:
-            # 应答 “Enter RETURN to continue” 提示，进入在线生成流程
+            # iso 的提示为 “Should the data base be added? Enter RETURN to
+            # continue. Enter any character to stop”（实测 iso 9.6.1）：
+            # **空行（回车）= 触发生成；任何非空字符 = 停止生成**。
+            # 生成完成后 iso 会**自动显示一次子群表**（“Adding data base...”
+            # 之后紧跟表格），若再发 DISPLAY ISOTROPY 会导致同一张表
+            # 重复输出、解析出重复子群，因此此处只发空行应答。
+            # 输入流：... DISPLAY ISOTROPY -> <空行> -> QUIT
             extra_input = "\n"
             timeout = float(get_config().generation_timeout)
         else:
@@ -317,6 +329,15 @@ class IsoWrapper(BaseWrapper):
         if not rows:
             # 无子群行：区分“需要生成”与“参数错误”
             if detect_missing_subgroup_db(stdout):
+                summary = "\n".join(stdout.splitlines()[-25:]) if stdout else "(无输出)"
+                if generate_if_missing:
+                    # 已应答 y 触发生成，但仍无子群表：给出 iso 输出末尾以定位原因
+                    raise WrapperRunError(
+                        "iso", 1,
+                        f"k 点 {k_point} 的子群数据库缺失，按 generate_if_missing=True 应答 y "
+                        f"生成后仍无子群表（iso 可能无法本地生成，或生成耗时超限）。iso 输出末尾：\n"
+                        f"{summary}",
+                    )
                 raise WrapperRunError(
                     "iso", 1,
                     f"k 点 {k_point} 的子群数据库在本地不存在，需要在线生成"
@@ -324,8 +345,12 @@ class IsoWrapper(BaseWrapper):
                     f"如确认需要，请以 generate_if_missing=True 重试。",
                 )
             if detect_blocked_generation(stdout):
+                summary = "\n".join(stdout.splitlines()[-30:]) if stdout else "(无输出)"
                 raise WrapperRunError(
-                    "iso", 1, f"k 点 {k_point} 的参数未正确指定，无法计算子群。"
+                    "iso", 1,
+                    f"k 点 {k_point} 的参数未正确指定（iso 报 “parameters not selected for k vector”）。"
+                    f"当前 KVALUE 命令为 {self._kvalue_command(k_parameters) if k_parameters else '(未设置)'}，"
+                    f"k_parameters={k_parameters}。iso 输出末尾：\n{summary}",
                 )
 
         subgroups: list[SubgroupInfo] = []
@@ -455,10 +480,12 @@ class IsoWrapper(BaseWrapper):
         commands = [
             f"VALUE PARENT {parent_sg}",
             f"VALUE KPOINT {subgroup.k_point_label}",
-            f"VALUE IRREP {subgroup.irrep_label}",
         ]
+        commands.append(f"VALUE IRREP {subgroup.irrep_label}")
         if subgroup.k_parameters:
-            # 带参数 k 点必须设置 KVALUE（顺序：先 IR 后 KVALUE）
+            # DISPLAY BUSH 流程：带参数 k 点须在选 IR 之后设置 KVALUE
+            # （与 list_subgroups 的 DISPLAY ISOTROPY 流程一致；当前参数 k 点
+            # 已在上方提前报错，此分支仅作防御性保留）
             commands.append(self._kvalue_command(subgroup.k_parameters))
         commands.append(f"VALUE DIRECTION {subgroup.opd_symbol}")
         for letter in wyckoff_letters:
@@ -525,12 +552,13 @@ class IsoWrapper(BaseWrapper):
         commands = [
             f"VALUE PARENT {parent_sg}",
             f"VALUE KPOINT {subgroup.k_point_label}",
-            f"VALUE IRREP {subgroup.irrep_label}",
         ]
         if k_parameters is None:
             k_parameters = subgroup.k_parameters
+        commands.append(f"VALUE IRREP {subgroup.irrep_label}")
         if k_parameters:
-            # 顺序：先 IR 后 KVALUE
+            # 顺序：先选 IR 再设 KVALUE（DISPLAY ISOTROPY 流程实测要求，
+            # 见 list_subgroups 注释）
             commands.append(self._kvalue_command(k_parameters))
         commands += [
             f"VALUE DIRECTION {subgroup.opd_symbol}",

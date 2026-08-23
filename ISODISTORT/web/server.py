@@ -27,7 +27,7 @@ import time
 import urllib.parse
 import webbrowser
 import zipfile
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from pathlib import Path
 
 import numpy as np
@@ -38,9 +38,8 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 from isocore.api import IsoDistort  # noqa: E402
-from isocore.backend.official_client import fetch_official_subgroups  # noqa: E402
 from isocore.distortion import DISTORTION_TYPES  # noqa: E402
-from isocore.i18n import MESSAGES, TERMS_EN2ZH, get_language, set_language  # noqa: E402
+from isocore.i18n import MESSAGES, TERMS_EN2ZH, set_language  # noqa: E402
 from isocore.utils import get_config  # noqa: E402
 from isocore.utils.schoenflies import hm_symbol, schoenflies_symbol  # noqa: E402
 
@@ -50,18 +49,20 @@ WEB_DIR = Path(__file__).resolve().parent
 class WebSession:
     """网页会话：持有唯一 IsoDistort 实例（单用户本地工具）。
 
-    IsoDistort 构造较慢（FindsymWrapper 启动 WSL 环境检测，约 3-4 秒），
-    采用懒初始化：首次访问 ``iso`` 属性时才创建，避免拖慢模块导入
-    （否则 main_web.py 启动会阻塞数秒）。
+    IsoDistort 构造较慢（底层 BaseWrapper 在 Windows 下会初始化 WSL 短路径
+    暂存目录与 ISODATA 符号链接，约 3-4 秒），采用懒初始化：首次访问
+    ``iso`` 属性时才创建，避免拖慢模块导入（否则 main_web.py 启动会阻塞数秒）。
     """
 
     def __init__(self) -> None:
         self._iso = None
-        # 默认仅勾选 strain（对齐官网：其余畸变类型默认不勾选）
-        self.distortion_types: list[str] = ["strain"]
+        # 官网默认（见 webpage_info 第 2 页 HTML）：includestrain 勾选，
+        # Displacive 行的各物种复选框逐个勾选（Eu/Al，等价于全部物种），
+        # Occupational/Magnetic/Rotational 整行不勾选
+        self.distortion_types: list[str] = ["strain", "displacive"]
         # 各畸变类型的作用域物种（官网 all/none/Eu/Al 复选框），"*"=全部
         self.distortion_scope: dict[str, list[str]] = {
-            "displacive": [],
+            "displacive": ["*"],
             "occupational": [],
             "strain": [],
             "magnetic": [],
@@ -70,9 +71,6 @@ class WebSession:
         self.method1: list = []
         self.method2 = None
         self.method3: list = []
-        # 母相 CIF 原文（用于需要重新上传母相的场景，如“从 ISODISTORT 官网获取子群”）
-        self.parent_cif_content: str | None = None
-        self.parent_cif_name: str | None = None
 
     @property
     def iso(self):
@@ -223,6 +221,28 @@ def _method1_rows(items) -> list[dict]:
             "k_point_label": sg.k_point_label,
             "irrep_label": sg.irrep_label,
             "opd_symbol": sg.opd_symbol,
+        })
+    return rows
+
+
+def _method3_rows(items) -> list[dict]:
+    """把 Method 3 的 Method3ResultItem 序列化为前端友好的 dict 列表。
+
+    Method 3 结果项只含 subgroup / point_group / basis，没有 Method 1 的
+    crystal_system / is_maximal，因此不能复用 _method1_rows（否则读不存在的
+    属性抛 AttributeError）。Method 3 结果表格展示子群 + 点群。
+    """
+    rows = []
+    for item in items:
+        sg = item.subgroup
+        rows.append({
+            "index": sg.index,
+            "space_group_number": sg.space_group_number,
+            "space_group_symbol": sg.space_group_symbol,
+            "k_point_label": sg.k_point_label,
+            "irrep_label": sg.irrep_label,
+            "opd_symbol": sg.opd_symbol,
+            "point_group": item.point_group,
         })
     return rows
 
@@ -394,9 +414,6 @@ class IsoHandler(BaseHTTPRequestHandler):
         elif path == "/api/domains":
             # Distortion Page：生成畴列表（官网 Domains 输出）
             self._run(lambda: self._api_domains(data))
-        elif path == "/api/official_subgroups":
-            # 空结果恢复：把相同 k 点参数喂给 ISODISTORT 官网并读取其子群输出
-            self._run(lambda: self._api_official_subgroups(data))
         elif path == "/api/set_language":
             lang = data.get("language", get_config().language)
             set_language(lang)
@@ -417,8 +434,6 @@ class IsoHandler(BaseHTTPRequestHandler):
         _SESSION.iso.load_structure(path)
         _SESSION.iso.set_distortion_scope(_SESSION.distortion_scope)
         _SESSION.method1, _SESSION.method2, _SESSION.method3 = [], None, []
-        _SESSION.parent_cif_content = content
-        _SESSION.parent_cif_name = filename
         return {"state": _state_summary()}
 
     def _api_set_types(self, data: dict) -> dict:
@@ -453,41 +468,58 @@ class IsoHandler(BaseHTTPRequestHandler):
         return {"candidates": _method1_rows(result), "state": _state_summary()}
 
     def _api_subgroups(self, data: dict) -> dict:
-        # 对齐官网 Method 2：只选 k 点（+ 参数）即枚举该 k 点全部 IR 的子群；
-        # 若带 ir 参数（旧版兼容）则按 (k, IR) 枚举。
+        # 对齐官网 Method 2：枚举指定 k 点（+ 参数）下全部 IR 的子群。
+        # 多组 k 点（superposed IRs，nsup>1）由前端一次性以 kpoints 列表提交，
+        # 后端在此合并全部 k 点组的子群并连续编号，供行点击正确回查子群。
+        # 注意：_SESSION 是模块级单例（WebSession），BaseHTTPRequestHandler
+        # 实例上并不存在该属性，误写 self._SESSION 会抛
+        # "'IsoHandler' object has no attribute '_SESSION'"。
+        gen = bool(data.get("generate", False))
+        groups = data.get("kpoints")
+        if groups:
+            all_subs: list = []
+            for grp in groups:
+                all_subs.extend(_SESSION.iso.list_subgroups_at_kpoint(
+                    grp["k"],
+                    k_parameters=grp.get("params"),
+                    generate_if_missing=gen,
+                ))
+            # 连续重编号：避免多 k 点组之间 index 冲突（行点击用 index 定位子群）
+            for j, sg in enumerate(all_subs):
+                sg.index = j
+            _SESSION.iso.subgroups = all_subs
+            return {"subgroups": _subgroup_rows(all_subs), "state": _state_summary()}
+        # 兼容旧版单 k 点（可带 ir 参数）路径
         if data.get("ir"):
             subs = _SESSION.iso.list_subgroups_at(
                 data["k"], data["ir"],
                 k_parameters=data.get("params"),
                 opd_symbol=data.get("opd"),
-                generate_if_missing=bool(data.get("generate", False)),
+                generate_if_missing=gen,
             )
         else:
             subs = _SESSION.iso.list_subgroups_at_kpoint(
                 data["k"],
                 k_parameters=data.get("params"),
-                generate_if_missing=bool(data.get("generate", False)),
+                generate_if_missing=gen,
             )
         return {"subgroups": _subgroup_rows(subs), "state": _state_summary()}
 
-    def _api_official_subgroups(self, data: dict) -> dict:
-        """空结果恢复：把相同 k 点参数喂给 ISODISTORT 官网并读取其子群输出。
-
-        仅作为本地枚举为空时的备选（实验性，需联网）；失败会给出明确错误。
-        """
-        if not _SESSION.parent_cif_content:
-            raise ValueError("尚未加载母相 CIF / load a parent CIF first")
-        subs = fetch_official_subgroups(
-            _SESSION.parent_cif_content,
-            data.get("k", ""),
-            data.get("params"),
-            language=get_language(),
-        )
-        return {"subgroups": _subgroup_rows(subs), "source": "official"}
-
     def _api_method2(self, data: dict) -> dict:
-        idx = int(data["subgroup_idx"])
+        idx = data.get("subgroup_idx")
+        if idx is None:
+            raise ValueError("subgroup_idx 缺失 / subgroup_idx missing")
+        idx = int(idx)
         iso = _SESSION.iso
+        # 按结果表来源选择候选列表（前端随行点击携带 source）。
+        # 会话内 iso.subgroups 会被 method1/method3/subgroups 相互覆盖，
+        # 不指定来源时点击旧表行可能选错子群。
+        source = data.get("source")
+        if source == "method1" and _SESSION.method1:
+            iso.subgroups = [item.subgroup for item in _SESSION.method1]
+        elif source == "method3" and _SESSION.method3:
+            iso.subgroups = [item.subgroup for item in _SESSION.method3]
+        # source 缺省/"subgroups"：沿用 _api_subgroups（k 点枚举）设置的列表
         iso.set_distortion_scope(_SESSION.distortion_scope)
         result = iso.search_method_2(
             subgroup_idx=idx,
@@ -527,7 +559,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             lattice_type=data.get("lattice_type", "direct"),
         )
         _SESSION.method3 = result
-        return {"candidates": _method1_rows(result), "state": _state_summary()}
+        return {"candidates": _method3_rows(result), "state": _state_summary()}
 
     def _api_method4(self, data: dict) -> dict:
         content = data.get("content", "")
@@ -677,13 +709,18 @@ class IsoHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 
-def _bind_server(host: str, preferred_port: int) -> HTTPServer | None:
-    """按“配置端口 → 顺延端口 → 系统空闲端口(0)”的顺序尝试绑定，保证成功。"""
+def _bind_server(host: str, preferred_port: int) -> ThreadingHTTPServer | None:
+    """按“配置端口 → 顺延端口 → 系统空闲端口(0)”的顺序尝试绑定，保证成功。
+
+    使用 ThreadingHTTPServer：在线生成子群数据库等长耗时请求会阻塞较久，
+    单线程 HTTPServer 会同时阻塞心跳，导致看门狗误判“页面关闭”并停服；
+    多线程版本可让心跳/状态请求在长请求期间继续正常响应。
+    """
     candidates = list(range(preferred_port, preferred_port + 21))
     candidates.append(0)  # 交给系统分配空闲端口，兜底保证可启动
     for port in candidates:
         try:
-            return HTTPServer((host, port), IsoHandler)
+            return ThreadingHTTPServer((host, port), IsoHandler)
         except OSError:
             continue
     return None

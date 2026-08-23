@@ -34,6 +34,7 @@ runtime:
   web_port: 8000
   # 网页端空闲自动停服时间（秒）：页面关闭后心跳停止，超过该时长自动停服并释放端口
   web_idle_timeout: 60
+  # 注：以下 relative 路径均相对于本文件所在目录 config/ 解析（config_loader 自动转换为绝对路径）。
   # Windows 侧临时文件目录（随后会被复制到 WSL 短路径暂存目录）
   temp_dir: "../output/tmp"
   # 输出目录（导出的 CIF / POSCAR / JSON 存放处）

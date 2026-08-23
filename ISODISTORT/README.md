@@ -1,6 +1,6 @@
 # ISODISTORT 本地化项目
 
-本项目将 [ISODISTORT 网站](https://iso.byu.edu/isodistort.php)（BYU 晶体畸变在线计算服务）的核心功能本地化：基于 ISOTROPY Suite 的 `iso` / `findsym` Linux 二进制（位于 `isobyu/`，只读）在本地复现「Search Page → Distortion Page」的完整工作流，子群枚举、模式基矢与畴的计算结果与官网一致，可在无网络或官网不可用时完成科研级畸变分析。
+本项目将 [ISODISTORT 网站](https://iso.byu.edu/isodistort.php)（BYU 晶体畸变在线计算服务）的核心功能本地化：基于 ISOTROPY Suite 的 `iso` Linux 二进制（位于 `isobyu/`，只读）在本地复现「Search Page → Distortion Page」的完整工作流，子群枚举、模式基矢与畴的计算结果与官网一致，可在无网络或官网不可用时完成科研级畸变分析。（`isobyu/findsym` 已不参与本地生产流程，仅为测试/参考保留。）
 
 同一底层计算引擎对外提供**三种等效的使用方式**：终端交互菜单、网页图形界面、Python API。
 
@@ -14,16 +14,16 @@
 | Search Page | Method 1: Search over all special k points | 真实枚举全部特殊 k 点子群 + 多条件过滤 |
 | Search Page | Method 2: General method - specific k points | 选择子群并计算畸变模式基矢 |
 | Search Page | Method 3: Arbitrary k + point/space group + supercell | 本地近似实现（见「与官网的已知差异」） |
-| Search Page | Method 4: Mode decomposition | 最小二乘模式分解 |
+| Search Page | Method 4: Mode decomposition | 最小二乘模式分解（支持超胞畸变结构） |
 | Distortion Page | 单模式 / 多模式畸变生成 | 支持位移与占据率（occupational）模式 |
 | Distortion Page | 导出 CIF / POSCAR | 自动按子群基矢扩胞并导出 |
 | Distortion Page | Domains（畴列表） | 畴数 = 子群指数，与官网一致 |
 
-底层计算全部由 `isobyu/iso`（子群枚举、模式基矢、畴）与 `isobyu/findsym`（空间群识别）完成，与官网使用同一套数据库（`data_*.txt`），因此**子群列表与官网一致**。
+底层计算全部由 `isobyu/iso`（子群枚举、模式基矢、畴）完成，与官网使用同一套数据库（`data_*.txt`），因此**子群列表与官网一致**；结构的空间群/对称性识别由 pymatgen 的 `SpacegroupAnalyzer`（`isocore/structure/symmetry_validator.py`）完成。`isobyu/findsym` 在本地生产流程中**已不参与**（保留为可选/测试组件）。
 
 补充能力：
 
-- **中英双语**：三种使用方式均可随时在 zh / en 间切换；界面文案与科学术语由 `isocore/i18n` 统一管理（术语对照约 100 条，来源标注规范）。
+- **中英双语**：三种使用方式均可随时在 zh / en 间切换；界面文案与科学术语由 `isocore/i18n` 统一管理（术语对照 120+ 条，来源标注规范）。
 - **物理自洽性自检**：零振幅回退、子群规则、模式正交性、振幅线性、对称性守恒五项内置检查，任一失败即提示计算异常，避免静默输出错误结构。
 - **科研级验证体系**：30-CIF 全覆盖验证、COD 外部真实结构验证、金标准回归（SrTiO₃ 官网三条路径）、三接口一致性、终端交互验证，详见「测试与验证」。
 
@@ -58,13 +58,13 @@ pip install -r requirements-dev.txt
 
 ### 部署要求（ISOTROPY 套件）
 
-`isobyu/` 目录存放 ISOTROPY 套件的二进制与数据库文件（`iso`、`findsym`、`smodes` 及 `data_*.txt` 等），体积较大且不在版本库中。部署时需将套件文件放入 `ISODISTORT/isobyu/`；缺失时程序会在调用相关功能时报错。该目录为**只读**，程序不会修改其中的任何文件。
+`isobyu/` 目录存放 ISOTROPY 套件的二进制与数据库文件。**必需**的是 `iso` 二进制与 `data_*.txt` 数据库（子群枚举、模式、畴依赖）；`findsym`、`smodes`、`comsubs` 等为可选（本地生产流程仅用到 `iso`，`findsym` 仅为测试/参考保留）。体积较大且不在版本库中，部署时需将套件文件放入 `ISODISTORT/isobyu/`；`iso` 缺失时程序会在调用相关功能时报错。该目录为**只读**，程序不会修改其中的任何文件。
 
 ---
 
 ## 四、快速开始（三种启动方式）
 
-三种方式共用同一底层引擎（真实 iso/findsym 计算）：
+三种方式共用同一底层引擎（真实 iso 计算；结构对称性识别由 pymatgen 完成）：
 
 ### 方式 A：网页交互（推荐）
 
@@ -75,9 +75,9 @@ python main_web.py
 启动后**自动打开默认浏览器**访问实际绑定地址（端口默认 8000，可在 `config/settings.yaml` 的 `runtime.web_port` 修改；被占用时自动顺延）。页面布局对齐官网搜索页，从上到下为：
 
 - **Parent CIF**：上传母相 CIF；页头显示官网同款信息（空间群、点阵参数、Wyckoff 位置、`Default space-group preferences:` 行）。
-- **Types of distortions to be considered**：`Strain` 单复选框 + `Displacive` / `Occupational` / `Magnetic` / `Rotational` 四行，每行带 **all / none / 各物种** 复选框，选中的物种即该类型模式的作用域。**默认仅勾选 Strain**（其余类型默认不勾选，对齐官网），需用户自行勾选后才能计算对应类型的模式。
+- **Types of distortions to be considered**：`Strain:` 单复选框 + `Displacive:` / `Occupational:` / `Magnetic:` / `Rotational:` 四行，每行带 **all / none / 各物种** 复选框（标签在复选框前，与官网一致），选中的物种即该类型模式的作用域。**各复选框完全独立、无任何自动联动**（对齐官网：勾选/取消物种不会联动 all/none，全部取消也不会自动勾 none）；点击 **Change** 提交时才按 **all > none > 物种列表** 的顺序解释（all 勾选 = 全部物种；none 勾选或全部未勾 = 不启用该类型；否则按勾选物种）。**默认勾选 Strain + Displacive 全物种**（对齐官网：加载 CIF 后 Displacive 行的各物种复选框逐个勾选，见 `webpage_info` 第 2 页 HTML）。
 - **Method 1**：晶系复选框（多选 OR，triclinic/monoclinic/orthorhombic/tetragonal/trigonal/hexagonal/cubic）→ 可达子群空间群下拉（只列出与母相结构相容的子群，来自真实枚举并按会话缓存）→ Conventional/Primitive lattice 下拉（由真实枚举的子群基矢按格点等价去重生成；因本地 iso 9.6.1 与官网站点数据库存在版本差异，选项可能与官网略有不同，界面有明确告示）→ Maximal subgroups only。
-- **Method 2**：`Specify k point:` → **superposed IRs** 高级功能（对齐官网）：修改 `Change number of superposed IRs:` 的数值并点击 **Change** 后，显示对应数量的 **`k vector N:` 行**（每行：k 点下拉 + a= / b= / g= 参数 + `# of independent incommensurate modulations`），可为多个 primary order parameter 分别选择不同的 k 点；点 **OK** 枚举所选 k 点的全部不可约表示子群（合并显示，含 k/IR/OPD 列）→ 点击子群行显示该路径的模式基矢。若本地枚举为空（常见于带参数 k 点如 LD/DT），界面会给出明确提示，并提供两个恢复动作：**① 勾选「缺失时在线生成子群数据库」**（对应官网 Generate isotropy subgroups，用本地 iso 二进制在线生成，可能耗时数分钟到数小时，生成后缓存）或用按钮重试；**② 从 ISODISTORT 官网获取**（实验性，需联网，复现官网 k 点→IR→序参量方向流程并读取其子群；即使成功，本地仍无法对参数 k 点计算位移模式）。
+- **Method 2**：`Specify k point:` → **superposed IRs** 高级功能（对齐官网）：修改 `Change number of superposed IRs:` 的数值并点击 **Change** 后，显示对应数量的 **`k vector N:` 行**（每行：k 点下拉 + a= / b= / g= 参数 + `# of independent incommensurate modulations`），可为多个 primary order parameter 分别选择不同的 k 点；点 **OK** 枚举所选 k 点的全部不可约表示子群（合并显示，含 k/IR/OPD 列）→ 点击子群行显示该路径的模式基矢。若本地枚举为空（常见于带参数 k 点如 LD/DT），界面**并列给出两个选项、且「调用本地资源计算」优先**：**① 调用本地资源计算** —— 用本机算力生成该 k 点的子群数据库（对应官网 Generate isotropy subgroups，本地 iso 二进制对 "Should the data base be added?" 应答 y 触发生成，可能耗时数分钟到数小时，生成后缓存）—— 若生成失败会显示带 iso 输出末尾的诊断信息；**② 去 ISODISTORT 官网重试** —— 用相同母相 CIF 与 (k 点, 参数) 在官网执行 Method 2（该 k 点在官网可正常生成子群）。服务器已改用多线程 HTTPServer，长耗时生成期间页面心跳照常、不会触发“关页自动停服”。
 - **Method 3**：空间群下拉或点群下拉（空间群优先）→ direct/reciprocal radio（reciprocal 本地暂不支持，会给出明确提示）→ 3×3 基矢输入。
 - **Method 4**：上传畸变 CIF → 幅度表 + RMS 残差（默认 nearest-site / 0.25，API 层可自定义）。
 - **Space-Group Preferences（只读）**：本地 iso 二进制固定采用国际标准取位（即官网默认值），自定义取位（axes / cell choice / origin / SSG 等）会导致 `Syntax error`，因此本地**不提供可交互修改面板**，改为只读表格展示项目固定采用的默认值（Monoclinic axes a(b)c、cell choice 1、Orthorhombic axes abc、Trigonal axes hexagonal、Origin choice 2、SSG standard），并注明无法修改的原因。页头同时显示官网同款 `Default space-group preferences:` 行（`iso.space_group_preferences()`）。
@@ -97,7 +97,7 @@ python main_terminal.py
 ```text
 Search Page
   1. 重新加载 Parent CIF        （选择母相 CIF 文件）
-  2. 设置 Distortion Types      （默认仅 strain，对齐官网；含每类的作用域物种）
+  2. 设置 Distortion Types      （默认 strain + displacive，对齐官网；含每类的作用域物种）
   3. Method 1 ...               （枚举全部特殊 k 点子群，可加过滤条件）
   4. Method 2 ...               （选择子群，计算畸变模式；支持直接 k 点搜索）
   5. Method 3 ...               （点群/空间群 + 超胞搜索）
@@ -107,6 +107,45 @@ Search Page
   9. 切换语言
   0. 退出
 ```
+
+#### 终端版：文件与路径说明
+
+终端涉及三类路径——**输入 CIF**、**输出产物**、**只读的 ISOTROPY 套件**。理解它们的解析规则，可避免「找不到文件 / 文件写到了别处」的问题。
+
+**① 输入文件（母相 / 子相 CIF）**
+
+- 启动程序（或执行菜单 1「重新加载 Parent CIF」、菜单 6「Method 4」）时，程序会在**项目目录 `ISODISTORT/` 内递归搜索** `.cif` 文件，列出至多 30 个，按序号选择即可。
+- **搜索范围只到项目目录**。若你的 CIF 在项目目录之外（例如 `实验数据与GD代码/EuAl4 Parent.cif`），它不会出现在列表里 → 请选 `0. 手动输入路径`，然后输入该文件的路径。
+- 手动输入的相对路径是相对于**你运行 `python main_terminal.py` 时的当前工作目录（当前命令行所在目录）**，不是相对于项目目录。为免混淆，建议直接输入**绝对路径**，例如：
+
+  ```powershell
+  C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码\EuAl4 Parent.cif
+  ```
+
+- `ISODISTORT/output/`（结果目录）与 `ISODISTORT/output/tmp/`（上传/中间暂存）中的 CIF **已被自动排除**，不会混入候选列表（它们多为程序生成的成品）。若要加载某个输出文件，用上述「手动输入路径」即可。
+- 加载支持 `.cif` / `.vasp` / POSCAR / `.xyz` 等（按扩展名识别），非法输入会明确报错。
+
+**② 输出文件（导出 CIF / POSCAR、分析结果）**
+
+- 生成的结果（单/多模式畸变 CIF、导出文件、畴列表等）默认写入**输出目录**：`config/settings.yaml` 的 `runtime.output_dir`，即 `ISODISTORT/output/`。
+- 菜单 7 → 导出，会提示输入「导出文件名前缀」与格式（如 `cif,poscar`）；导出后程序会打印每个文件的**完整路径**。
+- 修改输出目录：编辑 `config/settings.yaml` 的 `runtime.output_dir`（相对 `config/` 目录，如 `../output`；也可写绝对路径）。中间/上传暂存目录 `runtime.temp_dir`（默认 `../output/tmp`）同理。
+
+**③ ISOTROPY 套件（只读，勿移动）**
+
+- `ISODISTORT/isobyu/` 存放 ISOTROPY 套件二进制与数据库（`iso`、`findsym`、`smodes` 及 `data_*.txt` 等），**只读**。部署时把套件文件放入该目录即可（缺失时调用相关功能会报错）。
+- 二进制为 Linux ELF 格式，Windows 下**自动经 WSL 调用**；封装层会自动在 WSL 用户主目录建立短路径暂存目录与 `ISODATA` 符号链接，**无需手动配置任何路径**。Linux 下原生运行、无需 WSL。
+
+**路径速查表**
+
+| 项目 | 默认值 | 说明 | 在哪里改 |
+| --- | --- | --- | --- |
+| 输入 CIF 搜索目录 | `ISODISTORT/`（项目根） | 手动画名单；范围仅项目目录 | 属于「菜单 1/6 的路径输入」，无配置文件 |
+| 输出目录 | `ISODISTORT/output/` | 导出 CIF/POSCAR、分析结果 | `settings.yaml → runtime.output_dir` |
+| 临时/上传暂存 | `ISODISTORT/output/tmp/` | 中间文件、网页上传 CIF | `settings.yaml → runtime.temp_dir` |
+| 二进制与数据库 | `ISODISTORT/isobyu/` | 只读，WSL 经短路径+`ISODATA` 自动链接 | 仅部署时放入套件文件 |
+
+> `settings.yaml` 中的相对路径（如 `../output`）均相对于它所在的 `config/` 目录解析；`config_loader.py` 会自动把它换算为绝对路径。无需（也不建议）手动改动 `isobyu` 相关路径。
 
 ### 方式 C：Python API
 
@@ -169,7 +208,7 @@ iso.generate_domains()                       # 6. 畴列表
 ```
 
 - Method 1 下拉数据（可达子群空间群 + Conventional/Primitive lattice 选项）可通过 `iso.method1_options()` 获取；`iso.space_group_preferences()` 返回官网「Default space-group preferences:」行。
-- 加载结构支持 `.cif` / `.vasp` / POSCAR 等（`read_structure` 按扩展名识别），非法输入会给出明确错误。
+- 加载结构支持 `.cif` / `.vasp` / POSCAR / `.xyz` 等（`read_structure` 按扩展名识别），非法输入会给出明确错误。
 
 ### 语言切换（三种方式统一）
 
@@ -180,6 +219,8 @@ iso.generate_domains()                       # 6. 畴列表
 | Python API | `IsoDistort(language="en")` 或运行中 `iso.set_language("zh")` |
 
 界面文案：`isocore/i18n/messages.py`（zh/en 两套，键一一对应）；科学术语对照表：`isocore/i18n/terms.py`；网页端术语经 `/api/i18n` 下发，与后端共用同一数据源。
+
+> 说明：**终端菜单的提示文案**采用「`t()` 国际化 + 少量硬编码」混排。网页端与 Python API 的界面/控制台输出已全量走 `t()`；终端仍有部分交互提示（如 `_prompt_distortion_types`、`_prompt_supercell`、Method 3/4 的若干说明行）为固定中文/英文，不受语言下拉影响。这是「可运行优先」的取舍，**不影响计算正确性**，后续可按需并入 `messages.py` 统一管理。
 
 ---
 
@@ -262,12 +303,12 @@ ruff check .                         # 代码风格检查（配置见 pyproject.
 以下差异是本地化过程中为「可运行、可维护」做出的取舍：
 
 1. **Distortion Types 过滤时机**：官网在 Search 阶段按类型过滤子群；本地在搜索阶段保留全部子群，类型与物种作用域过滤在模式计算阶段生效——若某子群在结构的 Wyckoff 位置上没有对应类型/物种的模式，Method 2 会返回空模式列表。由此，Method 1 的「空间群下拉」本地比官网多列几个「母相无位移模式的高对称子群」（实测 EuAl4/I4/mmm：本地 60 个 vs 官网 55 个，多出的 I4/m、I422、P4/nnc、P4/mnc、P4₂/mmc 对 Eu/Al 位点无位移模式）；该下拉的空间群符号与 Schoenflies 符号已对齐官网（简短 HM + Schoenflies）。
-2. **模式振幅语义**：官网使用 As/Ap（超胞归一化振幅 + normfactor）；本地以「位移向量（最大分量为 1）× 用户幅度」叠加到原子坐标，方向模式与官网一致，数值换算待校准。
+2. **模式振幅语义**：官网使用 As/Ap（超胞归一化振幅 + normfactor）；本地以「位移向量（按最大矢量模长归一化为 1）× 用户幅度」叠加到原子坐标，方向模式与官网一致，数值换算待校准。
 3. **模式列表范围**：官网 Distortion Page 列出某 IR 的全部模式（主模式 + 可共存次级模式）；本地（iso DISPLAY BUSH）只给出主（root）模式对应 OPD 的位移模式。
 4. **晶格应变模式未实现**：本地引擎只施加原子位移、不改变晶格参数。对纯位移驱动的相变（如 I4/mmm→I4mm 极化模式）结果正确；对铁弹应变相变（需 a≠b 晶格畸变）仅位移分量无法降低晶系对称性，此类场景请结合官网输出。
-5. **参数 k 点（非特殊 k 点）**：子群枚举支持（需在线生成子群数据库并缓存）；模式/畸变生成暂不支持（官网使用 (3+d) 维超空间机制，本地二进制无法完成），遇到时会给出明确错误提示。`number_of_independent_modulations`（nmod，非公度调制数）非 0 时同样明确报错（本地仅支持公度调制）。k 点坐标参数约定（iso 用 `2a` 等形式）与官网可能差整数倍。**k 点下拉显示**：对已收录的母相空间群（目前 I4/mmm/EuAl4，`isocore/data/kpoints_official.py`），k 点下拉显示官网同款「Miller-Love 记号 + Kovalev 编号 + 官网坐标」（如 `GM, k14 (0,0,0)`）；未收录空间群回退 iso 原始坐标（无 Kovalev 编号）。Kovalev 编号与官网坐标参数化来自官网站点数据库（CDML k 点表），本地 iso 二进制不提供，需逐空间群收录。
+5. **参数 k 点（非特殊 k 点）**：子群枚举支持（需在线生成子群数据库并缓存到 WSL 暂存目录，不写入只读的 `isobyu/`）；iso 的 DISPLAY ISOTROPY 流程要求**先选 IR 再设 KVALUE**（与 DISPLAY IRREP 流程顺序相反），生成提示以**空行（回车）应答触发生成**（“Enter RETURN to continue”，实测 iso 9.6.1）。模式/畸变生成暂不支持（官网使用 (3+d) 维超空间机制，本地二进制无法完成），遇到时会给出明确错误提示。`number_of_independent_modulations`（nmod，非公度调制数）非 0 时同样明确报错（本地仅支持公度调制）。k 点坐标参数约定（iso 用 `2a` 等形式）与官网可能差整数倍。**k 点下拉显示**：对已收录的母相空间群（目前 I4/mmm/EuAl4，`isocore/data/kpoints_official.py`），k 点下拉显示官网同款「Miller-Love 记号 + Kovalev 编号 + 官网坐标」（如 `GM, k14 (0,0,0)`）；未收录空间群回退 iso 原始坐标（无 Kovalev 编号）。Kovalev 编号与官网坐标参数化来自官网站点数据库（CDML k 点表），本地 iso 二进制不提供，需逐空间群收录。
 6. **Method 3**：本地枚举仅覆盖特殊 k 点；官网的 reciprocal（倒易空间超格）选项本地暂不支持（选择后给出明确错误提示）。supercell_basis（3×3 子格基矢）按格点等价（GL(3,Z)）过滤枚举出的特殊 k 点子群；`direct_sublattice_centering` 仅支持官网默认 `d`（P/A/B/C/I/F/R 会明确报错，不再静默忽略）。
-7. **Method 4**：本地要求母相与子相原子数一致，且需先通过 Method 2 获得模式基矢再做最小二乘分解；网页端按官网默认 nearest-site/0.25，API 层可自定义匹配方法与阈值。
+7. **Method 4**：需先通过 Method 2 获得模式基矢再做最小二乘分解；**支持畸变结构为母相的超胞**（官网 Method 4 的常规情形）：原子数不一致时自动从当前相变路径（或两晶格矩阵）确定超胞基矢，把母相与模式位移提升到超胞坐标系（含非零 k 点 Bloch 相位调制）再分解。网页端按官网默认 nearest-site/0.25，API 层可自定义匹配方法与阈值。
 8. **magnetic 类型**：本地枚举中 magnetic 相关不可约表示（带 `m` 前缀）不参与默认流程，磁畸变需自行扩展。
 9. **occupational（占据率）畸变（v1 近似）**：本地按子群超胞对选定物种的 Wyckoff 位点做 +1/-1 二分类占据率调制，并用 spglib 校验调制后超胞对称群是否等于目标子群；校验失败时界面标注「近似模式」。官网按 (k, IR, OPD) 精确计算每个轨道占据率的完整算法尚未实现。
 10. **Method 1 的 Conventional/Primitive lattice 选项**：官网选项来自其站点数据库（官网 iso 版本预定义）；本地选项由真实枚举的子群超胞基矢生成：Conventional 按惯用格点等价（GL(3,Z) 幺模变换）分类、Primitive 在原胞坐标下分类后转回惯用坐标显示（与官网 isoplattice 下拉的显示语义一致），均保持子群枚举顺序。因本地 iso 9.6.1 与官网站点数据库的子群基矢存在版本差异，选项数量与官网略有出入（实测 EuAl4/I4/mmm：Conventional 13 vs 官网 12、Primitive 13 vs 官网 9），这是**数据库版本差异**而非算法错误，网页 Method 1 面板会显示明确告示说明；子群枚举本身与官网一致。
@@ -291,7 +332,7 @@ ruff check .                         # 代码风格检查（配置见 pyproject.
 ## 十、常见问题
 
 - **运行时报 `wsl` 相关错误**：确认 WSL 已安装且有默认发行版（`wsl --status`）。
-- **findsym 崩溃（Fortran runtime error: End of file）**：通常是路径过长被定长缓冲区截断；程序已自动改用 WSL 侧短路径暂存，若修改过 `settings.yaml` 的 `temp_dir` 请确认其不是深层路径。
+- **findsym 崩溃（Fortran runtime error: End of file）**：仅在直接运行 `findsym`（如 `tests_dev/` 的二进制测试）时出现，通常因路径过长被定长缓冲区截断；程序已自动改用 WSL 侧短路径暂存，若修改过 `settings.yaml` 的 `temp_dir` 请确认其不是深层路径。本地生产流程不调用 `findsym`，故不影响正常使用。
 - **Method 1 耗时较长**：属正常（枚举全部特殊 k 点）；候选按会话缓存，重复调用秒回。
 - **导出文件名含 `+`/`-`**：如 `distorted_GM2+_a0p1.cif`，系模式标签所致，多数工具可正常读取。
 - **网页打不开**：确认 `python main_web.py` 已启动且端口未被占用；浏览器需能访问 `127.0.0.1`。

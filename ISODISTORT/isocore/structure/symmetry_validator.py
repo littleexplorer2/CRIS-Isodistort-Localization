@@ -2,7 +2,7 @@
 对称性校验 - 验证结构与空间群的一致性
 
 对应阶段一，步骤3：结构对称性校验
-实现方式：⚖️ 混合实现（基础判定复用 findsym，校验逻辑自研）
+实现方式：⚖️ 基于 pymatgen 的 SpacegroupAnalyzer 判定空间群与对称性
 """
 import numpy as np
 from pymatgen.core import Structure

@@ -146,7 +146,7 @@ class DistortionMapper:
                                     best_disp = disp
                             displacements[idx] = best_disp
 
-            # 模式级归一化：保持“最大位移分量 = 1”的幅度语义
+            # 模式级归一化：保持“最大位移矢量模长 = 1”的幅度语义
             max_norm = float(np.max(np.linalg.norm(displacements, axis=1)))
             if max_norm > 1e-12:
                 displacements = displacements / max_norm

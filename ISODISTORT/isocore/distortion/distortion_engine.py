@@ -26,6 +26,25 @@ from .distortion_mapper import DistortionMapper
 SupercellSpec = Sequence[int] | Sequence[Sequence[float]] | None
 
 
+def _as_basis_matrix(supercell: SupercellSpec) -> np.ndarray:
+    """把超胞规格规范化为 3x3 基矢矩阵。
+
+    兼容两种输入（与 build_supercell 一致）：
+    - [a, b, c] 整数列表：按对角矩阵补成 3x3；
+    - 3x3 矩阵（行向量为母相格单位下的新基矢）：原样返回。
+    这样下方坐标变换（coords @ basis、inv(basis)）始终作用于 3x3 矩阵，
+    避免 1D 数组触发 np.linalg.inv 崩溃。
+    """
+    arr = np.asarray(supercell, dtype=float)
+    if arr.ndim == 1:
+        if arr.size != 3:
+            raise ValueError(f"超胞必须是 [a,b,c] 或 3x3 矩阵，收到: {supercell}")
+        return np.diag(arr)
+    if arr.shape != (3, 3):
+        raise ValueError(f"超胞必须是 [a,b,c] 或 3x3 矩阵，收到: {supercell}")
+    return arr
+
+
 class DistortionEngine:
     """
     畸变计算引擎
@@ -97,7 +116,7 @@ class DistortionEngine:
         else:
             # 非零 k 点：先建超胞，再按 Bloch 相位逐副本施加位移
             distorted = build_supercell(parent_structure, supercell)
-            basis = np.asarray(supercell, dtype=float)
+            basis = _as_basis_matrix(supercell)
             # 每个超胞原子的母相分数坐标 = 超胞分数坐标 @ basis
             parent_frac = np.asarray(distorted.frac_coords, dtype=float) @ basis
             # 找到每个超胞原子对应的母相原子与其副本平移 t
@@ -175,7 +194,7 @@ class DistortionEngine:
         coords = np.asarray(sc.frac_coords, dtype=float)
         if parent_displacements is not None:
             disp = np.asarray(parent_displacements, dtype=float)
-            basis = np.asarray(supercell, dtype=float) if supercell is not None \
+            basis = _as_basis_matrix(supercell) if supercell is not None \
                 else np.eye(3)
             if supercell is None:
                 # 无超胞：sc 与 parent 同序同原子，父原子索引即自身
@@ -188,7 +207,7 @@ class DistortionEngine:
                 coords = coords + disp[idx] @ np.linalg.inv(basis)
             else:
                 # 非零 k 点：逐超胞副本按 Bloch 相位调制
-                basis = np.asarray(supercell, dtype=float)
+                basis = _as_basis_matrix(supercell)
                 parent_frac = coords @ basis
                 pc = np.asarray(parent_structure.frac_coords, dtype=float)
                 new_coords = coords.copy()
@@ -234,14 +253,16 @@ class DistortionEngine:
                 amp_capped = min(max(float(amp), 0.0), 1.0)
                 new_species = []
                 for j, sym in enumerate(species):
-                    if pattern[j] > 0:
-                        new_species.append(sym)
-                    else:
+                    # 占据率语义：+1 类全占据（1.0）；-1 类占据率 = 1 - amplitude；
+                    # pattern == 0 的位点未被该模式调制，应保持全占据，不可降低。
+                    if pattern[j] < 0:
                         occ = max(1.0 - amp_capped, 0.01)
                         if occ >= 0.999:
                             new_species.append(sym)
                         else:
                             new_species.append({sym: occ})
+                    else:
+                        new_species.append(sym)
                 species = new_species
 
         return Structure(sc.lattice, species, coords, coords_are_cartesian=False)
@@ -250,7 +271,7 @@ class DistortionEngine:
     def _map_parent_indices(parent: Structure, sc: Structure,
                             supercell) -> np.ndarray:
         """把超胞原子映射回母相原子索引（几何最近邻 + 同物种，鲁棒于排序）。"""
-        basis = np.asarray(supercell, dtype=float)
+        basis = _as_basis_matrix(supercell)
         n, m = len(parent), len(sc)
         pc = np.asarray(parent.frac_coords, dtype=float)
         pj = np.asarray(sc.frac_coords, dtype=float) @ basis
@@ -267,3 +288,46 @@ class DistortionEngine:
                     best_dist, best_i = dist, i
             idx[j] = best_i
         return idx
+
+    def lift_mode_displacements(self, parent_structure: Structure,
+                                supercell: SupercellSpec,
+                                mode_displacements: dict,
+                                k_vector: Sequence[float] | None = None,
+                                ) -> tuple[Structure, dict]:
+        """把母相坐标系的模式位移提升到超胞坐标系（Method 4 超胞分解用）。
+
+        与 generate_modes 的位移施加逻辑严格互逆：
+        - 超胞原子 j 对应母相原子 idx[j]（几何最近邻 + 同物种）；
+        - 位移由母相分数坐标换算到超胞分数坐标：Δf_sc = Δf_parent @ inv(B)；
+        - 非零 k 点时逐副本按 Bloch 相位 cos(2π k·t) 调制
+          （t 为副本相对母相原胞的整数平移），与生成时一致。
+
+        Args:
+            parent_structure: 母相结构
+            supercell: 超胞规格（子群基矢 3x3 矩阵或 [a,b,c]）
+            mode_displacements: {label: (N_parent, 3)} 母相分数坐标位移
+            k_vector: k 点坐标（母相倒格分数单位）；None/Γ 点不调制
+
+        Returns:
+            (超胞母相结构, {label: (N_sc, 3) 超胞分数坐标位移})
+        """
+        basis = _as_basis_matrix(supercell)
+        sc = build_supercell(parent_structure, basis)
+        idx = self._map_parent_indices(parent_structure, sc, basis)
+        inv_b = np.linalg.inv(basis)
+        k = None if k_vector is None else np.asarray(k_vector, dtype=float)
+        if k is not None and np.all(np.abs(k) < 1e-9):
+            k = None
+        parent_frac = np.asarray(sc.frac_coords, dtype=float) @ basis
+        pc = np.asarray(parent_structure.frac_coords, dtype=float)
+        lifted: dict = {}
+        for label, disp in mode_displacements.items():
+            disp = np.asarray(disp, dtype=float)
+            sc_disp = disp[idx] @ inv_b
+            if k is not None:
+                for j in range(len(sc)):
+                    t_int = np.round(parent_frac[j] - pc[idx[j]])
+                    phase = np.cos(2.0 * np.pi * float(np.dot(k, t_int)))
+                    sc_disp[j] = sc_disp[j] * phase
+            lifted[label] = sc_disp
+        return sc, lifted

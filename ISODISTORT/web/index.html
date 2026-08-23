@@ -254,7 +254,6 @@ let amplitudes = {};
 let domains = [];
 let nsupValue = 1;
 let genDbValue = false;  // 缺失时在线生成子群数据库（对应官网 Generate isotropy subgroups）
-let subgroupsOfficial = false;  // 当前子群列表是否来自官网（非本地枚举）
 
 /* ================= 通用 ================= */
 async function api(path, body) {
@@ -287,11 +286,14 @@ function clickableTable(headers, rows) {
   for (const r of rows) h += `<tr class="clickable" data-idx="${esc(r.idxKey)}">${r.cells.map(c => `<td>${c}</td>`).join("")}</tr>`;
   return h + "</tbody></table>";
 }
-function bindRowClick(containerId) {
+function bindRowClick(containerId, source) {
+  // source：结果表来源（"method1"/"method3"/"subgroups"），随行点击传给后端，
+  // 避免共享子群列表被其他方法覆盖后点击旧表行选错子群（官网每个方法独立页面，
+  // 提交时表单内嵌完整子群数据，天然无此问题）。
   const out = document.getElementById(containerId);
   out.onclick = (ev) => {
     const tr = ev.target.closest("tr[data-idx]");
-    if (tr) computeModes(Number(tr.dataset.idx));
+    if (tr) computeModes(Number(tr.dataset.idx), source);
   };
 }
 function showError(el, msg) { el.innerHTML = `<div class="alert alert-error">${esc(msg)}</div>`; }
@@ -386,60 +388,36 @@ function renderTypes() {
   const box = document.getElementById("typeBox");
   let html = "";
   for (const tp of TYPE_NAMES) {
-    // 每个畸变类型一行（strain 与其它类型同级：均加粗标签）
+    // 官网布局：Strain: [复选框]（单个复选框，默认勾选）
     if (tp === "strain") {
       const on = types.includes("strain");
-      html += `<tr><td><b>${esc(term("strain"))}</b>`
-        + `<label style="margin-left:8px;font-weight:normal;"><input type="checkbox" id="tp_strain" ${on ? "checked" : ""}> ${esc(term("strain"))}</label></td></tr>`;
+      html += `<tr><td>${esc(term("strain"))}: <input type="checkbox" id="tp_strain" ${on ? "checked" : ""}></td></tr>`;
       continue;
     }
+    // 官网布局：Displacive: all[cb] none[cb] Eu[cb] Al[cb]（标签在复选框前）。
+    // 与官网一致：各复选框完全独立、无任何自动联动（勾选物种不会联动 all/none，
+    // 取消全部物种也不会自动勾 none）；点击 Change 提交时才按 all > none > 物种解释。
     const sp = scope[tp] || [];
     const active = types.includes(tp);
-    const allChecked = active && (!sp.length || sp.includes("*") || sp.length >= species.length);
-    // none 仅在“该类型已启用但作用域无物种”时勾选；未启用的类型整行不做任何勾选
-    // （对齐官网：默认只勾 strain，其余类型 all/none/物种全部不勾选）
-    const noneChecked = active && !sp.length;
-    let row = `<tr><td><b>${esc(term(tp))}</b></td><td>`
-      + `<label><input type="checkbox" data-tp="${tp}" data-role="all" ${allChecked ? "checked" : ""}> ${esc(term("all"))}</label>`
-      + `<label><input type="checkbox" data-tp="${tp}" data-role="none" ${noneChecked ? "checked" : ""}> ${esc(term("none"))}</label>`;
+    // 服务器状态 -> 复选框：["*"] 渲染为全部物种逐个勾选（对齐官网默认外观：
+    // 官网加载 CIF 后 Displacive 行的 Eu/Al 复选框逐个勾选、all/none 不勾）；
+    // 具体列表勾选对应物种；类型启用但作用域为空 -> 勾 none；未启用 -> 全不勾
+    const spAll = active && sp.includes("*");
+    const noneChecked = active && !spAll && !sp.length;
+    let row = `<tr><td valign="top">${esc(term(tp))}: </td><td>`
+      + `${esc(term("all"))}<input type="checkbox" data-tp="${tp}" data-role="all">`
+      + `${esc(term("none"))}<input type="checkbox" data-tp="${tp}" data-role="none" ${noneChecked ? "checked" : ""}>`;
     for (const spc of species) {
-      const on = active && (sp.includes("*") || sp.includes(spc));
-      row += `<label><input type="checkbox" data-tp="${tp}" data-species="${esc(spc)}" ${on ? "checked" : ""}> ${esc(spc)}</label>`;
+      const on = active && (spAll || sp.includes(spc));
+      row += `${esc(spc)}<input type="checkbox" data-tp="${tp}" data-species="${esc(spc)}" ${on ? "checked" : ""}>`;
     }
     html += row + `</td></tr>`;
   }
   box.innerHTML = html;
-  // all/none 复选框联动
-  box.querySelectorAll("input[data-role]").forEach(cb => {
-    cb.onchange = () => {
-      const tp = cb.dataset.tp;
-      if (cb.dataset.role === "all") {
-        box.querySelectorAll(`input[data-tp="${tp}"][data-species]`).forEach(x => { x.checked = true; });
-        box.querySelector(`input[data-tp="${tp}"][data-role="none"]`).checked = false;
-      } else if (cb.dataset.role === "none") {
-        box.querySelectorAll(`input[data-tp="${tp}"][data-species]`).forEach(x => { x.checked = false; });
-        box.querySelector(`input[data-tp="${tp}"][data-role="all"]`).checked = false;
-      } else {
-        updateRowState(tp);
-      }
-    };
-  });
-  TYPE_NAMES.forEach(tp => {
-    box.querySelectorAll(`input[data-tp="${tp}"][data-species]`).forEach(cb => {
-      cb.onchange = () => updateRowState(tp);
-    });
-  });
-}
-function updateRowState(tp) {
-  const box = document.getElementById("typeBox");
-  const species = STATE ? (STATE.species || []) : [];
-  const spCbs = box.querySelectorAll(`input[data-tp="${tp}"][data-species]`);
-  const checked = [...spCbs].filter(x => x.checked);
-  box.querySelector(`input[data-tp="${tp}"][data-role="all"]`).checked =
-    checked.length > 0 && checked.length >= species.length;
-  box.querySelector(`input[data-tp="${tp}"][data-role="none"]`).checked = checked.length === 0;
 }
 function collectTypesAndScope() {
+  // 提交语义（对齐官网表单字段）：all 勾选 -> 该类型作用于全部物种；
+  // none 勾选 -> 该类型不启用；否则按勾选的物种列表；全部未勾 -> 不启用。
   const box = document.getElementById("typeBox");
   const species = STATE ? (STATE.species || []) : [];
   const types = [];
@@ -449,8 +427,18 @@ function collectTypesAndScope() {
       if (document.getElementById("tp_strain").checked) types.push("strain");
       continue;
     }
-    const sp = [...box.querySelectorAll(`input[data-tp="${tp}"][data-species]:checked`)].map(x => x.value);
-    if (sp.length) {
+    const allCb = box.querySelector(`input[data-tp="${tp}"][data-role="all"]`);
+    const noneCb = box.querySelector(`input[data-tp="${tp}"][data-role="none"]`);
+    // 注意：物种名在 data-species 属性上（复选框无 value 属性，
+    // 读 x.value 只会得到浏览器默认值 "on" —— 此前的实际 bug）
+    const sp = [...box.querySelectorAll(`input[data-tp="${tp}"][data-species]:checked`)]
+      .map(x => x.dataset.species);
+    if (allCb && allCb.checked) {
+      types.push(tp);
+      scope[tp] = ["*"];
+    } else if (noneCb && noneCb.checked) {
+      scope[tp] = [];
+    } else if (sp.length) {
       types.push(tp);
       scope[tp] = sp.length >= species.length ? ["*"] : sp;
     } else {
@@ -555,7 +543,7 @@ async function runMethod1() {
       cells: [c.index, `${c.space_group_number} ${esc(c.space_group_symbol)}`, esc(c.k_point_label), esc(c.irrep_label), esc(c.opd_symbol), term(c.crystal_system), c.is_maximal ? "✓" : ""],
     }))
   );
-  bindRowClick("m1Out");
+  bindRowClick("m1Out", "method1");
   await refreshStatus();
 }
 
@@ -627,79 +615,63 @@ function retryWithLocalGen() {
   onGenDbChange();
   enumSubgroups();
 }
-async function fetchOfficialSubgroups() {
-  const box = document.getElementById("subOut");
-  const out = document.getElementById("officialOut");
-  if (!STATE || !STATE.structure) { showError(box, t("err.noCif")); return; }
-  const kp = selectedKp(1);
-  if (!kp) { showError(box, t("st.noSubs")); return; }
-  out.innerHTML = `<div class="info">${t("m2.fetchOfficialWait")}</div>`;
-  let d;
-  try {
-    d = await api("/api/official_subgroups", {
-      k: kp.label, params: collectParams(1), generate: genDbValue,
-    }, "POST");
-  } catch (e) {
-    out.innerHTML = `<div class="alert alert-error">${esc(String(e))}</div>`;
-    return;
-  }
-  if (!d.ok) { out.innerHTML = `<div class="alert alert-error">${esc(d.error)}</div>`; return; }
-  const rows = (d.subgroups || []).map((sg, i) => ({ ...sg, index: i }));
-  if (!rows.length) {
-    out.innerHTML = `<div class="alert alert-warning">${t("m2.noSubsAtKp")}</div>`;
-    return;
-  }
-  subgroups = rows;
-  subgroupsOfficial = true;
-  box.innerHTML = `<div class="info">${t("m2.subsFound", rows.length)} (${esc(t("m2.official"))})</div>`
-    + clickableTable([t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", "s", "i"], rows.map(sg => ({
-      idxKey: sg.index,
-      cells: [sg.index, `${sg.space_group_number} ${esc(sg.space_group_symbol)}`, esc(sg.k_point_label), esc(sg.irrep_label), esc(sg.opd_symbol), sg.size, sg.subgroup_index],
-    })));
-  bindRowClick("subOut");
-  await refreshStatus();
+function gotoOfficialSite() {
+  // 选项②：引导用户到官网用相同母相与参数执行 Method 2
+  window.open("https://landau3.byu.edu/isodistort.php", "_blank");
 }
 async function enumSubgroups() {
   const out = document.getElementById("subOut");
   const n = Math.max(1, nsupValue);
   const gen = genDbValue;
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
-  let merged = [];
+  // 收集所有 k 点组（superposed IRs：nsup>1 时多组），一次性提交给后端，
+  // 由后端合并全部 k 点的子群并连续编号，避免行点击时 index 串位/错位。
+  const groups = [];
   for (let i = 1; i <= n; i++) {
     const kp = selectedKp(i);
     if (!kp) { showError(out, t("st.noSubs")); return; }
     // 逐 k 点给出进度反馈（官网 Method 2 = 枚举该 k 点全部 IR 的子群）
     out.innerHTML = `<div class="info">${t("m2.enumKp", kp.label, i, n)}${gen ? " · " + t("m2.genDb") : ""}</div>`;
-    let d;
-    try {
-      d = await api("/api/subgroups", {
-        k: kp.label, params: collectParams(i), generate: gen,
-      }, "POST");
-    } catch (e) {
-      showError(out, String(e));
-      return;
-    }
-    if (!d.ok) { showError(out, d.error); return; }
-    merged = merged.concat(d.subgroups || []);
+    groups.push({ k: kp.label, params: collectParams(i) });
   }
+  let d;
+  try {
+    d = await api("/api/subgroups", {
+      kpoints: groups, generate: gen,
+    }, "POST");
+  } catch (e) {
+    showError(out, String(e));
+    return;
+  }
+  if (!d.ok) {
+    // 生成失败（含本地生成诊断）：显示错误 + 引导到官网（仍保留两条路径）
+    out.innerHTML = `<div class="alert alert-error">${esc(d.error)}</div>`
+      + (gen ? `<div class="muted-hint" style="margin-top:6px;">${esc(t("m2.gotoOfficial"))}：`
+          + `<a href="https://landau3.byu.edu/isodistort.php" target="_blank" rel="noopener">${esc(t("m2.gotoOfficialDesc"))}</a></div>` : "");
+    return;
+  }
+  const merged = d.subgroups || [];
   if (!merged.length) {
-    // 空结果：明确提示 + 恢复动作（本地生成 / 从官网获取）
+    // 本地（含本机算力生成）仍无法枚举出子群：并列给出两个选项，本地计算优先。
     subgroups = [];
     out.innerHTML = `<div class="alert alert-warning">${t("m2.noSubsAtKp")}</div>`
-      + `<p><button class="btn btn-primary" id="btnGenDbRetry" onclick="retryWithLocalGen()">${esc(t("m2.genDbRetry"))}</button>`
-      + ` <button class="btn" id="btnOfficial" onclick="fetchOfficialSubgroups()">${esc(t("m2.fetchOfficial"))}</button></p>`
-      + `<div id="officialOut" class="muted-hint"></div>`;
+      + `<p><b>${esc(t("m2.chooseNext"))}</b></p>`
+      + `<p>`
+      + `<button class="btn btn-primary" id="btnLocalCompute" onclick="retryWithLocalGen()">${esc(t("m2.localCompute"))}</button>`
+      + ` <span class="muted-hint">${esc(t("m2.localComputeDesc"))}</span><br><br>`
+      + `<button class="btn" id="btnGotoOfficial" onclick="gotoOfficialSite()">${esc(t("m2.gotoOfficial"))}</button>`
+      + ` <span class="muted-hint">${esc(t("m2.gotoOfficialDesc"))}</span>`
+      + `</p>`;
     await refreshStatus();
     return;
   }
   subgroups = merged;
-  subgroupsOfficial = false;
   out.innerHTML = `<div class="info">${t("m2.subsFound", merged.length)}</div>`
     + clickableTable([t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", "s", "i"], subgroups.map(sg => ({
       idxKey: sg.index,
       cells: [sg.index, `${sg.space_group_number} ${esc(sg.space_group_symbol)}`, esc(sg.k_point_label), esc(sg.irrep_label), esc(sg.opd_symbol), sg.size, sg.subgroup_index],
     })));
-  bindRowClick("subOut");
+  bindRowClick("subOut", "subgroups");
   await refreshStatus();
 }
 function applyNsup() {
@@ -715,18 +687,16 @@ function applyNsup() {
 }
 
 /* ================= Method 2（选中子群 -> 显示模式基矢） ================= */
-async function computeModes(idx) {
+async function computeModes(idx, source) {
   const out = document.getElementById("modesBox");
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
+  // 按来源从对应的候选数组回查子群（m2 k 点枚举 -> subgroups；
+  // method1/3 结果表 -> candidates）
+  const pool = source === "subgroups" ? (subgroups || []) : (candidates || []);
+  const sg = pool.find(s => s.index === idx);
   // 子群所属 k 点组 -> 该组的 independent incommensurate modulations
-  const sg = (subgroups || []).find(s => s.index === idx);
-  // 官网来源的子群不在本地候选列表，且本地 iso 无法对参数 k 点计算位移模式
-  if (subgroupsOfficial) {
-    out.innerHTML = `<div class="alert alert-warning">${t("m2.officialNoModes")}</div>`;
-    return;
-  }
   let nmod = 0;
-  if (sg && sg.k_point_label) {
+  if (source === "subgroups" && sg && sg.k_point_label) {
     const n = Math.max(1, nsupValue);
     for (let i = 1; i <= n; i++) {
       const kp = selectedKp(i);
@@ -742,6 +712,7 @@ async function computeModes(idx) {
     distortion_type: STATE ? STATE.distortion_types : undefined,
     nmod: nmod,
     nsup: nsupValue,
+    source: source,
   }, "POST");
   if (!d.ok) { showError(out, d.error); return; }
   modes = d.modes || [];
@@ -809,7 +780,7 @@ async function runMethod3() {
       cells: [c.index, `${c.space_group_number} ${esc(c.space_group_symbol)}`, esc(c.k_point_label), esc(c.irrep_label), esc(c.point_group)],
     }))
   );
-  bindRowClick("m3Out");
+  bindRowClick("m3Out", "method3");
   await refreshStatus();
 }
 

@@ -39,7 +39,7 @@ def read_structure(file_path: str | Path) -> Structure:
         Structure: pymatgen 晶体结构对象
     """
     path = Path(file_path)
-    if path.suffix.lower() in (".cif", ".vasp") or path.name.upper() in (
+    if path.suffix.lower() in (".cif", ".vasp", ".xyz") or path.name.upper() in (
         "POSCAR", "CONTCAR",
     ):
         return Structure.from_file(str(path))

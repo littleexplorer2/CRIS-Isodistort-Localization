@@ -7,3 +7,8 @@ spglib>=1.16.0
 # Notes:
 # - This file lists runtime dependencies required to use the library via Python.
 # - For development and testing, see requirements-dev.txt
+# - WSL (Windows Subsystem for Linux) is a *system* prerequisite, not a pip
+#   dependency: the ISOTROPY suite binaries in isobyu/ are Linux ELF and are
+#   invoked through WSL on Windows. See README "环境要求".
+# - pymatgen pulls in its own transitive deps (monty, ruamel.yaml, etc.)
+#   automatically; they need not be listed here.

@@ -187,10 +187,12 @@ class OccupationalModeGenerator:
             sc = build_supercell(parent, basis)
             new_species = []
             for j, site in enumerate(sc):
-                if occ[j] > 0:
-                    new_species.append(site.species_string)          # 全占据（+1 类）
+                # 占据率语义：-1 类为半占据（0.5），+1 类与未被调制（pattern==0）的
+                # 位点均保持全占据。
+                if occ[j] < 0:
+                    new_species.append({site.species_string: 0.5})
                 else:
-                    new_species.append({site.species_string: 0.5})   # 半占据（-1 类）
+                    new_species.append(site.species_string)
             ordered = Structure(sc.lattice, new_species, sc.frac_coords,
                                 coords_are_cartesian=False)
             sg = SpacegroupAnalyzer(ordered, symprec=self.tolerance)

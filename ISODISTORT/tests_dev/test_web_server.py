@@ -107,7 +107,8 @@ def test_state_endpoint(server):
     data = _get(server.port, "/api/state")
     assert data["ok"]
     assert data["state"]["structure"] is None
-    assert data["state"]["distortion_types"] == ["strain"]
+    # 默认对齐官网：strain + displacive（全物种）
+    assert data["state"]["distortion_types"] == ["strain", "displacive"]
     assert "distortion_scope" in data["state"]
 
 

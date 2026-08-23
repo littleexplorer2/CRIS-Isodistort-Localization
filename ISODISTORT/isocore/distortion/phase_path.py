@@ -27,8 +27,9 @@ TYPE_ALIASES = {
     "order": "occupational",        # 旧名（官网用 Occupational）
 }
 
-# 默认畸变类型（对齐官网：Types 面板默认只勾选 Strain，其余默认不勾选）
-DEFAULT_DISTORTION_TYPES = ["strain"]
+# 默认畸变类型（对齐官网 Types 面板默认勾选：Strain 勾选 + Displacive
+# 各物种复选框逐个勾选，即 strain + displacive；见 webpage_info 第 2 页 HTML）
+DEFAULT_DISTORTION_TYPES = ["strain", "displacive"]
 
 
 def normalize_distortion_types(distortion_types=None) -> list[str]:
@@ -40,7 +41,8 @@ def normalize_distortion_types(distortion_types=None) -> list[str]:
             （displacement/order 旧名会自动映射为 displacive/occupational）
 
     Returns:
-        List[str]: 标准化后的畸变类型列表，默认返回 ["displacive", "strain"]
+        List[str]: 标准化后的畸变类型列表，默认返回 ["strain", "displacive"]
+            （对齐官网默认勾选）
     """
     if distortion_types is None:
         result = DEFAULT_DISTORTION_TYPES.copy()

@@ -13,8 +13,9 @@ from isocore.distortion.phase_path import (
 
 def test_default_distortion_modes():
     """默认畸变类型应为 strain 单种（对齐官网：Types 面板默认只勾选 Strain）。"""
-    assert DEFAULT_DISTORTION_TYPES == ["strain"]
-    assert normalize_distortion_types(None) == ["strain"]
+    # 默认对齐官网 Types 面板：Strain 勾选 + Displacive 全物种勾选
+    assert DEFAULT_DISTORTION_TYPES == ["strain", "displacive"]
+    assert normalize_distortion_types(None) == ["strain", "displacive"]
     assert normalize_distortion_types(["strain", "displacement", "strain"]) == [
         "strain",
         "displacive",  # 旧名 displacement 自动映射为 displacive
