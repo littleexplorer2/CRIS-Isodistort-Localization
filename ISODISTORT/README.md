@@ -41,19 +41,17 @@
 
 ## 三、安装
 
-### 生产（运行）环境
+统一虚拟环境与依赖安装改为使用仓库内的脚本（只创建一次 `CRIS/.venv`）：
 
 ```powershell
-cd ISODISTORT
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+cd "C:\Users\devou\OneDrive\Desktop\CRIS"
+python ISODISTORT\main_requirement.py
 ```
 
-### 开发环境（额外测试/检查依赖）
+开发者端（额外安装 `requirements-dev.txt`）：
 
 ```powershell
-pip install -r requirements-dev.txt
+python ISODISTORT\main_requirement.py --dev
 ```
 
 ### 部署要求（ISOTROPY 套件）
@@ -77,7 +75,7 @@ python main_web.py
 - **Parent CIF**：上传母相 CIF；页头显示官网同款信息（空间群、点阵参数、Wyckoff 位置、`Default space-group preferences:` 行）。
 - **Types of distortions to be considered**：`Strain:` 单复选框 + `Displacive:` / `Occupational:` / `Magnetic:` / `Rotational:` 四行，每行带 **all / none / 各物种** 复选框（标签在复选框前，与官网一致），选中的物种即该类型模式的作用域。**各复选框完全独立、无任何自动联动**（对齐官网：勾选/取消物种不会联动 all/none，全部取消也不会自动勾 none）；点击 **Change** 提交时才按 **all > none > 物种列表** 的顺序解释（all 勾选 = 全部物种；none 勾选或全部未勾 = 不启用该类型；否则按勾选物种）。**默认勾选 Strain + Displacive 全物种**（对齐官网：加载 CIF 后 Displacive 行的各物种复选框逐个勾选，见 `webpage_info` 第 2 页 HTML）。
 - **Method 1**：晶系复选框（多选 OR，triclinic/monoclinic/orthorhombic/tetragonal/trigonal/hexagonal/cubic）→ 可达子群空间群下拉（只列出与母相结构相容的子群，来自真实枚举并按会话缓存）→ Conventional/Primitive lattice 下拉（由真实枚举的子群基矢按格点等价去重生成；因本地 iso 9.6.1 与官网站点数据库存在版本差异，选项可能与官网略有不同，界面有明确告示）→ Maximal subgroups only。
-- **Method 2**：`Specify k point:` → **superposed IRs** 高级功能（对齐官网）：修改 `Change number of superposed IRs:` 的数值并点击 **Change** 后，显示对应数量的 **`k vector N:` 行**（每行：k 点下拉 + a= / b= / g= 参数 + `# of independent incommensurate modulations`），可为多个 primary order parameter 分别选择不同的 k 点；点 **OK** 枚举所选 k 点的全部不可约表示子群（合并显示，含 k/IR/OPD 列）。**子群表支持列筛选与筛选结果下载**：表上方提供 Irrep / OPD / s / i / SG / k 列的文本筛选框（大小写不敏感包含匹配）、「只显示筛选后的行」开关与「下载筛选结果 (txt/csv)」链接。点击子群行显示该路径的模式基矢；**若所选子群属于参数 k 点（如 LD/DT，非公度），iso 二进制无法计算位移模式，页面以提示（非报错）说明并保留子群表**（对应官网 (3+d) 维超空间机制，本地暂不支持，见「已知差异」第 5 条）。若本地枚举为空（常见于带参数 k 点如 LD/DT），界面**并列给出两个选项、且「调用本地资源计算」优先**：**① 调用本地资源计算** —— 用本机算力生成该 k 点的子群数据库（对应官网 Generate isotropy subgroups，本地 iso 二进制对 "Should the data base be added?" 以空行应答触发生成，可能耗时数分钟到数小时，生成后缓存）—— 若生成失败会显示带 iso 输出末尾的诊断信息；**② 去 ISODISTORT 官网重试** —— 用相同母相 CIF 与 (k 点, 参数) 在官网执行 Method 2（该 k 点在官网可正常生成子群）。服务器已改用多线程 HTTPServer，长耗时生成期间页面心跳照常、不会触发“关页自动停服”。
+- **Method 2**：`Specify k point:` → **superposed IRs** 高级功能（对齐官网）：修改 `Change number of superposed IRs:` 的数值并点击 **Change** 后，显示对应数量的 **`k vector N:` 行**（每行：k 点下拉 + a= / b= / g= 参数），可为多个 primary order parameter 分别选择不同的 k 点；点 **OK** 枚举所选 k 点的全部不可约表示子群（合并显示，含 k/IR/OPD 列）。**子群表支持列筛选与筛选结果下载**：表上方提供 Irrep / OPD / s / i / SG / k 列的文本筛选框（大小写不敏感包含匹配）、「只显示筛选后的行」开关与「下载筛选结果 (txt/csv)」链接。点击子群行显示该路径的模式基矢；**若所选子群属于参数 k 点（如 LD/DT，非公度），iso 二进制无法计算位移模式，页面以提示（非报错）说明并保留子群表**（对应官网 (3+d) 维超空间机制，本地暂不支持，见「已知差异」第 5 条）。`# of independent incommensurate modulations` 依赖官网的 (3+d) 维超空间工作流，本地已从网页/终端交互中移除，请在官网使用该功能。若本地枚举为空（常见于带参数 k 点如 LD/DT），界面**并列给出两个选项、且「调用本地资源计算」优先**：**① 调用本地资源计算** —— 用本机算力生成该 k 点的子群数据库（对应官网 Generate isotropy subgroups，本地 iso 二进制对 "Should the data base be added?" 以空行应答触发生成，可能耗时数分钟到数小时，生成后缓存）—— 若生成失败会显示带 iso 输出末尾的诊断信息；**② 去 ISODISTORT 官网重试** —— 用相同母相 CIF 与 (k 点, 参数) 在官网执行 Method 2（该 k 点在官网可正常生成子群）。服务器已改用多线程 HTTPServer，长耗时生成期间页面心跳照常、不会触发“关页自动停服”。
 - **Method 3**：空间群下拉或点群下拉（空间群优先）→ direct/reciprocal radio（reciprocal 本地暂不支持，会给出明确提示）→ 3×3 基矢输入。
 - **Method 4**：上传畸变 CIF → 幅度表 + RMS 残差（默认 nearest-site / 0.25，API 层可自定义）。
 - **Space-Group Preferences（只读）**：本地 iso 二进制固定采用国际标准取位（即官网默认值），自定义取位（axes / cell choice / origin / SSG 等）会导致 `Syntax error`，因此本地**不提供可交互修改面板**，改为只读表格展示项目固定采用的默认值（Monoclinic axes a(b)c、cell choice 1、Orthorhombic axes abc、Trigonal axes hexagonal、Origin choice 2、SSG standard），并注明无法修改的原因。页头同时显示官网同款 `Default space-group preferences:` 行（`iso.space_group_preferences()`）。
@@ -270,7 +268,7 @@ ISODISTORT/
 ### 运行方式
 
 ```powershell
-pip install -r requirements-dev.txt
+python ISODISTORT\main_requirement.py --dev
 python -m pytest tests_dev -q        # 单元测试 + 金标准 + 三接口 + 鲁棒性（WSL 门控）
 ruff check .                         # 代码风格检查（配置见 pyproject.toml）
 ```
@@ -306,7 +304,7 @@ ruff check .                         # 代码风格检查（配置见 pyproject.
 2. **模式振幅语义**：官网使用 As/Ap（超胞归一化振幅 + normfactor）；本地以「位移向量（按最大矢量模长归一化为 1）× 用户幅度」叠加到原子坐标，方向模式与官网一致，数值换算待校准。
 3. **模式列表范围**：官网 Distortion Page 列出某 IR 的全部模式（主模式 + 可共存次级模式）；本地（iso DISPLAY BUSH）只给出主（root）模式对应 OPD 的位移模式。
 4. **晶格应变模式未实现**：本地引擎只施加原子位移、不改变晶格参数。对纯位移驱动的相变（如 I4/mmm→I4mm 极化模式）结果正确；对铁弹应变相变（需 a≠b 晶格畸变）仅位移分量无法降低晶系对称性，此类场景请结合官网输出。
-5. **参数 k 点（非特殊 k 点）**：子群枚举支持（需在线生成子群数据库并缓存到 WSL 暂存目录，不写入只读的 `isobyu/`）；iso 的 DISPLAY ISOTROPY 流程要求**先选 IR 再设 KVALUE**（与 DISPLAY IRREP 流程顺序相反），生成提示以**空行（回车）应答触发生成**（“Enter RETURN to continue”，实测 iso 9.6.1）。模式/畸变生成暂不支持（官网使用 (3+d) 维超空间机制，本地二进制无法完成），遇到时会给出明确错误提示。`number_of_independent_modulations`（nmod，非公度调制数）非 0 时同样明确报错（本地仅支持公度调制）。**官网 a/b/g 参数会自动换算为 iso KVALUE**（例如 I4/mmm LD 点官网 `g=1/6` → iso 内部 `2a=1/6` 即 KVALUE `1/12`，见 `isocore/data/kpoints_official.py` 的 `official_kparams_to_iso`）；未收录空间群仍按原值传入。**k 点下拉显示**：对已收录的母相空间群（目前 I4/mmm/EuAl4，`isocore/data/kpoints_official.py`），k 点下拉显示官网同款「Miller-Love 记号 + Kovalev 编号 + 官网坐标」（如 `GM, k14 (0,0,0)`）；未收录空间群回退 iso 原始坐标（无 Kovalev 编号）。Kovalev 编号与官网坐标参数化来自官网站点数据库（CDML k 点表），本地 iso 二进制不提供，需逐空间群收录。
+5. **参数 k 点（非特殊 k 点）**：子群枚举支持（需在线生成子群数据库并缓存到 WSL 暂存目录，不写入只读的 `isobyu/`）；iso 的 DISPLAY ISOTROPY 流程要求**先选 IR 再设 KVALUE**（与 DISPLAY IRREP 流程顺序相反），生成提示以**空行（回车）应答触发生成**（“Enter RETURN to continue”，实测 iso 9.6.1）。模式/畸变生成暂不支持（官网使用 (3+d) 维超空间机制，本地二进制无法完成），遇到时会给出明确错误提示。`# of independent incommensurate modulations`（nmod）功能依赖官网 (3+d) 维超空间计算链路，本地网页/终端交互已移除该选项，需到官网使用。**官网 a/b/g 参数会自动换算为 iso KVALUE**（例如 I4/mmm LD 点官网 `g=1/6` → iso 内部 `2a=1/6` 即 KVALUE `1/12`，见 `isocore/data/kpoints_official.py` 的 `official_kparams_to_iso`）；未收录空间群仍按原值传入。**k 点下拉显示**：对已收录的母相空间群（目前 I4/mmm/EuAl4，`isocore/data/kpoints_official.py`），k 点下拉显示官网同款「Miller-Love 记号 + Kovalev 编号 + 官网坐标」（如 `GM, k14 (0,0,0)`）；未收录空间群回退 iso 原始坐标（无 Kovalev 编号）。Kovalev 编号与官网坐标参数化来自官网站点数据库（CDML k 点表），本地 iso 二进制不提供，需逐空间群收录。
 6. **Method 3**：本地枚举仅覆盖特殊 k 点；官网的 reciprocal（倒易空间超格）选项本地暂不支持（选择后给出明确错误提示）。supercell_basis（3×3 子格基矢）按格点等价（GL(3,Z)）过滤枚举出的特殊 k 点子群；`direct_sublattice_centering` 仅支持官网默认 `d`（P/A/B/C/I/F/R 会明确报错，不再静默忽略）。
 7. **Method 4**：需先通过 Method 2 获得模式基矢再做最小二乘分解；**支持畸变结构为母相的超胞**（官网 Method 4 的常规情形）：原子数不一致时自动从当前相变路径（或两晶格矩阵）确定超胞基矢，把母相与模式位移提升到超胞坐标系（含非零 k 点 Bloch 相位调制）再分解。网页端按官网默认 nearest-site/0.25，API 层可自定义匹配方法与阈值。
 8. **magnetic 类型**：本地枚举中 magnetic 相关不可约表示（带 `m` 前缀）不参与默认流程，磁畸变需自行扩展。

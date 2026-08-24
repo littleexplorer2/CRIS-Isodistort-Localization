@@ -198,6 +198,7 @@ MESSAGES: dict[str, dict[str, str]] = {
         "l.opd": "序参量方向 (OPD)：",
         "l.nsup": "叠加不可约表示 (IR) 数：",
         "m2.nsup_note": "重要：必须点击「更改」以应用叠加 IR 数的修改。",
+        "m2.nmodRemoved": "提示：本地不支持 # of independent incommensurate modulations（(3+d) 超空间机制）；如需该功能请到官网使用。",
         "m2.enumKp": "正在枚举 k 点 {0} 的全部不可约表示子群（第 {1}/{2} 组 k 点）…",
         "m2.noSubsAtKp": "本地未能枚举/生成该 k 点下的子群（常见于带参数 k 点如 LD/DT）。",
         "m2.chooseNext": "请选择下一步：",
@@ -482,6 +483,8 @@ MESSAGES: dict[str, dict[str, str]] = {
         "l.nsup": "Change number of superposed IRs:",
         "m2.nsup_note": ("Important: You must click on Change to implement any changes in "
                          "the number of superposed IRs."),
+        "m2.nmodRemoved": ("Note: # of independent incommensurate modulations is not available locally "
+                           "(requires the official (3+d)-dimensional superspace workflow); use the official website for this feature."),
         "m2.enumKp": ("Enumerating subgroups over all irreps of k point {0} "
                       "(k group {1}/{2})..."),
         "m2.noSubsAtKp": ("The local engine could not enumerate/generate subgroups for this k point "

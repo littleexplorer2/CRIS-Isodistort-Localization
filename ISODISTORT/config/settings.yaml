@@ -46,3 +46,6 @@ runtime:
   # 对应官网 “Generate isotropy subgroups”：参数 k 点（如 LD/DT）的子群
   # 数据库需在线生成，可能耗时数分钟到数小时，故单独配置更长超时
   generation_timeout: 3600
+  # 说明：Method 2 的 “# of independent incommensurate modulations”
+  # 依赖官网 (3+d) 维超空间机制，本地网页/终端已移除该交互选项；
+  # 如需该功能，请在官网执行对应流程。

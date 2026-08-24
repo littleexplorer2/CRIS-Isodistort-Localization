@@ -527,7 +527,6 @@ class IsoHandler(BaseHTTPRequestHandler):
         result = iso.search_method_2(
             subgroup_idx=idx,
             distortion_type=data.get("distortion_type", _SESSION.distortion_types),
-            number_of_independent_modulations=int(data.get("nmod", 0) or 0),
         )
         _SESSION.method2 = result
         modes = []

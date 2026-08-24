@@ -15,14 +15,12 @@
 
 ## 安装
 
-```powershell
-cd "C:\Users\devou\OneDrive\Desktop\CRIS\ISODISTORT_VALIDATE"
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-```
+统一依赖安装使用仓库内的脚本（只创建一次 `CRIS/.venv`，同时覆盖 `ISODISTORT` 与 `ISODISTORT_VALIDATE`）：
 
-也可以使用已经安装 `numpy`、`pymatgen`、`spglib` 的 `ISODISTORT\.venv`。
+```powershell
+cd "C:\Users\devou\OneDrive\Desktop\CRIS"
+python ISODISTORT\main_requirement.py
+```
 
 ## 统一终端入口
 

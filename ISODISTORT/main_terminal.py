@@ -205,16 +205,17 @@ class IsoDistortConsoleApp:
     def __init__(self) -> None:
         self.project_root = Path(__file__).resolve().parent
         self.iso = IsoDistort()
-        # 默认仅启用 strain（对齐官网默认勾选；其余类型需在菜单 2 中启用）
-        self.distortion_types: list[str] = ["strain"]
+        # 默认对齐网页/官网：strain + displacive（displacive 作用于全部物种）
+        self.distortion_types: list[str] = ["strain", "displacive"]
         self.distortion_scope: dict[str, list[str]] = {
-            "displacive": [],
+            "displacive": ["*"],
             "occupational": [],
             "strain": [],
             "magnetic": [],
             "rotational": [],
         }
         self.iso.set_distortion_scope(self.distortion_scope)
+        self.iso.set_distortion_types(self.distortion_types)
         self.last_method1: list = []  # Method 1 候选（Method1ResultItem 列表）
         self.last_method2 = None      # Method 2 结果
         self.last_method3: list = []  # Method 3 候选
@@ -265,6 +266,7 @@ class IsoDistortConsoleApp:
             print(t("load.failed", err=exc))
             return
         self.iso.set_distortion_scope(self.distortion_scope)
+        self.iso.set_distortion_types(self.distortion_types)
         self.last_method1 = []
         self.last_method2 = None
         self.last_method3 = []
@@ -288,6 +290,7 @@ class IsoDistortConsoleApp:
                 self.distortion_scope[tp] = [s for s in raw.split(",") if s]
 
         self.iso.set_distortion_scope(self.distortion_scope)
+        self.iso.set_distortion_types(self.distortion_types)
         scope_desc = ", ".join(
             f"{tp}={','.join(v) if v else 'none'}"
             for tp, v in self.distortion_scope.items()
@@ -403,51 +406,32 @@ class IsoDistortConsoleApp:
     def _run_method_2(self) -> None:
         _line()
         print("Method 2: General method - search over specific k points")
-        print(t("m2.mode1"))
-        print(t("m2.mode2"))
-        mode = _prompt_int(t("m2.choose_mode"), 1)
-
-        if mode == 2:
-            subgroup_idx = self._direct_kpoint_search()
-        elif not self.last_method1:
-            print(t("m2.no_candidates"))
+        groups = self._prompt_kpoint_groups()
+        if not groups:
             return
-        else:
-            # 提示直接使用上方 Method 1 列表显示的 idx 值（过滤后 index 可能跳号，
-            # 不应再用连续的 0..len-1 范围误导）。与下方 sg.index 匹配逻辑一致。
-            subgroup_idx = _prompt_int(
-                "subgroup_idx（Method 1 候选序号，直接输入上方列表显示的 idx 值）"
-            )
+
+        subs = self._enumerate_subgroups_for_groups(groups)
+        if not subs:
+            return
+
+        subgroup_idx = self._choose_subgroup_idx(subs)
         if subgroup_idx is None:
             return
 
-        # 与网页一致：使用会话当前启用的畸变类型（含作用域），不做单独覆盖
-        dtype = self.distortion_types
-
-        # k 点 / OPD 信息（官网在 Method 2 页选择 k 点、IR、OPD；
-        # 本地已由枚举确定，此处仅作展示与确认）
-        target = next(
-            (sg for sg in self.iso.subgroups
-             if sg.index == subgroup_idx), None
-        )
-        if target is None:
-            print(t("m2.idx_range"))
+        # 参数 k 点（non-special / parametric, 如 LD/DT）位移模式计算依赖官网 (3+d) 超空间机制；
+        # 本地 iso 二进制仅能枚举其子群，不能计算位移模式。
+        target = next((s for s in subs if s.index == subgroup_idx), None)
+        if target and getattr(target, "k_parameters", None):
+            # 清空上一次的模式缓存，避免后续“进入畸变生成”误用旧数据
+            self.last_method2 = None
+            self.iso.mode_displacements = {}
+            self.iso.mode_occupancies = {}
+            print(t("m2.paramKNote"))
             return
-        print(
-            f"已选子群: {target.describe()} "
-            f"(index={target.subgroup_index}, size={target.size})"
-        )
-
-        n_mod = _prompt_int("independent modulations 数（本地仅支持 0=公度）", 0)
-        if n_mod != 0:
-            # 官网该参数仅对参数 k 点（非公度）有意义，本地 iso 无法完成
-            print("提示：本地引擎不支持非公度调制，已按 0（公度）处理。")
-            n_mod = 0
 
         result = self.iso.search_method_2(
             subgroup_idx=subgroup_idx,
-            distortion_type=dtype,
-            number_of_independent_modulations=n_mod,
+            distortion_type=self.distortion_types,
         )
         self.last_method2 = result
 
@@ -466,91 +450,111 @@ class IsoDistortConsoleApp:
         if _prompt_yes_no(t("m2.enter_dist"), True):
             self._generate_single_mode_flow()
 
-    def _direct_kpoint_search(self) -> int | None:
-        """直接 k 点搜索：k 点 -> IR -> OPD -> 子群（对齐官网 Method 2 流程）。"""
-        print("\n--- 选择 k 点 ---")
+    def _prompt_kpoint_groups(self) -> list[dict]:
+        """终端版 Method 2 k 点组输入（与网页 nsup + k vector 行一致）。"""
         kpoints = self.iso.list_k_points()
+        print("\n--- 指定 k 点（可叠加多组） ---")
         for i, kp in enumerate(kpoints, start=1):
             params = f"（参数: {','.join(kp.parameters)}）" if kp.parameters else ""
             print(f"  {i:2d}. {kp.label:<4s} {kp.coordinates}{params}")
-        choice = _prompt_int(t("m2.choose_k"), 1)
-        if not (1 <= choice <= len(kpoints)):
-            print(t("m2.range"))
-            return None
-        kp = kpoints[choice - 1]
+        nsup = _prompt_int("superposed IR 数（网页 Change number of superposed IRs）", 1)
+        if nsup < 1:
+            print(t("err.badNsup"))
+            return []
 
-        k_parameters: list[str] | None = None
-        if kp.parameters:
-            print(
-                f"k 点 {kp.label} 坐标为 {kp.coordinates}，"
-                f"需设置参数（按顺序输入，官网要求有理数如 1/2）"
-            )
-            print("提示：iso 的参数约定与官网可能差整数倍（如 iso 用 2a、官网用 g），"
-                  "请根据 k 点坐标形式自行换算。")
-            values: list[str] = []
-            for p in kp.parameters:
-                values.append(_prompt(t("m2.param_value", p=p), "").strip())
-            k_parameters = values if all(values) else None
-            if k_parameters is None:
-                print(t("m2.param_empty"))
-                return None
+        groups: list[dict] = []
+        for i in range(1, nsup + 1):
+            choice = _prompt_int(f"k 向量组 {i}: 请选择 k 点编号", 1)
+            if not (1 <= choice <= len(kpoints)):
+                print(t("m2.range"))
+                return []
+            kp = kpoints[choice - 1]
+            params: list[str] | None = None
+            if kp.parameters:
+                print(f"k 点 {kp.label} 需要参数（按顺序：{','.join(kp.parameters)}）")
+                vals = [_prompt(t("m2.param_value", p=p), "").strip() for p in kp.parameters]
+                if any(not v for v in vals):
+                    print(t("m2.param_empty"))
+                    return []
+                params = vals
+            groups.append({"k": kp.label, "params": params})
+        return groups
 
-        print("\n--- 选择不可约表示 ---")
-        irreps = self.iso.list_irreps(kp.label, k_parameters)
-        for i, ir in enumerate(irreps, start=1):
-            print(f"  {i:2d}. {ir.label:<8s} dim={ir.dimension}")
-        choice = _prompt_int(t("m2.choose_ir"), 1)
-        if not (1 <= choice <= len(irreps)):
-            print(t("m2.range"))
-            return None
-        irrep = irreps[choice - 1]
-
-        print(t("m2.enum_wait"))
-        try:
-            subs = self.iso.list_subgroups_at(
-                kp.label, irrep.label, k_parameters=k_parameters,
-            )
-        except IsodistortError as exc:
-            if "需要在线生成" in str(exc) and _prompt_yes_no(
-                "子群数据库不存在，是否在线生成（官网 “Generate isotropy "
-                "subgroups”，可能耗时数分钟到数小时）",
-                False,
-            ):
-                subs = self.iso.list_subgroups_at(
-                    kp.label, irrep.label, k_parameters=k_parameters,
-                    generate_if_missing=True,
+    def _enumerate_subgroups_for_groups(self, groups: list[dict]) -> list:
+        """枚举多组 k 点的全部 IR 子群（与网页 /api/subgroups 一致）。"""
+        all_subs: list = []
+        for i, grp in enumerate(groups, start=1):
+            print(f"{t('m2.enumKp', grp['k'], i, len(groups))}")
+            try:
+                subs = self.iso.list_subgroups_at_kpoint(
+                    grp["k"],
+                    k_parameters=grp.get("params"),
+                    generate_if_missing=False,
                 )
-            else:
-                print(f"枚举失败: {exc}")
-                return None
-        if not subs:
-            print(t("m2.no_subs"))
-            return None
+            except IsodistortError as exc:
+                text = str(exc)
+                if "在线生成" in text and _prompt_yes_no(
+                    "本地缺少该参数 k 点子群数据库，是否在线生成（可能耗时很长）", False
+                ):
+                    subs = self.iso.list_subgroups_at_kpoint(
+                        grp["k"],
+                        k_parameters=grp.get("params"),
+                        generate_if_missing=True,
+                    )
+                else:
+                    print(f"枚举失败: {exc}")
+                    return []
+            all_subs.extend(subs)
 
-        # OPD 过滤（对齐网页 Method 2 的 OPD 下拉：列出不同序参量方向，可再过滤）
+        for j, sg in enumerate(all_subs):
+            sg.index = j
+        self.iso.subgroups = all_subs
+        if not all_subs:
+            print(t("m2.noSubsAtKp"))
+        return all_subs
+
+    def _choose_subgroup_idx(self, subs: list) -> int | None:
+        """终端版子群表（逐层显示）+ 列筛选。"""
+        view = list(subs)
         while True:
-            distinct_opds = sorted({sg.opd_symbol for sg in subs if sg.opd_symbol})
-            print(f"  OPD 方向: {', '.join(distinct_opds) or '-'}")
-            for i, sg in enumerate(subs, start=1):
+            print(f"\n{t('m2.subsFound', len(view))}")
+            for sg in view[:120]:
                 print(
-                    f"  {i:2d}. idx={sg.index} SG {sg.space_group_number} "
-                    f"{sg.space_group_symbol:<10s} OPD={sg.opd_symbol:<4s} "
-                    f"index={sg.subgroup_index} size={sg.size}"
+                    f" idx={sg.index:3d} | SG {sg.space_group_number:3d} {sg.space_group_symbol:<10s}"
+                    f" | k={sg.k_point_label:<4s} IR={sg.irrep_label:<6s} OPD={sg.opd_symbol:<4s}"
+                    f" | s={sg.size:<3d} i={sg.subgroup_index:<3d}"
                 )
-            opd_choice = _prompt("按 OPD 过滤（输入方向符号，留空=全部）", "").strip()
-            if not opd_choice:
-                break
-            filtered = [sg for sg in subs if sg.opd_symbol == opd_choice]
-            if not filtered:
-                print("该 OPD 下无子群，请重试。")
+            if len(view) > 120:
+                print(f"  ... 还有 {len(view) - 120} 条")
+
+            key = _prompt("筛选列（sg/k/irrep/opd/s/i，留空直接选 idx）", "").strip().lower()
+            if not key:
+                idx = _prompt_int("输入 idx 计算模式")
+                if any(sg.index == idx for sg in view):
+                    return idx
+                print(t("m2.idx_range"))
                 continue
-            subs = filtered
-            break
-        choice = _prompt_int(t("m2.choose_sg"), 1)
-        if not (1 <= choice <= len(subs)):
-            print(t("m2.range"))
-            return None
-        return subs[choice - 1].index
+            val = _prompt("筛选值（包含匹配）", "").strip().lower()
+            if not val:
+                view = list(subs)
+                continue
+
+            def _hit(sg) -> bool:
+                fields = {
+                    "sg": f"{sg.space_group_number} {sg.space_group_symbol}",
+                    "k": sg.k_point_label,
+                    "irrep": sg.irrep_label,
+                    "opd": sg.opd_symbol,
+                    "s": str(sg.size),
+                    "i": str(sg.subgroup_index),
+                }
+                return val in fields.get(key, "").lower()
+
+            filtered = [sg for sg in subs if _hit(sg)]
+            if not filtered:
+                print("筛选后无结果，请重试。")
+                continue
+            view = filtered
 
     def _run_method_3(self) -> None:
         _line()

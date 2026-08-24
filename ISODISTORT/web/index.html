@@ -105,7 +105,7 @@
     <div id="m1Out" class="scroll"></div>
   </div>
 
-  <!-- ============ Method 2（对齐官网：superposed IRs 时多组 k 点 + 参数 + 调制数） ============ -->
+  <!-- ============ Method 2（对齐官网：superposed IRs 时多组 k 点 + 参数） ============ -->
   <div class="well">
     <h3><span id="hM2">Method 2: General method - search over specific k points</span>
       <button class="btn btn-primary" id="btnM2" onclick="listSubgroupsByKp()">OK</button>
@@ -115,6 +115,7 @@
       <span id="lKp">Specify k point:</span>
     </p>
     <div id="kvecBox"></div>
+    <div class="muted-hint" id="m2NmodRemoved"></div>
     <label style="font-weight:normal; margin:4px 0;">
       <input type="checkbox" id="genSubgroupDb" onchange="onGenDbChange()">
       <span id="lGenDb">Generate isotropy subgroups database if missing</span>
@@ -574,7 +575,6 @@ function renderKvecBox() {
     html += `<div class="kvec-row">
       ${t("l.kvec", idx)} <select id="kvec_${idx}" class="span3" onchange="onKpChange(${idx})">${kpOptionsHtml(0)}</select>
       <span>a=<input id="p_a_${idx}" class="span1" size="4"> b=<input id="p_b_${idx}" class="span1" size="4"> g=<input id="p_g_${idx}" class="span1" size="4"></span>
-      <span id="lNmod">${t("l.nmod")}</span><input id="nmod_${idx}" class="span1" value="0" size="2">
     </div>`;
   }
   box.innerHTML = html;
@@ -799,40 +799,29 @@ async function computeModes(idx, source) {
   // method1/3 结果表 -> candidates）
   const pool = source === "subgroups" ? (subgroups || []) : (candidates || []);
   const sg = pool.find(s => s.index === idx);
-  // 子群所属 k 点组 -> 该组的 independent incommensurate modulations
-  let nmod = 0;
-  if (source === "subgroups" && sg && sg.k_point_label) {
-    const n = Math.max(1, nsupValue);
-    for (let i = 1; i <= n; i++) {
-      const kp = selectedKp(i);
-      if (kp && kp.label === sg.k_point_label) {
-        const el = document.getElementById("nmod_" + i);
-        nmod = Number(el ? el.value : 0) || 0;
-        break;
-      }
-    }
+  // 参数 k 点的位移模式计算依赖官网 (3+d) 维超空间机制；
+  // 本地 iso 二进制仅能枚举其子群，不能计算畸变模式。
+  const kp = kpoints.find(k => k.label === sg?.k_point_label);
+  const isParamK = !!(kp && kp.parameters && kp.parameters.length);
+  if (isParamK) {
+    modes = [];
+    renderDistModes();
+    renderSubgroupTable();   // 恢复子群枚举表（保持可见，可继续筛选/下载）
+    out.innerHTML = `<div class="alert alert-warning">${esc(t("m2.paramKNote"))}</div>`;
+    await refreshStatus();
+    return;
   }
+
   const d = await api("/api/method2", {
     subgroup_idx: idx,
     distortion_type: STATE ? STATE.distortion_types : undefined,
-    nmod: nmod,
     nsup: nsupValue,
     source: source,
   }, "POST");
   if (!d.ok) {
-    // 参数 k 点（非公度）子群：iso 无法计算位移模式属已知限制，
-    // 显示提示（非红色报错）并恢复子群列表，避免看起来像“计算后又弹出报错”。
+    // 其他错误：直接报错。
     const err = String(d.error || "");
-    const isParamK = (sg && sg.k_point_label && (sg.k_parameters || []).length)
-      || /参数.*k 点|parametric.*k point|k point of symmetry/.test(err);
-    if (isParamK) {
-      modes = [];
-      renderDistModes();
-      renderSubgroupTable();   // 恢复子群枚举表（保持可见，可继续筛选/下载）
-      out.innerHTML = `<div class="alert alert-warning">${esc(t("m2.paramKNote"))}</div>`;
-    } else {
-      showError(out, err);
-    }
+    showError(out, err);
     await refreshStatus();
     return;
   }
@@ -992,10 +981,9 @@ function renderAll() {
   document.getElementById("btnM2").textContent = t("btn.ok");
   document.getElementById("lKp").textContent = t("l.kp");
   document.getElementById("lNsup").textContent = t("l.nsup");
-  // lNmod 在 k 点行内动态创建：仅在已渲染时更新文案（不重渲染，保留用户选择）
-  document.querySelectorAll("#kvecBox [id='lNmod']").forEach(el => { el.textContent = t("l.nmod"); });
   document.getElementById("btnNsup").textContent = t("btn.change");
   document.getElementById("m2NsupNote").textContent = t("m2.nsup_note");
+  document.getElementById("m2NmodRemoved").textContent = t("m2.nmodRemoved");
   document.getElementById("lGenDb").textContent = t("lGenDb");
   document.getElementById("hM3").textContent = t("m3.title");
   document.getElementById("btnM3").textContent = t("btn.ok");
