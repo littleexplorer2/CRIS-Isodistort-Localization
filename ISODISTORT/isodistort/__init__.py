@@ -23,6 +23,7 @@ _ALIASES = {
     "isodistort.distortion.domain_generator": "isocore.distortion.domain_generator",
     "isodistort.io": "isocore.io",
     "isodistort.io.structure_exporter": "isocore.io.structure_exporter",
+    "isodistort.io.distortion_formats": "isocore.io.distortion_formats",
     "isodistort.io.result_serializer": "isocore.io.result_serializer",
     "isodistort.i18n": "isocore.i18n",
     "isodistort.structure": "isocore.structure",

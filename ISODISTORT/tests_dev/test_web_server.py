@@ -10,6 +10,7 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -86,6 +87,17 @@ def test_index_served(server):
     assert 'id="btnM1"' in body and 'id="btnTypes"' in body
     assert "help.jpg" in body
     assert "onpagehide" in body or "pagehide" in body or "sendBeacon" in body or "/api/shutdown" in body
+    # Distortion 批量导出：官网第 6 页四种格式勾选 + Download all
+    assert 'id="fmtCif"' in body and 'id="fmtIsoviz"' in body
+    assert 'id="fmtModes"' in body and 'id="fmtTopas"' in body
+    assert "downloadAll()" in body
+    assert "Save interactive distortion" in body
+    assert "Complete modes details" in body
+    assert "TOPAS.STR" in body
+    assert 'id="dlMethod"' in body
+    assert 'id="dlMethodOpt1"' in body and 'id="dlMethodOpt2"' in body
+    assert 'id="dlMethodOpt3"' in body
+    assert 'multiple' not in body.split('id="dlMethod"')[1].split(">")[0]
 
 
 def test_i18n_endpoint(server):
@@ -161,6 +173,30 @@ def test_static_css_served(server):
     assert resp.status == 200
     assert len(body) > 1000  # 官网 Bootstrap 2.x 样式表已就位
     assert "text/css" in resp.headers["Content-Type"]
+
+
+def test_download_all_without_method2_is_json_error(server):
+    """未完成 Method 2 时 Download all 不得打包 output_dir，应返回 JSON 错误。"""
+    url = f"http://127.0.0.1:{server.port}/api/download_all?method=2&formats=cif"
+    with pytest.raises(urllib.error.HTTPError) as excinfo:
+        urllib.request.urlopen(url)
+    err = excinfo.value
+    assert err.code == 404
+    data = json.loads(err.read().decode("utf-8"))
+    assert data["ok"] is False
+    assert "Method 2" in data["error"] or "CIF" in data["error"]
+
+
+def test_download_all_rejects_multiple_methods(server):
+    """method=1,2 必须拒绝，不允许一次导出多个 Method。"""
+    url = f"http://127.0.0.1:{server.port}/api/download_all?method=1,2&formats=cif"
+    with pytest.raises(urllib.error.HTTPError) as excinfo:
+        urllib.request.urlopen(url)
+    err = excinfo.value
+    assert err.code == 400
+    data = json.loads(err.read().decode("utf-8"))
+    assert data["ok"] is False
+    assert "不能多选" in data["error"] or "exactly one" in data["error"]
 
 
 @pytest.mark.skipif(not _wsl_available(), reason="WSL 不可用，跳过真实计算端点")

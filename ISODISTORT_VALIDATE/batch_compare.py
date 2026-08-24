@@ -31,7 +31,7 @@ def _load_manifest(path: Path | None) -> dict[str, str]:
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Batch-compare matching CIF files in two directories.")
-    parser.add_argument("local_dir", help="directory containing local Isodistort_back CIF files")
+    parser.add_argument("local_dir", help="directory containing local ISODISTORT CIF files")
     parser.add_argument("reference_dir", help="directory containing official/reference CIF files")
     parser.add_argument("--pattern", default="*.cif", help="recursive file pattern (default: *.cif)")
     parser.add_argument("--lattice-tol", type=float, default=1e-5)

@@ -182,10 +182,32 @@
     <h3><span id="hDistPage">Distortion</span>
       <button class="btn btn-primary" id="btnGen" onclick="generateDistortion()">Generate</button>
       <button class="btn" id="btnDomains" onclick="showDomains()">Domains</button>
-      <a class="btn" id="btnDlAll" href="/api/download_all" download>Download all (ZIP)</a>
+      <button class="btn" id="btnDlAll" onclick="downloadAll()">Download all (ZIP)</button>
       <a href="https://iso.byu.edu/isodistorthelp.php#modeamp" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
     </h3>
     <p class="muted-hint" id="distNote">Enter mode and strain amplitudes:</p>
+    <p id="dlMethodBox" style="margin:6px 0 4px 0;">
+      <label style="font-weight:normal;">
+        <span id="dlMethodLabel">Export source (exactly one Method):</span>
+        <select id="dlMethod" style="margin-left:8px;">
+          <option value="1" id="dlMethodOpt1">Method 1</option>
+          <option value="2" id="dlMethodOpt2" selected>Method 2</option>
+          <option value="3" id="dlMethodOpt3">Method 3</option>
+        </select>
+      </label>
+    </p>
+    <p id="dlFmtBox" style="margin:6px 0 8px 0;">
+      <span id="dlFmtLabel">Download formats:</span>
+      <a href="https://iso.byu.edu/isodistorthelp.php#modeparams" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
+      <label style="margin-left:10px; font-weight:normal;">
+        <input type="checkbox" id="fmtCif" checked> <span id="dlFmtCif">CIF file</span></label>
+      <label style="margin-left:10px; font-weight:normal;">
+        <input type="checkbox" id="fmtIsoviz" checked> <span id="dlFmtIsoviz">Save interactive distortion</span></label>
+      <label style="margin-left:10px; font-weight:normal;">
+        <input type="checkbox" id="fmtModes" checked> <span id="dlFmtModes">Complete modes details</span></label>
+      <label style="margin-left:10px; font-weight:normal;">
+        <input type="checkbox" id="fmtTopas" checked> <span id="dlFmtTopas">TOPAS.STR</span></label>
+    </p>
     <div id="distModes"></div>
     <div id="distOut" class="scroll"></div>
     <div id="domainsOut" class="scroll"></div>
@@ -944,8 +966,7 @@ async function generateDistortion() {
   const d = await api("/api/generate", { contributions }, "POST");
   if (!d.ok) { showError(out, d.error); return; }
   out.innerHTML = `<div class="alert alert-success">${t("dist.generated", d.atoms)}`
-    + ` <a href="${esc(d.download)}" download>${esc(t("dist.download"))}</a>`
-    + ` · <a href="/api/download_all?lang=${LANG}" download>${esc(t("dist.downloadAll"))}</a></div>`;
+    + ` <a href="${esc(d.download)}" download>${esc(t("dist.download"))}</a></div>`;
   await refreshStatus();
 }
 async function showDomains() {
@@ -957,6 +978,27 @@ async function showDomains() {
     `${x.space_group_number} ${esc(x.space_group_symbol || "")}`, x.subgroup_index]);
   out.innerHTML = `<h4>${esc(t("dist.domainsTitle"))} (${d.count})</h4>`
     + table([t("hIdx"), t("hGen"), "SG", "index"], rows);
+}
+function selectedDownloadFormats() {
+  const fmts = [];
+  if (document.getElementById("fmtCif").checked) fmts.push("cif");
+  if (document.getElementById("fmtIsoviz").checked) fmts.push("isoviz");
+  if (document.getElementById("fmtModes").checked) fmts.push("modes");
+  if (document.getElementById("fmtTopas").checked) fmts.push("topas");
+  return fmts;
+}
+function downloadAll() {
+  const out = document.getElementById("distOut");
+  const fmts = selectedDownloadFormats();
+  if (!fmts.length) { showError(out, t("dist.noFmt")); return; }
+  const method = document.getElementById("dlMethod").value;
+  const a = document.createElement("a");
+  a.href = `/api/download_all?lang=${LANG}&method=${encodeURIComponent(method)}`
+    + `&formats=${encodeURIComponent(fmts.join(","))}`;
+  a.download = `isodistort_method${method}.zip`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 }
 
 /* ================= 渲染（切换语言后调用） ================= */
@@ -1001,8 +1043,16 @@ function renderAll() {
   document.getElementById("btnGen").textContent = t("dist.gen");
   document.getElementById("btnDomains").textContent = t("dist.domainsBtn");
   document.getElementById("btnDlAll").textContent = t("dist.downloadAll");
-  document.getElementById("btnDlAll").href = "/api/download_all?lang=" + LANG;
   document.getElementById("distNote").textContent = t("dist.note");
+  document.getElementById("dlMethodLabel").textContent = t("dist.methodLabel");
+  document.getElementById("dlMethodOpt1").textContent = t("dist.method1");
+  document.getElementById("dlMethodOpt2").textContent = t("dist.method2");
+  document.getElementById("dlMethodOpt3").textContent = t("dist.method3");
+  document.getElementById("dlFmtLabel").textContent = t("dist.fmtLabel");
+  document.getElementById("dlFmtCif").textContent = t("dist.fmtCif");
+  document.getElementById("dlFmtIsoviz").textContent = t("dist.fmtIsoviz");
+  document.getElementById("dlFmtModes").textContent = t("dist.fmtModes");
+  document.getElementById("dlFmtTopas").textContent = t("dist.fmtTopas");
   document.getElementById("hPrefs").textContent = t("hPrefs");
   document.getElementById("prefsNote").textContent = t("prefs.note");
   document.getElementById("prefsMonoAxes").textContent = t("prefs.monoAxes");

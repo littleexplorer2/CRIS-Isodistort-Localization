@@ -4,6 +4,9 @@
 - Search Page：加载母相 CIF、选择 Distortion Types、Method 1-4
 - Distortion Page：单模式/多模式畸变生成、导出、畴
 
+按 Method 分文件夹的 ZIP 批量导出在网页 Distortion（或 API
+``export_subgroups``）；本菜单的导出写入 ``runtime.output_dir``。
+
 说明：
 - 本程序依赖 WSL（isobyu 中为 Linux ELF 二进制），首次运行会自动
   在 WSL 侧建立短路径暂存目录与 ISODATA 符号链接。

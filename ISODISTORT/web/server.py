@@ -18,7 +18,6 @@ ISODISTORT 本地网页交互程序（web/server.py）
 from __future__ import annotations
 
 import contextlib
-import io
 import json
 import re
 import sys
@@ -26,7 +25,6 @@ import threading
 import time
 import urllib.parse
 import webbrowser
-import zipfile
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from pathlib import Path
 
@@ -40,6 +38,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 from isocore.api import IsoDistort  # noqa: E402
 from isocore.distortion import DISTORTION_TYPES  # noqa: E402
 from isocore.i18n import MESSAGES, TERMS_EN2ZH, set_language  # noqa: E402
+from isocore.io import parse_export_formats, parse_export_method  # noqa: E402
 from isocore.utils import get_config  # noqa: E402
 from isocore.utils.schoenflies import hm_symbol, schoenflies_symbol  # noqa: E402
 
@@ -71,6 +70,8 @@ class WebSession:
         self.method1: list = []
         self.method2 = None
         self.method3: list = []
+        # Method 2 k 点枚举得到的子群（Download all 只导出这份列表，不扫 output_dir）
+        self.method2_subgroups: list = []
 
     @property
     def iso(self):
@@ -435,6 +436,7 @@ class IsoHandler(BaseHTTPRequestHandler):
         _SESSION.iso.set_distortion_scope(_SESSION.distortion_scope)
         _SESSION.iso.set_distortion_types(_SESSION.distortion_types)
         _SESSION.method1, _SESSION.method2, _SESSION.method3 = [], None, []
+        _SESSION.method2_subgroups = []
         return {"state": _state_summary()}
 
     def _api_set_types(self, data: dict) -> dict:
@@ -490,6 +492,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             for j, sg in enumerate(all_subs):
                 sg.index = j
             _SESSION.iso.subgroups = all_subs
+            _SESSION.method2_subgroups = list(all_subs)
             return {"subgroups": _subgroup_rows(all_subs), "state": _state_summary()}
         # 兼容旧版单 k 点（可带 ir 参数）路径
         if data.get("ir"):
@@ -505,6 +508,8 @@ class IsoHandler(BaseHTTPRequestHandler):
                 k_parameters=data.get("params"),
                 generate_if_missing=gen,
             )
+        _SESSION.iso.subgroups = list(subs)
+        _SESSION.method2_subgroups = list(subs)
         return {"subgroups": _subgroup_rows(subs), "state": _state_summary()}
 
     def _api_method2(self, data: dict) -> dict:
@@ -690,22 +695,78 @@ class IsoHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _subgroups_for_method(self, method: int) -> list:
+        """取出所选 Method 当次计算得到的子群列表（不含其它 Method）。"""
+        if method == 1:
+            return [item.subgroup for item in _SESSION.method1]
+        if method == 3:
+            return [item.subgroup for item in _SESSION.method3]
+        subs = list(_SESSION.method2_subgroups)
+        if not subs and _SESSION.method2 is not None:
+            subs = [_SESSION.method2.subgroup]
+        return subs
+
     def _serve_download_all(self) -> None:
-        """一键下载输出目录中的全部生成文件（打包为 ZIP）。"""
-        cfg = get_config()
-        out_dir = cfg.output_dir.resolve()
-        files = sorted(p for p in out_dir.iterdir() if p.is_file())
-        if not files:
-            self._send_json({"ok": False, "error": "输出目录为空 / no generated files yet"}, 404)
+        """按用户所选的**一个** Method 的子群打包导出（不扫描 output_dir）。
+
+        查询参数：
+            ``method``：1 / 2 / 3（不可多选；缺省 2）
+            ``formats``：cif,isoviz,modes,topas（官网第 6 页对应选项）
+        ZIP 结构：``isodistort_methodN/<IR OPD>/<IR OPD> <格式>.<ext>``
+        """
+        parsed = urllib.parse.urlparse(self.path)
+        qs = urllib.parse.parse_qs(parsed.query)
+        method_vals = qs.get("method") or ["2"]
+        try:
+            if len(method_vals) > 1:
+                raise ValueError(
+                    "只能选择一个 Method 导出，不能多选 / select exactly one Method"
+                )
+            method = parse_export_method(method_vals[0])
+            fmts = parse_export_formats(
+                (qs.get("formats") or ["cif,isoviz,modes,topas"])[0]
+            )
+        except ValueError as exc:
+            self._send_json({"ok": False, "error": str(exc)}, 400)
             return
-        buf = io.BytesIO()
-        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-            for p in files:
-                zf.write(p, arcname=p.name)
-        body = buf.getvalue()
+        iso = _SESSION.iso
+        if iso.structure is None:
+            self._send_json(
+                {"ok": False, "error": "请先加载母相 CIF / load a parent CIF first"},
+                404,
+            )
+            return
+        subs = self._subgroups_for_method(method)
+        if not subs:
+            self._send_json({
+                "ok": False,
+                "error": (
+                    f"没有可导出的 Method {method} 子群；请先完成该 Method 的计算"
+                    f" / no Method {method} subgroups; run that Method first"
+                ),
+            }, 404)
+            return
+        need_modes = any(fmt != "cif" for fmt in fmts)
+        saved_subs = list(iso.subgroups)
+        try:
+            iso.subgroups = list(subs)
+            body = iso.export_subgroups_zip(
+                formats=fmts,
+                subgroups=subs,
+                compute_missing_modes=need_modes,
+                wrapping=f"isodistort_method{method}",
+            )
+        except Exception as exc:  # noqa: BLE001 - web 边界：统一转为 JSON 错误
+            self._send_json({"ok": False, "error": str(exc)}, 200)
+            return
+        finally:
+            iso.subgroups = saved_subs
         self.send_response(200)
         self.send_header("Content-Type", "application/zip")
-        self.send_header("Content-Disposition", 'attachment; filename="isodistort_outputs.zip"')
+        self.send_header(
+            "Content-Disposition",
+            f'attachment; filename="isodistort_method{method}.zip"',
+        )
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)

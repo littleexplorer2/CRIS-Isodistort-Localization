@@ -126,6 +126,9 @@ def _run_batch() -> None:
 def _show_help() -> None:
     _line()
     print("ISODISTORT_VALIDATE 用于比较本地 ISODISTORT 输出与参考 CIF。")
+    print("网页 Distortion 按一个 Method 下载的 ZIP 中，CIF 形如")
+    print("  isodistort_method2/LD1 C1/LD1 C1 CIF.cif")
+    print("请与官网第 6 页对该子群导出的 CIF 配对；不要用 output/ 历史文件。")
     print("单文件模式检查晶胞、原子、坐标、占据率、磁矩和空间群。")
     print("批量模式按相对路径配对多个 CIF，并报告缺失和失败用例。")
     print("默认按语义结构判断，通过排版差异不会导致失败；严格模式要求字节一致。")

@@ -17,6 +17,7 @@
     distorted = iso.generate_distortion(amplitude=0.1)
     # 5. 导出
     iso.export("output", formats=["cif", "poscar"])
+    iso.export_subgroups("out_batch", formats=["cif", "topas"])
 """
 import re
 import threading
@@ -50,9 +51,18 @@ from ..distortion import (
     normalize_distortion_types,
 )
 from ..i18n import get_language, set_language, t
-from ..io import StructureExporter
+from ..io import (
+    StructureExporter,
+    SubgroupExportSpec,
+    build_export_zip,
+    parse_export_formats,
+    subgroup_label,
+    unique_folder_name,
+    write_subgroup_files,
+)
 from ..structure import (
     SymmetryValidator,
+    build_supercell,
     read_cif,
     read_structure,
 )
@@ -948,6 +958,198 @@ class IsoDistort:
         for p in paths:
             print(f"  {p}")
         return paths
+
+    def _snapshot_distortion_state(self) -> dict:
+        """保存 Distortion Page 状态，避免批量导出覆盖当前会话。"""
+        return {
+            "phase_path": self.phase_path,
+            "distortion_modes": list(self.distortion_modes),
+            "mode_displacements": dict(self.mode_displacements),
+            "mode_occupancies": dict(self.mode_occupancies),
+            "distorted_structure": self.distorted_structure,
+        }
+
+    def _restore_distortion_state(self, snap: dict) -> None:
+        self.phase_path = snap["phase_path"]
+        self.distortion_modes = snap["distortion_modes"]
+        self.mode_displacements = snap["mode_displacements"]
+        self.mode_occupancies = snap["mode_occupancies"]
+        self.distorted_structure = snap["distorted_structure"]
+
+    def _supercell_for_subgroup(self, subgroup) -> Structure:
+        """按子群基矢扩胞（零振幅，对应官网默认幅度全 0）。"""
+        if self.structure is None:
+            raise RuntimeError("请先加载结构 (load_structure)")
+        basis = subgroup.basis_vectors
+        if basis and len(basis) == 3:
+            return build_supercell(self.structure, basis)
+        return self.structure.copy()
+
+    def _mode_labels_now(self) -> dict[str, str]:
+        labels: dict[str, str] = {}
+        for mode in self.distortion_modes:
+            sites = ",".join(sorted({b.wyckoff_letter for b in mode.bush_modes}))
+            labels[mode.irrep_label] = (
+                f"{mode.irrep_label}({mode.opd_symbol}) "
+                f"[{mode.mode_type} Wyckoff {sites or '-'}]"
+            )
+        for label, entry in self.mode_occupancies.items():
+            om = entry["mode"]
+            labels[label] = f"{label} [occupational {om.wyckoff_letter}]"
+        return labels
+
+    def _lifted_mode_displacements(self, subgroup) -> dict[str, np.ndarray]:
+        """把当前会话的母相模式位移提升到该子群超胞坐标。"""
+        if not self.mode_displacements:
+            return {}
+        basis = subgroup.basis_vectors or [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        parent_disp = {
+            label: np.asarray(entry["displacements"], dtype=float)
+            for label, entry in self.mode_displacements.items()
+        }
+        k_vector = self.phase_path.k_vector if self.phase_path is not None else None
+        _sc, lifted = self._dist_engine.lift_mode_displacements(
+            self.structure, basis, parent_disp, k_vector=k_vector
+        )
+        return lifted
+
+    def _spec_for_subgroup(
+        self,
+        subgroup,
+        *,
+        use_current_modes: bool,
+        use_generated_structure: bool,
+        note: str = "",
+        folder_name: str = "",
+    ) -> SubgroupExportSpec:
+        structure = self._supercell_for_subgroup(subgroup)
+        cif_structure = None
+        if use_generated_structure and self.distorted_structure is not None:
+            cif_structure = self.distorted_structure
+        lifted = self._lifted_mode_displacements(subgroup) if use_current_modes else {}
+        parent_sg = 0
+        parent_sym = ""
+        if self.symmetry_info:
+            parent_sg = int(self.symmetry_info.get("space_group_number") or 0)
+            parent_sym = str(self.symmetry_info.get("space_group_symbol") or "")
+        return SubgroupExportSpec(
+            subgroup=subgroup,
+            structure=structure,
+            parent_structure=self.structure,
+            parent_sg=parent_sg,
+            parent_symbol=parent_sym,
+            mode_displacements_sc=lifted or None,
+            mode_labels=self._mode_labels_now() if lifted else None,
+            note=note,
+            folder_name=folder_name,
+            cif_structure=cif_structure,
+        )
+
+    def _is_parametric_subgroup(self, subgroup) -> bool:
+        """带 k 点参数（如 LD g=1/6）的子群：本地无法计算位移模式。"""
+        return bool(getattr(subgroup, "k_parameters", None))
+
+    def _collect_export_specs(
+        self,
+        items: list,
+        formats: list[str],
+        compute_missing_modes: bool,
+    ) -> list[SubgroupExportSpec]:
+        """为每个子群准备导出规格；结束后恢复会话 Distortion 状态。"""
+        need_modes = any(fmt != "cif" for fmt in formats)
+        snap = self._snapshot_distortion_state()
+        current_idx = snap["phase_path"].subgroup_index if snap["phase_path"] else None
+        used: set[str] = set()
+        specs: list[SubgroupExportSpec] = []
+        try:
+            for sg in items:
+                folder = unique_folder_name(sg, used)
+                note = ""
+                is_current = current_idx is not None and sg.index == current_idx
+                computed = False
+                if need_modes and compute_missing_modes and not is_current:
+                    if self._is_parametric_subgroup(sg):
+                        note = (
+                            "parametric k point: local iso cannot compute "
+                            "displacement modes (superspace)"
+                        )
+                    else:
+                        try:
+                            self.search_method_2(sg.index)
+                            computed = True
+                        except Exception as exc:  # noqa: BLE001 - 批量导出：单子群失败不中断
+                            note = str(exc)
+                            self._restore_distortion_state(snap)
+                spec = self._spec_for_subgroup(
+                    sg,
+                    use_current_modes=need_modes and (is_current or computed),
+                    use_generated_structure=is_current,
+                    note=note,
+                    folder_name=folder,
+                )
+                specs.append(spec)
+                if computed:
+                    self._restore_distortion_state(snap)
+        finally:
+            self._restore_distortion_state(snap)
+        return specs
+
+    def export_subgroups(
+        self,
+        dest_dir: str | Path,
+        formats: list | str | None = None,
+        subgroups: list | None = None,
+        compute_missing_modes: bool = False,
+    ) -> list:
+        """
+        按 Method 2 子群批量导出（每个子群一个文件夹）。
+
+        Args:
+            dest_dir: 输出根目录（其下创建各子群文件夹）
+            formats: cif / isoviz / modes / topas（官网第 6 页对应选项）
+            subgroups: 默认使用当前会话的子群列表（Method 2 枚举结果）
+            compute_missing_modes: 为非当前子群再跑 Method 2 以填充模式类格式；
+                仅 CIF 时不需要。参数 k 点跳过 DISPLAY BUSH（本地无法计算模式）。
+
+        Returns:
+            写出的文件路径列表
+        """
+        if self.structure is None:
+            raise RuntimeError("请先加载结构 (load_structure)")
+        fmts = parse_export_formats(formats)
+        items = list(subgroups if subgroups is not None else self.subgroups)
+        if not items:
+            raise RuntimeError(
+                "没有可导出的 Method 2 子群；请先完成 Method 2 子群计算"
+            )
+        dest = Path(dest_dir)
+        dest.mkdir(parents=True, exist_ok=True)
+        specs = self._collect_export_specs(items, fmts, compute_missing_modes)
+        paths: list = []
+        for spec in specs:
+            folder = spec.folder_name or subgroup_label(spec.subgroup)
+            paths.extend(write_subgroup_files(dest / folder, spec, fmts))
+        print(t("export.done", n=len(paths)))
+        return paths
+
+    def export_subgroups_zip(
+        self,
+        formats: list | str | None = None,
+        subgroups: list | None = None,
+        compute_missing_modes: bool = False,
+        wrapping: str = "isodistort_outputs",
+    ) -> bytes:
+        """批量导出为 ZIP 字节（不读写 output_dir，避免混入无关文件）。"""
+        if self.structure is None:
+            raise RuntimeError("请先加载结构 (load_structure)")
+        fmts = parse_export_formats(formats)
+        items = list(subgroups if subgroups is not None else self.subgroups)
+        if not items:
+            raise RuntimeError(
+                "没有可导出的 Method 2 子群；请先完成 Method 2 子群计算"
+            )
+        specs = self._collect_export_specs(items, fmts, compute_missing_modes)
+        return build_export_zip(specs, fmts, wrapping=wrapping)
 
     # ================================================================
     # 畴变体

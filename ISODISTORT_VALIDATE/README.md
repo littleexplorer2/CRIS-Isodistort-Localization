@@ -1,147 +1,145 @@
 # ISODISTORT_VALIDATE
 
-用于比较 `ISODISTORT` 生成的 CIF 与官网导出的参考 CIF，帮助发现本地化 ISODISTORT 的输出回归。
+比较 **ISODISTORT 本地导出的 CIF** 与 **官网导出的参考 CIF** 是否为同一结构，用来检查本地化有没有算错。本目录可以改；`webpage_info/` 与 `实验数据与GD代码/` 不能改。
 
-## 检查层次
+默认 **PASS** 看的是晶体学语义（晶格、原子、坐标、占据率、磁矩、声明空间群），不是文件排版。字节级回归用 `--strict`。
 
-`compare_cif.py` 同时给出以下结果：
+与 `ISODISTORT` 共用仓库根目录的 `CRIS/.venv`。
 
-- **字节完全一致**：二进制内容逐字节相同，仅作为严格格式检查。
-- **文本内容一致**：按 UTF-8 读取后内容相同。
-- **结构与关键元数据一致**：比较晶格、原子数、元素、周期分数坐标、原子标签、占据率、磁矩和 CIF 声明空间群。
-- **spglib 独立诊断**：分别从两个解析结构推断空间群，并检查两边推断是否一致；同时报告 CIF 声明空间群是否与独立推断相符。
+---
 
-默认 `PASS` 的标准是语义结构与关键元数据一致，且参考文件哈希（如果提供）正确。CIF 排版、行尾、字段顺序等差异不会再导致默认误报。需要逐字节回归时使用 `--strict`。
+## 和本地批量导出如何对应
+
+网页 Distortion 的 **Download all (ZIP)** 每次只能选 **一个** Method（1 / 2 / 3），压缩包不扫描 `output/`。解压后 CIF 在子群文件夹里，文件名是「子群 + 格式」：
+
+```text
+isodistort_method2.zip
+  isodistort_method2/
+    LD1 C1/LD1 C1 CIF.cif
+    LD5 P6/LD5 P6 CIF.cif
+```
+
+与官网第 6 页对该子群导出的 CIF 按相对路径配对比较即可。不要拿 `output/` 里旧的 `mixed_*.cif`、其它 Method 的结果、或终端单文件导出去对整批官网参考集。
+
+Method 4 是畸变结构分解，没有子群列表可打包；单次 Generate 的 CIF 仍用 `compare_cif.py` 一对一比较。
+
+---
 
 ## 安装
-
-统一依赖安装使用仓库内的脚本（只创建一次 `CRIS/.venv`，同时覆盖 `ISODISTORT` 与 `ISODISTORT_VALIDATE`）：
 
 ```powershell
 cd "C:\Users\devou\OneDrive\Desktop\CRIS"
 python ISODISTORT\main_requirement.py
 ```
 
-## 统一终端入口
+开发依赖（本目录 `tests_dev/`）与 ISODISTORT 共用 `--dev`。下面命令在 `ISODISTORT_VALIDATE/` 下运行，并已激活该 venv。
 
-使用 `main.py` 可以通过终端菜单统一运行单文件比较和批量回归：
+---
+
+## 终端菜单
 
 ```powershell
 python main.py
 ```
 
-菜单支持：
+- 比较一对本地 / 参考 CIF
+- 按相对路径批量比较两个目录（可改文件匹配模式，默认 `*.cif`）
+- 设置晶格、坐标、占据率/磁矩容差
+- 是否忽略原子顺序、是否严格字节比较
+- 参考文件 SHA-256 或批量 hash manifest
+- 文本或 JSON 报告
 
-- 比较一对本地/参考 CIF；
-- 批量比较两个目录中的 CIF；
-- 设置晶格、坐标和占据率/磁矩容差；
-- 选择是否忽略原子顺序或启用严格字节比较；
-- 输入参考文件 SHA-256 或批量 hash manifest；
-- 输出普通文本结果或 JSON 报告。
+菜单第 3 项「查看验证说明」是本工具的摘要，详细约定以本 README 为准。
 
-## 单对 CIF 比较
+---
 
-两个输入都支持本机绝对路径：
+## 单对比较
+
+两个输入都支持本机绝对路径。批量 ZIP 解压后的 CIF 示例：
 
 ```powershell
 python compare_cif.py `
-  "C:\path\to\ISODISTORT\output\local.cif" `
-  "C:\path\to\official\official.cif"
+  "C:\path\to\isodistort_method2\LD1 C1\LD1 C1 CIF.cif" `
+  "C:\path\to\official.cif"
 ```
 
-默认容差分别用于不同物理量：
+容差：
 
 ```powershell
-python compare_cif.py "C:\path\to\local.cif" "C:\path\to\official.cif" `
-  --lattice-tol 1e-5 `
-  --coord-tol 1e-5 `
-  --scalar-tol 1e-5
+python compare_cif.py local.cif official.cif `
+  --lattice-tol 1e-5 --coord-tol 1e-5 --scalar-tol 1e-5
 ```
 
-如果两个文件的原子排序不同，但希望按“元素 + 周期坐标”匹配：
-
-```powershell
-python compare_cif.py "C:\path\to\local.cif" "C:\path\to\official.cif" --ignore-atom-order
-```
-
-严格要求文件字节完全一致：
-
-```powershell
-python compare_cif.py "C:\path\to\local.cif" "C:\path\to\official.cif" --strict
-```
+原子顺序不同但元素+周期坐标应能对上时加 `--ignore-atom-order`。要求文件逐字节相同加 `--strict`。`--json` 打印完整结果。`--structure-only` 是已废弃别名，默认本来就是语义比较。
 
 ### 可信参考文件哈希
 
-先计算官网参考文件的 SHA-256：
+先算官网参考文件的 SHA-256，再传给比较器，避免拿错参考文件：
 
 ```powershell
 Get-FileHash "C:\path\to\official.cif" -Algorithm SHA256
+python compare_cif.py local.cif official.cif --reference-sha256 "这里填写官网文件的SHA256"
 ```
 
-再把哈希传给比较器：
+哈希不匹配会失败。
 
-```powershell
-python compare_cif.py "C:\path\to\local.cif" "C:\path\to\official.cif" `
-  --reference-sha256 "这里填写官网文件的SHA256"
-```
+---
 
-哈希不匹配会返回失败，避免误把错误的参考文件当作权威基准。
+## 批量比较
 
-## 批量回归
-
-批量模式按照相对路径配对两个目录中的 CIF。例如：
+两个目录按**相对路径**配对。把 ZIP 里的 `isodistort_methodN/` 当作本地根，官网参考目录做成同样的子群文件夹结构：
 
 ```text
-local_cases/
-  tetragonal/case01.cif
-reference_cases/
-  tetragonal/case01.cif
+local_cases/LD1 C1/LD1 C1 CIF.cif
+reference_cases/LD1 C1/LD1 C1 CIF.cif
 ```
-
-运行：
 
 ```powershell
-python batch_compare.py `
-  "C:\path\to\local_cases" `
-  "C:\path\to\reference_cases"
+python batch_compare.py "C:\path\to\local_cases" "C:\path\to\reference_cases"
+python batch_compare.py local_cases reference_cases --json > report.json
+python batch_compare.py local_cases reference_cases --pattern "*CIF.cif"
 ```
 
-输出 JSON 汇总：
-
-```powershell
-python batch_compare.py `
-  "C:\path\to\local_cases" `
-  "C:\path\to\reference_cases" `
-  --json > report.json
-```
-
-批量模式会报告：
-
-- 总用例数、通过数、失败数
-- 缺失的配对文件
-- 每对文件的字节结果、结构结果、哈希结果和差异原因
-
-可用 `--hash-manifest manifest.json` 校验可信参考集。manifest 格式：
+会报告总用例数、通过/失败数、缺失配对、以及每对的字节/结构/哈希结果。可用 `--hash-manifest manifest.json`（键为相对路径，值为参考文件 SHA-256）：
 
 ```json
 {
-  "tetragonal/case01.cif": "参考文件的64位SHA256"
+  "LD1 C1/LD1 C1 CIF.cif": "参考文件的64位SHA256"
 }
 ```
 
-## 返回码
+---
 
-- `0`：比较通过。
-- `1`：文件成功解析但语义比较失败、哈希失败或批量存在失败用例。
-- `2`：路径、参数、依赖或 CIF 解析错误。
+## 比较层次与返回码
 
-## 如何解读结果
+`compare_cif.py` 会同时给出：
 
-- `byte_exact=否`、`structure_equal=是`：通常只是 CIF 排版、字段顺序、浮点格式或非关键文本不同，不自动视为 bug。
-- `lattice differs`：检查晶胞参数、超胞设置和晶胞表示。
-- `fractional coordinates differ`：检查位移映射、畸变幅度、原子匹配和周期坐标。
-- `occupancies` 或 `magnetic moments` 差异：说明非几何物理量可能有 bug。
-- `spglib-inferred space group differs`：两份结构的独立对称性判断不同，应优先检查坐标和结构设置。
-- `declared space group does not match spglib inference`：这是独立诊断告警；某些 CIF 会显式声明 `P1`，但坐标实际具有更高对称性，因此需要结合官网文件和预期空间群判断，不能仅凭这一项断言本地程序错误。
+- 字节是否完全一致
+- UTF-8 文本是否一致
+- 结构与关键元数据是否一致（晶格、原子数、元素、周期分数坐标、原子标签、占据率、磁矩、CIF 声明空间群）
+- spglib 独立推断的空间群（以及是否与 CIF 声明一致）
 
-一个参考文件通过不等于整个 ISODISTORT 无 bug。应建立覆盖不同空间群、畸变模式、超胞、磁结构和幅度的批量参考集。
+| 码 | 含义 |
+| --- | --- |
+| 0 | 语义比较通过（`--strict` 时还要求字节一致） |
+| 1 | 解析成功但语义/哈希失败，或批量有失败用例 |
+| 2 | 路径、参数、依赖或 CIF 解析错误 |
+
+解读：
+
+- `byte_exact=否` 且 `structure_equal=是`：多半是排版、字段顺序、浮点写法，不单独当 bug。
+- `lattice differs` / `fractional coordinates differ`：查超胞、幅度、原子匹配。
+- `occupancies` / `magnetic moments`：非几何量可能有问题。
+- `spglib-inferred space group differs`：两边对称性判断不同，优先查坐标。
+- CIF 声明 `P1` 但 spglib 给出更高对称性：可能是导出未对称化，要结合官网文件判断，不能单凭这一项断定本地算错。
+
+一对文件通过 ≠ 整个 ISODISTORT 无 bug。应对不同空间群、模式、超胞和幅度做批量参考集。
+
+---
+
+## 测试
+
+```powershell
+cd ISODISTORT_VALIDATE
+python -m pytest tests_dev -q
+```
