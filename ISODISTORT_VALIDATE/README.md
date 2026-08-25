@@ -10,7 +10,12 @@
 
 ## 和本地批量导出如何对应
 
-网页 Distortion 的 **Download all (ZIP)** 每次只能选 **一个** Method（1 / 2 / 3），压缩包不扫描 `output/`。解压后 CIF 在子群文件夹里，文件名是「子群 + 格式」：
+网页与终端界面为英语。四个 Method 只计算；下载在 Distortion：
+
+- **子群结构文件**（Method 1/2/3）：每次只含 **一个 Method** 的子群；若结果表有 Filter，ZIP 只含命中行，CIF 形如 `isodistort_method2/LD1 C1/LD1 C1 CIF.cif`。
+- **结果表 txt/csv**（Method 1–4）：是筛选后的列表，不是结构 CIF，不要拿来和官网第 6 页 CIF 做结构比较。
+
+网页已不再提供 Generate（有限振幅畸变 CIF）；不要用 `output/` 里旧的 `mixed_*.cif` 去对官网第 6 页参考集。
 
 ```text
 isodistort_method2.zip
@@ -21,7 +26,7 @@ isodistort_method2.zip
 
 与官网第 6 页对该子群导出的 CIF 按相对路径配对比较即可。不要拿 `output/` 里旧的 `mixed_*.cif`、其它 Method 的结果、或终端单文件导出去对整批官网参考集。
 
-Method 4 是畸变结构分解，没有子群列表可打包；单次 Generate 的 CIF 仍用 `compare_cif.py` 一对一比较。
+Method 4 是畸变结构分解，没有子群列表可打包。Python API 若仍调用 `generate_distortion` 写出的 CIF，可用 `compare_cif.py` 与官网对应文件一对一比较，不要拿来充当 Method ZIP 里的子群 CIF。
 
 ---
 

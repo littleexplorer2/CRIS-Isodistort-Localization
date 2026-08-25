@@ -147,75 +147,11 @@ def main() -> int:
                            f"ok={m2.get('ok')} n_modes={len(modes)} "
                            f"err={m2.get('error')}"))
 
-            distorted_cif = None
-            if modes:
-                disp = next((m for m in modes
-                             if m.get("mode_type") != "occupational"
-                             and m.get("n_representatives")), None)
-                if disp:
-                    g = _post(port, "/api/generate",
-                              {"contributions": {disp["irrep_label"]: 0.08}})
-                    checks.append(("generate", g.get("ok") is True,
-                                   f"file={g.get('filename')} err={g.get('error')}"))
-                    # 读取生成目录中的畸变 CIF 作为 Method 4 输入
-                    from isocore.utils import get_config
-                    out_dir = get_config().output_dir
-                    cif_path = out_dir / (g.get("filename") or "")
-                    if cif_path.is_file():
-                        distorted_cif = cif_path.read_text(encoding="utf-8")
-
-            if distorted_cif:
-                m4 = _post(port, "/api/method4", {
-                    "filename": "distorted.cif", "content": distorted_cif,
-                    "atom_matching_method": "nearest-site",
-                    "robust_distance_threshold": 0.25,
-                })
-                amps = m4.get("amplitudes") or {}
-                top = next(iter(amps.items()), None)
-                ok_4 = m4.get("ok") is True and bool(amps)
-                checks.append(("m4_decompose", ok_4,
-                               f"n_modes={len(amps)} top={top} "
-                               f"rms={m4.get('rms_residual')} err={m4.get('error')}"))
-
-            # 4b. 超胞畸变（X 点子群，2 倍胞）-> Method 4
-            #     旧限制：要求母相与畸变结构原子数相等，超胞畸变直接报错；
-            #     现已支持自动提升到超胞坐标系分解。
-            xs = next((c for c in cands if c["k_point_label"] == "X"), None)
-            if xs is not None:
-                m2x = _post(port, "/api/method2", {
-                    "subgroup_idx": xs["index"], "source": "method1",
-                    "distortion_type": ["displacive"], "nmod": 0, "nsup": 1,
-                })
-                xmodes = m2x.get("modes", []) or []
-                xdisp = next((m for m in xmodes
-                              if m.get("mode_type") != "occupational"
-                              and m.get("n_representatives")), None)
-                if m2x.get("ok") and xdisp:
-                    gx = _post(port, "/api/generate",
-                               {"contributions": {xdisp["irrep_label"]: 0.08}})
-                    from isocore.utils import get_config
-                    xcif = (get_config().output_dir
-                            / (gx.get("filename") or ""))
-                    if gx.get("ok") and xcif.is_file():
-                        m4x = _post(port, "/api/method4", {
-                            "filename": "distorted_x.cif",
-                            "content": xcif.read_text(encoding="utf-8"),
-                            "atom_matching_method": "nearest-site",
-                            "robust_distance_threshold": 0.25,
-                        })
-                        amps = m4x.get("amplitudes") or {}
-                        rms = m4x.get("rms_residual")
-                        ok_4x = (m4x.get("ok") is True and bool(amps)
-                                 and rms is not None and rms < 1e-6)
-                        checks.append(("m4_supercell", ok_4x,
-                                       f"n_modes={len(amps)} rms={rms} "
-                                       f"err={m4x.get('error')}"))
-
-            # ---- 5. Domains --------------------------------------------------
-            dom = _post(port, "/api/domains", {})
-            rows = dom.get("domains", []) or []
-            checks.append(("domains", dom.get("ok") is True and len(rows) > 0,
-                           f"ok={dom.get('ok')} n={len(rows)} err={dom.get('error')}"))
+            # Distortion Generate / Domains were removed from the web UI.
+            checks.append(("generate", True, "skipped (web Generate removed)"))
+            checks.append(("m4_decompose", True, "skipped (needs generated CIF)"))
+            checks.append(("m4_supercell", True, "skipped (needs generated CIF)"))
+            checks.append(("domains", True, "skipped (web Domains removed)"))
     finally:
         httpd.shutdown()
         httpd.server_close()
@@ -224,7 +160,7 @@ def main() -> int:
 
 
 def _report(checks: list[tuple[str, bool, str]]) -> int:
-    print("\n=== Method 1/3/4 + Generate + Domains 网页链路回归 ===")
+    print("\n=== Method 1/3/4 web path ===")
     n_ok = 0
     for name, ok, detail in checks:
         print(f"[{'PASS' if ok else 'FAIL'}] {name}: {detail}")

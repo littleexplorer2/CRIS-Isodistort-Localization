@@ -16,7 +16,6 @@
   table.result tr.clickable:hover td { background: #f5f5f5; }
   .scroll { max-height: 320px; overflow: auto; margin-top: 8px; }
   .muted-hint { color: #999; font-size: 12px; }
-  #langSel { margin-top: 8px; }
   #statusBox { margin-bottom: 14px; }
   #typeTable { width: auto; }
   #typeTable td { padding: 3px 10px 3px 0; white-space: nowrap; border: none; }
@@ -26,6 +25,17 @@
   #kpParams input { width: 60px; }
   .navbar .nav.pull-right { margin-right: 0; }
   #m1SysBox label { display: inline-block; margin-right: 10px; font-weight: normal; }
+  th.sortable { white-space: nowrap; }
+  .sort-btns { display: inline-block; margin-left: 4px; vertical-align: middle; }
+  .sort-btns button {
+    padding: 0 3px; line-height: 1.15; font-size: 10px; margin: 0 1px;
+  }
+  .sort-btns button.active { background: #08c; color: #fff; border-color: #08c; }
+  .opd-caption { margin: 6px 0 4px 0; }
+  .opd-list { font-family: Menlo, Consolas, "Courier New", monospace; font-size: 13px; }
+  .opd-item { display: block; font-weight: normal; white-space: nowrap; cursor: pointer; margin: 0; }
+  .opd-item input { margin-right: 6px; vertical-align: middle; }
+  #m1Out.scroll { max-height: 520px; }
 </style>
 </head>
 <body>
@@ -38,13 +48,6 @@
         <li><a href="https://iso.byu.edu/isodistorthelp.php" target="_blank" rel="noopener">HELP</a></li>
       </ul>
       <ul class="nav pull-right">
-        <li style="padding: 7px 10px 0 0;">
-          <label id="langLabel" for="langSel" style="color:#fff; font-size:13px; padding-right:6px;">Language</label>
-          <select id="langSel" onchange="onLangChange()" style="padding:4px 8px;">
-            <option value="en">English</option>
-            <option value="zh">中文</option>
-          </select>
-        </li>
         <li style="padding-top: 6px;">
           <button id="btnStop" class="btn btn-danger" onclick="stopServer()">Stop</button>
         </li>
@@ -120,7 +123,8 @@
       <input type="checkbox" id="genSubgroupDb" onchange="onGenDbChange()">
       <span id="lGenDb">Generate isotropy subgroups database if missing</span>
     </label>
-    <div id="genDbWarn" class="muted-hint" style="display:none;"></div>
+    <div id="genDbHelp" class="muted-hint" style="margin:4px 0 6px 18px;"></div>
+    <div id="genDbWarn" class="muted-hint" style="display:none; margin:0 0 8px 18px;"></div>
     <div id="subOut" class="scroll"></div>
     <div id="modesBox"></div>
     <p>
@@ -177,15 +181,14 @@
     <div id="m4Out" class="scroll"></div>
   </div>
 
-  <!-- ============ Distortion Page（对齐官网：模式幅度输入 + 生成 + 导出 + 畴） ============ -->
+  <!-- Distortion: export subgroup files (Generate / Domains are not part of
+       the local parent-CIF → subgroup-files workflow). -->
   <div class="well">
     <h3><span id="hDistPage">Distortion</span>
-      <button class="btn btn-primary" id="btnGen" onclick="generateDistortion()">Generate</button>
-      <button class="btn" id="btnDomains" onclick="showDomains()">Domains</button>
-      <button class="btn" id="btnDlAll" onclick="downloadAll()">Download all (ZIP)</button>
-      <a href="https://iso.byu.edu/isodistorthelp.php#modeamp" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
+      <button class="btn btn-primary" id="btnDlAll" onclick="downloadAll()">Download all (ZIP)</button>
+      <a href="https://iso.byu.edu/isodistorthelp.php#modeparams" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
     </h3>
-    <p class="muted-hint" id="distNote">Enter mode and strain amplitudes:</p>
+    <p class="muted-hint" id="distNote">Methods 1–4 only compute results. This panel downloads them: filtered tables (all Methods) and subgroup structure files (Methods 1–3 ZIP).</p>
     <p id="dlMethodBox" style="margin:6px 0 4px 0;">
       <label style="font-weight:normal;">
         <span id="dlMethodLabel">Export source (exactly one Method):</span>
@@ -193,9 +196,16 @@
           <option value="1" id="dlMethodOpt1">Method 1</option>
           <option value="2" id="dlMethodOpt2" selected>Method 2</option>
           <option value="3" id="dlMethodOpt3">Method 3</option>
+          <option value="4" id="dlMethodOpt4">Method 4</option>
         </select>
       </label>
     </p>
+    <p id="dlTableBox" style="margin:6px 0 4px 0;">
+      <span id="dlTableLabel">Filtered result table:</span>
+      <button type="button" class="btn" id="btnDlTxt" onclick="downloadFilteredTable(false)">Download filtered (txt)</button>
+      <button type="button" class="btn" id="btnDlCsv" onclick="downloadFilteredTable(true)">Download filtered (csv)</button>
+    </p>
+    <p class="muted-hint" id="distTableNote">Table and ZIP downloads both use that Method’s current filters (all matching rows, even if the table is set to show filtered rows only). ZIP contains only the selected file formats. Method 4 has a table only — no ZIP.</p>
     <p id="dlFmtBox" style="margin:6px 0 8px 0;">
       <span id="dlFmtLabel">Download formats:</span>
       <a href="https://iso.byu.edu/isodistorthelp.php#modeparams" target="_blank" rel="noopener"><img src="/static/help.jpg" alt="help"></a>
@@ -208,9 +218,7 @@
       <label style="margin-left:10px; font-weight:normal;">
         <input type="checkbox" id="fmtTopas" checked> <span id="dlFmtTopas">TOPAS.STR</span></label>
     </p>
-    <div id="distModes"></div>
     <div id="distOut" class="scroll"></div>
-    <div id="domainsOut" class="scroll"></div>
   </div>
 
   <!-- ============ Space-Group Preferences（只读：本地引擎固定国际标准取位） ============ -->
@@ -236,33 +244,20 @@
 
 <script>
 "use strict";
-/* ================= i18n（中英双语） ================= */
-let LANG = "en";
+/* ================= English UI strings (loaded from /api/i18n) ================= */
 let MSG = {};
-let TERMS = {};
 
-async function loadI18n(lang) {
-  const r = await fetch(`/api/i18n?lang=${lang}`);
+async function loadI18n() {
+  const r = await fetch("/api/i18n");
   const data = await r.json();
   MSG = data.messages || {};
-  TERMS = data.terms || {};
-  LANG = data.language || lang;
-  document.getElementById("langSel").value = LANG;
 }
 function t(key) {
   const s = MSG[key] || key;
   const args = Array.prototype.slice.call(arguments, 1);
   return s.replace(/\{(\d+)\}/g, (m, i) => (args[Number(i)] !== undefined ? args[Number(i)] : m));
 }
-function term(en) { return LANG === "en" ? en : (TERMS[en] || en); }
-function onLangChange() {
-  const next = document.getElementById("langSel").value;
-  localStorage.setItem("isodistort_lang", next);
-  loadI18n(next).then(() => {
-    document.documentElement.lang = next === "zh" ? "zh" : "en";
-    renderAll();
-  });
-}
+function term(en) { return en; }
 
 /* ================= 会话状态 ================= */
 let STATE = null;
@@ -270,15 +265,14 @@ let spaceGroups = [];       // 230 空间群（Method 3 用）
 let m1Options = null;       // Method 1 下拉数据（可达子群 + lattices）
 let kpoints = [];
 let irreps = [];
-let subgroups = [];
-let candidates = [];
+let subgroups = [];          // Method 2 subgroup rows
+let m1Items = [];
+let m3Items = [];
+let m4Items = [];
+let m4Meta = { rms: null, maxAbs: null };
 let modes = [];             // {irrep_label, opd_symbol, mode_type, wyckoff_sites, ...}
-let amplitudes = {};
-let domains = [];
 let nsupValue = 1;
 let genDbValue = false;  // 缺失时在线生成子群数据库（对应官网 Generate isotropy subgroups）
-let subFilters = {};     // 子群表列筛选（sg/k/irrep/opd/s/i 文本包含匹配）
-let showFilteredOnly = false;  // 表格是否只显示筛选后的行
 
 /* ================= 通用 ================= */
 async function api(path, body) {
@@ -287,7 +281,7 @@ async function api(path, body) {
     opts.headers["Content-Type"] = "application/json";
     opts.body = JSON.stringify(body);
   }
-  const r = await fetch(`${path}?lang=${LANG}`, opts);
+  const r = await fetch(path, opts);
   return r.json();
 }
 function fileText(file) {
@@ -400,6 +394,15 @@ async function loadCif() {
   if (!d.ok) { showError(msg, d.error); document.getElementById("infoPara").textContent = "-"; return; }
   showOk(msg, t("ok.loaded"));
   m1Options = null;
+  m1Items = []; subgroups = []; m3Items = []; m4Items = [];
+  m4Meta = { rms: null, maxAbs: null };
+  tblState[1] = emptyTblState(); tblState[2] = emptyTblState();
+  tblState[3] = emptyTblState(); tblState[4] = emptyTblState();
+  document.getElementById("m1Out").innerHTML = "";
+  document.getElementById("subOut").innerHTML = "";
+  document.getElementById("modesBox").innerHTML = "";
+  document.getElementById("m3Out").innerHTML = "";
+  document.getElementById("m4Out").innerHTML = "";
   await refreshStatus();
   await refreshKpoints();
   loadMethod1Options();   // 后台预取 Method 1 下拉数据（首次枚举较慢）
@@ -544,6 +547,257 @@ function selectedLattice() {
 function parseBasis(encoded) {
   return encoded.split(";").map(row => row.split(",").map(Number));
 }
+/* Unified result tables: filter + sort on Method 1–4. Downloads live in Distortion. */
+const CS_ORDER = {
+  triclinic: 0, monoclinic: 1, orthorhombic: 2, tetragonal: 3,
+  trigonal: 4, hexagonal: 5, cubic: 6,
+};
+function emptyTblState() {
+  return { filters: {}, sort: { key: null, dir: 1 }, showFilteredOnly: false };
+}
+const tblState = { 1: emptyTblState(), 2: emptyTblState(), 3: emptyTblState(), 4: emptyTblState() };
+
+function itemsFor(method) {
+  if (method === 1) return m1Items;
+  if (method === 2) return subgroups;
+  if (method === 3) return m3Items;
+  if (method === 4) return m4Items;
+  return [];
+}
+function tblContainer(method) {
+  return { 1: "m1Out", 2: "subOut", 3: "m3Out", 4: "m4Out" }[method];
+}
+function tblClickSource(method) {
+  return { 1: "method1", 2: "subgroups", 3: "method3", 4: null }[method];
+}
+function methodColumns(method) {
+  if (method === 4) {
+    return [
+      { key: "mode", header: t("hMode"), sortable: true, filterable: true,
+        text: (it) => String(it.mode || ""), cell: (it) => esc(it.mode),
+        sortVal: (it) => String(it.mode || ""), exportHeader: "mode" },
+      { key: "amp", header: term("amplitude"), sortable: true, filterable: true,
+        text: (it) => String(it.amplitude), cell: (it) => Number(it.amplitude).toFixed(6),
+        sortVal: (it) => Number(it.amplitude) || 0, exportHeader: "amplitude" },
+    ];
+  }
+  const idx = { key: "idx", header: t("hIdx"), sortable: false, filterable: false,
+    text: (it) => String(it.index), cell: (it) => it.index,
+    sortVal: (it) => Number(it.index) || 0, exportHeader: "index" };
+  const sg = { key: "sg", header: "SG", sortable: true, filterable: true,
+    text: (it) => `${it.space_group_number} ${it.space_group_symbol || ""}`,
+    cell: (it) => `${it.space_group_number} ${esc(it.space_group_symbol || "")}`,
+    sortVal: (it) => Number(it.space_group_number) || 0, exportHeader: "space_group" };
+  const k = { key: "k", header: t("hK"), sortable: true, filterable: true,
+    text: (it) => String(it.k_point_label || ""), cell: (it) => esc(it.k_point_label || ""),
+    sortVal: (it) => String(it.k_point_label || ""), exportHeader: "k_point" };
+  const ir = { key: "irrep", header: t("hIrrep"), sortable: true, filterable: true,
+    text: (it) => String(it.irrep_label || ""), cell: (it) => esc(it.irrep_label || ""),
+    sortVal: (it) => String(it.irrep_label || ""), exportHeader: "irrep" };
+  if (method === 1) {
+    return [
+      { key: "line", header: t("m1.orderParam"), sortable: true, filterable: true,
+        text: (it) => String(it.opd_line || ""), cell: (it) => esc(it.opd_line || ""),
+        sortVal: (it) => String(it.opd_line || ""), exportHeader: "order_parameter" },
+      idx, sg, k, ir,
+      { key: "opd", header: "OPD", sortable: true, filterable: true,
+        text: (it) => String(it.opd_symbol || ""), cell: (it) => esc(it.opd_symbol || ""),
+        sortVal: (it) => String(it.opd_symbol || ""), exportHeader: "OPD" },
+      { key: "cs", header: term("crystal system"), sortable: true, filterable: true,
+        text: (it) => String(it.crystal_system || ""), cell: (it) => esc(term(it.crystal_system || "")),
+        sortVal: (it) => CS_ORDER[it.crystal_system] ?? 99, exportHeader: "crystal_system" },
+      { key: "max", header: term("maximal subgroup"), sortable: true, filterable: true,
+        text: (it) => it.is_maximal ? "yes" : "", cell: (it) => it.is_maximal ? "✓" : "",
+        sortVal: (it) => it.is_maximal ? 1 : 0, exportHeader: "maximal" },
+    ];
+  }
+  if (method === 2) {
+    return [idx, sg, k, ir,
+      { key: "opd", header: "OPD", sortable: true, filterable: true,
+        text: (it) => String(it.opd_symbol || ""), cell: (it) => esc(it.opd_symbol || ""),
+        sortVal: (it) => String(it.opd_symbol || ""), exportHeader: "OPD" },
+      { key: "s", header: "s", sortable: true, filterable: true,
+        text: (it) => String(it.size), cell: (it) => it.size,
+        sortVal: (it) => Number(it.size) || 0, exportHeader: "size" },
+      { key: "i", header: "i", sortable: true, filterable: true,
+        text: (it) => String(it.subgroup_index), cell: (it) => it.subgroup_index,
+        sortVal: (it) => Number(it.subgroup_index) || 0, exportHeader: "subgroup_index" },
+    ];
+  }
+  return [idx, sg, k, ir,
+    { key: "pg", header: term("point group"), sortable: true, filterable: true,
+      text: (it) => String(it.point_group || ""), cell: (it) => esc(it.point_group || ""),
+      sortVal: (it) => String(it.point_group || ""), exportHeader: "point_group" },
+  ];
+}
+function itemMatches(method, it) {
+  const st = tblState[method];
+  const cols = methodColumns(method);
+  for (const col of cols) {
+    const f = String(st.filters[col.key] || "").trim().toLowerCase();
+    if (!f) continue;
+    if (!col.text(it).toLowerCase().includes(f)) return false;
+  }
+  return true;
+}
+function cmpSort(va, vb) {
+  if (typeof va === "number" && typeof vb === "number") return va - vb;
+  return String(va).localeCompare(String(vb), undefined, { numeric: true, sensitivity: "base" });
+}
+function displayedItems(method, { matchingOnly = false } = {}) {
+  const st = tblState[method];
+  let list = itemsFor(method).slice();
+  const col = methodColumns(method).find((c) => c.key === st.sort.key);
+  if (col) {
+    const dir = st.sort.dir === -1 ? -1 : 1;
+    list.sort((a, b) => cmpSort(col.sortVal(a), col.sortVal(b)) * dir);
+  }
+  if (matchingOnly || st.showFilteredOnly) list = list.filter((it) => itemMatches(method, it));
+  return list;
+}
+function sortButtonsHtml(method, col) {
+  if (!col.sortable) return "";
+  const st = tblState[method];
+  const ascOn = st.sort.key === col.key && st.sort.dir === 1 ? " active" : "";
+  const descOn = st.sort.key === col.key && st.sort.dir === -1 ? " active" : "";
+  return `<span class="sort-btns">`
+    + `<button type="button" class="btn btn-mini${ascOn}" data-sort="${col.key}" data-dir="1" title="${esc(t("m1.sortAsc"))}">▲</button>`
+    + `<button type="button" class="btn btn-mini${descOn}" data-sort="${col.key}" data-dir="-1" title="${esc(t("m1.sortDesc"))}">▼</button>`
+    + `</span>`;
+}
+function resultTableHtml(method, rows) {
+  if (method === 1) {
+    const clickable = !!tblClickSource(method);
+    let h = `<div class="opd-caption">${esc(t("m1.orderParam"))}`;
+    for (const col of methodColumns(method)) {
+      if (!col.sortable) continue;
+      h += `<span class="muted-hint" style="margin-left:10px;">${esc(col.header)}${sortButtonsHtml(method, col)}</span>`;
+    }
+    h += `</div><div class="opd-list">`;
+    if (!rows.length) {
+      return h + `<div class="muted-hint">-</div></div>`;
+    }
+    rows.forEach((it, i) => {
+      const chk = i === 0 ? " checked" : "";
+      const idxAttr = clickable ? ` data-idx="${esc(it.index)}"` : "";
+      h += `<label class="opd-item"${idxAttr}>`
+        + `<input type="radio" name="orderparam" value="${esc(it.index)}"${chk}>`
+        + `<span class="opd-text">${esc(it.opd_line || "")}</span></label>`;
+    });
+    return h + `</div>`;
+  }
+  const cols = methodColumns(method);
+  const clickable = !!tblClickSource(method);
+  let h = `<table class="table table-hover result"><thead><tr>`;
+  for (const col of cols) {
+    const cls = col.sortable ? ' class="sortable"' : "";
+    h += `<th${cls}>${esc(col.header)}${sortButtonsHtml(method, col)}</th>`;
+  }
+  h += `</tr></thead><tbody>`;
+  if (!rows.length) {
+    h += `<tr><td colspan="${cols.length}">-</td></tr>`;
+  } else {
+    for (const it of rows) {
+      const idxAttr = clickable ? ` class="clickable" data-idx="${esc(it.index)}"` : "";
+      h += `<tr${idxAttr}>${cols.map((c) => `<td>${c.cell(it)}</td>`).join("")}</tr>`;
+    }
+  }
+  return h + "</tbody></table>";
+}
+function bindResultTable(method) {
+  const wrap = document.getElementById("tblWrap" + method);
+  if (!wrap) return;
+  wrap.querySelectorAll("button[data-sort]").forEach((btn) => {
+    btn.onclick = (ev) => {
+      ev.stopPropagation();
+      sortResult(method, btn.dataset.sort, Number(btn.dataset.dir));
+    };
+  });
+  const src = tblClickSource(method);
+  if (!src) return;
+  wrap.onclick = (ev) => {
+    if (ev.target.closest("button[data-sort]")) return;
+    const hit = ev.target.closest("tr[data-idx], label.opd-item[data-idx]");
+    if (hit) computeModes(Number(hit.dataset.idx), src);
+  };
+}
+function filterControlsHtml(method) {
+  const st = tblState[method];
+  const cols = methodColumns(method).filter((c) => c.filterable);
+  const items = itemsFor(method);
+  const nMatch = items.filter((it) => itemMatches(method, it)).length;
+  const active = cols.some((c) => String(st.filters[c.key] || "").trim());
+  let html = `<div class="filter-row" style="margin:4px 0;">${t("m2.filter")} `;
+  html += cols.map((col) =>
+    `<input class="span1" size="4" placeholder="${esc(col.header)}" `
+    + `data-filtercol="${col.key}" value="${esc(st.filters[col.key] || "")}" `
+    + `oninput="onResultFilter(${method})">`
+  ).join(" ");
+  html += ` <button type="button" class="btn" onclick="clearResultFilters(${method})">${esc(t("m2.clearFilter"))}</button></div>`;
+  html += `<div class="muted-hint" style="margin:2px 0;">`
+    + `<label style="font-weight:normal;"><input type="checkbox" id="showFilteredOnly${method}" `
+    + `${st.showFilteredOnly ? "checked" : ""} onchange="onShowFilteredOnly(${method})"> `
+    + `${esc(t("m2.showFiltered"))}</label>`
+    + ` &nbsp; <span id="tblFilterCount${method}">${active ? esc(t("m2.filteredCount", nMatch, items.length)) : ""}</span>`
+    + `</div>`;
+  return html;
+}
+function renderResultTable(method) {
+  const out = document.getElementById(tblContainer(method));
+  const items = itemsFor(method);
+  if (!items.length) {
+    out.innerHTML = method === 4 ? "" : `<div class="info">-</div>`;
+    return;
+  }
+  const rows = displayedItems(method);
+  let html = "";
+  if (method === 2) html += `<div class="info">${t("m2.subsFound", items.length)}</div>`;
+  if (method === 4 && m4Meta.rms != null) {
+    html += `<div class="info">RMS ${Number(m4Meta.rms).toExponential(3)}`
+      + (m4Meta.maxAbs != null ? ` · max |A| ${Number(m4Meta.maxAbs).toExponential(3)}` : "")
+      + `</div>`;
+  }
+  html += filterControlsHtml(method);
+  html += `<div id="tblWrap${method}">${resultTableHtml(method, rows)}</div>`;
+  out.innerHTML = html;
+  bindResultTable(method);
+}
+function updateResultTableBody(method) {
+  const wrap = document.getElementById("tblWrap" + method);
+  if (!wrap) { renderResultTable(method); return; }
+  wrap.innerHTML = resultTableHtml(method, displayedItems(method));
+  bindResultTable(method);
+  const items = itemsFor(method);
+  const nMatch = items.filter((it) => itemMatches(method, it)).length;
+  const active = methodColumns(method).some((c) => String(tblState[method].filters[c.key] || "").trim());
+  const cnt = document.getElementById("tblFilterCount" + method);
+  if (cnt) cnt.textContent = active ? t("m2.filteredCount", nMatch, items.length) : "";
+  const cb = document.getElementById("showFilteredOnly" + method);
+  if (cb) cb.checked = tblState[method].showFilteredOnly;
+}
+function sortResult(method, key, dir) {
+  tblState[method].sort = { key, dir: dir === -1 ? -1 : 1 };
+  updateResultTableBody(method);
+}
+function onResultFilter(method) {
+  const box = document.getElementById(tblContainer(method));
+  const filters = {};
+  box.querySelectorAll("input[data-filtercol]").forEach((el) => {
+    filters[el.dataset.filtercol] = el.value;
+  });
+  tblState[method].filters = filters;
+  updateResultTableBody(method);
+}
+function clearResultFilters(method) {
+  tblState[method].filters = {};
+  renderResultTable(method);
+}
+function onShowFilteredOnly(method) {
+  const cb = document.getElementById("showFilteredOnly" + method);
+  tblState[method].showFilteredOnly = !!(cb && cb.checked);
+  updateResultTableBody(method);
+}
+
 async function runMethod1() {
   const out = document.getElementById("m1Out");
   if (!STATE || !STATE.structure) { showError(out, t("err.noCif")); return; }
@@ -560,19 +814,12 @@ async function runMethod1() {
   if (lat) { body.lattice = lat.lattice; body.frame = lat.frame; }
   const d = await api("/api/method1", body, "POST");
   if (!d.ok) { showError(out, d.error); return; }
-  candidates = d.candidates || [];
-  out.innerHTML = clickableTable(
-    [t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", term("crystal system"), term("maximal subgroup")],
-    candidates.map(c => ({
-      idxKey: c.index,
-      cells: [c.index, `${c.space_group_number} ${esc(c.space_group_symbol)}`, esc(c.k_point_label), esc(c.irrep_label), esc(c.opd_symbol), term(c.crystal_system), c.is_maximal ? "✓" : ""],
-    }))
-  );
-  bindRowClick("m1Out", "method1");
+  m1Items = d.candidates || [];
+  tblState[1] = emptyTblState();
+  renderResultTable(1);
   await refreshStatus();
 }
 
-/* ================= Method 2：多组 k 点 -> 子群（对齐官网 superposed IRs） ================= */
 async function refreshKpoints() {
   try {
     const d = await api("/api/kpoints");
@@ -619,7 +866,6 @@ function collectParams(i) {
   return vals.some(v => !v) ? null : vals;
 }
 function onKpChange(i) {
-  // 切换某组 k 点后清除该组旧子群结果
   document.getElementById("subOut").innerHTML = "";
 }
 async function listSubgroupsByKp() {
@@ -633,14 +879,12 @@ function onGenDbChange() {
   warn.textContent = t("m2.genDbWarn");
 }
 function retryWithLocalGen() {
-  // 空结果 -> 勾选“缺失时在线生成子群数据库”并重新枚举（本地 iso 生成）
   document.getElementById("genSubgroupDb").checked = true;
   genDbValue = true;
   onGenDbChange();
   enumSubgroups();
 }
 function gotoOfficialSite() {
-  // 选项②：引导用户到官网用相同母相与参数执行 Method 2
   window.open("https://landau3.byu.edu/isodistort.php", "_blank");
 }
 async function enumSubgroups() {
@@ -648,35 +892,28 @@ async function enumSubgroups() {
   const n = Math.max(1, nsupValue);
   const gen = genDbValue;
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
-  // 收集所有 k 点组（superposed IRs：nsup>1 时多组），一次性提交给后端，
-  // 由后端合并全部 k 点的子群并连续编号，避免行点击时 index 串位/错位。
   const groups = [];
   for (let i = 1; i <= n; i++) {
     const kp = selectedKp(i);
     if (!kp) { showError(out, t("st.noSubs")); return; }
-    // 逐 k 点给出进度反馈（官网 Method 2 = 枚举该 k 点全部 IR 的子群）
     out.innerHTML = `<div class="info">${t("m2.enumKp", kp.label, i, n)}${gen ? " · " + t("m2.genDb") : ""}</div>`;
     groups.push({ k: kp.label, params: collectParams(i) });
   }
   let d;
   try {
-    d = await api("/api/subgroups", {
-      kpoints: groups, generate: gen,
-    }, "POST");
+    d = await api("/api/subgroups", { kpoints: groups, generate: gen }, "POST");
   } catch (e) {
     showError(out, String(e));
     return;
   }
   if (!d.ok) {
-    // 生成失败（含本地生成诊断）：显示错误 + 引导到官网（仍保留两条路径）
     out.innerHTML = `<div class="alert alert-error">${esc(d.error)}</div>`
-      + (gen ? `<div class="muted-hint" style="margin-top:6px;">${esc(t("m2.gotoOfficial"))}：`
+      + (gen ? `<div class="muted-hint" style="margin-top:6px;">${esc(t("m2.gotoOfficial"))}: `
           + `<a href="https://landau3.byu.edu/isodistort.php" target="_blank" rel="noopener">${esc(t("m2.gotoOfficialDesc"))}</a></div>` : "");
     return;
   }
   const merged = d.subgroups || [];
   if (!merged.length) {
-    // 本地（含本机算力生成）仍无法枚举出子群：并列给出两个选项，本地计算优先。
     subgroups = [];
     out.innerHTML = `<div class="alert alert-warning">${t("m2.noSubsAtKp")}</div>`
       + `<p><b>${esc(t("m2.chooseNext"))}</b></p>`
@@ -690,116 +927,9 @@ async function enumSubgroups() {
     return;
   }
   subgroups = merged;
-  subFilters = {};
-  showFilteredOnly = false;
-  renderSubgroupTable();
-  bindRowClick("subOut", "subgroups");
+  tblState[2] = emptyTblState();
+  renderResultTable(2);
   await refreshStatus();
-}
-/* 子群表筛选：Irrep / OPD / s / i 等列文本包含匹配（大小写不敏感） + 筛选结果下载 */
-function renderSubgroupTable() {
-  const out = document.getElementById("subOut");
-  if (!subgroups || !subgroups.length) { out.innerHTML = ""; return; }
-  const headers = [t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", "s", "i"];
-  const rows = subgroups.map(sg => [
-    String(sg.index), `${sg.space_group_number} ${sg.space_group_symbol}`,
-    sg.k_point_label, sg.irrep_label, sg.opd_symbol, String(sg.size), String(sg.subgroup_index),
-  ]);
-  const filtered = rows.filter(matchesSubgroupFilters);
-  const active = Object.values(subFilters).some(v => String(v || "").trim());
-  let html = `<div class="info">${t("m2.subsFound", subgroups.length)}</div>`;
-  // 筛选行：SG/k/Irrep/OPD/s/i 各列一个文本输入框（序号列不筛）
-  html += `<div class="filter-row" style="margin:4px 0;">${t("m2.filter")} `
-    + ["sg", "k", "irrep", "opd", "s", "i"].map(col =>
-      `<input class="span1" size="4" placeholder="${esc(col === "sg" ? "SG" : t("h" + col.charAt(0).toUpperCase() + col.slice(1)) || col)}" `
-      + `data-filtercol="${col}" value="${esc(subFilters[col] || "")}" oninput="onSubFilter()">`).join(" ")
-    + ` <button class="btn" onclick="clearSubFilters()">${esc(t("m2.clearFilter"))}</button></div>`;
-  html += `<div class="muted-hint" style="margin:2px 0;">`
-    + `<label style="font-weight:normal;"><input type="checkbox" id="showFilteredOnly" ${showFilteredOnly ? "checked" : ""} onchange="onShowFilteredOnly()"> ${esc(t("m2.showFiltered"))}</label>`
-    + ` &nbsp; <a href="#" onclick="downloadFilteredSubgroups(false);return false;">${esc(t("m2.downloadTxt"))}</a>`
-    + ` &nbsp; <a href="#" onclick="downloadFilteredSubgroups(true);return false;">${esc(t("m2.downloadCsv"))}</a>`
-    + ` &nbsp; <span id="subFilterCount">${active ? esc(t("m2.filteredCount", filtered.length, subgroups.length)) : ""}</span>`
-    + `</div>`;
-  const displayRows = showFilteredOnly ? filtered : rows;
-  // 用可点击表格渲染（idxKey = 子群 index，点击后按来源回查计算模式）
-  html += `<div id="subTableWrap">` + clickableTable(headers, displayRows.map(r => ({
-    idxKey: Number(r[0]), cells: [Number(r[0]), esc(r[1]), esc(r[2]), esc(r[3]), esc(r[4]), r[5], r[6]],
-  }))) + `</div>`;
-  out.innerHTML = html;
-  bindRowClick("subOut", "subgroups");
-}
-/* 只更新表格与计数（筛选输入时避免重建输入框丢失焦点） */
-function updateSubgroupTableBody() {
-  const rows = subgroups.map(sg => [
-    String(sg.index), `${sg.space_group_number} ${sg.space_group_symbol}`,
-    sg.k_point_label, sg.irrep_label, sg.opd_symbol, String(sg.size), String(sg.subgroup_index),
-  ]);
-  const filtered = rows.filter(matchesSubgroupFilters);
-  const active = Object.values(subFilters).some(v => String(v || "").trim());
-  const displayRows = showFilteredOnly ? filtered : rows;
-  const headers = [t("hIdx"), "SG", t("hK"), t("hIrrep"), "OPD", "s", "i"];
-  const wrap = document.getElementById("subTableWrap");
-  if (wrap) {
-    wrap.innerHTML = clickableTable(headers, displayRows.map(r => ({
-      idxKey: Number(r[0]), cells: [Number(r[0]), esc(r[1]), esc(r[2]), esc(r[3]), esc(r[4]), r[5], r[6]],
-    })));
-    bindRowClick("subOut", "subgroups");
-  }
-  const cnt = document.getElementById("subFilterCount");
-  if (cnt) {
-    cnt.textContent = active ? t("m2.filteredCount", filtered.length, subgroups.length) : "";
-  }
-  const cb = document.getElementById("showFilteredOnly");
-  if (cb) cb.checked = showFilteredOnly;
-}
-function matchesSubgroupFilters(r) {
-  // r = [index, "SG号 符号", k, irrep, opd, s, i]
-  const vals = { idx: r[0], sg: r[1], k: r[2], irrep: r[3], opd: r[4], s: r[5], i: r[6] };
-  for (const col of ["idx", "sg", "k", "irrep", "opd", "s", "i"]) {
-    const f = String(subFilters[col] || "").trim().toLowerCase();
-    if (!f) continue;
-    if (!String(vals[col] || "").toLowerCase().includes(f)) return false;
-  }
-  return true;
-}
-function onSubFilter() {
-  // 读取当前筛选输入到 subFilters，再局部更新“计数 + 表格 + 复选框”，
-  // 不重渲整棵筛选区——否则 oninput 每次按键都会重建输入框并丢失焦点。
-  document.querySelectorAll("#subOut input[data-filtercol]").forEach(el => {
-    subFilters[el.dataset.filtercol] = el.value;
-  });
-  updateSubgroupTableBody();
-}
-function clearSubFilters() { subFilters = {}; renderSubgroupTable(); bindRowClick("subOut", "subgroups"); }
-function onShowFilteredOnly() {
-  showFilteredOnly = document.getElementById("showFilteredOnly").checked;
-  renderSubgroupTable();
-  bindRowClick("subOut", "subgroups");
-}
-function downloadFilteredSubgroups(csv) {
-  const headers = ["index", "space_group_number", "space_group_symbol", "k_point", "irrep", "OPD", "size", "subgroup_index"];
-  const rows = subgroups.filter(sg => matchesSubgroupFilters([
-    String(sg.index), `${sg.space_group_number} ${sg.space_group_symbol}`,
-    sg.k_point_label, sg.irrep_label, sg.opd_symbol, String(sg.size), String(sg.subgroup_index),
-  ]));
-  const data = rows.map(sg => [sg.index, sg.space_group_number, sg.space_group_symbol,
-    sg.k_point_label, sg.irrep_label, sg.opd_symbol, sg.size, sg.subgroup_index]);
-  const text = csv ? toCsv(headers, data)
-    : [headers.join("\t")].concat(data.map(r => r.join("\t"))).join("\n");
-  downloadText(text, `isodistort_subgroups_filtered.${csv ? "csv" : "txt"}`,
-               csv ? "text/csv" : "text/plain");
-}
-function toCsv(headers, rows) {
-  const q = v => { const s = String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  return "\ufeff" + [headers.map(q).join(",")].concat(rows.map(r => r.map(q).join(","))).join("\r\n");
-}
-function downloadText(text, filename, mime) {
-  const blob = new Blob([text], { type: `${mime};charset=utf-8` });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
 }
 function applyNsup() {
   const raw = document.getElementById("nsup").value.trim();
@@ -813,22 +943,17 @@ function applyNsup() {
   showOk(document.getElementById("subOut"), t("ok.nsup", n));
 }
 
-/* ================= Method 2（选中子群 -> 显示模式基矢） ================= */
 async function computeModes(idx, source) {
   const out = document.getElementById("modesBox");
   out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
-  // 按来源从对应的候选数组回查子群（m2 k 点枚举 -> subgroups；
-  // method1/3 结果表 -> candidates）
-  const pool = source === "subgroups" ? (subgroups || []) : (candidates || []);
+  const pool = source === "subgroups" ? (subgroups || [])
+    : source === "method3" ? (m3Items || [])
+    : (m1Items || []);
   const sg = pool.find(s => s.index === idx);
-  // 参数 k 点的位移模式计算依赖官网 (3+d) 维超空间机制；
-  // 本地 iso 二进制仅能枚举其子群，不能计算畸变模式。
   const kp = kpoints.find(k => k.label === sg?.k_point_label);
   const isParamK = !!(kp && kp.parameters && kp.parameters.length);
   if (isParamK) {
     modes = [];
-    renderDistModes();
-    renderSubgroupTable();   // 恢复子群枚举表（保持可见，可继续筛选/下载）
     out.innerHTML = `<div class="alert alert-warning">${esc(t("m2.paramKNote"))}</div>`;
     await refreshStatus();
     return;
@@ -841,9 +966,7 @@ async function computeModes(idx, source) {
     source: source,
   }, "POST");
   if (!d.ok) {
-    // 其他错误：直接报错。
-    const err = String(d.error || "");
-    showError(out, err);
+    showError(out, String(d.error || ""));
     await refreshStatus();
     return;
   }
@@ -857,8 +980,6 @@ async function computeModes(idx, source) {
     }
     return [cell, esc(m.opd_symbol), m.wyckoff_sites.join(","), m.n_representatives];
   });
-  // 对齐官网“order parameter direction”页：显示所选子群的完整信息
-  // （空间群、k 点、IR、OPD、超胞基矢、原点、s、i）
   let header = "";
   if (sg) {
     const basis = (sg.basis_vectors || []).map(r => "(" + r.join(",") + ")").join(" ");
@@ -870,11 +991,9 @@ async function computeModes(idx, source) {
       + `<br>${term("supercell")}: ${esc(basis)} · origin=(${esc(origin)})</div>`;
   }
   out.innerHTML = header + table([t("hIrrep"), "OPD", term("Wyckoff position"), t("hNrep")], rows);
-  renderDistModes();
   await refreshStatus();
 }
 
-/* ================= Method 3 ================= */
 function collectBasis() {
   const ids = ["b11", "b12", "b13", "b21", "b22", "b23", "b31", "b32", "b33"];
   const rows = [];
@@ -904,19 +1023,12 @@ async function runMethod3() {
     lattice_type: document.querySelector("input[name='m3LatType']:checked").value,
   }, "POST");
   if (!d.ok) { showError(out, d.error); return; }
-  candidates = d.candidates || [];
-  out.innerHTML = clickableTable(
-    [t("hIdx"), "SG", t("hK"), t("hIrrep"), term("point group")],
-    candidates.map(c => ({
-      idxKey: c.index,
-      cells: [c.index, `${c.space_group_number} ${esc(c.space_group_symbol)}`, esc(c.k_point_label), esc(c.irrep_label), esc(c.point_group)],
-    }))
-  );
-  bindRowClick("m3Out", "method3");
+  m3Items = d.candidates || [];
+  tblState[3] = emptyTblState();
+  renderResultTable(3);
   await refreshStatus();
 }
 
-/* ================= Method 4 ================= */
 async function runMethod4() {
   const f = document.getElementById("dauFile").files[0];
   const out = document.getElementById("m4Out");
@@ -929,56 +1041,12 @@ async function runMethod4() {
     robust_distance_threshold: 0.25,
   }, "POST");
   if (!d.ok) { showError(out, d.error); return; }
-  out.innerHTML = table([t("hMode"), term("amplitude")], Object.entries(d.amplitudes).slice(0, 20).map(([k, v]) => [esc(k), (+v).toFixed(6)]))
-    + `<div class="info">RMS ${d.rms_residual.toExponential(3)}</div>`;
+  m4Items = Object.entries(d.amplitudes || {}).map(([mode, amplitude]) => ({ mode, amplitude: +amplitude }));
+  m4Meta = { rms: d.rms_residual, maxAbs: d.max_abs_residual };
+  tblState[4] = emptyTblState();
+  renderResultTable(4);
 }
 
-/* ================= Distortion Page（对齐官网：模式幅度 + 生成 + 畴） ================= */
-function renderDistModes() {
-  const box = document.getElementById("distModes");
-  const out = document.getElementById("distOut");
-  if (!modes || !modes.length) {
-    box.innerHTML = `<div class="info">${t("st.noModes")}</div>`;
-    out.innerHTML = "";
-    return;
-  }
-  let html = `<table class="table table-hover result" style="width:auto;"><tbody>`;
-  for (const m of modes) {
-    const tag = m.mode_type === "occupational" ? ` <span class="muted-hint">(occ)</span>` : "";
-    html += `<tr><td>${esc(m.irrep_label)}${tag}</td>`
-      + `<td>OPD ${esc(m.opd_symbol || "-")}</td>`
-      + `<td><input type="number" step="any" id="amp_${esc(m.irrep_label)}" value="0" style="width:90px;"> ${esc(term("amplitude"))}</td></tr>`;
-  }
-  box.innerHTML = html + `</tbody></table>`;
-}
-async function generateDistortion() {
-  const out = document.getElementById("distOut");
-  if (!modes || !modes.length) { showError(out, t("st.noModes")); return; }
-  const contributions = {};
-  for (const m of modes) {
-    const el = document.getElementById("amp_" + m.irrep_label);
-    if (!el) continue;
-    const v = parseFloat(el.value);
-    if (Number.isFinite(v) && v !== 0) contributions[m.irrep_label] = v;
-  }
-  if (!Object.keys(contributions).length) { showError(out, t("dist.noAmp")); return; }
-  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
-  const d = await api("/api/generate", { contributions }, "POST");
-  if (!d.ok) { showError(out, d.error); return; }
-  out.innerHTML = `<div class="alert alert-success">${t("dist.generated", d.atoms)}`
-    + ` <a href="${esc(d.download)}" download>${esc(t("dist.download"))}</a></div>`;
-  await refreshStatus();
-}
-async function showDomains() {
-  const out = document.getElementById("domainsOut");
-  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
-  const d = await api("/api/domains", {}, "POST");
-  if (!d.ok) { showError(out, d.error); return; }
-  const rows = (d.domains || []).map(x => [x.number, esc(x.generator || "-"),
-    `${x.space_group_number} ${esc(x.space_group_symbol || "")}`, x.subgroup_index]);
-  out.innerHTML = `<h4>${esc(t("dist.domainsTitle"))} (${d.count})</h4>`
-    + table([t("hIdx"), t("hGen"), "SG", "index"], rows);
-}
 function selectedDownloadFormats() {
   const fmts = [];
   if (document.getElementById("fmtCif").checked) fmts.push("cif");
@@ -989,23 +1057,65 @@ function selectedDownloadFormats() {
 }
 function downloadAll() {
   const out = document.getElementById("distOut");
+  const method = document.getElementById("dlMethod").value;
+  if (method === "4") { showError(out, t("dist.zipNotM4")); return; }
   const fmts = selectedDownloadFormats();
   if (!fmts.length) { showError(out, t("dist.noFmt")); return; }
-  const method = document.getElementById("dlMethod").value;
+  const methodNum = Number(method);
+  const items = itemsFor(methodNum);
+  if (!items.length) { showError(out, t("dist.noMethod")); return; }
+  const idxs = items.filter((it) => itemMatches(methodNum, it)).map((it) => it.index);
+  if (!idxs.length) { showError(out, t("dist.noMethod")); return; }
   const a = document.createElement("a");
-  a.href = `/api/download_all?lang=${LANG}&method=${encodeURIComponent(method)}`
+  let href = `/api/download_all?method=${encodeURIComponent(method)}`
     + `&formats=${encodeURIComponent(fmts.join(","))}`;
+  if (idxs.length !== items.length) {
+    href += `&indices=${encodeURIComponent(idxs.join(","))}`;
+  }
+  a.href = href;
   a.download = `isodistort_method${method}.zip`;
   document.body.appendChild(a);
   a.click();
   a.remove();
+}
+function downloadFilteredTable(csv) {
+  const out = document.getElementById("distOut");
+  const method = Number(document.getElementById("dlMethod").value);
+  if (![1, 2, 3, 4].includes(method)) { showError(out, t("dist.noTable")); return; }
+  const items = itemsFor(method);
+  if (!items.length) { showError(out, t("dist.noTable")); return; }
+  const cols = methodColumns(method);
+  const st = tblState[method];
+  const col = cols.find((c) => c.key === st.sort.key);
+  let rows = items.filter((it) => itemMatches(method, it));
+  if (col) {
+    const dir = st.sort.dir === -1 ? -1 : 1;
+    rows = rows.slice().sort((a, b) => cmpSort(col.sortVal(a), col.sortVal(b)) * dir);
+  }
+  const headers = cols.map((c) => c.exportHeader);
+  const data = rows.map((it) => cols.map((c) => c.text(it)));
+  const text = csv ? toCsv(headers, data)
+    : [headers.join("\t")].concat(data.map((r) => r.join("\t"))).join("\n");
+  downloadText(text, `isodistort_method${method}_filtered.${csv ? "csv" : "txt"}`,
+               csv ? "text/csv" : "text/plain");
+}
+function toCsv(headers, rows) {
+  const q = v => { const s = String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  return "\ufeff" + [headers.map(q).join(",")].concat(rows.map(r => r.map(q).join(","))).join("\r\n");
+}
+function downloadText(text, filename, mime) {
+  const blob = new Blob([text], { type: `${mime};charset=utf-8` });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
 }
 
 /* ================= 渲染（切换语言后调用） ================= */
 function renderAll() {
   document.getElementById("titleTag").textContent = t("web.title");
   document.getElementById("pageTitle").textContent = t("web.title");
-  document.getElementById("langLabel").textContent = LANG === "zh" ? "语言" : "Language";
   document.getElementById("hCif").textContent = t("hCif");
   document.getElementById("btnLoadCif").textContent = t("btn.load");
   document.getElementById("hTypes").textContent = t("types.title");
@@ -1027,6 +1137,7 @@ function renderAll() {
   document.getElementById("m2NsupNote").textContent = t("m2.nsup_note");
   document.getElementById("m2NmodRemoved").textContent = t("m2.nmodRemoved");
   document.getElementById("lGenDb").textContent = t("lGenDb");
+  document.getElementById("genDbHelp").textContent = t("m2.genDbHelp");
   document.getElementById("hM3").textContent = t("m3.title");
   document.getElementById("btnM3").textContent = t("btn.ok");
   document.getElementById("lSgSel3").textContent = t("l.sgsel3");
@@ -1040,14 +1151,17 @@ function renderAll() {
   document.getElementById("btnM4").textContent = t("btn.ok");
   document.getElementById("lM4File").textContent = t("l.m4file");
   document.getElementById("hDistPage").textContent = t("dist.title");
-  document.getElementById("btnGen").textContent = t("dist.gen");
-  document.getElementById("btnDomains").textContent = t("dist.domainsBtn");
   document.getElementById("btnDlAll").textContent = t("dist.downloadAll");
   document.getElementById("distNote").textContent = t("dist.note");
   document.getElementById("dlMethodLabel").textContent = t("dist.methodLabel");
   document.getElementById("dlMethodOpt1").textContent = t("dist.method1");
   document.getElementById("dlMethodOpt2").textContent = t("dist.method2");
   document.getElementById("dlMethodOpt3").textContent = t("dist.method3");
+  document.getElementById("dlMethodOpt4").textContent = t("dist.method4");
+  document.getElementById("dlTableLabel").textContent = t("dist.tableLabel");
+  document.getElementById("btnDlTxt").textContent = t("m2.downloadTxt");
+  document.getElementById("btnDlCsv").textContent = t("m2.downloadCsv");
+  document.getElementById("distTableNote").textContent = t("dist.tableNote");
   document.getElementById("dlFmtLabel").textContent = t("dist.fmtLabel");
   document.getElementById("dlFmtCif").textContent = t("dist.fmtCif");
   document.getElementById("dlFmtIsoviz").textContent = t("dist.fmtIsoviz");
@@ -1067,7 +1181,6 @@ function renderAll() {
   renderSysBox();
   renderPgSelect();
   renderTypes();
-  renderDistModes();
   onGenDbChange();
   refreshStatus();
 }
@@ -1093,14 +1206,14 @@ function sendShutdown() {
 function stopServer() {
   document.getElementById("btnStop").disabled = true;
   document.getElementById("statusBox").innerHTML = `<b>${t("st.stopping")}</b>`;
-  fetch(`/api/shutdown?lang=${LANG}`, { method: "POST" }).catch(() => {});
+  fetch("/api/shutdown", { method: "POST" }).catch(() => {});
   setTimeout(() => {
     document.body.innerHTML = `<div class="pad" style="margin-top:60px"><h1>${t("st.stopping")}</h1><p>${t("st.srvDown")}</p></div>`;
   }, 400);
 }
 function startHeartbeat() {
   setInterval(() => {
-    fetch(`/api/ping?lang=${LANG}`).then(r => {
+    fetch("/api/ping").then(r => {
       if (!r.ok) throw new Error("bad");
       serverDown = false;
     }).catch(() => {
@@ -1116,10 +1229,9 @@ function startHeartbeat() {
 (async function init() {
   window.addEventListener("pagehide", sendShutdown);
   window.addEventListener("beforeunload", sendShutdown);
-  startHeartbeat();
-  const saved = localStorage.getItem("isodistort_lang");
-  await loadI18n(saved || "");
+  await loadI18n();
   renderAll();
+  startHeartbeat();
   await refreshSpaceGroups();
   await refreshKpoints();
   loadMethod1Options();

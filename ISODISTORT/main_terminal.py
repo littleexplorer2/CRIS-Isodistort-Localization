@@ -1,27 +1,26 @@
-"""统一交互入口：以终端菜单方式复现 ISODISTORT 网站核心交互流程。
+"""Terminal menu for the local ISODISTORT workflow.
 
-对应官网页面：
-- Search Page：加载母相 CIF、选择 Distortion Types、Method 1-4
-- Distortion Page：单模式/多模式畸变生成、导出、畴
+Search Page: load a parent CIF, set distortion types, run Method 1-4
+(parameters + compute; filter/sort the result table).
+Distortion: download filtered result tables (Methods 1-4) and export
+subgroup structure files from Method 1, 2, or 3 (same files as the web ZIP).
 
-按 Method 分文件夹的 ZIP 批量导出在网页 Distortion（或 API
-``export_subgroups``）；本菜单的导出写入 ``runtime.output_dir``。
+Requires WSL on Windows (isobyu binaries are Linux ELF). First run creates
+a short WSL staging path and an ISODATA symlink.
 
-说明：
-- 本程序依赖 WSL（isobyu 中为 Linux ELF 二进制），首次运行会自动
-  在 WSL 侧建立短路径暂存目录与 ISODATA 符号链接。
-- Method 1 枚举全部特殊 k 点的各向同性子群，候选较多时计算约需
-  数秒到数十秒（与官网“数据库查询”一致，属正常等待）。
+Method 1 enumerates isotropy subgroups over all special k points and can take
+several seconds on the first query.
 """
 
 from __future__ import annotations
 
+import csv
 import sys
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
 
 from isocore.api import IsoDistort
-from isocore.i18n import get_language, set_language, t
+from isocore.i18n import t
 from isocore.utils import IsodistortError, get_config
 
 DISTORTION_TYPE_MAP = {
@@ -174,32 +173,178 @@ def _prompt_supercell(default_cell: Sequence[int]) -> list[int]:
         raw = _prompt(t("ui.prompt.supercell"), default_raw)
         parts = [x.strip() for x in raw.split(",") if x.strip()]
         if len(parts) != 3:
-            print("超胞必须输入 3 个整数")
+            print("Supercell must be 3 integers")
             continue
         try:
             values = [int(x) for x in parts]
         except ValueError:
-            print("超胞参数必须为整数")
+            print("Supercell values must be integers")
             continue
         if any(v < 1 for v in values):
-            print("超胞参数必须 >= 1")
+            print("Supercell values must be >= 1")
             continue
         return values
 
 
 def _prompt_basis_matrix() -> list[list[str]]:
-    print("请输入 3x3 基矢矩阵（每行 3 个值，可用分数如 1/2，用空格分隔）")
+    print("Enter a 3x3 basis matrix (3 values per row; fractions like 1/2 allowed)")
     rows: list[list[str]] = []
     for i in range(3):
         while True:
-            row = _prompt(f"第 {i + 1} 行", "1 0 0" if i == 0 else "0 1 0" if i == 1 else "0 0 1")
+            row = _prompt(f"Row {i + 1}", "1 0 0" if i == 0 else "0 1 0" if i == 1 else "0 0 1")
             parts = [x for x in row.split() if x]
             if len(parts) != 3:
-                print("每一行必须有 3 个值")
+                print("Each row must have 3 values")
                 continue
             rows.append(parts)
             break
     return rows
+
+
+_CS_ORDER = {
+    "triclinic": 0,
+    "monoclinic": 1,
+    "orthorhombic": 2,
+    "tetragonal": 3,
+    "trigonal": 4,
+    "hexagonal": 5,
+    "cubic": 6,
+}
+
+
+def _sg_text(sg) -> str:
+    return f"{sg.space_group_number} {sg.space_group_symbol or ''}".strip()
+
+
+def _empty_tbl(
+    cols: list[tuple[str, str, Callable, Callable, bool]],
+) -> dict:
+    return {
+        "rows": [],
+        "filters": {},
+        "sort": (None, 1),
+        "show_only": False,
+        "cols": cols,
+    }
+
+
+def _method1_cols() -> list[tuple[str, str, Callable, Callable, bool]]:
+    return [
+        ("idx", "idx", lambda r: str(r["index"]), lambda r: int(r["index"]), False),
+        ("line", "order parameter", lambda r: r["line"], lambda r: r["line"], True),
+        ("sg", "SG", lambda r: r["sg"], lambda r: r["_sort_sg"], True),
+        ("k", "k", lambda r: r["k"], lambda r: r["k"], True),
+        ("irrep", "Irrep", lambda r: r["irrep"], lambda r: r["irrep"], True),
+        ("opd", "OPD", lambda r: r["opd"], lambda r: r["opd"], True),
+        ("cs", "crystal system", lambda r: r["cs"], lambda r: r["_sort_cs"], True),
+        ("max", "maximal", lambda r: r["max"], lambda r: r["_sort_max"], True),
+    ]
+
+
+def _method2_cols() -> list[tuple[str, str, Callable, Callable, bool]]:
+    return [
+        ("idx", "idx", lambda r: str(r["index"]), lambda r: int(r["index"]), False),
+        ("sg", "SG", lambda r: r["sg"], lambda r: r["_sort_sg"], True),
+        ("k", "k", lambda r: r["k"], lambda r: r["k"], True),
+        ("irrep", "Irrep", lambda r: r["irrep"], lambda r: r["irrep"], True),
+        ("opd", "OPD", lambda r: r["opd"], lambda r: r["opd"], True),
+        ("s", "s", lambda r: str(r["s"]), lambda r: r["_sort_s"], True),
+        ("i", "i", lambda r: str(r["i"]), lambda r: r["_sort_i"], True),
+    ]
+
+
+def _method3_cols() -> list[tuple[str, str, Callable, Callable, bool]]:
+    return [
+        ("idx", "idx", lambda r: str(r["index"]), lambda r: int(r["index"]), False),
+        ("sg", "SG", lambda r: r["sg"], lambda r: r["_sort_sg"], True),
+        ("k", "k", lambda r: r["k"], lambda r: r["k"], True),
+        ("irrep", "Irrep", lambda r: r["irrep"], lambda r: r["irrep"], True),
+        ("pg", "point group", lambda r: r["pg"], lambda r: r["pg"], True),
+    ]
+
+
+def _method4_cols() -> list[tuple[str, str, Callable, Callable, bool]]:
+    return [
+        ("mode", "mode", lambda r: r["mode"], lambda r: r["mode"], True),
+        ("amp", "amplitude", lambda r: r["amp"], lambda r: r["_sort_amp"], True),
+    ]
+
+
+def _row_method1(item) -> dict:
+    sg = item.subgroup
+    return {
+        "index": sg.index,
+        "line": sg.opd_line(),
+        "sg": _sg_text(sg),
+        "k": sg.k_point_label or "",
+        "irrep": sg.irrep_label or "",
+        "opd": sg.opd_symbol or "",
+        "cs": item.crystal_system or "",
+        "max": "yes" if item.is_maximal else "",
+        "_sg": sg,
+        "_sort_sg": int(sg.space_group_number or 0),
+        "_sort_cs": _CS_ORDER.get(item.crystal_system, 99),
+        "_sort_max": 1 if item.is_maximal else 0,
+    }
+
+
+def _row_method2(sg) -> dict:
+    return {
+        "index": sg.index,
+        "sg": _sg_text(sg),
+        "k": sg.k_point_label or "",
+        "irrep": sg.irrep_label or "",
+        "opd": sg.opd_symbol or "",
+        "s": sg.size,
+        "i": sg.subgroup_index,
+        "_sg": sg,
+        "_sort_sg": int(sg.space_group_number or 0),
+        "_sort_s": int(sg.size or 0),
+        "_sort_i": int(sg.subgroup_index or 0),
+    }
+
+
+def _row_method3(item) -> dict:
+    sg = item.subgroup
+    return {
+        "index": sg.index,
+        "sg": _sg_text(sg),
+        "k": sg.k_point_label or "",
+        "irrep": sg.irrep_label or "",
+        "pg": item.point_group or "",
+        "_sg": sg,
+        "_sort_sg": int(sg.space_group_number or 0),
+    }
+
+
+def _row_method4(mode: str, amp: float) -> dict:
+    return {
+        "mode": mode,
+        "amp": f"{amp:.6f}",
+        "_sort_amp": float(amp),
+    }
+
+
+def _matches_filters(row: dict, st: dict) -> bool:
+    colmap = {c[0]: c for c in st["cols"]}
+    for key, needle in st["filters"].items():
+        text = str(needle or "").strip().lower()
+        if not text or key not in colmap:
+            continue
+        if text not in str(colmap[key][2](row)).lower():
+            return False
+    return True
+
+
+def _displayed_rows(st: dict, matching_only: bool = False) -> tuple[list[dict], list[dict]]:
+    rows = list(st["rows"])
+    key, direction = st["sort"]
+    colmap = {c[0]: c for c in st["cols"]}
+    if key and key in colmap:
+        rows.sort(key=colmap[key][3], reverse=(direction == -1))
+    matching = [r for r in rows if _matches_filters(r, st)]
+    shown = matching if (matching_only or st["show_only"]) else rows
+    return shown, matching
 
 
 class IsoDistortConsoleApp:
@@ -219,9 +364,18 @@ class IsoDistortConsoleApp:
         }
         self.iso.set_distortion_scope(self.distortion_scope)
         self.iso.set_distortion_types(self.distortion_types)
-        self.last_method1: list = []  # Method 1 候选（Method1ResultItem 列表）
-        self.last_method2 = None      # Method 2 结果
-        self.last_method3: list = []  # Method 3 候选
+        self.last_method1: list = []
+        self.last_method2 = None
+        self.last_method2_subgroups: list = []
+        self.last_method3: list = []
+        self.last_method4: list[dict] = []
+        self.last_method4_meta: dict = {"rms": None, "max_abs": None}
+        self.tbl: dict[int, dict] = {
+            1: _empty_tbl(_method1_cols()),
+            2: _empty_tbl(_method2_cols()),
+            3: _empty_tbl(_method3_cols()),
+            4: _empty_tbl(_method4_cols()),
+        }
 
     def run(self) -> int:
         self._banner()
@@ -247,8 +401,6 @@ class IsoDistortConsoleApp:
                 self._distortion_page_menu()
             elif choice == 8:
                 self._show_state()
-            elif choice == 9:
-                self._switch_language()
 
     # ----------------------------------------------------------------
     # 基础流程
@@ -272,7 +424,16 @@ class IsoDistortConsoleApp:
         self.iso.set_distortion_types(self.distortion_types)
         self.last_method1 = []
         self.last_method2 = None
+        self.last_method2_subgroups = []
         self.last_method3 = []
+        self.last_method4 = []
+        self.last_method4_meta = {"rms": None, "max_abs": None}
+        self.tbl = {
+            1: _empty_tbl(_method1_cols()),
+            2: _empty_tbl(_method2_cols()),
+            3: _empty_tbl(_method3_cols()),
+            4: _empty_tbl(_method4_cols()),
+        }
 
     def _set_distortion_types(self) -> None:
         """选择 Distortion Types + 各类型的作用域物种（官网 all/none/Eu/Al）。"""
@@ -282,8 +443,11 @@ class IsoDistortConsoleApp:
         for tp in self.distortion_types:
             if tp == "strain":
                 continue  # 官网 Strain 行没有物种作用域复选框
-            print(f"  {tp} 作用域（当前结构物种: {', '.join(species) or '未加载'}"
-                  "；all=全部，none=不启用，或逗号分隔的物种，如 Eu,Al）")
+            print(
+                f"  {tp} scope (species in the loaded structure: "
+                f"{', '.join(species) or 'none loaded'}; "
+                "all = every species, none = disabled, or comma-separated names such as Eu,Al)"
+            )
             raw = _prompt(f"  {tp} scope", "all").strip().lower()
             if raw in ("all", "*", ""):
                 self.distortion_scope[tp] = ["*"]
@@ -299,20 +463,10 @@ class IsoDistortConsoleApp:
             for tp, v in self.distortion_scope.items()
             if tp in self.distortion_types
         )
-        print(f"当前启用类型: {', '.join(self.distortion_types)} | 作用域: {scope_desc}")
-
-    def _switch_language(self) -> None:
-        """切换界面语言（zh / en）。"""
-        print(t("ui.lang.current", lang=get_language()))
-        raw = _prompt(t("ui.lang.prompt"), "").strip().lower()
-        if raw in ("zh", "en"):
-            set_language(raw)
-            print(t("ui.lang.current", lang=get_language()))
-        else:
-            print(t("ui.lang.invalid"))
+        print(f"Enabled types: {', '.join(self.distortion_types)} | scope: {scope_desc}")
 
     def _main_menu(self) -> int:
-        """打印 Search Page 主菜单并获取用户选择"""
+        """Print the Search Page menu and read the next action."""
         _line()
         print(t("ui.search_page"))
         print(t("ui.menu.reload"))
@@ -323,7 +477,6 @@ class IsoDistortConsoleApp:
         print(t("ui.menu.method4"))
         print(t("ui.menu.distortion"))
         print(t("ui.menu.state"))
-        print(t("ui.menu.language"))
         print(t("ui.menu.exit"))
         return _prompt_int(t("ui.prompt.action"), 3)
 
@@ -361,27 +514,20 @@ class IsoDistortConsoleApp:
             maximal_subgroup_only=maximal_only,
         )
         self.last_method1 = result
-
-        print(f"Method 1 返回 {len(result)} 条候选（显示前 30 条）")
-        for item in result[:30]:
-            sg = item.subgroup
-            print(
-                f"  idx={sg.index:3d} | SG #{sg.space_group_number:<3d} "
-                f"{sg.space_group_symbol:<12s} | k={sg.k_point_label:<4s} "
-                f"IR={sg.irrep_label:<6s} OPD={sg.opd_symbol:<4s} "
-                f"| crystal_system={item.crystal_system:<12s} "
-                f"| maximal={item.is_maximal}"
-            )
-        if len(result) > 30:
-            print(f"  ... 还有 {len(result) - 30} 条")
+        self.tbl[1] = _empty_tbl(_method1_cols())
+        self.tbl[1]["rows"] = [_row_method1(item) for item in result]
+        print(t("method1.result", n=len(result)))
+        idx = self._review_result_table(1, allow_idx=True)
+        if idx is not None:
+            self._compute_modes(idx, "method1")
 
     def _prompt_lattice_selection(self) -> dict | None:
         """官网 Conventional/Primitive lattice 下拉的终端版（0 = 不选）。"""
-        print("\nMethod 1 lattice 过滤（官网 Conventional/Primitive lattice，0=不选）")
+        print("\nMethod 1 lattice filter (official Conventional/Primitive lattice; 0 = none)")
         try:
             opts = self.iso.method1_options()
         except IsodistortError as exc:
-            print(f"获取 lattice 选项失败: {exc}")
+            print(f"Failed to load lattice options: {exc}")
             return None
         conv = opts.get("conventional_lattices") or []
         prim = opts.get("primitive_lattices") or []
@@ -391,7 +537,7 @@ class IsoDistortConsoleApp:
         print("  Primitive lattice:")
         for i, lat in enumerate(prim, start=1):
             print(f"    P{i:2d}. {lat['label']}")
-        raw = _prompt("选择（如 C3 或 P2；0=不选）", "0").strip().lower()
+        raw = _prompt("Choose (e.g. C3 or P2; 0 = none)", "0").strip().lower()
         if raw in ("", "0"):
             return None
         if len(raw) >= 2 and raw[0] in ("c", "p"):
@@ -403,7 +549,7 @@ class IsoDistortConsoleApp:
             if 0 <= idx < len(pool):
                 # 下拉选项基矢均为惯用坐标表达（含 Primitive 选项），按 conventional 帧提交
                 return {"matrix": pool[idx]["basis"], "frame": "conventional"}
-        print("序号无效，跳过 lattice 过滤。")
+        print("Invalid index; skipping lattice filter.")
         return None
 
     def _run_method_2(self) -> None:
@@ -413,68 +559,39 @@ class IsoDistortConsoleApp:
         if not groups:
             return
 
-        subs = self._enumerate_subgroups_for_groups(groups)
+        print(t("m2.genDbHelp"))
+        generate = _prompt_yes_no(t("lGenDb"), False)
+        subs = self._enumerate_subgroups_for_groups(groups, generate_if_missing=generate)
         if not subs:
             return
 
-        subgroup_idx = self._choose_subgroup_idx(subs)
-        if subgroup_idx is None:
+        idx = self._review_result_table(2, allow_idx=True)
+        if idx is None:
             return
-
-        # 参数 k 点（non-special / parametric, 如 LD/DT）位移模式计算依赖官网 (3+d) 超空间机制；
-        # 本地 iso 二进制仅能枚举其子群，不能计算位移模式。
-        target = next((s for s in subs if s.index == subgroup_idx), None)
-        if target and getattr(target, "k_parameters", None):
-            # 清空上一次的模式缓存，避免后续“进入畸变生成”误用旧数据
-            self.last_method2 = None
-            self.iso.mode_displacements = {}
-            self.iso.mode_occupancies = {}
-            print(t("m2.paramKNote"))
-            return
-
-        result = self.iso.search_method_2(
-            subgroup_idx=subgroup_idx,
-            distortion_type=self.distortion_types,
-        )
-        self.last_method2 = result
-
-        print(f"Method 2: 模式数 {len(result.modes) + len(self.iso.mode_occupancies)}")
-        for mode in result.modes:
-            sites = sorted({b.wyckoff_letter for b in mode.bush_modes})
-            print(
-                f"  {mode.irrep_label:<8s} OPD={mode.opd_symbol:<6s} "
-                f"dim={mode.dimension:<2d} 位点={sites}"
-            )
-        for label, entry in self.iso.mode_occupancies.items():
-            om = entry["mode"]
-            flag = "" if entry["validated"] else "（近似）"
-            print(f"  {label:<8s} occupational 占据率模式 位点={om.wyckoff_letter}{flag}")
-
-        if _prompt_yes_no(t("m2.enter_dist"), True):
-            self._generate_single_mode_flow()
+        self._compute_modes(idx, "subgroups")
 
     def _prompt_kpoint_groups(self) -> list[dict]:
         """终端版 Method 2 k 点组输入（与网页 nsup + k vector 行一致）。"""
         kpoints = self.iso.list_k_points()
-        print("\n--- 指定 k 点（可叠加多组） ---")
+        print("\n--- Specify k point(s) ---")
         for i, kp in enumerate(kpoints, start=1):
-            params = f"（参数: {','.join(kp.parameters)}）" if kp.parameters else ""
+            params = f" (parameters: {','.join(kp.parameters)})" if kp.parameters else ""
             print(f"  {i:2d}. {kp.label:<4s} {kp.coordinates}{params}")
-        nsup = _prompt_int("superposed IR 数（网页 Change number of superposed IRs）", 1)
+        nsup = _prompt_int("Number of superposed IRs", 1)
         if nsup < 1:
             print(t("err.badNsup"))
             return []
 
         groups: list[dict] = []
         for i in range(1, nsup + 1):
-            choice = _prompt_int(f"k 向量组 {i}: 请选择 k 点编号", 1)
+            choice = _prompt_int(f"k-vector group {i}: k-point number", 1)
             if not (1 <= choice <= len(kpoints)):
                 print(t("m2.range"))
                 return []
             kp = kpoints[choice - 1]
             params: list[str] | None = None
             if kp.parameters:
-                print(f"k 点 {kp.label} 需要参数（按顺序：{','.join(kp.parameters)}）")
+                print(f"k point {kp.label} needs parameters (in order: {','.join(kp.parameters)})")
                 vals = [_prompt(t("m2.param_value", p=p), "").strip() for p in kp.parameters]
                 if any(not v for v in vals):
                     print(t("m2.param_empty"))
@@ -483,7 +600,9 @@ class IsoDistortConsoleApp:
             groups.append({"k": kp.label, "params": params})
         return groups
 
-    def _enumerate_subgroups_for_groups(self, groups: list[dict]) -> list:
+    def _enumerate_subgroups_for_groups(
+        self, groups: list[dict], generate_if_missing: bool = False
+    ) -> list:
         """枚举多组 k 点的全部 IR 子群（与网页 /api/subgroups 一致）。"""
         all_subs: list = []
         for i, grp in enumerate(groups, start=1):
@@ -492,72 +611,160 @@ class IsoDistortConsoleApp:
                 subs = self.iso.list_subgroups_at_kpoint(
                     grp["k"],
                     k_parameters=grp.get("params"),
-                    generate_if_missing=False,
+                    generate_if_missing=generate_if_missing,
                 )
             except IsodistortError as exc:
                 text = str(exc)
-                if "在线生成" in text and _prompt_yes_no(
-                    "本地缺少该参数 k 点子群数据库，是否在线生成（可能耗时很长）", False
+                if ("在线生成" in text or "generate" in text.lower()) and _prompt_yes_no(
+                    "The local subgroup database for this parametric k point is missing. "
+                    "Generate it now (may take a long time)?",
+                    False,
                 ):
+                    print(t("m2.genDbHelp"))
                     subs = self.iso.list_subgroups_at_kpoint(
                         grp["k"],
                         k_parameters=grp.get("params"),
                         generate_if_missing=True,
                     )
                 else:
-                    print(f"枚举失败: {exc}")
+                    print(f"Enumeration failed: {exc}")
                     return []
             all_subs.extend(subs)
 
         for j, sg in enumerate(all_subs):
             sg.index = j
         self.iso.subgroups = all_subs
+        self.last_method2_subgroups = list(all_subs)
+        self.tbl[2] = _empty_tbl(_method2_cols())
+        self.tbl[2]["rows"] = [_row_method2(sg) for sg in all_subs]
         if not all_subs:
             print(t("m2.noSubsAtKp"))
         return all_subs
 
-    def _choose_subgroup_idx(self, subs: list) -> int | None:
-        """终端版子群表（逐层显示）+ 列筛选。"""
-        view = list(subs)
+    def _review_result_table(self, method: int, allow_idx: bool) -> int | None:
+        """Filter/sort a Method result table. Optionally pick idx to compute modes."""
+        st = self.tbl[method]
+        if not st["rows"]:
+            print(t("st.noSubs") if method != 4 else t("ui.export.table_none"))
+            return None
+        col_keys = [c[0] for c in st["cols"] if c[4]]
+        col_help = ", ".join(col_keys)
+        print(t("ui.tbl.cols", cols=col_help))
+        print(t("ui.tbl.cmd") if allow_idx else t("ui.tbl.cmd4"))
         while True:
-            print(f"\n{t('m2.subsFound', len(view))}")
-            for sg in view[:120]:
-                print(
-                    f" idx={sg.index:3d} | SG {sg.space_group_number:3d} {sg.space_group_symbol:<10s}"
-                    f" | k={sg.k_point_label:<4s} IR={sg.irrep_label:<6s} OPD={sg.opd_symbol:<4s}"
-                    f" | s={sg.size:<3d} i={sg.subgroup_index:<3d}"
-                )
-            if len(view) > 120:
-                print(f"  ... 还有 {len(view) - 120} 条")
-
-            key = _prompt("筛选列（sg/k/irrep/opd/s/i，留空直接选 idx）", "").strip().lower()
-            if not key:
-                idx = _prompt_int("输入 idx 计算模式")
-                if any(sg.index == idx for sg in view):
+            shown, matching = _displayed_rows(st)
+            print(
+                f"\n{t('ui.tbl.shown', shown=len(shown), match=len(matching), total=len(st['rows']))}"
+            )
+            preview = shown[:80]
+            for row in preview:
+                self._print_table_row(method, row)
+            if len(shown) > 80:
+                print(f"  ... {len(shown) - 80} more")
+            raw = _prompt("Next", "q").strip()
+            if not raw or raw.lower() in {"q", "done"}:
+                print(t("ui.tbl.done"))
+                return None
+            parts = raw.split()
+            cmd = parts[0].lower()
+            if allow_idx and cmd.isdigit():
+                idx = int(cmd)
+                if any(r.get("index") == idx for r in st["rows"]):
                     return idx
                 print(t("m2.idx_range"))
                 continue
-            val = _prompt("筛选值（包含匹配）", "").strip().lower()
-            if not val:
-                view = list(subs)
+            if cmd in {"f", "filter"}:
+                spec = parts[1] if len(parts) > 1 else ""
+                if "=" not in spec:
+                    print("Use: f <col>=text   (blank text clears that column)")
+                    continue
+                col, _, val = spec.partition("=")
+                col = col.strip().lower()
+                if col not in col_keys:
+                    print(t("ui.tbl.bad_col", cols=col_help))
+                    continue
+                st["filters"][col] = val
+                _, matching = _displayed_rows(st)
+                if not matching:
+                    print(t("ui.tbl.no_match"))
                 continue
-
-            def _hit(sg) -> bool:
-                fields = {
-                    "sg": f"{sg.space_group_number} {sg.space_group_symbol}",
-                    "k": sg.k_point_label,
-                    "irrep": sg.irrep_label,
-                    "opd": sg.opd_symbol,
-                    "s": str(sg.size),
-                    "i": str(sg.subgroup_index),
-                }
-                return val in fields.get(key, "").lower()
-
-            filtered = [sg for sg in subs if _hit(sg)]
-            if not filtered:
-                print("筛选后无结果，请重试。")
+            if cmd in {"c", "clear"}:
+                st["filters"] = {}
                 continue
-            view = filtered
+            if cmd in {"s", "sort"}:
+                if len(parts) < 3:
+                    print("Use: s <col> a|d")
+                    continue
+                col = parts[1].lower()
+                direction = parts[2].lower()
+                sortable = {c[0] for c in st["cols"]}
+                if col not in sortable:
+                    print(t("ui.tbl.bad_col", cols=", ".join(sorted(sortable))))
+                    continue
+                if direction not in {"a", "d", "asc", "desc"}:
+                    print("Use a (ascending) or d (descending).")
+                    continue
+                st["sort"] = (col, 1 if direction in {"a", "asc"} else -1)
+                continue
+            if cmd == "only":
+                st["show_only"] = not st["show_only"]
+                print("Show filtered rows only:" + (" on" if st["show_only"] else " off"))
+                continue
+            print(t("ui.tbl.bad_cmd"))
+        return None
+
+    def _print_table_row(self, method: int, row: dict) -> None:
+        if method == 1:
+            print(f"  idx={row['index']:3d}  {row['line']}")
+        elif method == 2:
+            print(
+                f"  idx={row['index']:3d} | SG {row['sg']:<16s} | k={row['k']:<4s} "
+                f"IR={row['irrep']:<6s} OPD={row['opd']:<4s} "
+                f"| s={row['s']:<3} i={row['i']:<3}"
+            )
+        elif method == 3:
+            print(
+                f"  idx={row['index']:3d} | SG {row['sg']:<16s} | k={row['k']:<4s} "
+                f"IR={row['irrep']:<6s} | point_group={row['pg']}"
+            )
+        else:
+            print(f"  {row['mode']:<16s} {row['amp']}")
+
+    def _compute_modes(self, idx: int, source: str) -> None:
+        if source == "method1":
+            pool = [item.subgroup for item in self.last_method1]
+            self.iso.subgroups = list(pool)
+        elif source == "method3":
+            pool = [item.subgroup for item in self.last_method3]
+            self.iso.subgroups = list(pool)
+        else:
+            pool = list(self.last_method2_subgroups)
+        target = next((s for s in pool if s.index == idx), None)
+        if target is None:
+            print(t("m2.idx_range"))
+            return
+        if getattr(target, "k_parameters", None):
+            self.last_method2 = None
+            self.iso.mode_displacements = {}
+            self.iso.mode_occupancies = {}
+            print(t("m2.paramKNote"))
+            return
+        result = self.iso.search_method_2(
+            subgroup_idx=idx,
+            distortion_type=self.distortion_types,
+        )
+        self.last_method2 = result
+        print(f"Method 2: {len(result.modes) + len(self.iso.mode_occupancies)} mode(s)")
+        for mode in result.modes:
+            sites = sorted({b.wyckoff_letter for b in mode.bush_modes})
+            print(
+                f"  {mode.irrep_label:<8s} OPD={mode.opd_symbol:<6s} "
+                f"dim={mode.dimension:<2d} sites={sites}"
+            )
+        for label, entry in self.iso.mode_occupancies.items():
+            om = entry["mode"]
+            flag = "" if entry["validated"] else " (approx)"
+            print(f"  {label:<8s} occupational occupancy mode sites={om.wyckoff_letter}{flag}")
 
     def _run_method_3(self) -> None:
         _line()
@@ -573,23 +780,23 @@ class IsoDistortConsoleApp:
         if lattice_type not in ("direct", "reciprocal"):
             lattice_type = "direct"
         if lattice_type == "reciprocal":
-            print("提示：本地引擎暂不支持 reciprocal（倒易空间超格）模式，"
-                  "已改用 direct（实空间子格）。")
+            print("Note: the local engine does not support reciprocal "
+                  "(reciprocal-space superlattice) mode; using direct instead.")
             lattice_type = "direct"
 
         # 官网带心 radio：Default(d)/P/A/B/C/I/F/R；本地 Method 3 仅支持默认 d
         centering = _prompt(
-            "direct sublattice centering (d/P/A/B/C/I/F/R，留空=d；本地仅支持 d)",
+            "direct sublattice centering (d/P/A/B/C/I/F/R, blank = d; only d is supported locally)",
             "d",
         ).strip().upper() or "d"
         if centering != "D":
-            print("提示：本地引擎 Method 3 仅支持默认带心 d，已将带心重置为 d。")
+            print("Note: Method 3 only supports default centering d; reset to d.")
             centering = "d"
 
         basis = None
         if _prompt_yes_no(t("m3.basis_q"), True):
             basis = _prompt_basis_matrix()
-            print("提示：基矢矩阵将按格点等价过滤候选（只保留子群超胞=该子格的候选）。")
+            print("Note: the basis matrix filters candidates whose supercell matches this sublattice.")
 
         result = self.iso.search_method_3(
             distortion_types=self.distortion_types,
@@ -600,22 +807,17 @@ class IsoDistortConsoleApp:
             lattice_type=lattice_type,
         )
         self.last_method3 = result
-
-        print(f"Method 3 返回 {len(result)} 条候选（显示前 30 条）")
-        for item in result[:30]:
-            sg = item.subgroup
-            print(
-                f"  idx={sg.index:3d} | SG #{sg.space_group_number:<3d} "
-                f"{sg.space_group_symbol:<12s} | k={sg.k_point_label:<4s} "
-                f"IR={sg.irrep_label:<6s} | point_group={item.point_group}"
-            )
-        if len(result) > 30:
-            print(f"  ... 还有 {len(result) - 30} 条")
+        self.tbl[3] = _empty_tbl(_method3_cols())
+        self.tbl[3]["rows"] = [_row_method3(item) for item in result]
+        print(t("method3.result", n=len(result)))
+        idx = self._review_result_table(3, allow_idx=True)
+        if idx is not None:
+            self._compute_modes(idx, "method3")
 
     def _run_method_4(self) -> None:
         _line()
         print("Method 4: Mode decomposition of a distorted structure")
-        daughter_cif = _choose_cif(self.project_root, "请选择 Daughter CIF")
+        daughter_cif = _choose_cif(self.project_root, "Choose a daughter CIF")
 
         # 与网页一致：使用官网默认匹配参数（nearest-site / 阈值 0.25）
         result = self.iso.search_method_4(
@@ -625,15 +827,23 @@ class IsoDistortConsoleApp:
             provided_origin_shift=None,
         )
 
-        print(t("m4.result_title"))
         ranked = sorted(result.amplitudes.items(), key=lambda kv: abs(kv[1]), reverse=True)
-        for label, amp in ranked[:20]:
-            print(f"  {label:<12s} {amp:+.8f}")
-        print(f"RMS residual: {result.rms_residual:.8e}")
-        print(f"Max residual: {result.max_abs_residual:.8e}")
+        self.last_method4 = [_row_method4(label, float(amp)) for label, amp in ranked]
+        self.last_method4_meta = {
+            "rms": result.rms_residual,
+            "max_abs": result.max_abs_residual,
+        }
+        self.tbl[4] = _empty_tbl(_method4_cols())
+        self.tbl[4]["rows"] = list(self.last_method4)
+        print(t("m4.result_title"))
+        print(
+            f"RMS residual: {result.rms_residual:.8e}  "
+            f"Max residual: {result.max_abs_residual:.8e}"
+        )
+        self._review_result_table(4, allow_idx=False)
 
     # ----------------------------------------------------------------
-    # Distortion Page
+    # Distortion: export subgroup files
     # ----------------------------------------------------------------
 
     def _distortion_page_menu(self) -> None:
@@ -643,137 +853,100 @@ class IsoDistortConsoleApp:
             print(t("ui.dist.single"))
             print(t("ui.dist.mixed"))
             print(t("ui.dist.export"))
-            print(t("ui.dist.domains"))
+            print(t("ui.dist.table"))
             print(t("ui.dist.back"))
             choice = _prompt_int(t("ui.dist.choice"), 1)
-
             if choice == 0:
                 return
-            if choice == 1:
-                self._generate_single_mode_flow()
-            elif choice == 2:
-                self._generate_mixed_mode_flow()
-            elif choice == 3:
-                self._export_flow()
+            if choice in (1, 2, 3):
+                self._export_subgroups_flow(choice)
             elif choice == 4:
-                self._domains_flow()
+                self._export_filtered_table()
 
-    def _generate_single_mode_flow(self) -> None:
-        if not self.iso.mode_displacements and not self.iso.mode_occupancies:
-            print(t("ui.msg.no_modes"))
+    def _subgroups_for_method(self, method: int) -> list:
+        if method == 1:
+            return [item.subgroup for item in self.last_method1]
+        if method == 3:
+            return [item.subgroup for item in self.last_method3]
+        return list(self.last_method2_subgroups)
+
+    def _export_subgroups_flow(self, method: int) -> None:
+        subs = self._subgroups_for_method(method)
+        if not subs:
+            print(t("ui.export.none"))
             return
-
-        labels = (list(self.iso.mode_displacements.keys())
-                  + list(self.iso.mode_occupancies.keys()))
-        print("可用模式：")
-        for i, label in enumerate(labels, start=1):
-            kind = "occ" if label in self.iso.mode_occupancies else "disp"
-            print(f"  {i:2d}. {label}  ({kind})")
-
-        raw = _prompt(t("dist.choose_mode"), "1")
-        if raw.isdigit():
-            idx = int(raw)
-            if 1 <= idx <= len(labels):
-                irrep = labels[idx - 1]
-            else:
-                print(t("dist.mode_range"))
-                return
-        else:
-            irrep = raw.strip()
-        if irrep not in labels:
-            # 输入了不存在的模式标签：直接交给底层会抛 ValueError 导致程序退出，
-            # 这里先校验并友好提示后返回。
-            print(t("dist.mode_range"))
+        st = self.tbl.get(method)
+        if st and any(str(v).strip() for v in st.get("filters", {}).values()):
+            _rows, matching = _displayed_rows(st, matching_only=True)
+            want = {row["index"] for row in matching}
+            subs = [sg for sg in subs if sg.index in want]
+        if not subs:
+            print(t("ui.export.none"))
             return
-
-        amplitude = _prompt_float(
-            "amplitude",
-            float(self.iso.cfg.defaults.get("default_amplitude", 1.0)),
-        )
-        supercell = None
-        if self.iso.phase_path is not None and self.iso.phase_path.basis_vectors:
-            print("将使用所选子群的超胞基矢。")
-        elif _prompt_yes_no(t("dist.supercell_q"), False):
-            supercell = _prompt_supercell(
-                self.iso.cfg.defaults.get("default_supercell", [1, 1, 1])
-            )
-
-        distorted = self.iso.generate_distortion(
-            irrep_label=irrep, amplitude=amplitude, supercell=supercell
-        )
-        print(t("ui.msg.generated", n=len(distorted)))
-
-    def _generate_mixed_mode_flow(self) -> None:
-        if not self.iso.mode_displacements and not self.iso.mode_occupancies:
-            print(t("ui.msg.no_modes"))
-            return
-
-        print(t("dist.contrib"))
-        contributions: dict[str, float] = {}
-        while True:
-            row = _prompt(t("dist.contrib_prompt"), "").strip()
-            if not row:
-                break
-            if "=" not in row:
-                print(t("dist.format_err"))
-                continue
-            key, value = row.split("=", 1)
-            key = key.strip()
-            try:
-                contributions[key] = float(value.strip())
-            except ValueError:
-                print(t("dist.amp_num"))
-
-        if not contributions:
-            print(t("dist.no_contrib"))
-            return
-
-        supercell = None
-        if self.iso.phase_path is not None and self.iso.phase_path.basis_vectors:
-            print("将使用所选子群的超胞基矢。")
-        elif _prompt_yes_no(t("dist.supercell_q"), False):
-            supercell = _prompt_supercell(
-                self.iso.cfg.defaults.get("default_supercell", [1, 1, 1])
-            )
-
-        distorted = self.iso.generate_mixed_distortion(
-            contributions=contributions, supercell=supercell
-        )
-        print(t("ui.msg.generated_mixed", n=len(distorted)))
-
-    def _export_flow(self) -> None:
-        if self.iso.distorted_structure is None:
-            print(t("ui.msg.no_export"))
-            return
-
-        name = _prompt("导出文件名前缀", "distorted_output")
-        formats_raw = _prompt("导出格式（逗号分隔，如 cif,poscar）", "cif")
+        formats_raw = _prompt(t("ui.export.formats"), "cif,isoviz,modes,topas")
         formats = [x.strip().lower() for x in formats_raw.split(",") if x.strip()]
-        paths = self.iso.export(name, formats=formats)
-
-        print(t("ui.msg.export_done"))
-        for path in paths:
-            print(f"  {path}")
-
-    def _domains_flow(self) -> None:
+        default_dest = str(self.iso.cfg.output_dir / f"isodistort_method{method}")
+        dest = _prompt(t("ui.export.dest"), default_dest)
+        need_modes = any(fmt != "cif" for fmt in formats)
+        saved = list(self.iso.subgroups)
         try:
-            domains = self.iso.generate_domains()
-        except IsodistortError as exc:
-            print(f"生成畴失败: {exc}")
-            return
-        print(t("ui.msg.domains_done", n=len(domains)))
-        for d in domains[:20]:
-            print(
-                f"  domain {d.domain_number:3d} | gen={d.generator:<14s} "
-                f"SG {d.space_group_number} {d.space_group_symbol}"
+            self.iso.subgroups = list(subs)
+            paths = self.iso.export_subgroups(
+                dest,
+                formats=formats,
+                subgroups=subs,
+                compute_missing_modes=need_modes,
             )
-        if len(domains) > 20:
-            print(f"  ... 还有 {len(domains) - 20} 个")
+        finally:
+            self.iso.subgroups = saved
+        print(t("ui.export.done", n=len(paths), dest=dest))
+        for path in paths[:20]:
+            print(f"  {path}")
+        if len(paths) > 20:
+            print(f"  ... {len(paths) - 20} more")
+
+    def _export_filtered_table(self) -> None:
+        method = _prompt_int(t("ui.dist.table_method"), 2)
+        if method not in (1, 2, 3, 4):
+            print(t("m2.range"))
+            return
+        st = self.tbl.get(method)
+        if not st or not st["rows"]:
+            print(t("ui.export.table_none"))
+            return
+        fmt = _prompt(t("ui.dist.table_fmt"), "txt").strip().lower()
+        if fmt not in {"txt", "csv"}:
+            print("Use txt or csv.")
+            return
+        rows, _matching = _displayed_rows(st, matching_only=True)
+        export_headers = {
+            1: ["index", "order_parameter", "space_group", "k_point", "irrep", "OPD", "crystal_system", "maximal"],
+            2: ["index", "space_group", "k_point", "irrep", "OPD", "size", "subgroup_index"],
+            3: ["index", "space_group", "k_point", "irrep", "point_group"],
+            4: ["mode", "amplitude"],
+        }
+        cols = st["cols"]
+        headers = export_headers[method]
+        data = [[c[2](row) for c in cols] for row in rows]
+        default_dest = str(
+            self.iso.cfg.output_dir / f"isodistort_method{method}_filtered.{fmt}"
+        )
+        dest = Path(_prompt(t("ui.export.dest"), default_dest))
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        if fmt == "csv":
+            with dest.open("w", encoding="utf-8-sig", newline="") as fh:
+                writer = csv.writer(fh)
+                writer.writerow(headers)
+                writer.writerows(data)
+        else:
+            lines = ["\t".join(headers)]
+            lines.extend("\t".join(map(str, row)) for row in data)
+            dest.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        print(t("ui.export.table_done", path=dest, n=len(rows)))
 
     # ----------------------------------------------------------------
-    # 状态
+    # State
     # ----------------------------------------------------------------
-
     def _show_state(self) -> None:
         _line()
         print(t("ui.msg.state"))
@@ -793,15 +966,12 @@ class IsoDistortConsoleApp:
         )
         print(f"  Scope: {scope_desc}")
         print(f"  Last Method1 count: {len(self.last_method1)}")
+        print(f"  Last Method2 subgroup count: {len(self.last_method2_subgroups)}")
         print(f"  Last Method3 count: {len(self.last_method3)}")
+        print(f"  Last Method4 mode count: {len(self.last_method4)}")
 
         mode_count = len(self.iso.mode_displacements) + len(self.iso.mode_occupancies)
         print(f"  Available mapped modes: {mode_count}")
-
-        if self.iso.distorted_structure is not None:
-            print(f"  Distorted structure atoms: {len(self.iso.distorted_structure)}")
-        else:
-            print(f"  Distorted structure: {t('state.not_generated')}")
 
 
 def main() -> int:
@@ -817,10 +987,10 @@ def main() -> int:
         print(f"\n{t('ui.exit.interrupt')}")
         return 130
     except IsodistortError as exc:
-        print(f"\n运行失败: {exc}")
+        print(f"\nFailed: {exc}")
         return 1
     except Exception as exc:  # noqa: BLE001 - CLI 入口兜底，防止未捕获异常直接崩溃
-        print(f"\n运行失败: {exc}")
+        print(f"\nFailed: {exc}")
         return 1
 
 

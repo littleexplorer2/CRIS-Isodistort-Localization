@@ -6,7 +6,8 @@ ISODISTORT / ISODISTORT_VALIDATE 统一依赖安装脚本
 1) 在 CRIS 仓库根目录只创建一份虚拟环境（默认：`CRIS/.venv`）
 2) 安装并校验运行网页与终端交互所需的所有 Python 依赖
    （同时覆盖 ISODISTORT 与 ISODISTORT_VALIDATE 两部分）
-3) 安装完成后给出最直接的运行方式提示
+3) 检查并配置运行所需的环境变量（``ISODATA``：ISOTROPY 数据库目录）
+4) 安装完成后给出最直接的运行方式提示
 
 用法
 ----
@@ -170,6 +171,50 @@ def _check_isotropy_binaries(project_root: Path) -> None:
         print("\n[binary] OK: required binaries found (iso + smodes).")
 
 
+def _check_and_setup_isodata(project_root: Path, python: Path) -> None:
+    """
+    配置并校验 ``ISODATA``（iso / findsym / smodes 读取的数据库目录）。
+
+    网页、终端和 Python API 在加载 ``config/settings.yaml`` 时会把
+    ``isobyu.data_dir`` 写入进程环境变量 ``ISODATA``。本安装脚本：
+    1) 确认数据库目录存在
+    2) 在当前安装进程中设置 ``ISODATA``
+    3) 用刚装好的 venv 解释器 import isocore，确认运行时也会设置该变量
+
+    WSL 侧二进制还要求路径以 ``/`` 结尾；封装层会在首次运行时建立短路径
+    符号链接，不必在 Windows 系统属性里永久 setx ``ISODATA``。
+    """
+    print("\n[env] Checking ISODATA ...")
+    data_dir = project_root / "ISODISTORT" / "isobyu"
+    if not data_dir.is_dir():
+        raise RuntimeError(
+            f"ISODATA directory missing: {data_dir} "
+            "(deploy the ISOTROPY suite under ISODISTORT/isobyu/)"
+        )
+    os.environ["ISODATA"] = str(data_dir)
+    print(f"[env] ISODATA (installer process) = {os.environ['ISODATA']}")
+
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(project_root / "ISODISTORT") + os.pathsep + env.get("PYTHONPATH", "")
+    cp = _run(
+        [
+            str(python),
+            "-c",
+            (
+                "from isocore.utils import get_config\n"
+                "import os\n"
+                "get_config()\n"
+                "value = os.environ.get('ISODATA', '')\n"
+                "assert value, 'ISODATA was not set by get_config()'\n"
+                "print(value)\n"
+            ),
+        ],
+        env=env,
+    )
+    imported = (cp.stdout or "").strip().splitlines()[-1] if cp.stdout else ""
+    print(f"[env] ISODATA (after isocore import) = {imported}")
+    print("[env] OK. Runtime sets ISODATA from config/settings.yaml; WSL uses a short symlink ending with /.")
+
 
 def _post_import_smoke_check(project_root: Path, python: Path) -> None:
     # 只做 import 层面的快速校验（不触发 iso 二进制运行）。
@@ -249,6 +294,7 @@ def main() -> int:
         _pip_install(python, project_root / "ISODISTORT" / "requirements-dev.txt")
 
     _post_import_smoke_check(project_root, python)
+    _check_and_setup_isodata(project_root, python)
 
     print("\n=== DONE ===")
     if _is_windows():

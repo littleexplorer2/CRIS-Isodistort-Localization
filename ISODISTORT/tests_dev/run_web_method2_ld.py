@@ -142,15 +142,7 @@ def main() -> int:
               f"irrep={sub0['irrep_label']} OPD={sub0['opd_symbol']}",
               flush=True)
 
-        # ---- 5. 生成畸变结构（Distortion Page；有位移模式时） ----------------
-        disp = next((m for m in modes if m.get("mode_type") != "occupational"
-                     and m.get("n_representatives")), None)
-        if disp:
-            d = _post(port, "/api/generate",
-                      {"contributions": {disp["irrep_label"]: 0.05}})
-            checks.append(("generate", d.get("ok") is True,
-                           f"ok={d.get('ok')} file={d.get('filename')} "
-                           f"err={d.get('error')}"))
+        # Distortion Generate was removed from the web UI (parent CIF → subgroup files).
     finally:
         httpd.shutdown()
         httpd.server_close()

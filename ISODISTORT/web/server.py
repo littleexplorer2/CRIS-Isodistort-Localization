@@ -1,18 +1,15 @@
 """
-ISODISTORT 本地网页交互程序（web/server.py）
+ISODISTORT local web UI (web/server.py)
 
-在本地端口启动简易网页界面，并自动打开浏览器。
-用法（两者等价）：
+Start a local HTTP server and open the browser:
     python main_web.py
     python web/server.py
-    （端口默认 8000，可用配置 runtime.web_port 修改；被占用时自动顺延）
 
-依赖：仅 Python 标准库（http.server），无需额外安装。
+Port defaults to 8000 (config runtime.web_port). If that port is taken the
+server tries the next ports automatically.
 
-与终端/API 的关系：
-- 底层复用 isocore.api.IsoDistort（同一套真实 iso/findsym 计算）
-- 界面语言：页面右上角语言下拉菜单（zh/en）切换（前端渲染）；服务器控制台输出
-  跟随请求的 ?lang= 参数（未指定时用配置 runtime.language）
+The page is English only. It shares isocore.api.IsoDistort with the terminal
+and the Python API.
 """
 
 from __future__ import annotations
@@ -37,7 +34,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 
 from isocore.api import IsoDistort  # noqa: E402
 from isocore.distortion import DISTORTION_TYPES  # noqa: E402
-from isocore.i18n import MESSAGES, TERMS_EN2ZH, set_language  # noqa: E402
+from isocore.i18n import MESSAGES  # noqa: E402
 from isocore.io import parse_export_formats, parse_export_method  # noqa: E402
 from isocore.utils import get_config  # noqa: E402
 from isocore.utils.schoenflies import hm_symbol, schoenflies_symbol  # noqa: E402
@@ -222,6 +219,10 @@ def _method1_rows(items) -> list[dict]:
             "k_point_label": sg.k_point_label,
             "irrep_label": sg.irrep_label,
             "opd_symbol": sg.opd_symbol,
+            "opd_dir_raw": sg.opd_dir_raw,
+            "size": sg.size,
+            "subgroup_index": sg.subgroup_index,
+            "opd_line": sg.opd_line(),
         })
     return rows
 
@@ -285,23 +286,6 @@ class IsoHandler(BaseHTTPRequestHandler):
         raw = self.rfile.read(length)
         return json.loads(raw.decode("utf-8"))
 
-    def _query_lang(self) -> str:
-        """从查询参数取语言（?lang=zh|en），并应用到服务器端输出。
-
-        未指定时使用配置 runtime.language（默认 en）。
-        """
-        parsed = urllib.parse.urlparse(self.path)
-        qs = urllib.parse.parse_qs(parsed.query)
-        default = get_config().language
-        lang = (qs.get("lang") or [default])[0]
-        if lang not in ("zh", "en"):
-            lang = default if default in ("zh", "en") else "en"
-        try:
-            set_language(lang)
-        except ValueError:
-            pass
-        return lang
-
     def _run(self, fn) -> None:
         """执行 API 动作，统一错误处理（错误信息按当前语言输出）。"""
         try:
@@ -318,7 +302,6 @@ class IsoHandler(BaseHTTPRequestHandler):
     # ------------------------------------------------------------
 
     def do_GET(self) -> None:
-        lang = self._query_lang()
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
 
@@ -335,15 +318,12 @@ class IsoHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": True})
         elif path == "/api/state":
             _touch_heartbeat()
-            self._send_json({"ok": True, **{"state": _state_summary()},
-                             "language": lang})
+            self._send_json({"ok": True, "state": _state_summary()})
         elif path == "/api/i18n":
             _touch_heartbeat()
             self._send_json({
                 "ok": True,
-                "language": lang,
-                "messages": MESSAGES.get(lang, MESSAGES["zh"]),
-                "terms": TERMS_EN2ZH,
+                "messages": MESSAGES,
             })
         elif path == "/api/kpoints":
             _touch_heartbeat()
@@ -383,7 +363,6 @@ class IsoHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": False, "error": f"Unknown path: {path}"}, 404)
 
     def do_POST(self) -> None:
-        _ = self._query_lang()  # 按请求设置服务器端语言（含控制台输出语言）
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         data = self._read_json()
@@ -409,16 +388,6 @@ class IsoHandler(BaseHTTPRequestHandler):
             self._run(lambda: self._api_method3(data))
         elif path == "/api/method4":
             self._run(lambda: self._api_method4(data))
-        elif path == "/api/generate":
-            # Distortion Page：按用户幅度生成（单/混合）畸变并导出 CIF
-            self._run(lambda: self._api_generate(data))
-        elif path == "/api/domains":
-            # Distortion Page：生成畴列表（官网 Domains 输出）
-            self._run(lambda: self._api_domains(data))
-        elif path == "/api/set_language":
-            lang = data.get("language", get_config().language)
-            set_language(lang)
-            self._send_json({"ok": True, "language": lang})
         else:
             self._send_json({"ok": False, "error": f"Unknown path: {path}"}, 404)
 
@@ -586,60 +555,6 @@ class IsoHandler(BaseHTTPRequestHandler):
             "max_abs_residual": result.max_abs_residual,
         }
 
-    def _api_generate(self, data: dict) -> dict:
-        """Distortion Page：按用户幅度生成畸变结构（对齐官网 Enter mode amplitudes）。
-
-        与终端畸变页 / Python API 的 generate_mixed_distortion 共用底层引擎，
-        支持位移模式与 occupational 占据率模式混合叠加。
-        """
-        iso = _SESSION.iso
-        if not iso.mode_displacements and not iso.mode_occupancies:
-            raise ValueError(
-                "请先运行 Method 2 计算模式 / run Method 2 to compute modes first"
-            )
-        contributions_raw = data.get("contributions", {})
-        valid = {**iso.mode_displacements, **iso.mode_occupancies}
-        contributions: dict[str, float] = {}
-        for label, amp in contributions_raw.items():
-            if label not in valid:
-                continue  # 忽略未知/已失效的模式标签
-            try:
-                value = float(amp)
-            except (TypeError, ValueError):
-                continue
-            if value != 0.0:
-                contributions[label] = value
-        if not contributions:
-            raise ValueError(
-                "没有有效的模式幅度 / no valid mode amplitude was provided"
-            )
-        iso.generate_mixed_distortion(contributions=contributions)
-        # 与 generate_mixed_distortion 相同的导出命名规则（mixed_<keys>.cif）
-        keys = "+".join(sorted(contributions.keys()))
-        filename = f"mixed_{keys}.cif" if keys else "mixed.cif"
-        return {
-            "atoms": len(iso.distorted_structure),
-            "filename": filename,
-            "download": f"/api/download?file={urllib.parse.quote(filename)}",
-        }
-
-    def _api_domains(self, data: dict) -> dict:
-        """Distortion Page：生成畴列表（官网 Domains 输出，畴数 = 子群指数）。"""
-        _ = data
-        iso = _SESSION.iso
-        domains = iso.generate_domains()
-        rows = [
-            {
-                "number": d.domain_number,
-                "generator": d.generator,
-                "space_group_number": d.space_group_number,
-                "space_group_symbol": d.space_group_symbol,
-                "subgroup_index": d.subgroup_index,
-            }
-            for d in domains
-        ]
-        return {"domains": rows, "count": len(rows)}
-
     # ------------------------------------------------------------
     # 静态文件 / 下载
     # ------------------------------------------------------------
@@ -713,6 +628,8 @@ class IsoHandler(BaseHTTPRequestHandler):
             ``method``：1 / 2 / 3（不可多选；缺省 2）
             ``formats``：cif,isoviz,modes,topas（官网第 6 页对应选项）
         ZIP 结构：``isodistort_methodN/<IR OPD>/<IR OPD> <格式>.<ext>``
+        查询参数 ``indices``：逗号分隔的子群 index；若提供，只打包这些子群
+        （网页在当前 Method 有筛选时传入命中行）。
         """
         parsed = urllib.parse.urlparse(self.path)
         qs = urllib.parse.parse_qs(parsed.query)
@@ -737,6 +654,17 @@ class IsoHandler(BaseHTTPRequestHandler):
             )
             return
         subs = self._subgroups_for_method(method)
+        indices_raw = (qs.get("indices") or [""])[0].strip()
+        if indices_raw:
+            try:
+                want = {int(x.strip()) for x in indices_raw.split(",") if x.strip()}
+            except ValueError:
+                self._send_json(
+                    {"ok": False, "error": "indices must be comma-separated integers"},
+                    400,
+                )
+                return
+            subs = [sg for sg in subs if sg.index in want]
         if not subs:
             self._send_json({
                 "ok": False,
@@ -818,7 +746,6 @@ def main() -> int:
     print("=" * 60, flush=True)
     print("ISODISTORT Local Web Console", flush=True)
     print(f"  URL: {url}", flush=True)
-    print(f"  Language: {cfg.language}  (use the top-right dropdown to switch)", flush=True)
     idle = cfg.web_idle_timeout
     print(f"  Auto-stop: shuts down ~{idle}s after the page is closed", flush=True)
     print("  Press Ctrl+C to stop", flush=True)

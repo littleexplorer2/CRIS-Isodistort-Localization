@@ -38,6 +38,7 @@ from ..utils import (
     parse_kpoint_table,
     parse_subgroup_table,
 )
+from ..utils.opd_format import format_k_active, format_opd_line
 from .base_wrapper import BaseWrapper
 
 # ================================================================
@@ -87,11 +88,36 @@ class SubgroupInfo:
     k_point_label: str = ""          # 产生该子群的 k 点
     irrep_label: str = ""            # 产生该子群的不可约表示
     k_parameters: list[str] = field(default_factory=list)  # k 点参数值（带参数 k 点）
+    k_coordinates: list[str] = field(default_factory=list)  # DISPLAY KPOINT 坐标分量
+    parent_sg: int = 0               # 母相空间群号（用于 k-star / 官网行格式）
+    opd_dir_raw: str = ""            # iso 字母序参量方向，如 (a) / (a;a)
+    basis_raw: str = ""              # iso 基矢原文，如 (1,0,0),(0,1,0),(0,0,1)
+    origin_raw: str = ""             # iso 原点原文，如 (0,0,0)
+    k_active_raw: str = ""           # 官网 k-active 列表（含前导空格）
 
     def describe(self) -> str:
         return (
             f"#{self.index}: SG {self.space_group_number} {self.space_group_symbol} "
             f"k={self.k_point_label} IR={self.irrep_label} OPD={self.opd_symbol}"
+        )
+
+    def opd_line(self) -> str:
+        """Official Method 1 radio-button line (visible text, no maximal asterisk)."""
+        return format_opd_line(
+            irrep_label=self.irrep_label,
+            opd_symbol=self.opd_symbol,
+            opd_dir_raw=self.opd_dir_raw,
+            space_group_number=self.space_group_number,
+            space_group_symbol=self.space_group_symbol,
+            basis_raw=self.basis_raw,
+            origin_raw=self.origin_raw,
+            size=self.size,
+            subgroup_index=self.subgroup_index,
+            k_coordinates=self.k_coordinates,
+            parent_sg=self.parent_sg or None,
+            k_active_raw=self.k_active_raw or None,
+            basis_vectors=self.basis_vectors,
+            origin=self.origin,
         )
 
 
@@ -355,22 +381,65 @@ class IsoWrapper(BaseWrapper):
 
         subgroups: list[SubgroupInfo] = []
         for i, row in enumerate(rows):
-            subgroups.append(SubgroupInfo(
+            subgroups.append(self._subgroup_from_row(
+                row,
                 index=start_index + i,
-                space_group_number=row["space_group_number"],
-                space_group_symbol=row["space_group_symbol"],
-                subgroup_index=row["subgroup_index"],
-                size=row["size"],
-                is_maximal=row["is_maximal"],
-                opd_symbol=row["opd_symbol"],
-                opd_vector=row["opd_vector"],
-                basis_vectors=row["basis_vectors"],
-                origin=row["origin"],
-                k_point_label=k_point,
+                k_point=k_point,
                 irrep_label=irrep_label,
                 k_parameters=list(k_parameters) if k_parameters else [],
+                parent_sg=parent_sg,
             ))
         return subgroups
+
+    @staticmethod
+    def _include_irrep(ir: IrrepInfo, distortion_types) -> bool:
+        """Magnetic (m*) irreps stay out of the default Method 1/3 enumeration."""
+        if not ir.label.startswith("m"):
+            return True
+        if distortion_types is None:
+            return False
+        names = (
+            distortion_types
+            if isinstance(distortion_types, (list, tuple, set))
+            else [distortion_types]
+        )
+        return any(str(x).lower() == "magnetic" for x in names)
+
+    @staticmethod
+    def _subgroup_from_row(row: dict,
+                           *,
+                           index: int,
+                           k_point: str,
+                           irrep_label: str,
+                           k_parameters: list[str] | None = None,
+                           k_coordinates: list[str] | None = None,
+                           parent_sg: int = 0) -> SubgroupInfo:
+        coords = list(k_coordinates or [])
+        dir_raw = row.get("opd_dir_raw") or ""
+        k_active = format_k_active(
+            dir_raw, coords or ["0", "0", "0"], parent_sg or None,
+        )
+        return SubgroupInfo(
+            index=index,
+            space_group_number=row["space_group_number"],
+            space_group_symbol=row["space_group_symbol"],
+            subgroup_index=row["subgroup_index"],
+            size=row["size"],
+            is_maximal=row["is_maximal"],
+            opd_symbol=row["opd_symbol"],
+            opd_vector=row["opd_vector"],
+            basis_vectors=row["basis_vectors"],
+            origin=row["origin"],
+            k_point_label=k_point,
+            irrep_label=irrep_label,
+            k_parameters=list(k_parameters) if k_parameters else [],
+            k_coordinates=coords,
+            parent_sg=parent_sg,
+            opd_dir_raw=dir_raw,
+            basis_raw=row.get("basis_raw") or "",
+            origin_raw=row.get("origin_raw") or "",
+            k_active_raw=k_active,
+        )
 
     def enumerate_all_special_subgroups(self, parent_sg: int,
                                         distortion_types=None) -> list[SubgroupInfo]:
@@ -386,13 +455,12 @@ class IsoWrapper(BaseWrapper):
 
         Args:
             parent_sg: 母相空间群号
-            distortion_types: 畸变类型（保留参数；类型过滤在模式计算阶段执行，
-                见 README 已知差异说明）
+            distortion_types: 畸变类型。默认不含 magnetic，带 ``m`` 前缀的
+                IR 不进入枚举（与官网默认 Types 一致）。
 
         Returns:
             List[SubgroupInfo]
         """
-        _ = distortion_types
         subgroups: list[SubgroupInfo] = []
         kpoints = self.list_k_points(parent_sg)
         for kp in kpoints:
@@ -402,6 +470,7 @@ class IsoWrapper(BaseWrapper):
                 irreps = self.list_irreps(parent_sg, kp.label)
             except WrapperRunError:
                 continue
+            irreps = [ir for ir in irreps if self._include_irrep(ir, distortion_types)]
             if not irreps:
                 continue
 
@@ -429,19 +498,13 @@ class IsoWrapper(BaseWrapper):
                         "iso", f"解析 {kp.label}/{ir.label} 子群表失败: {exc}"
                     ) from exc
                 for row in rows:
-                    subgroups.append(SubgroupInfo(
+                    subgroups.append(self._subgroup_from_row(
+                        row,
                         index=len(subgroups),
-                        space_group_number=row["space_group_number"],
-                        space_group_symbol=row["space_group_symbol"],
-                        subgroup_index=row["subgroup_index"],
-                        size=row["size"],
-                        is_maximal=row["is_maximal"],
-                        opd_symbol=row["opd_symbol"],
-                        opd_vector=row["opd_vector"],
-                        basis_vectors=row["basis_vectors"],
-                        origin=row["origin"],
-                        k_point_label=kp.label,
+                        k_point=kp.label,
                         irrep_label=ir.label,
+                        k_coordinates=list(kp.coordinates),
+                        parent_sg=parent_sg,
                     ))
         return subgroups
 

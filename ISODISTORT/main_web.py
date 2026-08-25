@@ -1,16 +1,13 @@
-"""
-ISODISTORT 网页交互入口（方式 A）
-
-直接运行即可在本地端口启动网页界面并自动打开浏览器：
+"""Local ISODISTORT web UI.
 
     python main_web.py
 
-等价于 ``python web\\server.py``（端口可在 config/settings.yaml 的
-runtime.web_port 修改；被占用时自动顺延）。
+Same as ``python web\\server.py``. Port: config/settings.yaml ``runtime.web_port``
+(the next free port is used if that one is taken).
 
-Distortion「Download all (ZIP)」每次只能选一个 Method（1 / 2 / 3），
-按该 Method 的子群打包 CIF / ISOVIZ / Complete modes details / TOPAS.STR，
-不会扫描 output/。详见本目录 README。
+The Distortion panel downloads filtered result tables (Methods 1–4) and
+subgroup files for exactly one Method (1 / 2 / 3) as CIF / ISOVIZ /
+Complete modes details / TOPAS.STR. It does not scan output/. See README.md.
 """
 
 import sys

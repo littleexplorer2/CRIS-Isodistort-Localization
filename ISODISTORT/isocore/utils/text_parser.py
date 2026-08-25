@@ -320,13 +320,17 @@ def parse_subgroup_table(text: str) -> list[dict[str, Any]]:
     Returns:
         list of dict，每项含:
         space_group_number, space_group_symbol, is_maximal,
-        subgroup_index, size, opd_symbol, opd_vector, basis_vectors, origin
+        subgroup_index, size, opd_symbol, opd_vector, opd_dir_raw,
+        basis_vectors, basis_raw, origin, origin_raw
     """
     rows: list[dict[str, Any]] = []
     for line in text.splitlines():
         m = _SUBGROUP_ROW_RE.match(line)
         if not m:
             continue
+        dirvec_raw = m.group("dirvec")
+        basis_raw = m.group("basis")
+        origin_raw = m.group("origin")
         rows.append({
             "space_group_number": int(m.group("sg")),
             "space_group_symbol": m.group("symbol"),
@@ -334,9 +338,12 @@ def parse_subgroup_table(text: str) -> list[dict[str, Any]]:
             "subgroup_index": int(m.group("index")),
             "size": int(m.group("size")),
             "opd_symbol": m.group("dir"),
-            "opd_vector": parse_vector_token(m.group("dirvec")),
-            "basis_vectors": parse_basis_token(m.group("basis")),
-            "origin": parse_coords_token(m.group("origin")),
+            "opd_vector": parse_vector_token(dirvec_raw.replace(";", ",")),
+            "opd_dir_raw": dirvec_raw,
+            "basis_vectors": parse_basis_token(basis_raw),
+            "basis_raw": basis_raw,
+            "origin": parse_coords_token(origin_raw),
+            "origin_raw": origin_raw,
         })
     return rows
 

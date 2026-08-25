@@ -27,10 +27,10 @@ defaults:
   # 超胞大小 [a, b, c]（仅当未使用子群基矢时生效）
   default_supercell: [1, 1, 1]
 
-# 运行时
+# 运行时（网页与终端界面均为英语，不再提供中文切换）
+# 网页/终端分工：Method 1–4 只调参数并计算结果表（可筛选、排序）；
+# Distortion 统一下载筛选后的 txt/csv（1–4）以及 Method 1–3 的子群结构文件。
 runtime:
-  # 默认界面语言（zh 中文 / en English；三种使用方式均可随时切换）
-  language: "en"
   # 网页端（web/server.py / main_web.py）监听端口
   web_port: 8000
   # 网页端空闲自动停服时间（秒）：页面关闭后心跳停止，超过该时长自动停服并释放端口
@@ -43,8 +43,11 @@ runtime:
   # 子进程调用超时（秒）
   timeout: 60
   # 子群数据库在线生成超时（秒）
-  # 对应官网 “Generate isotropy subgroups”：参数 k 点（如 LD/DT）的子群
-  # 数据库需在线生成，可能耗时数分钟到数小时，故单独配置更长超时
+  # 对应 Method 2 勾选 “Generate isotropy subgroups database if missing”
+  # （官网 “Generate isotropy subgroups”）：参数 k 点（如 LD/DT）的
+  # data_*.txt 中若无子群列表，则由本机 iso 现场生成，可能耗时数分钟到
+  # 数小时，故单独配置更长超时。结果缓存在 temp_dir，与 Distortion ZIP
+  # 导出、以及已删除的 Distortion Generate（按幅度生成畸变结构）不是同一功能。
   generation_timeout: 3600
   # 说明：Method 2 的 “# of independent incommensurate modulations”
   # 依赖官网 (3+d) 维超空间机制，本地网页/终端已移除该交互选项；

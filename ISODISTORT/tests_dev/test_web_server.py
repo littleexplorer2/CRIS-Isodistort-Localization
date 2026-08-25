@@ -80,8 +80,20 @@ def test_index_served(server):
         body = resp.read().decode("utf-8")
     assert resp.status == 200
     assert "ISODISTORT" in body
-    assert "langSel" in body  # 语言下拉菜单存在
-    # 对齐官网搜索页布局：well 面板 + OK/Change 按钮 + help 图标 + 双语
+    assert "langSel" not in body
+    assert "generateDistortion" not in body
+    assert "showDomains" not in body
+    assert 'id="btnDlAll"' in body
+    assert "sortMethod1" not in body
+    assert "sortResult" in body
+    assert "downloadFilteredTable" in body
+    assert "downloadFilteredSubgroups" not in body
+    assert 'id="dlMethodOpt4"' in body
+    assert 'id="btnDlTxt"' in body and 'id="btnDlCsv"' in body
+    assert 'id="genDbHelp"' in body
+    assert "onResultFilter" in body
+    assert "m1Items" in body and "m3Items" in body
+    # 对齐官网搜索页布局：well 面板 + OK/Change 按钮 + help 图标
     assert 'class="well"' in body
     assert 'id="hM1"' in body and 'id="hM2"' in body
     assert 'id="btnM1"' in body and 'id="btnTypes"' in body
@@ -91,28 +103,28 @@ def test_index_served(server):
     assert 'id="fmtCif"' in body and 'id="fmtIsoviz"' in body
     assert 'id="fmtModes"' in body and 'id="fmtTopas"' in body
     assert "downloadAll()" in body
+    assert "indices=" in body
+    assert 'name="orderparam"' in body
     assert "Save interactive distortion" in body
     assert "Complete modes details" in body
     assert "TOPAS.STR" in body
     assert 'id="dlMethod"' in body
     assert 'id="dlMethodOpt1"' in body and 'id="dlMethodOpt2"' in body
     assert 'id="dlMethodOpt3"' in body
+    assert 'id="dlMethodOpt4"' in body
     assert 'multiple' not in body.split('id="dlMethod"')[1].split(">")[0]
 
 
 def test_i18n_endpoint(server):
-    data = _get(server.port, "/api/i18n?lang=en")
+    data = _get(server.port, "/api/i18n")
     assert data["ok"]
-    assert data["language"] == "en"
+    assert "language" not in data
+    assert "terms" not in data
     assert data["messages"]["load.done"].startswith("[Loaded]")
-    assert data["terms"]["space group"] == "空间群"
-
-    data_zh = _get(server.port, "/api/i18n?lang=zh")
-    assert data_zh["language"] == "zh"
-    assert data_zh["messages"]["load.done"].startswith("[加载完成]")
-    # 中文文案应为纯中文（无 "中文 / English" 双语文案）
-    assert "English" not in data_zh["messages"]["hStatus"]
-    assert "/" not in data_zh["messages"]["hCif"]
+    assert "ui.menu.language" not in data["messages"]
+    assert "Generate isotropy subgroups" in data["messages"]["m2.genDbHelp"]
+    assert data["messages"]["m1.orderParam"] == "Order parameter:"
+    assert data["messages"]["dist.method4"] == "Method 4"
 
 
 def test_state_endpoint(server):

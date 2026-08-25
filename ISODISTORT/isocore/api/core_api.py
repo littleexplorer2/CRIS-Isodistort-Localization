@@ -50,7 +50,7 @@ from ..distortion import (
     PhasePath,
     normalize_distortion_types,
 )
-from ..i18n import get_language, set_language, t
+from ..i18n import t
 from ..io import (
     StructureExporter,
     SubgroupExportSpec,
@@ -79,18 +79,13 @@ class IsoDistort:
         加载结构 → 识别对称 → 枚举子群（Method 1）→ 选择路径（Method 2）
         → 计算畸变模式 → 生成畸变结构 → 导出/畴
 
-    语言支持：``IsoDistort(language="en")`` 或 ``iso.set_language("zh")``
-    可随时切换控制台输出语言（终端/网页端通过 isocore.i18n 全局切换）。
+    UI strings are English only. The ``language`` argument is ignored and kept
+    so existing ``IsoDistort(language="en")`` call sites still construct.
     """
 
     def __init__(self, language: str | None = None) -> None:
         self.cfg = get_config()
-
-        # 界面语言（None 时取配置 runtime.language，默认 zh）
-        if language is not None:
-            set_language(language)
-        else:
-            set_language(self.cfg.language)
+        _ = language
 
         # 底层封装
         self._iso = IsoWrapper()
@@ -122,14 +117,6 @@ class IsoDistort:
         self._special_subgroups_cache: list | None = None
         self._special_subgroups_lock = threading.Lock()
         self._conv_to_prim_cache: np.ndarray | None = None
-
-    def set_language(self, language: str) -> None:
-        """切换控制台/界面语言（"zh" 中文 / "en" English）。"""
-        set_language(language)
-
-    def get_language(self) -> str:
-        """当前语言（"zh" 或 "en"）。"""
-        return get_language()
 
     # ================================================================
     # 阶段一：结构输入与对称识别
@@ -333,6 +320,58 @@ class IsoDistort:
                     sg_num
                 )
         return self._special_subgroups_cache
+
+    def _filter_method1_by_types(self, items, distortion_types) -> list:
+        """Keep Method 1 rows that the official site would list for the selected types.
+
+        Magnetic (m*) irreps are dropped unless magnetic is enabled. When
+        displacive/rotational is on, smodes reports which irreps have atomic
+        modes on the parent Wyckoff set (same idea as Method 2 search-stage
+        filtering, but one call per special k point — not BUSH on every row).
+        Strain keeps the identity irrep GM1+ even if smodes does not list it.
+        """
+        types = normalize_distortion_types(distortion_types or self.distortion_types)
+        want_mag = "magnetic" in types
+        want_disp = any(tp in types for tp in ("displacive", "rotational"))
+        want_strain = "strain" in types
+        if not items:
+            return items
+
+        active_by_k: dict[str, set[str] | None] = {}
+        if want_disp and self.structure is not None and self.symmetry_info:
+            species = self._union_scope_species(types)
+            for kp in {it.subgroup.k_point_label for it in items}:
+                if not kp:
+                    active_by_k[kp] = None
+                    continue
+                active = self._smodes.active_irreps(
+                    self.structure,
+                    self.symmetry_info["space_group_number"],
+                    self.symmetry_info["wyckoff_sites"],
+                    kp,
+                    None,
+                    species_filter=species if species else None,
+                )
+                active_by_k[kp] = active or None
+
+        kept = []
+        for item in items:
+            ir = (item.subgroup.irrep_label or "").strip()
+            if ir.startswith("m") and not want_mag:
+                continue
+            if not want_disp:
+                kept.append(item)
+                continue
+            active = active_by_k.get(item.subgroup.k_point_label)
+            if active is None:
+                kept.append(item)
+                continue
+            if ir in active:
+                kept.append(item)
+                continue
+            if want_strain and ir in {"GM1+", "GM1"}:
+                kept.append(item)
+        return kept
 
     def _conv_to_prim(self) -> np.ndarray:
         """母相惯用格子 -> 原胞格子的变换矩阵 T（L_prim = L_conv @ T）。"""
@@ -1207,6 +1246,9 @@ class IsoDistort:
         parent_sg = self.symmetry_info["space_group_number"]
         result = self._search.method_1_search(
             parent_sg, query, subgroups=self._ensure_special_subgroups()
+        )
+        result = self._filter_method1_by_types(
+            result, query.distortion_types or self.distortion_types
         )
 
         # 记录过滤后的候选，供 Method 2 使用

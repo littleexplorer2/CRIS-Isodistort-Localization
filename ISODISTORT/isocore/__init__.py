@@ -10,7 +10,7 @@ isodistort - 晶体畸变分析工具
     distortion  - 畸变业务层：相变路径、模式映射、畸变生成
     io          - 结果输出层：结构文件导出
     api         - 对外接口：Python API
-    i18n        - 中英双语：界面文案 + 科学术语对照表
+    i18n        - English UI strings
     utils       - 工具层：配置、异常、解析工具
 """
 
