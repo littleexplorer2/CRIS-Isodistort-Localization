@@ -85,7 +85,7 @@ wsl --list --verbose
 
 ### 3.2 Python
 
-需要 **Python 3.10 或更高**（开发在 3.14 上验证过）。检查：
+需要 **Python 3.10 或更高**（开发在 3.12.5 上验证过）。检查：
 
 ```powershell
 python --version

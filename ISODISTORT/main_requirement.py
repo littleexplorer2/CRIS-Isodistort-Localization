@@ -55,6 +55,21 @@ def _venv_python(venv_dir: Path) -> Path:
     return venv_dir / "bin" / "python"
 
 
+def _venv_usable(python: Path) -> bool:
+    """True when the venv interpreter runs and matches this process's major.minor."""
+    if not python.exists():
+        return False
+    cp = _run(
+        [str(python), "-c", "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"],
+        check=False,
+    )
+    if cp.returncode != 0:
+        return False
+    reported = (cp.stdout or "").strip()
+    expected = f"{sys.version_info.major}.{sys.version_info.minor}"
+    return reported == expected
+
+
 def _requirement_lines(req_file: Path) -> list[str]:
     lines = []
     for raw in req_file.read_text(encoding="utf-8").splitlines():
@@ -104,17 +119,25 @@ def _pip_upgrade(python: Path) -> None:
 
 def _ensure_venv(project_root: Path, *, recreate: bool) -> tuple[Path, Path]:
     venv_dir = project_root / ".venv"
-    if recreate and venv_dir.exists():
-        print(f"[venv] Recreating: {venv_dir}")
+    python = _venv_python(venv_dir)
+    stale = venv_dir.exists() and not _venv_usable(python)
+    if (recreate or stale) and venv_dir.exists():
+        reason = "requested" if recreate else "broken or built with a different Python"
+        print(f"[venv] Recreating ({reason}): {venv_dir}")
         shutil.rmtree(venv_dir, ignore_errors=True)
+        if venv_dir.exists():
+            raise RuntimeError(f"Could not remove old venv: {venv_dir}")
 
     if not venv_dir.exists():
         print(f"[venv] Creating: {venv_dir}")
         _run([sys.executable, "-m", "venv", str(venv_dir)])
+    else:
+        print(f"[venv] Reusing: {venv_dir}")
 
     python = _venv_python(venv_dir)
-    if not python.exists():
-        raise RuntimeError(f"Virtualenv python not found: {python}")
+    if not _venv_usable(python):
+        raise RuntimeError(f"Virtualenv python not usable: {python}")
+    print(f"[venv] python = {python}")
     return venv_dir, python
 
 
@@ -159,6 +182,7 @@ def _check_python_runtime() -> None:
     # 运行代码使用了 Python 3.10+ 的类型语法（如 list[str]、| 联合类型等）
     if sys.version_info < (3, 10):
         raise RuntimeError(f"Python >= 3.10 required, got {sys.version_info.major}.{sys.version_info.minor}")
+    print(f"[python] {sys.version.split()[0]} ({sys.executable})")
     if shutil.which(sys.executable) is None:
         # 这条通常不会触发，但作为兜底提示
         print(f"[python] WARNING: unable to locate executable for: {sys.executable}")
