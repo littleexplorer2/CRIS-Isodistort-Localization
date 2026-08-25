@@ -30,9 +30,3 @@ tests_dev/cifs_30/
 # COD 外部结构（真实晶体数据，来源见 tests_dev/cifs_external/SOURCES.md）：
 # python tests_dev/fetch_cod_cifs.py 重新下载
 tests_dev/cifs_external/
-
-# ---------- ISOTROPY 套件二进制与数据库（大文件，不提交） ----------
-# isobyu/ 为 Linux ELF 二进制 + 各向同性数据库（仅 WSL 侧运行需要），
-# 体积大且不可再分发；部署时请将 ISOTROPY 套件文件放入 ISODISTORT/isobyu/
-# （具体文件清单见 README「部署要求」）。
-isobyu/
