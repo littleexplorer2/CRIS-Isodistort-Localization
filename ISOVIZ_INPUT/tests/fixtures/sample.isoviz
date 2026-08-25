@@ -1,0 +1,12 @@
+#isodistort_version_number
+!isoversion 6.12
+
+!strainmodelist
+  1    0.00000   0.10000    2 GM1+strain_1(a)
+   0.70711   0.70711   0.00000   0.00000   0.00000   0.00000
+
+!displacivemodelist
+    1    1   0.00000   2.44949    1 [0,0,1/6]LD1[Eu1:a:dsp]A2u(a)
+   0.00000   0.00000   0.00528
+    1    2   0.00000   2.82843    3 [0,0,1/3]LD1[Eu1:a:dsp]A2u(a)
+   0.00000   0.00000   0.00528

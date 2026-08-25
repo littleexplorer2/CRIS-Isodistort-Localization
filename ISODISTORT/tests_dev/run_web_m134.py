@@ -24,7 +24,9 @@ sys.path.insert(0, str(ROOT))
 
 from web import server as web_server  # noqa: E402  (导入即校验语法/路由)
 
-DATA_DIR = Path(r"C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码")
+from data_dir import experiment_data_dir
+
+DATA_DIR = experiment_data_dir()
 PARENT_CIF = DATA_DIR / "EuAl4 Parent.cif"
 
 

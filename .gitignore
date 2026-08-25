@@ -1,0 +1,12 @@
+# environment
+/.venv/
+/.vscode/
+
+# logs
+/.pytest_cache/
+/.ruff_cache/
+
+# data
+/experiment_data/
+/webpage_info/
+ISOViz.lnk

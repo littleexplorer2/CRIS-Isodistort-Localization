@@ -19,6 +19,7 @@ import pytest
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_PROJECT_ROOT))
 from web import server as web_server  # noqa: E402  (导入即校验语法/路由)
+from data_dir import experiment_data_dir  # noqa: E402
 
 
 def _wsl_available() -> bool:
@@ -104,7 +105,10 @@ def test_index_served(server):
     assert 'id="fmtModes"' in body and 'id="fmtTopas"' in body
     assert "downloadAll()" in body
     assert "indices=" in body
-    assert 'name="orderparam"' in body
+    assert "resultTableHtml" in body
+    assert "methodColumns" in body
+    assert 'class="table table-hover result"' in body
+    assert 'name="orderparam"' not in body
     assert "Save interactive distortion" in body
     assert "Complete modes details" in body
     assert "TOPAS.STR" in body
@@ -123,7 +127,6 @@ def test_i18n_endpoint(server):
     assert data["messages"]["load.done"].startswith("[Loaded]")
     assert "ui.menu.language" not in data["messages"]
     assert "Generate isotropy subgroups" in data["messages"]["m2.genDbHelp"]
-    assert data["messages"]["m1.orderParam"] == "Order parameter:"
     assert data["messages"]["dist.method4"] == "Method 4"
 
 
@@ -214,11 +217,9 @@ def test_download_all_rejects_multiple_methods(server):
 @pytest.mark.skipif(not _wsl_available(), reason="WSL 不可用，跳过真实计算端点")
 def test_load_cif_endpoint(server):
     """上传 EuAl4 母相 CIF 并校验识别结果（真实计算）。"""
-    cif = (Path(r"C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码")
-           / "EuAl4 Parent.cif")
+    cif = experiment_data_dir() / "EuAl4 Parent.cif"
     if not cif.exists():
-        cif = (Path(r"C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码")
-               / "EuAl4 Springer (parent).cif")  # 旧命名兼容
+        cif = experiment_data_dir() / "EuAl4 Springer (parent).cif"  # 旧命名兼容
     if not cif.exists():
         pytest.skip("EuAl4 CIF 不存在")
     body = json.dumps({"filename": "eual4.cif", "content": cif.read_text(encoding="utf-8")}).encode("utf-8")
@@ -246,7 +247,7 @@ def test_load_cif_endpoint(server):
 @pytest.mark.skipif(not _wsl_available(), reason="WSL 不可用，跳过真实计算端点")
 def test_method1_options_endpoint(server):
     """Method 1 下拉数据（真实枚举）：可达子群空间群（<230）+ lattice 选项。"""
-    cif = Path(r"C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码\EuAl4 Parent.cif")
+    cif = experiment_data_dir() / "EuAl4 Parent.cif"
     if not cif.exists():
         pytest.skip("EuAl4 CIF 不存在")
     body = json.dumps({"filename": "eual4.cif", "content": cif.read_text(encoding="utf-8")}).encode("utf-8")

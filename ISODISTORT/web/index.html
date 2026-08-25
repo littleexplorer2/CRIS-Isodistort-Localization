@@ -31,11 +31,6 @@
     padding: 0 3px; line-height: 1.15; font-size: 10px; margin: 0 1px;
   }
   .sort-btns button.active { background: #08c; color: #fff; border-color: #08c; }
-  .opd-caption { margin: 6px 0 4px 0; }
-  .opd-list { font-family: Menlo, Consolas, "Courier New", monospace; font-size: 13px; }
-  .opd-item { display: block; font-weight: normal; white-space: nowrap; cursor: pointer; margin: 0; }
-  .opd-item input { margin-right: 6px; vertical-align: middle; }
-  #m1Out.scroll { max-height: 520px; }
 </style>
 </head>
 <body>
@@ -595,11 +590,7 @@ function methodColumns(method) {
     text: (it) => String(it.irrep_label || ""), cell: (it) => esc(it.irrep_label || ""),
     sortVal: (it) => String(it.irrep_label || ""), exportHeader: "irrep" };
   if (method === 1) {
-    return [
-      { key: "line", header: t("m1.orderParam"), sortable: true, filterable: true,
-        text: (it) => String(it.opd_line || ""), cell: (it) => esc(it.opd_line || ""),
-        sortVal: (it) => String(it.opd_line || ""), exportHeader: "order_parameter" },
-      idx, sg, k, ir,
+    return [idx, sg, k, ir,
       { key: "opd", header: "OPD", sortable: true, filterable: true,
         text: (it) => String(it.opd_symbol || ""), cell: (it) => esc(it.opd_symbol || ""),
         sortVal: (it) => String(it.opd_symbol || ""), exportHeader: "OPD" },
@@ -666,26 +657,6 @@ function sortButtonsHtml(method, col) {
     + `</span>`;
 }
 function resultTableHtml(method, rows) {
-  if (method === 1) {
-    const clickable = !!tblClickSource(method);
-    let h = `<div class="opd-caption">${esc(t("m1.orderParam"))}`;
-    for (const col of methodColumns(method)) {
-      if (!col.sortable) continue;
-      h += `<span class="muted-hint" style="margin-left:10px;">${esc(col.header)}${sortButtonsHtml(method, col)}</span>`;
-    }
-    h += `</div><div class="opd-list">`;
-    if (!rows.length) {
-      return h + `<div class="muted-hint">-</div></div>`;
-    }
-    rows.forEach((it, i) => {
-      const chk = i === 0 ? " checked" : "";
-      const idxAttr = clickable ? ` data-idx="${esc(it.index)}"` : "";
-      h += `<label class="opd-item"${idxAttr}>`
-        + `<input type="radio" name="orderparam" value="${esc(it.index)}"${chk}>`
-        + `<span class="opd-text">${esc(it.opd_line || "")}</span></label>`;
-    });
-    return h + `</div>`;
-  }
   const cols = methodColumns(method);
   const clickable = !!tblClickSource(method);
   let h = `<table class="table table-hover result"><thead><tr>`;
@@ -717,7 +688,7 @@ function bindResultTable(method) {
   if (!src) return;
   wrap.onclick = (ev) => {
     if (ev.target.closest("button[data-sort]")) return;
-    const hit = ev.target.closest("tr[data-idx], label.opd-item[data-idx]");
+    const hit = ev.target.closest("tr[data-idx]");
     if (hit) computeModes(Number(hit.dataset.idx), src);
   };
 }

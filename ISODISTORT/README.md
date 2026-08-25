@@ -15,10 +15,12 @@
 | `ISODISTORT/`（不含下表例外） | 可以 | 本地化主体：计算、网页、终端、API、文档、测试 |
 | `ISODISTORT/isobyu/` | **不可以** | 从 [iso.byu.edu](https://iso.byu.edu/isotropy.php) 下载的 Linux 二进制与数据库，只读 |
 | `ISODISTORT_VALIDATE/` | 可以 | 比较本地 CIF 与官网 CIF |
+| `ISOVIZ_INPUT/` | 可以 | 把振幅 CSV 写入 `.isoviz` 并打开 IsoVIZ；`data.csv/` 与 `subgroup.isoviz/` 不入库 |
 | `webpage_info/` | **不可以** | 官网各步 HTML 存档 |
-| `实验数据与GD代码/` | **不可以** | 实验母相 CIF 等原始数据 |
+| `experiment_data/` | **不可以** | 实验母相 CIF 等原始数据 |
+| `GD/` | **不可以** | 梯度下降拟合代码与笔记本 |
 
-官网交互对照（`webpage_info/`，勿改其中文件）：在 1 首页上传 `实验数据与GD代码/EuAl4 Parent.cif` → 2 勾选 strains 与 displacive（Eu, Al），Method 2 选 LD、K10 (0,0,g)、g=1/6 → 连续 OK 进入 3、4、5 → 6 为导出页（CIF / Save interactive distortion / Complete modes details / TOPAS.STR）。
+官网交互对照（`webpage_info/`，勿改其中文件）：在 1 首页上传 `experiment_data/EuAl4 Parent.cif` → 2 勾选 strains 与 displacive（Eu, Al），Method 2 选 LD、K10 (0,0,g)、g=1/6 → 连续 OK 进入 3、4、5 → 6 为导出页（CIF / Save interactive distortion / Complete modes details / TOPAS.STR）。
 
 ---
 
@@ -43,11 +45,13 @@ cd CRIS-Isodistort-Localization
 
 ### 2.2 放入 ISOTROPY 套件（必需）
 
-克隆下来的仓库**不包含**可运行的 `iso` 二进制。请从 [ISOTROPY Suite](https://iso.byu.edu/isotropy.php) 下载 Linux 版，把 `iso` 与全部 `data_*.txt` 放进：
+克隆下来的仓库**不包含**可运行的 `iso` 二进制。请从 [ISOTROPY Suite](https://iso.byu.edu/isotropy.php) 下载 Linux 版，把 `iso`、`smodes` 与全部 `data_*.txt` 放进：
 
 ```text
 ISODISTORT/isobyu/
 ```
+
+`python ISODISTORT/main_requirement.py` 若发现没有 `isobyu/`，会新建空目录并打印上述下载地址；**不会**自动下载套件。没有 `ISODISTORT/output/` 时会自动创建。
 
 不要改该目录里的文件内容。缺 `iso` 或数据库时，网页/终端在真正计算时会报错。
 
@@ -103,7 +107,7 @@ python --version
 
 ## 4. 安装 Python 依赖
 
-在**仓库根目录**只建一份虚拟环境 `CRIS/.venv`（同时覆盖 ISODISTORT 与 ISODISTORT_VALIDATE）：
+在**仓库根目录**只建一份虚拟环境 `CRIS/.venv`（覆盖 ISODISTORT、ISODISTORT_VALIDATE 与 ISOVIZ_INPUT）：
 
 ```powershell
 cd <你克隆下来的仓库根目录>
@@ -116,7 +120,7 @@ python ISODISTORT\main_requirement.py
 python ISODISTORT\main_requirement.py --dev
 ```
 
-已有 `.venv` 则复用；`--recreate` 会删掉后重建。脚本会检查 Python、WSL、`isobyu/iso` 与 `data_*.txt`，并安装 `requirements.txt`。**不会**自动下载 ISOTROPY 套件。
+已有 `.venv` 则复用；`--recreate` 会删掉后重建。脚本会检查 Python、WSL、`ISODISTORT/output/`（没有则新建）、`isobyu/`（没有则新建空目录并提醒去官网下载），并只安装尚未存在的 `requirements.txt` 依赖。**不会**自动下载 ISOTROPY 套件。
 
 成功后控制台会打印建议命令，例如用 `.venv\Scripts\python.exe` 启动网页或终端。以后运行请始终用该解释器，避免装到了系统 Python 里却用另一个 Python 启动。
 
@@ -155,7 +159,7 @@ cd <仓库根目录>
 - 选择 `.cif` / `.CIF` 文件，点 **Load**。
 - 页头会显示空间群、晶格、Wyckoff、Default space-group preferences。
 - 必须先 Load 再跑任何 Method；否则 OK 会提示先加载母相。
-- 实验示例（若仓库中仍有该文件）：`实验数据与GD代码/EuAl4 Parent.cif`。不要修改该目录。
+- 实验示例（若仓库中仍有该文件）：`experiment_data/EuAl4 Parent.cif`。不要修改该目录。
 
 ### 5.4 Types of distortions to be considered
 
@@ -171,15 +175,14 @@ cd <仓库根目录>
 - **Conventional lattice / Primitive lattice**：互斥过滤超胞基矢。本地 iso 数据库（9.6.1）与官网不完全相同，下拉选项可能略有差别；页上有英文说明。
 - **Maximal subgroups only**：只保留极大子群。
 - **OK**：枚举全部特殊 k 点上的各向同性子群。首次可能数秒到数十秒，属正常。
-- 结果与官网 Method 1 的 **Order parameter** 页对齐：每条是一条 radio 行（IR、OPD 字母方向、子群空间群、basis / origin / s / i / k-active）。本地额外保留 Filter 与 ▲/▼（可按整行文本、SG、k、Irrep、OPD、晶系、是否极大子群筛选/排序）。
-- **筛选**：Filter 输入框对 `order parameter` / `SG` / `k point` / `Irrep` / `OPD` / `crystal system` / `maximal subgroup` 做不区分大小写的子串匹配。可勾选 **Show filtered rows only** 只显示命中行。`idx` 不参与筛选（那是子群编号）。
-- **排序**：`order parameter`、`SG`、`k point`、`Irrep`、`OPD`、`crystal system`、`maximal subgroup` 表头右侧各有 **▲（升序）** 和 **▼（降序）**。每次只按当前点的那一列、那一个方向排；点击行/radio 计算模式时按子群 `idx`，不会因排序错位。
-  - `order parameter`：按官网格式整行字符串排。
+- 结果与 Method 2 / 3 一样是**表格**（`idx` / `SG` / `k` / `Irrep` / `OPD` / `crystal system` / `maximal`），可 Filter 与 ▲/▼，而不是官网 Order parameter 页那种一行一条的 radio 文本。
+- **筛选**：Filter 输入框对 `SG` / `k point` / `Irrep` / `OPD` / `crystal system` / `maximal subgroup` 做不区分大小写的子串匹配。可勾选 **Show filtered rows only** 只显示命中行。`idx` 不参与筛选（那是子群编号）。
+- **排序**：`SG`、`k point`、`Irrep`、`OPD`、`crystal system`、`maximal subgroup` 表头右侧各有 **▲（升序）** 和 **▼（降序）**。每次只按当前点的那一列、那一个方向排；点击行计算模式时按子群 `idx`，不会因排序错位。
   - `SG`：按空间群序号数字排。
   - `k point` / `Irrep` / `OPD`：按标签字符串排（含数字时按自然序）。
   - `crystal system`：按三斜→单斜→正交→四方→三方→六方→立方。
   - `maximal subgroup`：升序为非极大在前，降序为极大在前。
-- **点击一条 / 选中 radio**：按该子群计算模式基矢，结果显示在 Method 2 下方的 modes 区。
+- **点击一行**：按该子群计算模式基矢，结果显示在 Method 2 下方的 modes 区。
 - Method 区**没有**下载按钮。筛选后的表、以及全部子群结构文件，都在页面底部 **Distortion** 下载。
 
 ### 5.6 Method 2: General method — specific k points
@@ -259,14 +262,14 @@ cd <仓库根目录>
 启动后会先要求选择**母相 CIF**：
 
 - 在 `ISODISTORT/` 下最多列出 30 个 `.cif`（不含 `output/` 与 `output/tmp/`）。
-- 仓库外的文件（如 `实验数据与GD代码/EuAl4 Parent.cif`）请选手动输入路径，建议绝对路径。
+- 仓库外的文件（如 `experiment_data/EuAl4 Parent.cif`）请选手动输入路径，建议绝对路径。
 
 ### 6.1 主菜单（Search Page）
 
 - **1. Reload parent CIF**：重新加载母相；会清空上次 Method 1/2/3/4 结果。
 - **2. Set distortion types**：输入类型编号或名称（逗号分隔，如 `1,3`）。再为非 strain 类型指定物种作用域：`all` / `none` / `Eu,Al`。
 - **3. Method 1**：可选晶系（逗号分隔，如 `tetragonal`）、可选子群空间群号、是否只要极大子群、Conventional/Primitive lattice（输入如 `C3`、`P2`，`0` 表示不选）。计算后进入与网页相同的表交互：
-  - `f <col>=text` 筛选（列：`line` / `sg` / `k` / `irrep` / `opd` / `cs` / `max`）
+  - `f <col>=text` 筛选（列：`sg` / `k` / `irrep` / `opd` / `cs` / `max`）
   - `s <col> a|d` 升序或降序
   - `c` 清除筛选；`only` 切换是否只显示命中行
   - 输入子群 `idx` 计算模式；`q` 结束（下载到菜单 7）

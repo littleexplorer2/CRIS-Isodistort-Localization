@@ -1,7 +1,7 @@
 """网页 Method 2 场景回归：精确复现官网交互流程。
 
 场景（与浏览器操作一致）：
-  1. 首页上传 EuAl4 Parent.cif（实验数据与GD代码/）
+  1. 首页上传 EuAl4 Parent.cif（experiment_data/）
   2. 勾选畸变类型 strains + displacive（作用域 Eu, Al）
   3. Method 2 选择 LD（K10, (0,0,g)），g=1/6，点 OK 枚举子群
      —— 此处曾报错 "'IsoHandler' object has no attribute '_SESSION'"
@@ -25,7 +25,9 @@ sys.path.insert(0, str(ROOT))
 
 from web import server as web_server  # noqa: E402  (导入即校验语法/路由)
 
-DATA_DIR = Path(r"C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码")
+from data_dir import experiment_data_dir
+
+DATA_DIR = experiment_data_dir()
 PARENT_CIF = DATA_DIR / "EuAl4 Parent.cif"
 
 

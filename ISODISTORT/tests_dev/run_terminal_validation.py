@@ -34,10 +34,12 @@ from run_30cif_validation import _validate_parent  # noqa: E402
 
 from isocore.structure import read_cif  # noqa: E402
 
+from data_dir import experiment_data_dir
+
 CRIS_ROOT = ROOT.parent
 PYTHON = CRIS_ROOT / ".venv" / "Scripts" / "python.exe"
 TERMINAL = ROOT / "main_terminal.py"
-DATA_DIR = Path(r"C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码")
+DATA_DIR = experiment_data_dir()
 CIFS_DIR = ROOT / "tests_dev" / "cifs_30"
 EXTERNAL_DIR = ROOT / "tests_dev" / "cifs_external"
 

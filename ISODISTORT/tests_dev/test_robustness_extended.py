@@ -18,7 +18,9 @@ from isocore.distortion import DistortionEngine
 from isocore.io import StructureExporter
 from isocore.structure import read_cif
 
-DATA_DIR = Path(r"C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码")
+from data_dir import experiment_data_dir
+
+DATA_DIR = experiment_data_dir()
 CIFS_DIR = Path(__file__).resolve().parent / "cifs_30"
 
 

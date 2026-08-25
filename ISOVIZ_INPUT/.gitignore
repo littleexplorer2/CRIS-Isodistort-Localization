@@ -1,0 +1,6 @@
+data.csv
+subgroup.isoviz
+output/
+__pycache__/
+.pytest_cache/
+*.pyc

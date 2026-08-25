@@ -1,6 +1,6 @@
 # ISODISTORT_VALIDATE
 
-比较 **ISODISTORT 本地导出的 CIF** 与 **官网导出的参考 CIF** 是否为同一结构，用来检查本地化有没有算错。本目录可以改；`webpage_info/` 与 `实验数据与GD代码/` 不能改。
+比较 **ISODISTORT 本地导出的 CIF** 与 **官网导出的参考 CIF** 是否为同一结构，用来检查本地化有没有算错。本目录可以改；`webpage_info/`、`experiment_data/` 与 `GD/` 不能改。
 
 默认 **PASS** 看的是晶体学语义（晶格、原子、坐标、占据率、磁矩、声明空间群），不是文件排版。字节级回归用 `--strict`。
 

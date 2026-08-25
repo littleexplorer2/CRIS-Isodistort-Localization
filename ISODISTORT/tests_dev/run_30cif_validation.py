@@ -29,8 +29,10 @@ from isocore.api import IsoDistort
 from isocore.structure import read_cif
 from isocore.utils import run_self_checks
 
+from data_dir import experiment_data_dir
+
 CIFS_DIR = Path(__file__).resolve().parent / "cifs_30"
-DATA_DIR = Path(r"C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码")
+DATA_DIR = experiment_data_dir()
 REAL_CIFS = [
     ("EuAl4_Parent", DATA_DIR / "EuAl4 Parent.cif", 139),
     ("EuAl4_Springer", DATA_DIR / "EuAl4 Springer.cif", 139),

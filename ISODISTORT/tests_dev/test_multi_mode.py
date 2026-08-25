@@ -19,8 +19,10 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from isocore.api import IsoDistort
 
+from data_dir import experiment_data_dir
+
 CIFS_DIR = Path(__file__).resolve().parent / "cifs_30"
-DATA_DIR = Path(r"C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码")
+DATA_DIR = experiment_data_dir()
 
 
 def _wsl_available() -> bool:

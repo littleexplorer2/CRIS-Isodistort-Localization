@@ -34,7 +34,9 @@ MATCHER = StructureMatcher(ltol=1e-5, stol=1e-3, angle_tol=0.001)
 COORD_TOL = 1e-5
 AMP_REL_TOL = 1e-4
 
-DATA_DIR = Path(r"C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码")
+from data_dir import experiment_data_dir
+
+DATA_DIR = experiment_data_dir()
 
 
 def _wsl_available() -> bool:

@@ -27,7 +27,6 @@ def test_distortion_and_method2_help_keys():
     assert "m2.genDbHelp" in MESSAGES
     assert "Generate isotropy subgroups" in MESSAGES["m2.genDbHelp"]
     assert "\n" not in MESSAGES["m2.genDbHelp"]
-    assert MESSAGES["m1.orderParam"] == "Order parameter:"
     assert "dist.method4" in MESSAGES
     assert "dist.tableLabel" in MESSAGES
     assert "not limited by the filter" not in MESSAGES["dist.tableNote"]

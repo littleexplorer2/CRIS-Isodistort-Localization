@@ -26,7 +26,9 @@ sys.path.insert(0, str(_PROJECT_ROOT))
 from isocore.api import IsoDistort  # noqa: E402
 from web import server as web_server  # noqa: E402
 
-DATA_DIR = Path(r"C:\Users\devou\OneDrive\Desktop\CRIS\实验数据与GD代码")
+from data_dir import experiment_data_dir
+
+DATA_DIR = experiment_data_dir()
 CIFS_DIR = _PROJECT_ROOT / "tests_dev" / "cifs_30"
 
 MATCH_TOL = 1e-6

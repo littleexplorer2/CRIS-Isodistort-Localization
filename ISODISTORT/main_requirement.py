@@ -1,13 +1,15 @@
 """
-ISODISTORT / ISODISTORT_VALIDATE 统一依赖安装脚本
+CRIS 统一依赖安装脚本（ISODISTORT / ISODISTORT_VALIDATE / ISOVIZ_INPUT）
 
 目标
 ----
 1) 在 CRIS 仓库根目录只创建一份虚拟环境（默认：`CRIS/.venv`）
-2) 安装并校验运行网页与终端交互所需的所有 Python 依赖
-   （同时覆盖 ISODISTORT 与 ISODISTORT_VALIDATE 两部分）
-3) 检查并配置运行所需的环境变量（``ISODATA``：ISOTROPY 数据库目录）
-4) 安装完成后给出最直接的运行方式提示
+2) 安装并校验运行网页、终端、IsoVIZ 导入所需的 Python 依赖
+   （已安装的包不会重复下载）
+3) 若缺少 ``ISODISTORT/output`` 则自动新建；若缺少 ``ISODISTORT/isobyu``
+   则新建空目录，并提醒从 https://iso.byu.edu/isotropy.php 下载套件
+4) 检查并配置 ``ISODATA``（ISOTROPY 数据库目录）
+5) 安装完成后给出最直接的运行方式提示
 
 用法
 ----
@@ -22,7 +24,9 @@ ISODISTORT / ISODISTORT_VALIDATE 统一依赖安装脚本
 from __future__ import annotations
 
 import argparse
+import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -51,9 +55,46 @@ def _venv_python(venv_dir: Path) -> Path:
     return venv_dir / "bin" / "python"
 
 
+def _requirement_lines(req_file: Path) -> list[str]:
+    lines = []
+    for raw in req_file.read_text(encoding="utf-8").splitlines():
+        text = raw.split("#", 1)[0].strip()
+        if text:
+            lines.append(text)
+    return lines
+
+
+def _distribution_name(req_line: str) -> str:
+    name = re.split(r"[=<>!~\[]", req_line, maxsplit=1)[0].strip()
+    return name.lower().replace("_", "-")
+
+
+def _installed_distributions(python: Path) -> set[str]:
+    cp = _run([str(python), "-m", "pip", "list", "--format=json"], check=False)
+    if cp.returncode != 0 or not (cp.stdout or "").strip():
+        return set()
+    try:
+        rows = json.loads(cp.stdout)
+    except json.JSONDecodeError:
+        return set()
+    return {str(row.get("name", "")).lower().replace("_", "-") for row in rows if row.get("name")}
+
+
 def _pip_install(python: Path, req_file: Path) -> None:
-    print(f"\n[pip] Installing: {req_file}")
-    _run([str(python), "-m", "pip", "install", "-r", str(req_file)])
+    if not req_file.is_file():
+        print(f"\n[pip] Skip (missing): {req_file}")
+        return
+    pkgs = _requirement_lines(req_file)
+    if not pkgs:
+        print(f"\n[pip] Skip (no packages listed): {req_file}")
+        return
+    installed = _installed_distributions(python)
+    missing = [line for line in pkgs if _distribution_name(line) not in installed]
+    if not missing:
+        print(f"\n[pip] Already installed, skip: {req_file}")
+        return
+    print(f"\n[pip] Installing missing from {req_file}: {', '.join(missing)}")
+    _run([str(python), "-m", "pip", "install", *missing])
 
 
 def _pip_upgrade(python: Path) -> None:
@@ -124,51 +165,63 @@ def _check_python_runtime() -> None:
 
 
 def _check_project_paths(project_root: Path) -> None:
-    # 必要配置文件存在性
+    """Ensure ISODISTORT/output exists; create it when missing."""
     cfg = project_root / "ISODISTORT" / "config" / "settings.yaml"
     if not cfg.exists():
         raise RuntimeError(f"Missing config file: {cfg}")
 
-    # 运行目录（wrapper 会尝试创建，但这里先尽量给出更早的错误提示）
     out_dir = project_root / "ISODISTORT" / "output"
     tmp_dir = out_dir / "tmp"
+    if not out_dir.exists():
+        print(f"\n[paths] Creating missing folder: {out_dir}")
     out_dir.mkdir(parents=True, exist_ok=True)
     tmp_dir.mkdir(parents=True, exist_ok=True)
+    print(f"[paths] OK: output folder = {out_dir}")
 
 
-def _check_isotropy_binaries(project_root: Path) -> None:
+_ISOTROPY_DOWNLOAD = "https://iso.byu.edu/isotropy.php"
+
+
+def _remind_isobyu(isobyu: Path, *, created: bool) -> None:
+    print("\n[binary] ISOTROPY Suite (iso / smodes / data_*.txt) is required.")
+    if created:
+        print(f"[binary] Created empty folder: {isobyu}")
+    print(f"[binary] Download the Linux ISOTROPY Suite from {_ISOTROPY_DOWNLOAD}")
+    print(f"[binary] Then move `iso`, `smodes`, and all `data_*.txt` into:\n         {isobyu}")
+
+
+def _check_isotropy_binaries(project_root: Path) -> bool:
     """
-    isobyu 目录下的 Linux ELF 二进制和数据库文件是“功能性必需项”。
-    这里只做存在性检查；真正可运行性还受 WSL/权限/数据库完整性影响。
+    Check ISODISTORT/isobyu. If the folder is missing, create it and tell the
+    user to download the suite from iso.byu.edu.
+
+    Returns True when iso + smodes + data files are present.
     """
     isobyu = project_root / "ISODISTORT" / "isobyu"
     if not isobyu.exists():
-        print("\n[binary] WARNING: `ISODISTORT/isobyu/` not found. You need to deploy ISOTROPY suite there.")
-        return
+        isobyu.mkdir(parents=True, exist_ok=True)
+        _remind_isobyu(isobyu, created=True)
+        return False
 
-    # settings.yaml 里固定的二进制名
     required_bins = ["iso", "smodes"]
     optional_bins = ["findsym", "comsubs"]
-
-    missing: list[str] = []
-    for name in required_bins:
-        if not (isobyu / name).exists():
-            missing.append(name)
-
-    # 数据库：至少应该有 data_*.txt（具体文件名随套件版本不同）
+    missing = [name for name in required_bins if not (isobyu / name).exists()]
     data_files = list(isobyu.glob("data_*.txt")) + list(isobyu.glob("data*.txt"))
-    if not data_files:
-        raise RuntimeError("Missing ISOTROPY database files under `ISODISTORT/isobyu/` (expected `data_*.txt`).")
 
     for name in optional_bins:
         if not (isobyu / name).exists():
             print(f"[binary] INFO: optional binary missing `{name}` (not always required).")
 
-    if missing:
-        details = ", ".join(missing)
-        raise RuntimeError(f"Missing required ISOTROPY binaries under `ISODISTORT/isobyu/`: {details}")
-    else:
-        print("\n[binary] OK: required binaries found (iso + smodes).")
+    if missing or not data_files:
+        _remind_isobyu(isobyu, created=False)
+        if missing:
+            print(f"[binary] Missing binaries: {', '.join(missing)}")
+        if not data_files:
+            print("[binary] Missing database files (expected data_*.txt).")
+        return False
+
+    print("\n[binary] OK: required binaries found (iso + smodes).")
+    return True
 
 
 def _check_and_setup_isodata(project_root: Path, python: Path) -> None:
@@ -186,11 +239,11 @@ def _check_and_setup_isodata(project_root: Path, python: Path) -> None:
     """
     print("\n[env] Checking ISODATA ...")
     data_dir = project_root / "ISODISTORT" / "isobyu"
-    if not data_dir.is_dir():
-        raise RuntimeError(
-            f"ISODATA directory missing: {data_dir} "
-            "(deploy the ISOTROPY suite under ISODISTORT/isobyu/)"
-        )
+    if not data_dir.is_dir() or not (
+        list(data_dir.glob("data_*.txt")) + list(data_dir.glob("data*.txt"))
+    ):
+        print("[env] SKIP: isobyu/data_*.txt not present yet; set ISODATA after you install the suite.")
+        return
     os.environ["ISODATA"] = str(data_dir)
     print(f"[env] ISODATA (installer process) = {os.environ['ISODATA']}")
 
@@ -267,6 +320,19 @@ def _post_import_smoke_check(project_root: Path, python: Path) -> None:
         env=env,
     )
 
+    isoviz_root = project_root / "ISOVIZ_INPUT"
+    if (isoviz_root / "isoviz_input").is_dir():
+        env["PYTHONPATH"] = str(isoviz_root) + os.pathsep + env.get("PYTHONPATH", "")
+        _run(
+            [
+                str(python),
+                "-c",
+                "from isoviz_input.amplitudes import read_amplitude_csv; print('ISOVIZ_INPUT import OK')",
+            ],
+            cwd=str(isoviz_root),
+            env=env,
+        )
+
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -282,19 +348,25 @@ def main() -> int:
     _check_python_runtime()
     _check_project_paths(project_root)
     _check_wsl()
-    _check_isotropy_binaries(project_root)
+    has_isobyu = _check_isotropy_binaries(project_root)
 
     venv_dir, python = _ensure_venv(project_root, recreate=args.recreate)
     _pip_upgrade(python)
 
     _pip_install(python, project_root / "ISODISTORT" / "requirements.txt")
     _pip_install(python, project_root / "ISODISTORT_VALIDATE" / "requirements.txt")
+    isoviz_req = project_root / "ISOVIZ_INPUT" / "requirements.txt"
+    if isoviz_req.is_file():
+        _pip_install(python, isoviz_req)
 
     if args.dev:
         _pip_install(python, project_root / "ISODISTORT" / "requirements-dev.txt")
 
     _post_import_smoke_check(project_root, python)
-    _check_and_setup_isodata(project_root, python)
+    if has_isobyu:
+        _check_and_setup_isodata(project_root, python)
+    else:
+        print("\n[env] SKIP ISODATA until ISODISTORT/isobyu contains the ISOTROPY binaries.")
 
     print("\n=== DONE ===")
     if _is_windows():
@@ -305,6 +377,8 @@ def main() -> int:
         print(f"  {python} ISODISTORT\\main_terminal.py")
         print("Run ISODISTORT_VALIDATE:")
         print(f"  {python} ISODISTORT_VALIDATE\\main.py")
+        print("Run ISOVIZ_INPUT:")
+        print(f"  {python} ISOVIZ_INPUT\\main.py")
     else:
         print(f"Use venv python: {python}")
         print("Run web:")
@@ -313,6 +387,8 @@ def main() -> int:
         print(f"  {python} ISODISTORT/main_terminal.py")
         print("Run ISODISTORT_VALIDATE:")
         print(f"  {python} ISODISTORT_VALIDATE/main.py")
+        print("Run ISOVIZ_INPUT:")
+        print(f"  {python} ISOVIZ_INPUT/main.py")
 
     return 0
 

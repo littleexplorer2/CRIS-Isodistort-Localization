@@ -231,7 +231,6 @@ def _empty_tbl(
 def _method1_cols() -> list[tuple[str, str, Callable, Callable, bool]]:
     return [
         ("idx", "idx", lambda r: str(r["index"]), lambda r: int(r["index"]), False),
-        ("line", "order parameter", lambda r: r["line"], lambda r: r["line"], True),
         ("sg", "SG", lambda r: r["sg"], lambda r: r["_sort_sg"], True),
         ("k", "k", lambda r: r["k"], lambda r: r["k"], True),
         ("irrep", "Irrep", lambda r: r["irrep"], lambda r: r["irrep"], True),
@@ -274,7 +273,6 @@ def _row_method1(item) -> dict:
     sg = item.subgroup
     return {
         "index": sg.index,
-        "line": sg.opd_line(),
         "sg": _sg_text(sg),
         "k": sg.k_point_label or "",
         "irrep": sg.irrep_label or "",
@@ -715,7 +713,11 @@ class IsoDistortConsoleApp:
 
     def _print_table_row(self, method: int, row: dict) -> None:
         if method == 1:
-            print(f"  idx={row['index']:3d}  {row['line']}")
+            print(
+                f"  idx={row['index']:3d} | SG {row['sg']:<16s} | k={row['k']:<4s} "
+                f"IR={row['irrep']:<6s} OPD={row['opd']:<4s} "
+                f"| crystal_system={row['cs']:<12s} | maximal={row['max'] or 'no'}"
+            )
         elif method == 2:
             print(
                 f"  idx={row['index']:3d} | SG {row['sg']:<16s} | k={row['k']:<4s} "
@@ -920,7 +922,7 @@ class IsoDistortConsoleApp:
             return
         rows, _matching = _displayed_rows(st, matching_only=True)
         export_headers = {
-            1: ["index", "order_parameter", "space_group", "k_point", "irrep", "OPD", "crystal_system", "maximal"],
+            1: ["index", "space_group", "k_point", "irrep", "OPD", "crystal_system", "maximal"],
             2: ["index", "space_group", "k_point", "irrep", "OPD", "size", "subgroup_index"],
             3: ["index", "space_group", "k_point", "irrep", "point_group"],
             4: ["mode", "amplitude"],
