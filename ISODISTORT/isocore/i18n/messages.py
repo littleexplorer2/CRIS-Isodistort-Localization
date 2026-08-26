@@ -146,7 +146,7 @@ MESSAGES: dict[str, str] = {
     'l.convLat': 'Conventional lattice:',
     'l.primLat': 'Primitive lattice:',
     'm1.sgHint': '({0} reachable subgroup space groups, filtered by the parent structure)',
-    'm1.latNote': "Note: the local iso database (9.6.1) differs from the website's database in subgroup basis vectors, so the Conventional/Primitive lattice options may differ slightly from the official site; options are generated from real enumeration and do not affect the correctness of subgroup enumeration.",
+    'm1.latNote': '',
     'err.badNsup': 'Superposed IR count must be a positive integer.',
     'ok.nsup': 'Superposed IR count set to {0}.',
     'l.noChoice': 'no choice',

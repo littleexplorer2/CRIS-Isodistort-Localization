@@ -35,6 +35,7 @@ from ..backend import (
 )
 from ..backend.smodes_wrapper import SmodesWrapper
 from ..data.kpoints_official import KPOINT_OFFICIAL, official_kparams_to_iso
+from ..data.method1_lattice_official import METHOD1_LATTICE_OFFICIAL
 from ..distortion import (
     DEFAULT_DISTORTION_TYPES,
     DISTORTION_TYPES,
@@ -43,6 +44,7 @@ from ..distortion import (
     DomainGenerator,
     IsoSearchEngine,
     Method1Query,
+    Method1ResultItem,
     Method2Query,
     Method3Query,
     Method4Query,
@@ -50,6 +52,7 @@ from ..distortion import (
     PhasePath,
     normalize_distortion_types,
 )
+from ..distortion.search_methods import _sg_to_crystal_system
 from ..i18n import t
 from ..io import (
     StructureExporter,
@@ -67,8 +70,9 @@ from ..structure import (
     read_structure,
 )
 from ..utils import IsodistortError, get_config
+from ..utils.opd_format import _centering_letter
 from ..utils.schoenflies import hm_symbol, schoenflies_symbol
-from ..utils.text_parser import parse_fraction
+from ..utils.text_parser import parse_basis_token, parse_fraction
 
 
 class IsoDistort:
@@ -117,6 +121,7 @@ class IsoDistort:
         self._special_subgroups_cache: list | None = None
         self._special_subgroups_lock = threading.Lock()
         self._conv_to_prim_cache: np.ndarray | None = None
+        self._parent_rotations_cache: list[np.ndarray] | None = None
 
     # ================================================================
     # 阶段一：结构输入与对称识别
@@ -164,6 +169,7 @@ class IsoDistort:
         self.distorted_structure = None
         self._special_subgroups_cache = None
         self._conv_to_prim_cache = None
+        self._parent_rotations_cache = None
 
     # ================================================================
     # 畸变类型作用域（对齐官网 Types 面板的 per-species 复选框）
@@ -247,7 +253,7 @@ class IsoDistort:
                 official_kparams,
                 species_filter=species if species else None,
             )
-            if active:
+            if active is not None:
                 return [sg for sg in subgroups if sg.irrep_label in active]
             return subgroups
 
@@ -344,7 +350,7 @@ class IsoDistort:
                 if not kp:
                     active_by_k[kp] = None
                     continue
-                active = self._smodes.active_irreps(
+                active_by_k[kp] = self._smodes.active_irreps(
                     self.structure,
                     self.symmetry_info["space_group_number"],
                     self.symmetry_info["wyckoff_sites"],
@@ -352,7 +358,6 @@ class IsoDistort:
                     None,
                     species_filter=species if species else None,
                 )
-                active_by_k[kp] = active or None
 
         kept = []
         for item in items:
@@ -373,14 +378,64 @@ class IsoDistort:
                 kept.append(item)
         return kept
 
+    def _parent_rotations(self) -> list[np.ndarray]:
+        """母相点群旋转矩阵（分数坐标，去重）。"""
+        if self._parent_rotations_cache is None:
+            if self.structure is None:
+                return [np.eye(3)]
+            sga = SpacegroupAnalyzer(self.structure)
+            uniq: list[np.ndarray] = []
+            seen: set[tuple] = set()
+            for op in sga.get_symmetry_operations(cartesian=False):
+                rot = np.asarray(op.rotation_matrix, dtype=float)
+                key = tuple(np.round(rot, 6).flatten())
+                if key not in seen:
+                    seen.add(key)
+                    uniq.append(rot)
+            self._parent_rotations_cache = uniq or [np.eye(3)]
+        return self._parent_rotations_cache
+
+    @staticmethod
+    def _centering_matrix(letter: str) -> np.ndarray:
+        """惯用 → 原胞的标准心化矩阵（行向量为惯用坐标下的原胞基矢）。"""
+        tables = {
+            "P": np.eye(3),
+            "I": np.array(
+                [[-0.5, 0.5, 0.5], [0.5, -0.5, 0.5], [0.5, 0.5, -0.5]], dtype=float
+            ),
+            "F": np.array(
+                [[0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]], dtype=float
+            ),
+            "A": np.array(
+                [[1.0, 0.0, 0.0], [0.0, 0.5, 0.5], [0.0, -0.5, 0.5]], dtype=float
+            ),
+            "B": np.array(
+                [[0.5, 0.0, 0.5], [0.0, 1.0, 0.0], [-0.5, 0.0, 0.5]], dtype=float
+            ),
+            "C": np.array(
+                [[0.5, 0.5, 0.0], [-0.5, 0.5, 0.0], [0.0, 0.0, 1.0]], dtype=float
+            ),
+            "R": np.array(
+                [
+                    [2 / 3, 1 / 3, 1 / 3],
+                    [-1 / 3, 1 / 3, 1 / 3],
+                    [-1 / 3, -2 / 3, 1 / 3],
+                ],
+                dtype=float,
+            ),
+        }
+        return tables.get((letter or "P")[:1].upper(), np.eye(3)).copy()
+
+    def _parent_centering_matrix(self) -> np.ndarray:
+        """母相惯用 → 原胞的标准心化矩阵 T。"""
+        letter = _centering_letter(self.symmetry_info["space_group_number"])
+        return self._centering_matrix(letter)
+
     def _conv_to_prim(self) -> np.ndarray:
         """母相惯用格子 -> 原胞格子的变换矩阵 T（L_prim = L_conv @ T）。"""
         if self._conv_to_prim_cache is None:
-            sga = SpacegroupAnalyzer(self.structure)
-            self._conv_to_prim_cache = np.asarray(
-                sga.get_conventional_to_primitive_transformation_matrix(),
-                dtype=float,
-            )
+            # 与官网 Primitive lattice 同一套心化约定（不用 pymatgen 的备选约定）
+            self._conv_to_prim_cache = self._parent_centering_matrix()
         return self._conv_to_prim_cache
 
     def lattice_in_conventional_frame(self, matrix, frame: str = "conventional"
@@ -402,12 +457,7 @@ class IsoDistort:
 
     @staticmethod
     def _same_lattice(a, b) -> bool:
-        """两个 3x3 超胞基矢是否生成同一格点（GL(3,Z) 等价）。
-
-        判定：行列式绝对值相等，且 B_a @ inv(B_b) 为整数矩阵
-        （此时 B_a = B_b @ U，U 为幺模整数矩阵 -> 同一格点）。
-        对含分数坐标的基矢（如 (-1/2,1/2,1/2)）同样成立。
-        """
+        """两个 3x3 超胞基矢是否生成同一格点（GL(3,Z) 等价）。"""
         a_arr = np.asarray(a, dtype=float)
         b_arr = np.asarray(b, dtype=float)
         if a_arr.shape != (3, 3) or b_arr.shape != (3, 3):
@@ -420,65 +470,99 @@ class IsoDistort:
             return False
         return bool(np.allclose(n, np.round(n), atol=1e-5))
 
-    def _distinct_lattices(self, bases, to_conventional: np.ndarray | None = None
+    def _same_lattice_orbit(self, a, b) -> bool:
+        """同一格点类：含母相点群旋转轨道（官网 lattice 选项语义）。"""
+        b_arr = np.asarray(b, dtype=float)
+        for rot in self._parent_rotations():
+            if self._same_lattice(a, b_arr @ rot) or self._same_lattice(a, rot @ b_arr):
+                return True
+        return False
+
+    def _method1_filtered_subgroups(self) -> list:
+        """Method 1 下拉与搜索共用的类型过滤后子群列表。"""
+        raw = self._ensure_special_subgroups()
+        items = [
+            Method1ResultItem(
+                subgroup=sg,
+                crystal_system=_sg_to_crystal_system(sg.space_group_number),
+                is_maximal=sg.is_maximal,
+            )
+            for sg in raw
+        ]
+        filtered = self._filter_method1_by_types(items, self.distortion_types)
+        return [it.subgroup for it in filtered]
+
+    def _distinct_lattices(self, bases,
+                           preferred_labels: list[str] | None = None
                            ) -> list[dict]:
-        """从一组超胞基矢中提取去重后的 lattice 选项（对齐官网下拉）。
+        """从一组超胞基矢提取去重后的 lattice 选项（对齐官网下拉）。
 
-        去重按“格点等价”（GL(3,Z) 幺模变换）判定——旧实现只做行排序/符号
-        归一，无法合并同一格点的不同基矢表达（如行置换、幺模变换），
-        导致选项数量远超官网。
-        每类的显示代表取该类中“最简”的基矢（元素平方和最小，破平按字典序）。
-
-        参数:
-            to_conventional: 分类后在“原胞坐标”下进行（basis @ T⁻¹），
-                显示时需转回惯用坐标（best @ to_conventional），与官网
-                Primitive lattice 下拉一致（官网选项为惯用坐标表达，
-                如原胞本身显示为 (-1/2,1/2,1/2),... 而非原胞坐标矩阵）。
-
-        顺序：保持首次出现顺序（官网下拉顺序 = 子群数据库枚举顺序，
-        不按行列式排序——旧实现按 det 排序会打乱官网顺序）。
+        去重：GL(3,Z) 格点等价 ∪ 母相点群旋转轨道（官网同一选项含点群相关格子）。
+        显示代表：若该类与官网 preferred 标签轨道等价，采用该标签与基矢；
+        否则保留首次出现的 iso ``basis_raw``（不排序行、不取“最简范数”）。
+        顺序：preferred 列表顺序优先，其余按首次出现顺序接在后面。
         """
-        classes: list[list[np.ndarray]] = []
-        for b in bases:
-            arr = np.asarray(b, dtype=float)
+        classes: list[dict] = []
+        for item in bases:
+            if isinstance(item, tuple):
+                arr = np.asarray(item[0], dtype=float)
+                raw_label = (item[1] or "").strip()
+            else:
+                arr = np.asarray(item, dtype=float)
+                raw_label = ""
             if arr.shape != (3, 3):
                 continue
             for cls in classes:
-                if self._same_lattice(arr, cls[0]):
-                    cls.append(arr)
+                if self._same_lattice_orbit(arr, cls["seed"]):
+                    cls["members"].append((arr, raw_label))
                     break
             else:
-                classes.append([arr])
+                classes.append({
+                    "seed": arr,
+                    "members": [(arr, raw_label)],
+                    "first_index": len(classes),
+                })
 
-        def _norm(row: np.ndarray) -> np.ndarray:
-            r = np.round(row, 6)
-            for x in r:
-                if abs(x) > 1e-6:
-                    if x < 0:
-                        r = -r
-                    break
-            return r
-
-        options = []
-        for cls in classes:
-            # 选“最简”代表（元素平方和最小；并列按排序后字典序）
-            best = min(cls, key=lambda m: (
-                float(np.sum(m * m)),
-                tuple(float(x) for x in np.sort(np.round(m, 6), axis=0).flatten()),
-            ))
-            if to_conventional is not None:
-                # 分类在原胞坐标下进行，显示前转回惯用坐标（官网同款）
-                best = best @ to_conventional
-            key = tuple(tuple(float(x) for x in _norm(r)) for r in sorted(best, key=tuple))
-            options.append((round(abs(np.linalg.det(best)), 6), key))
-        # 保持首次出现的枚举顺序（官网下拉 = 子群数据库枚举顺序，不按 det 排序）
-        return [
-            {
-                "label": self._format_lattice(item[1]),
-                "basis": [list(r) for r in item[1]],
-            }
-            for item in options
+        preferred = list(preferred_labels or [])
+        preferred_mats = [
+            (i, lab, np.asarray(parse_basis_token(lab), dtype=float))
+            for i, lab in enumerate(preferred)
         ]
+
+        scored: list[tuple[tuple, dict]] = []
+        for cls in classes:
+            match_i = None
+            match_lab = None
+            match_mat = None
+            for i, lab, mat in preferred_mats:
+                if self._same_lattice_orbit(mat, cls["seed"]):
+                    match_i = i
+                    match_lab = lab
+                    match_mat = mat
+                    break
+            if match_lab is not None and match_mat is not None:
+                label = match_lab
+                basis = match_mat
+                sort_key = (0, match_i)
+            else:
+                # 首次出现的 iso 原文；无原文则格式化 seed
+                raw0 = next((r for _m, r in cls["members"] if r), "")
+                if raw0:
+                    label = raw0
+                    basis = cls["members"][0][0]
+                else:
+                    basis = cls["seed"]
+                    label = self._format_lattice(
+                        tuple(tuple(float(x) for x in row) for row in basis)
+                    )
+                sort_key = (1, cls["first_index"])
+            scored.append((sort_key, {
+                "label": label,
+                "basis": [list(map(float, row)) for row in np.asarray(basis)],
+            }))
+
+        scored.sort(key=lambda x: x[0])
+        return [opt for _k, opt in scored]
 
     @staticmethod
     def _format_lattice(key: tuple) -> str:
@@ -497,37 +581,46 @@ class IsoDistort:
     def method1_options(self) -> dict:
         """
         Method 1 下拉数据（对齐官网搜索页）：
-        - space_groups：可达子群空间群（官网只列出与母相结构相容的对称性，
-          不显示全部 230 个）
-        - conventional_lattices / primitive_lattices：官网 Conventional lattice
-          与 Primitive lattice 下拉选项。
-
-        选项由真实枚举的子群超胞基矢按格点等价（GL(3,Z)）分类生成：
-        Conventional 在惯用坐标下分类；Primitive 在原胞坐标下分类后转回惯用
-        坐标显示（与官网 isoplattice 下拉的显示语义一致）。注意：本地 iso 9.6.1
-        与官网站点数据库的子群基矢存在版本差异，选项数量可能与官网略有出入
-        （界面会给出提示，见 README 已知差异第 10 条）。
+        - space_groups：当前 Types 过滤后可达子群的空间群（按序号升序）
+        - conventional_lattices / primitive_lattices：官网 Conventional /
+          Primitive lattice 下拉。分类时合并          母相点群旋转轨道；Primitive 对每个子群用其子群心化矩阵作
+          ``T_sub @ B`` 后再按母相点群轨道分类。I4/mmm 等有官网快照的母相
+          采用官网标签与顺序。
         """
-        subs = self._ensure_special_subgroups()
+        subs = self._method1_filtered_subgroups()
         numbers: list[int] = []
         for sg in subs:
             if sg.space_group_number not in numbers:
                 numbers.append(sg.space_group_number)
-        numbers.sort()  # 官网下拉按序号升序
+        numbers.sort()
         space_groups = [
             {"number": n, "symbol": hm_symbol(n),
              "schoenflies": schoenflies_symbol(n)}
             for n in numbers
         ]
 
-        conventional = self._distinct_lattices([sg.basis_vectors for sg in subs])
-        t_prim = np.linalg.inv(self._conv_to_prim())
-        # Primitive lattice：在原胞坐标下分类（basis @ T⁻¹，整数矩阵），
-        # 显示前转回惯用坐标（best @ T）——对齐官网 isoplattice 下拉
-        # （如“原胞本身”显示为 (-1/2,1/2,1/2),(1/2,-1/2,1/2),(1/2,1/2,-1/2)）。
+        parent_sg = self.symmetry_info["space_group_number"]
+        official = METHOD1_LATTICE_OFFICIAL.get(parent_sg, {})
+
+        conventional = self._distinct_lattices(
+            [
+                (sg.basis_vectors, getattr(sg, "basis_raw", "") or "")
+                for sg in subs
+            ],
+            preferred_labels=official.get("conventional"),
+        )
+        t_cent = self._parent_centering_matrix()
         primitive = self._distinct_lattices(
-            [np.asarray(sg.basis_vectors, dtype=float) @ t_prim for sg in subs],
-            to_conventional=self._conv_to_prim(),
+            [
+                # Primitive lattice：子群超胞在子群心化下的原胞基
+                # （T_sub @ B），再按母相点群轨道去重——对齐官网 9 项（I4/mmm）
+                (self._centering_matrix(
+                    _centering_letter(sg.space_group_number)
+                 ) @ np.asarray(sg.basis_vectors, dtype=float),
+                 getattr(sg, "basis_raw", "") or "")
+                for sg in subs
+            ],
+            preferred_labels=official.get("primitive"),
         )
         return {
             "space_groups": space_groups,
@@ -1242,6 +1335,9 @@ class IsoDistort:
             subgroup_space_group=subgroup_space_group,
             lattice=lattice,
             maximal_subgroup_only=maximal_subgroup_only,
+            parent_rotations=[
+                r.tolist() for r in self._parent_rotations()
+            ],
         )
         parent_sg = self.symmetry_info["space_group_number"]
         result = self._search.method_1_search(

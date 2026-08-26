@@ -20,8 +20,16 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 
 from isocore.api import IsoDistort
+from isocore.distortion.search_methods import CRYSTAL_SYSTEMS
 from isocore.i18n import t
 from isocore.utils import IsodistortError, get_config
+from isocore.utils.parent_header import format_wyckoff_sites
+from isocore.utils.schoenflies import (
+    POINT_GROUP_SCHOENFLIES,
+    POINT_GROUP_SYSTEM,
+    hm_symbol,
+    schoenflies_symbol,
+)
 
 DISTORTION_TYPE_MAP = {
     1: "displacive",
@@ -432,28 +440,57 @@ class IsoDistortConsoleApp:
             3: _empty_tbl(_method3_cols()),
             4: _empty_tbl(_method4_cols()),
         }
+        self._print_parent_header()
+
+    def _print_parent_header(self) -> None:
+        """Print the official Done / Space Group / lattice / prefs / Wyckoff block."""
+        if self.iso.structure is None or not self.iso.symmetry_info:
+            return
+        sg = self.iso.symmetry_info["space_group_number"]
+        sym = self.iso.symmetry_info["space_group_symbol"]
+        sch = schoenflies_symbol(sg)
+        lat = self.iso.structure.lattice
+        print(t("web.done"))
+        print(f"Space Group: {sg} {sym} {sch}")
+        print(
+            "Lattice parameters: "
+            f"a= {lat.a:.5f}, b= {lat.b:.5f}, c= {lat.c:.5f}, "
+            f"alpha= {lat.alpha:.5f}, beta= {lat.beta:.5f}, gamma= {lat.gamma:.5f}"
+        )
+        print("Default space-group preferences: "
+              f"{self.iso.space_group_preferences()}")
+        lines = format_wyckoff_sites(
+            self.iso.structure, self.iso.symmetry_info["wyckoff_sites"]
+        )
+        print(",\n".join(lines))
 
     def _set_distortion_types(self) -> None:
         """选择 Distortion Types + 各类型的作用域物种（官网 all/none/Eu/Al）。"""
         self.distortion_types = _prompt_distortion_types(self.distortion_types)
 
         species = self.iso.species()
+        enabled: list[str] = []
         for tp in self.distortion_types:
             if tp == "strain":
-                continue  # 官网 Strain 行没有物种作用域复选框
+                enabled.append("strain")
+                continue
             print(
                 f"  {tp} scope (species in the loaded structure: "
                 f"{', '.join(species) or 'none loaded'}; "
-                "all = every species, none = disabled, or comma-separated names such as Eu,Al)"
+                "all = every species, none = disable this type, "
+                "or comma-separated names such as Eu,Al)"
             )
             raw = _prompt(f"  {tp} scope", "all").strip().lower()
+            if raw == "none":
+                self.distortion_scope[tp] = []
+                continue
+            enabled.append(tp)
             if raw in ("all", "*", ""):
                 self.distortion_scope[tp] = ["*"]
-            elif raw == "none":
-                self.distortion_scope[tp] = []
             else:
                 self.distortion_scope[tp] = [s for s in raw.split(",") if s]
 
+        self.distortion_types = enabled or ["strain"]
         self.iso.set_distortion_scope(self.distortion_scope)
         self.iso.set_distortion_types(self.distortion_types)
         scope_desc = ", ".join(
@@ -486,17 +523,30 @@ class IsoDistortConsoleApp:
         _line()
         print("Method 1: Search over all special k points")
 
-        # 晶系（网页：复选框多选=OR；终端：逗号分隔，如 tetragonal,orthorhombic）
+        print("Crystal system(s) (comma-separated; blank = no filter):")
+        print("  " + ", ".join(sorted(CRYSTAL_SYSTEMS)))
         raw_cs = _prompt(t("m1.cs"), "").strip().lower()
         crystal_system = [x.strip() for x in raw_cs.split(",") if x.strip()] or None
 
+        try:
+            opts = self.iso.method1_options()
+        except IsodistortError as exc:
+            print(f"Failed to load Method 1 options: {exc}")
+            return
+        reachable = opts.get("space_groups") or []
+        print("Space-group symmetry (reachable for current Types; blank = no filter):")
+        for g in reachable:
+            print(f"  {g['number']:3d} {g['symbol']} {g.get('schoenflies') or ''}")
         sg_raw = _prompt(t("m1.sg"), "").strip()
         subgroup_space_group = int(sg_raw) if sg_raw else None
+        if subgroup_space_group is not None:
+            allowed = {int(g["number"]) for g in reachable}
+            if subgroup_space_group not in allowed:
+                print("That space group is not in the reachable list; "
+                      "search would return no rows. Continuing anyway.")
 
         maximal_only = _prompt_yes_no(t("m1.maximal"), False)
-
-        # 官网 Conventional lattice / Primitive lattice 过滤（与网页下拉同数据源）
-        lattice = self._prompt_lattice_selection()
+        lattice = self._prompt_lattice_selection(opts)
         lattice_matrix = None
         if lattice:
             lattice_matrix = self.iso.lattice_in_conventional_frame(
@@ -519,14 +569,15 @@ class IsoDistortConsoleApp:
         if idx is not None:
             self._compute_modes(idx, "method1")
 
-    def _prompt_lattice_selection(self) -> dict | None:
+    def _prompt_lattice_selection(self, opts: dict | None = None) -> dict | None:
         """官网 Conventional/Primitive lattice 下拉的终端版（0 = 不选）。"""
         print("\nMethod 1 lattice filter (official Conventional/Primitive lattice; 0 = none)")
-        try:
-            opts = self.iso.method1_options()
-        except IsodistortError as exc:
-            print(f"Failed to load lattice options: {exc}")
-            return None
+        if opts is None:
+            try:
+                opts = self.iso.method1_options()
+            except IsodistortError as exc:
+                print(f"Failed to load lattice options: {exc}")
+                return None
         conv = opts.get("conventional_lattices") or []
         prim = opts.get("primitive_lattices") or []
         print("  Conventional lattice:")
@@ -545,7 +596,6 @@ class IsoDistortConsoleApp:
                 idx = -1
             pool = conv if raw[0] == "c" else prim
             if 0 <= idx < len(pool):
-                # 下拉选项基矢均为惯用坐标表达（含 Primitive 选项），按 conventional 帧提交
                 return {"matrix": pool[idx]["basis"], "frame": "conventional"}
         print("Invalid index; skipping lattice filter.")
         return None
@@ -574,7 +624,8 @@ class IsoDistortConsoleApp:
         print("\n--- Specify k point(s) ---")
         for i, kp in enumerate(kpoints, start=1):
             params = f" (parameters: {','.join(kp.parameters)})" if kp.parameters else ""
-            print(f"  {i:2d}. {kp.label:<4s} {kp.coordinates}{params}")
+            kov = f" {kp.kovalev}" if getattr(kp, "kovalev", None) else ""
+            print(f"  {i:2d}. {kp.label:<4s}{kov} {kp.coordinates}{params}")
         nsup = _prompt_int("Number of superposed IRs", 1)
         if nsup < 1:
             print(t("err.badNsup"))
@@ -772,42 +823,51 @@ class IsoDistortConsoleApp:
         _line()
         print("Method 3: Search over arbitrary k for point group and supercell")
 
+        print("Point group (crystal class); blank = none:")
+        for hm, sch in POINT_GROUP_SCHOENFLIES.items():
+            system = POINT_GROUP_SYSTEM.get(hm, "")
+            print(f"  {system}: {hm} {sch}")
         point_group = _prompt(t("m3.pg"), "").strip() or None
 
+        print("Space-group symmetry: enter number 1-230 (same HM symbols as the web, "
+              "e.g. 64 Cmca), blank = none, or type list to print all 230.")
         sg_raw = _prompt(t("m3.sg"), "").strip()
+        if sg_raw.lower() == "list":
+            for n in range(1, 231):
+                print(f"  {n:3d} {hm_symbol(n)} {schoenflies_symbol(n)}")
+            sg_raw = _prompt(t("m3.sg"), "").strip()
         space_group_type = int(sg_raw) if sg_raw else None
 
-        # 官网 radio：direct（实空间子格，默认）/ reciprocal（倒易超格，本地不支持）
         lattice_type = _prompt("lattice_type (direct/reciprocal)", "direct").strip().lower()
         if lattice_type not in ("direct", "reciprocal"):
             lattice_type = "direct"
-        if lattice_type == "reciprocal":
-            print("Note: the local engine does not support reciprocal "
-                  "(reciprocal-space superlattice) mode; using direct instead.")
-            lattice_type = "direct"
 
-        # 官网带心 radio：Default(d)/P/A/B/C/I/F/R；本地 Method 3 仅支持默认 d
         centering = _prompt(
-            "direct sublattice centering (d/P/A/B/C/I/F/R, blank = d; only d is supported locally)",
+            "direct sublattice centering (d/P/A/B/C/I/F/R, blank = d)",
             "d",
-        ).strip().upper() or "d"
-        if centering != "D":
-            print("Note: Method 3 only supports default centering d; reset to d.")
+        ).strip() or "d"
+        if centering.upper() == "D":
             centering = "d"
 
-        basis = None
+        # Match web: always send a basis (default identity) so lattice filter is defined
         if _prompt_yes_no(t("m3.basis_q"), True):
             basis = _prompt_basis_matrix()
-            print("Note: the basis matrix filters candidates whose supercell matches this sublattice.")
+        else:
+            basis = [["1", "0", "0"], ["0", "1", "0"], ["0", "0", "1"]]
+            print("Using identity basis (same default as the web form).")
 
-        result = self.iso.search_method_3(
-            distortion_types=self.distortion_types,
-            point_group=point_group,
-            space_group_type=space_group_type,
-            supercell_basis=basis,
-            direct_sublattice_centering=centering,
-            lattice_type=lattice_type,
-        )
+        try:
+            result = self.iso.search_method_3(
+                distortion_types=self.distortion_types,
+                point_group=point_group,
+                space_group_type=space_group_type,
+                supercell_basis=basis,
+                direct_sublattice_centering=centering,
+                lattice_type=lattice_type,
+            )
+        except (IsodistortError, ValueError) as exc:
+            print(f"Method 3 error: {exc}")
+            return
         self.last_method3 = result
         self.tbl[3] = _empty_tbl(_method3_cols())
         self.tbl[3]["rows"] = [_row_method3(item) for item in result]
@@ -887,12 +947,28 @@ class IsoDistortConsoleApp:
             return
         formats_raw = _prompt(t("ui.export.formats"), "cif,isoviz,modes,topas")
         formats = [x.strip().lower() for x in formats_raw.split(",") if x.strip()]
-        default_dest = str(self.iso.cfg.output_dir / f"isodistort_method{method}")
+        as_zip = _prompt_yes_no("Write a ZIP file (same as the web Download all)?", True)
+        default_dest = str(
+            self.iso.cfg.output_dir
+            / (f"isodistort_method{method}.zip" if as_zip else f"isodistort_method{method}")
+        )
         dest = _prompt(t("ui.export.dest"), default_dest)
         need_modes = any(fmt != "cif" for fmt in formats)
         saved = list(self.iso.subgroups)
         try:
             self.iso.subgroups = list(subs)
+            if as_zip:
+                body = self.iso.export_subgroups_zip(
+                    formats=formats,
+                    subgroups=subs,
+                    compute_missing_modes=need_modes,
+                    wrapping=f"isodistort_method{method}",
+                )
+                out = Path(dest)
+                out.parent.mkdir(parents=True, exist_ok=True)
+                out.write_bytes(body)
+                print(t("ui.export.done", n=len(subs), dest=out))
+                return
             paths = self.iso.export_subgroups(
                 dest,
                 formats=formats,
@@ -955,10 +1031,7 @@ class IsoDistortConsoleApp:
         if self.iso.structure is None:
             print(f"  Parent structure: {t('state.not_loaded')}")
         else:
-            sg = self.iso.symmetry_info["space_group_number"]
-            sym = self.iso.symmetry_info["space_group_symbol"]
-            n_atoms = len(self.iso.structure)
-            print(f"  Parent structure: SG #{sg} ({sym}), atoms={n_atoms}")
+            self._print_parent_header()
 
         print(f"  Distortion types: {', '.join(self.distortion_types)}")
         scope_desc = ", ".join(

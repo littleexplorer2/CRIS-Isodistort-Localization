@@ -17,9 +17,9 @@ def schoenflies_symbol(number: int) -> str:
 def hm_symbol(number: int) -> str:
     """空间群简短 Hermann–Mauguin 符号（官网下拉显示，如 C2 / Cm / P2/m）。
 
-    pymatgen 的 ``SpaceGroup.symbol`` 对单斜等晶系返回带轴设置的完整符号
-    （如 “C121”），与官网下拉的简短符号（“C2”）不一致；此处使用 spglib
-    的 ``international_short``（预生成表），即官网同款简短符号。
+    与 ISODISTORT 一致，采用 International Tables 旧简写（如 #64 Cmca，而非
+    2005 年后的 Cmce）。pymatgen 的 ``SpaceGroup.symbol`` 对单斜等晶系返回
+    带轴设置的完整符号（如 “C121”），与官网下拉的简短符号不一致。
     """
     entry = SPACE_GROUP_META.get(int(number))
     return entry[0] if entry else str(number)

@@ -1,19 +1,4 @@
-"""
-金标准回归测试（第一层：核心算法正确性）——pymatgen StructureMatcher 语义比对。
-
-科研比对原则（见 README「30-CIF 科学验证」）：
-- 结构比对用 ``StructureMatcher(ltol=1e-5, stol=1e-3, angle_tol=0.001)``，
-  自动处理原子顺序 / 对称等价 / 数值容差，不逐行比对坐标；
-- 非数值项（空间群编号、IR 标记）完全精确匹配；
-- 数值项（分数坐标 ≤1e-5、振幅线性 ≤1e-4、零振幅回退 机器精度）。
-
-本文件以经典钙钛矿 SrTiO₃（Pm-3m #221）为金标准母相，验证：
-  R₄⁺（八面体倾转 a⁰a⁰c⁻，子群 I4/mcm #140）
-  M₃⁺（面内同相倾转，子群 P4/mbm #127）
-  Γ₄⁻（极性位移，子群 P4mm #99）
-三条文献公认的相变路径；并做零振幅回退 / 振幅线性 / StructureMatcher
-结构等价断言。依赖 WSL（iso/findsym 二进制），不可用时自动跳过。
-"""
+"""WSL-dependent golden-standard and real-binary smoke tests."""
 from __future__ import annotations
 
 import shutil
@@ -28,14 +13,13 @@ from pymatgen.io.cif import CifWriter
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from isocore.api import IsoDistort
-
-# 科研通用容差（对应测试方案第一层 §2）
-MATCHER = StructureMatcher(ltol=1e-5, stol=1e-3, angle_tol=0.001)
-COORD_TOL = 1e-5
-AMP_REL_TOL = 1e-4
+from isocore.backend import FindsymWrapper, IsoWrapper, SubgroupInfo
 
 from data_dir import experiment_data_dir
 
+MATCHER = StructureMatcher(ltol=1e-5, stol=1e-3, angle_tol=0.001)
+COORD_TOL = 1e-5
+AMP_REL_TOL = 1e-4
 DATA_DIR = experiment_data_dir()
 
 
@@ -45,7 +29,9 @@ def _wsl_available() -> bool:
     try:
         result = subprocess.run(  # noqa: PLW1510
             ["wsl.exe", "--status"],  # noqa: S607
-            capture_output=True, text=True, timeout=30,
+            capture_output=True,
+            text=True,
+            timeout=30,
         )
         return result.returncode == 0
     except (subprocess.SubprocessError, OSError):
@@ -53,9 +39,11 @@ def _wsl_available() -> bool:
 
 
 pytestmark = pytest.mark.skipif(
-    not _wsl_available(), reason="WSL 不可用，跳过金标准真实计算测试"
+    not _wsl_available(), reason="WSL 不可用，跳过真实二进制 / 金标准测试"
 )
 
+
+# --- from test_golden_standard.py ---
 
 def _srtio3_parent(tmp_path: Path) -> tuple[IsoDistort, Structure]:
     """构造立方钙钛矿 SrTiO₃（Pm-3m #221，5 原子，a=3.905 Å）。
@@ -322,3 +310,55 @@ def test_official_ld1_reference_structure(tmp_path):
     # 官网框架文件的 6×c 超胞与母相 10 原子：原子总数比例一致
     assert len(ref) == 6 * len(iso.structure), \
         "官网 LD1 参考原子数应为母相 6 倍（c 轴 6 倍超胞）"
+
+
+# --- from test_real_binaries.py ---
+
+def test_findsym_identifies_nacl():
+    """findsym 识别 NaCl（F 心）应为 Fm-3m #225。"""
+    fs = FindsymWrapper()
+    result = fs.identify(
+        lattice_params=[5.63, 5.63, 5.63, 90, 90, 90],
+        atom_types=["Na", "Cl"],
+        atom_positions=[[0, 0, 0], [0.5, 0.5, 0.5]],
+        centering="F",
+    )
+    assert result.space_group_number == 225
+    assert result.space_group_symbol == "Fm-3m"
+    assert {s["wyckoff_letter"] for s in result.wyckoff_sites} == {"a", "b"}
+
+
+def test_iso_kpoints_and_subgroups():
+    """iso 枚举 SG 225 的 k 点与 GM5- 子群。"""
+    iso = IsoWrapper()
+    kpoints = iso.list_k_points(225)
+    labels = {kp.label for kp in kpoints}
+    assert {"GM", "L", "X", "W"}.issubset(labels)
+
+    subgroups = iso.list_subgroups(225, "GM", "GM5-")
+    assert len(subgroups) >= 1
+    # GM5- P1 对应子群 I-42m (#121)，指数 6
+    p1 = next(sg for sg in subgroups if sg.opd_symbol == "P1")
+    assert p1.space_group_number == 121
+    assert p1.subgroup_index == 6
+
+
+def test_iso_modes_and_domains():
+    """BUSH 模式基矢与畴列表。"""
+    iso = IsoWrapper()
+
+    target = SubgroupInfo(
+        index=0, space_group_number=107, space_group_symbol="I4mm",
+        subgroup_index=6, size=1, is_maximal=True,
+        opd_symbol="P1", opd_vector=[1.0, 0.0, 0.0],
+        basis_vectors=[[0, 0.5, -0.5], [0, 0.5, 0.5], [1, 0, 0]],
+        origin=[0, 0, 0], k_point_label="GM", irrep_label="GM4-",
+    )
+    modes = iso.calc_distortion_modes(225, target, wyckoff_letters=["a"])
+    assert len(modes) >= 1
+    assert modes[0].bush_modes, "GM4- P1 在 4a 位点应存在位移模式"
+
+    domains = iso.get_domains(225, target)
+    assert len(domains) == 6
+    assert domains[0].domain_number == 1
+

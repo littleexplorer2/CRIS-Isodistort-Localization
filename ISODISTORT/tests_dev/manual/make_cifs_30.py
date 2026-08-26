@@ -10,7 +10,7 @@ from pymatgen.core import Lattice, Structure
 from pymatgen.io.cif import CifWriter
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-OUT_DIR = Path(__file__).resolve().parent / "cifs_30"
+OUT_DIR = Path(__file__).resolve().parents[1] / "cifs_30"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # (sg, lattice, species, coords) —— 常见原型结构（低对称空间群用一般位置坐标）

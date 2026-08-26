@@ -9,7 +9,7 @@
   （_atom_site_occupancy 全为 1 或缺失）、原子数合理（<= 96）；
 - 首个通过者保存为 tests_dev/cifs_external/<name>.cif，来源 URL 记入 SOURCES.md。
 
-用法：python tests_dev/fetch_cod_cifs.py
+用法：python tests_dev/manual/fetch_cod_cifs.py
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ from pathlib import Path
 from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-OUT_DIR = Path(__file__).resolve().parent / "cifs_external"
+OUT_DIR = Path(__file__).resolve().parents[1] / "cifs_external"
 COD_BASE = "https://www.crystallography.net/cod/"
 
 # (name, 元素列表, 预期空间群(集合), 说明)
@@ -75,7 +75,7 @@ def _fetch_cif(cod_id: str) -> str:
 
 def _validate(text: str, expected_sgs: set[int]) -> tuple[bool, str]:
     """独立校验：spglib SG ∈ 预期 且 无部分占据 且 原子数合理。"""
-    tmp = Path(__file__).resolve().parent / "_cod_tmp.cif"
+    tmp = Path(__file__).resolve().parents[1] / "_cod_tmp.cif"
     tmp.write_text(text, encoding="utf-8")
     try:
         struct = Structure.from_file(str(tmp))

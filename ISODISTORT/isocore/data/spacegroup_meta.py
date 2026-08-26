@@ -1,4 +1,9 @@
-"""230 空间群元数据（简短 HM 符号 + Schoenflies 符号），预生成自 spglib。"""
+"""230 空间群元数据（简短 HM 符号 + Schoenflies 符号）。
+
+HM 符号对齐 ISODISTORT 官网下拉（International Tables 旧写法）：
+#39 Abm2、#41 Aba2、#64 Cmca、#67 Cmma、#68 Ccca（不用 2005 年后的 e 滑移写法
+Aem2 / Aea2 / Cmce / Cmme / Ccce）。Schoenflies 来自 spglib。
+"""
 from __future__ import annotations
 
 SPACE_GROUP_META: dict[int, tuple[str, str]] = {
@@ -40,9 +45,9 @@ SPACE_GROUP_META: dict[int, tuple[str, str]] = {
     36: ('Cmc2_1', 'C2v-12'),
     37: ('Ccc2', 'C2v-13'),
     38: ('Amm2', 'C2v-14'),
-    39: ('Aem2', 'C2v-15'),
+    39: ('Abm2', 'C2v-15'),
     40: ('Ama2', 'C2v-16'),
-    41: ('Aea2', 'C2v-17'),
+    41: ('Aba2', 'C2v-17'),
     42: ('Fmm2', 'C2v-18'),
     43: ('Fdd2', 'C2v-19'),
     44: ('Imm2', 'C2v-20'),
@@ -65,11 +70,11 @@ SPACE_GROUP_META: dict[int, tuple[str, str]] = {
     61: ('Pbca', 'D2h-15'),
     62: ('Pnma', 'D2h-16'),
     63: ('Cmcm', 'D2h-17'),
-    64: ('Cmce', 'D2h-18'),
+    64: ('Cmca', 'D2h-18'),
     65: ('Cmmm', 'D2h-19'),
     66: ('Cccm', 'D2h-20'),
-    67: ('Cmme', 'D2h-21'),
-    68: ('Ccce', 'D2h-22'),
+    67: ('Cmma', 'D2h-21'),
+    68: ('Ccca', 'D2h-22'),
     69: ('Fmmm', 'D2h-23'),
     70: ('Fddd', 'D2h-24'),
     71: ('Immm', 'D2h-25'),

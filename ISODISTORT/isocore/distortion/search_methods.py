@@ -112,23 +112,41 @@ def _space_group_to_point_group(space_group_number: int) -> str:
 
 
 def _basis_is_sublattice_of(basis: Sequence[Sequence[float]],
-                            sublattice: Sequence[Sequence[float]]) -> bool:
+                            sublattice: Sequence[Sequence[float]],
+                            parent_rotations: Sequence[np.ndarray] | None = None
+                            ) -> bool:
     """
     判断子群超胞基矢 B 的格点是否是被选子格 S 的子格。
 
     对应官网 Method 1 的 direct sublattice / Conventional lattice /
     Primitive lattice 过滤：B 的每一行必须是 S 的整系数线性组合，
     即 N = B @ inv(S) 的元素全部为整数（S 可为对角阵或任意 3x3 矩阵）。
+
+    官网同一 lattice 选项还包含母相点群任意旋转得到的等价子格；若提供
+    ``parent_rotations``，则对 S' = S @ R 与 R @ S 一并判定。
     """
     b = np.asarray(basis, dtype=float)
-    s = np.asarray(sublattice, dtype=float)
-    if b.shape != (3, 3) or s.shape != (3, 3):
+    s0 = np.asarray(sublattice, dtype=float)
+    if b.shape != (3, 3) or s0.shape != (3, 3):
         return False
-    try:
-        n = b @ np.linalg.inv(s)
-    except np.linalg.LinAlgError:
-        return False
-    return bool(np.allclose(n, np.round(n), atol=1e-6))
+
+    candidates: list[np.ndarray] = [s0]
+    if parent_rotations:
+        for rot in parent_rotations:
+            r = np.asarray(rot, dtype=float)
+            if r.shape != (3, 3):
+                continue
+            candidates.append(s0 @ r)
+            candidates.append(r @ s0)
+
+    for s in candidates:
+        try:
+            n = b @ np.linalg.inv(s)
+        except np.linalg.LinAlgError:
+            continue
+        if np.allclose(n, np.round(n), atol=1e-6):
+            return True
+    return False
 
 
 @dataclass
@@ -140,6 +158,8 @@ class Method1Query:
     subgroup_space_group: int | None = None
     lattice: Sequence[Sequence[float]] | None = None  # 官网 conventional/primitive lattice（3x3 子格矩阵）
     maximal_subgroup_only: bool = False
+    # 母相点群旋转（分数坐标）；lattice 过滤时与官网一样合并点群轨道
+    parent_rotations: Sequence[Sequence[Sequence[float]]] | None = None
 
 
 @dataclass
@@ -259,10 +279,16 @@ class IsoSearchEngine:
                 continue
             if query.maximal_subgroup_only and not sg.is_maximal:
                 continue
-            if query.lattice is not None and not _basis_is_sublattice_of(
-                sg.basis_vectors, query.lattice
-            ):
-                continue
+            if query.lattice is not None:
+                rots = None
+                if query.parent_rotations:
+                    rots = [
+                        np.asarray(r, dtype=float) for r in query.parent_rotations
+                    ]
+                if not _basis_is_sublattice_of(
+                    sg.basis_vectors, query.lattice, parent_rotations=rots
+                ):
+                    continue
             result.append(item)
         return result
 

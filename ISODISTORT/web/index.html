@@ -97,7 +97,6 @@
       <select id="m1ConvLat" class="span4" onchange="onLatChange('conv')"></select><br>
       <span id="lPrimLat">Primitive lattice:</span>
       <select id="m1PrimLat" class="span4" onchange="onLatChange('prim')"></select><br>
-      <span class="muted-hint" id="m1LatNote">Note: the local iso database (9.6.1) differs from the website's database; lattice options may differ from the official site.</span><br>
       <label><input type="checkbox" id="m1Max"> <span id="lMax">Maximal subgroups only</span></label>
     </p>
     <div id="m1Out" class="scroll"></div>
@@ -344,14 +343,19 @@ async function refreshStatus() {
   } else {
     const st = s.structure;
     const lat = st.lattice;
+    const schoenflies = st.space_group_schoenflies || "";
     let html = t("web.done") + "<br>"
-      + `Space Group: ${st.space_group_number} ${st.space_group_symbol}<br>`
-      + t("web.lattice") + ` a=${lat.a}, b=${lat.b}, c=${lat.c}, `
-      + `alpha=${lat.alpha}, beta=${lat.beta}, gamma=${lat.gamma}<br>`;
-    html += st.wyckoff.map(w =>
-      `${esc(w.species)}${w.multiplicity}${w.letter} (${w.coordinates.map(c => fmtCoord(c)).join(",")})`
-    ).join(", ");
-    html += "<br>" + t("web.prefs") + " " + esc(st.preferences);
+      + `Space Group: ${st.space_group_number} ${esc(st.space_group_symbol || "")}`
+      + (schoenflies ? ` ${esc(schoenflies)}` : "") + "<br>"
+      + t("web.lattice")
+      + ` a= ${fmtLat(lat.a)}, b= ${fmtLat(lat.b)}, c= ${fmtLat(lat.c)}, `
+      + `alpha= ${fmtLat(lat.alpha)}, beta= ${fmtLat(lat.beta)}, gamma= ${fmtLat(lat.gamma)}<br>`
+      + t("web.prefs") + " " + esc(st.preferences) + "<br>"
+      + (st.wyckoff_display && st.wyckoff_display.length
+          ? st.wyckoff_display.map(esc).join(",<br>")
+          : st.wyckoff.map(w =>
+              `${esc(w.species)}${w.multiplicity}${w.letter} (${w.coordinates.map(c => fmtCoord(c)).join(",")})`
+            ).join(", "));
     para.innerHTML = html;
   }
   let status = t("st.types") + ": " + s.distortion_types.join(", ")
@@ -376,6 +380,12 @@ function formatScope(s) {
 function fmtCoord(x) {
   const v = Math.round(x * 10000) / 10000;
   return (v === 0) ? "0" : String(v);
+}
+function fmtLat(x) {
+  return Number(x).toFixed(5);
+}
+function typeLabel(tp) {
+  return tp.charAt(0).toUpperCase() + tp.slice(1);
 }
 
 /* ================= 1. 母相 CIF ================= */
@@ -414,7 +424,7 @@ function renderTypes() {
     // 官网布局：Strain: [复选框]（单个复选框，默认勾选）
     if (tp === "strain") {
       const on = types.includes("strain");
-      html += `<tr><td>${esc(term("strain"))}: <input type="checkbox" id="tp_strain" ${on ? "checked" : ""}></td></tr>`;
+      html += `<tr><td>${esc(typeLabel(tp))}: <input type="checkbox" id="tp_strain" ${on ? "checked" : ""}></td></tr>`;
       continue;
     }
     // 官网布局：Displacive: all[cb] none[cb] Eu[cb] Al[cb]（标签在复选框前）。
@@ -427,7 +437,7 @@ function renderTypes() {
     // 具体列表勾选对应物种；类型启用但作用域为空 -> 勾 none；未启用 -> 全不勾
     const spAll = active && sp.includes("*");
     const noneChecked = active && !spAll && !sp.length;
-    let row = `<tr><td valign="top">${esc(term(tp))}: </td><td>`
+    let row = `<tr><td valign="top">${esc(typeLabel(tp))}: </td><td>`
       + `${esc(term("all"))}<input type="checkbox" data-tp="${tp}" data-role="all">`
       + `${esc(term("none"))}<input type="checkbox" data-tp="${tp}" data-role="none" ${noneChecked ? "checked" : ""}>`;
     for (const spc of species) {
@@ -476,6 +486,7 @@ async function applyTypes() {
   if (!d.ok) { showError(document.getElementById("typesMsg"), d.error); return; }
   showOk(document.getElementById("typesMsg"), t("ok.types"));
   await refreshStatus();
+  loadMethod1Options();  // Types 改变后 Method 1 空间群/格子下拉需重算
 }
 
 /* ================= 空间群下拉 ================= */
@@ -1098,8 +1109,8 @@ function renderAll() {
   document.getElementById("lSgSel").textContent = t("l.sgsel");
   document.getElementById("lConvLat").textContent = t("l.convLat");
   document.getElementById("lPrimLat").textContent = t("l.primLat");
-  document.getElementById("m1LatNote").textContent = t("m1.latNote");
   document.getElementById("lMax").textContent = t("l.max");
+  // Method 1 lattice note removed: options now match official classification
   document.getElementById("hM2").textContent = t("m2.title");
   document.getElementById("btnM2").textContent = t("btn.ok");
   document.getElementById("lKp").textContent = t("l.kp");

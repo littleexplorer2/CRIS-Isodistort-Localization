@@ -42,7 +42,7 @@ class SmodesWrapper(BaseWrapper):
                       wyckoff_sites: list[dict],
                       k_label: str,
                       k_parameters: list[str] | None = None,
-                      species_filter: set[str] | None = None) -> set[str]:
+                      species_filter: set[str] | None = None) -> set[str] | None:
         """
         返回在指定 k 点上对结构（可选：限定物种）有位移模式的 IR 标签集合。
 
@@ -56,7 +56,8 @@ class SmodesWrapper(BaseWrapper):
                 位移时才视为活性
 
         Returns:
-            IR 标签集合；smodes 失败时返回空集（调用方应跳过过滤）
+            IR 标签集合；成功但无活性 IR 时返回空集。smodes 失败时返回
+            ``None``（调用方应跳过该 k 点的过滤，避免把“无模式”当成“未知”）。
         """
         try:
             stdout = self.run_stdin(self.binary, self._build_input(
@@ -64,7 +65,7 @@ class SmodesWrapper(BaseWrapper):
                 k_label, k_parameters,
             ))
         except Exception:  # noqa: BLE001 - 过滤为尽力而为，失败时不阻断枚举
-            return set()
+            return None
 
         activities = self._parse_irrep_activities(stdout)
         if not species_filter:

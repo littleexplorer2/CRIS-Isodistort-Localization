@@ -38,6 +38,7 @@ from isocore.i18n import MESSAGES  # noqa: E402
 from isocore.io import parse_export_formats, parse_export_method  # noqa: E402
 from isocore.utils import get_config  # noqa: E402
 from isocore.utils.schoenflies import hm_symbol, schoenflies_symbol  # noqa: E402
+from isocore.utils.parent_header import format_wyckoff_sites  # noqa: E402
 
 WEB_DIR = Path(__file__).resolve().parent
 
@@ -163,25 +164,34 @@ def _state_summary() -> dict:
         summary["structure"] = {
             "space_group_number": iso.symmetry_info["space_group_number"],
             "space_group_symbol": iso.symmetry_info["space_group_symbol"],
+            "space_group_schoenflies": schoenflies_symbol(
+                iso.symmetry_info["space_group_number"]
+            ),
             "atoms": len(iso.structure),
             "preferences": iso.space_group_preferences(),
             "lattice": {
-                "a": round(float(lattice.a), 6),
-                "b": round(float(lattice.b), 6),
-                "c": round(float(lattice.c), 6),
-                "alpha": round(float(lattice.alpha), 6),
-                "beta": round(float(lattice.beta), 6),
-                "gamma": round(float(lattice.gamma), 6),
+                "a": round(float(lattice.a), 5),
+                "b": round(float(lattice.b), 5),
+                "c": round(float(lattice.c), 5),
+                "alpha": round(float(lattice.alpha), 5),
+                "beta": round(float(lattice.beta), 5),
+                "gamma": round(float(lattice.gamma), 5),
             },
             "wyckoff": [
                 {
                     "letter": s["wyckoff_letter"],
                     "multiplicity": s["multiplicity"],
                     "species": s["species"],
-                    "coordinates": [round(float(x), 6) for x in iso.structure[s["representative_index"]].frac_coords],
+                    "coordinates": [
+                        round(float(x), 6)
+                        for x in iso.structure[s["representative_index"]].frac_coords
+                    ],
                 }
                 for s in iso.symmetry_info["wyckoff_sites"]
             ],
+            "wyckoff_display": format_wyckoff_sites(
+                iso.structure, iso.symmetry_info["wyckoff_sites"]
+            ),
         }
     return summary
 

@@ -34,6 +34,18 @@ def test_sublattice_check_general_matrix():
     assert _basis_is_sublattice_of(fmmm, doubled) is False
 
 
+def test_sublattice_check_parent_point_group_orbit():
+    """官网 lattice 选项含母相点群旋转：B 相对 S@R 亦算命中。"""
+    import numpy as np
+
+    s = [[2, 0, 0], [0, 1, 0], [0, 0, 1]]
+    # 右乘点群旋转：把 (2,1,1) 型子格转到 (1,2,1) 型（一般非 GL 等价）
+    r = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]], dtype=float)
+    b = (np.asarray(s, dtype=float) @ r.T).tolist()
+    assert _basis_is_sublattice_of(b, s) is False
+    assert _basis_is_sublattice_of(b, s, parent_rotations=[r]) is True
+
+
 @dataclass
 class _DummyIsoWrapper:
     """最小桩对象：提供 search engine 所需接口。"""
