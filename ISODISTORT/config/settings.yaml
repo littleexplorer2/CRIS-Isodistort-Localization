@@ -26,6 +26,10 @@ defaults:
   default_amplitude: 1.0
   # 超胞大小 [a, b, c]（仅当未使用子群基矢时生效）
   default_supercell: [1, 1, 1]
+  # 全局浮点比较容差 EPS（超空间对称判定、波矢约化、矩阵闭合；与 lattice_tolerance 相同）
+  eps: 0.00001
+  # (3+d) 超空间附加维度 nmod 上限（官网 “# of independent incommensurate modulations”，d = nmod）
+  max_nmod: 3
 
 # 运行时（网页与终端界面均为英语，不再提供中文切换）
 # 网页/终端分工：Method 1–4 只调参数并计算结果表（可筛选、排序）；
@@ -35,8 +39,8 @@ defaults:
 # Distortion ZIP 导出：文件名与文件夹对齐官网
 # （subgroup.cif / data.isoviz / topas.str / Complete modes details.txt；
 #  Method 1 文件夹用完整 OPD 行，Method 2/3 用「IR OPD」）。
-# 勾选 isoviz/modes/topas 时会对非参数 k 点子群补跑 Method 2 填模式；
-# 参数 k 点（LD 等）本地无法算位移模式（超空间限制）——网页/终端都会提示。
+# 勾选 isoviz/modes/topas 时会对非参数 k 点子群补跑 Method 2 填模式。
+# 参数 k 点（LD 等）：nmod=0 时本地 iso 无法算位移模式（会提示）；nmod≥1 走 (3+d) 超空间内核。
 # 仅 CIF 或 compute_modes=0（终端导出时选 no）可跳过补算。
 # 网页空闲自动停服见 web_idle_timeout；长 ZIP 期间看门狗会把 in-flight 请求视为活跃。
 runtime:
@@ -58,6 +62,6 @@ runtime:
   # 数小时，故单独配置更长超时。结果缓存在 temp_dir，与 Distortion ZIP
   # 导出、以及已删除的 Distortion Generate（按幅度生成畸变结构）不是同一功能。
   generation_timeout: 3600
-  # 说明：Method 2 的 “# of independent incommensurate modulations”
-  # 依赖官网 (3+d) 维超空间机制，本地网页/终端已移除该交互选项；
-  # 如需该功能，请在官网执行对应流程。
+  # Method 2 的 nmod（# of independent incommensurate modulations）即超空间附加维度 d。
+  # nmod=0：公度 3 维，走本地 iso；nmod≥1：走 isocore (3+d) 超空间内核（IT-C 标准取位）。
+  # 上限见 defaults.max_nmod。网页端口仍为 runtime.web_port（默认 8000）。

@@ -1,10 +1,14 @@
 """utils 包"""
 from .config_loader import Config, get_config
 from .exceptions import (
+    DimensionMismatchError,
     DistortionError,
+    InputError,
     IsodistortError,
+    NumericalSingularError,
     OutputParseError,
     PhasePathError,
+    SymmetryIncompatibleError,
     WrapperRunError,
     WrapperTimeoutError,
 )
@@ -38,10 +42,14 @@ from .text_parser import (
 
 __all__ = [
     "Config",
+    "DimensionMismatchError",
     "DistortionError",
+    "InputError",
     "IsodistortError",
+    "NumericalSingularError",
     "OutputParseError",
     "PhasePathError",
+    "SymmetryIncompatibleError",
     "WrapperRunError",
     "WrapperTimeoutError",
     "check_linearity",

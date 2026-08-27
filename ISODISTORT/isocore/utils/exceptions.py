@@ -3,17 +3,29 @@
 
 异常层次：
     IsodistortError（基异常）
+    ├── InputError              输入参数错误（非法 nmod / d、类型错误）
+    ├── DimensionMismatchError  维度不匹配（矩阵 / 波矢长度）
     ├── WrapperError        二进制封装层
     │   ├── WrapperRunError     运行失败
     │   ├── WrapperTimeoutError 超时
     │   └── OutputParseError    输出解析失败
     └── DistortionError     畸变业务层
-        └── PhasePathError      相变路径参数错误
+        ├── PhasePathError              相变路径参数错误
+        ├── SymmetryIncompatibleError   对称不兼容（波矢 / 超空间操作不闭合）
+        └── NumericalSingularError      数值奇异（度量矩阵等）
 """
 
 
 class IsodistortError(Exception):
     """项目基异常"""
+
+
+class InputError(IsodistortError):
+    """输入参数错误（非法 nmod / d、类型错误、缺字段）"""
+
+
+class DimensionMismatchError(IsodistortError):
+    """矩阵或向量维度不匹配"""
 
 
 # ---- 底层封装层异常 ----
@@ -54,3 +66,11 @@ class DistortionError(IsodistortError):
 
 class PhasePathError(DistortionError):
     """相变路径参数错误"""
+
+
+class SymmetryIncompatibleError(DistortionError):
+    """对称不兼容：波矢不满足超空间群约束，或对称操作集合不闭合"""
+
+
+class NumericalSingularError(DistortionError):
+    """数值奇异（度量矩阵不可逆、旋转矩阵奇异等）"""

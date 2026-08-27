@@ -12,6 +12,7 @@ isodistort - 晶体畸变分析工具
     api         - 对外接口：Python API
     i18n        - English UI strings
     utils       - 工具层：配置、异常、解析工具
+    superspace  - (3+d) 超空间内核（nmod = d；IT-C）
 """
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"

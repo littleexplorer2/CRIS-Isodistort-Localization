@@ -69,6 +69,7 @@ from ..structure import (
     read_cif,
     read_structure,
 )
+from ..superspace import run_superspace_workflow
 from ..utils import IsodistortError, get_config
 from ..utils.opd_format import _centering_letter
 from ..utils.schoenflies import hm_symbol, schoenflies_symbol
@@ -122,6 +123,7 @@ class IsoDistort:
         self._special_subgroups_lock = threading.Lock()
         self._conv_to_prim_cache: np.ndarray | None = None
         self._parent_rotations_cache: list[np.ndarray] | None = None
+        self._last_superspace = None
 
     # ================================================================
     # 阶段一：结构输入与对称识别
@@ -1432,7 +1434,9 @@ class IsoDistort:
         distortion_type 缺省时使用项目默认（DEFAULT_DISTORTION_TYPES，
         对齐官网默认勾选：strain + displacive；本地 strain 不产生模式，
         displacive 产生位移模式）。
-        number_of_independent_modulations 仅支持 0（公度调制）；非 0 会报错。
+        number_of_independent_modulations（nmod，即超空间附加维度 d）：
+        0 为公度调制，走本地 iso DISPLAY BUSH；≥1 走 isocore (3+d) 超空间内核
+        （IT-C 标准取位，上限见 config defaults.max_nmod）。
         """
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")
@@ -1473,6 +1477,35 @@ class IsoDistort:
         )
         print(t("method2.result", idx=subgroup_idx,
                 n=len(result.modes) + len(self.mode_occupancies)))
+        return result
+
+    def run_superspace(
+        self,
+        nmod: int,
+        *,
+        q_vectors: list[list[float]] | None = None,
+        ks_coords: list[float] | None = None,
+        k_point_label: str = "",
+    ):
+        """运行 (3+nmod) 超空间内核（nmod = 官网独立非公度调制数 d）。
+
+        已加载母相时使用其空间群与晶格；否则默认 I4/mmm #139 的单位正方格子。
+        """
+        if self.symmetry_info:
+            sg = int(self.symmetry_info["space_group_number"])
+            lattice = self.structure.lattice.matrix.tolist() if self.structure is not None else None
+        else:
+            sg = 139
+            lattice = None
+        result = run_superspace_workflow(
+            sg,
+            nmod,
+            q_vectors=q_vectors,
+            ks_coords=ks_coords,
+            k_point_label=k_point_label,
+            lattice_3d=lattice,
+        )
+        self._last_superspace = result
         return result
 
     def search_method_3(self,

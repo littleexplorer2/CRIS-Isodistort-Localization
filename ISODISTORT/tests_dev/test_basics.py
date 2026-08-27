@@ -67,7 +67,10 @@ def test_distortion_and_method2_help_keys():
     assert "dist.zipDone" in MESSAGES
     assert "st.elapsed" in MESSAGES
     assert "st.busyHint" in MESSAGES
-    assert "ui.dist.table" in MESSAGES
+    assert "ui.menu.superspace" in MESSAGES
+    assert "ss.title" in MESSAGES
+    assert "ok.nmod" in MESSAGES
+    assert "independent incommensurate" in MESSAGES["l.nmod"].lower()
 
 
 def test_numbered_web_placeholders():

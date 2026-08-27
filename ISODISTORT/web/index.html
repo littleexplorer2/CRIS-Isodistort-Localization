@@ -121,6 +121,12 @@
       <span id="lKp">Specify k point:</span>
     </p>
     <div id="kvecBox"></div>
+    <p>
+      <span id="lNmod"># of independent incommensurate modulations:</span>
+      <input id="nmod" class="span1" value="0" size="2">
+      <button class="btn" id="btnNmod" onclick="applyNmod()">Change</button>
+      <span class="muted-hint" id="nmodHint"></span>
+    </p>
     <div class="muted-hint" id="m2NmodRemoved"></div>
     <label style="font-weight:normal; margin:4px 0;">
       <input type="checkbox" id="genSubgroupDb" onchange="onGenDbChange()">
@@ -224,6 +230,33 @@
     <div id="distOut" class="scroll"></div>
   </div>
 
+  <!-- ============ (3+d) superspace (nmod = d, IT-C) ============ -->
+  <div class="well">
+    <h3><span id="hSs"> (3+d) superspace</span>
+      <button class="btn btn-primary" id="btnSs" onclick="runSuperspace()">Compute</button>
+    </h3>
+    <p class="muted-hint" id="ssNeedSg"></p>
+    <p>
+      <span id="lNmod2">nmod (d):</span>
+      <input id="ssNmod" class="span1" value="1" size="2">
+      <span id="lSsKs">k_s:</span>
+      <input id="ssKs" class="span4" placeholder="0,0,1/6,1">
+    </p>
+    <p>
+      <span id="lSsQ">q-vectors:</span>
+      <input id="ssQ" class="span6" placeholder="0,0,1/6">
+    </p>
+    <p>
+      <span id="lSsKp">k-point label:</span>
+      <input id="ssKp" class="span2" value="LD">
+      <button class="btn" onclick="exportSuperspace()">Export JSON</button>
+      <label class="btn" style="font-weight:normal;">
+        Import JSON <input type="file" id="ssImport" accept=".json,.yaml,.yml" style="display:none" onchange="importSuperspace(this)">
+      </label>
+    </p>
+    <div id="ssOut" class="scroll"></div>
+  </div>
+
   <!-- ============ Space-Group Preferences（只读：本地引擎固定国际标准取位） ============ -->
   <div class="well">
     <h3><span id="hPrefs">Space-Group Preferences</span>
@@ -275,6 +308,7 @@ let m4Items = [];
 let m4Meta = { rms: null, maxAbs: null };
 let modes = [];             // {irrep_label, opd_symbol, mode_type, wyckoff_sites, ...}
 let nsupValue = 1;
+let nmodValue = 0;
 let genDbValue = false;  // 缺失时在线生成子群数据库（对应官网 Generate isotropy subgroups）
 
 /* ================= 通用 ================= */
@@ -1044,6 +1078,19 @@ function applyNsup() {
   showOk(document.getElementById("subOut"), t("ok.nsup", n));
 }
 
+function applyNmod() {
+  const raw = document.getElementById("nmod").value.trim();
+  const n = parseInt(raw, 10);
+  if (!Number.isInteger(n) || n < 0 || n > 3) {
+    showError(document.getElementById("subOut"), t("err.badNmod"));
+    return;
+  }
+  nmodValue = n;
+  const ssNmod = document.getElementById("ssNmod");
+  if (ssNmod) ssNmod.value = String(n);
+  showOk(document.getElementById("subOut"), t("ok.nmod", n));
+}
+
 async function computeModes(idx, source) {
   const out = document.getElementById("modesBox");
   const pool = source === "subgroups" ? (subgroups || [])
@@ -1055,7 +1102,7 @@ async function computeModes(idx, source) {
     (sg && sg.k_parameters && sg.k_parameters.length)
     || (kp && kp.parameters && kp.parameters.length)
   );
-  if (isParamK) {
+  if (isParamK && nmodValue <= 0) {
     modes = [];
     out.innerHTML = `<div class="alert alert-warning">${esc(t("m2.paramKNote"))}</div>`;
     await refreshStatus();
@@ -1068,6 +1115,7 @@ async function computeModes(idx, source) {
       subgroup_idx: idx,
       distortion_type: STATE ? STATE.distortion_types : undefined,
       nsup: nsupValue,
+      nmod: nmodValue,
       source: source,
     }, "POST"),
   );
@@ -1260,6 +1308,83 @@ function downloadText(text, filename, mime) {
   URL.revokeObjectURL(url);
 }
 
+let lastSuperspace = null;
+
+async function runSuperspace() {
+  const out = document.getElementById("ssOut");
+  const n = parseInt(document.getElementById("ssNmod").value.trim(), 10);
+  if (!Number.isInteger(n) || n < 0 || n > 3) {
+    showError(out, t("err.badNmod"));
+    return;
+  }
+  nmodValue = n;
+  document.getElementById("nmod").value = String(n);
+  const d = await withBusy(
+    out, t("st.wait"), [document.getElementById("btnSs")],
+    () => api("/api/superspace", {
+      nmod: n,
+      ks: document.getElementById("ssKs").value.trim(),
+      q_vectors: document.getElementById("ssQ").value.trim(),
+      k_point_label: document.getElementById("ssKp").value.trim(),
+    }, "POST"),
+  );
+  if (!d.ok) {
+    showError(out, String(d.error || ""));
+    return;
+  }
+  lastSuperspace = d;
+  const rep = d.report || {};
+  const irRows = (d.irreps || []).map(ir => [esc(ir.label), ir.dimension]);
+  const opdRows = (d.opds || []).map(o => [
+    esc(o.irrep_label), esc(o.opd_symbol), esc(JSON.stringify(o.opd_vector)),
+  ]);
+  const modeRows = (rep.modes || []).map(m => [
+    esc(m.irrep_label), esc(m.opd_symbol),
+    esc(JSON.stringify(m.basis_3d)),
+  ]);
+  out.innerHTML = `<div class="info">${esc(t("ss.done", n, rep.order || 0, (rep.irreps || []).length, (rep.modes || []).length))}</div>`
+    + `<div class="muted-hint">${esc(rep.space_group || "")} · k_s=${esc(JSON.stringify((d.ks || {}).coords || []))}</div>`
+    + `<b>${esc(t("ss.ir"))}</b>`
+    + table([t("hIrrep"), "dim"], irRows)
+    + `<b>${esc(t("ss.opd"))}</b>`
+    + table([t("hIrrep"), "OPD", "vector"], opdRows)
+    + `<b>${esc(t("ss.modes"))} / ${esc(t("ss.project3d"))}</b>`
+    + table([t("hIrrep"), "OPD", t("ss.project3d")], modeRows);
+}
+
+function exportSuperspace() {
+  if (!lastSuperspace) {
+    showError(document.getElementById("ssOut"), t("err.noCif"));
+    return;
+  }
+  const nmod = lastSuperspace.nmod || nmodValue;
+  downloadText(JSON.stringify(lastSuperspace, null, 2), `superspace_nmod${nmod}.json`, "application/json");
+}
+
+async function importSuperspace(input) {
+  const file = input.files && input.files[0];
+  input.value = "";
+  if (!file) return;
+  const out = document.getElementById("ssOut");
+  const text = await file.text();
+  let obj;
+  try { obj = JSON.parse(text); }
+  catch (e) {
+    showError(out, String(e));
+    return;
+  }
+  const d = await api("/api/superspace_import", obj, "POST");
+  if (!d.ok) {
+    showError(out, String(d.error || ""));
+    return;
+  }
+  lastSuperspace = d;
+  nmodValue = d.nmod || 0;
+  document.getElementById("nmod").value = String(nmodValue);
+  document.getElementById("ssNmod").value = String(nmodValue);
+  showOk(out, t("ss.imported", nmodValue));
+}
+
 /* ================= 渲染（切换语言后调用） ================= */
 function renderAll() {
   document.getElementById("titleTag").textContent = t("web.title");
@@ -1284,6 +1409,16 @@ function renderAll() {
   document.getElementById("btnNsup").textContent = t("btn.change");
   document.getElementById("m2NsupNote").textContent = t("m2.nsup_note");
   document.getElementById("m2NmodRemoved").textContent = t("m2.nmodRemoved");
+  document.getElementById("lNmod").textContent = t("l.nmod");
+  document.getElementById("nmodHint").textContent = t("nmod.hint");
+  document.getElementById("btnNmod").textContent = t("btn.change");
+  document.getElementById("hSs").textContent = t("ss.title");
+  document.getElementById("btnSs").textContent = t("ss.compute");
+  document.getElementById("ssNeedSg").textContent = t("ss.needSg");
+  document.getElementById("lNmod2").textContent = t("l.nmod");
+  document.getElementById("lSsKs").textContent = t("ss.ks");
+  document.getElementById("lSsQ").textContent = t("ss.q");
+  document.getElementById("lSsKp").textContent = t("l.kp");
   document.getElementById("lGenDb").textContent = t("lGenDb");
   document.getElementById("genDbHelp").textContent = t("m2.genDbHelp");
   document.getElementById("hM3").textContent = t("m3.title");

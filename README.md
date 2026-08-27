@@ -16,7 +16,7 @@ https://github.com/littleexplorer2/CRIS-Isodistort-Localization.git
 
 | 子项目 | 一句话 | 详细说明 |
 | --- | --- | --- |
-| **ISODISTORT/** | 本地「子群搜索 + 导出结构」 | 上传母相 CIF → 勾选畸变类型 → Method 1–4 搜索/分解 → 在 Distortion 下载结果表与子群结构 ZIP。见 [ISODISTORT/README.md](ISODISTORT/README.md) |
+| **ISODISTORT/** | 本地「子群搜索 + 导出结构」 | 上传母相 CIF → 勾选畸变类型 → Method 1–4 搜索/分解 → 在 Distortion 下载结果表与子群结构 ZIP。Method 2 的 nmod 为 (3+d) 超空间附加维度 d（0=公度，1–3=本地内核，IT-C）。见 [ISODISTORT/README.md](ISODISTORT/README.md) |
 | **ISODISTORT_VALIDATE/** | 核对本地 CIF 是否算对 | 把本地 CIF 放入 `compare/item/`，把官网参考 CIF 放入 `compare/true/`（批量比较须改名一一对应），用 `main.py` 比较并输出 PASS/FAIL。见 [ISODISTORT_VALIDATE/README.md](ISODISTORT_VALIDATE/README.md) |
 | **ISOVIZ_INPUT/** | 把振幅 CSV 写入 `.isoviz` 并启动 IsoVIZ | 从 `input_content/` 读取 CSV 与子群 `.isoviz`，写入 `amp` 后自动打开 Java 版 IsoVIZ（不使用 `output/`）。见 [ISOVIZ_INPUT/README.md](ISOVIZ_INPUT/README.md) |
 

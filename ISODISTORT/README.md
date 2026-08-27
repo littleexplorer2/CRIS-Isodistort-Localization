@@ -155,6 +155,12 @@ cd <CRIS 根目录>
 
 先选母相 CIF（在 `ISODISTORT/` 下最多列出 30 个 `.cif`，排除 `output/`；仓库外文件请选手动输入路径），再进入 Search Page 菜单。方括号里的值是默认值，直接回车即采用。
 
+非交互 (3+d) 超空间内核（不进菜单；`d` 即 nmod）：
+
+```powershell
+.\.venv\Scripts\python.exe ISODISTORT\main_terminal.py --superspace-d 1 --space-group 139 --q-vectors 0,0,1/6 --k-label LD --export ISODISTORT\output\superspace_nmod1.json
+```
+
 ### 3.3 配置文件：`config/settings.yaml`
 
 相对路径均相对 `config/` 目录解析。
@@ -166,7 +172,8 @@ cd <CRIS 根目录>
 | `defaults.position_tolerance` | 分数坐标容差 | `0.001` |
 | `defaults.lattice_tolerance` | 晶格容差 | `0.00001` |
 | `defaults.default_amplitude` | API 生成畸变时的默认幅度 | `1.0` |
-| `defaults.default_supercell` | 未用子群基矢时的超胞 | `[1,1,1]` |
+| `defaults.eps` | 全局浮点容差 EPS（超空间对称判定 / 波矢约化） | `0.00001`（与 `lattice_tolerance` 相同） |
+| `defaults.max_nmod` | (3+d) 附加维度上限（官网 nmod） | `3` |
 | `runtime.web_port` | 网页首选端口 | `8000` |
 | `runtime.web_idle_timeout` | 关页后自动停服秒数 | `60` |
 | `runtime.temp_dir` | 上传暂存 | `../output/tmp` |
@@ -264,8 +271,8 @@ Al2 4e (0,0,z), z= 0.38000
 
 注意：
 
-- 本地**没有**官网的 “# of independent incommensurate modulations”（nmod）；网页与终端都会用英文说明提示依赖官网 (3+d) **超空间**流程。  
-- **参数 k 点**（如 LD/DT）可以列出子群，但本地**不能算位移模式**；选中该 k 点、点行看模式、以及导出 ZIP 勾选模式类格式时都会提示。表与 CIF 结构仍可下载。  
+- 本地 **nmod**（`# of independent incommensurate modulations`）即超空间附加维度 **d**。`nmod=0` 为公度三维（走 `iso`）；`nmod=1..3` 走 `isocore` 的 **(3+d) 超空间内核**（取位固定为 **standard (IT-C)**，与页底 Space-Group Preferences 一致）。参数 k 点（LD/DT）在 `nmod=0` 时仍不能用 `iso` 算位移模式；设 `nmod≥1` 后可用本地内核生成超空间模式并投影回三维。  
+- **参数 k 点**（如 LD/DT）可以列出子群；位移模式在 **nmod=0** 时本地 `iso` 无法计算，选中该 k 点会提示。设 **nmod≥1** 后走 (3+d) 超空间内核（IT-C），模式表与 ZIP 中的模式类格式可被填充。表与 CIF 结构在 nmod=0 时仍可下载。  
 - 子群数据库缺失时：网页提供「本地生成 / 去官网」；终端同样有对应选项。
 
 ### 6.3 Method 3: Search over arbitrary k points for specified space group and lattice
@@ -307,7 +314,7 @@ Al2 4e (0,0,z), z= 0.38000
 | → **"Save interactive distortion"** | `.isoviz`（给 IsoVIZ 用） |
 | → **"Complete modes details"** | 完整模式详情 `.txt` |
 | → **"TOPAS.STR"** | TOPAS 结构文件 |
-| **"Download all (ZIP)"** | 打包 Method **1 / 2 / 3** 当前筛选命中的子群文件（无筛选则全部），**只含勾选格式**，**不扫描** `output/`。选 Method 4 再点 ZIP 会提示改用表格下载。勾选了 isoviz / modes / topas 时，会对**非参数 k 点**子群补跑 Method 2 以填充模式（可能较慢，界面有进度条）；参数 k 点（如 LD）本地 iso 无法算位移模式，对应文件中模式为空。仅 CIF 或 URL 带 `compute_modes=0` 时可跳过补算 |
+| **"Download all (ZIP)"** | 打包 Method **1 / 2 / 3** 当前筛选命中的子群文件（无筛选则全部），**只含勾选格式**，**不扫描** `output/`。选 Method 4 再点 ZIP 会提示改用表格下载。勾选了 isoviz / modes / topas 时，会对**非参数 k 点**子群补跑 Method 2 以填充模式（可能较慢，界面有进度条）；参数 k 点（如 LD）在 **nmod=0** 时本地 iso 无法算位移模式（对应文件中模式为空），**nmod≥1** 时由 (3+d) 超空间内核填充。仅 CIF 或 URL 带 `compute_modes=0` 时可跳过补算 |
 
 压缩包名形如 `isodistort_methodN.zip`，解压后**直接是各子群文件夹**（与官网下载结构一致）：
 
@@ -338,7 +345,7 @@ GM1+ P1 (a) 139 I4/mmm, .../     # Method 1：完整 OPD 行作文件夹名
 | --- | --- | --- |
 | 启动 | `main_web.py` | `main_terminal.py` |
 | 交互 | 一页上全部面板 | 分步菜单（1–8 / 0） |
-| 超空间 / nmod / 参数 k | 页内英文提示 + ZIP 进度文案 | Method 2 / Distortion / State 打印同样文案 |
+| 超空间 / nmod / 参数 k | Method 2 的 nmod 输入（d=0..3）+ (3+d) 面板；参数 k 在 nmod=0 时提示 iso 无位移模式 | Method 2 询问 nmod；菜单 9 跑超空间；`--superspace-d` |
 | 子群库缺失 | 按钮：本地生成 / 官网链接 | 数字选项：本地生成 / 打印官网 URL |
 | 下载 | 浏览器 ZIP / txt/csv | 菜单 **7. Distortion** → ZIP 或目录写到 `output/` |
 | 模式补算 | 默认开启；URL `compute_modes=0` 可关 | 导出时询问（默认 yes，对应网页默认） |
@@ -348,8 +355,9 @@ GM1+ P1 (a) 139 I4/mmm, .../     # Method 1：完整 OPD 行作文件夹名
 1. Reload parent CIF  
 2. Set distortion types  
 3–6. Method 1–4（表交互：`f` 筛选、`s` 排序、`c` 清除、`only`、输入 `idx` 算模式、`q` 结束）  
-7. Distortion（导出结构文件或筛选表；参数 k 点会提示模式为空）  
-8. Show current state（含固定 Space-Group Preferences / 超空间说明）  
+7. Distortion（导出结构文件或筛选表；参数 k 点在 nmod=0 时会提示模式为空）  
+8. Show current state（含固定 Space-Group Preferences / nmod）  
+9. (3+d) superspace（nmod / k_s / q-vectors / 导出 JSON）  
 0. Exit  
 
 结构文件格式提示默认：`cif,isoviz,modes,topas`。**没有** Generate / Domains。
@@ -376,6 +384,9 @@ iso.set_distortion_types(["strain", "displacive"])
 
 m1 = iso.search_method_1(crystal_system="tetragonal")
 iso.export_subgroups("out_batch", formats=["cif", "isoviz", "modes", "topas"])
+
+# (3+d) 超空间内核（nmod = d；不依赖 iso DISPLAY BUSH）
+ss = iso.run_superspace(nmod=1, q_vectors=[[0, 0, 1 / 6]], k_point_label="LD")
 ```
 
 `export_subgroups` 使用当前 `iso.subgroups`（最近一次写入的列表）。网页 ZIP 会显式传入所选 Method 的列表，避免三种 Method 混在一起。
@@ -388,14 +399,14 @@ iso.export_subgroups("out_batch", formats=["cif", "isoviz", "modes", "topas"])
 
 1. **Windows 必须经 WSL** 调用 Linux 版 `iso`。  
 2. **应变模式未实现**：不改晶格参数。  
-3. **参数 k 点**：可枚举子群；位移模式依赖官网 (3+d) 超空间，本地常会提示无法计算。  
-4. **nmod**（独立非公度调制数）：网页/终端已移除。  
+3. **参数 k 点**：可枚举子群；`nmod=0` 时位移模式仍不能由本地 `iso` 计算。设 `nmod≥1` 后由 `isocore.superspace` 生成 (3+d) 模式并投影到三维。  
+4. **nmod**（独立非公度调制数 = d）：网页 Method 2 与 (3+d) 面板、终端菜单 9、CLI `--superspace-d`、API `run_superspace` / `search_method_2(..., number_of_independent_modulations=nmod)` 均已接通。上限 `defaults.max_nmod`（默认 3）。取位固定 **standard (IT-C)**。  
 5. **Method 3**：reciprocal 不支持；带心仅 Default (`d`)。  
 6. **magnetic**：带 `m` 前缀的 IR 默认不进入流程。  
 7. **occupational**：本地为 ±1 占据近似，校验失败会标明。  
 8. **Distortion Generate / Domains**：官网有，本地网页/终端已去掉。  
 9. **界面仅英语**。  
-10. **ISOVIZ / modes / TOPAS** 按官网选项语义在本地生成：文件名与文件夹布局对齐官网（`subgroup.cif` / `data.isoviz` / `topas.str` / `Complete modes details.txt`）；`.isoviz` 使用官网 `!tag` 布局，可供 IsoVIZ / ISOVIZ_INPUT 使用，但原子轨道展开与模式向量未必与网站逐字节一致。CIF 按官网 Distortion 页格式写出（子群空间群、常规原点、不对称单元、Hall 设置、`k-active` 参数代入）。**参数 k 点**（LD 等）的位移模式依赖官网 (3+d) 超空间流程，本地 iso 无法计算，导出时模式循环可能为 0。特殊 k 点子群在勾选模式类格式时会补跑 Method 2 填充模式。
+10. **ISOVIZ / modes / TOPAS** 按官网选项语义在本地生成：文件名与文件夹布局对齐官网（`subgroup.cif` / `data.isoviz` / `topas.str` / `Complete modes details.txt`）；`.isoviz` 使用官网 `!tag` 布局，可供 IsoVIZ / ISOVIZ_INPUT 使用，但原子轨道展开与模式向量未必与网站逐字节一致。CIF 按官网 Distortion 页格式写出（子群空间群、常规原点、不对称单元、Hall 设置、`k-active` 参数代入）。**参数 k 点**（LD 等）在 `nmod=0` 时位移模式循环可能为 0；`nmod≥1` 时由本地 (3+d) 内核填充。特殊 k 点子群在勾选模式类格式时会补跑 Method 2 填充模式。
 
 更细的差异列表见历史开发记录；上表是用户最常撞到的几条。
 
@@ -409,6 +420,12 @@ iso.export_subgroups("out_batch", formats=["cif", "isoviz", "modes", "topas"])
 cd <CRIS 根目录>
 python ISODISTORT\main_requirement.py --dev
 .\.venv\Scripts\python.exe -m pytest ISODISTORT\tests_dev -q
+```
+
+(3+d) 超空间内核（不依赖 WSL / `iso`）：
+
+```powershell
+python -m pytest ISODISTORT/tests_dev/test_3pd.py -q
 ```
 
 若已经进入 `ISODISTORT/` 目录：
@@ -452,7 +469,7 @@ python ISODISTORT\main_requirement.py --dev
 ISODISTORT/
 ├── main_web.py / main_terminal.py / main_requirement.py
 ├── web/                 网页（server.py + index.html + static/）
-├── isocore/             计算核心（api / backend / structure / distortion / io）
+├── isocore/             计算核心（api / backend / structure / distortion / io / superspace）
 ├── config/settings.yaml
 ├── isobyu/              【只读】ISOTROPY 套件
 ├── tests_dev/           开发测试（pytest）+ manual/ 手工脚本
