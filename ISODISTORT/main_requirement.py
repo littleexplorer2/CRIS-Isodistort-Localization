@@ -7,7 +7,9 @@ CRIS 统一依赖安装脚本（ISODISTORT / ISODISTORT_VALIDATE / ISOVIZ_INPUT�
 2) 安装并校验运行网页、终端、IsoVIZ 导入所需的 Python 依赖
    （已安装的包不会重复下载）
 3) 若缺少 ``ISODISTORT/output`` 则自动新建；若缺少 ``ISODISTORT/isobyu``
-   则新建空目录，并提醒从 https://iso.byu.edu/isotropy.php 下载套件
+   则新建空目录，并提醒从 https://iso.byu.edu/isotropy.php 下载套件。
+   同时补齐 ``ISODISTORT_VALIDATE/compare/{item,true}`` 以及
+   ``ISOVIZ_INPUT/input_content/{data.csv,subgroup.isoviz}``（均不入库）
 4) 检查并配置 ``ISODATA``（ISOTROPY 数据库目录）
 5) 安装完成后给出最直接的运行方式提示
 
@@ -202,6 +204,20 @@ def _check_project_paths(project_root: Path) -> None:
     tmp_dir.mkdir(parents=True, exist_ok=True)
     print(f"[paths] OK: output folder = {out_dir}")
 
+    compare = project_root / "ISODISTORT_VALIDATE" / "compare"
+    for folder in (compare, compare / "item", compare / "true"):
+        if not folder.exists():
+            print(f"[paths] Creating missing folder: {folder}")
+        folder.mkdir(parents=True, exist_ok=True)
+    print(f"[paths] OK: VALIDATE compare folders = {compare}")
+
+    isoviz_input = project_root / "ISOVIZ_INPUT" / "input_content"
+    for folder in (isoviz_input, isoviz_input / "data.csv", isoviz_input / "subgroup.isoviz"):
+        if not folder.exists():
+            print(f"[paths] Creating missing folder: {folder}")
+        folder.mkdir(parents=True, exist_ok=True)
+    print(f"[paths] OK: ISOVIZ_INPUT input_content = {isoviz_input}")
+
 
 _ISOTROPY_DOWNLOAD = "https://iso.byu.edu/isotropy.php"
 
@@ -318,10 +334,15 @@ def _post_import_smoke_check(project_root: Path, python: Path) -> None:
         [
             str(python),
             "-c",
-            "import compare_cif; print('ISODISTORT_VALIDATE import OK')",
+            "from isodistort_validate.compare_cif import compare_cif; print('ISODISTORT_VALIDATE import OK')",
         ],
         cwd=str(project_root / "ISODISTORT_VALIDATE"),
-        env=env,
+        env={
+            **env,
+            "PYTHONPATH": str(project_root / "ISODISTORT_VALIDATE")
+            + os.pathsep
+            + env.get("PYTHONPATH", ""),
+        },
     )
 
     _run(
@@ -401,6 +422,8 @@ def main() -> int:
         print(f"  {python} ISODISTORT\\main_terminal.py")
         print("Run ISODISTORT_VALIDATE:")
         print(f"  {python} ISODISTORT_VALIDATE\\main.py")
+        print(f"  {python} ISODISTORT_VALIDATE\\main.py compare")
+        print(f"  {python} ISODISTORT_VALIDATE\\main.py batch")
         print("Run ISOVIZ_INPUT:")
         print(f"  {python} ISOVIZ_INPUT\\main.py")
     else:
@@ -411,6 +434,8 @@ def main() -> int:
         print(f"  {python} ISODISTORT/main_terminal.py")
         print("Run ISODISTORT_VALIDATE:")
         print(f"  {python} ISODISTORT_VALIDATE/main.py")
+        print(f"  {python} ISODISTORT_VALIDATE/main.py compare")
+        print(f"  {python} ISODISTORT_VALIDATE/main.py batch")
         print("Run ISOVIZ_INPUT:")
         print(f"  {python} ISOVIZ_INPUT/main.py")
 

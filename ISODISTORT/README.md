@@ -27,6 +27,8 @@
 
 **官网 Distortion 页上的 "Generate"（按模式幅度生成畸变结构）和 "Domains"（畴列表）已从本地网页/终端删除**——本项目目标是「得到子群结构信息或文件」，Method OK + ZIP 已给出零振幅超胞 CIF 与模式文件。Python API 仍保留 `generate_distortion` / `generate_domains` 供脚本使用。
 
+Method 1 点 OK 后的结果表字段与官网序参量方向页（`webpage_info/` 中 `a.` 开头的存档）一致：官网是一条条 radio，本地仍用可筛选、排序的表格展示同样的 token（`Irrep` / `OPD` / `Dir` / `SG` / `basis` / `origin` / `s` / `i` / `k-active`），并多一列 `idx` 供点选计算模式。
+
 请勿修改 `ISODISTORT/isobyu/` 内的文件。
 
 ---
@@ -93,8 +95,10 @@ python ISODISTORT\main_requirement.py
 2. 在 Windows 上检查 WSL  
 3. 确保存在 `ISODISTORT/output/`（及 `output/tmp/`）  
 4. 检查 `isobyu/`（没有则建空目录并提醒下载）  
-5. 创建或复用根目录 `CRIS/.venv`，只安装尚未存在的依赖  
-6. 若 `isobyu` 里已有数据库，会检查并配置 **ISODATA**（`iso` 读数据库用的环境变量；运行时由配置自动设置，WSL 侧会建短路径符号链接，一般**不必**在 Windows 系统属性里永久 `setx ISODATA`）
+5. 若缺少 `ISODISTORT_VALIDATE/compare/{item,true}` 则自动创建  
+6. 若缺少 `ISOVIZ_INPUT/input_content/{data.csv,subgroup.isoviz}` 则自动创建（ISOVIZ 子项目不使用 `output/`）  
+7. 创建或复用根目录 `CRIS/.venv`，只安装尚未存在的依赖  
+8. 若 `isobyu` 里已有数据库，会检查并配置 **ISODATA**（`iso` 读数据库用的环境变量；运行时由配置自动设置，WSL 侧会建短路径符号链接，一般**不必**在 Windows 系统属性里永久 `setx ISODATA`）
 
 可选参数：
 
@@ -114,6 +118,8 @@ python ISODISTORT\main_requirement.py
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
+
+**若运行很久像卡死，且终端提示符没有 `(.venv)`：** 多半是虚拟环境没有正确加载。请关闭当前进程，用上面的 `.\.venv\Scripts\python.exe …` 重新启动（或先 `Activate.ps1` 再运行）。不要用未激活的系统 Python 去跑长计算。
 
 若 PowerShell 禁止执行脚本，直接用上面的全路径即可。
 
@@ -240,7 +246,7 @@ Al2 4e (0,0,z), z= 0.38000
 | **"Maximal subgroups only"** | 只保留极大子群 |
 | **"OK"** | 开始枚举；首次可能数秒到数十秒 |
 
-结果表列大致含：`idx` / `SG` / `k` / `Irrep` / `OPD` / `crystal system` / `maximal`。
+结果表列与官网 Method 1 序参量方向页（radio 一行里的字段）对齐，但以**表格**展示，而不是一条一条的 radio：`idx` / `Irrep` / `OPD` / `Dir` / `SG` / `basis` / `origin` / `s` / `i` / `k-active`。`idx` 是本地点选/导出用的子群序号，官网可见文本里没有这一列。下载的 txt/csv 使用相同列。勾选 lattice strain 时会保留 smodes 没有的纯应变 irrep（例如 I4/mmm 的 GM4+ Fmmm）。`k-active` 使用官网列出的特殊 k 坐标（I4/mmm 的 M 点为 `(1,1,1)`，不会收成 `(0,0,1)`）。对 I4/mmm 等已收录母相，`basis` / `origin` / `k-active` 与官网序参量页同一套 token。
 
 ### 6.2 Method 2: General method - search over specific k points
 
@@ -258,8 +264,9 @@ Al2 4e (0,0,z), z= 0.38000
 
 注意：
 
-- 本地**没有**官网的 “# of independent incommensurate modulations”（nmod）；页上有英文说明。  
-- **参数 k 点**可以列出子群，但本地往往**不能算位移模式**；点行会看到英文警告。表仍可下载。
+- 本地**没有**官网的 “# of independent incommensurate modulations”（nmod）；网页与终端都会用英文说明提示依赖官网 (3+d) **超空间**流程。  
+- **参数 k 点**（如 LD/DT）可以列出子群，但本地**不能算位移模式**；选中该 k 点、点行看模式、以及导出 ZIP 勾选模式类格式时都会提示。表与 CIF 结构仍可下载。  
+- 子群数据库缺失时：网页提供「本地生成 / 去官网」；终端同样有对应选项。
 
 ### 6.3 Method 3: Search over arbitrary k points for specified space group and lattice
 
@@ -296,47 +303,53 @@ Al2 4e (0,0,z), z= 0.38000
 | **"Export source (exactly one Method):"** | 下拉选 **一个** Method 1/2/3/4（默认 Method 2）。不能多选 |
 | **"Download filtered (txt)"** / **"Download filtered (csv)"** | 按所选 Method **当前** Filter 与排序，下载全部命中行。须先对该 Method 点过 OK |
 | **"Download formats:"** | 可多选，仅用于下面的 ZIP： |
-| → **"CIF file"** | 子群 CIF（一般为零振幅超胞） |
+| → **"CIF file"** | 子群 CIF（ISODISTORT 6.12 布局：子群设置、不对称单元、`iso_*` 循环；一般为零振幅） |
 | → **"Save interactive distortion"** | `.isoviz`（给 IsoVIZ 用） |
 | → **"Complete modes details"** | 完整模式详情 `.txt` |
 | → **"TOPAS.STR"** | TOPAS 结构文件 |
-| **"Download all (ZIP)"** | 打包 Method **1 / 2 / 3** 当前筛选命中的子群文件（无筛选则全部），**只含勾选格式**，**不扫描** `output/`。选 Method 4 再点 ZIP 会提示改用表格下载 |
+| **"Download all (ZIP)"** | 打包 Method **1 / 2 / 3** 当前筛选命中的子群文件（无筛选则全部），**只含勾选格式**，**不扫描** `output/`。选 Method 4 再点 ZIP 会提示改用表格下载。勾选了 isoviz / modes / topas 时，会对**非参数 k 点**子群补跑 Method 2 以填充模式（可能较慢，界面有进度条）；参数 k 点（如 LD）本地 iso 无法算位移模式，对应文件中模式为空。仅 CIF 或 URL 带 `compute_modes=0` 时可跳过补算 |
 
-压缩包名形如 `isodistort_methodN.zip`，内部示例：
+压缩包名形如 `isodistort_methodN.zip`，解压后**直接是各子群文件夹**（与官网下载结构一致）：
 
 ```text
-isodistort_method2/
-  LD1 C1/
-    LD1 C1 CIF.cif
-    LD1 C1 Save interactive distortion.isoviz
-    LD1 C1 Complete modes details.txt
-    LD1 C1 TOPAS.STR
+LD1 C1/                          # Method 2/3：IR + OPD
+  subgroup.cif
+  data.isoviz
+  Complete modes details.txt     # 官网为 HTML 页；本地用 .txt
+  topas.str
+GM1+ P1 (a) 139 I4/mmm, .../     # Method 1：完整 OPD 行作文件夹名
+  subgroup.cif
+  ...
 ```
 
 单行点选后出现的模式表在 Method 2 区域，仅供查看。
 
 ### Space-Group Preferences（只读）
 
-页底 **"Space-Group Preferences"** 固定为国际标准取位（Monoclinic axes a(b)c、cell choice 1、Orthorhombic abc、Trigonal hexagonal、Origin choice 2、Superspace standard）。本地 `iso` 不能改这些选项。
+页底 **"Space-Group Preferences"** 固定为国际标准取位（Monoclinic axes a(b)c、cell choice 1、Orthorhombic abc、Trigonal hexagonal、Origin choice 2、Superspace standard）。本地 `iso` 不能改这些选项；Method 1 表里的 `basis`/`origin` 对已收录母相（如 I4/mmm #139）按官网序参量页显示。
 
 ---
 
 ## 8. 网页 vs 终端
 
+网页与终端调用**同一套** `isocore` API（Method 1–4 参数、子群枚举、`export_subgroups_zip` 的 `wrapping=None` / Method 1 OPD 文件夹名 / 模式补算策略一致）。差异主要在交互壳：
+
 | | 网页 | 终端 |
 | --- | --- | --- |
 | 启动 | `main_web.py` | `main_terminal.py` |
 | 交互 | 一页上全部面板 | 分步菜单（1–8 / 0） |
-| 引擎 | 同一套 `isocore` | 同一套 `isocore` |
-| 下载 | 浏览器 ZIP / txt/csv | 菜单 **7. Distortion** 写到 `output/isodistort_methodN/` |
+| 超空间 / nmod / 参数 k | 页内英文提示 + ZIP 进度文案 | Method 2 / Distortion / State 打印同样文案 |
+| 子群库缺失 | 按钮：本地生成 / 官网链接 | 数字选项：本地生成 / 打印官网 URL |
+| 下载 | 浏览器 ZIP / txt/csv | 菜单 **7. Distortion** → ZIP 或目录写到 `output/` |
+| 模式补算 | 默认开启；URL `compute_modes=0` 可关 | 导出时询问（默认 yes，对应网页默认） |
 
 终端主菜单摘要：
 
 1. Reload parent CIF  
 2. Set distortion types  
 3–6. Method 1–4（表交互：`f` 筛选、`s` 排序、`c` 清除、`only`、输入 `idx` 算模式、`q` 结束）  
-7. Distortion（导出结构文件或筛选表）  
-8. Show current state  
+7. Distortion（导出结构文件或筛选表；参数 k 点会提示模式为空）  
+8. Show current state（含固定 Space-Group Preferences / 超空间说明）  
 0. Exit  
 
 结构文件格式提示默认：`cif,isoviz,modes,topas`。**没有** Generate / Domains。
@@ -382,7 +395,7 @@ iso.export_subgroups("out_batch", formats=["cif", "isoviz", "modes", "topas"])
 7. **occupational**：本地为 ±1 占据近似，校验失败会标明。  
 8. **Distortion Generate / Domains**：官网有，本地网页/终端已去掉。  
 9. **界面仅英语**。  
-10. **ISOVIZ / modes / TOPAS** 按官网选项语义在本地生成，不是官网站点的逐字节拷贝。
+10. **ISOVIZ / modes / TOPAS** 按官网选项语义在本地生成：文件名与文件夹布局对齐官网（`subgroup.cif` / `data.isoviz` / `topas.str` / `Complete modes details.txt`）；`.isoviz` 使用官网 `!tag` 布局，可供 IsoVIZ / ISOVIZ_INPUT 使用，但原子轨道展开与模式向量未必与网站逐字节一致。CIF 按官网 Distortion 页格式写出（子群空间群、常规原点、不对称单元、Hall 设置、`k-active` 参数代入）。**参数 k 点**（LD 等）的位移模式依赖官网 (3+d) 超空间流程，本地 iso 无法计算，导出时模式循环可能为 0。特殊 k 点子群在勾选模式类格式时会补跑 Method 2 填充模式。
 
 更细的差异列表见历史开发记录；上表是用户最常撞到的几条。
 
@@ -424,6 +437,7 @@ python ISODISTORT\main_requirement.py --dev
 | `wsl` 找不到 / WSL 报错 | 安装并设默认发行版 |
 | `iso` 找不到 / Permission denied | 确认 `isobyu/iso` 为 Linux 二进制 |
 | Method 1 很慢 | 首次枚举全部特殊 k 点，属正常 |
+| Method 1 表与官网看起来不同 | 字段与官网序参量页同一套 token，只是本地用表格而不是 radio 长行；I4/mmm 的 GM4+ / GM5+ basis / M 点 k-active 已按官网对齐 |
 | Types 改了结果不变 | 忘记点 **"Change"** |
 | ZIP 报没有子群 | 先对下拉框里选中的 Method 1/2/3 点 OK |
 | Method 2 参数 k 点无子群 | 勾选 **"Generate isotropy subgroups database if missing"** 后重试（可能极慢） |

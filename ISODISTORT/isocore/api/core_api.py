@@ -276,12 +276,29 @@ class IsoDistort:
 
     def _tag_official_kparams(self, subgroups: list[SubgroupInfo],
                               official_kparams: list | None) -> None:
-        """子群对象上保留官网参数（供界面显示），iso 内部值不暴露。"""
+        """子群对象上保留官网参数（供界面显示），并刷新 k 坐标 / k-active。"""
         if not official_kparams:
             return
+        from ..data.kpoints_official import official_special_k_coords
+        from ..utils.opd_format import format_k_active
+
         tagged = list(official_kparams)
         for sg in subgroups:
             sg.k_parameters = tagged
+            coords = official_special_k_coords(
+                int(sg.parent_sg or 0),
+                sg.k_point_label or "",
+                sg.k_coordinates or [],
+                tagged,
+            )
+            if coords:
+                sg.k_coordinates = coords
+            sg.k_active_raw = format_k_active(
+                sg.opd_dir_raw or "",
+                sg.k_coordinates or ["0", "0", "0"],
+                sg.parent_sg or None,
+                None,
+            )
 
     def _scope_species(self, type_name: str) -> set[str]:
         """某畸变类型作用域内的物种集合（未设置时默认全部物种）。"""
@@ -332,9 +349,11 @@ class IsoDistort:
 
         Magnetic (m*) irreps are dropped unless magnetic is enabled. When
         displacive/rotational is on, smodes reports which irreps have atomic
-        modes on the parent Wyckoff set (same idea as Method 2 search-stage
-        filtering, but one call per special k point — not BUSH on every row).
-        Strain keeps the identity irrep GM1+ even if smodes does not list it.
+        modes on the parent Wyckoff set. Strain keeps the identity irrep GM1+
+        and even-parity Gamma irreps whose isotropy subgroup changes the
+        crystal system (lattice-strain only, e.g. GM4+ Fmmm in I4/mmm). Those
+        do not appear in smodes. Odd-parity Gamma irreps and same-system
+        silent irreps (e.g. GM3+ I4/m) stay dropped.
         """
         types = normalize_distortion_types(distortion_types or self.distortion_types)
         want_mag = "magnetic" in types
@@ -359,6 +378,10 @@ class IsoDistort:
                     species_filter=species if species else None,
                 )
 
+        parent_sg_n = 0
+        if self.symmetry_info:
+            parent_sg_n = int(self.symmetry_info["space_group_number"])
+
         kept = []
         for item in items:
             ir = (item.subgroup.irrep_label or "").strip()
@@ -374,9 +397,29 @@ class IsoDistort:
             if ir in active:
                 kept.append(item)
                 continue
-            if want_strain and ir in {"GM1+", "GM1"}:
+            if want_strain and self._keep_strain_only_irrep(item, parent_sg_n):
                 kept.append(item)
         return kept
+
+    @staticmethod
+    def _keep_strain_only_irrep(item, parent_sg: int) -> bool:
+        """True for strain-tensor isotropy subgroups that smodes does not list."""
+        sg = item.subgroup
+        klab = (sg.k_point_label or "").strip().upper()
+        if klab not in {"GM", "G", "Γ", "GAMMA"}:
+            return False
+        ir = (sg.irrep_label or "").strip().upper()
+        if ir in {"GM1+", "GM1"}:
+            return True
+        if not ir.endswith("+"):
+            return False
+        if int(getattr(sg, "size", 1) or 1) != 1:
+            return False
+        if not parent_sg:
+            return False
+        parent_cs = _sg_to_crystal_system(parent_sg)
+        child_cs = _sg_to_crystal_system(int(sg.space_group_number))
+        return child_cs != parent_cs
 
     def _parent_rotations(self) -> list[np.ndarray]:
         """母相点群旋转矩阵（分数坐标，去重）。"""
@@ -1161,9 +1204,13 @@ class IsoDistort:
         lifted = self._lifted_mode_displacements(subgroup) if use_current_modes else {}
         parent_sg = 0
         parent_sym = ""
+        wyckoff = None
         if self.symmetry_info:
             parent_sg = int(self.symmetry_info.get("space_group_number") or 0)
-            parent_sym = str(self.symmetry_info.get("space_group_symbol") or "")
+            parent_sym = hm_symbol(parent_sg) or str(
+                self.symmetry_info.get("space_group_symbol") or ""
+            )
+            wyckoff = self.symmetry_info.get("wyckoff_sites")
         return SubgroupExportSpec(
             subgroup=subgroup,
             structure=structure,
@@ -1175,10 +1222,12 @@ class IsoDistort:
             note=note,
             folder_name=folder_name,
             cif_structure=cif_structure,
+            parent_wyckoff_sites=wyckoff,
+            distortion_types=list(self.distortion_types or []),
         )
 
     def _is_parametric_subgroup(self, subgroup) -> bool:
-        """带 k 点参数（如 LD g=1/6）的子群：本地无法计算位移模式。"""
+        """带 k 点参数（如 LD g=1/6）的子群：本地 iso 无法计算位移模式。"""
         return bool(getattr(subgroup, "k_parameters", None))
 
     def _collect_export_specs(
@@ -1186,6 +1235,8 @@ class IsoDistort:
         items: list,
         formats: list[str],
         compute_missing_modes: bool,
+        *,
+        use_opd_line_folders: bool = False,
     ) -> list[SubgroupExportSpec]:
         """为每个子群准备导出规格；结束后恢复会话 Distortion 状态。"""
         need_modes = any(fmt != "cif" for fmt in formats)
@@ -1195,7 +1246,9 @@ class IsoDistort:
         specs: list[SubgroupExportSpec] = []
         try:
             for sg in items:
-                folder = unique_folder_name(sg, used)
+                folder = unique_folder_name(
+                    sg, used, use_opd_line=use_opd_line_folders
+                )
                 note = ""
                 is_current = current_idx is not None and sg.index == current_idx
                 computed = False
@@ -1232,6 +1285,8 @@ class IsoDistort:
         formats: list | str | None = None,
         subgroups: list | None = None,
         compute_missing_modes: bool = False,
+        *,
+        use_opd_line_folders: bool = False,
     ) -> list:
         """
         按 Method 2 子群批量导出（每个子群一个文件夹）。
@@ -1242,6 +1297,7 @@ class IsoDistort:
             subgroups: 默认使用当前会话的子群列表（Method 2 枚举结果）
             compute_missing_modes: 为非当前子群再跑 Method 2 以填充模式类格式；
                 仅 CIF 时不需要。参数 k 点跳过 DISPLAY BUSH（本地无法计算模式）。
+            use_opd_line_folders: Method 1 导出时文件夹名用完整 OPD 行。
 
         Returns:
             写出的文件路径列表
@@ -1256,7 +1312,9 @@ class IsoDistort:
             )
         dest = Path(dest_dir)
         dest.mkdir(parents=True, exist_ok=True)
-        specs = self._collect_export_specs(items, fmts, compute_missing_modes)
+        specs = self._collect_export_specs(
+            items, fmts, compute_missing_modes, use_opd_line_folders=use_opd_line_folders
+        )
         paths: list = []
         for spec in specs:
             folder = spec.folder_name or subgroup_label(spec.subgroup)
@@ -1269,9 +1327,14 @@ class IsoDistort:
         formats: list | str | None = None,
         subgroups: list | None = None,
         compute_missing_modes: bool = False,
-        wrapping: str = "isodistort_outputs",
+        wrapping: str | None = None,
+        *,
+        use_opd_line_folders: bool = False,
     ) -> bytes:
-        """批量导出为 ZIP 字节（不读写 output_dir，避免混入无关文件）。"""
+        """批量导出为 ZIP 字节（不读写 output_dir，避免混入无关文件）。
+
+        ZIP 根下直接是各子群文件夹（官网同款）；``wrapping`` 非空时才加一层前缀。
+        """
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")
         fmts = parse_export_formats(formats)
@@ -1280,7 +1343,9 @@ class IsoDistort:
             raise RuntimeError(
                 "没有可导出的 Method 2 子群；请先完成 Method 2 子群计算"
             )
-        specs = self._collect_export_specs(items, fmts, compute_missing_modes)
+        specs = self._collect_export_specs(
+            items, fmts, compute_missing_modes, use_opd_line_folders=use_opd_line_folders
+        )
         return build_export_zip(specs, fmts, wrapping=wrapping)
 
     # ================================================================

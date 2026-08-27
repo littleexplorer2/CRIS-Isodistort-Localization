@@ -1,16 +1,33 @@
 # ISODISTORT_VALIDATE
 
-把**本地算出的 CIF**与**可信参考 CIF**（通常来自官网导出）放在一起比较，判断两边是不是「同一种晶体结构」。你不需要先学晶体学：工具会检查晶格、原子、坐标、占据率、磁矩、空间群声明等，并给出 **PASS** 或 **FAIL**。
+把**本地算出的 CIF**与**官网导出的参考 CIF**放在固定目录里比较，判断两边是不是「同一种晶体结构」。你不需要先学晶体学：工具会检查晶格、原子、坐标、占据率、磁矩、空间群声明等，并给出 **PASS** 或 **FAIL**。
+
+比较目录是固定的，**不要再传入自定义路径**：
+
+```text
+ISODISTORT_VALIDATE/compare/
+  true/     官网下载的标准答案 CIF
+  item/     需要验证的本地 CIF
+```
+
+两侧按**相对路径**配对（含子目录）。例如：
+
+```text
+compare/item/LD1 C1/subgroup.cif
+compare/true/LD1 C1/subgroup.cif
+```
+
+**批量比较时请务必改名：** 把官网下载到 `compare/true/` 的 CIF 改成与 `compare/item/` 中本地文件**完全相同**的相对路径和文件名，才能一一对应。程序启动后只要发现两侧有对不上的文件名，会立刻列出这些文件并提醒你改名。
 
 默认看的是**晶体学语义**是否一致，而不是文件排版是否一模一样。若要求字节级完全相同，请加 `--strict`。
 
-本项目与仓库根目录的 `CRIS/.venv` 共用一份 Python 虚拟环境。
+本项目与仓库根目录的 `CRIS/.venv` 共用一份 Python 虚拟环境。单对比较和批量比较都从同一个入口启动：`main.py`。
 
 ---
 
 ## 它比较什么
 
-对每一对「本地 CIF ↔ 参考 CIF」，会报告：
+对每一对「`compare/item` 中的 CIF ↔ `compare/true` 中的同名 CIF」，会报告：
 
 | 检查项 | 说明 |
 | --- | --- |
@@ -22,32 +39,46 @@
 **适合拿来比的文件**：本地 Distortion 导出的子群 CIF，例如解压 ZIP 后：
 
 ```text
-isodistort_method2/LD1 C1/LD1 C1 CIF.cif
+LD1 C1/subgroup.cif
 ```
 
-与官网对该子群导出的 CIF 按相同相对路径配对。
+把该文件拷到 `compare/item/` 下（可保留子目录），把官网第 6 页对该子群导出的 CIF（通常也叫 `subgroup.cif`）拷到 `compare/true/` 下同一相对路径。
 
 **不要拿来当「结构比对」输入的**：
 
 - 结果表的 `.txt` / `.csv`（那是列表，不是结构）  
 - 历史遗留的、路径对不上的零散 CIF  
 
-一对文件 PASS ≠ 整个上游工具无 bug；应对多种空间群、模式、超胞做批量回归。
+`compare/`（含 `item/` 与 `true/`）**不会上传远程仓库**（已 gitignore）。一对文件 PASS ≠ 整个上游工具无 bug；应对多种空间群、模式、超胞做批量回归。
 
 ---
 
 ## 安装
 
-需要 **Python ≥ 3.10**。在仓库根目录执行（会创建/复用 `CRIS/.venv`，并安装本目录 `requirements.txt`）：
+需要 **Python ≥ 3.10**。本项目与仓库根目录的 `CRIS/.venv` 共用一份虚拟环境。在仓库根目录执行本子项目的准备脚本：
 
 ```powershell
 cd "C:\Users\devou\OneDrive\Desktop\CRIS"
-python ISODISTORT\main_requirement.py
+python ISODISTORT_VALIDATE\main_requirement.py
 ```
 
-开发测试额外依赖（与上游共用 `--dev`）：
+该脚本会：
+
+1. 确认 Python ≥ 3.10  
+2. 创建或复用 `CRIS/.venv`，只安装尚未存在的依赖（已下载的包不会重新下载）  
+3. 检查运行本工具**不需要**额外环境变量（无 ISODATA / WSL）  
+4. 若缺少 `compare/`、`compare/item/`、`compare/true/` 则自动创建  
+
+开发测试额外依赖：
 
 ```powershell
+python ISODISTORT_VALIDATE\main_requirement.py --dev
+```
+
+也可以继续用上游统一安装脚本（同样会创建/复用 `.venv`，并补上 VALIDATE 的 compare 目录）：
+
+```powershell
+python ISODISTORT\main_requirement.py
 python ISODISTORT\main_requirement.py --dev
 ```
 
@@ -61,51 +92,60 @@ python ISODISTORT\main_requirement.py --dev
 
 ---
 
-## 终端菜单：`main.py`
+## 启动入口：`main.py`
+
+单对比较和批量比较都走这一个文件。
 
 ```powershell
 cd ISODISTORT_VALIDATE
 python main.py
 ```
 
-菜单：
+无参数时进入菜单：
 
 | 选项 | 作用 |
 | --- | --- |
-| **1. 比较一对 CIF** | 输入本地路径、参考路径、容差、是否忽略原子顺序、是否严格字节比较、可选参考 SHA-256 |
-| **2. 批量回归验证** | 输入两个目录、文件匹配模式（默认 `*.cif`）、同样的容差选项、可选 hash manifest、是否输出 JSON |
+| **1. 比较一对 CIF** | 从 `compare/item` 与 `compare/true` 列出相对路径并选择一对；再询问容差、是否忽略原子顺序、是否严格字节比较、可选参考 SHA-256 |
+| **2. 批量回归验证** | 比较两个固定文件夹中的全部配对；询问匹配模式（默认 `*.cif`）、同样的容差选项、可选 hash manifest、是否输出 JSON。**使用前请把 `true/` 中官网文件改名，使其与 `item/` 一一对应** |
 | **3. 查看验证说明** | 打印本工具摘要（细节以本 README 为准） |
 | **0. 退出** | 结束 |
 
-菜单里询问的「晶格容差 / 分数坐标容差 / 占据率与磁矩容差」默认都是 `1e-5`。
+菜单**不再询问文件或目录路径**。晶格 / 分数坐标 / 占据率与磁矩容差默认都是 `1e-5`。
 
----
+进入菜单、单对比较或批量比较时，若 `item/` 与 `true/` 里有对不上的相对路径，会立刻打印这些文件名，并请你把 `true/` 中官网 CIF 改成与 `item/` 相同。没有成对文件时，单对/批量比较不会继续问容差。
 
-## 命令行：单对比较 `compare_cif.py`
+### 「是否忽略原子排列顺序」是什么意思
+
+CIF 里每个原子占一行。这个选项决定两边原子怎么对上号：
+
+| 回答 | 含义 |
+| --- | --- |
+| **n（默认）** | 按文件里的行号一一对应：第 1 行对第 1 行，第 2 行对第 2 行。元素种类或分数坐标对不上，或者只是行顺序不同，都会判为不一致。两边导出格式接近时用这个。 |
+| **y** | 不按行号，按「同种元素 + 分数坐标足够接近」配对。同一套原子只是写成不同顺序时（例如 `Eu, Al, Al` 对 `Al, Eu, Al`）可以选 y。这**不会**忽略坐标、元素种类、占据率或磁矩的真实差异。 |
+
+命令行对应开关是 `--ignore-atom-order`（加上即相当于回答 y）。
+
+### 命令行（同一入口）
 
 ```powershell
-cd ISODISTORT_VALIDATE
-python compare_cif.py "本地.cif" "参考.cif"
+python main.py compare "LD1 C1/subgroup.cif"
+python main.py compare
+python main.py batch
+python main.py batch --json > report.json
+python main.py batch --pattern "subgroup.cif"
 ```
 
-路径建议用本机**绝对路径**。示例：
+`compare` 在 `compare/item` 里只有一个 CIF 时可以省略相对路径。`batch` 始终比较固定目录，按相对路径配对。
 
-```powershell
-python compare_cif.py `
-  "C:\path\to\isodistort_method2\LD1 C1\LD1 C1 CIF.cif" `
-  "C:\path\to\official.cif"
-```
-
-### 全部参数
+### `compare` 参数
 
 | 参数 | 默认 | 含义 |
 | --- | --- | --- |
-| `local_cif` | （必填位置参数） | 本地 CIF |
-| `reference_cif` | （必填位置参数） | 参考 / 官网 CIF |
+| `relative_path` | （可省略；仅当 item 中只有一个 CIF 时） | 相对于 `compare/item` 与 `compare/true` 的路径 |
 | `--lattice-tol` | `1e-5` | 晶格参数容差 |
 | `--coord-tol` | `1e-5` | 分数坐标（周期）容差 |
 | `--scalar-tol` | `1e-5` | 占据率、磁矩等容差 |
-| `--ignore-atom-order` | 关 | 按「元素 + 周期坐标」匹配原子，而不是按文件里的行顺序 |
+| `--ignore-atom-order` | 关 | 忽略 CIF 原子**行顺序**，按「元素 + 分数坐标」配对；默认仍按行号对应。不会忽略真实的坐标或元素差异 |
 | `--reference-sha256` | 无 | 参考文件的期望 SHA-256；不匹配则失败（防止拿错参考文件） |
 | `--strict` | 关 | 除语义一致外，还要求**字节完全一致**才 PASS |
 | `--structure-only` | — | **已废弃别名**；默认本来就是语义比较 |
@@ -114,40 +154,21 @@ python compare_cif.py `
 容差示例：
 
 ```powershell
-python compare_cif.py local.cif official.cif `
+python main.py compare "LD1 C1/subgroup.cif" `
   --lattice-tol 1e-5 --coord-tol 1e-5 --scalar-tol 1e-5
 ```
 
 可信参考哈希：
 
 ```powershell
-Get-FileHash "C:\path\to\official.cif" -Algorithm SHA256
-python compare_cif.py local.cif official.cif --reference-sha256 "这里填写64位十六进制"
+Get-FileHash "ISODISTORT_VALIDATE\compare\true\sample.cif" -Algorithm SHA256
+python main.py compare sample.cif --reference-sha256 "这里填写64位十六进制"
 ```
 
----
-
-## 命令行：批量比较 `batch_compare.py`
-
-两个目录按**相对路径**配对。例如：
-
-```text
-local_cases/LD1 C1/LD1 C1 CIF.cif
-reference_cases/LD1 C1/LD1 C1 CIF.cif
-```
-
-```powershell
-python batch_compare.py "C:\path\to\local_cases" "C:\path\to\reference_cases"
-python batch_compare.py local_cases reference_cases --json > report.json
-python batch_compare.py local_cases reference_cases --pattern "*CIF.cif"
-```
-
-### 全部参数
+### `batch` 参数
 
 | 参数 | 默认 | 含义 |
 | --- | --- | --- |
-| `local_dir` | （必填） | 本地 CIF 根目录 |
-| `reference_dir` | （必填） | 参考 CIF 根目录 |
 | `--pattern` | `*.cif` | 递归匹配模式 |
 | `--lattice-tol` / `--coord-tol` / `--scalar-tol` | `1e-5` | 同单对比较 |
 | `--ignore-atom-order` | 关 | 同单对比较 |
@@ -159,7 +180,7 @@ manifest 示例：
 
 ```json
 {
-  "LD1 C1/LD1 C1 CIF.cif": "参考文件的64位SHA256"
+  "LD1 C1/subgroup.cif": "参考文件的64位SHA256"
 }
 ```
 
@@ -169,7 +190,7 @@ manifest 示例：
 Summary: total=…, passed=…, failed=…
 ```
 
-某相对路径只在一侧存在时，记为失败，原因含 `missing matching CIF`。
+某相对路径只在一侧存在时，记为失败，原因含 `missing matching CIF`。这通常就是 `true/` 里官网文件名还没改成与 `item/` 一致。
 
 ---
 
@@ -225,10 +246,15 @@ python -m pytest tests_dev -q
 
 ```text
 ISODISTORT_VALIDATE/
-  main.py              交互菜单
-  compare_cif.py       单对比较 CLI
-  batch_compare.py     批量比较 CLI
+  main.py                 唯一启动入口（交互菜单 / compare / batch）
+  main_requirement.py     依赖 / 环境 / compare 目录准备
+  isodistort_validate/    计算核心（比较算法、固定路径）
+  compare/                本地比对目录（gitignore，不入库）
+    true/                 官网标准答案 CIF（批量比较前须改名以匹配 item/）
+    item/                 待验证 CIF
   requirements.txt
-  tests_dev/           pytest
+  requirements-dev.txt
+  pyproject.toml
+  tests_dev/              pytest
   README.md
 ```

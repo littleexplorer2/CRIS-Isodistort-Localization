@@ -328,6 +328,55 @@ def test_findsym_identifies_nacl():
     assert {s["wyckoff_letter"] for s in result.wyckoff_sites} == {"a", "b"}
 
 
+def test_method1_eual4_matches_official_opd_html():
+    """EuAl4 strain+displacive Method 1 lines match the saved official OPD page."""
+    html_path = (
+        Path(__file__).resolve().parents[2]
+        / "webpage_info"
+        / "a. ISODISTORT_ order parameter direction.html"
+    )
+    if not html_path.is_file():
+        pytest.skip("official OPD HTML not present")
+    cif = DATA_DIR / "EuAl4 Parent.cif"
+    if not cif.exists():
+        pytest.skip("EuAl4 Parent.cif not present")
+
+    import re
+
+    official = re.findall(
+        r'name="orderparam"[^>]*>([^<]+)<br>',
+        html_path.read_text(encoding="utf-8", errors="replace"),
+    )
+    official = [ln.strip() for ln in official]
+    assert len(official) == 123
+
+    iso = IsoDistort(language="en")
+    iso.set_distortion_scope({
+        "displacive": ["*"], "occupational": [], "strain": [],
+        "magnetic": [], "rotational": [],
+    })
+    iso.load_structure(cif)
+    cands = iso.search_method_1(
+        distortion_types=["displacive", "strain"],
+        crystal_system=None, subgroup_space_group=None,
+        maximal_subgroup_only=False,
+    )
+    local = [it.subgroup.opd_line().strip() for it in cands]
+    assert len(local) == 123, f"Method 1 count {len(local)} != official 123"
+    missing = [ln for ln in official if ln not in set(local)]
+    extra = [ln for ln in local if ln not in set(official)]
+    assert not missing, f"missing vs official ({len(missing)}): {missing[:5]}"
+    assert not extra, f"extra vs official ({len(extra)}): {extra[:5]}"
+    gm4 = next(ln for ln in local if ln.startswith("GM4+"))
+    assert "basis={(1,1,0),(-1,1,0),(0,0,1)}" in gm4
+    gm5 = [ln for ln in local if ln.startswith("GM5+")]
+    assert any("{(0,1,1),(-1,0,0),(0,-1,0)}" in ln for ln in gm5)
+    assert any("{(1,-1,0),(1,1,0),(-1/2,1/2,1/2)}" in ln for ln in gm5)
+    assert any("{(1,0,0),(0,1,0),(-1/2,-1/2,1/2)}" in ln for ln in gm5)
+    m1 = next(ln for ln in local if ln.startswith("M1+"))
+    assert "k-active= (1,1,1)" in m1
+
+
 def test_iso_kpoints_and_subgroups():
     """iso 枚举 SG 225 的 k 点与 GM5- 子群。"""
     iso = IsoWrapper()

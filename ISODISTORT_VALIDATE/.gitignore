@@ -21,6 +21,10 @@ dist/
 .coverage
 htmlcov/
 .pytest-tmp/
+pytest-cache-files-*/
 
 # ---------- 运行输出 / 比对产物 ----------
 output/
+
+# 本地比对目录（item = 待验证 CIF，true = 官网参考 CIF）均不入库
+compare/

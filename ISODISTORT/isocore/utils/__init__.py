@@ -8,7 +8,7 @@ from .exceptions import (
     WrapperRunError,
     WrapperTimeoutError,
 )
-from .opd_format import format_opd_line
+from .opd_format import format_opd_line, official_method1_fields
 from .self_check import (
     check_linearity,
     check_mode_orthogonality,
@@ -53,6 +53,7 @@ __all__ = [
     "detect_missing_subgroup_db",
     "extract_section",
     "format_opd_line",
+    "official_method1_fields",
     "get_config",
     "parse_basis_token",
     "parse_bush_table",

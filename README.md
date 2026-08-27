@@ -17,8 +17,8 @@ https://github.com/littleexplorer2/CRIS-Isodistort-Localization.git
 | 子项目 | 一句话 | 详细说明 |
 | --- | --- | --- |
 | **ISODISTORT/** | 本地「子群搜索 + 导出结构」 | 上传母相 CIF → 勾选畸变类型 → Method 1–4 搜索/分解 → 在 Distortion 下载结果表与子群结构 ZIP。见 [ISODISTORT/README.md](ISODISTORT/README.md) |
-| **ISODISTORT_VALIDATE/** | 核对本地 CIF 是否算对 | 把本地导出的 CIF 与官网（或其它可信）参考 CIF 做语义比较，输出 PASS/FAIL。见 [ISODISTORT_VALIDATE/README.md](ISODISTORT_VALIDATE/README.md) |
-| **ISOVIZ_INPUT/** | 把振幅 CSV 写入 `.isoviz` 并打开 IsoVIZ | 读取梯度下降得到的 Best Model Parameter，写入子群 `.isoviz` 的 `amp`，再启动 Java 版 IsoVIZ。见 [ISOVIZ_INPUT/README.md](ISOVIZ_INPUT/README.md) |
+| **ISODISTORT_VALIDATE/** | 核对本地 CIF 是否算对 | 把本地 CIF 放入 `compare/item/`，把官网参考 CIF 放入 `compare/true/`（批量比较须改名一一对应），用 `main.py` 比较并输出 PASS/FAIL。见 [ISODISTORT_VALIDATE/README.md](ISODISTORT_VALIDATE/README.md) |
+| **ISOVIZ_INPUT/** | 把振幅 CSV 写入 `.isoviz` 并启动 IsoVIZ | 从 `input_content/` 读取 CSV 与子群 `.isoviz`，写入 `amp` 后自动打开 Java 版 IsoVIZ（不使用 `output/`）。见 [ISOVIZ_INPUT/README.md](ISOVIZ_INPUT/README.md) |
 
 各子项目 README **只讲该项目本身**。跨项目怎么串起来，只在本文件说明。
 
@@ -37,10 +37,10 @@ https://github.com/littleexplorer2/CRIS-Isodistort-Localization.git
    - Method 4 是把「已经畸变」的女儿相 CIF 分解成模式幅度，不生成子群 ZIP。
 
 3. **（可选）用 ISODISTORT_VALIDATE 核对**  
-   把本地 ZIP 里某个 `… CIF.cif` 与官网第 6 页导出的同名子群 CIF 配对比较，确认本地化没有算错结构。
+   把本地 ZIP 里某个 `subgroup.cif`（或旧版 `… CIF.cif`）拷到 `ISODISTORT_VALIDATE/compare/item/`，把官网第 6 页导出的同名子群 CIF（官网常为 `subgroup.cif`）拷到 `compare/true/`。**批量比较时必须把 `true/` 里官网下载的文件改成与 `item/` 完全相同的相对路径和文件名。** 然后运行 `python ISODISTORT_VALIDATE/main.py`（菜单或 `compare` / `batch` 子命令）。不要再传入自定义路径。`compare/` 整目录不入库，由 `main_requirement.py` 在缺失时自动创建。
 
 4. **（可选）用 ISOVIZ_INPUT 看拟合振幅**  
-   若你已有振幅 CSV（例如梯度下降给出的 Best Model Parameter）和对应子群 `.isoviz`，用本工具写入 `amp` 并打开 IsoVIZ 查看畸变结构。
+   把振幅 CSV 放入 `ISOVIZ_INPUT/input_content/data.csv/`，把对应子群 `.isoviz` 放入 `input_content/subgroup.isoviz/`（整个 `input_content/` 不入库，缺失时由安装脚本自动创建）。运行 `ISOVIZ_INPUT/main.py` 读取输入后会**直接启动 IsoVIZ**，本子项目不使用 `output/` 写出结果。
 
 ```text
 母相 CIF
@@ -50,7 +50,7 @@ ISODISTORT  ──►  子群表 / CIF / .isoviz / modes / TOPAS
    │                    │
    │                    ├──► ISODISTORT_VALIDATE（与官网 CIF 比对）
    │                    │
-   │                    └──► ISOVIZ_INPUT（CSV 振幅 → 写入 .isoviz → 打开 IsoVIZ）
+   │                    └──► ISOVIZ_INPUT（CSV 振幅 → 启动 IsoVIZ）
 ```
 
 ---
@@ -88,10 +88,18 @@ python ISODISTORT\main_requirement.py
 或：
 
 ```powershell
+python ISODISTORT_VALIDATE\main_requirement.py
+```
+
+或：
+
+```powershell
 python ISOVIZ_INPUT\main_requirement.py
 ```
 
 之后请始终用 `.venv\Scripts\python.exe` 运行各子项目入口，避免装到系统 Python。各子项目 README 里写有本项目的启动命令。
+
+**若运行卡死很久且终端没有出现 `(.venv)`：** 通常是虚拟环境未加载成功。关闭当前进程后，用 `.\.venv\Scripts\python.exe …`（或先 `.\.venv\Scripts\Activate.ps1`）重新运行即可。
 
 ---
 
@@ -102,8 +110,8 @@ CRIS/
 ├── README.md                 ← 本文件：总览与跨项目关系
 ├── .venv/                    ← 共享虚拟环境（不入库）
 ├── ISODISTORT/               ← 本地 ISODISTORT（网页 / 终端 / API）
-├── ISODISTORT_VALIDATE/      ← CIF 语义比较
-├── ISOVIZ_INPUT/             ← CSV → .isoviz → IsoVIZ
+├── ISODISTORT_VALIDATE/      ← CIF 语义比较（compare/item vs compare/true）
+├── ISOVIZ_INPUT/             ← CSV → 启动 IsoVIZ（input_content/ 不入库）
 ├── experiment_data/          ← 【勿改】实验数据
 ├── webpage_info/             ← 【勿改】官网 HTML 存档
 ├── GD/                       ← 【勿改】梯度下降相关
@@ -117,7 +125,7 @@ CRIS/
 | 你想做的事 | 打开 |
 | --- | --- |
 | 安装环境、跑网页/终端搜索子群 | [ISODISTORT/README.md](ISODISTORT/README.md) |
-| 比较本地 CIF 与官网 CIF | [ISODISTORT_VALIDATE/README.md](ISODISTORT_VALIDATE/README.md) |
-| 把振幅写入 IsoVIZ 并打开 | [ISOVIZ_INPUT/README.md](ISOVIZ_INPUT/README.md) |
+| 比较本地 CIF 与官网 CIF | 放入 [ISODISTORT_VALIDATE/compare/](ISODISTORT_VALIDATE/compare/) 后运行 `ISODISTORT_VALIDATE/main.py`，见 [ISODISTORT_VALIDATE/README.md](ISODISTORT_VALIDATE/README.md) |
+| 把振幅写入 IsoVIZ 并打开 | 放入 [ISOVIZ_INPUT/input_content/](ISOVIZ_INPUT/input_content/) 后见 [ISOVIZ_INPUT/README.md](ISOVIZ_INPUT/README.md) |
 
 官网帮助（概念背景，非本仓库文档）：[ISODISTORT Help](https://iso.byu.edu/isodistorthelp.php)、[ISOTROPY Suite](https://iso.byu.edu/isotropy.php)。

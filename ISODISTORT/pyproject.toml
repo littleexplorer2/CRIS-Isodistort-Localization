@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "isodistort"
 version = "0.2.0"
-description = "ISODISTORT: offline crystal distortion analysis based on ISOTROPY suite"
+description = "ISODISTORT: offline crystal distortion analysis based on ISOTROPY suite (Method 1 table matches official OPD fields)"
 authors = [{ name = "CRIS" }]
 requires-python = ">=3.10"
 dependencies = [
@@ -44,3 +44,6 @@ ignore = ["RUF001", "RUF002", "RUF003", "PLR"]
 [tool.ruff.lint.isort]
 # 本仓库包名（isocore/isodistort/web）为 first-party，保证导入排序一致
 known-first-party = ["isocore", "isodistort", "web"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests_dev"]

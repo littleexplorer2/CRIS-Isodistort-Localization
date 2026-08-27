@@ -39,7 +39,7 @@ def open_isoviz(isoviz_file: Path, *, launcher: Path | None = None) -> None:
     """Open a ``.isoviz`` file in IsoVIZ."""
     target = isoviz_file.resolve()
     if not target.is_file():
-        raise FileNotFoundError(f"Patched IsoVIZ file not found: {target}")
+        raise FileNotFoundError(f"IsoVIZ file not found: {target}")
     app = launcher or find_isoviz_launcher()
     if sys.platform.startswith("win"):
         try:

@@ -110,6 +110,7 @@ class _Lifecycle:
         self.page_seen = False          # 页面是否至少打开过一次（未打开则服务常驻）
         self.page_heartbeat = 0.0       # 最近一次心跳/页面请求时间
         self.shutdown_requested = False
+        self.in_flight = 0              # 进行中的长请求（ZIP 导出等）；>0 时不因心跳超时停服
 
 
 _LIFE = _Lifecycle()
@@ -132,12 +133,32 @@ def _request_shutdown() -> None:
         _LIFE.shutdown_requested = True
 
 
+def _begin_long_request() -> None:
+    """ZIP 等长请求：刷新心跳并阻止看门狗在计算期间误杀服务。"""
+    with _LIFE.lock:
+        _LIFE.in_flight += 1
+        _LIFE.page_heartbeat = time.time()
+
+
+def _end_long_request() -> None:
+    with _LIFE.lock:
+        _LIFE.in_flight = max(0, _LIFE.in_flight - 1)
+        _LIFE.page_heartbeat = time.time()
+
+
 def _watchdog(server: HTTPServer, idle_timeout: float) -> None:
     """守护线程：页面关闭（心跳停止）或收到 shutdown 后关闭服务。"""
     while True:
         time.sleep(2)
         with _LIFE.lock:
-            stale = _LIFE.page_seen and (time.time() - _LIFE.page_heartbeat > idle_timeout)
+            busy = _LIFE.in_flight > 0
+            if busy:
+                _LIFE.page_heartbeat = time.time()
+            stale = (
+                _LIFE.page_seen
+                and not busy
+                and (time.time() - _LIFE.page_heartbeat > idle_timeout)
+            )
             stop = _LIFE.shutdown_requested or stale
         if stop:
             with contextlib.suppress(Exception):  # 关闭失败不影响退出
@@ -212,6 +233,7 @@ def _subgroup_rows(subgroups) -> list[dict]:
             "irrep_label": sg.irrep_label,
             "basis_vectors": sg.basis_vectors,
             "origin": sg.origin,
+            "k_parameters": list(sg.k_parameters or []),
         })
     return rows
 
@@ -220,6 +242,7 @@ def _method1_rows(items) -> list[dict]:
     rows = []
     for item in items:
         sg = item.subgroup
+        fields = sg.official_fields()
         rows.append({
             "index": sg.index,
             "space_group_number": sg.space_group_number,
@@ -227,12 +250,16 @@ def _method1_rows(items) -> list[dict]:
             "crystal_system": item.crystal_system,
             "is_maximal": item.is_maximal,
             "k_point_label": sg.k_point_label,
-            "irrep_label": sg.irrep_label,
-            "opd_symbol": sg.opd_symbol,
-            "opd_dir_raw": sg.opd_dir_raw,
-            "size": sg.size,
-            "subgroup_index": sg.subgroup_index,
+            "irrep_label": fields["irrep"],
+            "opd_symbol": fields["opd"],
+            "opd_dir_raw": fields["dir"],
+            "size": fields["s"],
+            "subgroup_index": fields["i"],
+            "basis": fields["basis"],
+            "origin": fields["origin"],
+            "k_active": fields["k_active"],
             "opd_line": sg.opd_line(),
+            "k_parameters": list(sg.k_parameters or []),
         })
     return rows
 
@@ -255,6 +282,7 @@ def _method3_rows(items) -> list[dict]:
             "irrep_label": sg.irrep_label,
             "opd_symbol": sg.opd_symbol,
             "point_group": item.point_group,
+            "k_parameters": list(sg.k_parameters or []),
         })
     return rows
 
@@ -368,7 +396,11 @@ class IsoHandler(BaseHTTPRequestHandler):
         elif path == "/api/download_all":
             # 一键下载全部输出文件（打包为 ZIP）
             _touch_heartbeat()
-            self._serve_download_all()
+            _begin_long_request()
+            try:
+                self._serve_download_all()
+            finally:
+                _end_long_request()
         else:
             self._send_json({"ok": False, "error": f"Unknown path: {path}"}, 404)
 
@@ -684,18 +716,25 @@ class IsoHandler(BaseHTTPRequestHandler):
                 ),
             }, 404)
             return
+        # 勾选了 isoviz / modes / topas 时，对非参数 k 点子群补跑 Method 2
+        # 以填充模式（长计算由网页 busy 进度条提示）。参数 k 点仍跳过。
         need_modes = any(fmt != "cif" for fmt in fmts)
+        compute_q = (qs.get("compute_modes") or ["1"])[0].strip().lower()
+        # 默认开启；显式 compute_modes=0 可跳过（仅结构骨架，速度快）
+        want_compute = compute_q not in ("0", "false", "no")
+        compute_missing_modes = need_modes and want_compute
         saved_subs = list(iso.subgroups)
         try:
             iso.subgroups = list(subs)
             body = iso.export_subgroups_zip(
                 formats=fmts,
                 subgroups=subs,
-                compute_missing_modes=need_modes,
-                wrapping=f"isodistort_method{method}",
+                compute_missing_modes=compute_missing_modes,
+                wrapping=None,
+                use_opd_line_folders=(method == 1),
             )
         except Exception as exc:  # noqa: BLE001 - web 边界：统一转为 JSON 错误
-            self._send_json({"ok": False, "error": str(exc)}, 200)
+            self._send_json({"ok": False, "error": str(exc)}, 500)
             return
         finally:
             iso.subgroups = saved_subs

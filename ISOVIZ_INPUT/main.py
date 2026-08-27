@@ -1,23 +1,27 @@
-"""Write GD amplitudes into an IsoVIZ ``.isoviz`` file and open the visualizer.
+"""Read amplitude CSV + subgroup .isoviz and launch IsoVIZ.
 
 Usage (from the CRIS root, using CRIS/.venv):
 
   python ISOVIZ_INPUT/main.py --data path/to.csv --structure path/to.isoviz
 
-Omit the flags to be prompted for paths.
+Omit the flags to pick files from input_content/ (or be prompted).
 """
 from __future__ import annotations
 
 import argparse
+import os
+import re
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from isoviz_input.amplitudes import list_mode_headers, patch_isoviz_file
+from isoviz_input.amplitudes import apply_amplitudes, list_mode_headers, read_amplitude_csv
 from isoviz_input.launcher import find_isoviz_launcher, open_isoviz
+from isoviz_input.paths import DATA_DIR, STRUCTURE_DIR, ensure_input_content
 
 
 def _prompt(label: str, default: str = "") -> str:
@@ -41,42 +45,17 @@ def _pick_from_dir(folder: Path, pattern: str) -> str:
     return raw
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Write amplitude CSV values into a subgroup .isoviz file and open IsoVIZ.",
-    )
-    parser.add_argument("--data", help="Path to the amplitude CSV (GD best-model parameters).")
-    parser.add_argument("--structure", help="Path to the subgroup .isoviz file.")
-    parser.add_argument(
-        "--output",
-        help="Patched .isoviz output path (default: ISOVIZ_INPUT/output/<name>_patched.isoviz).",
-    )
-    parser.add_argument("--no-open", action="store_true", help="Write the file but do not launch IsoVIZ.")
-    args = parser.parse_args(argv)
+def _write_launch_copy(text: str, stem: str) -> Path:
+    """Write a temporary .isoviz that IsoVIZ can open (not a project output folder)."""
+    safe = re.sub(r"[^\w.-]+", "_", stem).strip("._") or "isoviz"
+    fd, name = tempfile.mkstemp(prefix=f"{safe}_", suffix=".isoviz")
+    path = Path(name)
+    with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(text)
+    return path
 
-    data = args.data or _pick_from_dir(ROOT / "data.csv", "*.csv") or _prompt("Amplitude CSV path")
-    structure = (
-        args.structure
-        or _pick_from_dir(ROOT / "subgroup.isoviz", "*.isoviz")
-        or _prompt("Subgroup .isoviz path")
-    )
-    if not data or not structure:
-        print("Both a data CSV and a subgroup .isoviz path are required.")
-        return 2
 
-    data_path = Path(data).expanduser()
-    structure_path = Path(structure).expanduser()
-    if args.output:
-        output_path = Path(args.output).expanduser()
-    else:
-        output_dir = ROOT / "output"
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = output_dir / f"{structure_path.stem}_patched.isoviz"
-
-    print(f"[data]      {data_path}")
-    print(f"[structure] {structure_path}")
-    print(f"[output]    {output_path}")
-    report = patch_isoviz_file(structure_path, data_path, output_path)
+def _print_report(report, structure_path: Path) -> None:
     print(f"[matched]   {len(report.matched)} mode(s)")
     for label, amp in report.matched:
         print(f"  {amp:10.5f}  {label}")
@@ -95,14 +74,55 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  {section}: {label} (amp={amp:.5f})")
         print("Match CSV 'Mode Name' to those labels, or use Mode=a1,a2,... in file order.")
 
-    if args.no_open:
-        print("[done] File written. IsoVIZ was not launched (--no-open).")
-        return 0
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Read an amplitude CSV and a subgroup .isoviz, apply amplitudes, "
+            "and launch IsoVIZ. This tool does not write a project output folder."
+        ),
+    )
+    parser.add_argument("--data", help="Path to the amplitude CSV (GD best-model parameters).")
+    parser.add_argument("--structure", help="Path to the subgroup .isoviz file.")
+    args = parser.parse_args(argv)
+
+    ensure_input_content()
+    data = args.data or _pick_from_dir(DATA_DIR, "*.csv") or _prompt("Amplitude CSV path")
+    structure = (
+        args.structure
+        or _pick_from_dir(STRUCTURE_DIR, "*.isoviz")
+        or _prompt("Subgroup .isoviz path")
+    )
+    if not data or not structure:
+        print("Both a data CSV and a subgroup .isoviz path are required.")
+        return 2
+
+    data_path = Path(data).expanduser()
+    structure_path = Path(structure).expanduser()
+    if not data_path.is_file():
+        print(f"Data file not found: {data_path}")
+        return 2
+    if not structure_path.is_file():
+        print(f"IsoVIZ structure file not found: {structure_path}")
+        return 2
+
+    print(f"[data]      {data_path}")
+    print(f"[structure] {structure_path}")
+    text = structure_path.read_text(encoding="utf-8", errors="replace")
+    modes = read_amplitude_csv(data_path)
+    patched, report = apply_amplitudes(text, modes)
+    _print_report(report, structure_path)
+
+    launch_path = _write_launch_copy(patched, structure_path.stem)
     launcher = find_isoviz_launcher()
     if launcher is not None:
         print(f"[isoviz]    {launcher}")
-    open_isoviz(output_path, launcher=launcher)
-    print("[done] IsoVIZ launch requested.")
+    try:
+        open_isoviz(launch_path, launcher=launcher)
+    except (OSError, RuntimeError) as exc:
+        print(f"[error] {exc}")
+        return 2
+    print("[done] IsoVIZ launched.")
     return 0
 
 

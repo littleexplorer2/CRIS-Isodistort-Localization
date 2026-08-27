@@ -107,6 +107,9 @@ def test_index_served(server):
     assert 'id="genDbHelp"' in body
     assert "onResultFilter" in body
     assert "m1Items" in body and "m3Items" in body
+    assert 'exportHeader: "k-active"' in body
+    assert 'exportHeader: "basis"' in body
+    assert 'key: "dir"' in body
     # 对齐官网搜索页布局：well 面板 + OK/Change 按钮 + help 图标
     assert 'class="well"' in body
     assert 'id="hM1"' in body and 'id="hM2"' in body
@@ -116,7 +119,12 @@ def test_index_served(server):
     # Distortion 批量导出：官网第 6 页四种格式勾选 + Download all
     assert 'id="fmtCif"' in body and 'id="fmtIsoviz"' in body
     assert 'id="fmtModes"' in body and 'id="fmtTopas"' in body
-    assert "downloadAll()" in body
+    assert "async function downloadAll()" in body
+    assert "r.blob()" in body
+    assert "dist.zipWait" in body
+    assert "function startBusy" in body
+    assert "progress-striped" in body
+    assert "fmtElapsed" in body
     assert "indices=" in body
     assert "resultTableHtml" in body
     assert "methodColumns" in body
@@ -144,6 +152,9 @@ def test_i18n_endpoint(server):
     assert "ui.menu.language" not in data["messages"]
     assert "Generate isotropy subgroups" in data["messages"]["m2.genDbHelp"]
     assert data["messages"]["dist.method4"] == "Method 4"
+    assert "Building ZIP" in data["messages"]["dist.zipWait"]
+    assert "Elapsed" in data["messages"]["st.elapsed"]
+    assert "Local engine is running" in data["messages"]["st.busyHint"]
 
 
 def test_parent_header_schoenflies():

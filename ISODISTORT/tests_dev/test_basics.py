@@ -63,6 +63,10 @@ def test_distortion_and_method2_help_keys():
     assert "dist.tableLabel" in MESSAGES
     assert "not limited by the filter" not in MESSAGES["dist.tableNote"]
     assert "dist.zipNotM4" in MESSAGES
+    assert "dist.zipWait" in MESSAGES
+    assert "dist.zipDone" in MESSAGES
+    assert "st.elapsed" in MESSAGES
+    assert "st.busyHint" in MESSAGES
     assert "ui.dist.table" in MESSAGES
 
 

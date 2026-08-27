@@ -1,4 +1,4 @@
-"""Run compare_cif.py over a directory of local/reference CIF pairs."""
+"""Batch-compare CIF pairs in compare/item vs compare/true."""
 
 from __future__ import annotations
 
@@ -9,7 +9,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from compare_cif import compare_cif
+from . import compare_paths as cpaths
+from .compare_cif import compare_cif
 
 
 def _sha256(path: Path) -> str:
@@ -30,14 +31,26 @@ def _load_manifest(path: Path | None) -> dict[str, str]:
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Batch-compare matching CIF files in two directories.")
-    parser.add_argument("local_dir", help="directory containing local ISODISTORT CIF files")
-    parser.add_argument("reference_dir", help="directory containing official/reference CIF files")
+    parser = argparse.ArgumentParser(
+        prog="main.py batch",
+        description=(
+            "Batch-compare CIF files in compare/item against matching files "
+            "in compare/true (same relative paths)."
+        ),
+        epilog=cpaths.BATCH_PAIRING_HINT,
+    )
     parser.add_argument("--pattern", default="*.cif", help="recursive file pattern (default: *.cif)")
     parser.add_argument("--lattice-tol", type=float, default=1e-5)
     parser.add_argument("--coord-tol", type=float, default=1e-5)
     parser.add_argument("--scalar-tol", type=float, default=1e-5)
-    parser.add_argument("--ignore-atom-order", action="store_true")
+    parser.add_argument(
+        "--ignore-atom-order",
+        action="store_true",
+        help=(
+            "ignore CIF atom row order and match by element plus fractional coordinates; "
+            "default compares row-by-row. Does not ignore real coordinate or species differences"
+        ),
+    )
     parser.add_argument("--hash-manifest", type=Path, help="JSON mapping reference-relative paths to trusted SHA-256")
     parser.add_argument("--strict", action="store_true", help="also require byte-identical files")
     parser.add_argument("--json", action="store_true", help="print a machine-readable summary")
@@ -45,8 +58,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def run_batch(args: argparse.Namespace) -> tuple[list[dict[str, Any]], int]:
-    local_dir = Path(args.local_dir).expanduser().resolve()
-    reference_dir = Path(args.reference_dir).expanduser().resolve()
+    cpaths.ensure_compare_dirs()
+    local_dir = Path(getattr(args, "local_dir", None) or cpaths.ITEM_DIR).expanduser().resolve()
+    reference_dir = Path(getattr(args, "reference_dir", None) or cpaths.TRUE_DIR).expanduser().resolve()
     if not local_dir.is_dir() or not reference_dir.is_dir():
         raise FileNotFoundError("both local_dir and reference_dir must be existing directories")
     manifest = _load_manifest(args.hash_manifest)
@@ -93,6 +107,11 @@ def run_batch(args: argparse.Namespace) -> tuple[list[dict[str, Any]], int]:
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
+    print(cpaths.BATCH_PAIRING_HINT, file=sys.stderr)
+    cpaths.warn_unpaired_filenames()
+    cpaths.ensure_compare_dirs()
+    args.local_dir = str(cpaths.ITEM_DIR)
+    args.reference_dir = str(cpaths.TRUE_DIR)
     try:
         results, failed = run_batch(args)
     except (OSError, ValueError, TypeError) as exc:
@@ -103,6 +122,12 @@ def main(argv: list[str] | None = None) -> int:
                    "failed": failed, "results": results}
         print(json.dumps(summary, ensure_ascii=False, indent=2))
     else:
+        if not results:
+            print(
+                "compare/item 与 compare/true 中没有可配对的 CIF。"
+                "请把官网参考 CIF 放入 compare/true/，把待验证 CIF 放入 compare/item/，"
+                "并保持相对路径相同。"
+            )
         for result in results:
             status = "PASS" if result["passed"] else "FAIL"
             print(f"{status:4s} {result['relative_path']}")

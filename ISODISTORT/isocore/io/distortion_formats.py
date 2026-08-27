@@ -4,12 +4,11 @@ Distortion Page 批量导出：CIF / Save interactive distortion / Complete mode
 对齐官网第 6 页（webpage_info/6. ISODISTORT_ distortion.html）与手册
 https://landau3.byu.edu/isodistorthelp.php#modeparams 中的导出选项。
 
-命名约定（子群、文件格式）：
-    文件夹  ``LD1 C1``
-    文件    ``LD1 C1 CIF.cif``
-            ``LD1 C1 Save interactive distortion.isoviz``
-            ``LD1 C1 Complete modes details.txt``
-            ``LD1 C1 TOPAS.STR``
+命名约定（对齐官网下载）：
+    文件夹  Method 1: 完整 OPD 行；Method 2/3: ``LD1 C1``
+    文件    ``subgroup.cif`` / ``data.isoviz`` /
+            ``Complete modes details.txt``（官网为 HTML；本地用 .txt）/
+            ``topas.str``
 """
 from __future__ import annotations
 
@@ -17,12 +16,11 @@ import io
 import re
 import zipfile
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
 from pymatgen.core import Structure
-from pymatgen.io.cif import CifWriter
 
 from ..backend import SubgroupInfo
 
@@ -129,9 +127,26 @@ def subgroup_label(subgroup: SubgroupInfo) -> str:
     return f"{ir} {opd}"
 
 
-def unique_folder_name(subgroup: SubgroupInfo, used: set[str]) -> str:
-    """保证文件夹名在一次导出内唯一（同 IR+OPD 时追加空间群 / 序号）。"""
-    base = subgroup_label(subgroup)
+def folder_label_for_subgroup(subgroup: SubgroupInfo, *, use_opd_line: bool = False) -> str:
+    """ZIP / 导出文件夹名：Method 1 用完整 OPD 行，Method 2/3 用 ``IR OPD``。"""
+    if use_opd_line:
+        try:
+            line = subgroup.opd_line()
+        except (TypeError, ValueError, AttributeError):
+            line = ""
+        if line:
+            return safe_name(line, subgroup_label(subgroup))
+    return subgroup_label(subgroup)
+
+
+def unique_folder_name(
+    subgroup: SubgroupInfo,
+    used: set[str],
+    *,
+    use_opd_line: bool = False,
+) -> str:
+    """保证文件夹名在一次导出内唯一（同名时追加空间群 / 序号）。"""
+    base = folder_label_for_subgroup(subgroup, use_opd_line=use_opd_line)
     name = base
     if name in used:
         sg = safe_name(subgroup.space_group_symbol or str(subgroup.space_group_number))
@@ -143,15 +158,16 @@ def unique_folder_name(subgroup: SubgroupInfo, used: set[str]) -> str:
 
 
 def format_filename(folder_label: str, fmt: str) -> str:
-    """按「子群、文件格式」生成文件名。"""
+    """官网同款文件名（``folder_label`` 仅保留调用兼容，不写入文件名）。"""
+    _ = folder_label
     if fmt == FORMAT_CIF:
-        return f"{folder_label} CIF.cif"
+        return "subgroup.cif"
     if fmt == FORMAT_ISOVIZ:
-        return f"{folder_label} Save interactive distortion.isoviz"
+        return "data.isoviz"
     if fmt == FORMAT_MODES:
-        return f"{folder_label} Complete modes details.txt"
+        return "Complete modes details.txt"
     if fmt == FORMAT_TOPAS:
-        return f"{folder_label} TOPAS.STR"
+        return "topas.str"
     raise ValueError(f"未知格式: {fmt}")
 
 
@@ -179,97 +195,22 @@ class SubgroupExportSpec:
     note: str = ""
     folder_name: str = ""
     cif_structure: Structure | None = None  # Generate 后 CIF 用畸变结构；其它格式用未畸变超胞
+    parent_wyckoff_sites: list | None = None
+    distortion_types: list[str] = field(default_factory=list)
 
 
-def render_cif(structure: Structure) -> str:
-    """CIF 文本（不做对称化，与 StructureExporter.to_cif(symprec=None) 一致）。"""
-    return str(CifWriter(structure, symprec=None))
+def render_cif(structure: Structure, spec: SubgroupExportSpec | None = None) -> str:
+    """ISODISTORT-style CIF (subgroup setting when ``spec`` is given)."""
+    from .isodistort_cif import render_isodistort_cif
+
+    return render_isodistort_cif(structure, spec)
 
 
 def render_isoviz(spec: SubgroupExportSpec) -> str:
-    """Save interactive distortion：官网 ISOVIZ ascii 数据文件的本地可读实现。
+    """Save interactive distortion：官网 ``!tag`` ISOVIZ 数据文件布局。"""
+    from .isodistort_isoviz import render_isodistort_isoviz
 
-    内容覆盖手册所述：母相/子群、超胞原子、各对称模式位移、可视化参数
-    （atomic radius / bond length / window / viewing range）。
-    """
-    sg = spec.subgroup
-    parent = spec.parent_structure
-    lines = [
-        "# Save interactive distortion (ISOVIZ ascii data file)",
-        "# Official option: origintype=isovizdistortion",
-        "# See https://landau3.byu.edu/isodistorthelp.php#savedist",
-        "origintype=isovizdistortion",
-        f"spacegroup={spec.parent_sg} {spec.parent_symbol}".rstrip(),
-        f"subgroupsym={sg.space_group_number}",
-        f"subgroupsymbol={sg.space_group_symbol}",
-        f"irrep={sg.irrep_label}",
-        f"orderparam={sg.opd_symbol}",
-        f"kpoint={sg.k_point_label}",
-        f"kparameters={' '.join(str(p) for p in sg.k_parameters)}",
-        f"basis={_fmt_basis(sg.basis_vectors) if sg.basis_vectors else ''}",
-        f"origin={_fmt_vec(sg.origin) if sg.origin else '(0,0,0)'}",
-        f"s={sg.size}",
-        f"i={sg.subgroup_index}",
-        f"atomicradius={_DEFAULT_ATOMIC_RADIUS}",
-        f"bondlengthmin={_DEFAULT_BOND_MIN:.2f}",
-        f"bondlength={_DEFAULT_BOND_MAX:.2f}",
-        f"appletwidth={_DEFAULT_APPLET_WIDTH}",
-        "supercellxmin=0.000",
-        "supercellxmax=1.000",
-        "supercellymin=0.000",
-        "supercellymax=1.000",
-        "supercellzmin=0.000",
-        "supercellzmax=1.000",
-    ]
-    if spec.note:
-        lines.append(f"note={spec.note}")
-    lat = spec.structure.lattice
-    lines.append(
-        "lattparam="
-        f"a={lat.a:.5f}, b={lat.b:.5f}, c={lat.c:.5f}, "
-        f"alpha={lat.alpha:.5f}, beta={lat.beta:.5f}, gamma={lat.gamma:.5f}"
-    )
-    if parent is not None:
-        plat = parent.lattice
-        lines.append(
-            "parentlattparam="
-            f"a={plat.a:.5f}, b={plat.b:.5f}, c={plat.c:.5f}, "
-            f"alpha={plat.alpha:.5f}, beta={plat.beta:.5f}, gamma={plat.gamma:.5f}"
-        )
-        lines.append("BEGIN PARENT_ATOMS")
-        for i, site in enumerate(parent, start=1):
-            x, y, z = (float(c) for c in site.frac_coords)
-            lines.append(
-                f"{i:4d}  {site.species_string:<4s}  {x:10.6f} {y:10.6f} {z:10.6f}"
-            )
-        lines.append("END PARENT_ATOMS")
-    lines.append("BEGIN ATOMS")
-    for i, site in enumerate(spec.structure, start=1):
-        x, y, z = (float(c) for c in site.frac_coords)
-        try:
-            occ = float(site.species.num_atoms)
-        except (TypeError, ValueError, AttributeError):
-            occ = 1.0
-        lines.append(
-            f"{i:4d}  {site.species_string:<6s}  {x:10.6f} {y:10.6f} {z:10.6f}  occ={occ:.4f}"
-        )
-    lines.append("END ATOMS")
-    lines.append("BEGIN MODES")
-    if spec.mode_displacements_sc:
-        for label, disp in spec.mode_displacements_sc.items():
-            pretty = (spec.mode_labels or {}).get(label, label)
-            amp = float((spec.amplitudes or {}).get(label, 0.0))
-            lines.append(f"MODE {label}  {pretty}  amplitude={amp:.6f}")
-            arr = np.asarray(disp, dtype=float)
-            for j, vec in enumerate(arr, start=1):
-                lines.append(
-                    f"  atom {j:4d}  {float(vec[0]):10.6f} {float(vec[1]):10.6f} {float(vec[2]):10.6f}"
-                )
-    else:
-        lines.append("# (no displacive modes available for this subgroup)")
-    lines.append("END MODES")
-    lines.append("END")
-    return "\n".join(lines) + "\n"
+    return render_isodistort_isoviz(spec)
 
 
 def _parent_primitive_volume(parent: Structure | None) -> float:
@@ -395,48 +336,55 @@ def _site_tag(structure: Structure, idx: int) -> str:
 
 def render_topas(spec: SubgroupExportSpec) -> str:
     """TOPAS.STR：官网 distortion-mode 精修输入（见手册 #topas）。"""
+    from .isodistort_cif import _parent_to_child_transform
+
     sg = spec.subgroup
     sc = spec.structure
     lat = sc.lattice
+    transform = ""
+    try:
+        transform = _parent_to_child_transform(sg, np.zeros(3))
+    except Exception:  # noqa: BLE001
+        transform = "a,b,c;0,0,0"
+    # Child cell axes from parent→child when available (official uses child metrics).
     lines = [
         "'Topas .str file generated by ISODISTORT",
         "'Remember to add the appropriate peak shape line when passing this into an input file",
         "",
-        " str",
-        f" '{sg.space_group_symbol or sg.space_group_number}",
-        f" space_group {sg.space_group_number}",
-        f" a {lat.a:.5f}",
-        f" b {lat.b:.5f}",
-        f" c {lat.c:.5f}",
-        f" al {lat.alpha:.5f}",
-        f" be {lat.beta:.5f}",
-        f" ga {lat.gamma:.5f}",
-        " scale @ 0.00001",
+        "\tstr",
+        f"\t\t'{sg.space_group_symbol or sg.space_group_number}",
+        f"\t\tspace_group  {sg.space_group_number} "
+        f"'transformPp {transform or 'a,b,c;0,0,0'}",
+        f"\t\ta  {lat.a:10.5f}",
+        f"\t\tb  {lat.b:10.5f}",
+        f"\t\tc  {lat.c:10.5f}",
+        f"\t\tal {lat.alpha:10.5f}",
+        f"\t\tbe {lat.beta:10.5f}",
+        f"\t\tga {lat.gamma:10.5f}",
+        "\t\tscale @ 0.00001",
         "",
         "'{{{mode definitions",
     ]
     mode_items = list((spec.mode_displacements_sc or {}).items())
     unique = _unique_site_indices(sc)
-    tags = [_site_tag(sc, i) for i in unique]
+    tags = [_site_tag_official(sc, i, spec) for i in unique]
 
     if not mode_items:
-        lines.append("' (no displacive modes available for this subgroup)")
+        lines.append("\t\t' (no displacive modes available for this subgroup)")
         if spec.note:
-            lines.append(f"' note: {spec.note}")
+            lines.append(f"\t\t' note: {spec.note}")
     else:
         for n, (label, _disp) in enumerate(mode_items, start=1):
             pretty = (spec.mode_labels or {}).get(label, label)
             amp = float((spec.amplitudes or {}).get(label, 0.0))
             lines.append(
-                f" prm !a{n} {amp:.5f} min -2.00 max 2.00 "
-                f"'{sg.k_point_label}{sg.irrep_label}({sg.opd_symbol}) {pretty}"
+                f"\t\tprm  !a{n:<4d} {amp:10.5f} min  -2.00 max  2.00 '{pretty}"
             )
     lines.append("'}}}")
     lines.append("")
     lines.append("'{{{mode-amplitude to delta transformation")
 
-    # 每个独立位点、每个模式 -> 超胞分数位移，写 dx/dy/dz 线性组合
-    deltas: dict[tuple[str, str], list[str]] = {}  # (tag, axis) -> ["+ 0.12*a1", ...]
+    deltas: dict[tuple[str, str], list[str]] = {}
     if mode_items:
         for n, (_label, disp) in enumerate(mode_items, start=1):
             arr = np.asarray(disp, dtype=float)
@@ -452,7 +400,7 @@ def render_topas(spec: SubgroupExportSpec) -> str:
                     deltas.setdefault((tag, axis), []).append(term)
         for (tag, axis), terms in deltas.items():
             expr = " ".join(terms)
-            lines.append(f" prm {tag}_d{axis} = {expr};: 0.00000")
+            lines.append(f"\t\tprm {tag}_d{axis} = {expr};: 0.00000")
     lines.append("'}}}")
     lines.append("")
     lines.append("'{{{distorted parameters")
@@ -463,13 +411,13 @@ def render_topas(spec: SubgroupExportSpec) -> str:
             has_d = (tag, axis) in deltas
             if has_d:
                 lines.append(
-                    f" prm {tag}_{axis} = {val:.6f} + {dprm};: {val:.5f}"
+                    f"\t\tprm {tag}_{axis} = {val:.6f} + {dprm};: {val:.5f}"
                 )
             else:
                 lines.append(
-                    f" prm !{tag}_{axis} = {val:.6f};: {val:.5f}"
+                    f"\t\tprm !{tag}_{axis} = {val:.6f};: {val:.5f}"
                 )
-        lines.append(f" prm !{tag}_occ = 1;: 1.00000")
+        lines.append(f"\t\tprm !{tag}_occ = 1;: 1.00000")
     lines.append("'}}}")
     lines.append("")
     lines.append("'{{{mode-dependent sites")
@@ -477,11 +425,11 @@ def render_topas(spec: SubgroupExportSpec) -> str:
         el = sc[idx].species_string
         el = re.sub(r"[^A-Za-z]", "", el) or "X"
         lines.append(
-            f" site {tag} num_posns 0 "
+            f"\t\tsite {tag} num_posns 0 "
             f"x = {tag}_x;:0 y = {tag}_y;:0 z = {tag}_z;:0 "
             f"occ {el} = {tag}_occ;:0 beq 0.0"
         )
-    lines.append(" site origin num_posns 0 x 0.00000 y 0.00000 z 0.00000 occ D 0")
+    lines.append("\t\tsite origin num_posns 0 x 0.00000 y 0.00000 z 0.00000 occ D 0")
     lines.append("'}}}")
     lines.append("")
     lines.append("'{{{difference restraints for interconnected rigid bodies")
@@ -490,9 +438,20 @@ def render_topas(spec: SubgroupExportSpec) -> str:
     return "\n".join(lines)
 
 
+def _site_tag_official(structure: Structure, idx: int, spec: SubgroupExportSpec) -> str:
+    """Prefer parent Wyckoff stems (``Eu1_1``) when available."""
+    site = structure[idx]
+    label = (site.label or "").strip()
+    if label and re.match(r"^[A-Za-z]+\d*", label):
+        stem = re.split(r"[_\s]", label)[0]
+        return f"{stem}_1" if "_" not in label else label
+    el = re.sub(r"[^A-Za-z0-9]", "", site.species_string) or "X"
+    return f"{el}_{idx + 1}"
+
+
 def render_format(fmt: str, spec: SubgroupExportSpec) -> bytes:
     if fmt == FORMAT_CIF:
-        text = render_cif(spec.cif_structure or spec.structure)
+        text = render_cif(spec.cif_structure or spec.structure, spec)
     elif fmt == FORMAT_ISOVIZ:
         text = render_isoviz(spec)
     elif fmt == FORMAT_MODES:
@@ -524,13 +483,13 @@ def write_subgroup_files(
 def build_export_zip(
     specs: Iterable[SubgroupExportSpec],
     formats: Sequence[str],
-    wrapping: str = "isodistort_outputs",
+    wrapping: str | None = None,
 ) -> bytes:
-    """打包为 ZIP：解压得到 wrapping/ 下各子群文件夹。
+    """打包为 ZIP：各子群文件夹在 ZIP 根下（官网同款）；可选 wrapping 前缀。
 
     只写入 ``specs`` 给出的子群文件，不读取、不混入 output_dir 中的其它文件。
     """
-    wrap = safe_name(wrapping, "isodistort_outputs")
+    wrap = safe_name(wrapping) if wrapping else ""
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
         used: set[str] = set()
@@ -539,6 +498,6 @@ def build_export_zip(
             spec.folder_name = folder
             for fmt in formats:
                 fname = format_filename(folder, fmt)
-                arcname = f"{wrap}/{folder}/{fname}"
+                arcname = f"{wrap}/{folder}/{fname}" if wrap else f"{folder}/{fname}"
                 zf.writestr(arcname, render_format(fmt, spec))
     return buf.getvalue()

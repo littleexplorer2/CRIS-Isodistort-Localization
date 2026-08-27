@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from isoviz_input.amplitudes import apply_amplitudes, patch_isoviz_file, read_amplitude_csv
+from isoviz_input.paths import ensure_input_content
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
@@ -57,3 +58,18 @@ def test_patch_isoviz_file(tmp_path):
     body = dest.read_text(encoding="utf-8")
     assert "0.12345" in body
     assert "0.50000" in body
+
+
+def test_ensure_input_content_creates_named_folders(tmp_path, monkeypatch):
+    monkeypatch.setattr("isoviz_input.paths.ISOVIZ_ROOT", tmp_path)
+    monkeypatch.setattr("isoviz_input.paths.INPUT_ROOT", tmp_path / "input_content")
+    monkeypatch.setattr("isoviz_input.paths.DATA_DIR", tmp_path / "input_content" / "data.csv")
+    monkeypatch.setattr(
+        "isoviz_input.paths.STRUCTURE_DIR",
+        tmp_path / "input_content" / "subgroup.isoviz",
+    )
+    data_dir, structure_dir = ensure_input_content()
+    assert data_dir.is_dir()
+    assert structure_dir.is_dir()
+    assert data_dir.name == "data.csv"
+    assert structure_dir.name == "subgroup.isoviz"

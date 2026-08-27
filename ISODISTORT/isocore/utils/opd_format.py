@@ -98,7 +98,7 @@ def _g_allowed(h: int, k: int, ell: int, centering: str) -> bool:
 
 
 def _k_score(k: np.ndarray) -> tuple:
-    """Lower is better: stay in [0,1], avoid negatives, then smaller |k|."""
+    """Lower is better: stay in [0,1] inclusive, avoid negatives, then smaller |k|."""
     out_of_unit = int(sum(1 for x in k if x < -1e-8 or x > 1.0 + 1e-8))
     negative = int(sum(1 for x in k if x < -1e-8))
     abs_sum = float(np.sum(np.abs(k)))
@@ -106,7 +106,12 @@ def _k_score(k: np.ndarray) -> tuple:
 
 
 def _canonical_k(k: np.ndarray, centering: str, max_g: int = 2) -> np.ndarray:
-    """Pick the ISODISTORT-like representative of k modulo the reciprocal lattice."""
+    """Pick a unit-cell representative of k modulo the Bravais reciprocal lattice.
+
+    Used for rotated star arms only. The listed special-k seed (CDML / iso
+    DISPLAY KPOINT, e.g. M = (1,1,1) for I4/mmm) is kept as given: reducing it
+    by an allowed G would map M onto (0,0,1), which the website never prints.
+    """
     best = np.asarray(k, dtype=float)
     best_score = _k_score(best)
     for h in range(-max_g, max_g + 1):
@@ -120,6 +125,21 @@ def _canonical_k(k: np.ndarray, centering: str, max_g: int = 2) -> np.ndarray:
                     best = cand
                     best_score = score
     return best
+
+
+def _zero_one_flips(k: np.ndarray) -> list[np.ndarray]:
+    """0↔1 partners on axes that sit on the unit-cell boundary."""
+    out: list[np.ndarray] = []
+    for i in range(3):
+        if abs(float(k[i])) < 1e-8:
+            kp = np.asarray(k, dtype=float).copy()
+            kp[i] = 1.0
+            out.append(kp)
+        elif abs(float(k[i]) - 1.0) < 1e-8:
+            kp = np.asarray(k, dtype=float).copy()
+            kp[i] = 0.0
+            out.append(kp)
+    return out
 
 
 def _k_equivalent(k1: np.ndarray, k2: np.ndarray, centering: str) -> bool:
@@ -158,25 +178,51 @@ def _k_to_array(coords: Sequence[str | float]) -> np.ndarray:
 
 def k_star_tuples(k_coordinates: Sequence[str | float],
                   parent_sg: int) -> list[str]:
-    """Star of ``k`` as ``(x,y,z)`` strings in a stable, website-like order."""
+    """Star of ``k`` as ``(x,y,z)`` strings in a stable, website-like order.
+
+    The listed seed is kept (not reduced by centering). Remaining arms are
+    ordered as on the ISODISTORT OPD page: 0↔1 partners of the seed first,
+    then leftover arms sorted by coordinates. For I4/mmm this yields N =
+    ``(1/2,0,1/2),(1/2,1,1/2),(0,1/2,1/2),(1,1/2,1/2)``.
+    """
     if not k_coordinates:
         return ["(0,0,0)"]
     centering = _centering_letter(parent_sg)
-    k0 = _canonical_k(_k_to_array(k_coordinates), centering)
+    k0 = _k_to_array(k_coordinates)
     sg = SpaceGroup.from_int_number(int(parent_sg))
-    arms: list[np.ndarray] = []
+    arms: list[np.ndarray] = [k0]
     for op in sg.symmetry_ops:
         kp = _canonical_k(np.asarray(op.rotation_matrix, dtype=float) @ k0, centering)
         if any(_k_equivalent(kp, seen, centering) for seen in arms):
             continue
         arms.append(kp)
+
     ordered: list[np.ndarray] = []
-    for cand in [k0, *arms]:
-        reduced = _canonical_k(cand, centering)
-        if any(_k_equivalent(reduced, seen, centering) for seen in ordered):
-            continue
-        ordered.append(reduced)
-    result = [format_tuple(arm.tolist()) for arm in ordered]
+
+    def _add(vec: np.ndarray) -> None:
+        if any(_k_equivalent(vec, seen, centering) for seen in ordered):
+            return
+        for arm in arms:
+            if _k_equivalent(vec, arm, centering):
+                ordered.append(arm)
+                return
+
+    _add(k0)
+    i = 0
+    while i < len(ordered):
+        for flip in _zero_one_flips(ordered[i]):
+            _add(flip)
+        i += 1
+    rest = [
+        arm for arm in arms
+        if not any(_k_equivalent(arm, seen, centering) for seen in ordered)
+    ]
+    rest.sort(key=lambda v: tuple(np.round(v, 8)))
+    ordered.extend(rest)
+
+    result = [format_tuple(k_coordinates)]
+    for arm in ordered[1:]:
+        result.append(format_tuple(arm.tolist()))
     return result or [format_tuple(k_coordinates)]
 
 
@@ -210,6 +256,54 @@ def format_k_active(opd_dir_raw: str,
     return " " + ",".join(active)
 
 
+def official_method1_fields(
+    *,
+    irrep_label: str,
+    opd_symbol: str,
+    opd_dir_raw: str,
+    space_group_number: int,
+    space_group_symbol: str,
+    basis_raw: str,
+    origin_raw: str,
+    size: int,
+    subgroup_index: int,
+    k_coordinates: Sequence[str | float] | None = None,
+    parent_sg: int | None = None,
+    k_active_raw: str | None = None,
+    basis_vectors: Sequence[Sequence[float]] | None = None,
+    origin: Sequence[float] | None = None,
+) -> dict[str, str | int]:
+    """Split the official Method 1 radio line into table columns.
+
+    Visible radio text on the OPD page is one long line; the local UI keeps
+    the same tokens but shows them as a filterable/sortable table.
+    """
+    direction = opd_dir_raw.strip() if opd_dir_raw else "(a)"
+    basis_inner = format_basis(basis_vectors or [], basis_raw)
+    orig = format_tuple(origin or [0, 0, 0], origin_raw)
+    kact = format_k_active(
+        direction,
+        k_coordinates or ["0", "0", "0"],
+        parent_sg,
+        k_active_raw,
+    ).strip()
+    number = int(space_group_number)
+    symbol = (space_group_symbol or "").strip()
+    return {
+        "irrep": (irrep_label or "").strip(),
+        "opd": (opd_symbol or "").strip(),
+        "dir": direction,
+        "space_group_number": number,
+        "space_group_symbol": symbol,
+        "sg": f"{number} {symbol}".strip(),
+        "basis": f"{{{basis_inner}}}",
+        "origin": orig,
+        "s": int(size),
+        "i": int(subgroup_index),
+        "k_active": kact,
+    }
+
+
 def format_opd_line(
     *,
     irrep_label: str,
@@ -228,19 +322,26 @@ def format_opd_line(
     origin: Sequence[float] | None = None,
 ) -> str:
     """One visible Method 1 radio line (no maximal asterisk)."""
-    irrep = f"{(irrep_label or '').strip():<{_IRREP_WIDTH}s}"
-    opd = f"{(opd_symbol or '').strip():<{_OPD_WIDTH}s}"
-    direction = opd_dir_raw.strip() if opd_dir_raw else "(a)"
-    basis = format_basis(basis_vectors or [], basis_raw)
-    orig = format_tuple(origin or [0, 0, 0], origin_raw)
-    kact = format_k_active(
-        direction,
-        k_coordinates or ["0", "0", "0"],
-        parent_sg,
-        k_active_raw,
+    fields = official_method1_fields(
+        irrep_label=irrep_label,
+        opd_symbol=opd_symbol,
+        opd_dir_raw=opd_dir_raw,
+        space_group_number=space_group_number,
+        space_group_symbol=space_group_symbol,
+        basis_raw=basis_raw,
+        origin_raw=origin_raw,
+        size=size,
+        subgroup_index=subgroup_index,
+        k_coordinates=k_coordinates,
+        parent_sg=parent_sg,
+        k_active_raw=k_active_raw,
+        basis_vectors=basis_vectors,
+        origin=origin,
     )
+    irrep = f"{str(fields['irrep']):<{_IRREP_WIDTH}s}"
+    opd = f"{str(fields['opd']):<{_OPD_WIDTH}s}"
     return (
-        f"{irrep}{opd}{direction} {int(space_group_number):>3d} "
-        f"{space_group_symbol}, basis={{{basis}}}, origin={orig}, "
-        f"s={int(size)}, i={int(subgroup_index)}, k-active={kact}"
+        f"{irrep}{opd}{fields['dir']} {int(fields['space_group_number']):>3d} "
+        f"{fields['space_group_symbol']}, basis={fields['basis']}, origin={fields['origin']}, "
+        f"s={fields['s']}, i={fields['i']}, k-active= {fields['k_active']}"
     )

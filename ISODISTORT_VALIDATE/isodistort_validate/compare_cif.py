@@ -16,6 +16,8 @@ import spglib
 from pymatgen.core import Structure
 from pymatgen.io.cif import CifFile, CifParser
 
+from . import compare_paths as cpaths
+
 SPACE_GROUP_NUMBER_TAGS = ("_symmetry_Int_Tables_number", "_space_group_IT_number")
 SPACE_GROUP_SYMBOL_TAGS = ("_symmetry_space_group_name_H-M", "_space_group_name_H-M_alt")
 OCCUPANCY_TAG = "_atom_site_occupancy"
@@ -417,19 +419,55 @@ def compare_cif(
     )
 
 
+def _list_relative_cifs(root: Path, pattern: str = "*.cif") -> list[str]:
+    return cpaths.list_relative_cifs(root, pattern)
+
+
+def _default_relative_path() -> str:
+    paired, item_only, true_only = cpaths.pairing_status()
+    warning = cpaths.format_unpaired_warning(item_only, true_only)
+    if len(paired) == 1:
+        return paired[0]
+    if not paired:
+        raise FileNotFoundError(
+            warning
+            or (
+                "compare/item 与 compare/true 中没有 CIF。"
+                "请把官网参考 CIF 放入 compare/true/，把待验证 CIF 放入 compare/item/，"
+                "并保持相对路径相同。"
+            )
+        )
+    preview = ", ".join(paired[:8])
+    extra = "" if len(paired) <= 8 else f" ... ({len(paired)} files)"
+    raise ValueError(
+        "compare/item 与 compare/true 中有多对 CIF，请给出相对路径，"
+        f"或改用 python main.py batch。可用文件: {preview}{extra}"
+    )
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Compare a local ISODISTORT CIF with an official/reference CIF."
+        prog="main.py compare",
+        description=(
+            "Compare a local ISODISTORT CIF in compare/item with the matching "
+            "official CIF in compare/true (same relative path)."
+        )
     )
-    parser.add_argument("local_cif", help="absolute path to the local output CIF")
-    parser.add_argument("reference_cif", help="absolute path to the reference CIF")
+    parser.add_argument(
+        "relative_path",
+        nargs="?",
+        help="CIF path relative to compare/item and compare/true; omit if only one pair exists",
+    )
     parser.add_argument("--lattice-tol", type=float, default=1e-5)
     parser.add_argument("--coord-tol", type=float, default=1e-5)
     parser.add_argument("--scalar-tol", type=float, default=1e-5)
     parser.add_argument(
         "--ignore-atom-order",
         action="store_true",
-        help="match atoms by species and periodic coordinates instead of file order",
+        help=(
+            "ignore CIF atom row order and match by element plus fractional coordinates; "
+            "default compares row-by-row. Does not ignore real coordinate or species differences"
+        ),
     )
     parser.add_argument("--reference-sha256", help="expected SHA-256 for the trusted reference CIF")
     parser.add_argument(
@@ -479,10 +517,13 @@ def _print_result(result: ComparisonResult, strict: bool) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
+    cpaths.warn_unpaired_filenames()
     try:
+        relative = args.relative_path or _default_relative_path()
+        local_cif, reference_cif = cpaths.resolve_pair(relative)
         result = compare_cif(
-            args.local_cif,
-            args.reference_cif,
+            local_cif,
+            reference_cif,
             args.lattice_tol,
             args.coord_tol,
             args.scalar_tol,

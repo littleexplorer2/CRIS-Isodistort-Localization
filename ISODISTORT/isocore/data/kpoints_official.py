@@ -123,3 +123,71 @@ def official_kparams_to_iso(parent_sg: int,
         else:
             converted.append(str(off_val * off_scale / iso_scale))
     return converted
+
+
+def official_special_k_coords(
+    parent_sg: int,
+    k_label: str,
+    fallback: Sequence[str] | None = None,
+    k_parameters: Sequence[str] | None = None,
+) -> list[str]:
+    """Listed special-k coordinates (CDML / website), with parameters substituted.
+
+    For parametric points (e.g. LD ``(0,0,g)`` with ``g=1/6``) returns
+    ``["0", "0", "1/6"]`` so ``k-active`` matches the Distortion-page CIF.
+    """
+    override = KPOINT_OFFICIAL.get(int(parent_sg) if parent_sg else 0, {}).get(
+        (k_label or "").strip()
+    )
+    if override is not None:
+        _kovalev, coords, params = override
+        if not params:
+            return [str(c).strip() for c in coords]
+        values = [str(v).strip() for v in (k_parameters or [])]
+        return [_substitute_k_component(c, params, values) for c in coords]
+    return [str(c) for c in (fallback or [])]
+
+
+def _substitute_k_component(
+    component: str,
+    param_names: Sequence[str],
+    param_values: Sequence[str],
+) -> str:
+    """Replace ``g`` / ``2a`` tokens using website parameter values."""
+    text = str(component).strip()
+    if not re.search(r"[a-z]", text):
+        return text
+    for name, raw in zip(param_names, param_values, strict=False):
+        if not name or raw == "":
+            continue
+        try:
+            val = Fraction(str(raw).strip())
+        except (ValueError, ZeroDivisionError):
+            continue
+        scale = _param_coeff_in_component(text, name)
+        if scale is None:
+            continue
+        return str(val * scale)
+    return text
+
+
+def format_k_point_display(
+    parent_sg: int,
+    k_label: str,
+    k_parameters: Sequence[str] | None = None,
+    k_coordinates: Sequence[str] | None = None,
+) -> str:
+    """``LD, k10 (0,0,g), g=1/6`` for CIF / modes headers."""
+    label = (k_label or "").strip() or "?"
+    entry = KPOINT_OFFICIAL.get(int(parent_sg) if parent_sg else 0, {}).get(label)
+    if entry is None:
+        coords = ",".join(str(c) for c in (k_coordinates or []))
+        return f"{label} ({coords})" if coords else label
+    kovalev, coords, params = entry
+    coord_text = "(" + ",".join(str(c) for c in coords) + ")"
+    parts = [f"{label}, {kovalev} {coord_text}"]
+    values = [str(v).strip() for v in (k_parameters or [])]
+    for name, raw in zip(params, values, strict=False):
+        parts.append(f"{name}={raw}")
+    return ", ".join(parts)
+

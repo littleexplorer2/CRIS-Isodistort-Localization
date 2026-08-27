@@ -16,6 +16,8 @@ from __future__ import annotations
 
 import csv
 import sys
+import threading
+import time
 from collections.abc import Callable, Sequence
 from pathlib import Path
 
@@ -49,6 +51,38 @@ _TYPE_ALIASES = {
 def _line() -> None:
     """打印分隔线"""
     print("-" * 78)
+
+
+class _ElapsedStatus:
+    """后台每秒打印一次已用时，避免长计算看起来像卡死。"""
+
+    def __init__(self, label: str) -> None:
+        self.label = label
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+        self._t0 = 0.0
+
+    def __enter__(self) -> _ElapsedStatus:
+        self._t0 = time.monotonic()
+        print(f"{self.label}  (elapsed timer started…)", flush=True)
+        self._thread = threading.Thread(target=self._run, daemon=True, name="elapsed-status")
+        self._thread.start()
+        return self
+
+    def _run(self) -> None:
+        while not self._stop.wait(1.0):
+            sec = int(time.monotonic() - self._t0)
+            print(f"  … still working ({sec}s elapsed)", flush=True)
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=1.5)
+        sec = int(time.monotonic() - self._t0)
+        if exc_type is None:
+            print(f"  … done ({sec}s)", flush=True)
+        else:
+            print(f"  … stopped after {sec}s (error)", flush=True)
 
 
 def _prompt(text: str, default: str | None = None) -> str:
@@ -209,17 +243,6 @@ def _prompt_basis_matrix() -> list[list[str]]:
     return rows
 
 
-_CS_ORDER = {
-    "triclinic": 0,
-    "monoclinic": 1,
-    "orthorhombic": 2,
-    "tetragonal": 3,
-    "trigonal": 4,
-    "hexagonal": 5,
-    "cubic": 6,
-}
-
-
 def _sg_text(sg) -> str:
     return f"{sg.space_group_number} {sg.space_group_symbol or ''}".strip()
 
@@ -239,12 +262,15 @@ def _empty_tbl(
 def _method1_cols() -> list[tuple[str, str, Callable, Callable, bool]]:
     return [
         ("idx", "idx", lambda r: str(r["index"]), lambda r: int(r["index"]), False),
-        ("sg", "SG", lambda r: r["sg"], lambda r: r["_sort_sg"], True),
-        ("k", "k", lambda r: r["k"], lambda r: r["k"], True),
         ("irrep", "Irrep", lambda r: r["irrep"], lambda r: r["irrep"], True),
         ("opd", "OPD", lambda r: r["opd"], lambda r: r["opd"], True),
-        ("cs", "crystal system", lambda r: r["cs"], lambda r: r["_sort_cs"], True),
-        ("max", "maximal", lambda r: r["max"], lambda r: r["_sort_max"], True),
+        ("dir", "Dir", lambda r: r["dir"], lambda r: r["dir"], True),
+        ("sg", "SG", lambda r: r["sg"], lambda r: r["_sort_sg"], True),
+        ("basis", "basis", lambda r: r["basis"], lambda r: r["basis"], True),
+        ("origin", "origin", lambda r: r["origin"], lambda r: r["origin"], True),
+        ("s", "s", lambda r: str(r["s"]), lambda r: r["_sort_s"], True),
+        ("i", "i", lambda r: str(r["i"]), lambda r: r["_sort_i"], True),
+        ("kact", "k-active", lambda r: r["kact"], lambda r: r["kact"], True),
     ]
 
 
@@ -279,18 +305,22 @@ def _method4_cols() -> list[tuple[str, str, Callable, Callable, bool]]:
 
 def _row_method1(item) -> dict:
     sg = item.subgroup
+    fields = sg.official_fields()
     return {
         "index": sg.index,
-        "sg": _sg_text(sg),
-        "k": sg.k_point_label or "",
-        "irrep": sg.irrep_label or "",
-        "opd": sg.opd_symbol or "",
-        "cs": item.crystal_system or "",
-        "max": "yes" if item.is_maximal else "",
+        "irrep": fields["irrep"],
+        "opd": fields["opd"],
+        "dir": fields["dir"],
+        "sg": fields["sg"],
+        "basis": fields["basis"],
+        "origin": fields["origin"],
+        "s": fields["s"],
+        "i": fields["i"],
+        "kact": fields["k_active"],
         "_sg": sg,
-        "_sort_sg": int(sg.space_group_number or 0),
-        "_sort_cs": _CS_ORDER.get(item.crystal_system, 99),
-        "_sort_max": 1 if item.is_maximal else 0,
+        "_sort_sg": int(fields["space_group_number"] or 0),
+        "_sort_s": int(fields["s"] or 0),
+        "_sort_i": int(fields["i"] or 0),
     }
 
 
@@ -459,6 +489,7 @@ class IsoDistortConsoleApp:
         )
         print("Default space-group preferences: "
               f"{self.iso.space_group_preferences()}")
+        print(t("prefs.terminalBlock"))
         lines = format_wyckoff_sites(
             self.iso.structure, self.iso.symmetry_info["wyckoff_sites"]
         )
@@ -542,8 +573,8 @@ class IsoDistortConsoleApp:
         if subgroup_space_group is not None:
             allowed = {int(g["number"]) for g in reachable}
             if subgroup_space_group not in allowed:
-                print("That space group is not in the reachable list; "
-                      "search would return no rows. Continuing anyway.")
+                print(t("m1.sgUnreachable"))
+                return
 
         maximal_only = _prompt_yes_no(t("m1.maximal"), False)
         lattice = self._prompt_lattice_selection(opts)
@@ -553,14 +584,14 @@ class IsoDistortConsoleApp:
                 lattice["matrix"], lattice["frame"]
             )
 
-        print(t("m1.wait"))
-        result = self.iso.search_method_1(
-            distortion_types=self.distortion_types,
-            crystal_system=crystal_system,
-            subgroup_space_group=subgroup_space_group,
-            lattice=lattice_matrix,
-            maximal_subgroup_only=maximal_only,
-        )
+        with _ElapsedStatus(t("m1.wait")):
+            result = self.iso.search_method_1(
+                distortion_types=self.distortion_types,
+                crystal_system=crystal_system,
+                subgroup_space_group=subgroup_space_group,
+                lattice=lattice_matrix,
+                maximal_subgroup_only=maximal_only,
+            )
         self.last_method1 = result
         self.tbl[1] = _empty_tbl(_method1_cols())
         self.tbl[1]["rows"] = [_row_method1(item) for item in result]
@@ -603,13 +634,18 @@ class IsoDistortConsoleApp:
     def _run_method_2(self) -> None:
         _line()
         print("Method 2: General method - search over specific k points")
+        print(t("m2.nmodRemoved"))
         groups = self._prompt_kpoint_groups()
         if not groups:
             return
 
         print(t("m2.genDbHelp"))
         generate = _prompt_yes_no(t("lGenDb"), False)
+        if generate:
+            print(t("m2.genDbWarn"))
         subs = self._enumerate_subgroups_for_groups(groups, generate_if_missing=generate)
+        if not subs:
+            subs = self._recover_empty_method2(groups)
         if not subs:
             return
 
@@ -617,6 +653,24 @@ class IsoDistortConsoleApp:
         if idx is None:
             return
         self._compute_modes(idx, "subgroups")
+
+    def _recover_empty_method2(self, groups: list[dict]) -> list:
+        """Match the web empty-state: local generate vs official site vs cancel."""
+        print(t("m2.noSubsAtKp"))
+        print(t("m2.chooseNext"))
+        print(f"  1. {t('m2.localCompute')}")
+        print(f"     {t('m2.localComputeDesc')}")
+        print(f"  2. {t('m2.gotoOfficial')}")
+        print(f"     {t('m2.gotoOfficialDesc')}")
+        print(f"  {t('m2.cancel')}")
+        choice = _prompt_int(t("m2.chooseNext"), 0)
+        if choice == 1:
+            print(t("m2.genDbWarn"))
+            return self._enumerate_subgroups_for_groups(groups, generate_if_missing=True)
+        if choice == 2:
+            print(t("m2.officialUrl"))
+            return []
+        return []
 
     def _prompt_kpoint_groups(self) -> list[dict]:
         """终端版 Method 2 k 点组输入（与网页 nsup + k vector 行一致）。"""
@@ -626,6 +680,7 @@ class IsoDistortConsoleApp:
             params = f" (parameters: {','.join(kp.parameters)})" if kp.parameters else ""
             kov = f" {kp.kovalev}" if getattr(kp, "kovalev", None) else ""
             print(f"  {i:2d}. {kp.label:<4s}{kov} {kp.coordinates}{params}")
+        print(t("m2.nsup_note"))
         nsup = _prompt_int("Number of superposed IRs", 1)
         if nsup < 1:
             print(t("err.badNsup"))
@@ -640,6 +695,7 @@ class IsoDistortConsoleApp:
             kp = kpoints[choice - 1]
             params: list[str] | None = None
             if kp.parameters:
+                print(t("m2.paramKpSelected"))
                 print(f"k point {kp.label} needs parameters (in order: {','.join(kp.parameters)})")
                 vals = [_prompt(t("m2.param_value", p=p), "").strip() for p in kp.parameters]
                 if any(not v for v in vals):
@@ -657,26 +713,29 @@ class IsoDistortConsoleApp:
         for i, grp in enumerate(groups, start=1):
             print(f"{t('m2.enumKp', grp['k'], i, len(groups))}")
             try:
-                subs = self.iso.list_subgroups_at_kpoint(
-                    grp["k"],
-                    k_parameters=grp.get("params"),
-                    generate_if_missing=generate_if_missing,
-                )
-            except IsodistortError as exc:
-                text = str(exc)
-                if ("在线生成" in text or "generate" in text.lower()) and _prompt_yes_no(
-                    "The local subgroup database for this parametric k point is missing. "
-                    "Generate it now (may take a long time)?",
-                    False,
-                ):
-                    print(t("m2.genDbHelp"))
+                with _ElapsedStatus(t("m2.enumKp", grp["k"], i, len(groups))):
                     subs = self.iso.list_subgroups_at_kpoint(
                         grp["k"],
                         k_parameters=grp.get("params"),
-                        generate_if_missing=True,
+                        generate_if_missing=generate_if_missing,
                     )
+            except IsodistortError as exc:
+                text = str(exc)
+                if ("在线生成" in text or "generate" in text.lower()) and _prompt_yes_no(
+                    t("m2.genDbAsk"),
+                    False,
+                ):
+                    print(t("m2.genDbHelp"))
+                    print(t("m2.genDbWarn"))
+                    with _ElapsedStatus(t("m2.genDb")):
+                        subs = self.iso.list_subgroups_at_kpoint(
+                            grp["k"],
+                            k_parameters=grp.get("params"),
+                            generate_if_missing=True,
+                        )
                 else:
                     print(f"Enumeration failed: {exc}")
+                    print(t("m2.officialUrl"))
                     return []
             all_subs.extend(subs)
 
@@ -686,8 +745,8 @@ class IsoDistortConsoleApp:
         self.last_method2_subgroups = list(all_subs)
         self.tbl[2] = _empty_tbl(_method2_cols())
         self.tbl[2]["rows"] = [_row_method2(sg) for sg in all_subs]
-        if not all_subs:
-            print(t("m2.noSubsAtKp"))
+        if all_subs:
+            print(t("m2.subsFound", len(all_subs)))
         return all_subs
 
     def _review_result_table(self, method: int, allow_idx: bool) -> int | None:
@@ -765,9 +824,10 @@ class IsoDistortConsoleApp:
     def _print_table_row(self, method: int, row: dict) -> None:
         if method == 1:
             print(
-                f"  idx={row['index']:3d} | SG {row['sg']:<16s} | k={row['k']:<4s} "
-                f"IR={row['irrep']:<6s} OPD={row['opd']:<4s} "
-                f"| crystal_system={row['cs']:<12s} | maximal={row['max'] or 'no'}"
+                f"  idx={row['index']:3d} | {row['irrep']:<8s} {row['opd']:<5s} "
+                f"{row['dir']:<12s} {row['sg']:<16s} basis={row['basis']} "
+                f"origin={row['origin']} s={row['s']} i={row['i']} "
+                f"k-active= {row['kact']}"
             )
         elif method == 2:
             print(
@@ -796,16 +856,27 @@ class IsoDistortConsoleApp:
         if target is None:
             print(t("m2.idx_range"))
             return
-        if getattr(target, "k_parameters", None):
+        # Align with web: subgroup.k_parameters or catalog entry for the k label.
+        is_param = bool(getattr(target, "k_parameters", None))
+        if not is_param and target.k_point_label:
+            try:
+                for kp in self.iso.list_k_points():
+                    if kp.label == target.k_point_label and kp.parameters:
+                        is_param = True
+                        break
+            except IsodistortError:
+                pass
+        if is_param:
             self.last_method2 = None
             self.iso.mode_displacements = {}
             self.iso.mode_occupancies = {}
             print(t("m2.paramKNote"))
             return
-        result = self.iso.search_method_2(
-            subgroup_idx=idx,
-            distortion_type=self.distortion_types,
-        )
+        with _ElapsedStatus(t("st.wait")):
+            result = self.iso.search_method_2(
+                subgroup_idx=idx,
+                distortion_type=self.distortion_types,
+            )
         self.last_method2 = result
         print(f"Method 2: {len(result.modes) + len(self.iso.mode_occupancies)} mode(s)")
         for mode in result.modes:
@@ -857,14 +928,15 @@ class IsoDistortConsoleApp:
             print("Using identity basis (same default as the web form).")
 
         try:
-            result = self.iso.search_method_3(
-                distortion_types=self.distortion_types,
-                point_group=point_group,
-                space_group_type=space_group_type,
-                supercell_basis=basis,
-                direct_sublattice_centering=centering,
-                lattice_type=lattice_type,
-            )
+            with _ElapsedStatus(t("st.wait")):
+                result = self.iso.search_method_3(
+                    distortion_types=self.distortion_types,
+                    point_group=point_group,
+                    space_group_type=space_group_type,
+                    supercell_basis=basis,
+                    direct_sublattice_centering=centering,
+                    lattice_type=lattice_type,
+                )
         except (IsodistortError, ValueError) as exc:
             print(f"Method 3 error: {exc}")
             return
@@ -882,12 +954,13 @@ class IsoDistortConsoleApp:
         daughter_cif = _choose_cif(self.project_root, "Choose a daughter CIF")
 
         # 与网页一致：使用官网默认匹配参数（nearest-site / 阈值 0.25）
-        result = self.iso.search_method_4(
-            distorted_cif_path=daughter_cif,
-            atom_matching_method="nearest-site",
-            robust_distance_threshold=0.25,
-            provided_origin_shift=None,
-        )
+        with _ElapsedStatus(t("st.wait")):
+            result = self.iso.search_method_4(
+                distorted_cif_path=daughter_cif,
+                atom_matching_method="nearest-site",
+                robust_distance_threshold=0.25,
+                provided_origin_shift=None,
+            )
 
         ranked = sorted(result.amplitudes.items(), key=lambda kv: abs(kv[1]), reverse=True)
         self.last_method4 = [_row_method4(label, float(amp)) for label, amp in ranked]
@@ -912,6 +985,7 @@ class IsoDistortConsoleApp:
         while True:
             _line()
             print(t("ui.distortion_page"))
+            print(t("dist.zipParamNote"))
             print(t("ui.dist.single"))
             print(t("ui.dist.mixed"))
             print(t("ui.dist.export"))
@@ -954,27 +1028,37 @@ class IsoDistortConsoleApp:
         )
         dest = _prompt(t("ui.export.dest"), default_dest)
         need_modes = any(fmt != "cif" for fmt in formats)
+        has_param = any(getattr(sg, "k_parameters", None) for sg in subs)
+        if has_param and need_modes:
+            print(t("dist.zipParamNote"))
+        # Same as web: default fill modes when non-CIF formats selected; allow opt-out.
+        compute_missing_modes = need_modes
+        if need_modes:
+            compute_missing_modes = _prompt_yes_no(t("dist.computeModesAsk"), True)
         saved = list(self.iso.subgroups)
         try:
             self.iso.subgroups = list(subs)
-            if as_zip:
-                body = self.iso.export_subgroups_zip(
+            with _ElapsedStatus(t("dist.zipWait") if as_zip else t("st.wait")):
+                if as_zip:
+                    body = self.iso.export_subgroups_zip(
+                        formats=formats,
+                        subgroups=subs,
+                        compute_missing_modes=compute_missing_modes,
+                        wrapping=None,
+                        use_opd_line_folders=(method == 1),
+                    )
+                    out = Path(dest)
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    out.write_bytes(body)
+                    print(t("ui.export.done", n=len(subs), dest=out))
+                    return
+                paths = self.iso.export_subgroups(
+                    dest,
                     formats=formats,
                     subgroups=subs,
-                    compute_missing_modes=need_modes,
-                    wrapping=f"isodistort_method{method}",
+                    compute_missing_modes=compute_missing_modes,
+                    use_opd_line_folders=(method == 1),
                 )
-                out = Path(dest)
-                out.parent.mkdir(parents=True, exist_ok=True)
-                out.write_bytes(body)
-                print(t("ui.export.done", n=len(subs), dest=out))
-                return
-            paths = self.iso.export_subgroups(
-                dest,
-                formats=formats,
-                subgroups=subs,
-                compute_missing_modes=need_modes,
-            )
         finally:
             self.iso.subgroups = saved
         print(t("ui.export.done", n=len(paths), dest=dest))
@@ -998,7 +1082,7 @@ class IsoDistortConsoleApp:
             return
         rows, _matching = _displayed_rows(st, matching_only=True)
         export_headers = {
-            1: ["index", "space_group", "k_point", "irrep", "OPD", "crystal_system", "maximal"],
+            1: ["index", "Irrep", "OPD", "Dir", "space_group", "basis", "origin", "s", "i", "k-active"],
             2: ["index", "space_group", "k_point", "irrep", "OPD", "size", "subgroup_index"],
             3: ["index", "space_group", "k_point", "irrep", "point_group"],
             4: ["mode", "amplitude"],
@@ -1040,6 +1124,7 @@ class IsoDistortConsoleApp:
             if tp in self.distortion_types
         )
         print(f"  Scope: {scope_desc}")
+        print(t("prefs.terminalBlock"))
         print(f"  Last Method1 count: {len(self.last_method1)}")
         print(f"  Last Method2 subgroup count: {len(self.last_method2_subgroups)}")
         print(f"  Last Method3 count: {len(self.last_method3)}")
@@ -1047,6 +1132,7 @@ class IsoDistortConsoleApp:
 
         mode_count = len(self.iso.mode_displacements) + len(self.iso.mode_occupancies)
         print(f"  Available mapped modes: {mode_count}")
+        print(t("m2.nmodRemoved"))
 
 
 def main() -> int:

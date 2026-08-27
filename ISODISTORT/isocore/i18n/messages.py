@@ -121,6 +121,9 @@ MESSAGES: dict[str, str] = {
     'st.modes': 'Modes',
     'st.distorted': 'Distorted atoms',
     'st.wait': 'Computing, please wait…',
+    'st.elapsed': 'Elapsed {0}',
+    'st.busyHint': 'Local engine is running (WSL / iso). Keep this tab open — the page will update when finished.',
+    'st.busyStatus': 'Busy: {0} · {1}',
     'st.noModes': 'No modes; run Method 2 first',
     'ok.loaded': 'Parent structure loaded',
     'ok.generated': 'Distortion generated, {0} atoms',
@@ -131,6 +134,8 @@ MESSAGES: dict[str, str] = {
     'hIdx': 'idx',
     'hK': 'k point',
     'hIrrep': 'Irrep',
+    'hDir': 'Dir',
+    'hKActive': 'k-active',
     'hNrep': 'Reps',
     'hMode': 'Mode',
     'hGen': 'Generator',
@@ -189,6 +194,13 @@ MESSAGES: dict[str, str] = {
     'l.nsup': 'Change number of superposed IRs:',
     'm2.nsup_note': 'Important: You must click on Change to implement any changes in the number of superposed IRs.',
     'm2.nmodRemoved': 'Note: # of independent incommensurate modulations is not available locally (requires the official (3+d)-dimensional superspace workflow); use the official website for this feature.',
+    'm2.paramKpSelected': (
+        'Note: you selected a parametric (incommensurate) k point. '
+        'The local engine can enumerate isotropy subgroups, but cannot compute '
+        'displacement modes for them — that needs the official (3+d)-dimensional '
+        'superspace workflow. CIF/structure export still works; mode-based formats '
+        '(isoviz / Complete modes details / TOPAS) will have empty mode sections.'
+    ),
     'm2.enumKp': 'Enumerating subgroups over all irreps of k point {0} (k group {1}/{2})...',
     'm2.noSubsAtKp': 'The local engine could not enumerate/generate subgroups for this k point (common for parametric k points such as LD/DT).',
     'm2.chooseNext': 'Choose next step:',
@@ -196,6 +208,8 @@ MESSAGES: dict[str, str] = {
     'm2.localComputeDesc': "Use your machine to generate this k point's subgroup database (Generate isotropy subgroups; may take minutes to hours, then cached)",
     'm2.gotoOfficial': '② Retry on the ISODISTORT website',
     'm2.gotoOfficialDesc': 'Run Method 2 with the same parent CIF and (k point, parameters) on the website (this k point generates subgroups there)',
+    'm2.officialUrl': 'Official ISODISTORT: https://landau3.byu.edu/isodistort.php',
+    'm2.cancel': '0. Cancel / go back',
     'm2.subsFound': 'Enumerated {0} subgroup(s). Click a row to view its mode basis (official order parameter direction page).',
     'm2.filter': 'Filter:',
     'm2.clearFilter': 'Clear',
@@ -217,6 +231,11 @@ MESSAGES: dict[str, str] = {
     'm2.genDbWarn': "Note: generating the subgroup database may take minutes to hours (official 'Generate isotropy subgroups'); once generated it is cached to the temp directory and returns instantly afterward.",
     'm2.genDb': '(generating subgroup database)',
     'm2.genDbRetry': 'Retry with local database generation',
+    'm2.genDbAsk': 'The local subgroup database for this parametric k point is missing. Generate it now (may take a long time)?',
+    'm1.sgUnreachable': (
+        'That space group is not in the reachable list for the current Types; '
+        'the search would return no rows. Pick a listed number or leave blank.'
+    ),
     'm3.direct': 'Specify a real-space sublattice of the parent lattice with',
     'm3.reciprocal': 'Specify a primitive reciprocal-space superlattice',
     'm3.centDefault': 'Default',
@@ -252,6 +271,24 @@ MESSAGES: dict[str, str] = {
         'Download filtered (txt/csv). ZIP is only for Methods 1–3.'
     ),
     'dist.noMethod': 'The selected Method has no subgroups to export; run that Method first.',
+    'dist.zipWait': (
+        'Building ZIP… keep this tab open. Non-CIF formats re-run Method 2 per '
+        'special-k subgroup to fill modes (can take a while). Parametric k points '
+        '(LD/DT, …) skip mode fill — local iso has no (3+d) superspace.'
+    ),
+    'dist.zipParamNote': (
+        'Warning: one or more selected subgroups use a parametric (incommensurate) '
+        'k point. Local export cannot fill displacement modes for those rows '
+        '(official superspace only). CIF / folder layout still match the website; '
+        'isoviz / modes / TOPAS mode sections may be empty for those subgroups.'
+    ),
+    'dist.computeModesAsk': (
+        'Fill modes for special-k subgroups (isoviz / modes / TOPAS)? '
+        'Same as the web default; say no for a fast structure-only ZIP '
+        '(equivalent to compute_modes=0)'
+    ),
+    'dist.zipDone': 'Downloaded ZIP ({0} subgroup(s)).',
+    'dist.zipFail': 'ZIP download failed.',
     'hPrefs': 'Space-Group Preferences',
     'prefs.note': 'The local engine uses these fixed defaults (international standard setting, i.e. the website defaults); they cannot be modified locally.',
     'prefs.monoAxes': 'Monoclinic axes:',
@@ -260,7 +297,14 @@ MESSAGES: dict[str, str] = {
     'prefs.trigAxes': 'Trigonal axes:',
     'prefs.origin': 'Origin choice:',
     'prefs.ssg': 'Superspace group setting:',
-    'prefs.fixedNote': "Reason: the local iso binary only supports the international standard setting; custom settings (axes/cell choice/origin/SSG etc.) cause a Syntax error, so the website's preference-editing panel is not available locally; computations always use the defaults above.",
+    'prefs.ssgValue': 'standard (IT-C)',
+    'prefs.fixedNote': "Reason: the local iso binary only supports the international standard setting; custom settings (axes/cell choice/origin/SSG etc.) cause a Syntax error, so the website's preference-editing panel is not available locally; computations always use the defaults above. Superspace-group preferences are likewise fixed — incommensurate (3+d) workflows are not available locally.",
+    'prefs.terminalBlock': (
+        'Space-Group Preferences (fixed, same as the web panel):\n'
+        '  Monoclinic axes a(b)c, monoclinic cell choice 1, orthorhombic axes abc,\n'
+        '  origin choice 2, hexagonal axes, superspace group setting: standard (IT-C).\n'
+        '  Custom preferences and (3+d) superspace editing are not available locally.'
+    ),
     'm3.centEnd': 'centering.',
     'm1.cs': 'Optional crystal system (triclinic/monoclinic/orthorhombic/tetragonal/trigonal/hexagonal/cubic; blank = no filter)',
     'm1.sg': 'Optional subgroup space group number (blank = no filter)',

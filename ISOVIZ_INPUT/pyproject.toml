@@ -1,10 +1,10 @@
 [project]
 name = "isoviz-input"
 version = "0.1.0"
-description = "Write GD amplitude CSV values into official IsoVIZ .isoviz files and open the visualizer."
+description = "Read amplitude CSV and subgroup .isoviz from input_content, apply amplitudes, and launch IsoVIZ."
 readme = "README.md"
 requires-python = ">=3.10"
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests_dev"]
 pythonpath = ["."]

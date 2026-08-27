@@ -6,7 +6,6 @@
 from pathlib import Path
 
 from pymatgen.core import Structure
-from pymatgen.io.cif import CifWriter
 from pymatgen.io.vasp import Poscar
 from pymatgen.io.xyz import XYZ
 
@@ -40,9 +39,11 @@ class StructureExporter:
             Path: 输出文件路径
 
         """
-        writer = CifWriter(structure, symprec=symprec)
+        from .isodistort_cif import render_isodistort_cif
+
+        text = render_isodistort_cif(structure)
         path = self.output_dir / f"{filename}.cif"
-        writer.write_file(str(path))
+        path.write_text(text, encoding="utf-8", newline="\n")
         return path
 
     def to_poscar(self, structure: Structure, filename: str,

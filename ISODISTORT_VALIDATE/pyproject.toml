@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "isodistort-validate"
 version = "0.1.0"
-description = "ISODISTORT_VALIDATE: semantic CIF comparison tool (local vs official ISODISTORT output)"
+description = "ISODISTORT_VALIDATE: semantic CIF comparison via main.py (compare/item vs compare/true)"
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.21",
@@ -24,3 +24,9 @@ ignore = ["RUF001", "RUF002", "RUF003", "PLR"]
 [tool.ruff.lint.per-file-ignores]
 # 测试文件使用 assert 断言属正常用法（开发者端 tests_dev/ 目录）
 "**/tests_dev/*.py" = ["S101"]
+# 入口脚本在改 sys.path 之后再导入核心包
+"main.py" = ["E402"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests_dev"]
+pythonpath = ["."]

@@ -12,6 +12,7 @@
   body { padding-top: 0px; background-image: none; }
   div.pad { padding-right: 50px; padding-left: 50px; }
   table.result { width: 100%; font-size: 13px; }
+  table.result td, table.result th { white-space: nowrap; }
   table.result tr.clickable { cursor: pointer; }
   table.result tr.clickable:hover td { background: #f5f5f5; }
   .scroll { max-height: 320px; overflow: auto; margin-top: 8px; }
@@ -31,6 +32,14 @@
     padding: 0 3px; line-height: 1.15; font-size: 10px; margin: 0 1px;
   }
   .sort-btns button.active { background: #08c; color: #fff; border-color: #08c; }
+  .busy-panel {
+    margin-top: 6px; padding: 10px 12px;
+    border: 1px solid #bce8f1; background: #f0f9fc; border-radius: 2px;
+  }
+  .busy-panel .busy-msg { font-weight: bold; margin-bottom: 8px; }
+  .busy-panel .progress { margin-bottom: 6px; height: 18px; }
+  .busy-panel .busy-timer { margin: 0; }
+  #statusBox.busy-status { border-color: #3a87ad; }
 </style>
 </head>
 <body>
@@ -311,6 +320,64 @@ function bindRowClick(containerId, source) {
 }
 function showError(el, msg) { el.innerHTML = `<div class="alert alert-error">${esc(msg)}</div>`; }
 function showOk(el, msg) { el.innerHTML = `<div class="alert alert-success">${esc(msg)}</div>`; }
+function showInfo(el, msg) { el.innerHTML = `<div class="info">${esc(msg)}</div>`; }
+let exportingZip = false;
+
+/* ================= Busy progress (timer + striped bar) ================= */
+function fmtElapsed(sec) {
+  const s = Math.max(0, Math.floor(sec));
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  if (m <= 0) return `${r}s`;
+  return `${m}m ${String(r).padStart(2, "0")}s`;
+}
+function startBusy(el, opts) {
+  opts = opts || {};
+  const msg = opts.message || t("st.wait");
+  const buttons = (opts.buttons || []).filter(Boolean);
+  const started = Date.now();
+  buttons.forEach((b) => { b.disabled = true; });
+  el.innerHTML =
+    `<div class="busy-panel">`
+    + `<div class="busy-msg">${esc(msg)}</div>`
+    + `<div class="progress progress-striped active progress-info">`
+    + `<div class="bar" style="width:100%"></div></div>`
+    + `<p class="busy-timer muted-hint">`
+    + `<span data-role="elapsed">${esc(t("st.elapsed", "0s"))}</span>`
+    + ` · ${esc(t("st.busyHint"))}</p>`
+    + `</div>`;
+  const timerEl = el.querySelector("[data-role=elapsed]");
+  const statusBox = document.getElementById("statusBox");
+  const prevStatus = statusBox ? statusBox.innerHTML : "";
+  if (statusBox) statusBox.classList.add("busy-status");
+  const tick = () => {
+    const label = t("st.elapsed", fmtElapsed((Date.now() - started) / 1000));
+    if (timerEl) timerEl.textContent = label;
+    if (statusBox) {
+      statusBox.innerHTML = `<b>${esc(t("st.busyStatus", msg, label))}</b>`;
+    }
+  };
+  tick();
+  const iv = setInterval(tick, 500);
+  return {
+    stop() {
+      clearInterval(iv);
+      buttons.forEach((b) => { b.disabled = false; });
+      if (statusBox) {
+        statusBox.classList.remove("busy-status");
+        if (!opts.keepStatus) statusBox.innerHTML = prevStatus;
+      }
+    },
+  };
+}
+async function withBusy(el, message, buttons, fn) {
+  const busy = startBusy(el, { message, buttons });
+  try {
+    return await fn();
+  } finally {
+    busy.stop();
+  }
+}
 
 /* ================= 常量（对齐官网下拉选项） ================= */
 const CRYSTAL_SYSTEMS = ["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic"];
@@ -395,10 +462,12 @@ async function loadCif() {
   if (!f) { showError(msg, t("err.noFile")); return; }
   const content = await fileText(f);
   document.getElementById("infoPara").textContent = t("web.reading");
-  const d = await api("/api/load_cif", { filename: f.name, content });
+  const d = await withBusy(
+    msg, t("web.reading"), [document.getElementById("btnLoadCif")],
+    () => api("/api/load_cif", { filename: f.name, content }),
+  );
   if (!d.ok) { showError(msg, d.error); document.getElementById("infoPara").textContent = "-"; return; }
   showOk(msg, t("ok.loaded"));
-  m1Options = null;
   m1Items = []; subgroups = []; m3Items = []; m4Items = [];
   m4Meta = { rms: null, maxAbs: null };
   tblState[1] = emptyTblState(); tblState[2] = emptyTblState();
@@ -408,6 +477,7 @@ async function loadCif() {
   document.getElementById("modesBox").innerHTML = "";
   document.getElementById("m3Out").innerHTML = "";
   document.getElementById("m4Out").innerHTML = "";
+  m1Options = null;
   await refreshStatus();
   await refreshKpoints();
   loadMethod1Options();   // 后台预取 Method 1 下拉数据（首次枚举较慢）
@@ -482,9 +552,13 @@ function collectTypesAndScope() {
 }
 async function applyTypes() {
   const { types, scope } = collectTypesAndScope();
-  const d = await api("/api/set_types", { types, scope }, "POST");
-  if (!d.ok) { showError(document.getElementById("typesMsg"), d.error); return; }
-  showOk(document.getElementById("typesMsg"), t("ok.types"));
+  const msg = document.getElementById("typesMsg");
+  const d = await withBusy(
+    msg, t("st.wait"), [document.getElementById("btnTypes")],
+    () => api("/api/set_types", { types, scope }, "POST"),
+  );
+  if (!d.ok) { showError(msg, d.error); return; }
+  showOk(msg, t("ok.types"));
   await refreshStatus();
   loadMethod1Options();  // Types 改变后 Method 1 空间群/格子下拉需重算
 }
@@ -514,7 +588,19 @@ async function loadMethod1Options() {
     return;
   }
   const hint = document.getElementById("m1SgHint");
-  hint.textContent = t("st.wait") + "...";
+  const statusBox = document.getElementById("statusBox");
+  const prevStatus = statusBox ? statusBox.innerHTML : "";
+  const started = Date.now();
+  const tickHint = () => {
+    const elabel = t("st.elapsed", fmtElapsed((Date.now() - started) / 1000));
+    hint.textContent = `${t("st.wait")} · ${elabel}`;
+    if (statusBox) {
+      statusBox.innerHTML = `<b>${esc(t("st.busyStatus", t("st.wait"), elabel))}</b>`;
+    }
+  };
+  tickHint();
+  const iv = setInterval(tickHint, 500);
+  if (statusBox) statusBox.classList.add("busy-status");
   try {
     const d = await api("/api/method1_options");
     m1Options = d.options || {};
@@ -531,6 +617,12 @@ async function loadMethod1Options() {
     hint.textContent = t("m1.sgHint", sgs.length);
   } catch (e) {
     hint.textContent = "-";
+  } finally {
+    clearInterval(iv);
+    if (statusBox) {
+      statusBox.classList.remove("busy-status");
+      statusBox.innerHTML = prevStatus;
+    }
   }
 }
 function onLatChange(kind) {
@@ -554,10 +646,6 @@ function parseBasis(encoded) {
   return encoded.split(";").map(row => row.split(",").map(Number));
 }
 /* Unified result tables: filter + sort on Method 1–4. Downloads live in Distortion. */
-const CS_ORDER = {
-  triclinic: 0, monoclinic: 1, orthorhombic: 2, tetragonal: 3,
-  trigonal: 4, hexagonal: 5, cubic: 6,
-};
 function emptyTblState() {
   return { filters: {}, sort: { key: null, dir: 1 }, showFilteredOnly: false };
 }
@@ -601,16 +689,32 @@ function methodColumns(method) {
     text: (it) => String(it.irrep_label || ""), cell: (it) => esc(it.irrep_label || ""),
     sortVal: (it) => String(it.irrep_label || ""), exportHeader: "irrep" };
   if (method === 1) {
-    return [idx, sg, k, ir,
+    return [idx,
+      { key: "irrep", header: t("hIrrep"), sortable: true, filterable: true,
+        text: (it) => String(it.irrep_label || ""), cell: (it) => esc(it.irrep_label || ""),
+        sortVal: (it) => String(it.irrep_label || ""), exportHeader: "Irrep" },
       { key: "opd", header: "OPD", sortable: true, filterable: true,
         text: (it) => String(it.opd_symbol || ""), cell: (it) => esc(it.opd_symbol || ""),
         sortVal: (it) => String(it.opd_symbol || ""), exportHeader: "OPD" },
-      { key: "cs", header: term("crystal system"), sortable: true, filterable: true,
-        text: (it) => String(it.crystal_system || ""), cell: (it) => esc(term(it.crystal_system || "")),
-        sortVal: (it) => CS_ORDER[it.crystal_system] ?? 99, exportHeader: "crystal_system" },
-      { key: "max", header: term("maximal subgroup"), sortable: true, filterable: true,
-        text: (it) => it.is_maximal ? "yes" : "", cell: (it) => it.is_maximal ? "✓" : "",
-        sortVal: (it) => it.is_maximal ? 1 : 0, exportHeader: "maximal" },
+      { key: "dir", header: t("hDir"), sortable: true, filterable: true,
+        text: (it) => String(it.opd_dir_raw || ""), cell: (it) => esc(it.opd_dir_raw || ""),
+        sortVal: (it) => String(it.opd_dir_raw || ""), exportHeader: "Dir" },
+      sg,
+      { key: "basis", header: "basis", sortable: true, filterable: true,
+        text: (it) => String(it.basis || ""), cell: (it) => esc(it.basis || ""),
+        sortVal: (it) => String(it.basis || ""), exportHeader: "basis" },
+      { key: "origin", header: "origin", sortable: true, filterable: true,
+        text: (it) => String(it.origin || ""), cell: (it) => esc(it.origin || ""),
+        sortVal: (it) => String(it.origin || ""), exportHeader: "origin" },
+      { key: "s", header: "s", sortable: true, filterable: true,
+        text: (it) => String(it.size), cell: (it) => it.size,
+        sortVal: (it) => Number(it.size) || 0, exportHeader: "s" },
+      { key: "i", header: "i", sortable: true, filterable: true,
+        text: (it) => String(it.subgroup_index), cell: (it) => it.subgroup_index,
+        sortVal: (it) => Number(it.subgroup_index) || 0, exportHeader: "i" },
+      { key: "kact", header: t("hKActive"), sortable: true, filterable: true,
+        text: (it) => String(it.k_active || ""), cell: (it) => esc(it.k_active || ""),
+        sortVal: (it) => String(it.k_active || ""), exportHeader: "k-active" },
     ];
   }
   if (method === 2) {
@@ -783,7 +887,6 @@ function onShowFilteredOnly(method) {
 async function runMethod1() {
   const out = document.getElementById("m1Out");
   if (!STATE || !STATE.structure) { showError(out, t("err.noCif")); return; }
-  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
   const cs = [...document.querySelectorAll("#m1SysBox input:checked")].map(i => i.value);
   const sg = document.getElementById("m1Sg").value;
   const body = {
@@ -794,7 +897,10 @@ async function runMethod1() {
   };
   const lat = selectedLattice();
   if (lat) { body.lattice = lat.lattice; body.frame = lat.frame; }
-  const d = await api("/api/method1", body, "POST");
+  const d = await withBusy(
+    out, t("m1.wait"), [document.getElementById("btnM1")],
+    () => api("/api/method1", body, "POST"),
+  );
   if (!d.ok) { showError(out, d.error); return; }
   m1Items = d.candidates || [];
   tblState[1] = emptyTblState();
@@ -826,9 +932,11 @@ function renderKvecBox() {
     html += `<div class="kvec-row">
       ${t("l.kvec", idx)} <select id="kvec_${idx}" class="span3" onchange="onKpChange(${idx})">${kpOptionsHtml(0)}</select>
       <span>a=<input id="p_a_${idx}" class="span1" size="4"> b=<input id="p_b_${idx}" class="span1" size="4"> g=<input id="p_g_${idx}" class="span1" size="4"></span>
+      <div id="kvec_param_note_${idx}" class="muted-hint" style="margin:2px 0 6px 0;"></div>
     </div>`;
   }
   box.innerHTML = html;
+  for (let i = 1; i <= n; i++) onKpChange(i);
   document.getElementById("subOut").innerHTML = "";
 }
 function selectedKp(i) {
@@ -849,6 +957,14 @@ function collectParams(i) {
 }
 function onKpChange(i) {
   document.getElementById("subOut").innerHTML = "";
+  const note = document.getElementById("kvec_param_note_" + i);
+  if (!note) return;
+  const kp = selectedKp(i);
+  if (kp && kp.parameters && kp.parameters.length) {
+    note.textContent = t("m2.paramKpSelected");
+  } else {
+    note.textContent = "";
+  }
 }
 async function listSubgroupsByKp() {
   if (!STATE || !STATE.structure) { showError(document.getElementById("subOut"), t("err.noCif")); return; }
@@ -873,17 +989,20 @@ async function enumSubgroups() {
   const out = document.getElementById("subOut");
   const n = Math.max(1, nsupValue);
   const gen = genDbValue;
-  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
   const groups = [];
   for (let i = 1; i <= n; i++) {
     const kp = selectedKp(i);
     if (!kp) { showError(out, t("st.noSubs")); return; }
-    out.innerHTML = `<div class="info">${t("m2.enumKp", kp.label, i, n)}${gen ? " · " + t("m2.genDb") : ""}</div>`;
     groups.push({ k: kp.label, params: collectParams(i) });
   }
+  const labels = groups.map((g) => g.k).join(", ");
+  const msg = `${t("m2.enumKp", labels, 1, n)}${gen ? " · " + t("m2.genDb") : ""}`;
   let d;
   try {
-    d = await api("/api/subgroups", { kpoints: groups, generate: gen }, "POST");
+    d = await withBusy(
+      out, msg, [document.getElementById("btnM2"), document.getElementById("btnLocalCompute")],
+      () => api("/api/subgroups", { kpoints: groups, generate: gen }, "POST"),
+    );
   } catch (e) {
     showError(out, String(e));
     return;
@@ -927,13 +1046,15 @@ function applyNsup() {
 
 async function computeModes(idx, source) {
   const out = document.getElementById("modesBox");
-  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
   const pool = source === "subgroups" ? (subgroups || [])
     : source === "method3" ? (m3Items || [])
     : (m1Items || []);
   const sg = pool.find(s => s.index === idx);
   const kp = kpoints.find(k => k.label === sg?.k_point_label);
-  const isParamK = !!(kp && kp.parameters && kp.parameters.length);
+  const isParamK = !!(
+    (sg && sg.k_parameters && sg.k_parameters.length)
+    || (kp && kp.parameters && kp.parameters.length)
+  );
   if (isParamK) {
     modes = [];
     out.innerHTML = `<div class="alert alert-warning">${esc(t("m2.paramKNote"))}</div>`;
@@ -941,12 +1062,15 @@ async function computeModes(idx, source) {
     return;
   }
 
-  const d = await api("/api/method2", {
-    subgroup_idx: idx,
-    distortion_type: STATE ? STATE.distortion_types : undefined,
-    nsup: nsupValue,
-    source: source,
-  }, "POST");
+  const d = await withBusy(
+    out, t("st.wait"), [],
+    () => api("/api/method2", {
+      subgroup_idx: idx,
+      distortion_type: STATE ? STATE.distortion_types : undefined,
+      nsup: nsupValue,
+      source: source,
+    }, "POST"),
+  );
   if (!d.ok) {
     showError(out, String(d.error || ""));
     await refreshStatus();
@@ -993,17 +1117,19 @@ function collectBasis() {
 async function runMethod3() {
   const out = document.getElementById("m3Out");
   if (!STATE || !STATE.structure) { showError(out, t("err.noCif")); return; }
-  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
   const sg = document.getElementById("m3Sg").value;
   const pg = document.getElementById("m3Pg").value;
-  const d = await api("/api/method3", {
-    distortion_types: STATE.distortion_types,
-    point_group: pg || null,
-    space_group_type: sg ? Number(sg) : null,
-    supercell_basis: collectBasis(),
-    direct_sublattice_centering: document.querySelector("input[name='m3Cent']:checked").value,
-    lattice_type: document.querySelector("input[name='m3LatType']:checked").value,
-  }, "POST");
+  const d = await withBusy(
+    out, t("st.wait"), [document.getElementById("btnM3")],
+    () => api("/api/method3", {
+      distortion_types: STATE.distortion_types,
+      point_group: pg || null,
+      space_group_type: sg ? Number(sg) : null,
+      supercell_basis: collectBasis(),
+      direct_sublattice_centering: document.querySelector("input[name='m3Cent']:checked").value,
+      lattice_type: document.querySelector("input[name='m3LatType']:checked").value,
+    }, "POST"),
+  );
   if (!d.ok) { showError(out, d.error); return; }
   m3Items = d.candidates || [];
   tblState[3] = emptyTblState();
@@ -1016,12 +1142,14 @@ async function runMethod4() {
   const out = document.getElementById("m4Out");
   if (!f) { showError(out, t("err.noFile")); return; }
   const content = await fileText(f);
-  out.innerHTML = `<div class="info">${t("st.wait")}...</div>`;
-  const d = await api("/api/method4", {
-    filename: f.name, content,
-    atom_matching_method: "nearest-site",
-    robust_distance_threshold: 0.25,
-  }, "POST");
+  const d = await withBusy(
+    out, t("st.wait"), [document.getElementById("btnM4")],
+    () => api("/api/method4", {
+      filename: f.name, content,
+      atom_matching_method: "nearest-site",
+      robust_distance_threshold: 0.25,
+    }, "POST"),
+  );
   if (!d.ok) { showError(out, d.error); return; }
   m4Items = Object.entries(d.amplitudes || {}).map(([mode, amplitude]) => ({ mode, amplitude: +amplitude }));
   m4Meta = { rms: d.rms_residual, maxAbs: d.max_abs_residual };
@@ -1037,8 +1165,9 @@ function selectedDownloadFormats() {
   if (document.getElementById("fmtTopas").checked) fmts.push("topas");
   return fmts;
 }
-function downloadAll() {
+async function downloadAll() {
   const out = document.getElementById("distOut");
+  const btn = document.getElementById("btnDlAll");
   const method = document.getElementById("dlMethod").value;
   if (method === "4") { showError(out, t("dist.zipNotM4")); return; }
   const fmts = selectedDownloadFormats();
@@ -1048,17 +1177,54 @@ function downloadAll() {
   if (!items.length) { showError(out, t("dist.noMethod")); return; }
   const idxs = items.filter((it) => itemMatches(methodNum, it)).map((it) => it.index);
   if (!idxs.length) { showError(out, t("dist.noMethod")); return; }
-  const a = document.createElement("a");
+  const needModes = fmts.some((f) => f !== "cif");
+  const selected = items.filter((it) => idxs.includes(it.index));
+  const hasParam = selected.some((it) => {
+    if (it.k_parameters && it.k_parameters.length) return true;
+    const kp = (kpoints || []).find((k) => k.label === it.k_point_label);
+    return !!(kp && kp.parameters && kp.parameters.length);
+  });
   let href = `/api/download_all?method=${encodeURIComponent(method)}`
     + `&formats=${encodeURIComponent(fmts.join(","))}`;
   if (idxs.length !== items.length) {
     href += `&indices=${encodeURIComponent(idxs.join(","))}`;
   }
-  a.href = href;
-  a.download = `isodistort_method${method}.zip`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  exportingZip = true;
+  const waitMsg = (hasParam && needModes)
+    ? `${t("dist.zipWait")} ${t("dist.zipParamNote")}`
+    : t("dist.zipWait");
+  const busy = startBusy(out, {
+    message: waitMsg,
+    buttons: [btn],
+  });
+  try {
+    const r = await fetch(href);
+    const ct = (r.headers.get("content-type") || "").toLowerCase();
+    if (!r.ok || ct.includes("application/json")) {
+      let msg = t("dist.zipFail");
+      try {
+        const d = await r.json();
+        if (d && d.error) msg = d.error;
+      } catch (e) { /* keep default */ }
+      showError(out, msg);
+      return;
+    }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `isodistort_method${method}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showOk(out, t("dist.zipDone", idxs.length));
+  } catch (err) {
+    showError(out, (err && err.message) ? err.message : t("dist.zipFail"));
+  } finally {
+    busy.stop();
+    exportingZip = false;
+  }
 }
 function downloadFilteredTable(csv) {
   const out = document.getElementById("distOut");
@@ -1180,6 +1346,7 @@ function renderPgSelect() {
 /* ================= 生命周期：心跳 / 关闭自动停服 ================= */
 let serverDown = false;
 function sendShutdown() {
+  if (exportingZip) return;
   try {
     if (navigator.sendBeacon) navigator.sendBeacon("/api/shutdown");
     else fetch("/api/shutdown", { method: "POST", keepalive: true, headers: { "Content-Type": "application/json" }, body: "{}" });
@@ -1210,7 +1377,6 @@ function startHeartbeat() {
 /* ================= 初始化 ================= */
 (async function init() {
   window.addEventListener("pagehide", sendShutdown);
-  window.addEventListener("beforeunload", sendShutdown);
   await loadI18n();
   renderAll();
   startHeartbeat();
