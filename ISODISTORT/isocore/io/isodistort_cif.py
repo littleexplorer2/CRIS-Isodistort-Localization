@@ -1,8 +1,10 @@
 """Write ISODISTORT-style CIF (header, subgroup setting, iso_* loops).
 
-Official Distortion-page CIF (ISODISTORT 6.12.2) is not a pymatgen P1 dump:
-it uses the isotropy-subgroup conventional cell, ITA origin choice 2,
-asymmetric-unit sites, Hall setting, and ISODISTORT private loops.
+Must open in **VESTA** (CRIS root shortcut). Official Distortion-page CIF
+(ISODISTORT 6.12.2) is the format target: isotropy-subgroup conventional cell,
+ITA origin choice 2, asymmetric-unit sites, Hall setting, and ISODISTORT
+private loops. Content/layout should track the website as closely as practical;
+byte-identical export is not a project DoD (see repo ``agent.md``).
 """
 from __future__ import annotations
 
@@ -35,17 +37,81 @@ _PREFERENCES = (
 )
 
 # ISODISTORT 6.12 still uses 1992 HM extended names (Cmma, not Cmme).
+# Keys are ITA numbers; values are the extended H-M string used in Distortion CIF
+# (including origin-choice-2 suffixes). This is space-group metadata, not a
+# per-irrep / per-calculation answer table.
 _HM_FULL_1992 = {
+    2: "P -1",
+    4: "P 1 21 1",
+    5: "C 1 2 1",
+    8: "C 1 m 1",
+    10: "P 1 2/m 1",
+    11: "P 1 21/m 1",
+    12: "C 1 2/m 1",
+    13: "P 1 2/c 1",
+    14: "P 1 21/c 1",
+    15: "C 1 2/c 1",
+    17: "P 2 2 21",
+    19: "P 21 21 21",
+    20: "C 2 2 21",
+    22: "F 2 2 2",
+    23: "I 2 2 2",
+    24: "I 21 21 21",
+    26: "P m c 21",
+    36: "C m c 21",
     39: "A b m 2",
-    41: "A b a 2",
-    64: "C 2/m 2/c 2_1/a",
+    40: "A b a 2",
+    42: "F m m 2",
+    43: "F d d 2",
+    44: "I m m 2",
+    46: "I m a 2",
+    47: "P 2/m 2/m 2/m",
+    48: "P 2/n 2/n 2/n (origin choice 2)",
+    49: "P 2/c 2/c 2/m",
+    50: "P 2/b 2/a 2/n (origin choice 2)",
+    51: "P 21/m 2/m 2/a",
+    55: "P 21/b 21/a 2/m",
+    56: "P 21/c 21/c 2/n",
+    58: "P 21/n 21/n 2/m",
+    59: "P 21/m 21/m 2/n (origin choice 2)",
+    62: "P 21/n 21/m 21/a",
+    63: "C 2/m 2/c 21/m",
+    64: "C 2/m 2/c 21/a",
+    65: "C 2/m 2/m 2/m",
+    66: "C 2/c 2/c 2/m",
     67: "C 2/m 2/m 2/a",
-    68: "C 2/c 2/c 2/a",
+    68: "C 2/c 2/c 2/a (origin choice 2)",
+    69: "F 2/m 2/m 2/m",
+    70: "F 2/d 2/d 2/d (origin choice 2)",
+    71: "I 2/m 2/m 2/m",
+    72: "I 2/b 2/a 2/m",
+    73: "I 21/b 21/c 21/a",
+    74: "I 21/m 21/m 21/a",
+    76: "P 41",
+    82: "I -4",
+    91: "P 41 2 2",
+    92: "P 41 21 2",
     99: "P 4 m m",
+    105: "P 42 m c",
     107: "I 4 m m",
-    123: "P 4/m m m",
-    129: "P 4/n 2_1/m 2/m",
+    119: "I -4 m 2",
+    120: "I -4 c 2",
+    121: "I -4 2 m",
+    122: "I -4 2 d",
+    123: "P 4/m 2/m 2/m",
+    125: "P 4/n 2/b 2/m (origin choice 2)",
+    127: "P 4/m 21/b 2/m",
+    129: "P 4/n 21/m 2/m (origin choice 2)",
+    131: "P 42/m 2/m 2/c",
+    132: "P 42/m 2/c 2/m",
+    134: "P 42/n 2/n 2/m (origin choice 2)",
+    136: "P 42/m 21/n 2/m",
+    137: "P 42/n 21/m 2/c (origin choice 2)",
+    138: "P 42/n 21/c 2/m (origin choice 2)",
     139: "I 4/m 2/m 2/m",
+    140: "I 4/m 2/c 2/m",
+    141: "I 41/a 2/m 2/d (origin choice 2)",
+    142: "I 41/a 2/c 2/d (origin choice 2)",
 }
 
 # ITA origin-choice-2 representatives for Cmma (#67). 8n is (x, 1/4, z).
@@ -75,6 +141,43 @@ _WYCKOFF_99 = (
     ("b", 1, np.array([0.5, 0.5, 0.0])),
     ("c", 2, np.array([0.5, 0.0, 0.0])),
 )
+
+# Immm (#71): 2a; 4i (0,0,z); 4j (1/2,0,z).
+_WYCKOFF_71 = (
+    ("a", 2, np.array([0.0, 0.0, 0.0])),
+    ("i", 4, np.array([0.0, 0.0, 0.25])),
+    ("j", 4, np.array([0.5, 0.0, 0.25])),
+)
+
+# Fmmm (#69): 4a; 8f; 8i (0,0,z).
+_WYCKOFF_69 = (
+    ("a", 4, np.array([0.0, 0.0, 0.0])),
+    ("f", 8, np.array([0.25, 0.25, 0.25])),
+    ("i", 8, np.array([0.0, 0.0, 0.25])),
+)
+
+# I4mm (#107): 2a (0,0,z); 4b (0,1/2,z).
+_WYCKOFF_107 = (
+    ("a", 2, np.array([0.0, 0.0, 0.0])),
+    ("b", 4, np.array([0.0, 0.5, 0.0])),
+)
+
+# P4/mmm (#123).
+_WYCKOFF_123 = (
+    ("a", 1, np.array([0.0, 0.0, 0.0])),
+    ("d", 1, np.array([0.5, 0.5, 0.5])),
+    ("g", 2, np.array([0.0, 0.0, 0.25])),
+    ("h", 2, np.array([0.5, 0.5, 0.25])),
+    ("i", 4, np.array([0.0, 0.5, 0.25])),
+)
+
+# P4/nmm (#129) origin choice 2.
+_WYCKOFF_129 = (
+    ("a", 2, np.array([0.75, 0.25, 0.0])),
+    ("b", 2, np.array([0.75, 0.25, 0.5])),
+    ("c", 2, np.array([0.25, 0.25, 0.25])),
+)
+
 
 
 @dataclass
@@ -181,11 +284,13 @@ def _pymatgen_space_group(sg: SubgroupInfo) -> SpaceGroup:
 
 
 def _hall_catalog() -> tuple[dict[int, str], dict[int, int]]:
+    """Map IT number → Hall setting. Prefer origin choice 2 (ISODISTORT default)."""
     cached = getattr(_hall_catalog, "_cache", None)
     if cached is not None:
         return cached
     symbols: dict[int, str] = {}
     numbers: dict[int, int] = {}
+    choices: dict[int, str] = {}
     try:
         import warnings
 
@@ -199,10 +304,18 @@ def _hall_catalog() -> tuple[dict[int, str], dict[int, int]]:
             warnings.simplefilter("ignore", DeprecationWarning)
             info = get_spacegroup_type(hall_n)
         sg_n = int(info.number)
-        if sg_n in symbols:
+        choice = str(getattr(info, "choice", "") or "")
+        hall_sym = f"{sg_n:03d}:{info.hall_symbol}"
+        if sg_n not in symbols:
+            symbols[sg_n] = hall_sym
+            numbers[sg_n] = hall_n
+            choices[sg_n] = choice
             continue
-        symbols[sg_n] = f"{sg_n:03d}:{info.hall_symbol}"
-        numbers[sg_n] = hall_n
+        # Upgrade to origin choice 2 when available (matches Distortion-page CIF).
+        if choice == "2" and choices.get(sg_n) != "2":
+            symbols[sg_n] = hall_sym
+            numbers[sg_n] = hall_n
+            choices[sg_n] = choice
     _hall_catalog._cache = (symbols, numbers)
     return symbols, numbers
 
@@ -272,49 +385,80 @@ def _hm_full(setting: _Setting, sg: SubgroupInfo) -> str:
         return _HM_FULL_1992[setting.int_number]
     if setting.full_symbol:
         return setting.full_symbol
+    try:
+        pmg = SpaceGroup.from_int_number(int(setting.int_number))
+        spaced = _space_hm_symbol(pmg.full_symbol or pmg.symbol)
+        if spaced:
+            return spaced
+    except (ValueError, KeyError, TypeError):
+        pass
     raw = (sg.space_group_symbol or setting.symbol or "").strip()
     return _space_hm_symbol(raw) or setting.symbol
 
 
 def _space_hm_symbol(raw: str) -> str:
-    """``P4mm`` → ``P 4 m m``; ``I4/mmm`` → ``I 4/m m m``."""
+    """Format compact / full HM tokens like the Distortion-page CIF.
+
+    `P-1` → `P -1`; `I2/m2/m2/m` → `I 2/m 2/m 2/m`;
+    `Imm2` → `I m m 2`; `P4_2mc` → `P 42 m c`.
+    """
     text = re.sub(r"\s+", "", raw or "")
     if not text:
         return ""
+    # Centrosymmetric triclinic
+    if text in {"P-1", "P1bar", "P\\bar{1}"}:
+        return "P -1"
     letter = text[0]
     rest = text[1:]
-    parts: list[str] = [letter]
-    i = 0
-    while i < len(rest):
-        if rest[i] == "/":
-            if parts:
-                parts[-1] = parts[-1] + "/"
-            i += 1
-            continue
-        if rest[i].isdigit() or rest[i] == "_":
-            token = rest[i]
-            i += 1
-            while i < len(rest) and (rest[i].isdigit() or rest[i] == "_"):
-                token += rest[i]
+    # Official CIF often drops underscore in screw axes: 4_2 → 42, 2_1 → 21
+    rest = re.sub(r"(\d)_(\d)", r"\1\2", rest)
+    # Split into axis components: digit[+ /letter] or letter[+digits]
+    parts = re.findall(r"\d+(?:/[A-Za-z]+)?|[A-Za-z]\d*", rest)
+    if not parts:
+        # Fallback character walk (keeps slash attached to previous token)
+        parts_list: list[str] = [letter]
+        i = 0
+        while i < len(rest):
+            ch = rest[i]
+            if ch == "-":
+                # Keep inversion bar glued to following digit: -1
+                j = i + 1
+                while j < len(rest) and rest[j].isdigit():
+                    j += 1
+                token = rest[i:j]
+                parts_list.append(token)
+                i = j
+                continue
+            if ch == "/":
+                if len(parts_list) > 1:
+                    parts_list[-1] = parts_list[-1] + "/"
                 i += 1
-            if parts and parts[-1].endswith("/"):
-                parts[-1] = parts[-1] + token
-            else:
-                parts.append(token)
-            continue
-        if rest[i].isalpha():
-            token = rest[i]
+                continue
+            if ch.isdigit():
+                j = i + 1
+                while j < len(rest) and (rest[j].isdigit() or rest[j] == "_"):
+                    j += 1
+                token = rest[i:j].replace("_", "")
+                if len(parts_list) > 1 and parts_list[-1].endswith("/"):
+                    parts_list[-1] = parts_list[-1] + token
+                else:
+                    parts_list.append(token)
+                i = j
+                continue
+            if ch.isalpha():
+                j = i + 1
+                while j < len(rest) and rest[j].isdigit():
+                    j += 1
+                token = rest[i:j]
+                if len(parts_list) > 1 and parts_list[-1].endswith("/"):
+                    parts_list[-1] = parts_list[-1] + token
+                else:
+                    parts_list.append(token)
+                i = j
+                continue
             i += 1
-            while i < len(rest) and rest[i].isdigit():
-                token += rest[i]
-                i += 1
-            if parts and parts[-1].endswith("/"):
-                parts[-1] = parts[-1] + token
-            else:
-                parts.append(token)
-            continue
-        i += 1
-    return " ".join(parts)
+        return " ".join(parts_list)
+    return " ".join([letter, *parts])
 
 
 def _apply_origin_choice(structure: Structure, setting: _Setting) -> tuple[Structure, np.ndarray]:
@@ -322,7 +466,7 @@ def _apply_origin_choice(structure: Structure, setting: _Setting) -> tuple[Struc
 
     Prefer 0 / 1/2 specials and the unshifted cell. Quarter shifts are used only
     when they improve the asymmetric-unit count or match known ITA tables
-    (e.g. Cmma origin-2).
+    (e.g. Cmma origin-2). Prefer the zero shift whenever ASU cardinality ties.
     """
     if setting.int_number <= 1 or len(structure) == 0:
         return structure, np.zeros(3)
@@ -340,9 +484,17 @@ def _apply_origin_choice(structure: Structure, setting: _Setting) -> tuple[Struc
                 half = float(np.sum(_half_special_score(coords)))
                 quarters = float(np.sum(_quarter_score(coords)))
                 shift_mag = float(np.linalg.norm(shift))
-                # Minimize unique ASU sites; maximize ITA / half-specials;
-                # minimize unnecessary quarter coords and origin shift size.
-                score = (n_unique, -ita, -half, quarters, shift_mag)
+                # Minimize unique ASU sites; maximize ITA / half-specials first
+                # (origin choice 2 often needs a non-zero shift); only then prefer
+                # the identity origin and fewer quarter coords.
+                score = (
+                    n_unique,
+                    -ita,
+                    -half,
+                    0 if shift_mag < 1e-8 else 1,
+                    quarters,
+                    shift_mag,
+                )
                 if best_score is None or score < best_score:
                     best_score = score
                     best_shift = shift
@@ -440,11 +592,18 @@ def _asymmetric_sites(
         if not duplicate:
             unique_idx.append(i)
     stem_order = _stem_appearance_order(structure)
+    spglib_letters = _spglib_wyckoff_letters(structure, setting.int_number)
+    has_table = bool(_wyckoff_table(setting.int_number))
     sites: list[dict] = []
     for i in unique_idx:
         frac = _canonical_frac(structure[i].frac_coords, ops, keep_near=structure[i].frac_coords)
         mult = _orbit_size(frac, ops)
-        letter = _wyckoff_letter(setting.int_number, frac, mult, ops)
+        if has_table:
+            letter = _wyckoff_letter(setting.int_number, frac, mult, ops)
+        elif spglib_letters and i < len(spglib_letters) and spglib_letters[i]:
+            letter = spglib_letters[i]
+        else:
+            letter = _wyckoff_letter(setting.int_number, frac, mult, ops)
         frac = _snap_wyckoff_rep(setting.int_number, frac, letter, mult, ops)
         stem = _site_stem(structure[i], frac, spec, origin_shift)
         sites.append(
@@ -470,6 +629,40 @@ def _asymmetric_sites(
         counts[row["stem"]] = counts.get(row["stem"], 0) + 1
         row["label"] = f"{row['stem']}_{counts[row['stem']]}"
     return sites
+
+
+def _spglib_wyckoff_letters(structure: Structure, sg_number: int) -> list[str] | None:
+    """Wyckoff letters from spglib for the current cell (best-effort)."""
+    if sg_number <= 1 or len(structure) == 0:
+        return None
+    try:
+        from spglib import get_symmetry_dataset
+    except ImportError:
+        return None
+    nums = []
+    for site in structure:
+        try:
+            nums.append(int(site.specie.Z))
+        except (AttributeError, TypeError, ValueError):
+            return None
+    cell = (
+        np.asarray(structure.lattice.matrix, dtype=float),
+        np.asarray(structure.frac_coords, dtype=float),
+        nums,
+    )
+    try:
+        ds = get_symmetry_dataset(cell, symprec=1e-4)
+    except Exception:  # noqa: BLE001 - optional enrichment
+        return None
+    if ds is None:
+        return None
+    number = int(getattr(ds, "number", 0) or 0)
+    if number and number != int(sg_number):
+        return None
+    wyckoffs = getattr(ds, "wyckoffs", None)
+    if not wyckoffs or len(wyckoffs) != len(structure):
+        return None
+    return [str(w) for w in wyckoffs]
 
 
 def _stem_appearance_order(structure: Structure) -> dict[str, int]:
@@ -528,8 +721,18 @@ def _wrap(frac: np.ndarray, tol: float = 1e-8) -> np.ndarray:
 def _wyckoff_table(sg_number: int) -> tuple:
     if sg_number == 67:
         return _WYCKOFF_67
+    if sg_number == 69:
+        return _WYCKOFF_69
+    if sg_number == 71:
+        return _WYCKOFF_71
     if sg_number == 99:
         return _WYCKOFF_99
+    if sg_number == 107:
+        return _WYCKOFF_107
+    if sg_number == 123:
+        return _WYCKOFF_123
+    if sg_number == 129:
+        return _WYCKOFF_129
     if sg_number == 139:
         return _WYCKOFF_139
     return ()
@@ -546,6 +749,19 @@ def _wyckoff_letter(sg_number: int, frac: np.ndarray, multiplicity: int, ops) ->
             or (abs(x - 0.5) < 1e-4 and abs(y) < 1e-4)
         ):
             return "d"
+    if sg_number == 71 and multiplicity == 4:
+        x, y, _z = (float(c) for c in frac)
+        if abs(x) < 1e-4 and abs(y) < 1e-4:
+            return "i"
+        if (
+            (abs(x - 0.5) < 1e-4 and abs(y) < 1e-4)
+            or (abs(x) < 1e-4 and abs(y - 0.5) < 1e-4)
+        ):
+            return "j"
+    if sg_number == 69 and multiplicity == 8:
+        x, y, _z = (float(c) for c in frac)
+        if abs(x) < 1e-4 and abs(y) < 1e-4:
+            return "i"
     if sg_number == 99:
         x, y, _z = (float(c) for c in frac)
         if multiplicity == 1:
@@ -555,6 +771,39 @@ def _wyckoff_letter(sg_number: int, frac: np.ndarray, multiplicity: int, ops) ->
                 return "b"
         if multiplicity == 2:
             return "c"
+    if sg_number == 107:
+        x, y, _z = (float(c) for c in frac)
+        if multiplicity == 2 and abs(x) < 1e-4 and abs(y) < 1e-4:
+            return "a"
+        if multiplicity == 4 and (
+            (abs(x) < 1e-4 and abs(y - 0.5) < 1e-4)
+            or (abs(x - 0.5) < 1e-4 and abs(y) < 1e-4)
+        ):
+            return "b"
+    if sg_number == 123:
+        x, y, _z = (float(c) for c in frac)
+        if multiplicity == 1:
+            if abs(x) < 1e-4 and abs(y) < 1e-4 and abs(_z) < 1e-4:
+                return "a"
+            if abs(x - 0.5) < 1e-4 and abs(y - 0.5) < 1e-4 and abs(_z - 0.5) < 1e-4:
+                return "d"
+        if multiplicity == 2:
+            if abs(x) < 1e-4 and abs(y) < 1e-4:
+                return "g"
+            if abs(x - 0.5) < 1e-4 and abs(y - 0.5) < 1e-4:
+                return "h"
+        if multiplicity == 4 and (
+            (abs(x) < 1e-4 and abs(y - 0.5) < 1e-4)
+            or (abs(x - 0.5) < 1e-4 and abs(y) < 1e-4)
+        ):
+            return "i"
+    if sg_number == 129 and multiplicity == 2:
+        x, y, _z = (float(c) for c in frac)
+        # Origin-choice-2: 2c (1/4,1/4,z); 2a/2b at (3/4,1/4,0/1/2)
+        if abs(x - 0.25) < 1e-4 and abs(y - 0.25) < 1e-4:
+            return "c"
+        if abs(x - 0.75) < 1e-4 and abs(y - 0.25) < 1e-4:
+            return "a" if abs(_z) < 1e-4 or abs(_z - 1.0) < 1e-4 else "b"
     for letter, mult, rep in table:
         if multiplicity == mult and _site_matches_wyckoff(
             frac, letter, mult, rep, ops, sg_number
@@ -578,16 +827,49 @@ def _site_matches_wyckoff(
     ops,
     sg_number: int,
 ) -> bool:
+    x, y, _z = (float(c) for c in frac)
     if multiplicity == 4 and sg_number == 139 and letter == "e":
-        # Free z on the c axis: (0,0,z) family.
-        x, y, _z = (float(c) for c in frac)
         return abs(x) < 1e-4 and abs(y) < 1e-4
+    if multiplicity == 4 and sg_number == 71 and letter == "i":
+        return abs(x) < 1e-4 and abs(y) < 1e-4
+    if multiplicity == 4 and sg_number == 71 and letter == "j":
+        return (
+            (abs(x - 0.5) < 1e-4 and abs(y) < 1e-4)
+            or (abs(x) < 1e-4 and abs(y - 0.5) < 1e-4)
+        )
+    if multiplicity == 8 and sg_number == 69 and letter == "i":
+        return abs(x) < 1e-4 and abs(y) < 1e-4
+    if sg_number == 123 and letter in {"g", "h", "i"}:
+        if letter == "g":
+            return abs(x) < 1e-4 and abs(y) < 1e-4
+        if letter == "h":
+            return abs(x - 0.5) < 1e-4 and abs(y - 0.5) < 1e-4
+        return (
+            (abs(x) < 1e-4 and abs(y - 0.5) < 1e-4)
+            or (abs(x - 0.5) < 1e-4 and abs(y) < 1e-4)
+        )
+    if sg_number == 129 and letter == "c":
+        return abs(x - 0.25) < 1e-4 and abs(y - 0.25) < 1e-4
     return _in_orbit(frac, rep, ops)
 
 
 def _snap_wyckoff_rep(
     sg_number: int, frac: np.ndarray, letter: str, multiplicity: int, ops
 ) -> np.ndarray:
+    # Free-parameter positions (…z, x…) must keep the structure's coordinate;
+    # snapping to a table seed (z=1/4) would rewrite physical site locations.
+    free_letters = {
+        67: {"n", "g"},
+        69: {"i", "g", "h"},
+        71: {"i", "j"},
+        99: {"a", "b", "c"},
+        107: {"a", "b"},
+        123: {"g", "h", "i"},
+        129: {"c"},
+        139: {"e"},
+    }
+    if letter in free_letters.get(sg_number, set()):
+        return frac
     table = _wyckoff_table(sg_number)
     for wy_letter, mult, rep in table:
         if wy_letter == letter and multiplicity == mult and _in_orbit(frac, rep, ops):
@@ -753,7 +1035,7 @@ def _header_comments(spec: Any, *, force_p1: bool) -> list[str]:
         if sg.irrep_label:
             lines.append(f"# {_irrep_comment(sg)}")
         try:
-            lines.append(f"# {sg.opd_line()}")
+            lines.append(f"# {sg.opd_line_body()}")
         except (TypeError, ValueError, AttributeError):
             from .distortion_formats import subgroup_label
 
@@ -799,33 +1081,136 @@ def _k_point_comment(sg: SubgroupInfo) -> str:
 
 
 def _irrep_comment(sg: SubgroupInfo) -> str:
-    return f"IR: {sg.irrep_label or ''}"
+    """Official style: ``IR: GM1+, k14t1`` (ML label + CDML/Kovalev tag)."""
+    label = (sg.irrep_label or "").strip()
+    if not label:
+        return "IR: "
+    tag = _irrep_kovalev_tag(sg)
+    if tag:
+        return f"IR: {label}, {tag}"
+    return f"IR: {label}"
+
+
+def _irrep_kovalev_tag(sg: SubgroupInfo) -> str | None:
+    try:
+        from ..data.irreps_cdml import lookup_irrep_kovalev
+        from ..data.kpoints_official import KPOINT_OFFICIAL
+    except Exception:  # noqa: BLE001
+        return None
+    parent = int(sg.parent_sg or 0)
+    k_label = (sg.k_point_label or "").strip()
+    ir = (sg.irrep_label or "").strip()
+    k_kov = None
+    entry = KPOINT_OFFICIAL.get(parent, {}).get(k_label)
+    if entry:
+        k_kov = entry[0]
+    # Companions: other IRs that share the same k-point letter prefix (GM*, M*, …).
+    prefix = re.match(r"^([A-Za-z]+)", ir)
+    companions = None
+    if prefix:
+        letter = prefix.group(1)
+        companions = [
+            name for name, _tag in _irrep_names_for_kovalev(k_kov)
+            if name.startswith(letter)
+        ][:24]
+    return lookup_irrep_kovalev(ir, k_kovalev=k_kov, companion_irreps=companions)
+
+
+def _irrep_names_for_kovalev(k_kovalev: str | None) -> list[tuple[str, str]]:
+    try:
+        from ..data.irreps_cdml import _ml_kov_tables
+    except Exception:  # noqa: BLE001
+        return []
+    ml, kov = _ml_kov_tables()
+    if not k_kovalev:
+        return list(zip(ml, kov))
+    pref = k_kovalev.lower() + "t"
+    return [(m, k) for m, k in zip(ml, kov) if k.lower().startswith(pref)]
 
 
 def _order_parameter_comment_lines(spec: Any) -> list[str]:
+    """Official Distortion CIF order-parameter block.
+
+    Head line::
+        ``I4/mmm[0,0,0]GM1+(a) 139 I4/mmm s=1 i=1``
+    Mode lines::
+        ``[Al2:e:dsp]A1(a):  0.00000`` / ``strain_1(a):  0.00000``
+    """
     labels = spec.mode_labels or {}
     amps = spec.amplitudes or {}
     disp = spec.mode_displacements_sc or {}
-    if not labels and not disp:
-        return []
+    sg = spec.subgroup
+    if not labels and not disp and not getattr(spec, "strain_mode_labels", None):
+        # Still emit the OP head when we know the subgroup path (zero modes).
+        if not (sg and sg.irrep_label):
+            return []
     lines = ["# Order parameter values:"]
-    # Group by prefix before the last "[site..." token when present.
-    buckets: dict[str, list[tuple[str, float]]] = {}
+    head = _order_parameter_head(spec)
+    if head:
+        lines.append(f"#  {head}")
     keys = list(disp.keys()) if disp else list(labels.keys())
     for key in keys:
         pretty = labels.get(key, key)
         amp = float(amps.get(key, 0.0))
-        head = pretty
-        m = re.match(r"^(.*?)(\[[^\]]+:[^\]]+\].*)$", pretty)
-        if m:
-            head = m.group(1).rstrip()
-            pretty = m.group(2)
-        buckets.setdefault(head or "modes", []).append((pretty, amp))
-    for head, items in buckets.items():
-        lines.append(f"#  {head}")
-        for pretty, amp in items:
-            lines.append(f"#     {pretty}:  {_f5(amp)}")
+        m = re.search(r"(\[[^\]]+:[^\]]+:dsp\][^\s:]*(?:\([^)]*\))?)", pretty)
+        if not m:
+            m = re.search(r"(\[[^\]]+\].*)$", pretty)
+        token = m.group(1) if m else pretty
+        lines.append(f"#     {token}:  {_f5(amp)}")
+    for lab in getattr(spec, "strain_mode_labels", None) or []:
+        amp = float((getattr(spec, "strain_amplitudes", None) or {}).get(lab, 0.0))
+        lines.append(f"#     {lab}:  {_f5(amp)}")
     return lines
+
+
+def _order_parameter_head(spec: Any) -> str:
+    sg = spec.subgroup
+    parent_sym = (spec.parent_symbol or "").strip() or "P1"
+    parent_compact = parent_sym.replace(" ", "")
+    k_coords = _k_coords_for_mode_label(sg)
+    ir = (sg.irrep_label or "").strip()
+    direction = _opd_direction_letter(sg)
+    child_hm = (sg.space_group_symbol or "").strip() or str(sg.space_group_number)
+    child_hm = child_hm.replace(" ", "")
+    return (
+        f"{parent_compact}[{k_coords}]{ir}({direction}) "
+        f"{sg.space_group_number} {child_hm} "
+        f"s={sg.size} i={sg.subgroup_index}"
+    )
+
+
+def _k_coords_for_mode_label(sg: SubgroupInfo) -> str:
+    coords = list(sg.k_coordinates or [])
+    params = list(sg.k_parameters or [])
+    if params and coords:
+        # Substitute numeric params into symbolic coords when possible.
+        try:
+            from ..data.kpoints_official import format_k_point_display
+
+            disp = format_k_point_display(
+                int(sg.parent_sg or 0),
+                sg.k_point_label or "",
+                params,
+                coords,
+            )
+            m = re.search(r"\(([^)]*)\)", disp)
+            if m:
+                return m.group(1)
+        except Exception:  # noqa: BLE001
+            pass
+    if coords:
+        return ",".join(str(c) for c in coords)
+    return "0,0,0"
+
+
+def _opd_direction_letter(sg: SubgroupInfo) -> str:
+    raw = (sg.opd_dir_raw or "").strip()
+    if raw.startswith("(") and raw.endswith(")"):
+        inner = raw[1:-1]
+        # (a), (a,0), (a;a) → leading letter token used in official labels.
+        tok = re.split(r"[,;]", inner)[0].strip()
+        return tok or "a"
+    return "a"
 
 
 def _parent_wyckoff_comment_lines(spec: Any) -> list[str]:
@@ -875,8 +1260,9 @@ def _atom_site_loop(sites: list[dict]) -> list[str]:
         return lines
     for row in sites:
         x, y, z = (float(c) for c in row["frac"])
+        label = f"{row['label']:<6s}"
         lines.append(
-            f"{row['label']} {row['element']:<4s}{row['multiplicity']:2d} "
+            f"{label} {row['element']:<4s}{row['multiplicity']:2d} "
             f"{row['wyckoff']}  {_f5(x)}  {_f5(y)}  {_f5(z)}  {_f5(row['occupancy'])} "
             f"{row['symmform']:<8s}"
         )
@@ -989,12 +1375,20 @@ def _parent_to_child_transform(sg: SubgroupInfo, origin_shift: np.ndarray) -> st
 
 
 def _transform_origin(sg: SubgroupInfo, origin_shift: np.ndarray) -> str:
-    basis = np.asarray(sg.basis_vectors, dtype=float)
+    """Parent→child origin for ``_iso_parent-to-child.transform_Pp_abc``.
+
+    Official Distortion CIF writes the Method 1 OPD origin here. The extra
+    ITA origin-choice shift used to place atoms on conventional specials is
+    applied only to site coordinates, not folded into this token.
+    """
+    _ = origin_shift
+    raw = (getattr(sg, "origin_raw", None) or "").strip()
+    if raw.startswith("(") and raw.endswith(")"):
+        return raw[1:-1]
+    if raw:
+        return raw
     p0 = np.asarray(sg.origin or [0.0, 0.0, 0.0], dtype=float)
-    shift = np.asarray(origin_shift, dtype=float)
-    # Child (0,0,0) after the origin-2 shift, expressed in parent coordinates.
-    p = p0 - basis.T @ shift
-    return ",".join(_frac_or_float(float(v)) for v in p)
+    return ",".join(_frac_or_float(float(v)) for v in p0)
 
 
 def _axis_to_abc(row: Sequence[float]) -> str:

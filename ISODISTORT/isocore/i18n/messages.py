@@ -49,7 +49,7 @@ MESSAGES: dict[str, str] = {
     'ui.menu.method4': '6. Method 4: Mode decomposition of a distorted structure',
     'ui.menu.distortion': '7. Distortion (download results)',
     'ui.menu.state': '8. Show current state',
-    'ui.menu.superspace': '9. (3+d) superspace (nmod)',
+    'ui.menu.superspace': '9. (3+d) superspace (local extra; nmod)',
     'ui.menu.exit': '0. Exit',
     'ui.prompt.action': 'Choose next action',
     'ui.exit.done': 'Exited.',
@@ -169,7 +169,7 @@ MESSAGES: dict[str, str] = {
     'nmod.hint': '(nmod = d in (3+d) superspace; 0 = 3D commensurate, 1–3 = local superspace kernel, IT-C)',
     'ok.nmod': 'Independent incommensurate modulations (nmod) set to {0}.',
     'err.badNmod': 'nmod must be an integer 0..3 (superspace additional dimension d).',
-    'ss.title': '(3+d) superspace',
+    'ss.title': '(3+d) superspace (local extra)',
     'ss.compute': 'Compute superspace',
     'ss.export': 'Export JSON',
     'ss.import': 'Import JSON',
@@ -182,6 +182,16 @@ MESSAGES: dict[str, str] = {
     'ss.done': 'Superspace (3+{0}) computed: {1} operation(s), {2} IR(s), {3} mode(s).',
     'ss.imported': 'Loaded superspace JSON (nmod={0}).',
     'ss.needSg': 'Load a parent CIF first, or the kernel will use space group 139 I4/mmm.',
+    'ss.localNote': (
+        'Local extra — not a main ISODISTORT feature. The official website has no '
+        'standalone (3+d) panel. Incommensurate work is Method 2 nmod (form field '
+        'nmodstar), then IR → OPD → Distortion.'
+    ),
+    'ss.localHow': (
+        'For the official-style workflow, set nmod on Method 2 and continue to Distortion. '
+        'This panel only inspects the local kernel: nmod (d=1..3), optional k_s / q-vectors / '
+        'k-label, Compute, then Export or Import JSON.'
+    ),
     'l.sgsel3': 'Select either space group symmetry:',
     'l.pg': 'or point group (crystal class):',
     'l.lattice': 'Specify a real-space sublattice of the parent lattice with',

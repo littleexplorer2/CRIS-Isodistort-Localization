@@ -35,7 +35,6 @@ from ..backend import (
 )
 from ..backend.smodes_wrapper import SmodesWrapper
 from ..data.kpoints_official import KPOINT_OFFICIAL, official_kparams_to_iso
-from ..data.method1_lattice_official import METHOD1_LATTICE_OFFICIAL
 from ..distortion import (
     DEFAULT_DISTORTION_TYPES,
     DISTORTION_TYPES,
@@ -118,6 +117,7 @@ class IsoDistort:
         # 畸变类型作用域（对齐官网 per-species 复选框）：type -> 物种列表（"*"=全部）
         self.distortion_scope: dict[str, list[str]] = {}
         self.distortion_types: list[str] = DEFAULT_DISTORTION_TYPES.copy()
+        self.nmod: int = 0
         self._smodes = SmodesWrapper()
         self._special_subgroups_cache: list | None = None
         self._special_subgroups_lock = threading.Lock()
@@ -540,12 +540,13 @@ class IsoDistort:
     def _distinct_lattices(self, bases,
                            preferred_labels: list[str] | None = None
                            ) -> list[dict]:
-        """从一组超胞基矢提取去重后的 lattice 选项（对齐官网下拉）。
+        """从一组超胞基矢提取去重后的 lattice 选项。
 
-        去重：GL(3,Z) 格点等价 ∪ 母相点群旋转轨道（官网同一选项含点群相关格子）。
-        显示代表：若该类与官网 preferred 标签轨道等价，采用该标签与基矢；
+        去重：GL(3,Z) 格点等价 ∪ 母相点群旋转轨道（同一选项含点群相关格子）。
+        显示代表：若提供 ``preferred_labels`` 且该类与之轨道等价，采用该标签；
         否则保留首次出现的 iso ``basis_raw``（不排序行、不取“最简范数”）。
         顺序：preferred 列表顺序优先，其余按首次出现顺序接在后面。
+        注意：不要用按母相硬编码的官网快照表填充 preferred；应对齐 iso 算法输出。
         """
         classes: list[dict] = []
         for item in bases:
@@ -627,10 +628,10 @@ class IsoDistort:
         """
         Method 1 下拉数据（对齐官网搜索页）：
         - space_groups：当前 Types 过滤后可达子群的空间群（按序号升序）
-        - conventional_lattices / primitive_lattices：官网 Conventional /
-          Primitive lattice 下拉。分类时合并          母相点群旋转轨道；Primitive 对每个子群用其子群心化矩阵作
-          ``T_sub @ B`` 后再按母相点群轨道分类。I4/mmm 等有官网快照的母相
-          采用官网标签与顺序。
+        - conventional_lattices / primitive_lattices：Conventional /
+          Primitive lattice 下拉。分类时合并母相点群旋转轨道；Primitive 对
+          每个子群用其子群心化矩阵作 ``T_sub @ B`` 后再按母相点群轨道分类。
+          标签与顺序来自 iso 输出去重，不使用按母相硬编码的官网快照表。
         """
         subs = self._method1_filtered_subgroups()
         numbers: list[int] = []
@@ -644,28 +645,22 @@ class IsoDistort:
             for n in numbers
         ]
 
-        parent_sg = self.symmetry_info["space_group_number"]
-        official = METHOD1_LATTICE_OFFICIAL.get(parent_sg, {})
-
         conventional = self._distinct_lattices(
             [
                 (sg.basis_vectors, getattr(sg, "basis_raw", "") or "")
                 for sg in subs
             ],
-            preferred_labels=official.get("conventional"),
         )
-        t_cent = self._parent_centering_matrix()
         primitive = self._distinct_lattices(
             [
                 # Primitive lattice：子群超胞在子群心化下的原胞基
-                # （T_sub @ B），再按母相点群轨道去重——对齐官网 9 项（I4/mmm）
+                # （T_sub @ B），再按母相点群轨道去重
                 (self._centering_matrix(
                     _centering_letter(sg.space_group_number)
                  ) @ np.asarray(sg.basis_vectors, dtype=float),
                  getattr(sg, "basis_raw", "") or "")
                 for sg in subs
             ],
-            preferred_labels=official.get("primitive"),
         )
         return {
             "space_groups": space_groups,
@@ -1163,13 +1158,74 @@ class IsoDistort:
         return self.structure.copy()
 
     def _mode_labels_now(self) -> dict[str, str]:
+        """Official-style mode labels for CIF / modes / TOPAS.
+
+        Example::
+            ``I4/mmm[0,0,0]GM1+(a)[Al2:e:dsp]A1(a)``
+        Built from parent HM, k, irrep, OPD direction letter, and BUSH
+        Wyckoff/species — not a memorized per-case string.
+        """
         labels: dict[str, str] = {}
+        parent_sg = int((self.symmetry_info or {}).get("space_group_number") or 0)
+        parent_sym = hm_symbol(parent_sg) if parent_sg else ""
+        parent_compact = (parent_sym or "P1").replace(" ", "")
+        wyckoff_sites = (self.symmetry_info or {}).get("wyckoff_sites") or []
+        letter_to_site = {
+            str(w.get("wyckoff_letter") or w.get("letter") or ""): w
+            for w in wyckoff_sites
+            if isinstance(w, dict)
+        }
+        # Official parent comments use Eu1 / Al1 / Al2 in appearance order.
+        species_counters: dict[str, int] = {}
+        letter_to_label: dict[str, str] = {}
+        for w in wyckoff_sites:
+            if not isinstance(w, dict):
+                continue
+            letter = str(w.get("wyckoff_letter") or w.get("letter") or "")
+            elem = str(w.get("species") or w.get("element") or "X")
+            species_counters[elem] = species_counters.get(elem, 0) + 1
+            letter_to_label[letter] = f"{elem}{species_counters[elem]}"
         for mode in self.distortion_modes:
-            sites = ",".join(sorted({b.wyckoff_letter for b in mode.bush_modes}))
-            labels[mode.irrep_label] = (
-                f"{mode.irrep_label}({mode.opd_symbol}) "
-                f"[{mode.mode_type} Wyckoff {sites or '-'}]"
-            )
+            k_coords = "0,0,0"
+            if self.phase_path is not None and getattr(self.phase_path, "k_vector", None):
+                kv = self.phase_path.k_vector
+                k_coords = ",".join(str(x) for x in kv)
+            elif mode.k_point_label:
+                try:
+                    from ..data.kpoints_official import KPOINT_OFFICIAL
+
+                    entry = KPOINT_OFFICIAL.get(parent_sg, {}).get(mode.k_point_label)
+                    if entry:
+                        k_coords = ",".join(entry[1])
+                except Exception:  # noqa: BLE001
+                    pass
+            direction = "a"
+            raw = ""
+            if self.phase_path is not None:
+                raw = str(getattr(self.phase_path, "opd_dir_raw", "") or "")
+            if not raw and mode.opd_symbol:
+                raw = "(a)"
+            if raw.startswith("(") and ")" in raw:
+                direction = raw.strip("()").split(",")[0].split(";")[0].strip() or "a"
+            path = f"{parent_compact}[{k_coords}]{mode.irrep_label}({direction})"
+            site_tokens: list[str] = []
+            for bush in mode.bush_modes:
+                letter = bush.wyckoff_letter or mode.wyckoff_site or ""
+                site = letter_to_site.get(letter) or {}
+                elem = str(site.get("species") or site.get("element") or "X")
+                idx = letter_to_label.get(letter) or f"{elem}1"
+                n_comp = max(1, len(bush.displacements) or 1)
+                # Site-symmetry irrep (A1/E/…) needs a full site-symmetry
+                # decomposition; use A1 for 1-D and E for multi-component.
+                sym = "A1" if n_comp == 1 else "E"
+                site_tokens.append(f"[{idx}:{letter or '-'}:dsp]{sym}({direction})")
+            if not site_tokens:
+                sites = ",".join(sorted({b.wyckoff_letter for b in mode.bush_modes}))
+                labels[mode.irrep_label] = (
+                    f"{path} [{mode.mode_type} Wyckoff {sites or '-'}]"
+                )
+            else:
+                labels[mode.irrep_label] = f"{path}{site_tokens[0]}"
         for label, entry in self.mode_occupancies.items():
             om = entry["mode"]
             labels[label] = f"{label} [occupational {om.wyckoff_letter}]"
@@ -1239,11 +1295,17 @@ class IsoDistort:
         compute_missing_modes: bool,
         *,
         use_opd_line_folders: bool = False,
+        number_of_independent_modulations: int | None = None,
     ) -> list[SubgroupExportSpec]:
         """为每个子群准备导出规格；结束后恢复会话 Distortion 状态。"""
         need_modes = any(fmt != "cif" for fmt in formats)
         snap = self._snapshot_distortion_state()
         current_idx = snap["phase_path"].subgroup_index if snap["phase_path"] else None
+        nmod = (
+            int(number_of_independent_modulations)
+            if number_of_independent_modulations is not None
+            else int(getattr(self, "nmod", 0) or 0)
+        )
         used: set[str] = set()
         specs: list[SubgroupExportSpec] = []
         try:
@@ -1255,18 +1317,26 @@ class IsoDistort:
                 is_current = current_idx is not None and sg.index == current_idx
                 computed = False
                 if need_modes and compute_missing_modes and not is_current:
-                    if self._is_parametric_subgroup(sg):
-                        note = (
-                            "parametric k point: local iso cannot compute "
-                            "displacement modes (superspace)"
-                        )
-                    else:
-                        try:
+                    try:
+                        if self._is_parametric_subgroup(sg):
+                            if nmod <= 0:
+                                note = (
+                                    "parametric k point: set nmod>=1 "
+                                    "(number_of_independent_modulations) "
+                                    "to fill displacement modes"
+                                )
+                            else:
+                                self.search_method_2(
+                                    sg.index,
+                                    number_of_independent_modulations=nmod,
+                                )
+                                computed = True
+                        else:
                             self.search_method_2(sg.index)
                             computed = True
-                        except Exception as exc:  # noqa: BLE001 - 批量导出：单子群失败不中断
-                            note = str(exc)
-                            self._restore_distortion_state(snap)
+                    except Exception as exc:  # noqa: BLE001 - 批量导出：单子群失败不中断
+                        note = str(exc)
+                        self._restore_distortion_state(snap)
                 spec = self._spec_for_subgroup(
                     sg,
                     use_current_modes=need_modes and (is_current or computed),
@@ -1289,6 +1359,7 @@ class IsoDistort:
         compute_missing_modes: bool = False,
         *,
         use_opd_line_folders: bool = False,
+        number_of_independent_modulations: int | None = None,
     ) -> list:
         """
         按 Method 2 子群批量导出（每个子群一个文件夹）。
@@ -1298,8 +1369,9 @@ class IsoDistort:
             formats: cif / isoviz / modes / topas（官网第 6 页对应选项）
             subgroups: 默认使用当前会话的子群列表（Method 2 枚举结果）
             compute_missing_modes: 为非当前子群再跑 Method 2 以填充模式类格式；
-                仅 CIF 时不需要。参数 k 点跳过 DISPLAY BUSH（本地无法计算模式）。
+                仅 CIF 时不需要。参数 k 点在 ``nmod>=1`` 时用超空间内核填充模式。
             use_opd_line_folders: Method 1 导出时文件夹名用完整 OPD 行。
+            number_of_independent_modulations: 参数 k 点导出时的 nmod（默认会话值）。
 
         Returns:
             写出的文件路径列表
@@ -1315,7 +1387,11 @@ class IsoDistort:
         dest = Path(dest_dir)
         dest.mkdir(parents=True, exist_ok=True)
         specs = self._collect_export_specs(
-            items, fmts, compute_missing_modes, use_opd_line_folders=use_opd_line_folders
+            items,
+            fmts,
+            compute_missing_modes,
+            use_opd_line_folders=use_opd_line_folders,
+            number_of_independent_modulations=number_of_independent_modulations,
         )
         paths: list = []
         for spec in specs:
@@ -1332,6 +1408,7 @@ class IsoDistort:
         wrapping: str | None = None,
         *,
         use_opd_line_folders: bool = False,
+        number_of_independent_modulations: int | None = None,
     ) -> bytes:
         """批量导出为 ZIP 字节（不读写 output_dir，避免混入无关文件）。
 
@@ -1346,7 +1423,11 @@ class IsoDistort:
                 "没有可导出的 Method 2 子群；请先完成 Method 2 子群计算"
             )
         specs = self._collect_export_specs(
-            items, fmts, compute_missing_modes, use_opd_line_folders=use_opd_line_folders
+            items,
+            fmts,
+            compute_missing_modes,
+            use_opd_line_folders=use_opd_line_folders,
+            number_of_independent_modulations=number_of_independent_modulations,
         )
         return build_export_zip(specs, fmts, wrapping=wrapping)
 
@@ -1445,6 +1526,7 @@ class IsoDistort:
         if not self.subgroups:
             self.list_subgroups(distortion_type=distortion_type)
 
+        self.nmod = int(number_of_independent_modulations or 0)
         query = Method2Query(
             subgroup_idx=subgroup_idx,
             distortion_type=types,

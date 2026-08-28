@@ -1,0 +1,11 @@
+﻿
+no tests ran in 0.00s
+c:\Users\devou\OneDrive\Desktop\CRIS\.venv\Scripts\python.exe : ERROR: file or directory not found: 
+ISODISTORT\tests_dev\test_formats.py
+At C:\Users\devou\AppData\Local\Temp\ps-script-75c8f484-6338-42e8-b427-2c2a4f5ede79.ps1:109 char:1
++ c:\Users\devou\OneDrive\Desktop\CRIS\.venv\Scripts\python.exe -m pyte ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ERROR: file or ...test_formats.py:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+

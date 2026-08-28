@@ -1,0 +1,1222 @@
+
+===== M1+ P1 (a) 123 P4mmm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(0,0,0), =====
+LOC: M1+ P1 (a) 123 P4 mmm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(0,0,0)
+FOLDER: HM has spaces from slash strip
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 4/m 2/m 2/m"
+    LOC: _symmetry_space_group_name_H-M "P 4/m m m"
+  OK sg
+  OK p2c
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    3
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    2
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: M1+, k15t1
+    LOC: # IR: M1+
+  DIFF opd:
+    OFF: # P1   (a) 123 P4/mmm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(0,0,0), s=2, i=2, k-active= (1,1,1)
+    LOC: # M1+      P1   (a) 123 P4/mmm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(0,0,0), s=2, i=2, k-active= (1,1,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   1 a  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   1 d  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Al1_1 Al   4 i  0.00000  0.50000  0.25000  1.00000 0,0,Dz
+    LOC: Al1_1 Al   4 f  0.00000  0.50000  0.25000  1.00000 0,0,Dz
+    OFF: Al2_1 Al   2 g  0.00000  0.00000  0.38000  1.00000 0,0,Dz
+    LOC: Al2_1 Al   2 e  0.00000  0.00000  0.38000  1.00000 0,0,Dz
+    OFF: Al2_2 Al   2 h  0.50000  0.50000  0.88000  1.00000 0,0,Dz
+    LOC: Al2_2 Al   2 e  0.50000  0.50000  0.88000  1.00000 0,0,Dz
+
+===== M3- P1 (a) 129 P4nmm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(14,14,1 =====
+LOC: M3- P1 (a) 129 P4 nmm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(1 4,1 
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 4/n 21/m 2/m (origin choice 2)"
+    LOC: _symmetry_space_group_name_H-M "P 4/n 2_1/m 2/m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a,b,c;1/4,1/4,1/4
+    LOC: _iso_parent-to-child.transform_Pp_abc a,b,c;1/4,1/4,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    3
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    2
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: M3-, k15t4
+    LOC: # IR: M3-
+  DIFF opd:
+    OFF: # P1   (a) 129 P4/nmm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(1/4,1/4,1/4), s=2, i=2, k-active= (1,1,1)
+    LOC: # M3-      P1   (a) 129 P4/nmm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(1/4,1/4,1/4), s=2, i=2, k-active= (1,1,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   2 c  0.25000  0.25000  0.25000  1.00000 0,0,Dz
+    LOC: Eu1_1 Eu   4 f  0.00000  0.00000  0.25000  1.00000 0,0,Dz
+    OFF: Al1_1 Al   2 a  0.75000  0.25000  0.00000  1.00000 0,0,0
+    LOC: Al1_1 Al   2 e  0.00000  0.50000  0.00000  1.00000 0,0,Dz
+    OFF: Al1_2 Al   2 b  0.75000  0.25000  0.50000  1.00000 0,0,0
+    LOC: Al1_2 Al   2 e  0.00000  0.50000  0.50000  1.00000 0,0,Dz
+    OFF: Al2_1 Al   2 c  0.25000  0.25000  0.87000  1.00000 0,0,Dz
+    LOC: Al2_1 Al   4 f  0.00000  0.00000  0.63000  1.00000 0,0,Dz
+    OFF: Al2_2 Al   2 c  0.25000  0.25000  0.63000  1.00000 0,0,Dz
+    LOC: Al2_2 Al   4 f  0.00000  0.00000  0.87000  1.00000 0,0,Dz
+
+===== M4- P1 (a) 137 P4_2nmc, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(14,34 =====
+LOC: M4- P1 (a) 137 P4_2 nmc, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(1 4,
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 42/n 21/m 2/c (origin choice 2)"
+    LOC: _symmetry_space_group_name_H-M "P 4_2/n m c"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a,b,c;1/4,-1/4,1/4
+    LOC: _iso_parent-to-child.transform_Pp_abc a,b,c;1/4,3/4,1/4
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    2
+    LOC: _iso_displacivemode_number    0
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    2
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: M4-, k15t8
+    LOC: # IR: M4-
+  DIFF opd:
+    OFF: # P1   (a) 137 P4_2/nmc, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(1/4,3/4,1/4), s=2, i=2, k-active= (1,1,1)
+    LOC: # M4-      P1   (a) 137 P4_2/nmc, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(1/4,3/4,1/4), s=2, i=2, k-active= (1,1,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   2 a  0.75000  0.25000  0.75000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   2 e  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Al1_1 Al   4 d  0.25000  0.25000  0.50000  1.00000 0,0,Dz
+    LOC: Al1_1 Al   4 f  0.00000  0.50000  0.25000  1.00000 0,0,Dz
+    OFF: Al2_1 Al   4 c  0.75000  0.25000  0.13000  1.00000 0,0,Dz
+    LOC: Al2_1 Al   4 f  0.00000  0.00000  0.38000  1.00000 0,0,Dz
+
+===== M5+ C1 (a,b) 14 P2_1c, basis={(0,1,0),(0,0,1),(1,-1,0)}, origin=(0,0,0 =====
+LOC: M5+ C1 (a,b) 14 P2_1 c, basis={(0,1,0),(0,0,1),(1,-1,0)}, origin=(0,0,
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 1 21/c 1"
+    LOC: _symmetry_space_group_name_H-M "P 2_1/c"
+  OK sg
+  OK p2c
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    6
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    4
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: M5+, k15t9
+    LOC: # IR: M5+
+  DIFF opd:
+    OFF: # C1   (a,b)  14 P2_1/c, basis={(0,1,0),(0,0,1),(1,-1,0)}, origin=(0,0,0), s=2, i=8, k-active= (1,1,1)
+    LOC: # M5+      C1   (a,b)  14 P2_1/c, basis={(0,1,0),(0,0,1),(1,-1,0)}, origin=(0,0,0), s=2, i=8, k-active= (1,1,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   2 a  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   2 e  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Al1_1 Al   4 e  0.50000  0.25000  0.00000  1.00000 Dx,Dy,Dz
+    LOC: Al1_1 Al   4 f  0.50000  0.25000  0.00000  1.00000 Dx,Dy,Dz
+    OFF: Al2_1 Al   4 e  0.00000  0.38000  0.00000  1.00000 Dx,Dy,Dz
+    LOC: Al2_1 Al   4 f  0.00000  0.38000  0.00000  1.00000 Dx,Dy,Dz
+
+===== M5+ P1 (a,0) 64 Cmca, basis={(1,1,0),(1,-1,0),(0,0,-1)}, origin=(0,0,0 =====
+LOC: M5+ P1 (a,0) 64 Cmca, basis={(1,1,0),(1,-1,0),(0,0,-1)}, origin=(0,0,0
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "C 2/m 2/c 21/a"
+    LOC: _symmetry_space_group_name_H-M "C 2/m 2/c 2_1/a"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a+b,a-b,-c;0,0,1
+    LOC: _iso_parent-to-child.transform_Pp_abc a+b,a-b,-c;0,0,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    3
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: M5+, k15t9
+    LOC: # IR: M5+
+  DIFF opd:
+    OFF: # P1   (a,0)  64 Cmca, basis={(1,1,0),(1,-1,0),(0,0,-1)}, origin=(0,0,0), s=2, i=4, k-active= (1,1,1)
+    LOC: # M5+      P1   (a,0)  64 Cmca, basis={(1,1,0),(1,-1,0),(0,0,-1)}, origin=(0,0,0), s=2, i=4, k-active= (1,1,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 a  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   4 f  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Al1_1 Al   8 e  0.25000  0.25000  0.25000  1.00000 0,Dy,0
+    LOC: Al1_1 Al   8 g  0.25000  0.75000  0.75000  1.00000 0,Dy,0
+    OFF: Al2_1 Al   8 f  0.00000  0.00000  0.62000  1.00000 0,Dy,Dz
+    LOC: Al2_1 Al   8 g  0.00000  0.00000  0.62000  1.00000 0,Dy,Dz
+
+===== M5+ P3 (a,a) 58 Pnnm, basis={(-1,0,0),(0,0,1),(0,1,0)}, origin=(0,0,0) =====
+LOC: M5+ P3 (a,a) 58 Pnnm, basis={(-1,0,0),(0,0,1),(0,1,0)}, origin=(0,0,0)
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 21/n 21/n 2/m"
+    LOC: _symmetry_space_group_name_H-M "P n n m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc -a,c,b;1,0,0
+    LOC: _iso_parent-to-child.transform_Pp_abc -a,c,b;0,0,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    4
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: M5+, k15t9
+    LOC: # IR: M5+
+  DIFF opd:
+    OFF: # P3   (a,a)  58 Pnnm, basis={(-1,0,0),(0,0,1),(0,1,0)}, origin=(0,0,0), s=2, i=4, k-active= (1,1,1)
+    LOC: # M5+      P3   (a,a)  58 Pnnm, basis={(-1,0,0),(0,0,1),(0,1,0)}, origin=(0,0,0), s=2, i=4, k-active= (1,1,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   2 a  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   2 e  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Al1_1 Al   4 g  0.50000  0.75000  0.00000  1.00000 Dx,Dy,0
+    LOC: Al1_1 Al   4 f  0.00000  0.25000  0.50000  1.00000 Dx,Dy,0
+    OFF: Al2_1 Al   4 g  0.00000  0.38000  0.00000  1.00000 Dx,Dy,0
+    LOC: Al2_1 Al   4 f  0.00000  0.38000  0.00000  1.00000 Dx,Dy,0
+
+===== M5- C1 (a,b) 11 P2_1m, basis={(0,1,0),(0,0,1),(1,0,0)}, origin=(14,14, =====
+LOC: M5- C1 (a,b) 11 P2_1 m, basis={(0,1,0),(0,0,1),(1,0,0)}, origin=(1 4,1
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 1 21/m 1"
+    LOC: _symmetry_space_group_name_H-M "P 2_1/m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc b,c,a;1/4,1/4,1/4
+    LOC: _iso_parent-to-child.transform_Pp_abc b,c,a;0,0,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    8
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    4
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: M5-, k15t10
+    LOC: # IR: M5-
+  DIFF opd:
+    OFF: # C1   (a,b)  11 P2_1/m, basis={(0,1,0),(0,0,1),(1,0,0)}, origin=(1/4,1/4,1/4), s=2, i=8, k-active= (1,1,1)
+    LOC: # M5-      C1   (a,b)  11 P2_1/m, basis={(0,1,0),(0,0,1),(1,0,0)}, origin=(1/4,1/4,1/4), s=2, i=8, k-active= (1,1,1)
+  DIFF sites:
+    OFF: Al1_1 Al   4 f  0.25000  0.00000  0.75000  1.00000 Dx,Dy,Dz
+    LOC: Al1_1 Al   4 f  0.75000  0.50000  0.25000  1.00000 Dx,Dy,Dz
+    OFF: Al2_1 Al   4 f  0.75000  0.13000  0.75000  1.00000 Dx,Dy,Dz
+    LOC: Al2_1 Al   4 f  0.25000  0.63000  0.25000  1.00000 Dx,Dy,Dz
+
+===== M5- P1 (a,0) 63 Cmcm, basis={(1,1,0),(1,-1,0),(0,0,-1)}, origin=(14,34 =====
+LOC: M5- P1 (a,0) 63 Cmcm, basis={(1,1,0),(1,-1,0),(0,0,-1)}, origin=(1 4,3
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "C 2/m 2/c 21/m"
+    LOC: _symmetry_space_group_name_H-M "C m c m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a+b,a-b,-c;-3/4,3/4,3/4
+    LOC: _iso_parent-to-child.transform_Pp_abc a+b,a-b,-c;0,1,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    4
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: M5-, k15t10
+    LOC: # IR: M5-
+  DIFF opd:
+    OFF: # P1   (a,0)  63 Cmcm, basis={(1,1,0),(1,-1,0),(0,0,-1)}, origin=(1/4,3/4,-1/4), s=2, i=4, k-active= (1,1,1)
+    LOC: # M5-      P1   (a,0)  63 Cmcm, basis={(1,1,0),(1,-1,0),(0,0,-1)}, origin=(1/4,3/4,-1/4), s=2, i=4, k-active= (1,1,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 c  0.00000  0.25000  0.25000  1.00000 0,Dy,0
+    LOC: Eu1_1 Eu   4 f  0.00000  0.25000  0.25000  1.00000 0,Dy,0
+    OFF: Al1_1 Al   8 e  0.25000  0.00000  0.00000  1.00000 Dx,0,0
+    LOC: Al1_1 Al   8 g  0.25000  0.00000  0.00000  1.00000 Dx,0,0
+    OFF: Al2_1 Al   8 f  0.00000  0.75000  0.37000  1.00000 0,Dy,Dz
+    LOC: Al2_1 Al   8 g  0.00000  0.25000  0.87000  1.00000 0,Dy,Dz
+
+===== M5- P3 (a,a) 59 Pmmn, basis={(-1,0,0),(0,0,1),(0,1,0)}, origin=(14,14, =====
+LOC: M5- P3 (a,a) 59 Pmmn, basis={(-1,0,0),(0,0,1),(0,1,0)}, origin=(1 4,1 
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 21/m 21/m 2/n (origin choice 2)"
+    LOC: _symmetry_space_group_name_H-M "P m m n"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc -a,c,b;5/4,1/4,-1/4
+    LOC: _iso_parent-to-child.transform_Pp_abc -a,c,b;1/4,0,-1/4
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    5
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: M5-, k15t10
+    LOC: # IR: M5-
+  DIFF opd:
+    OFF: # P3   (a,a)  59 Pmmn, basis={(-1,0,0),(0,0,1),(0,1,0)}, origin=(1/4,1/4,-1/4), s=2, i=4, k-active= (1,1,1)
+    LOC: # M5-      P3   (a,a)  59 Pmmn, basis={(-1,0,0),(0,0,1),(0,1,0)}, origin=(1/4,1/4,-1/4), s=2, i=4, k-active= (1,1,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   2 a  0.25000  0.25000  0.75000  1.00000 0,0,Dz
+    LOC: Eu1_1 Eu   2 e  0.00000  0.00000  0.25000  1.00000 0,0,Dz
+    OFF: Al1_1 Al   4 e  0.25000  0.50000  0.25000  1.00000 0,Dy,Dz
+    LOC: Al1_1 Al   4 f  0.00000  0.25000  0.75000  1.00000 0,Dy,Dz
+    OFF: Al2_1 Al   4 e  0.25000  0.63000  0.75000  1.00000 0,Dy,Dz
+    LOC: Al2_1 Al   4 f  0.00000  0.38000  0.25000  1.00000 0,Dy,Dz
+
+===== N1+ P5 (a;0;0;0) 12 C2m, basis={(1,0,-1),(0,-1,0),(-2,0,0)}, origin=(0 =====
+LOC: N1+ P5 (a;0;0;0) 12 C2 m, basis={(1,0,-1),(0,-1,0),(-2,0,0)}, origin=(
+FOLDER: possible slash→space fraction
+FOLDER: HM has spaces from slash strip
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "C 1 2/m 1"
+    LOC: _symmetry_space_group_name_H-M "C 2/m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a-c,-b,-2a;1,1,1
+    LOC: _iso_parent-to-child.transform_Pp_abc a-c,b,a+c;-1/2,0,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    8
+    LOC: _iso_displacivemode_number    3
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    4
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: N1+, k11t1
+    LOC: # IR: N1+
+  DIFF opd:
+    OFF: # P5   (a;0;0;0)  12 C2/m, basis={(1,0,-1),(0,-1,0),(-2,0,0)}, origin=(0,0,0), s=2, i=8, k-active= (1/2,0,1/2)
+    LOC: # N1+      P5   (a;0;0;0)  12 C2/m, basis={(1,0,-1),(0,-1,0),(-2,0,0)}, origin=(0,0,0), s=2, i=8, k-active= (1/2,0,1/2)
+  DIFF sites:
+    OFF: Eu1_1 Eu   2 a  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   4 f  0.25000  0.00000  0.25000  1.00000 Dx,0,Dz
+    OFF: Eu1_2 Eu   2 c  0.00000  0.00000  0.50000  1.00000 0,0,0
+    LOC: Al1_1 Al   4 f  0.12500  0.50000  0.37500  1.00000 Dx,0,Dz
+    OFF: Al1_1 Al   4 i  0.25000  0.00000  0.87500  1.00000 Dx,0,Dz
+    LOC: Al1_2 Al   4 f  0.62500  0.50000  0.87500  1.00000 Dx,0,Dz
+    OFF: Al1_2 Al   4 i  0.25000  0.00000  0.37500  1.00000 Dx,0,Dz
+    LOC: Al2_1 Al   4 f  0.06000  0.00000  0.44000  1.00000 Dx,0,Dz
+    OFF: Al2_1 Al   4 i  0.62000  0.00000  0.81000  1.00000 Dx,0,Dz
+    LOC: Al2_2 Al   4 f  0.56000  0.00000  0.94000  1.00000 Dx,0,Dz
+
+===== N2+ C8 (a;b;b;a) 12 C2m, basis={(2,-2,0),(2,2,0),(-1,1,1)}, origin=(12 =====
+LOC: N2+ C8 (a;b;b;a) 12 C2 m, basis={(2,-2,0),(2,2,0),(-1,1,1)}, origin=(1
+FOLDER: possible slash→space fraction
+FOLDER: HM has spaces from slash strip
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "C 1 2/m 1"
+    LOC: _symmetry_space_group_name_H-M "C 2/m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc 2a-2b,2a+2b,-a+b+c;-3/2,1/2,1/2
+    LOC: _iso_parent-to-child.transform_Pp_abc 2c,2a+2b,-a+b+c;0,0,1/2
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number   26
+    LOC: _iso_displacivemode_number    9
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    4
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: N2+, k11t3
+    LOC: # IR: N2+
+  DIFF opd:
+    OFF: # C8   (a;b;b;a)  12 C2/m, basis={(2,-2,0),(2,2,0),(-1,1,1)}, origin=(1/2,1/2,1/2), s=8, i=32, k-active= (1/2,0,1/2),(1/2,1,1/2),(0,1/2,1/2),(1,1/2,1/2)
+    LOC: # N2+      C8   (a;b;b;a)  12 C2/m, basis={(2,-2,0),(2,2,0),(-1,1,1)}, origin=(1/2,1/2,1/2), s=8, i=32, k-active= (1/2,0,1/2),(1/2,1,1/2),(0,1/2,1/2),(1,1/2,1/2)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 f  0.25000  0.25000  0.50000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   4 f  0.00000  0.25000  0.00000  1.00000 0,Dy,0
+    OFF: Eu1_2 Eu   4 e  0.25000  0.25000  0.00000  1.00000 0,0,0
+    LOC: Eu1_2 Eu   4 f  0.25000  0.50000  0.00000  1.00000 Dx,0,Dz
+    OFF: Eu1_3 Eu   2 c  0.00000  0.00000  0.50000  1.00000 0,0,0
+    LOC: Eu1_3 Eu   4 f  0.25000  0.50000  0.50000  1.00000 Dx,0,Dz
+    OFF: Eu1_4 Eu   2 a  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_4 Eu   4 f  0.50000  0.75000  0.50000  1.00000 0,Dy,0
+    OFF: Eu1_5 Eu   2 d  0.00000  0.50000  0.50000  1.00000 0,0,0
+    LOC: Al1_1 Al   8 g  0.00000  0.37500  0.25000  1.00000 Dx,Dy,Dz
+    OFF: Eu1_6 Eu   2 b  0.00000  0.50000  0.00000  1.00000 0,0,0
+    LOC: Al1_2 Al   8 g  0.25000  0.62500  0.75000  1.00000 Dx,Dy,Dz
+
+===== P3 P3 (a,0) 139 I4mmm, basis={(-1,1,0),(-1,-1,0),(0,0,2)}, origin=(-12 =====
+LOC: P3 P3 (a,0) 139 I4 mmm, basis={(-1,1,0),(-1,-1,0),(0,0,2)}, origin=(-1
+FOLDER: possible slash→space fraction
+FOLDER: HM has spaces from slash strip
+  OK hm
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc -a+b,-a-b,2c;3/2,1/2,-1
+    LOC: _iso_parent-to-child.transform_Pp_abc -a+b,-a-b,2c;-1/2,-1/2,-1/2
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    6
+    LOC: _iso_displacivemode_number    3
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    2
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: P3, k12t3
+    LOC: # IR: P3
+  DIFF opd:
+    OFF: # P3   (a,0) 139 I4/mmm, basis={(-1,1,0),(-1,-1,0),(0,0,2)}, origin=(-1/2,-1/2,0), s=4, i=4, k-active= (1/2,1/2,1/2)
+    LOC: # P3       P3   (a,0) 139 I4/mmm, basis={(-1,1,0),(-1,-1,0),(0,0,2)}, origin=(-1/2,-1/2,0), s=4, i=4, k-active= (1/2,1/2,1/2)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 c  0.00000  0.50000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   4 d  0.50000  0.00000  0.50000  1.00000 0,0,0
+    OFF: Eu1_2 Eu   4 e  0.00000  0.00000  0.75000  1.00000 0,0,Dz
+    LOC: Eu1_2 Eu   4 f  0.50000  0.50000  0.25000  1.00000 0,0,Dz
+    OFF: Al1_1 Al  16 m  0.75000  0.75000  0.12500  1.00000 Dx,Dx,Dz
+    LOC: Al1_1 Al  16 h  0.75000  0.25000  0.37500  1.00000 0,0,Dz
+    OFF: Al2_1 Al   8 g  0.00000  0.50000  0.69000  1.00000 0,0,Dz
+    LOC: Al2_1 Al   4 f  0.50000  0.50000  0.44000  1.00000 0,0,Dz
+    OFF: Al2_2 Al   4 e  0.00000  0.00000  0.44000  1.00000 0,0,Dz
+    LOC: Al2_2 Al   4 f  0.50000  0.50000  0.94000  1.00000 0,0,Dz
+    OFF: Al2_3 Al   4 e  0.00000  0.00000 -0.06000  1.00000 0,0,Dz
+    LOC: Al2_3 Al   8 g  0.50000  0.00000  0.69000  1.00000 0,0,Dz
+
+===== P5 C13 (a,b,-b,a) 46 Ima2, basis={(-1,1,0),(1,1,0),(0,0,-2)}, origin=( =====
+LOC: P5 C13 (a,b,-b,a) 46 Ima2, basis={(-1,1,0),(1,1,0),(0,0,-2)}, origin=(
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "I m a 2"
+    LOC: _symmetry_space_group_name_H-M "I m a2"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc -a+b,a+b,-2c;1/2,0,3/2
+    LOC: _iso_parent-to-child.transform_Pp_abc -a+b,a+b,-2c;1/4,-1/4,-1/2
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number   16
+    LOC: _iso_displacivemode_number    5
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: P5, k12t5
+    LOC: # IR: P5
+  DIFF opd:
+    OFF: # C13  (a,b,-b,a)  46 Ima2, basis={(-1,1,0),(1,1,0),(0,0,-2)}, origin=(1/2,0,-1/2), s=4, i=16, k-active= (1/2,1/2,1/2)
+    LOC: # P5       C13  (a,b,-b,a)  46 Ima2, basis={(-1,1,0),(1,1,0),(0,0,-2)}, origin=(1/2,0,-1/2), s=4, i=16, k-active= (1/2,1/2,1/2)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 b  0.25000  0.75000  0.75000  1.00000 0,Dy,Dz
+    LOC: Eu1_1 Eu   8 g  0.00000  0.25000  0.50000  1.00000 Dx,Dy,Dz
+    OFF: Eu1_2 Eu   4 b  0.25000  0.25000  0.00000  1.00000 0,Dy,Dz
+    LOC: Eu1_2 Eu   8 g  0.00000  0.75000  0.25000  1.00000 Dx,Dy,Dz
+    OFF: Al1_1 Al   4 a  0.00000  0.00000  0.62500  1.00000 0,0,Dz
+    LOC: Al1_1 Al   4 f  0.25000  0.50000  0.12500  1.00000 0,Dy,Dz
+    OFF: Al1_2 Al   4 a  0.00000  0.00000  0.12500  1.00000 0,0,Dz
+    LOC: Al1_2 Al   4 f  0.25000  0.50000  0.37500  1.00000 0,Dy,Dz
+    OFF: Al1_3 Al   4 a  0.00000  0.00000  0.37500  1.00000 0,0,Dz
+    LOC: Al1_3 Al   4 f  0.25000  0.50000  0.62500  1.00000 0,Dy,Dz
+    OFF: Al1_4 Al   4 a  0.00000  0.00000  0.87500  1.00000 0,0,Dz
+    LOC: Al1_4 Al   4 f  0.25000  0.50000  0.87500  1.00000 0,Dy,Dz
+
+===== X1+ C1 (a;b) 47 Pmmm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0) =====
+LOC: X1+ C1 (a;b) 47 Pmmm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0)
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 2/m 2/m 2/m"
+    LOC: _symmetry_space_group_name_H-M "P m m m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a+b,-a+b,c;0,0,0
+    LOC: _iso_parent-to-child.transform_Pp_abc a+b,-a+b,c;0,-1/2,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    7
+    LOC: _iso_displacivemode_number    3
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X1+, k13t1
+    LOC: # IR: X1+
+  DIFF opd:
+    OFF: # C1   (a;b)  47 Pmmm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X1+      C1   (a;b)  47 Pmmm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   1 a      0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   4 f  0.25000  0.25000  0.00000  1.00000 Dx,Dy,0
+    OFF: Eu1_2 Eu   1 g      0.00000  0.50000  0.50000  1.00000 0,0,0
+    LOC: Eu1_2 Eu   4 f  0.75000  0.25000  0.50000  1.00000 Dx,Dy,0
+    OFF: Eu1_3 Eu   1 d      0.50000  0.00000  0.50000  1.00000 0,0,0
+    LOC: Al1_1 Al   2 e  0.00000  0.00000  0.25000  1.00000 0,0,Dz
+    OFF: Eu1_4 Eu   1 f      0.50000  0.50000  0.00000  1.00000 0,0,0
+    LOC: Al1_2 Al   2 e  0.00000  0.50000  0.25000  1.00000 0,0,Dz
+    OFF: Al2_1 Al   2 q      0.00000  0.00000  0.38000  1.00000 0,0,Dz
+    LOC: Al1_3 Al   2 e  0.50000  0.00000  0.25000  1.00000 0,0,Dz
+    OFF: Al2_2 Al   2 r      0.00000  0.50000  0.88000  1.00000 0,0,Dz
+    LOC: Al1_4 Al   2 e  0.50000  0.50000  0.25000  1.00000 0,0,Dz
+
+===== X1+ P1 (a;a) 123 P4mmm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(0,0, =====
+LOC: X1+ P1 (a;a) 123 P4 mmm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(0,0
+FOLDER: possible slash→space fraction
+FOLDER: HM has spaces from slash strip
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 4/m 2/m 2/m"
+    LOC: _symmetry_space_group_name_H-M "P 4/m m m"
+  OK sg
+  OK p2c
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    5
+    LOC: _iso_displacivemode_number    3
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    2
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X1+, k13t1
+    LOC: # IR: X1+
+  DIFF opd:
+    OFF: # P1   (a;a) 123 P4/mmm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(0,0,0), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X1+      P1   (a;a) 123 P4/mmm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(0,0,0), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   1 a  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   1 d  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Eu1_2 Eu   2 e  0.00000  0.50000  0.50000  1.00000 0,0,0
+    LOC: Eu1_2 Eu   1 d  0.50000  0.50000  0.00000  1.00000 0,0,0
+    OFF: Eu1_3 Eu   1 c  0.50000  0.50000  0.00000  1.00000 0,0,0
+    LOC: Eu1_3 Eu   2 e  0.00000  0.50000  0.50000  1.00000 0,0,0
+    OFF: Al1_1 Al   8 r  0.75000  0.75000  0.75000  1.00000 Dx,Dx,Dz
+    LOC: Al1_1 Al   8 g  0.75000  0.25000  0.25000  1.00000 0,0,Dz
+    OFF: Al2_1 Al   2 g  0.00000  0.00000  0.38000  1.00000 0,0,Dz
+    LOC: Al2_1 Al   2 e  0.00000  0.00000  0.38000  1.00000 0,0,Dz
+    OFF: Al2_2 Al   4 i  0.00000  0.50000  0.88000  1.00000 0,0,Dz
+    LOC: Al2_2 Al   2 e  0.50000  0.50000  0.38000  1.00000 0,0,Dz
+
+===== X1+ P3 (a;0) 65 Cmmm, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,0,0) =====
+LOC: X1+ P3 (a;0) 65 Cmmm, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,0,0)
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "C 2/m 2/m 2/m"
+    LOC: _symmetry_space_group_name_H-M "C m m m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc c,a-b,a+b;0,0,0
+    LOC: _iso_parent-to-child.transform_Pp_abc c,a-b,a+b;-1/2,0,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    3
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X1+, k13t1
+    LOC: # IR: X1+
+  DIFF opd:
+    OFF: # P3   (a;0)  65 Cmmm, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,0,0), s=2, i=4, k-active= (1/2,1/2,0)
+    LOC: # X1+      P3   (a;0)  65 Cmmm, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,0,0), s=2, i=4, k-active= (1/2,1/2,0)
+  DIFF sites:
+    OFF: Eu1_1 Eu   2 a  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   8 g  0.00000  0.25000  0.25000  1.00000 0,Dy,Dz
+    OFF: Eu1_2 Eu   2 c  0.50000  0.00000  0.50000  1.00000 0,0,0
+    LOC: Al1_1 Al   4 f  0.25000  0.00000  0.50000  1.00000 Dx,0,0
+    OFF: Al1_1 Al   8 m  0.25000  0.25000  0.75000  1.00000 0,0,Dz
+    LOC: Al1_2 Al   4 f  0.25000  0.50000  0.00000  1.00000 Dx,0,0
+    OFF: Al2_1 Al   4 g  0.38000  0.00000  0.00000  1.00000 Dx,0,0
+    LOC: Al2_1 Al  16 h  0.38000  0.25000  0.25000  1.00000 Dx,Dy,Dz
+
+===== X1- C1 (a;b) 50 Pban, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,12,0 =====
+LOC: X1- C1 (a;b) 50 Pban, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,1 2,
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 2/b 2/a 2/n (origin choice 2)"
+    LOC: _symmetry_space_group_name_H-M "P b a n"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a+b,-a+b,c;1,-1/2,0
+    LOC: _iso_parent-to-child.transform_Pp_abc a+b,-a+b,c;0,1/2,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    5
+    LOC: _iso_displacivemode_number    0
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X1-, k13t2
+    LOC: # IR: X1-
+  DIFF opd:
+    OFF: # C1   (a;b)  50 Pban, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,1/2,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X1-      C1   (a;b)  50 Pban, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,1/2,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   2 a  0.25000  0.25000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   2 e  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Eu1_2 Eu   2 c  0.75000  0.25000  0.50000  1.00000 0,0,0
+    LOC: Eu1_2 Eu   2 e  0.50000  0.00000  0.50000  1.00000 0,0,0
+    OFF: Al1_1 Al   8 m  0.00000  0.00000  0.25000  1.00000 Dx,Dy,Dz
+    LOC: Al1_1 Al   8 g  0.25000  0.25000  0.25000  1.00000 Dx,Dy,Dz
+    OFF: Al2_1 Al   4 k  0.25000  0.25000  0.38000  1.00000 0,0,Dz
+    LOC: Al2_1 Al   4 f  0.00000  0.00000  0.38000  1.00000 0,0,Dz
+    OFF: Al2_2 Al   4 l  0.25000  0.75000  0.88000  1.00000 0,0,Dz
+    LOC: Al2_2 Al   4 f  0.50000  0.00000  0.88000  1.00000 0,0,Dz
+
+===== X1- P1 (a;a) 125 P4nbm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(-32, =====
+LOC: X1- P1 (a;a) 125 P4 nbm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(-3 
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 4/n 2/b 2/m (origin choice 2)"
+    LOC: _symmetry_space_group_name_H-M "P 4/n b m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a-b,a+b,c;-1/2,1,0
+    LOC: _iso_parent-to-child.transform_Pp_abc a-b,a+b,c;-3/2,0,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    4
+    LOC: _iso_displacivemode_number    0
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    2
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X1-, k13t2
+    LOC: # IR: X1-
+  DIFF opd:
+    OFF: # P1   (a;a) 125 P4/nbm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(-3/2,0,0), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X1-      P1   (a;a) 125 P4/nbm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(-3/2,0,0), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   2 a  0.25000  0.25000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   2 e  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Eu1_2 Eu   2 d  0.75000  0.25000  0.50000  1.00000 0,0,0
+    LOC: Eu1_2 Eu   2 e  0.00000  0.50000  0.50000  1.00000 0,0,0
+    OFF: Al1_1 Al   8 m  0.50000  0.50000  0.75000  1.00000 Dx,-Dx,Dz
+    LOC: Al1_1 Al   8 g  0.75000  0.25000  0.25000  1.00000 0,0,Dz
+    OFF: Al2_1 Al   4 g  0.25000  0.25000  0.38000  1.00000 0,0,Dz
+    LOC: Al2_1 Al   4 f  0.00000  0.00000  0.38000  1.00000 0,0,Dz
+    OFF: Al2_2 Al   4 h  0.75000  0.25000  0.88000  1.00000 0,0,Dz
+    LOC: Al2_2 Al   4 f  0.00000  0.50000  0.88000  1.00000 0,0,Dz
+
+===== X1- P3 (a;0) 68 Ccca, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(-12,0, =====
+LOC: X1- P3 (a;0) 68 Ccca, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(-1 2,0
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "C 2/c 2/c 2/a (origin choice 2)"
+    LOC: _symmetry_space_group_name_H-M "C 2/c 2/c 2/a"
+  OK sg
+  OK p2c
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    2
+    LOC: _iso_displacivemode_number    0
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X1-, k13t2
+    LOC: # IR: X1-
+  DIFF opd:
+    OFF: # P3   (a;0)  68 Ccca, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(-1/2,0,0), s=2, i=4, k-active= (1/2,1/2,0)
+    LOC: # X1-      P3   (a;0)  68 Ccca, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(-1/2,0,0), s=2, i=4, k-active= (1/2,1/2,0)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 a  0.00000  0.25000  0.25000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   4 f  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Al1_1 Al   8 h  0.25000  0.00000  0.50000  1.00000 0,0,Dz
+    LOC: Al1_1 Al   8 g  0.25000  0.75000  0.25000  1.00000 0,0,Dz
+    OFF: Al2_1 Al   8 e  0.38000  0.25000  0.25000  1.00000 Dx,0,0
+    LOC: Al2_1 Al   8 g  0.38000  0.00000  0.00000  1.00000 Dx,0,0
+
+===== X2+ C1 (a;b) 55 Pbam, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0) =====
+LOC: X2+ C1 (a;b) 55 Pbam, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0)
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 21/b 21/a 2/m"
+    LOC: _symmetry_space_group_name_H-M "P b a m"
+  OK sg
+  OK p2c
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    5
+    LOC: _iso_displacivemode_number    0
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X2+, k13t7
+    LOC: # IR: X2+
+  DIFF opd:
+    OFF: # C1   (a;b)  55 Pbam, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X2+      C1   (a;b)  55 Pbam, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   2 a  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   2 e  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Eu1_2 Eu   2 d  0.00000  0.50000  0.50000  1.00000 0,0,0
+    LOC: Eu1_2 Eu   2 e  0.50000  0.00000  0.50000  1.00000 0,0,0
+    OFF: Al1_1 Al   8 i  0.25000  0.25000  0.25000  1.00000 Dx,Dy,Dz
+    LOC: Al1_1 Al   8 g  0.25000  0.25000  0.25000  1.00000 Dx,Dy,Dz
+    OFF: Al2_1 Al   4 e  0.00000  0.00000  0.38000  1.00000 0,0,Dz
+    LOC: Al2_1 Al   4 f  0.00000  0.00000  0.38000  1.00000 0,0,Dz
+    OFF: Al2_2 Al   4 f  0.00000  0.50000  0.88000  1.00000 0,0,Dz
+    LOC: Al2_2 Al   4 f  0.50000  0.00000  0.88000  1.00000 0,0,Dz
+
+===== X2+ P1 (a;a) 127 P4mbm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(12,- =====
+LOC: X2+ P1 (a;a) 127 P4 mbm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(1 2
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 4/m 21/b 2/m"
+    LOC: _symmetry_space_group_name_H-M "P 4/m b m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a-b,a+b,c;-1/2,1/2,0
+    LOC: _iso_parent-to-child.transform_Pp_abc a-b,a+b,c;1/2,-1/2,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    4
+    LOC: _iso_displacivemode_number    0
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    2
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X2+, k13t7
+    LOC: # IR: X2+
+  DIFF opd:
+    OFF: # P1   (a;a) 127 P4/mbm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(1/2,-1/2,0), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X2+      P1   (a;a) 127 P4/mbm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(1/2,-1/2,0), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   2 d  0.00000  0.50000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   2 e  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Eu1_2 Eu   2 b  0.00000  0.00000  0.50000  1.00000 0,0,0
+    LOC: Eu1_2 Eu   2 e  0.00000  0.50000  0.50000  1.00000 0,0,0
+    OFF: Al1_1 Al   8 k  0.25000  0.75000  0.75000  1.00000 Dx,Dx,Dz
+    LOC: Al1_1 Al   8 g  0.75000  0.25000  0.25000  1.00000 0,0,Dz
+    OFF: Al2_1 Al   4 f  0.00000  0.50000  0.38000  1.00000 0,0,Dz
+    LOC: Al2_1 Al   4 f  0.00000  0.00000  0.38000  1.00000 0,0,Dz
+    OFF: Al2_2 Al   4 e  0.00000  0.00000  0.88000  1.00000 0,0,Dz
+    LOC: Al2_2 Al   4 f  0.00000  0.50000  0.88000  1.00000 0,0,Dz
+
+===== X2+ P3 (a;0) 64 Cmca, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,0,0) =====
+LOC: X2+ P3 (a;0) 64 Cmca, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,0,0)
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "C 2/m 2/c 21/a"
+    LOC: _symmetry_space_group_name_H-M "C 2/m 2/c 2_1/a"
+  OK sg
+  OK p2c
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    2
+    LOC: _iso_displacivemode_number    0
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X2+, k13t7
+    LOC: # IR: X2+
+  DIFF opd:
+    OFF: # P3   (a;0)  64 Cmca, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,0,0), s=2, i=4, k-active= (1/2,1/2,0)
+    LOC: # X2+      P3   (a;0)  64 Cmca, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,0,0), s=2, i=4, k-active= (1/2,1/2,0)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 a  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   4 f  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Al1_1 Al   8 e  0.25000  0.75000  0.25000  1.00000 0,Dy,0
+    LOC: Al1_1 Al   8 g  0.25000  0.75000  0.25000  1.00000 0,Dy,0
+    OFF: Al2_1 Al   8 d  0.38000  0.00000  0.00000  1.00000 Dx,0,0
+    LOC: Al2_1 Al   8 g  0.38000  0.00000  0.00000  1.00000 Dx,0,0
+
+===== X2- C1 (a;b) 59 Pmmn, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,12,0 =====
+LOC: X2- C1 (a;b) 59 Pmmn, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,1 2,
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 21/m 21/m 2/n (origin choice 2)"
+    LOC: _symmetry_space_group_name_H-M "P m m n"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a+b,-a+b,c;1,-1/2,0
+    LOC: _iso_parent-to-child.transform_Pp_abc a+b,-a+b,c;0,1/2,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    9
+    LOC: _iso_displacivemode_number    3
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X2-, k13t8
+    LOC: # IR: X2-
+  DIFF opd:
+    OFF: # C1   (a;b)  59 Pmmn, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,1/2,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X2-      C1   (a;b)  59 Pmmn, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,1/2,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   2 a  0.25000  0.25000  0.00000  1.00000 0,0,Dz
+    LOC: Eu1_1 Eu   2 e  0.00000  0.00000  0.00000  1.00000 0,0,Dz
+    OFF: Eu1_2 Eu   2 b  0.25000  0.75000  0.50000  1.00000 0,0,Dz
+    LOC: Eu1_2 Eu   2 e  0.50000  0.00000  0.50000  1.00000 0,0,Dz
+    OFF: Al1_1 Al   8 g  0.00000  0.00000  0.25000  1.00000 Dx,Dy,Dz
+    LOC: Al1_1 Al   8 g  0.25000  0.25000  0.25000  1.00000 Dx,Dy,Dz
+    OFF: Al2_1 Al   2 a  0.25000  0.25000  0.62000  1.00000 0,0,Dz
+    LOC: Al2_1 Al   2 e  0.00000  0.00000  0.38000  1.00000 0,0,Dz
+    OFF: Al2_2 Al   2 b  0.25000  0.75000  0.12000  1.00000 0,0,Dz
+    LOC: Al2_2 Al   2 e  0.00000  0.50000  0.88000  1.00000 0,0,Dz
+    OFF: Al2_3 Al   2 b  0.25000  0.75000  0.88000  1.00000 0,0,Dz
+    LOC: Al2_3 Al   2 e  0.50000  0.00000  0.88000  1.00000 0,0,Dz
+
+===== X2- P1 (a;a) 129 P4nmm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(-1,1 =====
+LOC: X2- P1 (a;a) 129 P4 nmm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(-1,
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 4/n 21/m 2/m (origin choice 2)"
+    LOC: _symmetry_space_group_name_H-M "P 4/n 2_1/m 2/m"
+  OK sg
+  OK p2c
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    6
+    LOC: _iso_displacivemode_number    3
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    2
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X2-, k13t8
+    LOC: # IR: X2-
+  DIFF opd:
+    OFF: # P1   (a;a) 129 P4/nmm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(-1,1/2,0), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X2-      P1   (a;a) 129 P4/nmm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(-1,1/2,0), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   2 a  0.75000  0.25000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   2 e  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Eu1_2 Eu   2 c  0.25000  0.25000  0.50000  1.00000 0,0,Dz
+    LOC: Eu1_2 Eu   2 e  0.00000  0.50000  0.50000  1.00000 0,0,Dz
+    OFF: Al1_1 Al   8 j  0.50000  0.50000  0.25000  1.00000 Dx,Dx,Dz
+    LOC: Al1_1 Al   8 g  0.75000  0.25000  0.25000  1.00000 0,0,Dz
+    OFF: Al2_1 Al   4 f  0.75000  0.25000  0.38000  1.00000 0,0,Dz
+    LOC: Al2_1 Al   2 e  0.00000  0.50000  0.88000  1.00000 0,0,Dz
+    OFF: Al2_2 Al   2 c  0.25000  0.25000  0.12000  1.00000 0,0,Dz
+    LOC: Al2_2 Al   2 e  0.50000  0.00000  0.88000  1.00000 0,0,Dz
+    OFF: Al2_3 Al   2 c  0.25000  0.25000  0.88000  1.00000 0,0,Dz
+    LOC: Al2_3 Al   4 f  0.00000  0.00000  0.38000  1.00000 0,0,Dz
+
+===== X2- P3 (a;0) 63 Cmcm, basis={(1,-1,0),(0,0,-1),(1,1,0)}, origin=(34,-1 =====
+LOC: X2- P3 (a;0) 63 Cmcm, basis={(1,-1,0),(0,0,-1),(1,1,0)}, origin=(3 4,-
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "C 2/m 2/c 21/m"
+    LOC: _symmetry_space_group_name_H-M "C m c m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a-b,-c,a+b;-1/4,3/4,5/4
+    LOC: _iso_parent-to-child.transform_Pp_abc a-b,-c,a+b;3/4,-1/4,1/2
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    4
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X2-, k13t8
+    LOC: # IR: X2-
+  DIFF opd:
+    OFF: # P3   (a;0)  63 Cmcm, basis={(1,-1,0),(0,0,-1),(1,1,0)}, origin=(3/4,-1/4,1/4), s=2, i=4, k-active= (1/2,1/2,0)
+    LOC: # X2-      P3   (a;0)  63 Cmcm, basis={(1,-1,0),(0,0,-1),(1,1,0)}, origin=(3/4,-1/4,1/4), s=2, i=4, k-active= (1/2,1/2,0)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 c  0.00000  0.25000  0.25000  1.00000 0,Dy,0
+    LOC: Eu1_1 Eu   8 g  0.00000  0.25000  0.00000  1.00000 0,Dy,Dz
+    OFF: Al1_1 Al   8 e  0.25000  0.00000  0.00000  1.00000 Dx,0,0
+    LOC: Al1_1 Al   8 g  0.75000  0.00000  0.25000  1.00000 Dx,Dy,0
+    OFF: Al2_1 Al   4 c  0.00000  0.63000  0.25000  1.00000 0,Dy,0
+    LOC: Al2_1 Al   8 g  0.00000  0.87000  0.00000  1.00000 0,Dy,Dz
+    OFF: Al2_2 Al   4 c  0.00000  0.87000  0.25000  1.00000 0,Dy,0
+    LOC: Al2_2 Al   8 g  0.50000  0.87000  0.50000  1.00000 0,Dy,Dz
+
+===== X3+ C1 (a;b) 56 Pccn, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0) =====
+LOC: X3+ C1 (a;b) 56 Pccn, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0)
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 21/c 21/c 2/n"
+    LOC: _symmetry_space_group_name_H-M "P c c n"
+  OK sg
+  OK p2c
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    5
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X3+, k13t3
+    LOC: # IR: X3+
+  DIFF opd:
+    OFF: # C1   (a;b)  56 Pccn, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X3+      C1   (a;b)  56 Pccn, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 a  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   4 f  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Al1_1 Al   4 c  0.25000  0.25000  0.25000  1.00000 0,0,Dz
+    LOC: Al1_1 Al   4 f  0.25000  0.25000  0.25000  1.00000 0,0,Dz
+    OFF: Al1_2 Al   4 d  0.25000  0.75000  0.75000  1.00000 0,0,Dz
+    LOC: Al1_2 Al   4 f  0.25000  0.75000  0.25000  1.00000 0,0,Dz
+    OFF: Al2_1 Al   8 e  0.00000  0.00000  0.38000  1.00000 Dx,Dy,Dz
+    LOC: Al2_1 Al   8 g  0.00000  0.00000  0.38000  1.00000 Dx,Dy,Dz
+
+===== X3+ P1 (a;a) 138 P4_2ncm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(-1 =====
+LOC: X3+ P1 (a;a) 138 P4_2 ncm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(-
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 42/n 21/c 2/m (origin choice 2)"
+    LOC: _symmetry_space_group_name_H-M "P 4_2/n c m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a-b,a+b,c;-1/2,1/2,1/2
+    LOC: _iso_parent-to-child.transform_Pp_abc a-b,a+b,c;-3/4,1/4,-3/4
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    3
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    2
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X3+, k13t3
+    LOC: # IR: X3+
+  DIFF opd:
+    OFF: # P1   (a;a) 138 P4_2/ncm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(-1/2,1/2,-1/2), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X3+      P1   (a;a) 138 P4_2/ncm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(-1/2,1/2,-1/2), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 d  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu  16 h  0.00000  0.25000  0.25000  1.00000 Dx,Dy,Dz
+    OFF: Al1_1 Al   4 e  0.25000  0.25000  0.75000  1.00000 0,0,Dz
+    LOC: Al1_1 Al  16 h  0.75000  0.50000  0.50000  1.00000 Dx,Dy,Dz
+    OFF: Al1_2 Al   4 b  0.75000  0.25000  0.75000  1.00000 0,0,0
+    LOC: Al2_1 Al  16 h  0.00000  0.25000  0.63000  1.00000 Dx,Dy,Dz
+    OFF: Al2_1 Al   8 i  0.50000  0.50000  0.38000  1.00000 Dx,Dx,Dz
+    LOC: Al2_2 Al  16 h  0.50000  0.75000  0.63000  1.00000 Dx,Dy,Dz
+
+===== X3+ P3 (a;0) 64 Cmca, basis={(1,-1,0),(0,0,-1),(1,1,0)}, origin=(0,0,0 =====
+LOC: X3+ P3 (a;0) 64 Cmca, basis={(1,-1,0),(0,0,-1),(1,1,0)}, origin=(0,0,0
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "C 2/m 2/c 21/a"
+    LOC: _symmetry_space_group_name_H-M "C 2/m 2/c 2_1/a"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a-b,-c,a+b;0,0,1
+    LOC: _iso_parent-to-child.transform_Pp_abc a-b,-c,a+b;0,0,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    3
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X3+, k13t3
+    LOC: # IR: X3+
+  DIFF opd:
+    OFF: # P3   (a;0)  64 Cmca, basis={(1,-1,0),(0,0,-1),(1,1,0)}, origin=(0,0,0), s=2, i=4, k-active= (1/2,1/2,0)
+    LOC: # X3+      P3   (a;0)  64 Cmca, basis={(1,-1,0),(0,0,-1),(1,1,0)}, origin=(0,0,0), s=2, i=4, k-active= (1/2,1/2,0)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 a  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   4 f  0.00000  0.00000  0.00000  1.00000 0,0,0
+    OFF: Al1_1 Al   8 e  0.25000  0.25000  0.25000  1.00000 0,Dy,0
+    LOC: Al1_1 Al   8 g  0.75000  0.75000  0.25000  1.00000 0,Dy,0
+    OFF: Al2_1 Al   8 f  0.00000  0.62000  0.00000  1.00000 0,Dy,Dz
+    LOC: Al2_1 Al   8 g  0.00000  0.62000  0.00000  1.00000 0,Dy,Dz
+
+===== X3- C1 (a;b) 58 Pnnm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,12,0 =====
+LOC: X3- C1 (a;b) 58 Pnnm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,1 2,
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 21/n 21/n 2/m"
+    LOC: _symmetry_space_group_name_H-M "P n n m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a+b,-a+b,c;1,-1/2,0
+    LOC: _iso_parent-to-child.transform_Pp_abc a+b,-a+b,c;0,0,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    7
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X3-, k13t4
+    LOC: # IR: X3-
+  DIFF opd:
+    OFF: # C1   (a;b)  58 Pnnm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,1/2,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X3-      C1   (a;b)  58 Pnnm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,1/2,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 g  0.75000  0.75000  0.00000  1.00000 Dx,Dy,0
+    LOC: Eu1_1 Eu   4 f  0.25000  0.25000  0.00000  1.00000 Dx,Dy,0
+    OFF: Al1_1 Al   4 e  0.00000  0.00000  0.25000  1.00000 0,0,Dz
+    LOC: Al1_1 Al   4 f  0.50000  0.00000  0.25000  1.00000 0,0,Dz
+    OFF: Al1_2 Al   4 f  0.00000  0.50000  0.75000  1.00000 0,0,Dz
+    LOC: Al1_2 Al   4 f  0.50000  0.50000  0.25000  1.00000 0,0,Dz
+    OFF: Al2_1 Al   8 h  0.75000  0.75000  0.38000  1.00000 Dx,Dy,Dz
+    LOC: Al2_1 Al   8 g  0.25000  0.25000  0.38000  1.00000 Dx,Dy,Dz
+
+===== X3- P1 (a;a) 136 P4_2mnm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(12 =====
+LOC: X3- P1 (a;a) 136 P4_2 mnm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(1
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 42/m 21/n 2/m"
+    LOC: _symmetry_space_group_name_H-M "P 4_2/m n m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a-b,a+b,c;-1/2,1,0
+    LOC: _iso_parent-to-child.transform_Pp_abc a-b,a+b,c;0,0,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    4
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    2
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X3-, k13t4
+    LOC: # IR: X3-
+  DIFF opd:
+    OFF: # P1   (a;a) 136 P4_2/mnm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(1/2,0,0), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X3-      P1   (a;a) 136 P4_2/mnm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(1/2,0,0), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 f  0.75000  0.75000  0.00000  1.00000 Dx,Dx,0
+    LOC: Eu1_1 Eu   4 f  0.25000  0.25000  0.00000  1.00000 0,0,0
+    OFF: Al1_1 Al   4 d  0.00000  0.50000  0.25000  1.00000 0,0,0
+    LOC: Al1_1 Al   4 f  0.00000  0.50000  0.25000  1.00000 0,0,0
+    OFF: Al1_2 Al   4 e  0.00000  0.00000  0.75000  1.00000 0,0,Dz
+    LOC: Al1_2 Al   4 f  0.50000  0.50000  0.25000  1.00000 0,0,Dz
+    OFF: Al2_1 Al   8 j  0.75000  0.75000  0.38000  1.00000 Dx,Dx,Dz
+    LOC: Al2_1 Al   8 g  0.25000  0.25000  0.38000  1.00000 0,0,Dz
+
+===== X3- P3 (a;0) 63 Cmcm, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,12,1 =====
+LOC: X3- P3 (a;0) 63 Cmcm, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,1 2,
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "C 2/m 2/c 21/m"
+    LOC: _symmetry_space_group_name_H-M "C m c m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc c,a-b,a+b;-1/2,1,0
+    LOC: _iso_parent-to-child.transform_Pp_abc c,a-b,a+b;-1/4,3/4,1/2
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    4
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X3-, k13t4
+    LOC: # IR: X3-
+  DIFF opd:
+    OFF: # P3   (a;0)  63 Cmcm, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,1/2,1/2), s=2, i=4, k-active= (1/2,1/2,0)
+    LOC: # X3-      P3   (a;0)  63 Cmcm, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,1/2,1/2), s=2, i=4, k-active= (1/2,1/2,0)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 c  0.00000  0.25000  0.25000  1.00000 0,Dy,0
+    LOC: Eu1_1 Eu   8 g  0.00000  0.25000  0.00000  1.00000 0,Dy,Dz
+    OFF: Al1_1 Al   8 e  0.75000  0.00000  0.00000  1.00000 Dx,0,0
+    LOC: Al1_1 Al   8 g  0.25000  0.00000  0.25000  1.00000 Dx,Dy,0
+    OFF: Al2_1 Al   8 g  0.38000  0.25000  0.25000  1.00000 Dx,Dy,0
+    LOC: Al2_1 Al  16 h  0.38000  0.25000  0.00000  1.00000 Dx,Dy,Dz
+
+===== X4+ C1 (a;b) 48 Pnnn, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0) =====
+LOC: X4+ C1 (a;b) 48 Pnnn, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0)
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 2/n 2/n 2/n (origin choice 2)"
+    LOC: _symmetry_space_group_name_H-M "P n n n"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a+b,-a+b,c;0,0,0
+    LOC: _iso_parent-to-child.transform_Pp_abc a+b,-a+b,c;1/4,-1/4,-1/4
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    3
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X4+, k13t5
+    LOC: # IR: X4+
+  DIFF opd:
+    OFF: # C1   (a;b)  48 Pnnn, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X4+      C1   (a;b)  48 Pnnn, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 f  0.00000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   8 g  0.00000  0.25000  0.25000  1.00000 Dx,Dy,Dz
+    OFF: Al1_1 Al   2 a  0.25000  0.25000  0.25000  1.00000 0,0,0
+    LOC: Al1_1 Al   4 f  0.25000  0.50000  0.50000  1.00000 Dx,0,0
+    OFF: Al1_2 Al   2 b  0.75000  0.25000  0.25000  1.00000 0,0,0
+    LOC: Al1_2 Al   4 f  0.75000  0.00000  0.50000  1.00000 Dx,0,0
+    OFF: Al1_3 Al   2 d  0.25000  0.75000  0.25000  1.00000 0,0,0
+    LOC: Al2_1 Al   8 g  0.00000  0.25000  0.63000  1.00000 Dx,Dy,Dz
+    OFF: Al1_4 Al   2 c  0.25000  0.25000  0.75000  1.00000 0,0,0
+    LOC: Al2_2 Al   8 g  0.50000  0.75000  0.63000  1.00000 Dx,Dy,Dz
+
+===== X4+ P1 (a;a) 134 P4_2nnm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(0, =====
+LOC: X4+ P1 (a;a) 134 P4_2 nnm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(0
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 42/n 2/n 2/m (origin choice 2)"
+    LOC: _symmetry_space_group_name_H-M "P 4_2/n n m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a-b,a+b,c;0,0,1/2
+    LOC: _iso_parent-to-child.transform_Pp_abc a-b,a+b,c;-1/4,-1/4,-3/4
+  OK ndisp
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    2
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X4+, k13t5
+    LOC: # IR: X4+
+  DIFF opd:
+    OFF: # P1   (a;a) 134 P4_2/nnm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(0,0,-1/2), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X4+      P1   (a;a) 134 P4_2/nnm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(0,0,-1/2), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 e  0.00000  0.00000  0.50000  1.00000 0,0,0
+    LOC: Eu1_1 Eu  16 h  0.00000  0.25000  0.25000  1.00000 Dx,Dy,Dz
+    OFF: Al1_1 Al   2 a  0.25000  0.75000  0.25000  1.00000 0,0,0
+    LOC: Al1_1 Al   8 g  0.25000  0.00000  0.50000  1.00000 Dx,0,0
+    OFF: Al1_2 Al   4 c  0.25000  0.25000  0.25000  1.00000 0,0,0
+    LOC: Al1_2 Al   8 g  0.75000  0.50000  0.50000  1.00000 Dx,0,0
+    OFF: Al1_3 Al   2 b  0.75000  0.25000  0.25000  1.00000 0,0,0
+    LOC: Al2_1 Al  16 h  0.00000  0.25000  0.63000  1.00000 Dx,Dy,Dz
+    OFF: Al2_1 Al   8 m  0.00000  0.00000  0.88000  1.00000 Dx,-Dx,Dz
+    LOC: Al2_2 Al  16 h  0.50000  0.75000  0.63000  1.00000 Dx,Dy,Dz
+
+===== X4+ P3 (a;0) 66 Cccm, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(-14,14 =====
+LOC: X4+ P3 (a;0) 66 Cccm, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(-1 4,1
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "C 2/c 2/c 2/m"
+    LOC: _symmetry_space_group_name_H-M "C c c m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc c,a-b,a+b;-1/4,1/4,1/4
+    LOC: _iso_parent-to-child.transform_Pp_abc c,a-b,a+b;-3/4,1/4,1/4
+  OK ndisp
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X4+, k13t5
+    LOC: # IR: X4+
+  DIFF opd:
+    OFF: # P3   (a;0)  66 Cccm, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(-1/4,1/4,1/4), s=2, i=4, k-active= (1/2,1/2,0)
+    LOC: # X4+      P3   (a;0)  66 Cccm, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(-1/4,1/4,1/4), s=2, i=4, k-active= (1/2,1/2,0)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 f  0.25000  0.75000  0.00000  1.00000 0,0,0
+    LOC: Eu1_1 Eu   8 g  0.00000  0.25000  0.25000  1.00000 0,Dy,0
+    OFF: Al1_1 Al   4 a  0.00000  0.00000  0.25000  1.00000 0,0,0
+    LOC: Al1_1 Al   8 g  0.25000  0.00000  0.50000  1.00000 Dx,Dy,0
+    OFF: Al1_2 Al   4 b  0.00000  0.50000  0.25000  1.00000 0,0,0
+    LOC: Al2_1 Al  16 h  0.38000  0.25000  0.25000  1.00000 Dx,Dy,Dz
+
+===== X4- C1 (a;b) 49 Pccm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,12,0 =====
+LOC: X4- C1 (a;b) 49 Pccm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,1 2,
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 2/c 2/c 2/m"
+    LOC: _symmetry_space_group_name_H-M "P c c m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a+b,-a+b,c;1,-1/2,0
+    LOC: _iso_parent-to-child.transform_Pp_abc a+b,-a+b,c;1/4,1/4,-1/4
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    5
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X4-, k13t6
+    LOC: # IR: X4-
+  DIFF opd:
+    OFF: # C1   (a;b)  49 Pccm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,1/2,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X4-      C1   (a;b)  49 Pccm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,1/2,0), s=4, i=8, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 q  0.75000  0.75000  0.00000  1.00000 Dx,Dy,0
+    LOC: Eu1_1 Eu   4 f  0.00000  0.25000  0.25000  1.00000 0,Dy,0
+    OFF: Al1_1 Al   2 e  0.00000  0.00000  0.25000  1.00000 0,0,0
+    LOC: Eu1_2 Eu   4 f  0.50000  0.75000  0.25000  1.00000 0,Dy,0
+    OFF: Al1_2 Al   2 g  0.00000  0.50000  0.25000  1.00000 0,0,0
+    LOC: Al1_1 Al   4 f  0.25000  0.50000  0.50000  1.00000 Dx,Dy,0
+    OFF: Al1_3 Al   2 f  0.50000  0.00000  0.25000  1.00000 0,0,0
+    LOC: Al1_2 Al   4 f  0.75000  0.00000  0.50000  1.00000 Dx,Dy,0
+    OFF: Al1_4 Al   2 h  0.50000  0.50000  0.25000  1.00000 0,0,0
+    LOC: Al2_1 Al   8 g  0.00000  0.25000  0.63000  1.00000 Dx,Dy,Dz
+    OFF: Al2_1 Al   8 r  0.75000  0.75000  0.38000  1.00000 Dx,Dy,Dz
+    LOC: Al2_2 Al   8 g  0.50000  0.75000  0.63000  1.00000 Dx,Dy,Dz
+
+===== X4- P1 (a;a) 132 P4_2mcm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(12 =====
+LOC: X4- P1 (a;a) 132 P4_2 mcm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(1
+FOLDER: possible slash→space fraction
+  DIFF hm:
+    OFF: _symmetry_space_group_name_H-M "P 42/m 2/c 2/m"
+    LOC: _symmetry_space_group_name_H-M "P 4_2/m c m"
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc a-b,a+b,c;-1/2,1,0
+    LOC: _iso_parent-to-child.transform_Pp_abc a-b,a+b,c;0,0,0
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    3
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    2
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X4-, k13t6
+    LOC: # IR: X4-
+  DIFF opd:
+    OFF: # P1   (a;a) 132 P4_2/mcm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(1/2,0,0), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+    LOC: # X4-      P1   (a;a) 132 P4_2/mcm, basis={(1,-1,0),(1,1,0),(0,0,1)}, origin=(1/2,0,0), s=4, i=4, k-active= (1/2,1/2,0),(1/2,1/2,1)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 i  0.75000  0.75000  0.00000  1.00000 Dx,Dx,0
+    LOC: Eu1_1 Eu   4 f  0.25000  0.25000  0.00000  1.00000 0,0,0
+    OFF: Al1_1 Al   4 e  0.00000  0.50000  0.25000  1.00000 0,0,0
+    LOC: Al1_1 Al   2 e  0.00000  0.00000  0.25000  1.00000 0,0,0
+    OFF: Al1_2 Al   2 d  0.50000  0.50000  0.25000  1.00000 0,0,0
+    LOC: Al1_2 Al   2 e  0.50000  0.50000  0.25000  1.00000 0,0,0
+    OFF: Al1_3 Al   2 b  0.00000  0.00000  0.25000  1.00000 0,0,0
+    LOC: Al1_3 Al   4 f  0.00000  0.50000  0.25000  1.00000 0,0,0
+    OFF: Al2_1 Al   8 o  0.75000  0.75000  0.38000  1.00000 Dx,Dx,Dz
+    LOC: Al2_1 Al   8 g  0.25000  0.25000  0.38000  1.00000 0,0,Dz
+
+===== X4- P3 (a;0) 67 Cmma, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,12,1 =====
+LOC: X4- P3 (a;0) 67 Cmma, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,1 2,
+FOLDER: possible slash→space fraction
+  OK hm
+  OK sg
+  DIFF p2c:
+    OFF: _iso_parent-to-child.transform_Pp_abc c,a-b,a+b;-1/2,1,0
+    LOC: _iso_parent-to-child.transform_Pp_abc c,a-b,a+b;-1/4,1/4,1/2
+  DIFF ndisp:
+    OFF: _iso_displacivemode_number    3
+    LOC: _iso_displacivemode_number    2
+  DIFF nstrain:
+    OFF: _iso_strainmode_number    3
+    LOC: _iso_strainmode_number    0
+  OK k
+  DIFF ir:
+    OFF: # IR: X4-, k13t6
+    LOC: # IR: X4-
+  DIFF opd:
+    OFF: # P3   (a;0)  67 Cmma, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,1/2,1/2), s=2, i=4, k-active= (1/2,1/2,0)
+    LOC: # X4-      P3   (a;0)  67 Cmma, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,1/2,1/2), s=2, i=4, k-active= (1/2,1/2,0)
+  DIFF sites:
+    OFF: Eu1_1 Eu   4 g  0.00000  0.25000  0.25000  1.00000 0,0,Dz
+    LOC: Eu1_1 Eu   8 n  0.00000  0.00000  0.25000  1.00000 0,Dy,Dz
+    OFF: Al1_1 Al   4 a  0.25000  0.00000  0.00000  1.00000 0,0,0
+    LOC: Al1_1 Al   4 e  0.25000  0.25000  0.00000  1.00000 0,0,0
+    OFF: Al1_2 Al   4 b  0.25000  0.00000  0.50000  1.00000 0,0,0
+    LOC: Al1_2 Al   4 h  0.25000  0.25000  0.50000  1.00000 0,0,0
+    OFF: Al2_1 Al   8 n  0.38000  0.25000  0.25000  1.00000 Dx,0,Dz
+    LOC: Al2_1 Al  16 o  0.38000  0.00000  0.25000  1.00000 Dx,Dy,Dz

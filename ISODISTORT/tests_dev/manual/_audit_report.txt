@@ -1,0 +1,52 @@
+﻿webpage_info/a. unique OPD lines: 124
+irrep counts: {'GM1+': 1, 'GM2+': 1, 'GM3-': 1, 'GM4+': 1, 'GM5+': 3, 'GM5-': 3, 'M1+': 1, 'M3-': 1, 'M4-': 1, 'M5+': 3, 'M5-': 3, 'N1+': 13, 'N1-': 13, 'N2+': 13, 'N2-': 13, 'P1': 3, 'P2': 3, 'P3': 3, 'P4': 3, 'P5': 16, 'X1+': 3, 'X1-': 3, 'X2+': 3, 'X2-': 3, 'X3+': 3, 'X3-': 3, 'X4+': 3, 'X4-': 3, 'hecked="">GM1+': 1}
+
+===== Method1 vs a.: 123 folders | expected 124 =====
+parsable: 123; unparsable: 0
+MISSING vs reference: 1
+  - hecked="">GM1+ P1 (a) 139 I4/mmm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(0,0,0), s=1, i=1, k-active= (0,0,0)
+EXTRA (not in reference): 0
+
+payload files present counts:
+   123/123  subgroup.cif
+   123/123  data.isoviz
+   123/123  topas.str
+   123/123  ISODISTORT_ complete modes details.html
+
+incomplete payloads: 0
+content mismatches: 0
+LIKELY wrong-download / misnamed: 0
+
+Method2 OPD reference: 4. ISODISTORT_ order parameter direction.html -> 2 lines
+Method2 irreps: {'k-active=': 2}
+
+===== Method2 vs 4. ISODISTORT_ order parameter direction.html: 22 folders | expected 2 =====
+parsable: 0; unparsable: 22
+  BAD NAME: LD1 C1
+  BAD NAME: LD1 P1
+  BAD NAME: LD1 P2
+  BAD NAME: LD2 C1
+  BAD NAME: LD2 P1
+  BAD NAME: LD2 P2
+  BAD NAME: LD5 4D1
+  BAD NAME: LD5 C1
+  BAD NAME: LD5 C2
+  BAD NAME: LD5 C3
+MISSING vs reference: 2
+  - k-active= (0,0,1/6)">C1 (a,b) 99 P4mm, basis={(1,0,0),(0,1,0),(0,0,6)}, origin=(0,0,0), s=12, i=24, k-active= (0,0,1/6)
+  - k-active= (0,0,1/6)">P2 (a,a) 129 P4/nmm, basis={(1,0,0),(0,1,0),(0,0,6)}, origin=(-1/4,-1/4,9/4), s=12, i=12, k-active= (0,0,1/6)
+EXTRA (not in reference): 0
+
+payload files present counts:
+     0/0  subgroup.cif
+     0/0  data.isoviz
+     0/0  topas.str
+     0/0  ISODISTORT_ complete modes details.html
+
+incomplete payloads: 0
+content mismatches: 0
+LIKELY wrong-download / misnamed: 0
+
+===== SUMMARY =====
+Method1: have=123 expect=124 missing=1 extra=0 incomplete=0 mismatch=0 suspect=0
+Method2: have=0 expect=2 missing=2 extra=0 incomplete=0 mismatch=0 suspect=0

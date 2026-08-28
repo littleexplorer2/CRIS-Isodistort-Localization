@@ -304,6 +304,57 @@ def official_method1_fields(
     }
 
 
+def format_opd_line_body(
+    *,
+    irrep_label: str = "",
+    opd_symbol: str,
+    opd_dir_raw: str,
+    space_group_number: int,
+    space_group_symbol: str,
+    basis_raw: str,
+    origin_raw: str,
+    size: int,
+    subgroup_index: int,
+    k_coordinates: Sequence[str | float] | None = None,
+    parent_sg: int | None = None,
+    k_active_raw: str | None = None,
+    basis_vectors: Sequence[Sequence[float]] | None = None,
+    origin: Sequence[float] | None = None,
+    pad_opd: bool = True,
+) -> str:
+    """OPD body without the irrep prefix (CIF Distortion comment style).
+
+    Method 1 radio / CIF Method-1 comments pad the OPD symbol to 5 columns
+    (``P1   (a)``). Method 2 CIF comments use a single space (``C1 (a,b)``).
+    """
+    fields = official_method1_fields(
+        irrep_label=irrep_label,
+        opd_symbol=opd_symbol,
+        opd_dir_raw=opd_dir_raw,
+        space_group_number=space_group_number,
+        space_group_symbol=space_group_symbol,
+        basis_raw=basis_raw,
+        origin_raw=origin_raw,
+        size=size,
+        subgroup_index=subgroup_index,
+        k_coordinates=k_coordinates,
+        parent_sg=parent_sg,
+        k_active_raw=k_active_raw,
+        basis_vectors=basis_vectors,
+        origin=origin,
+    )
+    opd = (
+        f"{str(fields['opd']):<{_OPD_WIDTH}s}"
+        if pad_opd
+        else f"{str(fields['opd'])} "
+    )
+    return (
+        f"{opd}{fields['dir']} {int(fields['space_group_number']):>3d} "
+        f"{fields['space_group_symbol']}, basis={fields['basis']}, origin={fields['origin']}, "
+        f"s={fields['s']}, i={fields['i']}, k-active= {fields['k_active']}"
+    )
+
+
 def format_opd_line(
     *,
     irrep_label: str,
@@ -339,9 +390,21 @@ def format_opd_line(
         origin=origin,
     )
     irrep = f"{str(fields['irrep']):<{_IRREP_WIDTH}s}"
-    opd = f"{str(fields['opd']):<{_OPD_WIDTH}s}"
-    return (
-        f"{irrep}{opd}{fields['dir']} {int(fields['space_group_number']):>3d} "
-        f"{fields['space_group_symbol']}, basis={fields['basis']}, origin={fields['origin']}, "
-        f"s={fields['s']}, i={fields['i']}, k-active= {fields['k_active']}"
+    body = format_opd_line_body(
+        irrep_label=irrep_label,
+        opd_symbol=opd_symbol,
+        opd_dir_raw=opd_dir_raw,
+        space_group_number=space_group_number,
+        space_group_symbol=space_group_symbol,
+        basis_raw=basis_raw,
+        origin_raw=origin_raw,
+        size=size,
+        subgroup_index=subgroup_index,
+        k_coordinates=k_coordinates,
+        parent_sg=parent_sg,
+        k_active_raw=k_active_raw,
+        basis_vectors=basis_vectors,
+        origin=origin,
+        pad_opd=True,
     )
+    return f"{irrep}{body}"

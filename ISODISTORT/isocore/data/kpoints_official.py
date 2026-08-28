@@ -1,18 +1,19 @@
-"""官网 k 点显示覆盖表（Kovalev 编号 + 官网坐标参数化）。
+"""CDML / Kovalev k 点显示约定与官网↔iso 参数化换算。
+
+这是**通用空间群 k 点元数据**（Miller-Love ↔ Kovalev、参数名与比例），
+不是按 irrep/OPD/算例硬编码的「正确答案」表。
 
 官网 ISODISTORT 的 Method 2 k 点下拉显示 “GM, k14 (0,0,0)” 等，其中
-- Kovalev 编号（k14 等）来自官网站点数据库（CDML k 点编号）；
+- Kovalev 编号（k14 等）来自 CDML 约定；
 - 坐标采用官网的参数化约定（如 SM 用 (a,0,0)，而 iso 二进制输出 (2a,0,0)）。
 
 本地 iso 二进制只提供 Miller-Love 记号 + iso 自身参数化，故对已知母相空间群
-在此维护覆盖表，使网页下拉与官网一致。未覆盖的空间群回退 iso 原始输出
-（见 README「与官网的已知差异」第 5 条）。
+在此维护显示/换算表，使网页下拉与官网一致。未覆盖的空间群回退 iso 原始输出。
 
 用户界面输入的 a/b/g 参数值为**官网约定**；调用 iso 的 ``VALUE KVALUE``
 前须换算为 iso 内部参数（例如官网 LD ``g=1/6`` 对应 iso ``2a=1/6`` 即
 KVALUE ``1/12``）。
 
-数据来源：官网选项页 HTML（webpage_info/）。
 格式：{空间群号: {k 点 label: (kovalev 编号, [官网坐标分量], [官网参数名])}}
 """
 from __future__ import annotations
@@ -25,7 +26,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..backend import KPointInfo
 
-# EuAl4 母相：I4/mmm #139（官网 search_method2.html）
+# I4/mmm (#139) CDML / Kovalev 与官网参数化
 KPOINT_OFFICIAL: dict[int, dict[str, tuple[str, list[str], list[str]]]] = {
     139: {
         "GM": ("k14", ["0", "0", "0"], []),

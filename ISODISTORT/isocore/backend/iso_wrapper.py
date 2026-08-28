@@ -27,7 +27,6 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from ..data.kpoints_official import official_special_k_coords
-from ..data.method1_opd_official import lookup_official_opd
 from ..utils import (
     OutputParseError,
     WrapperRunError,
@@ -40,7 +39,12 @@ from ..utils import (
     parse_kpoint_table,
     parse_subgroup_table,
 )
-from ..utils.opd_format import format_k_active, format_opd_line, official_method1_fields
+from ..utils.opd_format import (
+    format_k_active,
+    format_opd_line,
+    format_opd_line_body,
+    official_method1_fields,
+)
 from .base_wrapper import BaseWrapper
 
 # ================================================================
@@ -139,6 +143,33 @@ class SubgroupInfo:
             k_active_raw=self.k_active_raw or None,
             basis_vectors=self.basis_vectors,
             origin=self.origin,
+        )
+
+    def opd_line_body(self, *, pad_opd: bool | None = None) -> str:
+        """CIF Distortion-page OPD comment (no irrep prefix).
+
+        Method 1 pads the OPD token; Method 2 (parametric / listed IR OPD)
+        uses a single trailing space after the OPD symbol.
+        """
+        if pad_opd is None:
+            # Method 2 folders / parametric paths: short ``C1 (a,b)`` style.
+            pad_opd = not bool(self.k_parameters)
+        return format_opd_line_body(
+            irrep_label=self.irrep_label,
+            opd_symbol=self.opd_symbol,
+            opd_dir_raw=self.opd_dir_raw,
+            space_group_number=self.space_group_number,
+            space_group_symbol=self.space_group_symbol,
+            basis_raw=self.basis_raw,
+            origin_raw=self.origin_raw,
+            size=self.size,
+            subgroup_index=self.subgroup_index,
+            k_coordinates=self.k_coordinates,
+            parent_sg=self.parent_sg or None,
+            k_active_raw=self.k_active_raw or None,
+            basis_vectors=self.basis_vectors,
+            origin=self.origin,
+            pad_opd=pad_opd,
         )
 
 
@@ -442,19 +473,8 @@ class IsoWrapper(BaseWrapper):
         dir_raw = row.get("opd_dir_raw") or ""
         basis_raw = row.get("basis_raw") or ""
         origin_raw = row.get("origin_raw") or ""
-        k_active_preset = None
-        official = lookup_official_opd(
-            parent_sg, irrep_label, row.get("opd_symbol") or "", dir_raw,
-        )
-        if official:
-            # Display tokens only: iso's numeric basis/origin stay the
-            # computational setting for BUSH / CIF generation.
-            basis_raw = str(official["basis"])
-            origin_raw = str(official["origin"])
-            k_active_preset = " " + str(official["k_active"]).strip()
         k_active = format_k_active(
-            dir_raw, coords or ["0", "0", "0"], parent_sg or None,
-            k_active_preset,
+            dir_raw, coords or ["0", "0", "0"], parent_sg or None, None,
         )
         return SubgroupInfo(
             index=index,

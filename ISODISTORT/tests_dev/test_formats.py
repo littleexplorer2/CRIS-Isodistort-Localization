@@ -141,16 +141,9 @@ def test_strain_only_gamma_keeps_gm4_not_gm3():
     assert not IsoDistort._keep_strain_only_irrep(gm3, 139)
 
 
-def test_official_opd_overlay_rewrites_iso_gm5_basis():
+def test_subgroup_from_row_uses_iso_basis_raw():
+    """Display tokens come from iso output, not a memorized official OPD table."""
     from isocore.backend.iso_wrapper import IsoWrapper
-    from isocore.data.method1_opd_official import lookup_official_opd
-
-    gm5 = lookup_official_opd(139, "GM5+", "P1", "(a,0)")
-    assert gm5 is not None
-    assert gm5["basis"] == "(0,1,1),(-1,0,0),(0,-1,0)"
-    m1 = lookup_official_opd(139, "M1+", "P1", "(a)")
-    assert m1 is not None
-    assert m1["k_active"] == "(1,1,1)"
 
     row = {
         "space_group_number": 12,
@@ -170,8 +163,8 @@ def test_official_opd_overlay_rewrites_iso_gm5_basis():
         row, index=0, k_point="GM", irrep_label="GM5+",
         k_coordinates=["0", "0", "0"], parent_sg=139,
     )
-    assert sg.basis_raw == "(0,1,1),(-1,0,0),(0,-1,0)"
-    assert "basis={(0,1,1),(-1,0,0),(0,-1,0)}" in sg.opd_line()
+    assert sg.basis_raw == "(0,1,1),(1,0,0),(0,0,-1)"
+    assert "basis={(0,1,1),(1,0,0),(0,0,-1)}" in sg.opd_line()
 
 
 def test_subgroupinfo_opd_line_no_maximal_asterisk():
@@ -342,6 +335,59 @@ def test_subgroup_label_and_filenames():
     assert format_filename("LD1 C1", FORMAT_TOPAS) == "topas.str"
 
 
+def test_safe_name_deletes_slash_like_official_windows_download():
+    """官网 Windows 下载删除 ``/``：``I4/mmm``→``I4mmm``，``1/2``→``12``。"""
+    from isocore.io.distortion_formats import safe_name
+
+    assert safe_name("I4/mmm") == "I4mmm"
+    assert safe_name("C2/m") == "C2m"
+    assert (
+        safe_name(
+            "GM5+ C1 (a,b) 2 P-1, basis={(1,0,0),(0,1,0),(-1/2,-1/2,1/2)}, "
+            "origin=(0,0,0), s=1, i=8, k-active= (0,0,0)"
+        )
+        == (
+            "GM5+ C1 (a,b) 2 P-1, basis={(1,0,0),(0,1,0),(-12,-12,12)}, "
+            "origin=(0,0,0), s=1, i=8, k-active= (0,0,0)"
+        )
+    )
+
+
+def test_opd_line_body_omits_irrep_for_cif_comment():
+    from isocore.utils.opd_format import format_opd_line_body
+
+    body = format_opd_line_body(
+        opd_symbol="P1",
+        opd_dir_raw="(a)",
+        space_group_number=71,
+        space_group_symbol="Immm",
+        basis_raw="(1,0,0),(0,1,0),(0,0,1)",
+        origin_raw="(0,0,0)",
+        size=1,
+        subgroup_index=2,
+        k_coordinates=["0", "0", "0"],
+        parent_sg=139,
+        pad_opd=True,
+    )
+    assert body.startswith("P1   (a)  71 Immm")
+    assert not body.startswith("GM")
+
+    m2 = format_opd_line_body(
+        opd_symbol="C1",
+        opd_dir_raw="(a,b)",
+        space_group_number=99,
+        space_group_symbol="P4mm",
+        basis_raw="(1,0,0),(0,1,0),(0,0,6)",
+        origin_raw="(0,0,0)",
+        size=12,
+        subgroup_index=24,
+        k_coordinates=["0", "0", "1/6"],
+        parent_sg=139,
+        pad_opd=False,
+    )
+    assert m2.startswith("C1 (a,b)  99 P4mm")
+
+
 def test_unique_folder_name_disambiguates():
     used: set[str] = set()
     a = unique_folder_name(_sg("LD1", "C1", index=0, symbol="P4/mmm"), used)
@@ -433,6 +479,42 @@ def test_format_writers_contain_official_markers():
     assert "!isoversion" in isoviz
     assert "!displacivemodelist" in isoviz
     assert "LD1" in isoviz or "[Eu:a:dsp]A2u(a)" in isoviz
+    # IsoVIZ invariant: mode vector count == atomcoordlist rows for parentatom
+    lines = isoviz.splitlines()
+    coords: list[int] = []
+    in_c = False
+    for line in lines:
+        if line.startswith("!atomcoordlist"):
+            in_c = True
+            continue
+        if line.startswith("!") and in_c:
+            in_c = False
+        if in_c and line.strip():
+            coords.append(int(line.split()[0]))
+    i = next(k for k, line in enumerate(lines) if line.startswith("!displacivemodelist"))
+    parentatom = None
+    nvecs = 0
+    for line in lines[i + 1 :]:
+        if not line.strip():
+            break
+        if line.startswith("!"):
+            break
+        parts = line.split()
+        try:
+            pa = int(parts[0])
+            float(parts[2])
+            float(parts[3])
+            int(parts[1])
+            int(parts[4])
+            parentatom = pa
+            nvecs = 0
+            continue
+        except (ValueError, IndexError):
+            pass
+        if parentatom is not None:
+            nvecs += 1
+    assert parentatom is not None
+    assert nvecs == coords.count(parentatom)
 
     details = render_complete_modes(spec)
     assert "Complete modes details" in details

@@ -36,11 +36,20 @@ defaults:
 # Distortion 统一下载筛选后的 txt/csv（1–4）以及 Method 1–3 的子群结构文件。
 # Method 1 结果表列与官网序参量方向页（webpage_info 中 a. 开头的存档）字段一致：
 # Irrep / OPD / Dir / SG / basis / origin / s / i / k-active（外加本地 idx）。
-# Distortion ZIP 导出：文件名与文件夹对齐官网
+# Distortion ZIP 导出：文件名与文件夹对齐官网结构
 # （subgroup.cif / data.isoviz / topas.str / Complete modes details.txt；
 #  Method 1 文件夹用完整 OPD 行，Method 2/3 用「IR OPD」）。
-# 勾选 isoviz/modes/topas 时会对非参数 k 点子群补跑 Method 2 填模式。
+# Windows 文件夹名删除 ``/``（官网同款：I4/mmm→I4mmm，1/2→12），不替换成空格。
+# 验收（见仓库根目录 agent.md）：
+#   - Complete modes details.txt：完整写入本地计算结果即可，不要求与官网 HTML 逐字节一致
+#   - subgroup.cif 须能用 VESTA 打开（https://jp-minerals.org/vesta/en/download.html）；
+#     data.isoviz 须能用 IsoVIZ（CRIS/ISOViz 快捷方式）打开
+#   - 其它文件内容/格式尽量靠官网，不以全文件逐字节为 DoD
+# CIF：扩展 HM（含 origin choice 2）、Hall 优先 OC2、OPD 注释无 irrep 前缀、
+# 不对称单元 Wyckoff（对常见子群有 ITA 表）；k-active 参数代入。
+# 勾选 isoviz/modes/topas 时会对子群补跑 Method 2 填模式（参数 k 传入会话 nmod）。
 # 参数 k 点（LD 等）：nmod=0 时本地 iso 无法算位移模式（会提示）；nmod≥1 走 (3+d) 超空间内核。
+# 部分 irrep 本地 iso 报 “no root mode”；官网含 primary+secondary+strain，本地可能偏少。
 # 仅 CIF 或 compute_modes=0（终端导出时选 no）可跳过补算。
 # 网页空闲自动停服见 web_idle_timeout；长 ZIP 期间看门狗会把 in-flight 请求视为活跃。
 runtime:
@@ -48,10 +57,11 @@ runtime:
   web_port: 8000
   # 网页端空闲自动停服时间（秒）：页面关闭后心跳停止，超过该时长自动停服并释放端口
   web_idle_timeout: 60
-  # 注：以下 relative 路径均相对于本文件所在目录 config/ 解析（config_loader 自动转换为绝对路径）。
+  # 相对路径均相对于本文件所在目录 config/ 解析（config_loader 自动转换为绝对路径）。
+  # 换盘或自定义目录时改这里；说明见 README「用户需要配置 / 放置的路径」。
   # Windows 侧临时文件目录（随后会被复制到 WSL 短路径暂存目录）
   temp_dir: "../output/tmp"
-  # 输出目录（导出的 CIF / POSCAR / JSON 存放处）
+  # 输出目录（导出的 CIF / POSCAR / JSON 存放处；网页 ZIP 不写这里）
   output_dir: "../output"
   # 子进程调用超时（秒）
   timeout: 60

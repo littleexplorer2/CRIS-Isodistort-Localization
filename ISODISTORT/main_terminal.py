@@ -1019,7 +1019,13 @@ class IsoDistortConsoleApp:
             return [item.subgroup for item in self.last_method1]
         if method == 3:
             return [item.subgroup for item in self.last_method3]
-        return list(self.last_method2_subgroups)
+        subs = list(self.last_method2_subgroups)
+        # Match web: if the list was cleared but a single Method-2 result remains, use it.
+        if not subs and getattr(self, "last_method2", None) is not None:
+            sg = getattr(self.last_method2, "subgroup", None)
+            if sg is not None:
+                subs = [sg]
+        return subs
 
     def _export_subgroups_flow(self, method: int) -> None:
         subs = self._subgroups_for_method(method)
@@ -1035,7 +1041,13 @@ class IsoDistortConsoleApp:
             print(t("ui.export.none"))
             return
         formats_raw = _prompt(t("ui.export.formats"), "cif,isoviz,modes,topas")
-        formats = [x.strip().lower() for x in formats_raw.split(",") if x.strip()]
+        try:
+            from isocore.io.distortion_formats import parse_export_formats
+
+            formats = parse_export_formats(formats_raw)
+        except ValueError as exc:
+            print(f"  {exc}")
+            return
         as_zip = _prompt_yes_no("Write a ZIP file (same as the web Download all)?", True)
         default_dest = str(
             self.iso.cfg.output_dir
@@ -1061,6 +1073,7 @@ class IsoDistortConsoleApp:
                         compute_missing_modes=compute_missing_modes,
                         wrapping=None,
                         use_opd_line_folders=(method == 1),
+                        number_of_independent_modulations=self.nmod,
                     )
                     out = Path(dest)
                     out.parent.mkdir(parents=True, exist_ok=True)
@@ -1073,6 +1086,7 @@ class IsoDistortConsoleApp:
                     subgroups=subs,
                     compute_missing_modes=compute_missing_modes,
                     use_opd_line_folders=(method == 1),
+                    number_of_independent_modulations=self.nmod,
                 )
         finally:
             self.iso.subgroups = saved
@@ -1153,6 +1167,8 @@ class IsoDistortConsoleApp:
     def _run_superspace(self) -> None:
         _line()
         print(t("ss.title"))
+        print(t("ss.localNote"))
+        print(t("ss.localHow"))
         nmod_raw = _prompt(t("l.nmod"), str(self.nmod if self.nmod else 1))
         try:
             from isocore.superspace import validate_nmod
@@ -1204,7 +1220,7 @@ def main(argv: list[str] | None = None) -> int:
         "--superspace-d",
         dest="superspace_d",
         default=None,
-        help="Run (3+d) superspace kernel with extra dimension d=nmod (0..3); skip the menu",
+        help="Local (3+d) kernel dump (not the official Search page); d=nmod 0..3; skip the menu",
     )
     parser.add_argument("--space-group", type=int, default=139, dest="space_group")
     parser.add_argument("--k-s", dest="ks", default=None, help="k_s components, comma-separated")

@@ -1,0 +1,85 @@
+﻿OFFICIAL: 官网
+LOCAL:    现有网页版交互
+
+===== Method1: official=123 local=123 =====
+local missing folders: 33
+  - GM5+ C1 (a,b) 2 P-1, basis={(1,0,0),(0,1,0),(-12,-12,12)}, origin=(0,0,0), s=1, i=8, k-active= (0,0,
+  - GM5+ P1 (a,0) 12 C2m, basis={(0,1,1),(-1,0,0),(0,-1,0)}, origin=(0,0,0), s=1, i=4, k-active= (0,0,0)
+  - GM5+ P3 (a,a) 12 C2m, basis={(1,-1,0),(1,1,0),(-12,12,12)}, origin=(0,0,0), s=1, i=4, k-active= (0,0
+  - N1+ 4D1 (a;b;c;d) 2 P-1, basis={(2,0,0),(0,2,0),(-1,-1,1)}, origin=(0,0,0), s=8, i=64, k-active= (12
+  - N1+ C10 (a;b;b;-a) 15 C2c, basis={(2,-2,0),(2,2,0),(-1,1,1)}, origin=(12,12,12), s=8, i=32, k-active
+  - N1+ C12 (a;0;b;0) 2 P-1, basis={(-12,-12,12),(2,0,0),(0,2,0)}, origin=(0,0,0), s=4, i=32, k-active= 
+  - N1+ C3 (a;b;0;0) 10 P2m, basis={(-2,0,0),(0,1,0),(1,0,-1)}, origin=(0,0,0), s=4, i=16, k-active= (12
+  - N1+ C8 (a;b;b;a) 12 C2m, basis={(2,-2,0),(2,2,0),(-1,1,1)}, origin=(0,0,0), s=8, i=32, k-active= (12
+  - N1+ P11 (a;0;a;0) 12 C2m, basis={(2,2,0),(-2,2,0),(-12,-12,12)}, origin=(0,0,0), s=4, i=16, k-active
+  - N1+ P5 (a;0;0;0) 12 C2m, basis={(1,0,-1),(0,-1,0),(-2,0,0)}, origin=(0,0,0), s=2, i=8, k-active= (12
+  - N1+ S1 (a;a;b;c) 12 C2m, basis={(0,2,2),(-2,0,0),(0,-2,0)}, origin=(0,0,0), s=8, i=32, k-active= (12
+  - N1- 4D1 (a;b;c;d) 2 P-1, basis={(2,0,0),(0,2,0),(-1,-1,1)}, origin=(0,0,12), s=8, i=64, k-active= (1
+  - N1- C10 (a;b;-b;a) 15 C2c, basis={(2,-2,0),(2,2,0),(-1,1,1)}, origin=(12,12,0), s=8, i=32, k-active=
+  - N1- C12 (a;0;b;0) 2 P-1, basis={(-12,-12,12),(2,0,0),(0,2,0)}, origin=(14,14,14), s=4, i=32, k-activ
+  - N1- C3 (a;b;0;0) 13 P2c, basis={(1,0,-1),(0,-1,0),(-2,0,0)}, origin=(0,0,12), s=4, i=16, k-active= (
+local extra folders: 33
+  - GM5+ C1 (a,b) 2 P-1, basis={(-12,12,12),(12,-12,12),(12,12,-12)}, origin=(0,0,0), s=1, i=8, k-active
+  - GM5+ P1 (a,0) 12 C2m, basis={(0,1,1),(1,0,0),(0,0,-1)}, origin=(0,0,0), s=1, i=4, k-active= (0,0,0)
+  - GM5+ P3 (a,a) 12 C2m, basis={(0,0,1),(1,1,0),(-12,12,12)}, origin=(0,0,0), s=1, i=4, k-active= (0,0,
+  - N1+ 4D1 (a;b;c;d) 2 P-1, basis={(-1,1,1),(1,-1,1),(1,1,-1)}, origin=(0,0,0), s=8, i=64, k-active= (1
+  - N1+ C10 (a;b;b;-a) 15 C2c, basis={(0,0,2),(2,2,0),(-1,1,1)}, origin=(12,12,12), s=8, i=32, k-active=
+  - N1+ C12 (a;0;b;0) 2 P-1, basis={(12,12,-12),(12,12,32),(12,-32,-12)}, origin=(0,0,0), s=4, i=32, k-a
+  - N1+ C3 (a;b;0;0) 10 P2m, basis={(1,0,-1),(0,1,0),(1,0,1)}, origin=(0,0,0), s=4, i=16, k-active= (12,
+  - N1+ C8 (a;b;b;a) 12 C2m, basis={(0,0,2),(2,2,0),(-1,1,1)}, origin=(0,0,0), s=8, i=32, k-active= (12,
+  - N1+ P11 (a;0;a;0) 12 C2m, basis={(1,1,1),(2,-2,0),(-12,-12,-32)}, origin=(0,0,0), s=4, i=16, k-activ
+  - N1+ P5 (a;0;0;0) 12 C2m, basis={(1,0,-1),(0,1,0),(1,0,1)}, origin=(0,0,0), s=2, i=8, k-active= (12,0
+  - N1+ S1 (a;a;b;c) 12 C2m, basis={(0,2,2),(2,0,0),(0,0,-2)}, origin=(0,0,0), s=8, i=32, k-active= (12,
+  - N1- 4D1 (a;b;c;d) 2 P-1, basis={(-1,1,1),(1,-1,1),(1,1,-1)}, origin=(0,0,12), s=8, i=64, k-active= (
+  - N1- C10 (a;b;-b;a) 15 C2c, basis={(0,0,2),(2,2,0),(-1,1,1)}, origin=(12,12,0), s=8, i=32, k-active= 
+  - N1- C12 (a;0;b;0) 2 P-1, basis={(12,12,-12),(12,12,32),(12,-32,-12)}, origin=(14,14,14), s=4, i=32, 
+  - N1- C3 (a;b;0;0) 13 P2c, basis={(1,0,-1),(0,1,0),(0,0,2)}, origin=(0,0,12), s=4, i=16, k-active= (12
+exact-name overlap: 90
+paired: 123 unpaired-off: 0
+stats: {'subgroup.cif_byte_diff': 123, 'data.isoviz_byte_diff': 123, 'topas.str_byte_diff': 123, 'name_diff:short': 33}
+CIF field mismatch counts: {'n_lines': 123, 'a': 20, 'opd': 33, 'hm': 34}
+
+samples:
+  ('CIF', 'GM1+ P1 (a) 139 I4mmm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(0,0,0)', "@629 off=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM1+, k14t1\\n# P1   (a) 139 I4/mmm, basis={(1' loc=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM1+\\n# P1   (a) 139 I4/mmm, basis={(1,0,0),('", {'n_lines': (187, 136)})
+  ('CIF', 'GM2+ P1 (a) 71 Immm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(0,0,0), ', "@629 off=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM2+, k14t5\\n# P1   (a)  71 Immm, basis={(1,0' loc=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM2+\\n# P1   (a)  71 Immm, basis={(1,0,0),(0,'", {'n_lines': (182, 112)})
+  ('CIF', 'GM3- P1 (a) 107 I4mm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(0,0,0),', "@629 off=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM3-, k14t4\\n# P1   (a) 107 I4mm, basis={(1,0' loc=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM3-\\n# P1   (a) 107 I4mm, basis={(1,0,0),(0,'", {'n_lines': (193, 130)})
+  ('CIF', 'GM4+ P1 (a) 69 Fmmm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0),', "@629 off=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM4+, k14t7\\n# P1   (a)  69 Fmmm, basis={(1,1' loc=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM4+\\n# P1   (a)  69 Fmmm, basis={(1,1,0),(-1'", {'n_lines': (192, 127)})
+  ('NAME', 'GM5+ C1 (a,b) 2 P-1, basis={(1,0,0),(0,1,0),(-12,-12,12)}, origin=(0,0,0), s=1, ', 'GM5+ C1 (a,b) 2 P-1, basis={(-12,12,12),(12,-12,12),(12,12,-12)}, origin=(0,0,0)')
+  ('CIF', 'GM5+ C1 (a,b) 2 P-1, basis={(1,0,0),(0,1,0),(-12,-12,12)}, origin=(0,0', "@629 off=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM5+, k14t9\\n# C1   (a,b)   2 P-1, basis={(1,' loc=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM5+\\n# C1   (a,b)   2 P-1, basis={(-1/2,1/2,'", {'a': ('4.40200', '6.39077'), 'opd': ('C1   (a,b)   2 P-1, basis={(1,0,0),(0,1,0),(-1/2,-1/2,1/2)}, origin=(0,0,0), s=1, i=8, k-active= (0,0,0)', 'C1   (a,b)   2 P-1, basis={(-1/2,1/2,1/2),(1/2,-1/2,1/2),(1/2,1/2,-1/2)}, origin=(0,0,0), s=1, i=8, k-active= (0,0,0)'), 'n_lines': (206, 114)})
+  ('NAME', 'GM5+ P1 (a,0) 12 C2m, basis={(0,1,1),(-1,0,0),(0,-1,0)}, origin=(0,0,0), s=1, i=', 'GM5+ P1 (a,0) 12 C2m, basis={(0,1,1),(1,0,0),(0,0,-1)}, origin=(0,0,0), s=1, i=4')
+  ('CIF', 'GM5+ P1 (a,0) 12 C2m, basis={(0,1,1),(-1,0,0),(0,-1,0)}, origin=(0,0,0', "@629 off=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM5+, k14t9\\n# P1   (a,0)  12 C2/m, basis={(0' loc=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM5+\\n# P1   (a,0)  12 C2/m, basis={(0,1,1),('", {'opd': ('P1   (a,0)  12 C2/m, basis={(0,1,1),(-1,0,0),(0,-1,0)}, origin=(0,0,0), s=1, i=4, k-active= (0,0,0)', 'P1   (a,0)  12 C2/m, basis={(0,1,1),(1,0,0),(0,0,-1)}, origin=(0,0,0), s=1, i=4, k-active= (0,0,0)'), 'n_lines': (191, 118)})
+  ('CIF', 'GM5+ P3 (a,a) 12 C2m, basis={(1,-1,0),(1,1,0),(-12,12,12)}, origin=(0,', "@629 off=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM5+, k14t9\\n# P3   (a,a)  12 C2/m, basis={(1' loc=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM5+\\n# P3   (a,a)  12 C2/m, basis={(0,0,1),('", {'a': ('6.22537', '11.16300'), 'opd': ('P3   (a,a)  12 C2/m, basis={(1,-1,0),(1,1,0),(-1/2,1/2,1/2)}, origin=(0,0,0), s=1, i=4, k-active= (0,0,0)', 'P3   (a,a)  12 C2/m, basis={(0,0,1),(1,1,0),(-1/2,1/2,1/2)}, origin=(0,0,0), s=1, i=4, k-active= (0,0,0)'), 'n_lines': (185, 117)})
+  ('CIF', 'GM5- C1 (a,b) 8 Cm, basis={(-1,1,0),(0,0,1),(1,0,0)}, origin=(0,0,0), ', "@629 off=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM5-, k14t10\\n# C1   (a,b)   8 Cm, basis={(-1' loc=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM5-\\n# C1   (a,b)   8 Cm, basis={(-1,1,0),(0'", {'n_lines': (209, 118)})
+  ('CIF', 'GM5- P1 (a,0) 44 Imm2, basis={(0,1,0),(0,0,1),(1,0,0)}, origin=(0,0,0)', "@629 off=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM5-, k14t10\\n# P1   (a,0)  44 Imm2, basis={(' loc=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM5-\\n# P1   (a,0)  44 Imm2, basis={(0,1,0),('", {'n_lines': (190, 119)})
+  ('CIF', 'GM5- P3 (a,a) 42 Fmm2, basis={(0,0,1),(1,-1,0),(1,1,0)}, origin=(0,0,0', "@629 off=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM5-, k14t10\\n# P3   (a,a)  42 Fmm2, basis={(' loc=b'ns\\n# k point: GM, k14 (0,0,0)\\n# IR: GM5-\\n# P3   (a,a)  42 Fmm2, basis={(0,0,1),('", {'n_lines': (192, 126)})
+  ('CIF', 'M1+ P1 (a) 123 P4mmm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(0,0,0),', "@627 off=b'ions\\n# k point: M, k15 (1,1,1)\\n# IR: M1+, k15t1\\n# P1   (a) 123 P4/mmm, basis={(1' loc=b'ions\\n# k point: M, k15 (1,1,1)\\n# IR: M1+\\n# P1   (a) 123 P4/mmm, basis={(1,0,0),('", {'n_lines': (192, 133)})
+  ('CIF', 'M3- P1 (a) 129 P4nmm, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(14,14,1', "@627 off=b'ions\\n# k point: M, k15 (1,1,1)\\n# IR: M3-, k15t4\\n# P1   (a) 129 P4/nmm, basis={(1' loc=b'ions\\n# k point: M, k15 (1,1,1)\\n# IR: M3-\\n# P1   (a) 129 P4/nmm, basis={(1,0,0),('", {'n_lines': (192, 133)})
+  ('CIF', 'M4- P1 (a) 137 P4_2nmc, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(14,34', "@627 off=b'ions\\n# k point: M, k15 (1,1,1)\\n# IR: M4-, k15t8\\n# P1   (a) 137 P4_2/nmc, basis={' loc=b'ions\\n# k point: M, k15 (1,1,1)\\n# IR: M4-\\n# P1   (a) 137 P4_2/nmc, basis={(1,0,0)'", {'n_lines': (177, 113)})
+
+===== Method2: official=22 local=22 =====
+local missing folders: 0
+local extra folders: 0
+exact-name overlap: 22
+paired: 22 unpaired-off: 0
+stats: {'subgroup.cif_byte_diff': 22, 'data.isoviz_byte_diff': 22, 'topas.str_byte_diff': 22}
+CIF field mismatch counts: {'n_lines': 22, 'hm': 9, 'a': 1, 'opd': 2, 'sg': 1}
+
+samples:
+  ('CIF', 'LD1 C1', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD1, k10t1\\n# C1 (a,b)  99 P4mm, basis={(1,0' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD1\\n# C1 (a,b)  99 P4mm, basis={(1,0,0),(0,'", {'n_lines': (1254, 331)})
+  ('CIF', 'LD1 P1', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD1, k10t1\\n# P1 (a,0) 123 P4/mmm, basis={(1' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD1\\n# P1 (a,0) 123 P4/mmm, basis={(1,0,0),('", {'n_lines': (523, 222)})
+  ('CIF', 'LD1 P2', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD1, k10t1\\n# P2 (a,a) 129 P4/nmm, basis={(1' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD1\\n# P2 (a,a) 129 P4/nmm, basis={(1,0,0),('", {'n_lines': (543, 222)})
+  ('CIF', 'LD2 C1', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD2, k10t3\\n# C1 (a,b) 105 P4_2mc, basis={(1' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD2\\n# C1 (a,b) 105 P4_2mc, basis={(1,0,0),('", {'n_lines': (690, 259)})
+  ('CIF', 'LD2 P1', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD2, k10t3\\n# P1 (a,0) 131 P4_2/mmc, basis={' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD2\\n# P1 (a,0) 131 P4_2/mmc, basis={(1,0,0)'", {'n_lines': (350, 186)})
+  ('CIF', 'LD2 P2', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD2, k10t3\\n# P2 (a,a) 137 P4_2/nmc, basis={' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD2\\n# P2 (a,a) 137 P4_2/nmc, basis={(1,0,0)'", {'n_lines': (341, 184)})
+  ('CIF', 'LD5 4D1', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5, k10t5\\n# 4D1 (a,b,c,d)   4 P2_1, basis=' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5\\n# 4D1 (a,b,c,d)   4 P2_1, basis={(-1,0,'", {'hm': ('P 1 21 1', 'P 1211'), 'n_lines': (1866, 295)})
+  ('CIF', 'LD5 C1', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5, k10t5\\n# C1 (a,b,0,0)  17 P222_1, basis' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5\\n# C1 (a,b,0,0)  17 P222_1, basis={(1,0,'", {'hm': ('P 2 2 21', 'P 2221'), 'n_lines': (704, 195)})
+  ('CIF', 'LD5 C2', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5, k10t5\\n# C2 (a,b,a,b)  19 P2_12_12_1, b' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5\\n# C2 (a,b,a,b)  19 P2_12_12_1, basis={('", {'hm': ('P 21 21 21', 'P 212121'), 'n_lines': (793, 255)})
+  ('CIF', 'LD5 C3', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5, k10t5\\n# C3 (a,b,-a,b)  20 C222_1, basi' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5\\n# C3 (a,b,-a,b)  20 C222_1, basis={(-1,'", {'hm': ('C 2 2 21', 'C 2221'), 'n_lines': (676, 199)})
+  ('CIF', 'LD5 C4', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5, k10t5\\n# P4 (a,a,a,a)  62 Pnma, basis={' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5\\n# C4 (a,0,0,b)  20 C222_1, basis={(-1,1'", {'sg': ('62', '20'), 'hm': ('P 21/n 21/m 21/a', 'C 2221'), 'a': ('66.97800', '6.22537'), 'opd': ('P4 (a,a,a,a)  62 Pnma, basis={(0,0,6),(1,0,0),(0,1,0)}, origin=(1/4,1/4,9/4), s=12, i=24, k-active= (0,0,1/6)', 'C4 (a,0,0,b)  20 C222_1, basis={(-1,1,0),(-1,-1,0),(0,0,6)}, origin=(0,1/2,9/4), s=12, i=48, k-active= (0,0,1/6)'), 'n_lines': (494, 199)})
+  ('CIF', 'LD5 C5', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5, k10t5\\n# C5 (a,0,b,0)  76 P4_1, basis={' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5\\n# C5 (a,0,b,0)  76 P4_1, basis={(0,1,0)'", {'n_lines': (695, 192)})
+  ('CIF', 'LD5 C6', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5, k10t5\\n# C6 (a,a,b,-b)  11 P2_1/m, basi' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5\\n# C6 (a,a,b,-b)  11 P2_1/m, basis={(-1,'", {'n_lines': (589, 195)})
+  ('CIF', 'LD5 C7', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5, k10t5\\n# C7 (a,b,b,a)  14 P2_1/c, basis' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5\\n# C7 (a,b,b,a)  14 P2_1/c, basis={(-1,0'", {'opd': ('C7 (a,b,b,a)  14 P2_1/c, basis={(-1,0,0),(0,0,-6),(1,-1,0)}, origin=(-1/4,1/4,9/4), s=12, i=48, k-active= (0,0,1/6)', 'C7 (a,b,b,a)  14 P2_1/c, basis={(-1,0,0),(0,0,6),(-1,1,0)}, origin=(-1/4,1/4,9/4), s=12, i=48, k-active= (0,0,1/6)'), 'n_lines': (733, 255)})
+  ('CIF', 'LD5 C8', "@635 off=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5, k10t5\\n# C8 (a,a,b,b)  26 Pmc2_1, basis' loc=b' point: LD, k10 (0,0,g), g=1/6\\n# IR: LD5\\n# C8 (a,a,b,b)  26 Pmc2_1, basis={(1,0,'", {'hm': ('P m c 21', 'P m c21'), 'n_lines': (1041, 267)})
+
+OFF LD5 P4 files: ['ISODISTORT_ distortion.html', 'ISODISTORT_ distortion_files', 'data.isoviz', 'subgroup.cif', 'topas.str']
+LOC LD5 P4 files: ['Complete modes details.txt', 'data.isoviz', 'subgroup.cif', 'topas.str']

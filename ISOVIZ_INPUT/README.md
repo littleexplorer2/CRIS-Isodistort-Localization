@@ -35,6 +35,23 @@ ISOVIZ_INPUT/
 
 ---
 
+## 用户需要配置 / 放置的路径
+
+| 项目 | 默认 / 做法 | 你要做什么 |
+| --- | --- | --- |
+| **振幅 CSV** | `ISOVIZ_INPUT/input_content/data.csv/` | 把 GD/拟合导出的 CSV 放进该文件夹，或启动时用 `--data <任意路径>` |
+| **子群 `.isoviz`** | `ISOVIZ_INPUT/input_content/subgroup.isoviz/` | 放入官网或本地 ISODISTORT 导出的 `data.isoviz`（可改名），或用 `--structure <任意路径>` |
+| **IsoVIZ 可执行体** | 见下表「Java 与 IsoVIZ」 | **本机必配其一**：根目录 `ISOViz.lnk`、根目录 `.jar`/`.exe`、或环境变量 `ISOVIZ` / `ISOVIZ_JAR` |
+| **Java** | 系统 `PATH` 中的 `java` | 安装 JRE/JDK；用 `.jar` 启动时必需 |
+| **临时启动文件** | 系统临时目录（`tempfile`） | 程序自动写入再交给 IsoVIZ；**不要**也不需要配置本子项目的 `output/` |
+| **Python / venv** | 仓库根 `CRIS/.venv` | 与其它子项目共用 |
+
+**一般不必改：** 包内 `isoviz_input/paths.py` 的常量（已指向上述 `input_content/`）。若只想换输入文件，优先用命令行参数或往默认文件夹放文件。
+
+跨项目总表见仓库根 [README.md](../README.md)。
+
+---
+
 ## 安装
 
 ### 1. Python 环境

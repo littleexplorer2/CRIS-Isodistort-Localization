@@ -5,7 +5,8 @@ Distortion Page 批量导出：CIF / Save interactive distortion / Complete mode
 https://landau3.byu.edu/isodistorthelp.php#modeparams 中的导出选项。
 
 命名约定（对齐官网下载）：
-    文件夹  Method 1: 完整 OPD 行；Method 2/3: ``LD1 C1``
+    文件夹  Method 1: 完整 OPD 行（Windows 删除 ``/``：``I4mmm``、``1/2``→``12``）；
+            Method 2/3: ``LD1 C1``
     文件    ``subgroup.cif`` / ``data.isoviz`` /
             ``Complete modes details.txt``（官网为 HTML；本地用 .txt）/
             ``topas.str``
@@ -114,8 +115,13 @@ def parse_export_method(raw: str | int | None) -> int:
 
 
 def safe_name(text: str, fallback: str = "subgroup") -> str:
-    """去掉 Windows 非法文件名字符，压缩连续空白。"""
-    cleaned = _WINDOWS_BAD.sub(" ", str(text or ""))
+    """去掉 Windows 非法文件名字符，压缩连续空白。
+
+    官网 Windows 下载会直接删除 ``/``（``I4/mmm``→``I4mmm``，``1/2``→``12``），
+    而不是替换成空格；其余非法字符仍替换为空格。
+    """
+    cleaned = str(text or "").replace("/", "")
+    cleaned = _WINDOWS_BAD.sub(" ", cleaned)
     cleaned = re.sub(r"\s+", " ", cleaned).strip(" .")
     return cleaned or fallback
 
@@ -223,9 +229,15 @@ def _parent_primitive_volume(parent: Structure | None) -> float:
 
 
 def render_complete_modes(spec: SubgroupExportSpec) -> str:
-    """Complete modes details：列出超胞内每个原子（不仅对称独立原子）。
+    """Write Complete modes details as a self-contained ``.txt``.
 
-    手册 #modesdetails：超胞 xyz 表、模式定义（全原子）、As / Ap / dmax。
+    Acceptance (see repo ``agent.md``): put **all locally computed** supercell /
+    mode information into this text file inside each subgroup folder of the
+    Distortion ZIP. Byte-level match to the official HTML modes page is **not**
+    required.
+
+    Content outline (handbook #modesdetails inspiration): supercell xyz table,
+    mode definitions (every atom), As / Ap / dmax when displacements exist.
     """
     sg = spec.subgroup
     sc = spec.structure
@@ -334,9 +346,79 @@ def _site_tag(structure: Structure, idx: int) -> str:
     return f"{el}_{idx + 1}"
 
 
+def _centering_multiplicity(symbol: str | None) -> int:
+    """Conventional-cell centering order (P=1, I/C/A/B=2, F=4, R=3)."""
+    letter = (symbol or "P").lstrip("0123456789 ").strip()[:1].upper()
+    if letter == "F":
+        return 4
+    if letter == "R":
+        return 3
+    if letter in {"I", "C", "A", "B"}:
+        return 2
+    return 1
+
+
+def compact_mode_label(pretty: str, *, topas_space_before_ir: bool = False) -> str:
+    """Align mode-label cosmetics with official exports (``[0,0,0]``, optional space)."""
+    text = (pretty or "").strip()
+    if not text:
+        return text
+
+    def _tri(match: re.Match[str]) -> str:
+        parts = []
+        for raw in match.group(1).split(","):
+            raw = raw.strip()
+            try:
+                val = float(raw)
+            except ValueError:
+                parts.append(raw)
+                continue
+            if abs(val - round(val)) < 1e-8:
+                parts.append(str(int(round(val))))
+            else:
+                parts.append(f"{val:g}")
+        return "[" + ",".join(parts) + "]"
+
+    text = re.sub(r"\[([^\[\]]+)\]", _tri, text, count=1)
+    if topas_space_before_ir:
+        # Official TOPAS: ...[Al2:e:dsp] A1(a)
+        text = re.sub(r"(\[[^\]]*:(?:dsp|rot|mag|occ)\])([A-Za-z])", r"\1 \2", text)
+    return text
+
+
+def cart_normalized_mode_matrix(
+    arr: np.ndarray,
+    lattice_matrix: np.ndarray,
+    *,
+    centering_mult: int = 1,
+) -> tuple[np.ndarray, float]:
+    """Scale unitless mode vectors so Σ‖Δr‖² over the *primitive* cell ≈ 1.
+
+    Local iso often emits max-component=1 vectors. Official TOPAS / IsoVIZ use a
+    Cartesian primitive-cell normalization (I-centering → factor √2 vs full cell).
+    Returns ``(scaled_matrix, maxamp_hint)``.
+    """
+    mat = np.asarray(arr, dtype=float)
+    if mat.ndim != 2 or mat.shape[1] != 3 or mat.size == 0:
+        return mat, 1.0
+    max_comp = float(np.max(np.abs(mat)))
+    unit = mat / max_comp if max_comp > 1e-16 else mat
+    bmat = np.asarray(lattice_matrix, dtype=float)
+    cart = unit @ bmat
+    ssq = float(np.sum(cart * cart))
+    n_c = max(int(centering_mult), 1)
+    # Attribute equal share of conventional-cell images to the primitive cell.
+    ssq_prim = ssq / n_c
+    scale = (1.0 / np.sqrt(ssq_prim)) if ssq_prim > 1e-30 else 1.0
+    scaled = unit * scale
+    maxamp = float(np.sqrt(n_c)) if n_c > 1 else 1.0
+    return scaled, maxamp
+
+
 def render_topas(spec: SubgroupExportSpec) -> str:
     """TOPAS.STR：官网 distortion-mode 精修输入（见手册 #topas）。"""
     from .isodistort_cif import _parent_to_child_transform
+    from ..utils.parent_header import format_fixed_coord
 
     sg = spec.subgroup
     sc = spec.structure
@@ -346,14 +428,15 @@ def render_topas(spec: SubgroupExportSpec) -> str:
         transform = _parent_to_child_transform(sg, np.zeros(3))
     except Exception:  # noqa: BLE001
         transform = "a,b,c;0,0,0"
-    # Child cell axes from parent→child when available (official uses child metrics).
+    hm = (sg.space_group_symbol or str(sg.space_group_number or "")).strip()
+    n_c = _centering_multiplicity(hm)
     lines = [
         "'Topas .str file generated by ISODISTORT",
         "'Remember to add the appropriate peak shape line when passing this into an input file",
         "",
         "\tstr",
-        f"\t\t'{sg.space_group_symbol or sg.space_group_number}",
-        f"\t\tspace_group  {sg.space_group_number} "
+        f"\t\t'{hm} ",
+        f"\t\tspace_group {sg.space_group_number} "
         f"'transformPp {transform or 'a,b,c;0,0,0'}",
         f"\t\ta  {lat.a:10.5f}",
         f"\t\tb  {lat.b:10.5f}",
@@ -368,39 +451,49 @@ def render_topas(spec: SubgroupExportSpec) -> str:
     mode_items = list((spec.mode_displacements_sc or {}).items())
     unique = _unique_site_indices(sc)
     tags = [_site_tag_official(sc, i, spec) for i in unique]
+    scaled_modes: list[np.ndarray] = []
+    amp_bound = 1.41 if n_c > 1 else 2.00
 
     if not mode_items:
         lines.append("\t\t' (no displacive modes available for this subgroup)")
         if spec.note:
             lines.append(f"\t\t' note: {spec.note}")
     else:
-        for n, (label, _disp) in enumerate(mode_items, start=1):
-            pretty = (spec.mode_labels or {}).get(label, label)
-            amp = float((spec.amplitudes or {}).get(label, 0.0))
-            lines.append(
-                f"\t\tprm  !a{n:<4d} {amp:10.5f} min  -2.00 max  2.00 '{pretty}"
+        for n, (label, disp) in enumerate(mode_items, start=1):
+            pretty = compact_mode_label(
+                (spec.mode_labels or {}).get(label, label),
+                topas_space_before_ir=True,
             )
+            amp = float((spec.amplitudes or {}).get(label, 0.0))
+            scaled, _hint = cart_normalized_mode_matrix(
+                np.asarray(disp, dtype=float), lat.matrix, centering_mult=n_c
+            )
+            scaled_modes.append(scaled)
+            lines.append(
+                f"\t\tprm  !a{n:<4d} {amp:10.5f} min  -{amp_bound:.2f} max  {amp_bound:.2f} '{pretty}"
+            )
+    lines.append("")
     lines.append("'}}}")
     lines.append("")
     lines.append("'{{{mode-amplitude to delta transformation")
 
     deltas: dict[tuple[str, str], list[str]] = {}
-    if mode_items:
-        for n, (_label, disp) in enumerate(mode_items, start=1):
-            arr = np.asarray(disp, dtype=float)
+    if mode_items and scaled_modes:
+        for n, scaled in enumerate(scaled_modes, start=1):
             for tag, idx in zip(tags, unique, strict=True):
-                if idx >= arr.shape[0]:
+                if idx >= scaled.shape[0]:
                     continue
-                vec = arr[idx]
+                vec = scaled[idx]
                 for axis, comp in zip(("x", "y", "z"), vec, strict=True):
                     if abs(float(comp)) < 1e-8:
                         continue
                     sign = "+" if float(comp) >= 0 else "-"
-                    term = f"{sign} {abs(float(comp)):.5f}*a{n}"
+                    term = f"{sign}  {abs(float(comp)):.5f}*a{n}"
                     deltas.setdefault((tag, axis), []).append(term)
         for (tag, axis), terms in deltas.items():
             expr = " ".join(terms)
-            lines.append(f"\t\tprm {tag}_d{axis} = {expr};: 0.00000")
+            lines.append(f"\t\tprm  {tag}_d{axis}   = {expr};:  0.00000")
+    lines.append("")
     lines.append("'}}}")
     lines.append("")
     lines.append("'{{{distorted parameters")
@@ -409,15 +502,27 @@ def render_topas(spec: SubgroupExportSpec) -> str:
         for axis, val in zip(("x", "y", "z"), (x, y, z), strict=True):
             dprm = f"{tag}_d{axis}"
             has_d = (tag, axis) in deltas
+            fixed = format_fixed_coord(val)
+            # Prefer IT specials (0, 1/2, …) like official TOPAS when no free delta.
             if has_d:
                 lines.append(
-                    f"\t\tprm {tag}_{axis} = {val:.6f} + {dprm};: {val:.5f}"
+                    f"\t\tprm  {tag}_{axis}    =    {val:.5f} + {dprm};:  {val:.5f}"
                 )
             else:
+                try:
+                    float(fixed)
+                    rhs = f"{float(fixed):.6f}" if "." in fixed else fixed
+                except ValueError:
+                    rhs = fixed
+                if re.fullmatch(r"-?\d+", fixed) or "/" in fixed:
+                    rhs = fixed
+                else:
+                    rhs = f"{val:.6f}"
                 lines.append(
-                    f"\t\tprm !{tag}_{axis} = {val:.6f};: {val:.5f}"
+                    f"\t\tprm !{tag}_{axis}    = {rhs};:  {val:.5f}"
                 )
-        lines.append(f"\t\tprm !{tag}_occ = 1;: 1.00000")
+    for tag, _idx in zip(tags, unique, strict=True):
+        lines.append(f"\t\tprm !{tag}_occ  = 1;:  1.00000")
     lines.append("'}}}")
     lines.append("")
     lines.append("'{{{mode-dependent sites")
@@ -425,15 +530,18 @@ def render_topas(spec: SubgroupExportSpec) -> str:
         el = sc[idx].species_string
         el = re.sub(r"[^A-Za-z]", "", el) or "X"
         lines.append(
-            f"\t\tsite {tag} num_posns 0 "
-            f"x = {tag}_x;:0 y = {tag}_y;:0 z = {tag}_z;:0 "
-            f"occ {el} = {tag}_occ;:0 beq 0.0"
+            f"\t\tsite {tag}    num_posns  0  "
+            f"x = {tag}_x;:0    y = {tag}_y;:0    z = {tag}_z;:0    "
+            f"occ {el:<5s} = {tag}_occ;:0 beq 0.0"
         )
-    lines.append("\t\tsite origin num_posns 0 x 0.00000 y 0.00000 z 0.00000 occ D 0")
+    lines.append(
+        "\t\t'site origin   num_posns  0  x  0.00000      y  0.00000      z  0.00000      occ D  0"
+    )
     lines.append("'}}}")
     lines.append("")
     lines.append("'{{{difference restraints for interconnected rigid bodies")
     lines.append("'}}}")
+    lines.append("")
     lines.append("")
     return "\n".join(lines)
 

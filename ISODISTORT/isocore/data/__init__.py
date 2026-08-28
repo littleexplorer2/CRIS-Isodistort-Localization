@@ -1,12 +1,12 @@
-"""官网数据覆盖（k 点显示、Method 1 lattice 标签等），用于网页下拉与官网对齐。"""
+"""空间群 / k 点 / irrep 元数据（CDML 显示约定等）。
+
+禁止在此放置按 (irrep, OPD) 或具体算例硬编码的“官网正确答案”表；
+对齐应通过底层算法修正，而非特例数据库。
+"""
+from .irreps_cdml import lookup_irrep_kovalev
 from .kpoints_official import KPOINT_OFFICIAL
-from .method1_lattice_official import METHOD1_LATTICE_OFFICIAL
-from .method1_opd_official import METHOD1_OPD_OFFICIAL, lookup_official_opd
 
 __all__ = [
     "KPOINT_OFFICIAL",
-    "METHOD1_LATTICE_OFFICIAL",
-    "METHOD1_OPD_OFFICIAL",
-    "lookup_official_opd",
+    "lookup_irrep_kovalev",
 ]
-

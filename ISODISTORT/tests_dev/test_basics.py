@@ -69,6 +69,9 @@ def test_distortion_and_method2_help_keys():
     assert "st.busyHint" in MESSAGES
     assert "ui.menu.superspace" in MESSAGES
     assert "ss.title" in MESSAGES
+    assert "ss.localNote" in MESSAGES
+    assert "not a main ISODISTORT" in MESSAGES["ss.localNote"]
+    assert "ss.localHow" in MESSAGES
     assert "ok.nmod" in MESSAGES
     assert "independent incommensurate" in MESSAGES["l.nmod"].lower()
 

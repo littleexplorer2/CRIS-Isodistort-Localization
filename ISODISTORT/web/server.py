@@ -549,6 +549,7 @@ class IsoHandler(BaseHTTPRequestHandler):
         iso.set_distortion_scope(_SESSION.distortion_scope)
         iso.set_distortion_types(_SESSION.distortion_types)
         nmod = validate_nmod(data.get("nmod") or 0)
+        _SESSION.nmod = nmod
         result = iso.search_method_2(
             subgroup_idx=idx,
             distortion_type=data.get("distortion_type", _SESSION.distortion_types),
@@ -750,7 +751,8 @@ class IsoHandler(BaseHTTPRequestHandler):
         查询参数：
             ``method``：1 / 2 / 3（不可多选；缺省 2）
             ``formats``：cif,isoviz,modes,topas（官网第 6 页对应选项）
-        ZIP 结构：``isodistort_methodN/<IR OPD>/<IR OPD> <格式>.<ext>``
+        ZIP 结构：每子群一个文件夹（Method 1 为完整 OPD 行；Method 2/3 为 ``IR OPD``），
+        内含所选格式文件；外层 ZIP 文件名为 ``isodistort_methodN.zip``（``wrapping=None``）。
         查询参数 ``indices``：逗号分隔的子群 index；若提供，只打包这些子群
         （网页在当前 Method 有筛选时传入命中行）。
         """
@@ -797,8 +799,8 @@ class IsoHandler(BaseHTTPRequestHandler):
                 ),
             }, 404)
             return
-        # 勾选了 isoviz / modes / topas 时，对非参数 k 点子群补跑 Method 2
-        # 以填充模式（长计算由网页 busy 进度条提示）。参数 k 点仍跳过。
+        # 勾选了 isoviz / modes / topas 时，对子群补跑 Method 2 以填充模式
+        # （长计算由网页 busy 进度条提示）。参数 k 点需 nmod>=1。
         need_modes = any(fmt != "cif" for fmt in fmts)
         compute_q = (qs.get("compute_modes") or ["1"])[0].strip().lower()
         # 默认开启；显式 compute_modes=0 可跳过（仅结构骨架，速度快）
@@ -813,6 +815,7 @@ class IsoHandler(BaseHTTPRequestHandler):
                 compute_missing_modes=compute_missing_modes,
                 wrapping=None,
                 use_opd_line_folders=(method == 1),
+                number_of_independent_modulations=_SESSION.nmod,
             )
         except Exception as exc:  # noqa: BLE001 - web 边界：统一转为 JSON 错误
             self._send_json({"ok": False, "error": str(exc)}, 500)

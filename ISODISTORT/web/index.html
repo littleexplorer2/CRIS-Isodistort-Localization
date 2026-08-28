@@ -230,11 +230,15 @@
     <div id="distOut" class="scroll"></div>
   </div>
 
-  <!-- ============ (3+d) superspace (nmod = d, IT-C) ============ -->
+  <!-- (3+d) superspace：本地附加检查台，不是 ISODISTORT 官网主功能，官网也没有对应板块。
+       官网把非公度计算做成 Method 2 的 nmod（表单名 nmodstar），再经 IR → OPD → Distortion 出模式。
+       对齐官网请用上面 Method 2 的 nmod 输入；本板块只方便直接查看本地内核（群/IR/OPD/三维投影）。 -->
   <div class="well">
-    <h3><span id="hSs"> (3+d) superspace</span>
+    <h3><span id="hSs"> (3+d) superspace (local extra)</span>
       <button class="btn btn-primary" id="btnSs" onclick="runSuperspace()">Compute</button>
     </h3>
+    <p class="muted-hint" id="ssLocalNote"></p>
+    <p class="muted-hint" id="ssLocalHow"></p>
     <p class="muted-hint" id="ssNeedSg"></p>
     <p>
       <span id="lNmod2">nmod (d):</span>
@@ -1414,6 +1418,8 @@ function renderAll() {
   document.getElementById("btnNmod").textContent = t("btn.change");
   document.getElementById("hSs").textContent = t("ss.title");
   document.getElementById("btnSs").textContent = t("ss.compute");
+  document.getElementById("ssLocalNote").textContent = t("ss.localNote");
+  document.getElementById("ssLocalHow").textContent = t("ss.localHow");
   document.getElementById("ssNeedSg").textContent = t("ss.needSg");
   document.getElementById("lNmod2").textContent = t("l.nmod");
   document.getElementById("lSsKs").textContent = t("ss.ks");
