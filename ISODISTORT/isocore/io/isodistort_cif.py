@@ -44,6 +44,8 @@ _HM_FULL_1992 = {
     2: "P -1",
     4: "P 1 21 1",
     5: "C 1 2 1",
+    6: "P 1 m 1",
+    7: "P 1 c 1",
     8: "C 1 m 1",
     10: "P 1 2/m 1",
     11: "P 1 21/m 1",
@@ -57,8 +59,13 @@ _HM_FULL_1992 = {
     22: "F 2 2 2",
     23: "I 2 2 2",
     24: "I 21 21 21",
+    25: "P m m 2",
     26: "P m c 21",
+    28: "P m a 2",
+    30: "P n c 2",
+    31: "P m n 21",
     36: "C m c 21",
+    38: "A m m 2",
     39: "A b m 2",
     40: "A b a 2",
     42: "F m m 2",
@@ -70,6 +77,7 @@ _HM_FULL_1992 = {
     49: "P 2/c 2/c 2/m",
     50: "P 2/b 2/a 2/n (origin choice 2)",
     51: "P 21/m 2/m 2/a",
+    53: "P 2/m 2/n 21/a",
     55: "P 21/b 21/a 2/m",
     56: "P 21/c 21/c 2/n",
     58: "P 21/n 21/n 2/m",
@@ -94,6 +102,7 @@ _HM_FULL_1992 = {
     99: "P 4 m m",
     105: "P 42 m c",
     107: "I 4 m m",
+    115: "P -4 m 2",
     119: "I -4 m 2",
     120: "I -4 c 2",
     121: "I -4 2 m",
@@ -412,21 +421,20 @@ def _space_hm_symbol(raw: str) -> str:
     rest = text[1:]
     # Official CIF often drops underscore in screw axes: 4_2 → 42, 2_1 → 21
     rest = re.sub(r"(\d)_(\d)", r"\1\2", rest)
-    # Split into axis components: digit[+ /letter] or letter[+digits]
-    parts = re.findall(r"\d+(?:/[A-Za-z]+)?|[A-Za-z]\d*", rest)
+    # Axis tokens: numeric (optional /letter), barred axis, or single letter.
+    # Do NOT glue trailing digits onto m/a/b/c (``mm2`` → m, m, 2 not m2).
+    # Limit slash glue to one letter so ``4/mmm`` → 4/m, m, m.
+    parts = re.findall(r"-?\d+(?:/[A-Za-z])?|[A-Za-z]", rest)
     if not parts:
-        # Fallback character walk (keeps slash attached to previous token)
         parts_list: list[str] = [letter]
         i = 0
         while i < len(rest):
             ch = rest[i]
             if ch == "-":
-                # Keep inversion bar glued to following digit: -1
                 j = i + 1
                 while j < len(rest) and rest[j].isdigit():
                     j += 1
-                token = rest[i:j]
-                parts_list.append(token)
+                parts_list.append(rest[i:j])
                 i = j
                 continue
             if ch == "/":
@@ -446,15 +454,12 @@ def _space_hm_symbol(raw: str) -> str:
                 i = j
                 continue
             if ch.isalpha():
-                j = i + 1
-                while j < len(rest) and rest[j].isdigit():
-                    j += 1
-                token = rest[i:j]
+                # Single letter only; digits after mirrors are separate axes.
                 if len(parts_list) > 1 and parts_list[-1].endswith("/"):
-                    parts_list[-1] = parts_list[-1] + token
+                    parts_list[-1] = parts_list[-1] + ch
                 else:
-                    parts_list.append(token)
-                i = j
+                    parts_list.append(ch)
+                i += 1
                 continue
             i += 1
         return " ".join(parts_list)
@@ -1104,28 +1109,12 @@ def _irrep_kovalev_tag(sg: SubgroupInfo) -> str | None:
     entry = KPOINT_OFFICIAL.get(parent, {}).get(k_label)
     if entry:
         k_kov = entry[0]
-    # Companions: other IRs that share the same k-point letter prefix (GM*, M*, …).
-    prefix = re.match(r"^([A-Za-z]+)", ir)
-    companions = None
-    if prefix:
-        letter = prefix.group(1)
-        companions = [
-            name for name, _tag in _irrep_names_for_kovalev(k_kov)
-            if name.startswith(letter)
-        ][:24]
-    return lookup_irrep_kovalev(ir, k_kovalev=k_kov, companion_irreps=companions)
-
-
-def _irrep_names_for_kovalev(k_kovalev: str | None) -> list[tuple[str, str]]:
-    try:
-        from ..data.irreps_cdml import _ml_kov_tables
-    except Exception:  # noqa: BLE001
-        return []
-    ml, kov = _ml_kov_tables()
-    if not k_kovalev:
-        return list(zip(ml, kov))
-    pref = k_kovalev.lower() + "t"
-    return [(m, k) for m, k in zip(ml, kov) if k.lower().startswith(pref)]
+    return lookup_irrep_kovalev(
+        ir,
+        k_kovalev=k_kov,
+        parent_sg=parent or None,
+        k_point_label=k_label or None,
+    )
 
 
 def _order_parameter_comment_lines(spec: Any) -> list[str]:
@@ -1214,6 +1203,14 @@ def _opd_direction_letter(sg: SubgroupInfo) -> str:
 
 
 def _parent_wyckoff_comment_lines(spec: Any) -> list[str]:
+    """Parent Wyckoff block in Distortion CIF comments.
+
+    Prefer ``parent_wyckoff_lines`` (CIF atom_site order/labels, same as the
+    search-page header). Fall back to formatting ``parent_wyckoff_sites``.
+    """
+    preset = getattr(spec, "parent_wyckoff_lines", None) or []
+    if preset:
+        return [str(x) for x in preset if str(x).strip()]
     parent = spec.parent_structure
     wyckoff = spec.parent_wyckoff_sites
     if parent is None or not wyckoff:

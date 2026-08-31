@@ -105,6 +105,10 @@ def test_index_served(server):
     assert 'id="dlMethodOpt4"' in body
     assert 'id="btnDlTxt"' in body and 'id="btnDlCsv"' in body
     assert 'id="genDbHelp"' in body
+    assert 'id="btnGenDbManage"' in body
+    assert "loadGenDbCache" in body
+    assert "deleteSelectedGenDb" in body
+    assert "/api/isotropy_cache" in body
     assert "onResultFilter" in body
     assert "m1Items" in body and "m3Items" in body
     assert 'exportHeader: "k-active"' in body
@@ -150,7 +154,12 @@ def test_i18n_endpoint(server):
     assert "terms" not in data
     assert data["messages"]["load.done"].startswith("[Loaded]")
     assert "ui.menu.language" not in data["messages"]
-    assert "Generate isotropy subgroups" in data["messages"]["m2.genDbHelp"]
+    assert "Generate isotropy subgroups" in data["messages"]["m2.genDbHelp"] or (
+        "isotropy" in data["messages"]["m2.genDbHelp"].lower()
+        and "subgroup" in data["messages"]["m2.genDbHelp"].lower()
+    )
+    assert "m2.genDbManage" in data["messages"]
+    assert "m2.genDbDelete" in data["messages"]
     assert data["messages"]["dist.method4"] == "Method 4"
     assert "Building ZIP" in data["messages"]["dist.zipWait"]
     assert "Elapsed" in data["messages"]["st.elapsed"]

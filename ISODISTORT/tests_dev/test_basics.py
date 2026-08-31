@@ -57,8 +57,14 @@ def test_no_language_switch_keys():
 
 def test_distortion_and_method2_help_keys():
     assert "m2.genDbHelp" in MESSAGES
-    assert "Generate isotropy subgroups" in MESSAGES["m2.genDbHelp"]
+    assert "isotropy-subgroup" in MESSAGES["m2.genDbHelp"].lower() or (
+        "isotropy" in MESSAGES["m2.genDbHelp"].lower()
+        and "subgroup" in MESSAGES["m2.genDbHelp"].lower()
+    )
+    assert "cache" in MESSAGES["m2.genDbHelp"].lower()
     assert "\n" not in MESSAGES["m2.genDbHelp"]
+    assert "m2.genDbManage" in MESSAGES
+    assert "m2.genDbDelete" in MESSAGES
     assert "dist.method4" in MESSAGES
     assert "dist.tableLabel" in MESSAGES
     assert "not limited by the filter" not in MESSAGES["dist.tableNote"]
@@ -119,6 +125,68 @@ def test_format_wyckoff_sites_eual4_like():
         "Al1 4d (0,1/2,1/4)",
         "Al2 4e (0,0,z), z= 0.38000",
     ]
+
+
+def test_parent_wyckoff_from_cif_ndnio2():
+    """CIF atom_site labels/order drive the web header (not memorized EuAl4)."""
+    from pathlib import Path
+
+    from isocore.api import IsoDistort
+
+    cris = Path(__file__).resolve().parents[3]
+    cif = cris / "experiment_data" / "NdNiO2 own.cif"
+    if not cif.is_file():
+        import pytest
+        pytest.skip("NdNiO2 own.cif not in experiment_data")
+    iso = IsoDistort()
+    iso.load_structure(cif)
+    lines = iso.parent_wyckoff_display()
+    assert lines[0].startswith("O 2f")
+    assert any(ln.startswith("ND 1d") for ln in lines)
+    assert any(ln.startswith("NI 1a") for ln in lines)
+
+
+def test_export_cif_uses_cif_wyckoff_lines_ndnio2():
+    """Distortion CIF comments must reuse the same CIF-ordered parent header."""
+    from pathlib import Path
+
+    from isocore.api import IsoDistort
+    from isocore.backend import SubgroupInfo
+    from isocore.io.distortion_formats import render_cif
+
+    cris = Path(__file__).resolve().parents[3]
+    cif = cris / "experiment_data" / "NdNiO2 own.cif"
+    if not cif.is_file():
+        import pytest
+        pytest.skip("NdNiO2 own.cif not in experiment_data")
+    iso = IsoDistort()
+    iso.load_structure(cif)
+    sg = SubgroupInfo(
+        index=0,
+        space_group_number=139,
+        space_group_symbol="I4/mmm",
+        size=2,
+        subgroup_index=2,
+        opd_symbol="P1",
+        opd_dir_raw="(a)",
+        irrep_label="A1+",
+        k_point_label="A",
+        parent_sg=123,
+        k_coordinates=["1/2", "1/2", "1/2"],
+        basis_vectors=[[1, 1, 0], [-1, 1, 0], [0, 0, 2]],
+        origin=[0.0, 0.0, 0.0],
+    )
+    spec = iso._spec_for_subgroup(
+        sg, use_current_modes=False, use_generated_structure=False
+    )
+    assert spec.parent_wyckoff_lines
+    assert spec.parent_wyckoff_lines[0].startswith("O 2f")
+    text = render_cif(spec.structure, spec)
+    assert "# O 2f (0,1/2,0)" in text
+    assert "# ND 1d (1/2,1/2,1/2)" in text
+    assert "# NI 1a (0,0,0)" in text
+    assert "# Nd1" not in text
+
 
 
 # --- from test_kparams_official.py ---

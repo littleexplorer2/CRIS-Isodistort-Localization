@@ -251,9 +251,34 @@ MESSAGES: dict[str, str] = {
     ),
     'lGenDb': 'Generate isotropy subgroups database if missing',
     'm2.genDbHelp': (
-        'Generate isotropy subgroups if missing (slow first run, then cached).'
+        'If this parametric k point has no prebuilt isotropy-subgroup list in the local '
+        'ISOTROPY data files, enabling generation lets your machine run iso to create and '
+        'cache that list (often minutes to hours the first time; later searches reuse the '
+        'cache until you delete selected entries via Manage cached subgroup databases).'
     ),
-    'm2.genDbWarn': "Note: generating the subgroup database may take minutes to hours (official 'Generate isotropy subgroups'); once generated it is cached to the temp directory and returns instantly afterward.",
+    'm2.genDbWarn': (
+        'Generation can take minutes to hours; cached files are stored in the local WSL '
+        'staging temp directory as i*.iso (not isobyu/) and can be listed or deleted in '
+        'Manage cached subgroup databases.'
+    ),
+    'm2.genDbManage': 'Manage cached subgroup databases',
+    'm2.genDbManageHide': 'Hide cache list',
+    'm2.genDbManageAsk': 'Open Manage cached subgroup databases now?',
+    'm2.genDbEmpty': 'No generated subgroup databases are cached yet.',
+    'm2.genDbSelectAll': 'Select all',
+    'm2.genDbSelectNone': 'Select none',
+    'm2.genDbDelete': 'Delete selected',
+    'm2.genDbDeleted': 'Deleted {0} file(s).',
+    'm2.genDbDeletePrompt': (
+        'Enter numbers to delete (e.g. 1,3), all, or 0 to leave unchanged'
+    ),
+    'm2.genDbDone': 'Done managing cache.',
+    'm2.genDbColName': 'File',
+    'm2.genDbColSg': 'Parent SG',
+    'm2.genDbColIr': 'Irrep',
+    'm2.genDbColK': 'kparam',
+    'm2.genDbColSize': 'Size',
+    'm2.genDbColTime': 'Saved',
     'm2.genDb': '(generating subgroup database)',
     'm2.genDbRetry': 'Retry with local database generation',
     'm2.genDbAsk': 'The local subgroup database for this parametric k point is missing. Generate it now (may take a long time)?',

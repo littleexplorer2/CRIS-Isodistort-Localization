@@ -34,8 +34,9 @@ defaults:
 # 运行时（网页与终端界面均为英语，不再提供中文切换）
 # 网页/终端分工：Method 1–4 只调参数并计算结果表（可筛选、排序）；
 # Distortion 统一下载筛选后的 txt/csv（1–4）以及 Method 1–3 的子群结构文件。
-# Method 1 结果表列与官网序参量方向页（webpage_info 中 a. 开头的存档）字段一致：
+# Method 1 结果表列与官网序参量方向页（webpage_info/<母相>/ 中 a. 开头的存档）字段一致：
 # Irrep / OPD / Dir / SG / basis / origin / s / i / k-active（外加本地 idx）。
+# 页头 Wyckoff：从所加载母相 CIF 的 _atom_site_* 读取标签与顺序（非写死结构）。
 # Distortion ZIP 导出：文件名与文件夹对齐官网结构
 # （subgroup.cif / data.isoviz / topas.str / Complete modes details.txt；
 #  Method 1 文件夹用完整 OPD 行，Method 2/3 用「IR OPD」）。
@@ -66,11 +67,12 @@ runtime:
   # 子进程调用超时（秒）
   timeout: 60
   # 子群数据库在线生成超时（秒）
-  # 对应 Method 2 勾选 “Generate isotropy subgroups database if missing”
+  # 对应 Method 2「Generate isotropy subgroups database if missing」
   # （官网 “Generate isotropy subgroups”）：参数 k 点（如 LD/DT）的
   # data_*.txt 中若无子群列表，则由本机 iso 现场生成，可能耗时数分钟到
-  # 数小时，故单独配置更长超时。结果缓存在 temp_dir，与 Distortion ZIP
-  # 导出、以及已删除的 Distortion Generate（按幅度生成畸变结构）不是同一功能。
+  # 数小时，故单独配置更长超时。生成结果写入 WSL ``~/.id/tmp/i*.iso``
+  # （网页与终端均可 Manage cached subgroup databases 列出/批量删除；勿改 isobyu/），
+  # 与 Distortion ZIP 导出、以及已删除的 Distortion Generate 不是同一功能。
   generation_timeout: 3600
   # Method 2 的 nmod（# of independent incommensurate modulations）即超空间附加维度 d。
   # nmod=0：公度 3 维，走本地 iso；nmod≥1：走 isocore (3+d) 超空间内核（IT-C 标准取位）。

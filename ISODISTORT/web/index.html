@@ -134,6 +134,19 @@
     </label>
     <div id="genDbHelp" class="muted-hint" style="margin:4px 0 6px 18px;"></div>
     <div id="genDbWarn" class="muted-hint" style="display:none; margin:0 0 8px 18px;"></div>
+    <div style="margin:0 0 8px 18px;">
+      <button type="button" class="btn btn-mini" id="btnGenDbManage" onclick="toggleGenDbManage()">Manage cached subgroup databases</button>
+    </div>
+    <div id="genDbManage" style="display:none; margin:0 0 10px 18px; padding:8px; border:1px solid #ddd; background:#fafafa;">
+      <div id="genDbManageStatus" class="muted-hint" style="margin-bottom:6px;"></div>
+      <div style="margin-bottom:6px;">
+        <button type="button" class="btn btn-mini" id="btnGenDbSelAll" onclick="setGenDbSelection(true)">Select all</button>
+        <button type="button" class="btn btn-mini" id="btnGenDbSelNone" onclick="setGenDbSelection(false)">Select none</button>
+        <button type="button" class="btn btn-mini btn-danger" id="btnGenDbDelete" onclick="deleteSelectedGenDb()">Delete selected</button>
+        <button type="button" class="btn btn-mini" id="btnGenDbRefresh" onclick="loadGenDbCache()">Refresh</button>
+      </div>
+      <div id="genDbList" class="scroll" style="max-height:180px;"></div>
+    </div>
     <div id="subOut" class="scroll"></div>
     <div id="modesBox"></div>
     <p>
@@ -1014,6 +1027,79 @@ function onGenDbChange() {
   warn.style.display = genDbValue ? "" : "none";
   warn.textContent = t("m2.genDbWarn");
 }
+let genDbManageOpen = false;
+async function toggleGenDbManage() {
+  genDbManageOpen = !genDbManageOpen;
+  const box = document.getElementById("genDbManage");
+  const btn = document.getElementById("btnGenDbManage");
+  box.style.display = genDbManageOpen ? "" : "none";
+  btn.textContent = genDbManageOpen ? t("m2.genDbManageHide") : t("m2.genDbManage");
+  if (genDbManageOpen) await loadGenDbCache();
+}
+async function loadGenDbCache() {
+  const list = document.getElementById("genDbList");
+  const status = document.getElementById("genDbManageStatus");
+  list.innerHTML = `<div class="muted-hint">…</div>`;
+  try {
+    const d = await api("/api/isotropy_cache");
+    if (!d.ok) throw new Error(d.error || "failed");
+    const entries = d.entries || [];
+    status.textContent = entries.length
+      ? `${entries.length} cached file(s)`
+      : t("m2.genDbEmpty");
+    if (!entries.length) {
+      list.innerHTML = `<div class="muted-hint">${esc(t("m2.genDbEmpty"))}</div>`;
+      return;
+    }
+    let html = `<table class="result table table-condensed"><thead><tr>`
+      + `<th></th>`
+      + `<th>${esc(t("m2.genDbColName"))}</th>`
+      + `<th>${esc(t("m2.genDbColSg"))}</th>`
+      + `<th>${esc(t("m2.genDbColIr"))}</th>`
+      + `<th>${esc(t("m2.genDbColK"))}</th>`
+      + `<th>${esc(t("m2.genDbColSize"))}</th>`
+      + `<th>${esc(t("m2.genDbColTime"))}</th>`
+      + `</tr></thead><tbody>`;
+    for (const e of entries) {
+      html += `<tr>`
+        + `<td><input type="checkbox" class="genDbCb" value="${esc(e.name)}"></td>`
+        + `<td>${esc(e.name)}</td>`
+        + `<td>${esc(e.parent_sg != null ? String(e.parent_sg) : "")}</td>`
+        + `<td>${esc(e.irrep || "")}</td>`
+        + `<td>${esc(e.kparam || "")}</td>`
+        + `<td>${esc(String(e.size || 0))}</td>`
+        + `<td>${esc(e.mtime || "")}</td>`
+        + `</tr>`;
+    }
+    html += `</tbody></table>`;
+    list.innerHTML = html;
+  } catch (err) {
+    status.textContent = String(err);
+    list.innerHTML = "";
+  }
+}
+function setGenDbSelection(on) {
+  document.querySelectorAll(".genDbCb").forEach((cb) => { cb.checked = !!on; });
+}
+async function deleteSelectedGenDb() {
+  const names = [...document.querySelectorAll(".genDbCb:checked")].map((cb) => cb.value);
+  if (!names.length) return;
+  const status = document.getElementById("genDbManageStatus");
+  try {
+    const d = await api("/api/isotropy_cache/delete", { names });
+    if (!d.ok) throw new Error(d.error || "delete failed");
+    status.textContent = t("m2.genDbDeleted", (d.deleted || []).length);
+    const entries = d.entries || [];
+    if (!entries.length) {
+      document.getElementById("genDbList").innerHTML =
+        `<div class="muted-hint">${esc(t("m2.genDbEmpty"))}</div>`;
+      return;
+    }
+    await loadGenDbCache();
+  } catch (err) {
+    status.textContent = String(err);
+  }
+}
 function retryWithLocalGen() {
   document.getElementById("genSubgroupDb").checked = true;
   genDbValue = true;
@@ -1427,6 +1513,11 @@ function renderAll() {
   document.getElementById("lSsKp").textContent = t("l.kp");
   document.getElementById("lGenDb").textContent = t("lGenDb");
   document.getElementById("genDbHelp").textContent = t("m2.genDbHelp");
+  document.getElementById("btnGenDbManage").textContent =
+    genDbManageOpen ? t("m2.genDbManageHide") : t("m2.genDbManage");
+  document.getElementById("btnGenDbSelAll").textContent = t("m2.genDbSelectAll");
+  document.getElementById("btnGenDbSelNone").textContent = t("m2.genDbSelectNone");
+  document.getElementById("btnGenDbDelete").textContent = t("m2.genDbDelete");
   document.getElementById("hM3").textContent = t("m3.title");
   document.getElementById("btnM3").textContent = t("btn.ok");
   document.getElementById("lSgSel3").textContent = t("l.sgsel3");

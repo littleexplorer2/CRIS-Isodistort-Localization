@@ -39,7 +39,6 @@ from isocore.io import parse_export_formats, parse_export_method  # noqa: E402
 from isocore.superspace import SuperspaceResult, run_superspace_workflow, validate_nmod  # noqa: E402
 from isocore.superspace.workflow import parse_ks_text, parse_q_vectors_text  # noqa: E402
 from isocore.utils import get_config  # noqa: E402
-from isocore.utils.parent_header import format_wyckoff_sites  # noqa: E402
 from isocore.utils.schoenflies import hm_symbol, schoenflies_symbol  # noqa: E402
 
 WEB_DIR = Path(__file__).resolve().parent
@@ -214,9 +213,7 @@ def _state_summary() -> dict:
                 }
                 for s in iso.symmetry_info["wyckoff_sites"]
             ],
-            "wyckoff_display": format_wyckoff_sites(
-                iso.structure, iso.symmetry_info["wyckoff_sites"]
-            ),
+            "wyckoff_display": iso.parent_wyckoff_display(),
         }
     return summary
 
@@ -395,6 +392,9 @@ class IsoHandler(BaseHTTPRequestHandler):
             # Method 1 下拉数据（对齐官网：可达子群空间群 + Conventional/Primitive lattice）
             _touch_heartbeat()
             self._run(lambda: {"options": _SESSION.iso.method1_options()})
+        elif path == "/api/isotropy_cache":
+            _touch_heartbeat()
+            self._run(lambda: self._api_isotropy_cache_list())
         elif path == "/api/download":
             self._serve_download(parsed.query)
         elif path == "/api/download_all":
@@ -438,6 +438,8 @@ class IsoHandler(BaseHTTPRequestHandler):
             self._run(lambda: self._api_superspace(data))
         elif path == "/api/superspace_import":
             self._run(lambda: self._api_superspace_import(data))
+        elif path == "/api/isotropy_cache/delete":
+            self._run(lambda: self._api_isotropy_cache_delete(data))
         else:
             self._send_json({"ok": False, "error": f"Unknown path: {path}"}, 404)
 
@@ -678,6 +680,27 @@ class IsoHandler(BaseHTTPRequestHandler):
         _SESSION.superspace = result
         _SESSION.nmod = result.nmod
         return result.to_dict()
+
+    def _api_isotropy_cache_list(self) -> dict:
+        from isocore.backend.isotropy_cache import list_isotropy_cache
+
+        wrapper = _SESSION.iso._iso
+        entries = list_isotropy_cache(wrapper)
+        return {
+            "entries": [e.to_dict() for e in entries],
+            "count": len(entries),
+        }
+
+    def _api_isotropy_cache_delete(self, data: dict) -> dict:
+        from isocore.backend.isotropy_cache import delete_isotropy_cache
+
+        names = data.get("names") or []
+        if not isinstance(names, list):
+            raise ValueError("names must be a list of cache file names")
+        wrapper = _SESSION.iso._iso
+        result = delete_isotropy_cache(wrapper, [str(n) for n in names])
+        remaining = self._api_isotropy_cache_list()
+        return {**result, **remaining}
 
     # ------------------------------------------------------------
     # 静态文件 / 下载

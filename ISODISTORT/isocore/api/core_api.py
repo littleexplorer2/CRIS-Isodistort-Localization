@@ -107,6 +107,7 @@ class IsoDistort:
         # 状态
         self.structure: Structure | None = None
         self.symmetry_info: dict | None = None
+        self.structure_path: Path | None = None
         self.subgroups: list[SubgroupInfo] = []
         self.phase_path: PhasePath | None = None
         self.distortion_modes: list[DistortionMode] = []
@@ -144,6 +145,7 @@ class IsoDistort:
         path = Path(cif_path)
         self.structure = (read_cif(path) if path.suffix.lower() == ".cif"
                           else read_structure(path))
+        self.structure_path = path.resolve() if path.suffix.lower() == ".cif" else path.resolve()
         self.symmetry_info = self._sym_val.validate(self.structure)
         self._reset_derived_state()
 
@@ -157,9 +159,22 @@ class IsoDistort:
     def set_structure(self, structure: Structure) -> Structure:
         """直接设置 Structure 对象"""
         self.structure = structure
+        self.structure_path = None
         self.symmetry_info = self._sym_val.validate(self.structure)
         self._reset_derived_state()
         return self.structure
+
+    def parent_wyckoff_display(self) -> list[str]:
+        """官网页头 Wyckoff 行：优先按母相 CIF 位点顺序与标签，否则用对称分析。"""
+        from ..utils.parent_header import parent_wyckoff_display
+
+        if self.structure is None or not self.symmetry_info:
+            return []
+        return parent_wyckoff_display(
+            self.structure,
+            self.symmetry_info.get("wyckoff_sites") or [],
+            self.structure_path,
+        )
 
     def _reset_derived_state(self) -> None:
         """加载新结构后清空所有派生状态。"""
@@ -651,14 +666,17 @@ class IsoDistort:
                 for sg in subs
             ],
         )
+        # Primitive: label must describe T_sub @ B (subgroup-centered cell), not
+        # the conventional iso ``basis_raw`` string (that would show identity for
+        # body-centered parents even when the matrix is the I→P transform).
         primitive = self._distinct_lattices(
             [
-                # Primitive lattice：子群超胞在子群心化下的原胞基
-                # （T_sub @ B），再按母相点群轨道去重
-                (self._centering_matrix(
-                    _centering_letter(sg.space_group_number)
-                 ) @ np.asarray(sg.basis_vectors, dtype=float),
-                 getattr(sg, "basis_raw", "") or "")
+                (
+                    self._centering_matrix(
+                        _centering_letter(sg.space_group_number)
+                    ) @ np.asarray(sg.basis_vectors, dtype=float),
+                    "",
+                )
                 for sg in subs
             ],
         )
@@ -1269,6 +1287,7 @@ class IsoDistort:
                 self.symmetry_info.get("space_group_symbol") or ""
             )
             wyckoff = self.symmetry_info.get("wyckoff_sites")
+        wyckoff_lines = self.parent_wyckoff_display() or None
         return SubgroupExportSpec(
             subgroup=subgroup,
             structure=structure,
@@ -1281,6 +1300,7 @@ class IsoDistort:
             folder_name=folder_name,
             cif_structure=cif_structure,
             parent_wyckoff_sites=wyckoff,
+            parent_wyckoff_lines=list(wyckoff_lines) if wyckoff_lines else None,
             distortion_types=list(self.distortion_types or []),
         )
 

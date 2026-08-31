@@ -202,6 +202,8 @@ class SubgroupExportSpec:
     folder_name: str = ""
     cif_structure: Structure | None = None  # Generate 后 CIF 用畸变结构；其它格式用未畸变超胞
     parent_wyckoff_sites: list | None = None
+    # Pre-formatted parent Wyckoff comment lines (CIF order/labels when available).
+    parent_wyckoff_lines: list[str] | None = None
     distortion_types: list[str] = field(default_factory=list)
 
 

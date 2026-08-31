@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import re
 import sys
 import threading
 import time
@@ -26,7 +27,6 @@ from isocore.api import IsoDistort
 from isocore.distortion.search_methods import CRYSTAL_SYSTEMS
 from isocore.i18n import t
 from isocore.utils import IsodistortError, get_config
-from isocore.utils.parent_header import format_wyckoff_sites
 from isocore.utils.schoenflies import (
     POINT_GROUP_SCHOENFLIES,
     POINT_GROUP_SYSTEM,
@@ -495,9 +495,7 @@ class IsoDistortConsoleApp:
         print("Default space-group preferences: "
               f"{self.iso.space_group_preferences()}")
         print(t("prefs.terminalBlock"))
-        lines = format_wyckoff_sites(
-            self.iso.structure, self.iso.symmetry_info["wyckoff_sites"]
-        )
+        lines = self.iso.parent_wyckoff_display()
         print(",\n".join(lines))
 
     def _set_distortion_types(self) -> None:
@@ -653,7 +651,10 @@ class IsoDistortConsoleApp:
         if not groups:
             return
 
+        # Align with web Method 2: help text, optional cache manager, then generate flag.
         print(t("m2.genDbHelp"))
+        if _prompt_yes_no(t("m2.genDbManageAsk"), False):
+            self._manage_isotropy_cache()
         generate = _prompt_yes_no(t("lGenDb"), False)
         if generate:
             print(t("m2.genDbWarn"))
@@ -668,6 +669,70 @@ class IsoDistortConsoleApp:
             return
         self._compute_modes(idx, "subgroups")
 
+    def _manage_isotropy_cache(self) -> None:
+        """List / batch-delete iso-generated ``i*.iso`` caches (same as web manager)."""
+        from isocore.backend.isotropy_cache import (
+            delete_isotropy_cache,
+            list_isotropy_cache,
+        )
+
+        _line()
+        print(t("m2.genDbManage"))
+        print(t("m2.genDbWarn"))
+        while True:
+            try:
+                entries = list_isotropy_cache(self.iso._iso)
+            except Exception as exc:  # noqa: BLE001 - CLI: show and exit manager
+                print(f"  {exc}")
+                return
+            if not entries:
+                print(t("m2.genDbEmpty"))
+                return
+            print(f"  {len(entries)} cached file(s):")
+            for i, e in enumerate(entries, start=1):
+                meta = []
+                if e.parent_sg is not None:
+                    meta.append(f"SG{e.parent_sg}")
+                if e.irrep:
+                    meta.append(e.irrep)
+                if e.kparam:
+                    meta.append(f"kparam={e.kparam}")
+                extra = f"  [{', '.join(meta)}]" if meta else ""
+                print(
+                    f"  {i:2d}. {e.name}  {e.size} B  {e.mtime_iso}{extra}"
+                )
+            raw = _prompt(t("m2.genDbDeletePrompt"), "0").strip().lower()
+            if raw in ("", "0", "n", "no", "q"):
+                print(t("m2.genDbDone"))
+                return
+            if raw == "all":
+                names = [e.name for e in entries]
+            else:
+                names = []
+                for tok in re.split(r"[\s,;]+", raw):
+                    if not tok:
+                        continue
+                    try:
+                        idx = int(tok)
+                    except ValueError:
+                        print(f"  skip invalid token: {tok}")
+                        continue
+                    if 1 <= idx <= len(entries):
+                        names.append(entries[idx - 1].name)
+                    else:
+                        print(f"  skip out-of-range: {idx}")
+                names = list(dict.fromkeys(names))
+            if not names:
+                print(t("m2.genDbDone"))
+                return
+            result = delete_isotropy_cache(self.iso._iso, names)
+            print(t("m2.genDbDeleted", len(result.get("deleted") or [])))
+            if result.get("skipped"):
+                print(f"  skipped: {', '.join(result['skipped'])}")
+            if not _prompt_yes_no(t("m2.genDbManageAsk"), False):
+                print(t("m2.genDbDone"))
+                return
+
     def _recover_empty_method2(self, groups: list[dict]) -> list:
         """Match the web empty-state: local generate vs official site vs cancel."""
         print(t("m2.noSubsAtKp"))
@@ -676,6 +741,7 @@ class IsoDistortConsoleApp:
         print(f"     {t('m2.localComputeDesc')}")
         print(f"  2. {t('m2.gotoOfficial')}")
         print(f"     {t('m2.gotoOfficialDesc')}")
+        print(f"  3. {t('m2.genDbManage')}")
         print(f"  {t('m2.cancel')}")
         choice = _prompt_int(t("m2.chooseNext"), 0)
         if choice == 1:
@@ -683,6 +749,12 @@ class IsoDistortConsoleApp:
             return self._enumerate_subgroups_for_groups(groups, generate_if_missing=True)
         if choice == 2:
             print(t("m2.officialUrl"))
+            return []
+        if choice == 3:
+            self._manage_isotropy_cache()
+            if _prompt_yes_no(t("m2.genDbAsk"), False):
+                print(t("m2.genDbWarn"))
+                return self._enumerate_subgroups_for_groups(groups, generate_if_missing=True)
             return []
         return []
 

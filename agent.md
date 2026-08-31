@@ -35,16 +35,26 @@
 
 ### 1.2 官网交互对照（`webpage_info/`）
 
-存档页以序号表示先后顺序，典型验收路径：
+目录按**母相 CIF 名**分子文件夹（**禁止修改**其中 HTML）：
 
-1. **1 首页**：上传 `experiment_data/EuAl4 Parent.cif`
-2. **2 Search**：畸变类型勾选 **strains**、**displacive（Eu, Al）**；如果用Method 2 的话，就选 **LD, k10 (0,0,g)，g=1/6**
-3. 多次 **OK** → 依次进入 **3、4、5**
-4. **6 Distortion**：选择导出格式并下载结果
-5. **a order parameter direction files**：只勾选畸变类型为 **strains**、**displacive（Eu, Al）**，并使用Method 1 得到的结果导出页
-6. **2.5 Search**, **3.5**： 畸变类型勾选 **strains**、**displacive（Eu, Al）**；Method 2 选 **LD, k10 (0,0,g)，g=1/6**，并调整 **Change number of superposed IRs:** 的参数得到的页面
+```text
+webpage_info/
+  EuAl4 Parent.cif/     … 1 … 6、2.5、3.5、a. …
+  NdNiO2 own.cif/       … 同上序号 …
+```
 
-本地实现应对齐该流程的语义（Types、Method、导出选项），UI 为**英语**。
+存档页以序号表示先后顺序。典型 Method 2 验收路径（两种母相共用序号语义，**k 点参数随母相而变**）：
+
+1. **1 首页**：上传 `experiment_data/` 中对应母相 CIF  
+2. **2 Search**：勾选畸变类型 **strains**、**displacive**（按母相物种勾选，如 EuAl4 的 Eu/Al，NdNiO2 的 Nd/Ni/O）；Method 2 选该母相页上的参数 k 点：  
+   - EuAl4：`LD, k10 (0,0,g)，g=1/6`  
+   - NdNiO2：`Y, k6 (a,1/2,0)，a=1/3`  
+3. 多次 **OK** → 依次进入 **3**（IR）、**4**（OPD）、**5**（Distortion 导出格式）  
+4. **6**：Complete modes details 详情页  
+5. **2.5**：在 2 上将 Method 2 的 **Change number of superposed IRs** 改为 **3** 后的 Search 页；**3.5** 为在 2.5 上点 OK 后的 IR 页  
+6. **a.**：仅勾选 strains + displacive（各物种）后走 **Method 1** 得到的序参量方向页（全特殊 k）
+
+本地实现应对齐该流程的语义（Types、Method、导出选项），UI 为**英语**。页头母相信息（Space Group / lattice / Wyckoff）须**从所加载 CIF 读取并格式化**（位点标签与顺序跟 `_atom_site_*`），禁止写死某一两个结构的显示文本。
 
 ### 1.3 使用方式
 
@@ -227,7 +237,8 @@ cd ISODISTORT
 | --- | --- |
 | 终端无 `(.venv)` 提示却「卡住」 | 用 `.\.venv\Scripts\python.exe` 显式启动；结束残留进程 |
 | Method 1 很慢 | 首次枚举全部特殊 k 点，属预期 |
-| Method 2 参数 k 无子群 | 需生成 isotropy 子群库（可能极慢） |
+| Method 2 参数 k 无子群 | 勾选/确认 Generate DB（`generation_timeout`）；缓存为 WSL `~/.id/tmp/i*.iso`，网页/终端均可 Manage 删除 |
+| Method 2 缓存占满盘 | 网页 Manage… 或终端 Method 2「Open cache manager?」按编号/`all` 删除 |
 | ZIP 无子群 | 先对 Method 1/2/3 点 OK 再导出 |
 | 模式数少于官网 | 查 README 已知限制（strain / secondary / no root mode / LD nmod=0）后再判 bug |
 | VALIDATE 语义 PASS 但 `byte_exact=否` | 默认**不算**失败；优先语义与 VESTA/IsoVIZ 可打开。仅调试排版时用 `--strict` |

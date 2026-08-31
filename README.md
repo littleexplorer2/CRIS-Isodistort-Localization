@@ -16,7 +16,7 @@ https://github.com/littleexplorer2/CRIS-Isodistort-Localization.git
 
 | 子项目 | 一句话 | 详细说明 |
 | --- | --- | --- |
-| **ISODISTORT/** | 本地「子群搜索 + 导出结构」 | 上传母相 CIF → 勾选畸变类型 → Method 1–4 搜索/分解 → 在 Distortion 下载结果表与子群结构 ZIP。Method 2 的 nmod 为 (3+d) 超空间附加维度 d（0=公度，1–3=本地内核，IT-C）；网页页底 (3+d) 板块是本地检查台，官网没有。见 [ISODISTORT/README.md](ISODISTORT/README.md) |
+| **ISODISTORT/** | 本地「子群搜索 + 导出结构」 | 上传母相 CIF → 勾选畸变类型 → Method 1–4 搜索/分解 → 在 Distortion 下载结果表与子群结构 ZIP。Method 2 可生成缺失子群库（WSL `~/.id/tmp/i*.iso`），网页与终端均可 Manage 列出/删除缓存；nmod 为 (3+d) 附加维度 d。见 [ISODISTORT/README.md](ISODISTORT/README.md) |
 | **ISODISTORT_VALIDATE/** | 核对本地 CIF 是否算对 | 把本地 CIF 放入 `compare/item/`，把官网参考 CIF 放入 `compare/true/`（批量比较须改名一一对应），用 `main.py` 比较并输出 PASS/FAIL。见 [ISODISTORT_VALIDATE/README.md](ISODISTORT_VALIDATE/README.md) |
 | **ISOVIZ_INPUT/** | 把振幅 CSV 写入 `.isoviz` 并启动 IsoVIZ | 从 `input_content/` 读取 CSV 与子群 `.isoviz`，写入 `amp` 后自动打开 Java 版 IsoVIZ（不使用 `output/`）。见 [ISOVIZ_INPUT/README.md](ISOVIZ_INPUT/README.md) |
 
@@ -63,7 +63,7 @@ ISODISTORT  ──►  子群表 / CIF / .isoviz / modes / TOPAS
 | --- | --- |
 | `experiment_data/` | 实验母相 CIF 等原始数据 |
 | `GD/` | 梯度下降拟合代码与笔记本（本流水线的上游数据来源之一，但不是本仓库要改的部分） |
-| `webpage_info/` | 官网各步 HTML 存档（对照交互顺序用） |
+| `webpage_info/` | 官网各步 HTML 存档（按母相分子目录：`EuAl4 Parent.cif/`、`NdNiO2 own.cif/` 等；对照交互顺序用，**勿改**） |
 | `ISODISTORT/isobyu/` | 从 iso.byu.edu 下载的 Linux 二进制（`iso`、`smodes` 等）与 `data_*.txt` 数据库 |
 
 可以改的主体是：`ISODISTORT/`（除 `isobyu/`）、`ISODISTORT_VALIDATE/`、`ISOVIZ_INPUT/`。
@@ -150,7 +150,7 @@ CRIS/
 ├── ISODISTORT_VALIDATE/      ← CIF 语义比较（compare/item vs compare/true）
 ├── ISOVIZ_INPUT/             ← CSV → 启动 IsoVIZ（input_content/ 不入库）
 ├── experiment_data/          ← 【勿改】实验数据
-├── webpage_info/             ← 【勿改】官网 HTML 存档
+├── webpage_info/             ← 【勿改】官网 HTML 存档（按母相 CIF 分子目录）
 ├── GD/                       ← 【勿改】梯度下降相关
 ├── ISOViz.lnk                ← （本机）IsoVIZ 快捷方式，已在 .gitignore
 └── VESTA.lnk                 ← （可选，本机）VESTA 快捷方式，已在 .gitignore

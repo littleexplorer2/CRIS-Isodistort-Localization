@@ -178,12 +178,13 @@ cd <CRIS 根目录>
 | `defaults.max_nmod` | (3+d) 附加维度上限（官网 nmod） | `3` |
 | `runtime.web_port` | 网页首选端口 | `8000` |
 | `runtime.web_idle_timeout` | 关页后自动停服秒数 | `60` |
-| `runtime.temp_dir` | 上传暂存 | `../output/tmp` |
+| `runtime.temp_dir` | 网页上传等 Windows 侧暂存 | `../output/tmp` |
 | `runtime.output_dir` | 终端导出等 | `../output` |
 | `runtime.timeout` | 普通 `iso` 调用超时（秒） | `60` |
-| `runtime.generation_timeout` | Method 2 勾选生成缺失子群库时的超时 | `3600` |
+| `runtime.generation_timeout` | Method 2 生成缺失 isotropy 子群库的超时 | `3600` |
 
-说明：网页 ZIP **不写入、不扫描** `output/`；网页上的筛选表 txt/csv 在浏览器里生成。终端菜单 7 才会把表和结构文件写到 `output/`。
+说明：网页 ZIP **不写入、不扫描** `output/`；网页上的筛选表 txt/csv 在浏览器里生成。终端菜单 7 才会把表和结构文件写到 `output/`。  
+Method 2 勾选生成缺失子群库时，`iso` 把可复用的 `i*.iso` 写在 **WSL 短路径暂存目录**（`~/.id/tmp`，由封装自动创建），**不是** `isobyu/`；网页与终端均可 **Manage cached subgroup databases** 列出并批量删除。
 
 ### 3.4 用户需要配置 / 放置的路径
 
@@ -193,10 +194,11 @@ cd <CRIS 根目录>
 | --- | --- | --- |
 | **ISOTROPY 套件** | `ISODISTORT/isobyu/` | 首次必放 Linux 版 `iso` / `smodes` / 全部 `data_*.txt`（见 §2.3）。**不要**改该目录里已有二进制内容以外的「为过单测抄答案」；目录本身只读约定见根 README |
 | **改套件位置** | `config/settings.yaml` → `isobyu.bin_dir` / `data_dir` | 仅当二进制不在默认 `../isobyu` 时修改（路径相对 `config/`） |
-| **母相 CIF** | 运行时选择 | 网页：上传；终端：列表选择或粘贴绝对/相对路径。示例：`experiment_data/EuAl4 Parent.cif`（只读，请复制后再改） |
-| **临时文件** | `runtime.temp_dir` → `../output/tmp` | 网页上传、WSL 暂存前的 Windows 侧临时目录；空间不够时可改到其它盘（仍相对 `config/`） |
+| **母相 CIF** | 运行时选择 | 网页：上传；终端：列表选择或粘贴绝对/相对路径。示例：`experiment_data/EuAl4 Parent.cif`、`NdNiO2 own.cif`（只读，请复制后再改）。页头显示从该 CIF 读取 |
+| **临时文件（Windows）** | `runtime.temp_dir` → `../output/tmp` | 网页上传、写入 WSL 前的 Windows 侧临时目录；空间不够时可改到其它盘（仍相对 `config/`） |
+| **isotropy 子群库缓存** | WSL `~/.id/tmp/i*.iso` | 参数 k 点「Generate… if missing」生成；网页按钮 / 终端 Method 2 提示可管理删除。**勿**手改 `isobyu/` |
 | **终端导出目录** | `runtime.output_dir` → `../output` | 终端写 ZIP/文件夹的默认位置；网页 Distortion ZIP 走浏览器下载，不依赖此项 |
-| **WSL / ISODATA** | 自动 | Windows 下封装会建 `~/isodistort_stage` 一类短路径与 ISODATA 符号链接。一般**不必**在系统里手改 `ISODATA`；只需保证 `wsl` 可用 |
+| **WSL / ISODATA** | 自动（`~/.id/data` → `isobyu`） | Windows 下封装会建短路径 `~/.id` 与 ISODATA 符号链接。一般**不必**在系统里手改 `ISODATA`；只需保证 `wsl` 可用 |
 | **网页端口** | `runtime.web_port: 8000` | 端口冲突时改 YAML（非文件路径） |
 | **抽检用 IsoVIZ** | 仓库根 `ISOViz.lnk` 或 `ISOVIZ`/`ISOVIZ_JAR` | 打开导出的 `data.isoviz`；安装与查找方式见 [ISOVIZ_INPUT/README.md](../ISOVIZ_INPUT/README.md) |
 | **抽检用 VESTA** | 可选根目录 `VESTA.lnk` | 手工打开 `subgroup.cif`；程序不读取该路径做计算（下载与作用见下） |
@@ -223,7 +225,7 @@ cd <CRIS 根目录>
 
 界面区块标题：**"Parent CIF"**。选择 `.cif` / `.CIF`，点 **"Load"**。必须先 Load 成功，再跑任何 Method。
 
-加载成功后，状态区会显示类似官网的页头，例如（EuAl4）：
+加载成功后，状态区会显示类似官网的页头（**从当前 CIF 读取**，不是写死某几个结构）。格式与官网 Search 页一致，例如 EuAl4：
 
 ```text
 Space Group: 139 I4/mmm D4h-17
@@ -234,6 +236,8 @@ Al1 4d (0,1/2,1/4),
 Al2 4e (0,0,z), z= 0.38000
 ```
 
+NdNiO2 等其它 CIF 会显示该文件自己的空间群、晶胞与 `_atom_site_label` / 位点顺序（如 `O 2f`、`ND 1d`、`NI 1a`）。
+
 含义（白话）：
 
 | 行 | 意思 |
@@ -241,9 +245,9 @@ Al2 4e (0,0,z), z= 0.38000
 | **Space Group** | 空间群编号 + 国际符号 + Schoenflies 符号（如 `D4h-17`） |
 | **Lattice parameters** | 晶胞边长与夹角，**五位小数** |
 | **Default space-group preferences** | 本地固定的国际标准取位约定（见文末 Preferences 表，只读） |
-| **Wyckoff 行** | 每种独立原子位点：物种序号、多重度+字母、坐标；自由坐标写成 `z= 0.38000` 这种形式 |
+| **Wyckoff 行** | 来自 CIF 不对称位点：标签（或 type_symbol）、多重度+字母、坐标；自由坐标写成 `z= 0.38000` |
 
-实验示例（若仓库中仍有、且你未改只读目录）：`experiment_data/EuAl4 Parent.cif`。
+实验示例（只读）：`experiment_data/EuAl4 Parent.cif`、`experiment_data/NdNiO2 own.cif`。官网页面对照见 `webpage_info/<母相名>/`（序号 1–6、2.5、3.5、a.）。Method 2 的 k 点随母相而变（EuAl4：`LD … g=1/6`；NdNiO2：`Y … a=1/3`），细节见根目录 `agent.md` §1.2。
 
 ---
 
@@ -283,7 +287,7 @@ Al2 4e (0,0,z), z= 0.38000
 | --- | --- |
 | **"Crystal system(s):"** | 多选晶系（triclinic / monoclinic / orthorhombic / tetragonal / trigonal / hexagonal / cubic）；逻辑 OR；全不选 = 不过滤 |
 | **"Space-group symmetry:"** | 可达子群空间群下拉；空 = 不过滤。选项随母相与 Types 变化 |
-| **"Conventional lattice:"** / **"Primitive lattice:"** | 互斥过滤超胞基矢（选一个会清空另一个）。标签形如 `(1,0,0),(0,1,0),(0,0,1)`。标签与顺序来自本地 iso 输出去重（点群轨道），**不**使用按母相硬编码的官网快照表；与官网下拉可能略有差别 |
+| **"Conventional lattice:"** / **"Primitive lattice:"** | 互斥过滤超胞基矢（选一个会清空另一个）。常规胞标签常为 `(1,0,0),(0,1,0),(0,0,1)`；体心等母相的 Primitive 选项由 `T_sub @ B` 格式化（如 I4/mmm 为半整数基矢），**不要**误显示成与 Conventional 相同的整数基。顺序来自本地 iso 去重（点群轨道），**不**用按母相硬编码的官网快照表 |
 | **"Maximal subgroups only"** | 只保留极大子群 |
 | **"OK"** | 开始枚举；首次可能数秒到数十秒 |
 
@@ -297,7 +301,8 @@ Al2 4e (0,0,z), z= 0.38000
 | --- | --- |
 | **"Specify k point:"** | 从母相允许的 k 点列表选择 |
 | 参数 k 点数值框 | 如 LD 的 a/b/g，必须填齐再 OK |
-| **"Generate isotropy subgroups database if missing"** | 若当前 k 点在本地 `data_*.txt` **没有**现成子群列表，则由本机 `iso` **现场生成**（可能很慢，超时见 `generation_timeout`）。这与已删除的 Distortion **"Generate"**（按幅度生成畸变结构）**不是同一功能** |
+| **"Generate isotropy subgroups database if missing"** | 若当前参数 k 点在本地 ISOTROPY `data_*.txt` **没有**现成子群列表，则由本机 `iso` **现场生成**并写入 WSL 暂存目录中的 `i*.iso` 缓存（首次可能数分钟～数小时，之后 OK 直接复用；超时见 `generation_timeout`）。这与已删除的 Distortion **"Generate"**（按幅度生成畸变结构）**不是同一功能** |
+| **"Manage cached subgroup databases"** | 列出已生成的 `i*.iso` 缓存（母相 SG / IR / kparam），可勾选后批量删除以释放磁盘或强制下次重新生成。终端 Method 2 在询问是否 Generate 前会问是否打开同一管理器；空库恢复菜单也可进入 |
 | **"Change number of superposed IRs:"** + **"Change"** | 改叠加 IR 组数；**必须点 Change** 才会出现多组 k vector |
 | **"OK"** | 枚举该（组）k 点全部 IR 的子群 |
 
@@ -403,7 +408,9 @@ GM1+ P1 (a) 139 I4mmm, .../      # Method 1：完整 OPD 行（删除 /，官网
 | 启动 | `main_web.py` | `main_terminal.py` |
 | 交互 | 一页上全部面板 | 分步菜单（1–8 / 0） |
 | 超空间 / nmod / 参数 k | **主路径**：Method 2 的 nmod（对齐官网 nmodstar）。页底 (3+d) 板块是本地附加检查台，官网没有。参数 k 在 nmod=0 时提示 iso 无位移模式 | **主路径**：Method 2 询问 nmod。菜单 9 / `--superspace-d` 是本地附加，不是 Search 页 |
-| 子群库缺失 | 按钮：本地生成 / 官网链接 | 数字选项：本地生成 / 打印官网 URL |
+| Method 2 GenDB 说明 | 勾选旁一句长帮助 + 警告（`m2.genDbHelp`） | 同一句文案后提问是否生成 |
+| Method 2 缓存管理 | 「Manage cached subgroup databases」选中删除 | Method 2「Open cache manager?」；空库恢复选 3 也可进管理 |
+| 子群库缺失 | 勾选 Generate if missing；失败时可本地生成 / 官网链接 | 提问 Generate；恢复选项：本地生成 / 打印官网 URL / 管理缓存 |
 | 下载 | 浏览器 ZIP / txt/csv | 菜单 **7. Distortion** → ZIP 或目录写到 `output/` |
 | 模式补算 | 默认开启；URL `compute_modes=0` 可关 | 导出时询问（默认 yes，对应网页默认） |
 
@@ -518,7 +525,8 @@ python -m pytest ISODISTORT/tests_dev/test_3pd.py -q
 | Method 1 表与官网看起来不同 | 字段对齐官网序参量页，本地用表格而非 radio 长行；`basis`/`origin` 来自 iso，`k-active` 由通用算法生成（不再用按 irrep 硬编码的官网 token 表），个别项可能与官网设定差一个点群等价代表 |
 | Types 改了结果不变 | 忘记点 **"Change"** |
 | ZIP 报没有子群 | 先对下拉框里选中的 Method 1/2/3 点 OK |
-| Method 2 参数 k 点无子群 | 勾选 **"Generate isotropy subgroups database if missing"** 后重试（可能极慢） |
+| Method 2 参数 k 点无子群 | 勾选 / 回答 **"Generate isotropy subgroups database if missing"** 后重试（可能极慢）；可用 **"Manage cached subgroup databases"** 查看或删除已生成的 `i*.iso` |
+| Method 2 缓存占磁盘 | 网页点 Manage…，或终端 Method 2 中回答打开缓存管理后按编号/`all` 删除 |
 | 端口被占用 | 改 `web_port` 或关掉旧的 `main_web.py` |
 | OneDrive 路径偶发文件锁 | 可拷到非同步本地盘再试 |
 
