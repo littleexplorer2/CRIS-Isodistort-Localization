@@ -73,13 +73,12 @@ def test_distortion_and_method2_help_keys():
     assert "dist.zipDone" in MESSAGES
     assert "st.elapsed" in MESSAGES
     assert "st.busyHint" in MESSAGES
-    assert "ui.menu.superspace" in MESSAGES
-    assert "ss.title" in MESSAGES
-    assert "ss.localNote" in MESSAGES
-    assert "not a main ISODISTORT" in MESSAGES["ss.localNote"]
-    assert "ss.localHow" in MESSAGES
-    assert "ok.nmod" in MESSAGES
+    assert "m2.nmodRemoved" in MESSAGES
+    assert "not available locally" in MESSAGES["m2.nmodRemoved"].lower()
     assert "independent incommensurate" in MESSAGES["l.nmod"].lower()
+    assert "ss.title" not in MESSAGES
+    assert "ui.menu.superspace" not in MESSAGES
+    assert "ok.nmod" not in MESSAGES
 
 
 def test_numbered_web_placeholders():

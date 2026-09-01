@@ -14,7 +14,6 @@ several seconds on the first query.
 
 from __future__ import annotations
 
-import argparse
 import csv
 import re
 import sys
@@ -407,8 +406,6 @@ class IsoDistortConsoleApp:
         self.last_method3: list = []
         self.last_method4: list[dict] = []
         self.last_method4_meta: dict = {"rms": None, "max_abs": None}
-        self.nmod: int = 0
-        self.last_superspace = None
         self.tbl: dict[int, dict] = {
             1: _empty_tbl(_method1_cols()),
             2: _empty_tbl(_method2_cols()),
@@ -440,8 +437,6 @@ class IsoDistortConsoleApp:
                 self._distortion_page_menu()
             elif choice == 8:
                 self._show_state()
-            elif choice == 9:
-                self._run_superspace()
 
     # ----------------------------------------------------------------
     # 基础流程
@@ -546,7 +541,6 @@ class IsoDistortConsoleApp:
         print(t("ui.menu.method4"))
         print(t("ui.menu.distortion"))
         print(t("ui.menu.state"))
-        print(t("ui.menu.superspace"))
         print(t("ui.menu.exit"))
         return _prompt_int(t("ui.prompt.action"), 3)
 
@@ -639,14 +633,6 @@ class IsoDistortConsoleApp:
         _line()
         print("Method 2: General method - search over specific k points")
         print(t("m2.nmodRemoved"))
-        nmod_raw = _prompt(t("l.nmod"), str(self.nmod))
-        try:
-            from isocore.superspace import validate_nmod
-
-            self.nmod = validate_nmod(nmod_raw)
-        except Exception as exc:  # noqa: BLE001 - CLI 边界：非法 nmod 提示后返回
-            print(f"{t('err.badNmod')} ({exc})")
-            return
         groups = self._prompt_kpoint_groups()
         if not groups:
             return
@@ -952,7 +938,7 @@ class IsoDistortConsoleApp:
                         break
             except IsodistortError:
                 pass
-        if is_param and self.nmod <= 0:
+        if is_param:
             self.last_method2 = None
             self.iso.mode_displacements = {}
             self.iso.mode_occupancies = {}
@@ -962,7 +948,6 @@ class IsoDistortConsoleApp:
             result = self.iso.search_method_2(
                 subgroup_idx=idx,
                 distortion_type=self.distortion_types,
-                number_of_independent_modulations=self.nmod,
             )
         self.last_method2 = result
         print(f"Method 2: {len(result.modes) + len(self.iso.mode_occupancies)} mode(s)")
@@ -1145,7 +1130,6 @@ class IsoDistortConsoleApp:
                         compute_missing_modes=compute_missing_modes,
                         wrapping=None,
                         use_opd_line_folders=(method == 1),
-                        number_of_independent_modulations=self.nmod,
                     )
                     out = Path(dest)
                     out.parent.mkdir(parents=True, exist_ok=True)
@@ -1158,7 +1142,6 @@ class IsoDistortConsoleApp:
                     subgroups=subs,
                     compute_missing_modes=compute_missing_modes,
                     use_opd_line_folders=(method == 1),
-                    number_of_independent_modulations=self.nmod,
                 )
         finally:
             self.iso.subgroups = saved
@@ -1233,91 +1216,17 @@ class IsoDistortConsoleApp:
 
         mode_count = len(self.iso.mode_displacements) + len(self.iso.mode_occupancies)
         print(f"  Available mapped modes: {mode_count}")
-        print(f"  nmod (superspace d): {self.nmod}")
         print(t("m2.nmodRemoved"))
-
-    def _run_superspace(self) -> None:
-        _line()
-        print(t("ss.title"))
-        print(t("ss.localNote"))
-        print(t("ss.localHow"))
-        nmod_raw = _prompt(t("l.nmod"), str(self.nmod if self.nmod else 1))
-        try:
-            from isocore.superspace import validate_nmod
-
-            nmod = validate_nmod(nmod_raw)
-        except Exception as exc:  # noqa: BLE001
-            print(f"{t('err.badNmod')} ({exc})")
-            return
-        self.nmod = nmod
-        ks_raw = _prompt(t("ss.ks"), "")
-        q_raw = _prompt(t("ss.q"), "")
-        label = _prompt("k-point label (Miller-Love, e.g. LD)", "LD" if nmod else "GM")
-        sg = 139
-        if self.iso.symmetry_info:
-            sg = int(self.iso.symmetry_info["space_group_number"])
-        from isocore.superspace import format_superspace_report, save_superspace_result
-        from isocore.superspace.workflow import parse_ks_text, parse_q_vectors_text, run_superspace_workflow
-
-        q_vectors = parse_q_vectors_text(q_raw, nmod) if q_raw.strip() else None
-        ks_coords = parse_ks_text(ks_raw, nmod) if ks_raw.strip() else None
-        lattice = None
-        if self.iso.structure is not None:
-            lattice = self.iso.structure.lattice.matrix.tolist()
-        result = run_superspace_workflow(
-            sg, nmod, q_vectors=q_vectors, ks_coords=ks_coords,
-            k_point_label=label, lattice_3d=lattice,
-        )
-        self.last_superspace = result
-        print(format_superspace_report(result))
-        out_default = str(get_config().output_dir / f"superspace_nmod{nmod}.json")
-        dest = _prompt(t("ui.export.dest"), out_default)
-        if dest.strip():
-            path = save_superspace_result(result, dest.strip())
-            print(t("ui.export.done", n=1, dest=path))
 
 
 def main(argv: list[str] | None = None) -> int:
     # Windows 控制台默认代码页可能不是 UTF-8，统一重配置避免中文乱码
+    _ = argv
     try:
         sys.stdout.reconfigure(encoding="utf-8")
         sys.stderr.reconfigure(encoding="utf-8")
     except (AttributeError, ValueError):
         pass
-
-    parser = argparse.ArgumentParser(
-        description="ISODISTORT local terminal (menu) or (3+d) superspace CLI",
-    )
-    parser.add_argument(
-        "--superspace-d",
-        dest="superspace_d",
-        default=None,
-        help="Local (3+d) kernel dump (not the official Search page); d=nmod 0..3; skip the menu",
-    )
-    parser.add_argument("--space-group", type=int, default=139, dest="space_group")
-    parser.add_argument("--k-s", dest="ks", default=None, help="k_s components, comma-separated")
-    parser.add_argument("--q-vectors", dest="q_vectors", default=None,
-                        help="Modulation q-vectors, 3D, semicolon-separated")
-    parser.add_argument("--k-label", dest="k_label", default="")
-    parser.add_argument("--export", dest="export", default=None, help="Write JSON/YAML result")
-    parser.add_argument("--superspace-load", dest="superspace_load", default=None,
-                        help="Load a previously saved (3+d) JSON/YAML and reprint")
-    args = parser.parse_args(argv)
-
-    if args.superspace_d is not None or args.superspace_load:
-        from isocore.superspace import run_superspace_cli
-
-        code, _text, _result = run_superspace_cli(
-            nmod=args.superspace_d if args.superspace_d is not None else 0,
-            space_group=args.space_group,
-            ks_text=args.ks,
-            q_text=args.q_vectors,
-            k_point_label=args.k_label,
-            export=args.export,
-            load_path=args.superspace_load,
-            print_report=True,
-        )
-        return code
 
     try:
         return IsoDistortConsoleApp().run()

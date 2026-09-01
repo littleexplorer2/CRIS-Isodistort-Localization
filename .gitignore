@@ -1,6 +1,7 @@
 # environment
 /.venv/
 /.vscode/
+/CRIS.code-workspace/
 
 # logs
 /.pytest_cache/

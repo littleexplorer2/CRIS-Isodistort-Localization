@@ -318,7 +318,7 @@ def _post_import_smoke_check(project_root: Path, python: Path) -> None:
         [
             str(python),
             "-c",
-            "from isocore.api import IsoDistort; from isocore.superspace import run_superspace_workflow; print('IsoDistort import OK')",
+            "from isocore.api import IsoDistort; print('IsoDistort import OK')",
         ],
         env=env,
     )

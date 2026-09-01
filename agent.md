@@ -91,7 +91,7 @@ python ISODISTORT\main_requirement.py
 
 1. **禁止**把某个 `output_compare` / 官网 CIF 的位点、HM 字符串、模式个数「抄进」特例 `if irrep == "X4-"` 式硬编码，只为通过单测或单例对比。
 2. **应当**在 `isocore` 中修通用算法：原点选择、Hall/OC2、Wyckoff 判定、OPD/`k-active`、超胞变换、BUSH/smodes 作用域、导出命名等，使 **同一类** 子群/k 点/空间群都受益。
-3. 对照官网时：先区分 **实现 bug**（可修）与 **引擎/算法限制**（本地 `iso` 无 strain / secondary OP、参数 k 在 nmod=0 无位移模式等）；限制写进 README「已知限制」，不要用假数据伪装已实现。
+3. 对照官网时：先区分 **实现 bug**（可修）与 **引擎/算法限制**（本地 `iso` 无 strain / secondary OP、参数 k 无位移模式等）；限制写进 README「已知限制」，不要用假数据伪装已实现。
 4. **不以全文件逐字节相同为默认完成标准**。优先修通用渲染与算法，使 CIF/isoviz/TOPAS 字段与布局尽量靠官网，modes `.txt` 写全本地结果；并用 VESTA / IsoVIZ 抽检可打开。需要排版对照时再用 VALIDATE `--strict` 或二进制 diff 定位差异。
 
 ---
@@ -129,7 +129,6 @@ cd <CRIS 根目录>
 | 搜索 Method 1–4 | `test_search_methods.py` | 查询对象与过滤逻辑 |
 | 畸变映射 | `test_distortion.py` | 模式→原子位移等 |
 | 导出格式 | `test_formats.py` | OPD 行、ZIP 布局、CIF/isoviz/TOPAS 标记 |
-| (3+d) 超空间 | `test_3pd.py` | 不依赖 WSL 的 superspace 内核 |
 | 网页 API | `test_web.py` | 上传、Method、导出相关 HTTP |
 | WSL / iso | `test_wsl.py` | 二进制可达性（无 WSL 则 skip） |
 | 鲁棒性 | `test_robustness.py` | 异常输入与边界 |
@@ -156,7 +155,7 @@ cd ISODISTORT
    - 文件夹命名（Method 1 完整 OPD 行且删除 `/`；Method 2 `IR OPD`）
    - 文件名：`subgroup.cif` / `data.isoviz` / `topas.str` / `Complete modes details.txt`
    - 关键字段：HM/Hall、Wyckoff、模式标签与数量、isoviz `!tag` 布局、TOPAS 模式块
-   - 已知引擎限制（strain / secondary / nmod=0 等）允许模式更少；不要用假数据填满
+   - 已知引擎限制（strain / secondary / 参数 k 空模式等）允许模式更少；不要用假数据填满
 3. 发现差异时：区分 bug vs 引擎限制；能通用修则修 `isocore` 渲染/算法，不要改对照黄金文件迁就本地输出。
 4. CIF 语义对照（默认）：
 
@@ -203,7 +202,7 @@ cd ISODISTORT
 
 ### 4.1 代码范围
 
-- 计算与导出逻辑放在 `ISODISTORT/isocore/`（`api` / `backend` / `distortion` / `io` / `superspace` / `utils`）。
+- 计算与导出逻辑放在 `ISODISTORT/isocore/`（`api` / `backend` / `distortion` / `io` / `utils`）。
 - 网页与终端只做交互壳，避免复制一套计算逻辑。
 - 不要提交 `output/`、`.pytest_cache`、`__pycache__`、大型对照 HTML 资源树（除非用户明确要求）。
 
@@ -240,7 +239,9 @@ cd ISODISTORT
 | Method 2 参数 k 无子群 | 勾选/确认 Generate DB（`generation_timeout`）；缓存为 WSL `~/.id/tmp/i*.iso`，网页/终端均可 Manage 删除 |
 | Method 2 缓存占满盘 | 网页 Manage… 或终端 Method 2「Open cache manager?」按编号/`all` 删除 |
 | ZIP 无子群 | 先对 Method 1/2/3 点 OK 再导出 |
-| 模式数少于官网 | 查 README 已知限制（strain / secondary / no root mode / LD nmod=0）后再判 bug |
+| 模式数少于官网 | 查 README 已知限制（strain / secondary / no root mode / 参数 k 本地空模式）；多位点已拆键，仍可能少于官网 |
+| Method 2 同名文件夹 SG 对不上 | 先核对 CIF 内 OPD 行；人工 `output_compare` 可能文件夹名与内容不一致 |
+| Method 1 basis 文件夹名不同 | 点群等价代表；用 IR+OPD+SG 配对 |
 | VALIDATE 语义 PASS 但 `byte_exact=否` | 默认**不算**失败；优先语义与 VESTA/IsoVIZ 可打开。仅调试排版时用 `--strict` |
 | IsoVIZ 打开崩溃 | 检查 `!displacivemodelist` 向量数是否等于该 `parentatom` 在 `!atomcoordlist` 中的行数 |
 | 网页 vs 终端导出不一致 | 二者应都走 `export_subgroups_zip` / `_collect_export_specs`；差异只应在 UX |

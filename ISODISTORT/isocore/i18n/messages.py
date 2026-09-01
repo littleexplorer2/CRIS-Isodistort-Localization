@@ -49,7 +49,6 @@ MESSAGES: dict[str, str] = {
     'ui.menu.method4': '6. Method 4: Mode decomposition of a distorted structure',
     'ui.menu.distortion': '7. Distortion (download results)',
     'ui.menu.state': '8. Show current state',
-    'ui.menu.superspace': '9. (3+d) superspace (local extra; nmod)',
     'ui.menu.exit': '0. Exit',
     'ui.prompt.action': 'Choose next action',
     'ui.exit.done': 'Exited.',
@@ -166,32 +165,7 @@ MESSAGES: dict[str, str] = {
     'l.kvec': '<i>k</i> vector {0}:',
     'l.ir': 'Irreducible representation (IR):',
     'l.nmod': '# of independent incommensurate modulations:',
-    'nmod.hint': '(nmod = d in (3+d) superspace; 0 = 3D commensurate, 1–3 = local superspace kernel, IT-C)',
-    'ok.nmod': 'Independent incommensurate modulations (nmod) set to {0}.',
-    'err.badNmod': 'nmod must be an integer 0..3 (superspace additional dimension d).',
-    'ss.title': '(3+d) superspace (local extra)',
-    'ss.compute': 'Compute superspace',
-    'ss.export': 'Export JSON',
-    'ss.import': 'Import JSON',
-    'ss.ks': 'k_s (3+nmod components, fractions allowed):',
-    'ss.q': 'Modulation q-vectors (3D; semicolon-separated):',
-    'ss.ir': 'Irreducible representations',
-    'ss.opd': 'Order parameter directions (OPD)',
-    'ss.modes': 'Superspace distortion modes',
-    'ss.project3d': '3D projection',
-    'ss.done': 'Superspace (3+{0}) computed: {1} operation(s), {2} IR(s), {3} mode(s).',
-    'ss.imported': 'Loaded superspace JSON (nmod={0}).',
-    'ss.needSg': 'Load a parent CIF first, or the kernel will use space group 139 I4/mmm.',
-    'ss.localNote': (
-        'Local extra — not a main ISODISTORT feature. The official website has no '
-        'standalone (3+d) panel. Incommensurate work is Method 2 nmod (form field '
-        'nmodstar), then IR → OPD → Distortion.'
-    ),
-    'ss.localHow': (
-        'For the official-style workflow, set nmod on Method 2 and continue to Distortion. '
-        'This panel only inspects the local kernel: nmod (d=1..3), optional k_s / q-vectors / '
-        'k-label, Compute, then Export or Import JSON.'
-    ),
+    'nmod.hint': '(incommensurate modulation superposition is not supported by the local engine)',
     'l.sgsel3': 'Select either space group symmetry:',
     'l.pg': 'or point group (crystal class):',
     'l.lattice': 'Specify a real-space sublattice of the parent lattice with',
@@ -219,12 +193,17 @@ MESSAGES: dict[str, str] = {
     'l.opd': 'Order parameter direction (OPD):',
     'l.nsup': 'Change number of superposed IRs:',
     'm2.nsup_note': 'Important: You must click on Change to implement any changes in the number of superposed IRs.',
-    'm2.nmodRemoved': 'nmod (independent incommensurate modulations) is the superspace extra dimension d. Use 0 for commensurate 3D (local iso); 1–3 runs the local (3+d) kernel (IT-C).',
+    'm2.nmodRemoved': (
+        'Note: # of independent incommensurate modulations is not available locally '
+        '(requires the official (3+d)-dimensional superspace workflow); use the '
+        'official website for this feature.'
+    ),
     'm2.paramKpSelected': (
         'Note: you selected a parametric (incommensurate) k point. '
-        'Subgroup enumeration still uses local iso. Set nmod>=1 to compute '
-        'displacement modes with the local (3+d) superspace kernel (IT-C); '
-        'nmod=0 leaves mode-based export empty for these k points.'
+        'The local engine can enumerate isotropy subgroups, but cannot compute '
+        'displacement modes for them — that needs the official (3+d)-dimensional '
+        'superspace workflow. CIF/structure export still works; mode-based formats '
+        '(isoviz / Complete modes details / TOPAS) will have empty mode sections.'
     ),
     'm2.enumKp': 'Enumerating subgroups over all irreps of k point {0} (k group {1}/{2})...',
     'm2.noSubsAtKp': 'The local engine could not enumerate/generate subgroups for this k point (common for parametric k points such as LD/DT).',
@@ -243,11 +222,11 @@ MESSAGES: dict[str, str] = {
     'm2.downloadCsv': 'Download filtered (csv)',
     'm2.filteredCount': '{0} / {1} after filtering',
     'm2.paramKNote': (
-        'This subgroup belongs to a parametric (incommensurate) k point. '
-        'With nmod=0 the local iso binary cannot compute displacement modes. '
-        'Set nmod>=1 to use the local (3+d) superspace kernel (IT-C). '
-        'The subgroup list is still valid — filter or sort it here, then '
-        'download the table from Distortion.'
+        'This subgroup belongs to a parametric (incommensurate) k point: '
+        'the local iso binary can only enumerate its subgroups, not compute '
+        'displacement modes (the website uses a (3+d)-dimensional superspace '
+        'mechanism). The subgroup list is still valid — filter or sort it '
+        'here, then download the table from Distortion.'
     ),
     'lGenDb': 'Generate isotropy subgroups database if missing',
     'm2.genDbHelp': (
@@ -324,13 +303,17 @@ MESSAGES: dict[str, str] = {
     'dist.zipWait': (
         'Building ZIP… keep this tab open. Non-CIF formats re-run Method 2 per '
         'special-k subgroup to fill modes (can take a while). Parametric k points '
-        '(LD/DT, …) fill modes when nmod>=1 via the local (3+d) kernel.'
+        '(LD/DT, …) cannot fill displacement modes locally — use the official '
+        'website (3+d) superspace workflow. Strain modes are not written '
+        '(nstrain=0). Some paths may omit Wyckoff sites or return an empty BUSH '
+        'table versus the website.'
     ),
     'dist.zipParamNote': (
         'Warning: one or more selected subgroups use a parametric (incommensurate) '
-        'k point. With nmod=0 those rows have empty displacement-mode sections; '
-        'set nmod>=1 to fill them with the local (3+d) kernel. CIF / folder layout '
-        'still match the website.'
+        'k point. Those rows have empty displacement-mode sections because local '
+        'iso cannot compute them — use the official website (3+d) superspace. '
+        'CIF / folder layout still match the website; strain modes remain '
+        'unavailable locally.'
     ),
     'dist.computeModesAsk': (
         'Fill modes for special-k subgroups (isoviz / modes / TOPAS)? '
@@ -348,12 +331,12 @@ MESSAGES: dict[str, str] = {
     'prefs.origin': 'Origin choice:',
     'prefs.ssg': 'Superspace group setting:',
     'prefs.ssgValue': 'standard (IT-C)',
-    'prefs.fixedNote': "Reason: the local iso binary only supports the international standard setting; custom settings (axes/cell choice/origin/SSG etc.) cause a Syntax error, so the website's preference-editing panel is not available locally; computations always use the defaults above. Superspace-group setting is fixed to standard (IT-C); nmod>=1 uses the local (3+d) kernel with that setting.",
+    'prefs.fixedNote': "Reason: the local iso binary only supports the international standard setting; custom settings (axes/cell choice/origin/SSG etc.) cause a Syntax error, so the website's preference-editing panel is not available locally; computations always use the defaults above. Superspace-group setting is fixed to standard (IT-C).",
     'prefs.terminalBlock': (
         'Space-Group Preferences (fixed, same as the web panel):\n'
         '  Monoclinic axes a(b)c, monoclinic cell choice 1, orthorhombic axes abc,\n'
         '  origin choice 2, hexagonal axes, superspace group setting: standard (IT-C).\n'
-        '  Custom axes/cell/origin cannot be changed. nmod>=1 uses the local (3+d) kernel.'
+        '  Custom axes/cell/origin cannot be changed.'
     ),
     'm3.centEnd': 'centering.',
     'm1.cs': 'Optional crystal system (triclinic/monoclinic/orthorhombic/tetragonal/trigonal/hexagonal/cubic; blank = no filter)',

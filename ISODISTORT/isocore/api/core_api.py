@@ -68,7 +68,6 @@ from ..structure import (
     read_cif,
     read_structure,
 )
-from ..superspace import run_superspace_workflow
 from ..utils import IsodistortError, get_config
 from ..utils.opd_format import _centering_letter
 from ..utils.schoenflies import hm_symbol, schoenflies_symbol
@@ -118,13 +117,11 @@ class IsoDistort:
         # 畸变类型作用域（对齐官网 per-species 复选框）：type -> 物种列表（"*"=全部）
         self.distortion_scope: dict[str, list[str]] = {}
         self.distortion_types: list[str] = DEFAULT_DISTORTION_TYPES.copy()
-        self.nmod: int = 0
         self._smodes = SmodesWrapper()
         self._special_subgroups_cache: list | None = None
         self._special_subgroups_lock = threading.Lock()
         self._conv_to_prim_cache: np.ndarray | None = None
         self._parent_rotations_cache: list[np.ndarray] | None = None
-        self._last_superspace = None
 
     # ================================================================
     # 阶段一：结构输入与对称识别
@@ -1049,10 +1046,12 @@ class IsoDistort:
                 print(t("export.default", path=paths[0]))
             return self.distorted_structure
 
-        if irrep_label not in self.mode_displacements:
+        if irrep_label not in self.mode_displacements and not any(
+            k.startswith(f"{irrep_label}__") for k in self.mode_displacements
+        ):
             raise ValueError(t("mode.invalid", label=irrep_label))
 
-        disp = self.mode_displacements[irrep_label]["displacements"]
+        disp = self._resolve_mode_displacement(irrep_label)
         k_vector = (self.phase_path.k_vector if self.phase_path is not None
                     else None)
         self.distorted_structure = self._dist_engine.generate_single_mode(
@@ -1097,10 +1096,10 @@ class IsoDistort:
                         "occupational 模式必须使用与生成时一致的子群超胞基矢"
                     )
                 occ_patterns.append((entry["pattern"], float(amp)))
-            elif label in self.mode_displacements:
-                contribution = float(amp) * np.asarray(
-                    self.mode_displacements[label]["displacements"], dtype=float
-                )
+            elif label in self.mode_displacements or any(
+                k.startswith(f"{label}__") for k in self.mode_displacements
+            ):
+                contribution = float(amp) * self._resolve_mode_displacement(label)
                 total_disp = contribution if total_disp is None else total_disp + contribution
 
         if total_disp is None and not occ_patterns:
@@ -1182,6 +1181,9 @@ class IsoDistort:
             ``I4/mmm[0,0,0]GM1+(a)[Al2:e:dsp]A1(a)``
         Built from parent HM, k, irrep, OPD direction letter, and BUSH
         Wyckoff/species — not a memorized per-case string.
+
+        Keys match ``mode_displacements`` (``IR`` or ``IR__letter`` when a
+        single irrep splits across Wyckoff letters).
         """
         labels: dict[str, str] = {}
         parent_sg = int((self.symmetry_info or {}).get("space_group_number") or 0)
@@ -1203,20 +1205,61 @@ class IsoDistort:
             elem = str(w.get("species") or w.get("element") or "X")
             species_counters[elem] = species_counters.get(elem, 0) + 1
             letter_to_label[letter] = f"{elem}{species_counters[elem]}"
-        for mode in self.distortion_modes:
-            k_coords = "0,0,0"
-            if self.phase_path is not None and getattr(self.phase_path, "k_vector", None):
-                kv = self.phase_path.k_vector
-                k_coords = ",".join(str(x) for x in kv)
-            elif mode.k_point_label:
-                try:
-                    from ..data.kpoints_official import KPOINT_OFFICIAL
 
-                    entry = KPOINT_OFFICIAL.get(parent_sg, {}).get(mode.k_point_label)
-                    if entry:
-                        k_coords = ",".join(entry[1])
-                except Exception:  # noqa: BLE001
-                    pass
+        entries = self.mode_displacements or {}
+        if not entries:
+            # Fallback when displacements were not mapped yet.
+            for mode in self.distortion_modes or []:
+                entries = {
+                    **entries,
+                    mode.irrep_label: {"mode": mode, "wyckoff_letter": ""},
+                }
+
+        for key, entry in entries.items():
+            mode = entry.get("mode")
+            if mode is None:
+                continue
+            letter = str(entry.get("wyckoff_letter") or "")
+            if not letter and "__" in str(key):
+                letter = str(key).rsplit("__", 1)[-1]
+            k_coords = "0,0,0"
+            k_label = getattr(mode, "k_point_label", None) or ""
+            try:
+                from ..data.kpoints_official import KPOINT_OFFICIAL
+
+                entry_k = KPOINT_OFFICIAL.get(parent_sg, {}).get(k_label)
+                if entry_k:
+                    k_coords = ",".join(str(c) for c in entry_k[1])
+            except Exception:  # noqa: BLE001
+                pass
+
+            def _fmt_k_token(x: object) -> str:
+                try:
+                    f = float(x)
+                except (TypeError, ValueError):
+                    return str(x)
+                if abs(f - round(f)) < 1e-9:
+                    return str(int(round(f)))
+                return f"{f:g}"
+
+            # Fallback: only use the selected path k-vector when this mode
+            # belongs to the same k stem as the active subgroup.
+            if (
+                k_coords == "0,0,0"
+                and self.phase_path is not None
+                and getattr(self.phase_path, "k_vector", None)
+            ):
+                primary_k = ""
+                if self.subgroups:
+                    for sg in self.subgroups:
+                        if sg.index == self.phase_path.subgroup_index:
+                            primary_k = sg.k_point_label or ""
+                            break
+                if not k_label or k_label == primary_k:
+                    kv = self.phase_path.k_vector
+                    k_coords = ",".join(_fmt_k_token(x) for x in kv)
+            elif any(tok.endswith(".0") for tok in k_coords.split(",")):
+                k_coords = ",".join(_fmt_k_token(t) for t in k_coords.split(","))
             direction = "a"
             raw = ""
             if self.phase_path is not None:
@@ -1226,28 +1269,50 @@ class IsoDistort:
             if raw.startswith("(") and ")" in raw:
                 direction = raw.strip("()").split(",")[0].split(";")[0].strip() or "a"
             path = f"{parent_compact}[{k_coords}]{mode.irrep_label}({direction})"
-            site_tokens: list[str] = []
-            for bush in mode.bush_modes:
-                letter = bush.wyckoff_letter or mode.wyckoff_site or ""
+            if letter:
                 site = letter_to_site.get(letter) or {}
                 elem = str(site.get("species") or site.get("element") or "X")
                 idx = letter_to_label.get(letter) or f"{elem}1"
-                n_comp = max(1, len(bush.displacements) or 1)
+                bushes = [
+                    b for b in (mode.bush_modes or [])
+                    if (b.wyckoff_letter or "") == letter
+                ]
+                n_comp = 1
+                if bushes:
+                    n_comp = max(
+                        (len(b.displacements) or 1) for b in bushes
+                    )
                 # Site-symmetry irrep (A1/E/…) needs a full site-symmetry
                 # decomposition; use A1 for 1-D and E for multi-component.
                 sym = "A1" if n_comp == 1 else "E"
-                site_tokens.append(f"[{idx}:{letter or '-'}:dsp]{sym}({direction})")
-            if not site_tokens:
+                labels[key] = f"{path}[{idx}:{letter}:dsp]{sym}({direction})"
+            else:
                 sites = ",".join(sorted({b.wyckoff_letter for b in mode.bush_modes}))
-                labels[mode.irrep_label] = (
+                labels[key] = (
                     f"{path} [{mode.mode_type} Wyckoff {sites or '-'}]"
                 )
-            else:
-                labels[mode.irrep_label] = f"{path}{site_tokens[0]}"
         for label, entry in self.mode_occupancies.items():
             om = entry["mode"]
             labels[label] = f"{label} [occupational {om.wyckoff_letter}]"
         return labels
+
+    def _resolve_mode_displacement(self, irrep_label: str) -> np.ndarray:
+        """Look up a mode key, or sum ``IR__letter`` splits for API callers."""
+        if irrep_label in self.mode_displacements:
+            return np.asarray(
+                self.mode_displacements[irrep_label]["displacements"], dtype=float
+            )
+        parts = [
+            np.asarray(entry["displacements"], dtype=float)
+            for key, entry in self.mode_displacements.items()
+            if key.startswith(f"{irrep_label}__")
+        ]
+        if not parts:
+            raise ValueError(t("mode.invalid", label=irrep_label))
+        total = np.zeros_like(parts[0])
+        for p in parts:
+            total = total + p
+        return total
 
     def _lifted_mode_displacements(self, subgroup) -> dict[str, np.ndarray]:
         """把当前会话的母相模式位移提升到该子群超胞坐标。"""
@@ -1315,17 +1380,11 @@ class IsoDistort:
         compute_missing_modes: bool,
         *,
         use_opd_line_folders: bool = False,
-        number_of_independent_modulations: int | None = None,
     ) -> list[SubgroupExportSpec]:
         """为每个子群准备导出规格；结束后恢复会话 Distortion 状态。"""
         need_modes = any(fmt != "cif" for fmt in formats)
         snap = self._snapshot_distortion_state()
         current_idx = snap["phase_path"].subgroup_index if snap["phase_path"] else None
-        nmod = (
-            int(number_of_independent_modulations)
-            if number_of_independent_modulations is not None
-            else int(getattr(self, "nmod", 0) or 0)
-        )
         used: set[str] = set()
         specs: list[SubgroupExportSpec] = []
         try:
@@ -1339,21 +1398,21 @@ class IsoDistort:
                 if need_modes and compute_missing_modes and not is_current:
                     try:
                         if self._is_parametric_subgroup(sg):
-                            if nmod <= 0:
-                                note = (
-                                    "parametric k point: set nmod>=1 "
-                                    "(number_of_independent_modulations) "
-                                    "to fill displacement modes"
-                                )
-                            else:
-                                self.search_method_2(
-                                    sg.index,
-                                    number_of_independent_modulations=nmod,
-                                )
-                                computed = True
+                            note = (
+                                "parametric k point: local iso cannot compute "
+                                "displacement modes (use official website superspace)"
+                            )
                         else:
                             self.search_method_2(sg.index)
                             computed = True
+                            if (
+                                not self.mode_displacements
+                                and not self.mode_occupancies
+                            ):
+                                note = (
+                                    "local iso DISPLAY BUSH returned no displacement "
+                                    "modes for this path (no root mode / empty table)"
+                                )
                     except Exception as exc:  # noqa: BLE001 - 批量导出：单子群失败不中断
                         note = str(exc)
                         self._restore_distortion_state(snap)
@@ -1379,7 +1438,6 @@ class IsoDistort:
         compute_missing_modes: bool = False,
         *,
         use_opd_line_folders: bool = False,
-        number_of_independent_modulations: int | None = None,
     ) -> list:
         """
         按 Method 2 子群批量导出（每个子群一个文件夹）。
@@ -1389,9 +1447,8 @@ class IsoDistort:
             formats: cif / isoviz / modes / topas（官网第 6 页对应选项）
             subgroups: 默认使用当前会话的子群列表（Method 2 枚举结果）
             compute_missing_modes: 为非当前子群再跑 Method 2 以填充模式类格式；
-                仅 CIF 时不需要。参数 k 点在 ``nmod>=1`` 时用超空间内核填充模式。
+                仅 CIF 时不需要。参数 k 点本地无法计算位移模式。
             use_opd_line_folders: Method 1 导出时文件夹名用完整 OPD 行。
-            number_of_independent_modulations: 参数 k 点导出时的 nmod（默认会话值）。
 
         Returns:
             写出的文件路径列表
@@ -1411,7 +1468,6 @@ class IsoDistort:
             fmts,
             compute_missing_modes,
             use_opd_line_folders=use_opd_line_folders,
-            number_of_independent_modulations=number_of_independent_modulations,
         )
         paths: list = []
         for spec in specs:
@@ -1428,7 +1484,6 @@ class IsoDistort:
         wrapping: str | None = None,
         *,
         use_opd_line_folders: bool = False,
-        number_of_independent_modulations: int | None = None,
     ) -> bytes:
         """批量导出为 ZIP 字节（不读写 output_dir，避免混入无关文件）。
 
@@ -1447,7 +1502,6 @@ class IsoDistort:
             fmts,
             compute_missing_modes,
             use_opd_line_folders=use_opd_line_folders,
-            number_of_independent_modulations=number_of_independent_modulations,
         )
         return build_export_zip(specs, fmts, wrapping=wrapping)
 
@@ -1535,9 +1589,8 @@ class IsoDistort:
         distortion_type 缺省时使用项目默认（DEFAULT_DISTORTION_TYPES，
         对齐官网默认勾选：strain + displacive；本地 strain 不产生模式，
         displacive 产生位移模式）。
-        number_of_independent_modulations（nmod，即超空间附加维度 d）：
-        0 为公度调制，走本地 iso DISPLAY BUSH；≥1 走 isocore (3+d) 超空间内核
-        （IT-C 标准取位，上限见 config defaults.max_nmod）。
+        number_of_independent_modulations must be 0 (commensurate 3D only);
+        the engine rejects any nonzero value.
         """
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")
@@ -1546,7 +1599,6 @@ class IsoDistort:
         if not self.subgroups:
             self.list_subgroups(distortion_type=distortion_type)
 
-        self.nmod = int(number_of_independent_modulations or 0)
         query = Method2Query(
             subgroup_idx=subgroup_idx,
             distortion_type=types,
@@ -1579,35 +1631,6 @@ class IsoDistort:
         )
         print(t("method2.result", idx=subgroup_idx,
                 n=len(result.modes) + len(self.mode_occupancies)))
-        return result
-
-    def run_superspace(
-        self,
-        nmod: int,
-        *,
-        q_vectors: list[list[float]] | None = None,
-        ks_coords: list[float] | None = None,
-        k_point_label: str = "",
-    ):
-        """运行 (3+nmod) 超空间内核（nmod = 官网独立非公度调制数 d）。
-
-        已加载母相时使用其空间群与晶格；否则默认 I4/mmm #139 的单位正方格子。
-        """
-        if self.symmetry_info:
-            sg = int(self.symmetry_info["space_group_number"])
-            lattice = self.structure.lattice.matrix.tolist() if self.structure is not None else None
-        else:
-            sg = 139
-            lattice = None
-        result = run_superspace_workflow(
-            sg,
-            nmod,
-            q_vectors=q_vectors,
-            ks_coords=ks_coords,
-            k_point_label=k_point_label,
-            lattice_3d=lattice,
-        )
-        self._last_superspace = result
         return result
 
     def search_method_3(self,

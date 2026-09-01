@@ -146,19 +146,19 @@ def test_method_2_metadata_and_modes():
     assert result.metadata["number_of_independent_modulations"] == 0
 
 
-def test_method_2_nmod_uses_superspace():
+def test_method_2_nonzero_nmod_rejected():
     engine = _make_engine()
     subs = _DummyIsoWrapper().enumerate_all_special_subgroups(225)
-    result = engine.method_2_search(
-        225,
-        subs,
-        Method2Query(subgroup_idx=1, number_of_independent_modulations=1),
-        wyckoff_letters=["a"],
-    )
-    assert result.metadata["number_of_independent_modulations"] == 1
-    assert result.metadata["nmod"] == 1
-    assert result.metadata["superspace"] is True
-    assert result.modes
+    try:
+        engine.method_2_search(
+            225,
+            subs,
+            Method2Query(subgroup_idx=1, number_of_independent_modulations=1),
+            wyckoff_letters=["a"],
+        )
+        raise AssertionError("expected ValueError")
+    except ValueError as exc:
+        assert "number_of_independent_modulations" in str(exc)
     engine = _make_engine()
     subs = _DummyIsoWrapper().enumerate_all_special_subgroups(225)
     try:

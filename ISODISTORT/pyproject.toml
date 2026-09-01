@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "isodistort"
 version = "0.3.0"
-description = "ISODISTORT: offline crystal distortion analysis based on ISOTROPY suite (Method 1 table matches official OPD fields; (3+d) superspace kernel nmod=d)"
+description = "ISODISTORT: offline crystal distortion analysis based on ISOTROPY suite (Method 1 table matches official OPD fields)"
 authors = [{ name = "CRIS" }]
 requires-python = ">=3.10"
 dependencies = [

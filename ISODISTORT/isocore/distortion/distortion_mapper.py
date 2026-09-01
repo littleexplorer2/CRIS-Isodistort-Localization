@@ -70,17 +70,18 @@ class DistortionMapper:
 
         result: dict[str, dict] = {}
         for mode in modes:
-            displacements = np.zeros((n_atoms, 3))
-
-            # 按位点字母分组 BUSH 行
+            # 按位点字母分组 BUSH 行；多位点时拆成独立幅度键（对齐官网
+            # 每个 [Site:letter:dsp]… 各算一个 displacive mode）。
             by_letter: dict[str, list[BushMode]] = {}
             for bush in mode.bush_modes:
                 by_letter.setdefault(bush.wyckoff_letter, []).append(bush)
 
+            letter_disps: dict[str, np.ndarray] = {}
             for letter, indices in groups:
                 bushes = by_letter.get(letter, [])
                 if not bushes or not indices:
                     continue
+                displacements = np.zeros((n_atoms, 3))
 
                 # 解析每个代表点（含自由参数 -> 结构真实坐标）
                 # 多维模式（一个代表多个分量向量）取各分量之和
@@ -146,15 +147,27 @@ class DistortionMapper:
                                     best_disp = disp
                             displacements[idx] = best_disp
 
-            # 模式级归一化：保持“最大位移矢量模长 = 1”的幅度语义
-            max_norm = float(np.max(np.linalg.norm(displacements, axis=1)))
-            if max_norm > 1e-12:
-                displacements = displacements / max_norm
+                max_norm = float(np.max(np.linalg.norm(displacements, axis=1)))
+                if max_norm > 1e-12:
+                    letter_disps[letter] = displacements / max_norm
 
-            result[mode.irrep_label] = {
-                "mode": mode,
-                "displacements": displacements,
-            }
+            if not letter_disps:
+                continue
+            if len(letter_disps) == 1:
+                letter, displacements = next(iter(letter_disps.items()))
+                result[mode.irrep_label] = {
+                    "mode": mode,
+                    "displacements": displacements,
+                    "wyckoff_letter": letter,
+                }
+            else:
+                for letter, displacements in letter_disps.items():
+                    key = f"{mode.irrep_label}__{letter}"
+                    result[key] = {
+                        "mode": mode,
+                        "displacements": displacements,
+                        "wyckoff_letter": letter,
+                    }
 
         return result
 

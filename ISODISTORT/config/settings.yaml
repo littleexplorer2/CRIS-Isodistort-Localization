@@ -26,10 +26,8 @@ defaults:
   default_amplitude: 1.0
   # 超胞大小 [a, b, c]（仅当未使用子群基矢时生效）
   default_supercell: [1, 1, 1]
-  # 全局浮点比较容差 EPS（超空间对称判定、波矢约化、矩阵闭合；与 lattice_tolerance 相同）
+  # 全局浮点比较容差 EPS（波矢约化、矩阵闭合等；与 lattice_tolerance 相同）
   eps: 0.00001
-  # (3+d) 超空间附加维度 nmod 上限（官网 “# of independent incommensurate modulations”，d = nmod）
-  max_nmod: 3
 
 # 运行时（网页与终端界面均为英语，不再提供中文切换）
 # 网页/终端分工：Method 1–4 只调参数并计算结果表（可筛选、排序）；
@@ -41,6 +39,7 @@ defaults:
 # （subgroup.cif / data.isoviz / topas.str / Complete modes details.txt；
 #  Method 1 文件夹用完整 OPD 行，Method 2/3 用「IR OPD」）。
 # Windows 文件夹名删除 ``/``（官网同款：I4/mmm→I4mmm，1/2→12），不替换成空格。
+# CIF 头注释中的 k / IR Kovalev / HM / 母相 Wyckoff 与官网对齐（CIF+CDML，非答案库）。
 # 验收（见仓库根目录 agent.md）：
 #   - Complete modes details.txt：完整写入本地计算结果即可，不要求与官网 HTML 逐字节一致
 #   - subgroup.cif 须能用 VESTA 打开（https://jp-minerals.org/vesta/en/download.html）；
@@ -48,9 +47,14 @@ defaults:
 #   - 其它文件内容/格式尽量靠官网，不以全文件逐字节为 DoD
 # CIF：扩展 HM（含 origin choice 2）、Hall 优先 OC2、OPD 注释无 irrep 前缀、
 # 不对称单元 Wyckoff（对常见子群有 ITA 表）；k-active 参数代入。
-# 勾选 isoviz/modes/topas 时会对子群补跑 Method 2 填模式（参数 k 传入会话 nmod）。
-# 参数 k 点（LD 等）：nmod=0 时本地 iso 无法算位移模式（会提示）；nmod≥1 走 (3+d) 超空间内核。
-# 部分 irrep 本地 iso 报 “no root mode”；官网含 primary+secondary+strain，本地可能偏少。
+# 勾选 isoviz/modes/topas 时会对非参数 k 点子群补跑 Method 2 填模式。
+# 参数 k 点（LD/DT 等）：可枚举子群（+ Generate DB）；本地 iso 无法算位移模式
+# （需官网 (3+d) superspace；界面提示 not available locally）。CIF/表仍可下载；
+# 模式类格式（isoviz / modes / TOPAS）中模式段为空。
+# 部分 irrep 本地 iso 报 “no root mode” / BUSH 空表；即便非空也可能少给某些 Wyckoff 行
+# （官网网页模式表更全）。空表时导出 CIF note 会写明；映射到的多位点会拆成独立幅度键。
+# Method 2 文件夹名为「IR OPD」；对比 output_compare 时以 CIF 内 OPD 行为准，勿盲信文件夹短名。
+# Distortion ZIP 提示文案（网页/终端共用 i18n）：说明 nstrain=0、参数 k 需官网 (3+d)、BUSH 位点不全。
 # 仅 CIF 或 compute_modes=0（终端导出时选 no）可跳过补算。
 # 网页空闲自动停服见 web_idle_timeout；长 ZIP 期间看门狗会把 in-flight 请求视为活跃。
 runtime:
@@ -74,6 +78,3 @@ runtime:
   # （网页与终端均可 Manage cached subgroup databases 列出/批量删除；勿改 isobyu/），
   # 与 Distortion ZIP 导出、以及已删除的 Distortion Generate 不是同一功能。
   generation_timeout: 3600
-  # Method 2 的 nmod（# of independent incommensurate modulations）即超空间附加维度 d。
-  # nmod=0：公度 3 维，走本地 iso；nmod≥1：走 isocore (3+d) 超空间内核（IT-C 标准取位）。
-  # 上限见 defaults.max_nmod。网页端口仍为 runtime.web_port（默认 8000）。

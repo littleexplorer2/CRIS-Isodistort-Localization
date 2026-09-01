@@ -155,14 +155,6 @@ cd <CRIS 根目录>
 
 先选母相 CIF（在 `ISODISTORT/` 下最多列出 30 个 `.cif`，排除 `output/`；仓库外文件请选手动输入路径），再进入 Search Page 菜单。方括号里的值是默认值，直接回车即采用。
 
-非交互 (3+d) 超空间内核（**本地附加**，不进 Search 菜单；官网没有对应命令。`d` 即 nmod）。日常对齐官网请走菜单里的 Method 2 nmod，不必用这条：
-
-```powershell
-.\.venv\Scripts\python.exe ISODISTORT\main_terminal.py --superspace-d 1 --space-group 139 --q-vectors 0,0,1/6 --k-label LD --export ISODISTORT\output\superspace_nmod1.json
-```
-
-说明见下文「(3+d) superspace 板块」。
-
 ### 3.3 配置文件：`config/settings.yaml`
 
 相对路径均相对 `config/` 目录解析。
@@ -174,8 +166,7 @@ cd <CRIS 根目录>
 | `defaults.position_tolerance` | 分数坐标容差 | `0.001` |
 | `defaults.lattice_tolerance` | 晶格容差 | `0.00001` |
 | `defaults.default_amplitude` | API 生成畸变时的默认幅度 | `1.0` |
-| `defaults.eps` | 全局浮点容差 EPS（超空间对称判定 / 波矢约化） | `0.00001`（与 `lattice_tolerance` 相同） |
-| `defaults.max_nmod` | (3+d) 附加维度上限（官网 nmod） | `3` |
+| `defaults.eps` | 全局浮点容差 EPS（波矢约化等） | `0.00001`（与 `lattice_tolerance` 相同） |
 | `runtime.web_port` | 网页首选端口 | `8000` |
 | `runtime.web_idle_timeout` | 关页后自动停服秒数 | `60` |
 | `runtime.temp_dir` | 网页上传等 Windows 侧暂存 | `../output/tmp` |
@@ -310,8 +301,8 @@ NdNiO2 等其它 CIF 会显示该文件自己的空间群、晶胞与 `_atom_sit
 
 注意：
 
-- 本地 **nmod**（`# of independent incommensurate modulations`）即超空间附加维度 **d**。`nmod=0` 为公度三维（走 `iso`）；`nmod=1..3` 走 `isocore` 的 **(3+d) 超空间内核**（取位固定为 **standard (IT-C)**，与页底 Space-Group Preferences 一致）。参数 k 点（LD/DT）在 `nmod=0` 时仍不能用 `iso` 算位移模式；设 `nmod≥1` 后可用本地内核生成超空间模式并投影回三维。  
-- **参数 k 点**（如 LD/DT）可以列出子群；位移模式在 **nmod=0** 时本地 `iso` 无法计算，选中该 k 点会提示。设 **nmod≥1** 后走 (3+d) 超空间内核（IT-C），模式表与 ZIP 中的模式类格式可被填充。表与 CIF 结构在 nmod=0 时仍可下载。  
+- **`# of independent incommensurate modulations`（nmod）本地不可用**：网页/终端会显示英文说明——该功能需要官网的 **(3+d) superspace** 流程，请到 [官方网站](https://iso.byu.edu/isodistort.php) 使用；本地引擎只支持公度三维（`nmod=0`）。  
+- **参数 k 点**（如 LD/DT）：可枚举子群（并可勾选 **Generate isotropy subgroups database if missing**）；**不能**在本地计算位移模式（需官网 (3+d) 流程）。选中该 k 点会提示。CIF / 结构表仍可下载；`isoviz` / Complete modes details / TOPAS 等模式类格式中的模式段为空。  
 - 子群数据库缺失时：网页提供「本地生成 / 去官网」；终端同样有对应选项。
 
 ### 6.3 Method 3: Search over arbitrary k points for specified space group and lattice
@@ -353,7 +344,7 @@ NdNiO2 等其它 CIF 会显示该文件自己的空间群、晶胞与 `_atom_sit
 | → **"Save interactive distortion"** | `.isoviz`（给 IsoVIZ 用） |
 | → **"Complete modes details"** | 完整模式详情 `.txt` |
 | → **"TOPAS.STR"** | TOPAS 结构文件 |
-| **"Download all (ZIP)"** | 打包 Method **1 / 2 / 3** 当前筛选命中的子群文件（无筛选则全部），**只含勾选格式**，**不扫描** `output/`。选 Method 4 再点 ZIP 会提示改用表格下载。勾选了 isoviz / modes / topas 时，会对**非参数 k 点**子群补跑 Method 2 以填充模式（可能较慢，界面有进度条）；参数 k 点（如 LD）在 **nmod=0** 时本地 iso 无法算位移模式（对应文件中模式为空），**nmod≥1** 时由 (3+d) 超空间内核填充。仅 CIF 或 URL 带 `compute_modes=0` 时可跳过补算 |
+| **"Download all (ZIP)"** | 打包 Method **1 / 2 / 3** 当前筛选命中的子群文件（无筛选则全部），**只含勾选格式**，**不扫描** `output/`。选 Method 4 再点 ZIP 会提示改用表格下载。勾选了 isoviz / modes / topas 时，会对**非参数 k 点**子群补跑 Method 2 以填充模式（可能较慢，界面有进度条）；**参数 k 点**（如 LD）本地 iso 无法算位移模式，对应文件中模式段为空（需官网 (3+d) 流程）。仅 CIF 或 URL 带 `compute_modes=0` 时可跳过补算 |
 
 压缩包名形如 `isodistort_methodN.zip`，解压后**直接是各子群文件夹**（与官网下载结构一致）：
 
@@ -370,29 +361,6 @@ GM1+ P1 (a) 139 I4mmm, .../      # Method 1：完整 OPD 行（删除 /，官网
 
 单行点选后出现的模式表在 Method 2 区域，仅供查看。
 
-### (3+d) superspace 板块（本地附加，不是官网主功能）
-
-网页 Distortion 与 Space-Group Preferences **之间**有一块 **"(3+d) superspace (local extra)"**。这是本地多出来的内核检查台，**不是 ISODISTORT 的主要交互，官网 Search 页也没有对应板块**。
-
-官网把非公度计算做成 Method 2 的一个参数：k 点旁的 **`# of independent incommensurate modulations`**（表单名 `nmodstar`，可叠 IR 时还有 `nmodstar2`…），再点 OK 进入 IR → OPD → Distortion。结果出现在模式表 / CIF / `.isoviz` 里，没有单独的「超空间对象」页面。本地对齐这条路径请用 **Method 2 的 nmod 输入**（设 `nmod≥1` 后 Distortion ZIP 才会用内核填参数 k 点的位移模式）。
-
-本板块的用途：不选子群、不跑 `iso` DISPLAY BUSH，直接看本地 `isocore.superspace` 算出的超空间群、IR、OPD 和三维投影，便于开发和验收。做「上传 CIF → Method 2 LD → 导出」时**可以完全不用**。
-
-网页用法：
-
-| 控件 | 含义 |
-| --- | --- |
-| **nmod (d)** | 附加维度，与 Method 2 的 nmod 相同；面板默认 `1`（Method 2 默认仍是 `0`） |
-| **k_s** | 超空间波矢，`3+nmod` 个分量，可写分数（如 `0,0,1/6,1`）。可留空，内核用 q-vector 嵌入 |
-| **q-vectors** | 三维调制波矢，nmod 条用分号隔开（nmod=1：`0,0,1/6`；nmod=2：`1/6,0,0;0,1/6,0`） |
-| **Specify k point:** | Miller-Love 标签，如 `LD` / `SM` |
-| **Compute superspace** | 跑内核并列出 IR / OPD / 三维投影 |
-| **Export JSON** / **Import JSON** | 保存或加载内核结果（`kind` 在 nmod=1 时为 `superspace_3p1`，否则为 `superspace`） |
-
-未加载母相 CIF 时，内核默认空间群 **139 I4/mmm**（IT-C）。非法 nmod（负数、非整数、大于 `defaults.max_nmod`）会提示 `err.badNmod`，页面不卡死。Compute 成功后会把 Method 2 的 nmod 框同步成同一数值，但**不会**代替 Method 2 的子群枚举。
-
-终端对应物同样是本地附加：菜单 **9** 会先打印上述说明再提问；`--superspace-d` 不进菜单、直接算并可选 `--export`。Python 里是 `iso.run_superspace(...)` / `run_superspace_workflow(...)`。
-
 ### Space-Group Preferences（只读）
 
 页底 **"Space-Group Preferences"** 固定为国际标准取位（Monoclinic axes a(b)c、cell choice 1、Orthorhombic abc、Trigonal hexagonal、Origin choice 2、Superspace standard）。本地 `iso` 不能改这些选项；Method 1 表里的 `basis`/`origin` 对已收录母相（如 I4/mmm #139）按官网序参量页显示。
@@ -407,7 +375,8 @@ GM1+ P1 (a) 139 I4mmm, .../      # Method 1：完整 OPD 行（删除 /，官网
 | --- | --- | --- |
 | 启动 | `main_web.py` | `main_terminal.py` |
 | 交互 | 一页上全部面板 | 分步菜单（1–8 / 0） |
-| 超空间 / nmod / 参数 k | **主路径**：Method 2 的 nmod（对齐官网 nmodstar）。页底 (3+d) 板块是本地附加检查台，官网没有。参数 k 在 nmod=0 时提示 iso 无位移模式 | **主路径**：Method 2 询问 nmod。菜单 9 / `--superspace-d` 是本地附加，不是 Search 页 |
+| Method 2 nmod | 显示 “not available locally” 说明（需官网 (3+d)） | 同样打印该英文说明，不询问可编辑 nmod |
+| 参数 k 点 | 可选；枚举子群 OK；位移模式空（提示用官网） | 同左 |
 | Method 2 GenDB 说明 | 勾选旁一句长帮助 + 警告（`m2.genDbHelp`） | 同一句文案后提问是否生成 |
 | Method 2 缓存管理 | 「Manage cached subgroup databases」选中删除 | Method 2「Open cache manager?」；空库恢复选 3 也可进管理 |
 | 子群库缺失 | 勾选 Generate if missing；失败时可本地生成 / 官网链接 | 提问 Generate；恢复选项：本地生成 / 打印官网 URL / 管理缓存 |
@@ -419,9 +388,8 @@ GM1+ P1 (a) 139 I4mmm, .../      # Method 1：完整 OPD 行（删除 /，官网
 1. Reload parent CIF  
 2. Set distortion types  
 3–6. Method 1–4（表交互：`f` 筛选、`s` 排序、`c` 清除、`only`、输入 `idx` 算模式、`q` 结束）  
-7. Distortion（导出结构文件或筛选表；参数 k 点在 nmod=0 时会提示模式为空）  
-8. Show current state（含固定 Space-Group Preferences / nmod）  
-9. (3+d) superspace（**本地附加**，官网无此菜单：直接跑内核并导出 JSON）  
+7. Distortion（导出结构文件或筛选表；参数 k 点会提示模式为空）  
+8. Show current state（含固定 Space-Group Preferences）  
 0. Exit  
 
 结构文件格式提示默认：`cif,isoviz,modes,topas`。**没有** Generate / Domains。
@@ -448,9 +416,6 @@ iso.set_distortion_types(["strain", "displacive"])
 
 m1 = iso.search_method_1(crystal_system="tetragonal")
 iso.export_subgroups("out_batch", formats=["cif", "isoviz", "modes", "topas"])
-
-# (3+d) 超空间内核（本地附加 API，不经过 Method 2；nmod = d；不依赖 iso DISPLAY BUSH）
-ss = iso.run_superspace(nmod=1, q_vectors=[[0, 0, 1 / 6]], k_point_label="LD")
 ```
 
 `export_subgroups` 使用当前 `iso.subgroups`（最近一次写入的列表）。网页 ZIP 会显式传入所选 Method 的列表，避免三种 Method 混在一起。
@@ -462,9 +427,9 @@ ss = iso.run_superspace(nmod=1, q_vectors=[[0, 0, 1 / 6]], k_point_label="LD")
 ## 10. 已知限制（影响日常使用）
 
 1. **Windows 必须经 WSL** 调用 Linux 版 `iso`。  
-2. **应变模式未实现**：CIF / TOPAS / ISOVIZ 中 `_iso_strainmode_number` 恒为 0，不写 `strain_N(a)` 行，不改晶格参数。  
-3. **参数 k 点**：可枚举子群；`nmod=0` 时位移模式仍不能由本地 `iso` 计算。设 `nmod≥1` 后由 `isocore.superspace` 生成 (3+d) 模式。**批量 ZIP 导出会传入会话 nmod**（网页/终端/API 共用），不再对参数 k 一律跳过。  
-4. **nmod**（独立非公度调制数 = d）：**对齐官网的入口是 Method 2 的 nmod**（`search_method_2(..., number_of_independent_modulations=nmod)`）。网页页底 (3+d) 板块、终端菜单 9、CLI `--superspace-d`、API `run_superspace` 是同一内核的**本地检查入口**，官网没有对应 UI。上限 `defaults.max_nmod`（默认 3）。取位固定 **standard (IT-C)**。  
+2. **应变模式未实现**：CIF / TOPAS / ISOVIZ 中 `_iso_strainmode_number` 恒为 0，不写 `strain_N(a)` 行，不改晶格参数。官网勾选 strain 时仍会写出 `strain_*(a)` 与非零 `_iso_strainmode_number`。  
+3. **参数 k 点（LD/DT 等）**：可枚举子群（+ Generate DB）；本地 `iso` **不能**计算位移模式（需官网 (3+d) superspace）。导出 CIF 会写提示 note；ZIP 中模式类格式的模式段为空。这是引擎限制，不是本地可开关的 nmod 功能。  
+4. **nmod / (3+d) superspace**：本地**不提供**可编辑 nmod 或超空间内核；界面仅提示 not available locally，请用官网。  
 5. **Method 3**：reciprocal 不支持；带心仅 Default (`d`)。  
 6. **magnetic**：带 `m` 前缀的 IR 默认不进入流程。  
 7. **occupational**：本地为 ±1 占据近似，校验失败会标明。  
@@ -474,9 +439,14 @@ ss = iso.run_superspace(nmod=1, q_vectors=[[0, 0, 1 / 6]], k_point_label="LD")
     - **modes `.txt`**：完整写入本地计算结果即可，**不要求**与官网 HTML 逐字节一致。  
     - **CIF / isoviz / TOPAS**：内容与格式尽量靠官网；`.cif` 须能用 **[VESTA](https://jp-minerals.org/vesta/en/)**（[下载](https://jp-minerals.org/vesta/en/download.html)）打开，`.isoviz` 须能用 **ISOViz**（ISOTROPY IsoVIZ）打开。根目录可放 `VESTA.lnk` / `ISOViz.lnk` 便于抽检。  
     - TOPAS / IsoVIZ 位移向量按**原胞笛卡尔 Σ‖Δr‖²≈1** 归一化（带心点阵计入 centering 重数），幅度系数尽量靠近官网（如 I 心 → 0.06334、maxamp≈√2）。  
-    - 已知仍可能与官网排版不同：symop 顺序、strain/secondary 模式数、isoviz 周期像原子数、basis 点群等价代表元等——以通用算法改进，禁止特例硬编码。VALIDATE 默认语义比较；`--strict` 仅排版调试。
+    - 已知仍可能与官网排版不同：symop 顺序、strain/secondary 模式数、isoviz 周期像原子数、basis 点群等价代表元等——以通用算法改进，禁止特例硬编码。VALIDATE 默认语义比较；`--strict` 仅排版调试。  
+11. **部分特殊 k 路径无位移模式 / 位点不全**：本地 `iso DISPLAY BUSH` 对部分 IR（如纯应变主导的 GM4+、或 “no root mode”）返回空表；即使非空，也可能只给出部分 Wyckoff 行（实测 EuAl4 的 M1+ BUSH 仅有 `e` 位点，官网还有 `d`/`Al1`）。官网网页仍可能列出更多 primary / secondary / strain。批量导出时空表会写 CIF note。  
+12. **位点对称标号近似**：本地模式标签用 `A1`/`E` 近似位点对称不可约表示（BUSH 表无官方 `B2`/`A2u` 等字段）；多 Wyckoff 位点在映射成功时会拆成独立幅度键。  
+13. **Method 1 文件夹 basis/origin**：来自本地 iso，可能与官网取点群等价的另一组代表元（IR/OPD/SG/s/i/k-active 仍应对上）。对比时用 IR+OPD+SG 配对，勿要求文件夹名逐字符相同。  
+14. **Method 2 短文件夹名**：本地与官网均用 `IR OPD`（如 `LD5 C4`）。若人工整理的 `output_compare` 里文件夹名与 CIF 内 OPD 行不一致（例如文件夹叫 `LD5 C4` 但 CIF 实为 `P4 … Pnma`），按文件夹名硬配对会得到假差异；应以 CIF 内 `# … k-active=` 行为准。  
+15. **子群 CIF 的 ASU `natom` / 部分晶胞边长**：子群设定、原点与不对称单元取位与官网不完全相同时，原子行数或 a/b/c 可能不同；优先用 VESTA 打开与 VALIDATE 语义比较，勿当答案库硬编码。
 
-更细的差异用 `output_compare/官网` vs 本地导出做 diff；上表是用户最常撞到的几条。
+更细的差异用 `output_compare/<母相>/{官网,现有网页版交互}/Method1|2` 做 diff；上表是用户最常撞到的几条。
 
 ---
 
@@ -488,12 +458,6 @@ ss = iso.run_superspace(nmod=1, q_vectors=[[0, 0, 1 / 6]], k_point_label="LD")
 cd <CRIS 根目录>
 python ISODISTORT\main_requirement.py --dev
 .\.venv\Scripts\python.exe -m pytest ISODISTORT\tests_dev -q
-```
-
-(3+d) 超空间内核（不依赖 WSL / `iso`）：
-
-```powershell
-python -m pytest ISODISTORT/tests_dev/test_3pd.py -q
 ```
 
 若已经进入 `ISODISTORT/` 目录：
@@ -526,7 +490,10 @@ python -m pytest ISODISTORT/tests_dev/test_3pd.py -q
 | Types 改了结果不变 | 忘记点 **"Change"** |
 | ZIP 报没有子群 | 先对下拉框里选中的 Method 1/2/3 点 OK |
 | Method 2 参数 k 点无子群 | 勾选 / 回答 **"Generate isotropy subgroups database if missing"** 后重试（可能极慢）；可用 **"Manage cached subgroup databases"** 查看或删除已生成的 `i*.iso` |
-| Method 2 缓存占磁盘 | 网页点 Manage…，或终端 Method 2 中回答打开缓存管理后按编号/`all` 删除 |
+| Method 2 缓存占磁盘 | 网页 Manage…，或终端 Method 2「Open cache manager?」按编号/`all` 删除 |
+| Method 2 文件夹名对上了但 SG/HM 不同 | 先看 CIF 内 OPD 行是否与文件夹名一致；`output_compare` 人工整理时可能把 `P4` 结果放进名为 `LD5 C4` 的目录。本地 ZIP 按真实 `IR OPD` 命名 |
+| 模式数少于官网 / `nstrain=0` | 见 §10：无 strain；参数 k 本地模式为空（需官网）；部分路径 BUSH 空表；secondary 仅当 BUSH 表自带时才有 |
+| Method 1 文件夹 basis 与官网不同 | 点群等价代表元差异；用 IR+OPD+SG 配对，勿要求整名一致 |
 | 端口被占用 | 改 `web_port` 或关掉旧的 `main_web.py` |
 | OneDrive 路径偶发文件锁 | 可拷到非同步本地盘再试 |
 
@@ -538,7 +505,7 @@ python -m pytest ISODISTORT/tests_dev/test_3pd.py -q
 ISODISTORT/
 ├── main_web.py / main_terminal.py / main_requirement.py
 ├── web/                 网页（server.py + index.html + static/）
-├── isocore/             计算核心（api / backend / structure / distortion / io / superspace）
+├── isocore/             计算核心（api / backend / structure / distortion / io）
 ├── config/settings.yaml
 ├── isobyu/              【只读】ISOTROPY 套件
 ├── tests_dev/           开发测试（pytest）+ manual/ 手工脚本

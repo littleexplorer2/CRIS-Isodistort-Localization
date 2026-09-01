@@ -36,8 +36,6 @@ from isocore.api import IsoDistort  # noqa: E402
 from isocore.distortion import DISTORTION_TYPES  # noqa: E402
 from isocore.i18n import MESSAGES  # noqa: E402
 from isocore.io import parse_export_formats, parse_export_method  # noqa: E402
-from isocore.superspace import SuperspaceResult, run_superspace_workflow, validate_nmod  # noqa: E402
-from isocore.superspace.workflow import parse_ks_text, parse_q_vectors_text  # noqa: E402
 from isocore.utils import get_config  # noqa: E402
 from isocore.utils.schoenflies import hm_symbol, schoenflies_symbol  # noqa: E402
 
@@ -71,8 +69,6 @@ class WebSession:
         self.method3: list = []
         # Method 2 k 点枚举得到的子群（Download all 只导出这份列表，不扫 output_dir）
         self.method2_subgroups: list = []
-        self.nmod: int = 0
-        self.superspace = None
 
     @property
     def iso(self):
@@ -434,10 +430,6 @@ class IsoHandler(BaseHTTPRequestHandler):
             self._run(lambda: self._api_method3(data))
         elif path == "/api/method4":
             self._run(lambda: self._api_method4(data))
-        elif path == "/api/superspace":
-            self._run(lambda: self._api_superspace(data))
-        elif path == "/api/superspace_import":
-            self._run(lambda: self._api_superspace_import(data))
         elif path == "/api/isotropy_cache/delete":
             self._run(lambda: self._api_isotropy_cache_delete(data))
         else:
@@ -550,12 +542,9 @@ class IsoHandler(BaseHTTPRequestHandler):
         # source 缺省/"subgroups"：沿用 _api_subgroups（k 点枚举）设置的列表
         iso.set_distortion_scope(_SESSION.distortion_scope)
         iso.set_distortion_types(_SESSION.distortion_types)
-        nmod = validate_nmod(data.get("nmod") or 0)
-        _SESSION.nmod = nmod
         result = iso.search_method_2(
             subgroup_idx=idx,
             distortion_type=data.get("distortion_type", _SESSION.distortion_types),
-            number_of_independent_modulations=nmod,
         )
         _SESSION.method2 = result
         modes = []
@@ -609,77 +598,6 @@ class IsoHandler(BaseHTTPRequestHandler):
             "rms_residual": result.rms_residual,
             "max_abs_residual": result.max_abs_residual,
         }
-
-    def _api_superspace(self, data: dict) -> dict:
-        nmod = validate_nmod(data.get("nmod", data.get("d", 0)))
-        _SESSION.nmod = nmod
-        # 未加载 CIF 时不要触发 IsoDistort（WSL）构造；内核本身不依赖 iso。
-        iso = _SESSION._iso
-        if iso is not None and iso.symmetry_info:
-            sg = int(iso.symmetry_info["space_group_number"])
-            lattice = iso.structure.lattice.matrix.tolist() if iso.structure is not None else None
-        else:
-            sg = int(data.get("space_group_number") or 139)
-            lattice = None
-        q_text = data.get("q_vectors")
-        ks_text = data.get("ks")
-        q_vectors = None
-        if isinstance(q_text, list):
-            q_vectors = q_text
-        elif q_text:
-            q_vectors = parse_q_vectors_text(str(q_text), nmod)
-        ks_coords = None
-        if isinstance(ks_text, list):
-            ks_coords = ks_text
-        elif ks_text:
-            ks_coords = parse_ks_text(str(ks_text), nmod)
-        result = run_superspace_workflow(
-            sg,
-            nmod,
-            q_vectors=q_vectors,
-            ks_coords=ks_coords,
-            k_point_label=str(data.get("k_point_label") or ""),
-            lattice_3d=lattice,
-            check_ks=bool(q_vectors),
-        )
-        _SESSION.superspace = result
-        if iso is not None:
-            iso._last_superspace = result
-        payload = result.to_dict()
-        payload["report"] = {
-            "nmod": result.nmod,
-            "space_group": f"{result.space_group_number} {result.group.space_group_symbol}",
-            "order": result.group.order,
-            "little_group_order": result.little_group_order,
-            "irreps": [ir.label for ir in result.irreps],
-            "opds": [
-                {
-                    "irrep_label": o.irrep_label,
-                    "opd_symbol": o.opd_symbol,
-                    "opd_vector": o.opd_vector,
-                }
-                for o in result.opds
-            ],
-            "modes": [
-                {
-                    "irrep_label": m.irrep_label,
-                    "opd_symbol": m.opd_symbol,
-                    "basis_3d": m.project_to_3d(),
-                    "basis_superspace": m.basis_superspace,
-                }
-                for m in result.modes
-            ],
-        }
-        return payload
-
-    def _api_superspace_import(self, data: dict) -> dict:
-        obj = data.get("content") or data
-        if isinstance(obj, str):
-            obj = json.loads(obj)
-        result = SuperspaceResult.from_dict(obj)
-        _SESSION.superspace = result
-        _SESSION.nmod = result.nmod
-        return result.to_dict()
 
     def _api_isotropy_cache_list(self) -> dict:
         from isocore.backend.isotropy_cache import list_isotropy_cache
@@ -823,7 +741,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             }, 404)
             return
         # 勾选了 isoviz / modes / topas 时，对子群补跑 Method 2 以填充模式
-        # （长计算由网页 busy 进度条提示）。参数 k 点需 nmod>=1。
+        # （长计算由网页 busy 进度条提示）。参数 k 点本地无法算位移模式。
         need_modes = any(fmt != "cif" for fmt in fmts)
         compute_q = (qs.get("compute_modes") or ["1"])[0].strip().lower()
         # 默认开启；显式 compute_modes=0 可跳过（仅结构骨架，速度快）
@@ -838,7 +756,6 @@ class IsoHandler(BaseHTTPRequestHandler):
                 compute_missing_modes=compute_missing_modes,
                 wrapping=None,
                 use_opd_line_folders=(method == 1),
-                number_of_independent_modulations=_SESSION.nmod,
             )
         except Exception as exc:  # noqa: BLE001 - web 边界：统一转为 JSON 错误
             self._send_json({"ok": False, "error": str(exc)}, 500)

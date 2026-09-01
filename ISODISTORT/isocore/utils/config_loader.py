@@ -120,17 +120,12 @@ class Config:
 
     @property
     def eps(self) -> float:
-        """全局浮点比较容差 EPS（超空间对称判定 / 矩阵约化）。
+        """全局浮点比较容差 EPS。
 
         与 ``defaults.eps`` 对齐；缺省时回退到 ``lattice_tolerance``（0.00001）。
         """
         defaults = self._cfg["defaults"]
         return float(defaults.get("eps", defaults["lattice_tolerance"]))
-
-    @property
-    def max_nmod(self) -> int:
-        """(3+d) 超空间附加维度上限（官网 nmod，即独立非公度调制数 d）。"""
-        return int(self._cfg["defaults"].get("max_nmod", 3))
 
     @property
     def defaults(self) -> dict:

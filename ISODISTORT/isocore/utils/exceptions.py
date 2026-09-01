@@ -3,16 +3,16 @@
 
 异常层次：
     IsodistortError（基异常）
-    ├── InputError              输入参数错误（非法 nmod / d、类型错误）
-    ├── DimensionMismatchError  维度不匹配（矩阵 / 波矢长度）
+    ├── InputError              输入参数错误（类型 / 取值不合法）
+    ├── DimensionMismatchError  维度不匹配（矩阵 / 向量长度）
     ├── WrapperError        二进制封装层
     │   ├── WrapperRunError     运行失败
     │   ├── WrapperTimeoutError 超时
     │   └── OutputParseError    输出解析失败
     └── DistortionError     畸变业务层
         ├── PhasePathError              相变路径参数错误
-        ├── SymmetryIncompatibleError   对称不兼容（波矢 / 超空间操作不闭合）
-        └── NumericalSingularError      数值奇异（度量矩阵等）
+        ├── SymmetryIncompatibleError   对称不兼容
+        └── NumericalSingularError      数值奇异
 """
 
 

@@ -632,17 +632,22 @@ class IsoWrapper(BaseWrapper):
         except (ValueError, IndexError) as exc:
             raise OutputParseError("iso", f"解析模式基矢表失败: {exc}") from exc
 
-        # 按 IR + 序参量方向分组为 DistortionMode
+        # 按 IR + 序参量方向分组为 DistortionMode。
+        # 次级 IR（BUSH 表里出现的 GM1+ 等）用其自身 k 点干名，勿沿用主路径 k。
         modes: dict[tuple, DistortionMode] = {}
         for row in rows:
             key = (row["irrep_label"], row["opd_symbol"])
             mode = modes.get(key)
             if mode is None:
+                ir = str(row["irrep_label"] or "")
+                k_stem = re.match(r"^([A-Z]+)", ir)
                 mode = DistortionMode(
-                    irrep_label=row["irrep_label"],
+                    irrep_label=ir,
                     opd_symbol=row["opd_symbol"],
                     mode_type="displacive",
-                    k_point_label=subgroup.k_point_label,
+                    k_point_label=(
+                        k_stem.group(1) if k_stem else subgroup.k_point_label
+                    ),
                 )
                 modes[key] = mode
             mode.bush_modes.append(BushMode(**row))

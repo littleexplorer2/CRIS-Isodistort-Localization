@@ -11,10 +11,6 @@ from pymatgen.core import Structure
 from pymatgen.symmetry.groups import SpaceGroup
 
 from ..backend import DistortionMode, IsoWrapper, SubgroupInfo
-from ..superspace import run_superspace_workflow
-from ..superspace.validate import validate_nmod
-from ..utils.opd_format import k_star_tuples
-from ..utils.text_parser import parse_fraction, parse_vector_token
 from .phase_path import normalize_distortion_types
 
 CRYSTAL_SYSTEMS = {
@@ -26,33 +22,6 @@ CRYSTAL_SYSTEMS = {
     "hexagonal",
     "cubic",
 }
-
-
-def _tuple_to_floats(token: str) -> list[float]:
-    inner = token.strip()
-    if inner.startswith("(") and inner.endswith(")"):
-        inner = inner[1:-1]
-    return [parse_fraction(part.strip()) for part in inner.split(",")]
-
-
-def _numeric_k_coords(subgroup: SubgroupInfo) -> list[float]:
-    """把子群 k_coordinates（可含 a/b/g）换成 3 个分数坐标。"""
-    coords = list(subgroup.k_coordinates or ["0", "0", "0"])
-    joined = "(" + ",".join(str(c) for c in coords) + ")"
-    params = list(subgroup.k_parameters or [])
-    letter_value = parse_fraction(str(params[0])) if params else 1.0
-    try:
-        return parse_vector_token(joined, letter_value=letter_value)
-    except (ValueError, ZeroDivisionError):
-        out = []
-        for c in coords:
-            try:
-                out.append(parse_fraction(str(c)))
-            except ValueError:
-                out.append(0.0)
-        while len(out) < 3:
-            out.append(0.0)
-        return out[:3]
 
 
 def _sg_to_crystal_system(space_group_number: int) -> str:
@@ -206,7 +175,7 @@ class Method2Query:
 
     subgroup_idx: int
     distortion_type: str | Sequence[str] = "displacive"
-    number_of_independent_modulations: int = 0  # nmod = d；0=公度 iso，≥1 走 (3+d) 超空间内核
+    number_of_independent_modulations: int = 0  # 仅支持 0（公度）；非 0 报错
 
 
 @dataclass
@@ -351,40 +320,18 @@ class IsoSearchEngine:
                 "请先执行 Method 1 或 list_subgroups 获得候选列表"
             )
 
-        # nmod = 独立非公度调制数 = 超空间附加维度 d。
-        # 0：公度，走 iso DISPLAY BUSH；≥1：isocore (3+d) 内核（IT-C）。
-        nmod = int(query.number_of_independent_modulations or 0)
-        if nmod:
-            nmod = validate_nmod(nmod)
-            q0 = _numeric_k_coords(target)
-            q_vectors = [q0]
-            if nmod > 1:
-                star = k_star_tuples(
-                    [str(x) for x in (target.k_coordinates or q0)],
-                    parent_sg,
-                )
-                q_vectors = [_tuple_to_floats(tok) for tok in star[:nmod]]
-                while len(q_vectors) < nmod:
-                    q_vectors.append([0.0, 0.0, 0.0])
-            ss = run_superspace_workflow(
-                parent_sg,
-                nmod,
-                q_vectors=q_vectors,
-                k_point_label=target.k_point_label,
-                check_ks=True,
+        # 官网 nmod（# of independent incommensurate modulations）仅对非公度
+        # （参数 k 点）有意义；本地引擎只支持公度特殊 k 点（nmod=0），
+        # 非零值明确报错而非静默忽略。
+        if query.number_of_independent_modulations:
+            raise ValueError(
+                "本地引擎不支持非公度调制叠加"
+                "（number_of_independent_modulations 必须为 0）；"
+                "该参数仅对官网参数 k 点的 (3+d) 维超空间机制有意义，"
+                "本地 iso 二进制无法完成。"
+                "/ The local engine does not support incommensurate modulation superposition "
+                "(number_of_independent_modulations must be 0)."
             )
-            modes = [m.to_distortion_mode(wyckoff_letters=wyckoff_letters) for m in ss.modes]
-            metadata = {
-                "k_point_label": target.k_point_label,
-                "irrep_label": target.irrep_label,
-                "opd_symbol": target.opd_symbol,
-                "k_parameters": list(target.k_parameters),
-                "number_of_independent_modulations": nmod,
-                "nmod": nmod,
-                "superspace": True,
-                "little_group_order": ss.little_group_order,
-            }
-            return Method2Result(subgroup=target, modes=modes, metadata=metadata)
 
         # wyckoff_letters 为 None 表示调用方未提供（误用）；空列表表示
         # 作用域内无 Wyckoff 位置（如全部类型选 none）-> 直接返回空模式
