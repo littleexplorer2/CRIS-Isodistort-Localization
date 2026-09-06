@@ -292,7 +292,10 @@ def _method3_cols() -> list[tuple[str, str, Callable, Callable, bool]]:
         ("sg", "SG", lambda r: r["sg"], lambda r: r["_sort_sg"], True),
         ("k", "k", lambda r: r["k"], lambda r: r["k"], True),
         ("irrep", "Irrep", lambda r: r["irrep"], lambda r: r["irrep"], True),
+        ("opd", "OPD", lambda r: r["opd"], lambda r: r["opd"], True),
         ("pg", "point group", lambda r: r["pg"], lambda r: r["pg"], True),
+        ("s", "s", lambda r: str(r["s"]), lambda r: r["_sort_s"], True),
+        ("i", "i", lambda r: str(r["i"]), lambda r: r["_sort_i"], True),
     ]
 
 
@@ -347,9 +350,14 @@ def _row_method3(item) -> dict:
         "sg": _sg_text(sg),
         "k": sg.k_point_label or "",
         "irrep": sg.irrep_label or "",
+        "opd": sg.opd_symbol or "",
         "pg": item.point_group or "",
+        "s": sg.size,
+        "i": sg.subgroup_index,
         "_sg": sg,
         "_sort_sg": int(sg.space_group_number or 0),
+        "_sort_s": int(sg.size or 0),
+        "_sort_i": int(sg.subgroup_index or 0),
     }
 
 
@@ -986,7 +994,7 @@ class IsoDistortConsoleApp:
             lattice_type = "direct"
 
         centering = _prompt(
-            "direct sublattice centering (d/P/A/B/C/I/F/R, blank = d)",
+            "direct sublattice centering (d/P = ok; A/B/C/I/F/R unsupported)",
             "d",
         ).strip() or "d"
         if centering.upper() == "D":
@@ -999,6 +1007,11 @@ class IsoDistortConsoleApp:
             basis = [["1", "0", "0"], ["0", "1", "0"], ["0", "0", "1"]]
             print("Using identity basis (same default as the web form).")
 
+        gen_db = _prompt_yes_no(
+            "Generate isotropy subgroups database if missing (parametric k)?",
+            False,
+        )
+
         try:
             with _ElapsedStatus(t("st.wait")):
                 result = self.iso.search_method_3(
@@ -1008,6 +1021,7 @@ class IsoDistortConsoleApp:
                     supercell_basis=basis,
                     direct_sublattice_centering=centering,
                     lattice_type=lattice_type,
+                    generate_if_missing=gen_db,
                 )
         except (IsodistortError, ValueError) as exc:
             print(f"Method 3 error: {exc}")

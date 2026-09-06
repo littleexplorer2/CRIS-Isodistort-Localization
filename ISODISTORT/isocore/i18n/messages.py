@@ -215,6 +215,16 @@ MESSAGES: dict[str, str] = {
     'm2.officialUrl': 'Official ISODISTORT: https://landau3.byu.edu/isodistort.php',
     'm2.cancel': '0. Cancel / go back',
     'm2.subsFound': 'Enumerated {0} subgroup(s). Click a row to view its mode basis (official order parameter direction page).',
+    'm3.subsFound': 'Found {0} Method 3 candidate(s). Click a row to view its mode basis.',
+    'm3.emptyHint': (
+        'No isotropy subgroups matched these Method 3 constraints. '
+        'Check space-group / point-group filters and the supercell basis. '
+        'For commensurate supercells (e.g. 1×1×6 → LD g=1/6), enable '
+        '“Generate isotropy subgroups database if missing” under Method 2 '
+        'if the parametric-k database is not cached yet. '
+        'Centering: use Default or P (primitive). A/B/C/I/F/R and reciprocal '
+        'search are not supported locally.'
+    ),
     'm2.filter': 'Filter:',
     'm2.clearFilter': 'Clear',
     'm2.showFiltered': 'Show filtered rows only',

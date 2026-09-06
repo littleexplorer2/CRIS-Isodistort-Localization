@@ -182,6 +182,7 @@
       c' = <input id="b31" class="span1" size="3" value="0">a + <input id="b32" class="span1" size="3" value="0">b + <input id="b33" class="span1" size="3" value="1">c
     </p>
     <div id="m3Out" class="scroll"></div>
+    <div id="m3ModesBox"></div>
   </div>
 
   <!-- ============ Method 4（对齐官网：仅上传畸变结构 CIF） ============ -->
@@ -489,6 +490,8 @@ async function loadCif() {
   document.getElementById("subOut").innerHTML = "";
   document.getElementById("modesBox").innerHTML = "";
   document.getElementById("m3Out").innerHTML = "";
+  const m3Modes = document.getElementById("m3ModesBox");
+  if (m3Modes) m3Modes.innerHTML = "";
   document.getElementById("m4Out").innerHTML = "";
   m1Options = null;
   await refreshStatus();
@@ -743,10 +746,20 @@ function methodColumns(method) {
         sortVal: (it) => Number(it.subgroup_index) || 0, exportHeader: "subgroup_index" },
     ];
   }
+  // Method 3: same interactive columns as Method 2, plus point group
   return [idx, sg, k, ir,
+    { key: "opd", header: "OPD", sortable: true, filterable: true,
+      text: (it) => String(it.opd_symbol || ""), cell: (it) => esc(it.opd_symbol || ""),
+      sortVal: (it) => String(it.opd_symbol || ""), exportHeader: "OPD" },
     { key: "pg", header: term("point group"), sortable: true, filterable: true,
       text: (it) => String(it.point_group || ""), cell: (it) => esc(it.point_group || ""),
       sortVal: (it) => String(it.point_group || ""), exportHeader: "point_group" },
+    { key: "s", header: "s", sortable: true, filterable: true,
+      text: (it) => String(it.size), cell: (it) => it.size,
+      sortVal: (it) => Number(it.size) || 0, exportHeader: "size" },
+    { key: "i", header: "i", sortable: true, filterable: true,
+      text: (it) => String(it.subgroup_index), cell: (it) => it.subgroup_index,
+      sortVal: (it) => Number(it.subgroup_index) || 0, exportHeader: "subgroup_index" },
   ];
 }
 function itemMatches(method, it) {
@@ -845,12 +858,19 @@ function renderResultTable(method) {
   const out = document.getElementById(tblContainer(method));
   const items = itemsFor(method);
   if (!items.length) {
-    out.innerHTML = method === 4 ? "" : `<div class="info">-</div>`;
+    if (method === 4) { out.innerHTML = ""; return; }
+    if (method === 3) {
+      out.innerHTML = `<div class="info">${esc(t("m3.subsFound", 0))}</div>`
+        + `<div class="alert alert-warning">${esc(t("m3.emptyHint"))}</div>`;
+      return;
+    }
+    out.innerHTML = `<div class="info">-</div>`;
     return;
   }
   const rows = displayedItems(method);
   let html = "";
   if (method === 2) html += `<div class="info">${t("m2.subsFound", items.length)}</div>`;
+  if (method === 3) html += `<div class="info">${t("m3.subsFound", items.length)}</div>`;
   if (method === 4 && m4Meta.rms != null) {
     html += `<div class="info">RMS ${Number(m4Meta.rms).toExponential(3)}`
       + (m4Meta.maxAbs != null ? ` · max |A| ${Number(m4Meta.maxAbs).toExponential(3)}` : "")
@@ -1131,7 +1151,10 @@ function applyNsup() {
 }
 
 async function computeModes(idx, source) {
-  const out = document.getElementById("modesBox");
+  // Method 3 modes render under Method 3; Method 1/2 keep using Method 2's modesBox.
+  const out = (source === "method3" && document.getElementById("m3ModesBox"))
+    ? document.getElementById("m3ModesBox")
+    : document.getElementById("modesBox");
   const pool = source === "subgroups" ? (subgroups || [])
     : source === "method3" ? (m3Items || [])
     : (m1Items || []);
@@ -1202,24 +1225,38 @@ function collectBasis() {
 }
 async function runMethod3() {
   const out = document.getElementById("m3Out");
+  const modesOut = document.getElementById("m3ModesBox");
   if (!STATE || !STATE.structure) { showError(out, t("err.noCif")); return; }
+  if (modesOut) modesOut.innerHTML = "";
   const sg = document.getElementById("m3Sg").value;
   const pg = document.getElementById("m3Pg").value;
-  const d = await withBusy(
-    out, t("st.wait"), [document.getElementById("btnM3")],
-    () => api("/api/method3", {
-      distortion_types: STATE.distortion_types,
-      point_group: pg || null,
-      space_group_type: sg ? Number(sg) : null,
-      supercell_basis: collectBasis(),
-      direct_sublattice_centering: document.querySelector("input[name='m3Cent']:checked").value,
-      lattice_type: document.querySelector("input[name='m3LatType']:checked").value,
-    }, "POST"),
-  );
-  if (!d.ok) { showError(out, d.error); return; }
+  const centEl = document.querySelector("input[name='m3Cent']:checked");
+  const latEl = document.querySelector("input[name='m3LatType']:checked");
+  let d;
+  try {
+    d = await withBusy(
+      out, t("st.wait"), [document.getElementById("btnM3")],
+      () => api("/api/method3", {
+        distortion_types: STATE.distortion_types,
+        point_group: pg || null,
+        space_group_type: sg ? Number(sg) : null,
+        supercell_basis: collectBasis(),
+        direct_sublattice_centering: centEl ? centEl.value : "d",
+        lattice_type: latEl ? latEl.value : "direct",
+        generate: !!genDbValue,
+      }),
+    );
+  } catch (err) {
+    showError(out, (err && err.message) ? err.message : String(err));
+    return;
+  }
+  if (!d || !d.ok) { showError(out, (d && d.error) ? d.error : "Method 3 failed"); return; }
   m3Items = d.candidates || [];
   tblState[3] = emptyTblState();
   renderResultTable(3);
+  const dl = document.getElementById("dlMethod");
+  if (dl) dl.value = "3";
+  try { out.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) { /* ignore */ }
   await refreshStatus();
 }
 

@@ -265,8 +265,9 @@ def _method3_rows(items) -> list[dict]:
     """把 Method 3 的 Method3ResultItem 序列化为前端友好的 dict 列表。
 
     Method 3 结果项只含 subgroup / point_group / basis，没有 Method 1 的
-    crystal_system / is_maximal，因此不能复用 _method1_rows（否则读不存在的
-    属性抛 AttributeError）。Method 3 结果表格展示子群 + 点群。
+    crystal_system / is_maximal，因此不能复用 _method1_rows。表列对齐
+    Method 2（SG / k / IR / OPD / s / i）并额外给出 point_group，供网页
+    与 Method 1/2 相同的筛选、排序与点行算模式。
     """
     rows = []
     for item in items:
@@ -275,10 +276,15 @@ def _method3_rows(items) -> list[dict]:
             "index": sg.index,
             "space_group_number": sg.space_group_number,
             "space_group_symbol": sg.space_group_symbol,
+            "subgroup_index": sg.subgroup_index,
+            "size": sg.size,
+            "is_maximal": sg.is_maximal,
+            "opd_symbol": sg.opd_symbol,
             "k_point_label": sg.k_point_label,
             "irrep_label": sg.irrep_label,
-            "opd_symbol": sg.opd_symbol,
             "point_group": item.point_group,
+            "basis_vectors": sg.basis_vectors,
+            "origin": sg.origin,
             "k_parameters": list(sg.k_parameters or []),
         })
     return rows
@@ -577,6 +583,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             supercell_basis=data.get("supercell_basis"),
             direct_sublattice_centering=data.get("direct_sublattice_centering") or None,
             lattice_type=data.get("lattice_type", "direct"),
+            generate_if_missing=bool(data.get("generate", False)),
         )
         _SESSION.method3 = result
         return {"candidates": _method3_rows(result), "state": _state_summary()}

@@ -3,6 +3,7 @@
 """
 
 from dataclasses import dataclass
+from fractions import Fraction
 
 import numpy as np
 from pymatgen.core import Lattice, Structure
@@ -185,6 +186,40 @@ def test_method_3_space_group_precedence():
 
     assert len(items) == 1
     assert items[0].subgroup.space_group_number == 62
+
+
+def test_method_3_accepts_p_centering_rejects_i():
+    from isocore.distortion.search_methods import _validate_centering
+
+    assert _validate_centering("P") == "d"
+    assert _validate_centering("p") == "d"
+    assert _validate_centering("d") == "d"
+    try:
+        _validate_centering("I")
+        raise AssertionError("expected ValueError for I centering")
+    except ValueError:
+        pass
+
+
+def test_method_3_commensurate_ld_inference_helpers():
+    """(0,0,6) 超胞应对 LD (0,0,g) 给出 g=1/6 公度候选。"""
+    from isocore.distortion.search_methods import (
+        _integer_basis_matrix,
+        _k_compatible_with_supercell,
+        _kvec_from_template,
+        _param_value_candidates,
+    )
+
+    M = _integer_basis_matrix([[1, 0, 0], [0, 1, 0], [0, 0, 6]])
+    assert M is not None
+    cands = _param_value_candidates(M)
+    assert Fraction(1, 6) in cands
+    k = _kvec_from_template(["0", "0", "g"], "g", Fraction(1, 6))
+    assert k is not None
+    assert _k_compatible_with_supercell(k, M)
+    assert not _k_compatible_with_supercell(
+        _kvec_from_template(["0", "0", "g"], "g", Fraction(1, 5)), M
+    )
 
 
 def test_method_4_decomposition_recovery():

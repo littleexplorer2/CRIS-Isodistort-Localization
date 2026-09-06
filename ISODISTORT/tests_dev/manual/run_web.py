@@ -196,16 +196,28 @@ def cmd_m134() -> int:
             c["point_group"] == "4/mmm" for c in c3b)
         checks.append(("m3_point_group", ok_3b, f"n={len(c3b)} err={m3b.get('error')}"))
 
-        # 3c. 非默认带心应明确报错（不再静默忽略）
+        # 3c. P centering = primitive / no centering（官网可选，本地接受）
         m3c = _post(port, "/api/method3", {
             "distortion_types": ["strain", "displacive"],
             "point_group": None, "space_group_type": 139,
             "supercell_basis": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
             "direct_sublattice_centering": "P", "lattice_type": "direct",
         })
-        checks.append(("m3_centering_error",
-                       m3c.get("ok") is False and bool(m3c.get("error")),
-                       f"ok={m3c.get('ok')} err={str(m3c.get('error'))[:80]}"))
+        checks.append(("m3_p_centering_ok",
+                       m3c.get("ok") is True,
+                       f"ok={m3c.get('ok')} n={len(m3c.get('candidates') or [])} "
+                       f"err={str(m3c.get('error'))[:80]}"))
+
+        # 3d. I 带心仍应明确报错
+        m3d = _post(port, "/api/method3", {
+            "distortion_types": ["strain", "displacive"],
+            "point_group": None, "space_group_type": 139,
+            "supercell_basis": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+            "direct_sublattice_centering": "I", "lattice_type": "direct",
+        })
+        checks.append(("m3_i_centering_error",
+                       m3d.get("ok") is False and bool(m3d.get("error")),
+                       f"ok={m3d.get('ok')} err={str(m3d.get('error'))[:80]}"))
 
         # ---- 4. Method 2(特殊 k 点) -> generate -> Method 4 -----------------
         # 重跑 Method 1 无过滤以取得候选（会话内子群列表会被 m3 覆盖，

@@ -1639,7 +1639,8 @@ class IsoDistort:
                         space_group_type: int | None = None,
                         supercell_basis: list[list[str | int | float]] | None = None,
                         direct_sublattice_centering: str | None = None,
-                        lattice_type: str = "direct"):
+                        lattice_type: str = "direct",
+                        generate_if_missing: bool = False):
         """
         Method 3: Search over arbitrary k points for a specified point group and supercell.
 
@@ -1647,8 +1648,9 @@ class IsoDistort:
         space_group_type。lattice_type 为官网 radio（direct/reciprocal）；
         本地引擎暂不支持 reciprocal（倒易超格）模式，会给出明确错误。
 
-        supercell_basis（3x3 实空间子格基矢）按格点等价过滤枚举出的特殊 k 点
-        子群；direct_sublattice_centering 仅支持默认 d（P/A/B/C/I/F/R 会明确报错）。
+        带心支持 Default(``d``) 与 P（primitive / no centering）。非恒等超胞
+        会额外按公度条件推断参数 k（如 LD ``g=1/6``）并枚举；
+        ``generate_if_missing`` 与 Method 2 的 GenDB 开关相同。
         """
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")
@@ -1666,6 +1668,7 @@ class IsoDistort:
             supercell_basis=supercell_basis,
             direct_sublattice_centering=direct_sublattice_centering,
             lattice_type=lattice_type,
+            generate_if_missing=generate_if_missing,
         )
         parent_sg = self.symmetry_info["space_group_number"]
         result = self._search.method_3_search(parent_sg, query)

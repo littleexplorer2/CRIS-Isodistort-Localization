@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Sequence
 from dataclasses import dataclass
 from fractions import Fraction
@@ -10,7 +11,13 @@ import numpy as np
 from pymatgen.core import Structure
 from pymatgen.symmetry.groups import SpaceGroup
 
-from ..backend import DistortionMode, IsoWrapper, SubgroupInfo
+from ..backend import DistortionMode, IsoWrapper, KPointInfo, SubgroupInfo
+from ..data.kpoints_official import (
+    KPOINT_OFFICIAL,
+    _param_coeff_in_component,
+    official_kparams_to_iso,
+    official_special_k_coords,
+)
 from .phase_path import normalize_distortion_types
 
 CRYSTAL_SYSTEMS = {
@@ -66,8 +73,7 @@ def _lattice_equivalent(a: Sequence[Sequence[float]],
                         b: Sequence[Sequence[float]]) -> bool:
     """两个 3x3 超胞基矢是否生成同一格点（GL(3,Z) 幺模等价）。
 
-    Method 3 的 supercell basis 过滤用：用户请求的实空间子格基矢与枚举出的
-    子群超胞基矢可相差一个幺模变换（行置换/带心重选）而仍表示同一格点。
+    Method 3 在用户指定**非恒等**目标子格时用此判定（对齐官网「指定格子」）。
     """
     a_arr = np.asarray(a, dtype=float)
     b_arr = np.asarray(b, dtype=float)
@@ -82,26 +88,112 @@ def _lattice_equivalent(a: Sequence[Sequence[float]],
     return bool(np.allclose(n, np.round(n), atol=1e-5))
 
 
+def _is_identity_basis(basis: Sequence[Sequence[float]], atol: float = 1e-6) -> bool:
+    arr = np.asarray(basis, dtype=float)
+    return arr.shape == (3, 3) and bool(np.allclose(arr, np.eye(3), atol=atol))
+
+
+def _integer_basis_matrix(basis: Sequence[Sequence[float]]) -> np.ndarray | None:
+    """近整数的 3x3 超胞矩阵；否则 None。"""
+    arr = np.asarray(basis, dtype=float)
+    if arr.shape != (3, 3):
+        return None
+    rounded = np.rint(arr)
+    if not np.allclose(arr, rounded, atol=1e-5):
+        return None
+    if abs(float(np.linalg.det(rounded))) < 1e-6:
+        return None
+    return rounded.astype(int)
+
+
 def _validate_centering(value: str | None) -> str:
     """校验 Method 3 的 direct_sublattice_centering（官网 d/P/A/B/C/I/F/R radio）。
 
-    本地引擎 Method 3 只枚举**特殊 k 点**子群（子群超胞基矢由 iso 数据库固定），
-    无法按用户任意指定的带心类型再生成子群数据库；因此仅接受官网默认 ``d``，
-    其余带心类型明确报错（而非静默忽略，避免误导用户以为过滤已生效）。
+    官网帮助：未选带心时按所选空间群默认带心，点群则按 primitive。
+    表单选 **P** 表示 primitive / no centering（结果摘要常写 ``no centering``），
+    与 Default(``d``) 在本地均可接受（不另建带心数据库）。
+
+    A/B/C/I/F/R 表示以该心化解读所填基矢；本地 iso 无法按任意带心再生成
+    Method 3 子群库，故明确报错。
     """
     if value is None or str(value).strip() == "":
         return "d"
     key = str(value).strip().lower()
-    if key in ("d", "default"):
+    if key in ("d", "default", "p"):
         return "d"
     raise ValueError(
-        f"本地引擎 Method 3 仅支持默认带心（d/default），收到 {value!r}。"
-        "自定义带心（P/A/B/C/I/F/R）需要按指定子格在线生成子群数据库，"
-        "本地 iso 二进制无法完成；请改用 Method 1 / Method 2，或在官网完成该搜索。 "
-        f"/ The local engine's Method 3 only supports the default centering (d); got {value!r}. "
-        "Custom centering (P/A/B/C/I/F/R) requires on-demand subgroup database generation "
-        "that the local iso binary cannot do."
+        f"本地引擎 Method 3 仅支持 Default (d) 或 P（primitive / no centering），收到 {value!r}。"
+        "A/B/C/I/F/R 带心需要官网按指定子格在线生成子群数据库。 "
+        f"/ Local Method 3 supports Default (d) or P (primitive/no centering); got {value!r}. "
+        "A/B/C/I/F/R centering needs the website's on-demand subgroup database."
     )
+
+
+def _fraction_str(value: Fraction) -> str:
+    value = Fraction(value).limit_denominator(10_000)
+    if value.denominator == 1:
+        return str(value.numerator)
+    return f"{value.numerator}/{value.denominator}"
+
+
+def _param_value_candidates(M: np.ndarray) -> list[Fraction]:
+    """由超胞倍数推断一维参数 k 的候选（如 c'=6 → 1/6、1/3、1/2）。"""
+    cands: set[Fraction] = set()
+    for v in np.abs(np.diag(M)).astype(int).tolist():
+        if v > 1:
+            cands.add(Fraction(1, int(v)))
+    det = abs(int(round(float(np.linalg.det(M)))))
+    for d in range(2, det + 1):
+        if det % d == 0:
+            cands.add(Fraction(1, d))
+    return sorted(cands, key=lambda f: (f.denominator, f.numerator))
+
+
+def _k_compatible_with_supercell(kvec: np.ndarray, M: np.ndarray) -> bool:
+    """k 是否为超胞倒格点（M^T k ∈ ℤ³），即公度锁定在该子格上。"""
+    v = np.asarray(M, dtype=float).T @ np.asarray(kvec, dtype=float)
+    return bool(np.allclose(v, np.round(v), atol=1e-5))
+
+
+def _eval_simple_k_component(comp: str, param_name: str, param_val: Fraction) -> Fraction | None:
+    """解析 ``0`` / ``g`` / ``2a`` 形式；含 ``+``/``-`` 混杂的复杂式返回 None。"""
+    text = str(comp).strip()
+    if re.fullmatch(r"-?\d+(/\d+)?", text):
+        return Fraction(text)
+    coeff = _param_coeff_in_component(text, param_name)
+    if coeff is None:
+        return None
+    if text not in (param_name, f"-{param_name}") and not re.fullmatch(
+        rf"-?\d+{re.escape(param_name)}", text
+    ):
+        return None
+    return coeff * param_val
+
+
+def _kvec_from_template(
+    coords: Sequence[str], param_name: str, param_val: Fraction
+) -> np.ndarray | None:
+    comps: list[float] = []
+    for comp in coords:
+        val = _eval_simple_k_component(comp, param_name, param_val)
+        if val is None:
+            return None
+        comps.append(float(val))
+    return np.asarray(comps, dtype=float)
+
+
+def _line_kpoint_template(parent_sg: int, kp: KPointInfo) -> tuple[list[str], str] | None:
+    """单参数线 k 点的坐标模板与参数名（优先官网表）。"""
+    override = KPOINT_OFFICIAL.get(int(parent_sg), {}).get(kp.label.strip())
+    if override is not None:
+        _kov, coords, params = override
+        if len(params) == 1:
+            return [str(c) for c in coords], str(params[0])
+        return None
+    params = list(kp.parameters or [])
+    if len(params) != 1:
+        return None
+    return [str(c) for c in (kp.coordinates or [])], str(params[0])
 
 
 def _space_group_to_point_group(space_group_number: int) -> str:
@@ -195,6 +287,8 @@ class Method3Query:
     supercell_basis: Sequence[Sequence[str | int | float]] | None = None
     direct_sublattice_centering: str | None = None
     lattice_type: str = "direct"  # 官网 radio：direct（实空间子格）/ reciprocal（倒易超格）
+    # 参数 k 点子群库缺失时是否在线生成（与 Method 2 GenDB 同一开关）
+    generate_if_missing: bool = False
 
 
 @dataclass
@@ -363,53 +457,145 @@ class IsoSearchEngine:
 
     def method_3_search(self, parent_sg: int, query: Method3Query) -> list[Method3ResultItem]:
         """
-        官网 Method 3 的本地近似实现：
+        官网 Method 3 的本地实现（特殊 k + 由超胞推断的公度参数 k）：
 
-        - 若同时提供 point_group 与 space_group_type，空间群选择优先
-          （与官网规则一致）；
-        - supercell_basis（3x3 实空间子格基矢）：按格点等价（GL(3,Z)）过滤
-          枚举出的特殊 k 点子群超胞基矢——只保留「子群超胞 = 请求子格」的
-          候选，使该输入真正生效；
-        - direct_sublattice_centering：仅支持官网默认 d；P/A/B/C/I/F/R
-          明确报错（本地 iso 无法按任意带心再生成子群数据库）。
+        - 若同时提供 point_group 与 space_group_type，空间群选择优先；
+        - 带心：Default(``d``) 与 **P**（primitive / no centering）可接受；
+          A/B/C/I/F/R 明确报错；
+        - 基矢：恒等（网页默认）用子格包容过滤（便于浏览）；非恒等目标子格
+          用 ``_lattice_equivalent``（对齐官网指定格子）；
+        - 非恒等整数超胞时，由 M 推断公度参数 k（如 ``(0,0,6)`` → LD ``g=1/6``），
+          再枚举该 k 上各 IR 子群（可 ``generate_if_missing``），以覆盖官网
+          Method 3 对参数 k 的搜索（如 EuAl4 → 99 P4mm, s=12, i=24）。
 
-        已知限制（见 README）：官网 Method 3 会为任意 (点群, 空间群, 子格)
-        在线生成新的子群数据库；本地只覆盖「特殊 k 点」子群，任意 k 点子群
-        无法枚举，属近似实现。
+        已知限制：reciprocal 模式不支持；多参数平面/一般 k（GP）未自动推断；
+        参数 k 点位移模式仍不能本地计算（与 Method 2 相同）。
         """
         distortion_types = normalize_distortion_types(query.distortion_types)
-        subgroups = self._iso.enumerate_all_special_subgroups(parent_sg, distortion_types)
+        _validate_centering(query.direct_sublattice_centering)
 
         if query.point_group and query.space_group_type:
-            # 官网规则：space-group selection supersedes point-group selection
             point_group_filter = None
         else:
             point_group_filter = query.point_group
-
-        # 带心：仅默认 d 合法；其余类型明确报错（不再静默忽略）
-        _validate_centering(query.direct_sublattice_centering)
 
         basis: list[list[float]] | None = None
         if query.supercell_basis:
             basis = _parse_basis_rows(query.supercell_basis)
 
-        result: list[Method3ResultItem] = []
+        # 1) 特殊 k 点候选（Method 1 同源）
+        subgroups = list(
+            self._iso.enumerate_all_special_subgroups(parent_sg, distortion_types)
+        )
+
+        # 2) 非恒等超胞 → 公度参数 k 回退（官网 Method 3 的任意 k 近似）
+        if basis is not None and not _is_identity_basis(basis):
+            parametric = self._method3_parametric_subgroups(
+                parent_sg,
+                basis,
+                distortion_types,
+                generate_if_missing=bool(query.generate_if_missing),
+            )
+            subgroups.extend(parametric)
+
+        matched: list[SubgroupInfo] = []
         for sg in subgroups:
             point_group = _space_group_to_point_group(sg.space_group_number)
             if query.space_group_type and sg.space_group_number != query.space_group_type:
                 continue
             if point_group_filter and point_group != point_group_filter:
                 continue
-            if basis is not None and not _lattice_equivalent(sg.basis_vectors, basis):
-                # 子群超胞基矢与请求子格不同一格点 -> 不属于该子格搜索范围
-                continue
+            if basis is not None:
+                sg_basis = sg.basis_vectors or [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+                if _is_identity_basis(basis):
+                    if not _basis_is_sublattice_of(sg_basis, basis):
+                        continue
+                elif not _lattice_equivalent(sg_basis, basis):
+                    continue
+            matched.append(sg)
+
+        result: list[Method3ResultItem] = []
+        for i, sg in enumerate(matched):
+            sg.index = i
             result.append(Method3ResultItem(
                 subgroup=sg,
-                point_group=point_group,
-                basis=[list(row) for row in sg.basis_vectors],
+                point_group=_space_group_to_point_group(sg.space_group_number),
+                basis=[list(row) for row in (sg.basis_vectors or [])],
             ))
-
         return result
+
+    def _method3_parametric_subgroups(
+        self,
+        parent_sg: int,
+        basis: Sequence[Sequence[float]],
+        distortion_types,
+        generate_if_missing: bool = False,
+    ) -> list[SubgroupInfo]:
+        """由超胞基矢推断公度线 k 点并枚举子群（Method 3 参数 k 回退）。"""
+        M = _integer_basis_matrix(basis)
+        if M is None or abs(int(round(float(np.linalg.det(M))))) <= 1:
+            return []
+
+        try:
+            kpoints = self._iso.list_k_points(parent_sg)
+        except Exception:  # noqa: BLE001 - Method 3 回退失败时仍返回特殊 k 结果
+            return []
+
+        param_cands = _param_value_candidates(M)
+        searches: list[tuple[KPointInfo, list[str], list[str]]] = []
+        seen: set[tuple[str, tuple[str, ...]]] = set()
+        for kp in kpoints:
+            if kp.is_special:
+                continue
+            tmpl = _line_kpoint_template(parent_sg, kp)
+            if tmpl is None:
+                continue
+            coords, pname = tmpl
+            for pval in param_cands:
+                kvec = _kvec_from_template(coords, pname, pval)
+                if kvec is None or not _k_compatible_with_supercell(kvec, M):
+                    continue
+                if np.allclose(kvec, 0.0):
+                    continue
+                official = [_fraction_str(pval)]
+                key = (kp.label, tuple(official))
+                if key in seen:
+                    continue
+                seen.add(key)
+                iso_vals = official_kparams_to_iso(parent_sg, kp.label, official, kp)
+                searches.append((kp, official, iso_vals))
+
+        out: list[SubgroupInfo] = []
+        for kp, official_params, iso_params in searches:
+            try:
+                irreps = self._iso.list_irreps(
+                    parent_sg, kp.label, k_parameters=iso_params
+                )
+            except Exception:  # noqa: BLE001
+                continue
+            irreps = [
+                ir for ir in irreps
+                if self._iso._include_irrep(ir, distortion_types)
+            ]
+            for ir in irreps:
+                try:
+                    batch = self._iso.list_subgroups(
+                        parent_sg,
+                        kp.label,
+                        ir.label,
+                        k_parameters=iso_params,
+                        generate_if_missing=generate_if_missing,
+                        start_index=len(out),
+                    )
+                except Exception:  # noqa: BLE001
+                    continue
+                for sg in batch:
+                    sg.k_parameters = list(official_params)
+                    sg.k_coordinates = official_special_k_coords(
+                        parent_sg, kp.label, None, official_params
+                    )
+                    out.append(sg)
+        return out
 
     # ----------------------------------------------------------------
     # Method 4：模式分解（自研最小二乘拟合）

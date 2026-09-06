@@ -313,12 +313,12 @@ NdNiO2 等其它 CIF 会显示该文件自己的空间群、晶胞与 `_atom_sit
 | --- | --- |
 | **"Select either space group symmetry:"** | 选 230 个空间群之一 |
 | **"or point group (crystal class):"** | 或选 32 个点群之一 |
-| **"Specify a real-space sublattice… Default / P / A / B / C / I / F / R centering"** | **direct** 实空间子格。本地 Method 3 **只真正支持 Default (`d`)**；选其它带心时后端会按默认处理或提示 |
+| **"Specify a real-space sublattice… Default / P / A / B / C / I / F / R centering"** | **direct** 实空间子格。本地支持 **Default (`d`)** 与 **P**（primitive / no centering，官网结果摘要常写 “no centering”）。**A/B/C/I/F/R** 会明确报错 |
 | **"Specify a primitive reciprocal-space superlattice"** | **reciprocal**：**本地不支持**，请用 direct |
-| **"Choose a representative basis:"** | 3×3 基矢：`a'` / `b'` / `c'` 相对母相 a,b,c 的系数（可填分数） |
-| **"OK"** | 得到候选子群表 |
+| **"Choose a representative basis:"** | 3×3 基矢：`a'` / `b'` / `c'` 相对母相 a,b,c 的系数（可填分数）。非恒等整数超胞会推断公度参数 k（如 `(0,0,6)` → LD `g=1/6`）并枚举；若子群库缺失，勾选 Method 2 的 **Generate isotropy subgroups database if missing** |
+| **"OK"** | 得到候选子群表（与 Method 1/2 相同的 Filter / 排序；点行可看模式） |
 
-结果表列大致含：`idx` / `SG` / `k point` / `Irrep` / `point group`。
+结果表列：`idx` / `SG` / `k` / `Irrep` / `OPD` / `point group` / `s` / `i`。恒等基矢用子格包容过滤便于浏览；指定非恒等目标子格时用格点等价过滤（对齐官网）。参数 k 点位移模式仍不能本地计算（与 Method 2 相同）。
 
 ### 6.4 Method 4: Mode decomposition of a distorted structure
 
@@ -430,7 +430,7 @@ iso.export_subgroups("out_batch", formats=["cif", "isoviz", "modes", "topas"])
 2. **应变模式未实现**：CIF / TOPAS / ISOVIZ 中 `_iso_strainmode_number` 恒为 0，不写 `strain_N(a)` 行，不改晶格参数。官网勾选 strain 时仍会写出 `strain_*(a)` 与非零 `_iso_strainmode_number`。  
 3. **参数 k 点（LD/DT 等）**：可枚举子群（+ Generate DB）；本地 `iso` **不能**计算位移模式（需官网 (3+d) superspace）。导出 CIF 会写提示 note；ZIP 中模式类格式的模式段为空。这是引擎限制，不是本地可开关的 nmod 功能。  
 4. **nmod / (3+d) superspace**：本地**不提供**可编辑 nmod 或超空间内核；界面仅提示 not available locally，请用官网。  
-5. **Method 3**：reciprocal 不支持；带心仅 Default (`d`)。  
+5. **Method 3**：reciprocal 不支持；带心支持 Default / P；非恒等超胞可推断公度参数 k（需 GenDB 缓存时勾选 Method 2 的生成开关）。  
 6. **magnetic**：带 `m` 前缀的 IR 默认不进入流程。  
 7. **occupational**：本地为 ±1 占据近似，校验失败会标明。  
 8. **Distortion Generate / Domains**：官网有，本地网页/终端已去掉。  
