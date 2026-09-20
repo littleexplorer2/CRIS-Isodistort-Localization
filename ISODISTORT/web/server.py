@@ -95,12 +95,17 @@ def _space_groups() -> list[dict]:
 
 
 # ------------------------------------------------------------
-# 生命周期管理：网页关闭 -> 自动停止服务并释放端口
-# - 页面打开后周期性发送心跳（/api/ping）；关闭页面前发送
-#   shutdown 信标（/api/shutdown）
-# - 守护线程检测：收到 shutdown 请求，或“页面曾打开但心跳超时”，
-#   则关闭 HTTPServer（释放端口）并退出进程
+# 生命周期管理：最后一个网页标签关闭 -> 自动停止服务并释放端口
+# - 每个页面实例用独立 client_id 周期性发送心跳（/api/ping）
+# - 页面关闭时发送 /api/client/close 信标；最后一个 client 离开后，
+#   短暂宽限以容纳刷新页面，随后关闭服务
+# - /api/shutdown 仍用于“Stop local server”按钮；心跳超时是浏览器崩溃、
+#   信标丢失时的兜底路径
 # ------------------------------------------------------------
+_PAGE_CLOSE_GRACE = 1.5
+_WATCHDOG_POLL_SECONDS = 0.25
+
+
 class _Lifecycle:
     """页面生命周期状态（模块级单例，守护线程与请求处理器共享）。"""
 
@@ -110,15 +115,33 @@ class _Lifecycle:
         self.page_heartbeat = 0.0       # 最近一次心跳/页面请求时间
         self.shutdown_requested = False
         self.in_flight = 0              # 进行中的长请求（ZIP 导出等）；>0 时不因心跳超时停服
+        self.clients: dict[str, float] = {}  # 活跃标签页 client_id -> 最近心跳
+        self.last_page_closed = 0.0     # 最后一个标签显式关闭的时间；0 表示仍有页面
 
 
 _LIFE = _Lifecycle()
 
 
-def _touch_heartbeat() -> None:
-    """页面活动刷新（任何页面请求都算活动）。"""
+def _reset_lifecycle() -> None:
+    """重置单进程生命周期状态（正式启动及测试隔离共用）。"""
     with _LIFE.lock:
-        _LIFE.page_heartbeat = time.time()
+        _LIFE.page_seen = False
+        _LIFE.page_heartbeat = 0.0
+        _LIFE.shutdown_requested = False
+        _LIFE.in_flight = 0
+        _LIFE.clients.clear()
+        _LIFE.last_page_closed = 0.0
+
+
+def _touch_heartbeat(client_id: str | None = None) -> None:
+    """刷新服务活动；带 client_id 的 ping 同时登记一个活跃标签页。"""
+    now = time.time()
+    with _LIFE.lock:
+        _LIFE.page_heartbeat = now
+        if client_id:
+            _LIFE.page_seen = True
+            _LIFE.clients[client_id] = now
+            _LIFE.last_page_closed = 0.0
 
 
 def _mark_page_seen() -> None:
@@ -130,6 +153,19 @@ def _request_shutdown() -> None:
     """请求关闭服务（由 /api/shutdown 触发，稍后由守护线程执行）。"""
     with _LIFE.lock:
         _LIFE.shutdown_requested = True
+
+
+def _mark_page_closed(client_id: str | None) -> int:
+    """注销一个标签页；返回仍活跃的页面数。重复信标是幂等的。"""
+    with _LIFE.lock:
+        if client_id:
+            _LIFE.clients.pop(client_id, None)
+        else:
+            # 兼容没有 client_id 的旧页面：只有无法区分标签时才视为全部关闭。
+            _LIFE.clients.clear()
+        if not _LIFE.clients:
+            _LIFE.last_page_closed = time.time()
+        return len(_LIFE.clients)
 
 
 def _begin_long_request() -> None:
@@ -145,20 +181,32 @@ def _end_long_request() -> None:
         _LIFE.page_heartbeat = time.time()
 
 
-def _watchdog(server: HTTPServer, idle_timeout: float) -> None:
-    """守护线程：页面关闭（心跳停止）或收到 shutdown 后关闭服务。"""
+def _watchdog(
+    server: HTTPServer,
+    idle_timeout: float,
+    close_grace: float = _PAGE_CLOSE_GRACE,
+    poll_interval: float = _WATCHDOG_POLL_SECONDS,
+) -> None:
+    """最后页面关闭后停服；心跳超时负责兜底浏览器异常退出。"""
     while True:
-        time.sleep(2)
+        time.sleep(poll_interval)
         with _LIFE.lock:
             busy = _LIFE.in_flight > 0
             if busy:
                 _LIFE.page_heartbeat = time.time()
+            explicitly_closed = (
+                _LIFE.page_seen
+                and not busy
+                and not _LIFE.clients
+                and _LIFE.last_page_closed > 0
+                and (time.time() - _LIFE.last_page_closed >= close_grace)
+            )
             stale = (
                 _LIFE.page_seen
                 and not busy
                 and (time.time() - _LIFE.page_heartbeat > idle_timeout)
             )
-            stop = _LIFE.shutdown_requested or stale
+            stop = _LIFE.shutdown_requested or explicitly_closed or stale
         if stop:
             with contextlib.suppress(Exception):  # 关闭失败不影响退出
                 server.shutdown()
@@ -354,9 +402,13 @@ class IsoHandler(BaseHTTPRequestHandler):
             _touch_heartbeat()
             self._serve_static(path)
         elif path == "/api/ping":
-            # 心跳：页面存活标记（关闭页面后心跳停止 -> 守护线程自动停服）
-            _touch_heartbeat()
-            self._send_json({"ok": True})
+            # 每个标签页独立续租；最后一个标签关闭才会触发快速停服。
+            qs = urllib.parse.parse_qs(parsed.query)
+            client_id = (qs.get("client_id") or [""])[0].strip() or None
+            _touch_heartbeat(client_id)
+            with _LIFE.lock:
+                active_clients = len(_LIFE.clients)
+            self._send_json({"ok": True, "active_clients": active_clients})
         elif path == "/api/state":
             _touch_heartbeat()
             self._send_json({"ok": True, "state": _state_summary()})
@@ -396,7 +448,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             self._run(lambda: {"options": _SESSION.iso.method1_options()})
         elif path == "/api/isotropy_cache":
             _touch_heartbeat()
-            self._run(lambda: self._api_isotropy_cache_list())
+            self._run(self._api_isotropy_cache_list)
         elif path == "/api/download":
             self._serve_download(parsed.query)
         elif path == "/api/download_all":
@@ -419,6 +471,16 @@ class IsoHandler(BaseHTTPRequestHandler):
             # 网页关闭/用户点击“停止服务”：先应答，再由守护线程关闭服务释放端口
             _request_shutdown()
             self._send_json({"ok": True, "shutdown": True})
+            return
+        if path == "/api/client/close":
+            qs = urllib.parse.parse_qs(parsed.query)
+            client_id = (qs.get("client_id") or [""])[0].strip() or None
+            active_clients = _mark_page_closed(client_id)
+            self._send_json({
+                "ok": True,
+                "closing": active_clients == 0,
+                "active_clients": active_clients,
+            })
             return
         _touch_heartbeat()
 
@@ -485,6 +547,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             crystal_system=data.get("crystal_system") or None,
             subgroup_space_group=data.get("subgroup_space_group") or None,
             lattice=lattice,
+            lattice_kind=data.get("lattice_kind", "conventional"),
             maximal_subgroup_only=bool(data.get("maximal_subgroup_only", False)),
         )
         _SESSION.method1 = result
@@ -510,7 +573,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             # 连续重编号：避免多 k 点组之间 index 冲突（行点击用 index 定位子群）
             for j, sg in enumerate(all_subs):
                 sg.index = j
-            _SESSION.iso.subgroups = all_subs
+            _SESSION.iso.set_subgroup_candidates(all_subs)
             _SESSION.method2_subgroups = list(all_subs)
             return {"subgroups": _subgroup_rows(all_subs), "state": _state_summary()}
         # 兼容旧版单 k 点（可带 ir 参数）路径
@@ -527,7 +590,7 @@ class IsoHandler(BaseHTTPRequestHandler):
                 k_parameters=data.get("params"),
                 generate_if_missing=gen,
             )
-        _SESSION.iso.subgroups = list(subs)
+        _SESSION.iso.set_subgroup_candidates(subs)
         _SESSION.method2_subgroups = list(subs)
         return {"subgroups": _subgroup_rows(subs), "state": _state_summary()}
 
@@ -537,20 +600,32 @@ class IsoHandler(BaseHTTPRequestHandler):
             raise ValueError("subgroup_idx 缺失 / subgroup_idx missing")
         idx = int(idx)
         iso = _SESSION.iso
-        # 按结果表来源选择候选列表（前端随行点击携带 source）。
-        # 会话内 iso.subgroups 会被 method1/method3/subgroups 相互覆盖，
-        # 不指定来源时点击旧表行可能选错子群。
+        # 按结果表来源显式传入候选池。不同 Method 的 index 会重复，
+        # 因此不能再通过覆盖 iso.subgroups 来隐式切换上下文。
         source = data.get("source")
-        if source == "method1" and _SESSION.method1:
-            iso.subgroups = [item.subgroup for item in _SESSION.method1]
-        elif source == "method3" and _SESSION.method3:
-            iso.subgroups = [item.subgroup for item in _SESSION.method3]
-        # source 缺省/"subgroups"：沿用 _api_subgroups（k 点枚举）设置的列表
+        if source == "method1":
+            if not _SESSION.method1:
+                raise ValueError("Method 1 candidate table is not available")
+            candidates = [item.subgroup for item in _SESSION.method1]
+        elif source == "method3":
+            if not _SESSION.method3:
+                raise ValueError("Method 3 candidate table is not available")
+            candidates = [item.subgroup for item in _SESSION.method3]
+        elif source == "subgroups":
+            if not _SESSION.method2_subgroups:
+                raise ValueError("Method 2 subgroup table is not available")
+            candidates = list(_SESSION.method2_subgroups)
+        elif source in (None, ""):
+            # Backward compatibility for older clients that did not send source.
+            candidates = list(_SESSION.method2_subgroups) or None
+        else:
+            raise ValueError(f"Unknown Method 2 candidate source: {source}")
         iso.set_distortion_scope(_SESSION.distortion_scope)
         iso.set_distortion_types(_SESSION.distortion_types)
         result = iso.search_method_2(
             subgroup_idx=idx,
             distortion_type=data.get("distortion_type", _SESSION.distortion_types),
+            candidates=candidates,
         )
         _SESSION.method2 = result
         modes = []
@@ -607,23 +682,17 @@ class IsoHandler(BaseHTTPRequestHandler):
         }
 
     def _api_isotropy_cache_list(self) -> dict:
-        from isocore.backend.isotropy_cache import list_isotropy_cache
-
-        wrapper = _SESSION.iso._iso
-        entries = list_isotropy_cache(wrapper)
+        entries = _SESSION.iso.list_isotropy_cache()
         return {
             "entries": [e.to_dict() for e in entries],
             "count": len(entries),
         }
 
     def _api_isotropy_cache_delete(self, data: dict) -> dict:
-        from isocore.backend.isotropy_cache import delete_isotropy_cache
-
         names = data.get("names") or []
         if not isinstance(names, list):
             raise ValueError("names must be a list of cache file names")
-        wrapper = _SESSION.iso._iso
-        result = delete_isotropy_cache(wrapper, [str(n) for n in names])
+        result = _SESSION.iso.delete_isotropy_cache([str(n) for n in names])
         remaining = self._api_isotropy_cache_list()
         return {**result, **remaining}
 
@@ -644,8 +713,9 @@ class IsoHandler(BaseHTTPRequestHandler):
     def _serve_static(self, path: str) -> None:
         """提供 web/static/ 下的静态资源（bootstrap.css / docs.css / help.jpg 等）。"""
         rel = path[len("/static/"):]
-        file_path = (WEB_DIR / "static" / rel).resolve()
-        if not str(file_path).startswith(str((WEB_DIR / "static").resolve())):
+        static_root = (WEB_DIR / "static").resolve()
+        file_path = (static_root / rel).resolve()
+        if not file_path.is_relative_to(static_root):
             self._send_json({"ok": False, "error": "invalid path"}, 403)
             return
         if not file_path.is_file():
@@ -668,10 +738,11 @@ class IsoHandler(BaseHTTPRequestHandler):
         cfg = get_config()
         path = (cfg.output_dir / fname).resolve()
         # 只允许输出目录内的文件
-        if not str(path).startswith(str(cfg.output_dir.resolve())):
+        output_root = cfg.output_dir.resolve()
+        if not path.is_relative_to(output_root):
             self._send_json({"ok": False, "error": "invalid file"}, 403)
             return
-        if not path.exists():
+        if not path.is_file():
             self._send_json({"ok": False, "error": "file not found"}, 404)
             return
         body = path.read_bytes()
@@ -754,9 +825,7 @@ class IsoHandler(BaseHTTPRequestHandler):
         # 默认开启；显式 compute_modes=0 可跳过（仅结构骨架，速度快）
         want_compute = compute_q not in ("0", "false", "no")
         compute_missing_modes = need_modes and want_compute
-        saved_subs = list(iso.subgroups)
         try:
-            iso.subgroups = list(subs)
             body = iso.export_subgroups_zip(
                 formats=fmts,
                 subgroups=subs,
@@ -767,8 +836,6 @@ class IsoHandler(BaseHTTPRequestHandler):
         except Exception as exc:  # noqa: BLE001 - web 边界：统一转为 JSON 错误
             self._send_json({"ok": False, "error": str(exc)}, 500)
             return
-        finally:
-            iso.subgroups = saved_subs
         self.send_response(200)
         self.send_header("Content-Type", "application/zip")
         self.send_header(
@@ -814,6 +881,7 @@ def _open_browser(url: str) -> None:
 def main() -> int:
     cfg = get_config()
     host = "127.0.0.1"
+    _reset_lifecycle()
 
     server = _bind_server(host, cfg.web_port)
     if server is None:
@@ -827,7 +895,11 @@ def main() -> int:
     print("ISODISTORT Local Web Console", flush=True)
     print(f"  URL: {url}", flush=True)
     idle = cfg.web_idle_timeout
-    print(f"  Auto-stop: shuts down ~{idle}s after the page is closed", flush=True)
+    print(
+        "  Auto-stop: exits shortly after the last tab closes "
+        f"({idle}s heartbeat fallback)",
+        flush=True,
+    )
     print("  Press Ctrl+C to stop", flush=True)
     print("=" * 60, flush=True)
 

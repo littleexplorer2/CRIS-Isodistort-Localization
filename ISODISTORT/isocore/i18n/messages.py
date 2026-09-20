@@ -325,6 +325,12 @@ MESSAGES: dict[str, str] = {
         'CIF / folder layout still match the website; strain modes remain '
         'unavailable locally.'
     ),
+    'dist.paramFormatDefault': (
+        'This Method includes a parametric k point. Downloads default to CIF only '
+        'because the local 3-D engine cannot populate its displacement-mode '
+        'sections. You may reselect the other formats, but their mode sections '
+        'will be empty; use the official (3+d) superspace workflow for those modes.'
+    ),
     'dist.computeModesAsk': (
         'Fill modes for special-k subgroups (isoviz / modes / TOPAS)? '
         'Same as the web default; say no for a fast structure-only ZIP '

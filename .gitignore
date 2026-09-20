@@ -16,5 +16,13 @@
 ISOViz.lnk
 VESTA.lnk
 
+# project packages: keep runtime and validation source; exclude local workspace files
+/CRIS.code-workspace
+/agent.md
+
+# developer-only tests and helper scripts
+/ISODISTORT/tests_dev/
+/ISODISTORT/requirements-dev.txt
+
 # to do
 /GD/

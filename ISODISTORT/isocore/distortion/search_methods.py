@@ -18,6 +18,7 @@ from ..data.kpoints_official import (
     official_kparams_to_iso,
     official_special_k_coords,
 )
+from ..utils.opd_format import format_k_active
 from .phase_path import normalize_distortion_types
 
 CRYSTAL_SYSTEMS = {
@@ -142,7 +143,7 @@ def _param_value_candidates(M: np.ndarray) -> list[Fraction]:
     for v in np.abs(np.diag(M)).astype(int).tolist():
         if v > 1:
             cands.add(Fraction(1, int(v)))
-    det = abs(int(round(float(np.linalg.det(M)))))
+    det = abs(round(float(np.linalg.det(M))))
     for d in range(2, det + 1):
         if det % d == 0:
             cands.add(Fraction(1, d))
@@ -210,11 +211,10 @@ def _basis_is_sublattice_of(basis: Sequence[Sequence[float]],
     """
     判断子群超胞基矢 B 的格点是否是被选子格 S 的子格。
 
-    对应官网 Method 1 的 direct sublattice / Conventional lattice /
-    Primitive lattice 过滤：B 的每一行必须是 S 的整系数线性组合，
+    用于判断 direct sublattice 包含关系：B 的每一行必须是 S 的整系数线性组合，
     即 N = B @ inv(S) 的元素全部为整数（S 可为对角阵或任意 3x3 矩阵）。
 
-    官网同一 lattice 选项还包含母相点群任意旋转得到的等价子格；若提供
+    母相点群任意旋转也可生成等价子格；若提供
     ``parent_rotations``，则对 S' = S @ R 与 R @ S 一并判定。
     """
     b = np.asarray(basis, dtype=float)
@@ -241,6 +241,20 @@ def _basis_is_sublattice_of(basis: Sequence[Sequence[float]],
     return False
 
 
+def _basis_is_same_lattice(basis: Sequence[Sequence[float]],
+                           selected: Sequence[Sequence[float]],
+                           parent_rotations: Sequence[np.ndarray] | None = None
+                           ) -> bool:
+    """Match one official lattice selector class, including parent rotations."""
+    b = np.asarray(basis, dtype=float)
+    s = np.asarray(selected, dtype=float)
+    if b.shape != (3, 3) or s.shape != (3, 3):
+        return False
+    if not np.isclose(abs(np.linalg.det(b)), abs(np.linalg.det(s)), atol=1e-6):
+        return False
+    return _basis_is_sublattice_of(b, s, parent_rotations)
+
+
 @dataclass
 class Method1Query:
     """Method 1: search over all special k points."""
@@ -248,7 +262,7 @@ class Method1Query:
     distortion_types: str | Sequence[str] | None = None
     crystal_system: str | Sequence[str] | None = None  # 单个或列表（多选=OR）
     subgroup_space_group: int | None = None
-    lattice: Sequence[Sequence[float]] | None = None  # 官网 conventional/primitive lattice（3x3 子格矩阵）
+    lattice: Sequence[Sequence[float]] | None = None  # conventional 格点类（3x3 矩阵）
     maximal_subgroup_only: bool = False
     # 母相点群旋转（分数坐标）；lattice 过滤时与官网一样合并点群轨道
     parent_rotations: Sequence[Sequence[Sequence[float]]] | None = None
@@ -337,7 +351,7 @@ class IsoSearchEngine:
         - crystal system：子群所属晶系（单个或列表，列表任中其一即通过）
         - subgroup space group：子群空间群号
         - maximal subgroup only：仅保留 maximal 子群
-        - lattice：超胞格是否为所选子格的子格
+        - lattice：超胞格是否与所选格子相同（含母相点群旋转轨道）
           （官网 Conventional lattice / Primitive lattice）
 
         Args:
@@ -379,7 +393,7 @@ class IsoSearchEngine:
                     rots = [
                         np.asarray(r, dtype=float) for r in query.parent_rotations
                     ]
-                if not _basis_is_sublattice_of(
+                if not _basis_is_same_lattice(
                     sg.basis_vectors, query.lattice, parent_rotations=rots
                 ):
                     continue
@@ -533,7 +547,7 @@ class IsoSearchEngine:
     ) -> list[SubgroupInfo]:
         """由超胞基矢推断公度线 k 点并枚举子群（Method 3 参数 k 回退）。"""
         M = _integer_basis_matrix(basis)
-        if M is None or abs(int(round(float(np.linalg.det(M))))) <= 1:
+        if M is None or abs(round(float(np.linalg.det(M)))) <= 1:
             return []
 
         try:
@@ -571,7 +585,7 @@ class IsoSearchEngine:
                 irreps = self._iso.list_irreps(
                     parent_sg, kp.label, k_parameters=iso_params
                 )
-            except Exception:  # noqa: BLE001
+            except Exception:  # noqa: BLE001, S112
                 continue
             irreps = [
                 ir for ir in irreps
@@ -587,12 +601,22 @@ class IsoSearchEngine:
                         generate_if_missing=generate_if_missing,
                         start_index=len(out),
                     )
-                except Exception:  # noqa: BLE001
+                except Exception:  # noqa: BLE001, S112
                     continue
                 for sg in batch:
                     sg.k_parameters = list(official_params)
                     sg.k_coordinates = official_special_k_coords(
                         parent_sg, kp.label, None, official_params
+                    )
+                    # ``iso_params`` can use a backend-specific parameter
+                    # scale (LD g=1/6 is represented as 1/12 by this bundled
+                    # iso build).  Never retain the backend-form k-active text
+                    # after restoring the website coordinate convention.
+                    sg.k_active_raw = format_k_active(
+                        sg.opd_dir_raw or "",
+                        sg.k_coordinates or ["0", "0", "0"],
+                        parent_sg,
+                        None,
                     )
                     out.append(sg)
         return out

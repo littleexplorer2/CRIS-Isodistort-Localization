@@ -218,9 +218,9 @@ def _render_p1(structure: Structure, sg: SubgroupInfo) -> str:
 
 def _render(spec: Any, structure: Structure, *, force_p1: bool) -> str:
     sg = spec.subgroup
-    setting = _setting(sg, force_p1=force_p1)
-    shifted, origin_shift = _apply_origin_choice(structure, setting)
-    sites = _asymmetric_sites(shifted, setting, spec, origin_shift)
+    setting, shifted, sites, origin_shift = _subgroup_sites(
+        spec, structure, force_p1=force_p1
+    )
     lines: list[str] = []
     lines.extend(_header_comments(spec, force_p1=force_p1))
     lines.append("")
@@ -260,6 +260,30 @@ def _render(spec: Any, structure: Structure, *, force_p1: bool) -> str:
     lines.append("# end of cif")
     lines.append("")
     return "\n".join(lines)
+
+
+def _subgroup_sites(
+    spec: Any, structure: Structure, *, force_p1: bool = False,
+) -> tuple[_Setting, Structure, list[dict], np.ndarray]:
+    """Use the same subgroup origin and atomic orbits in every export format."""
+    sg = spec.subgroup
+    setting = _setting(sg, force_p1=force_p1)
+    origin_hint = None
+    if not force_p1 and sg.basis_vectors and len(sg.basis_vectors) == 3:
+        try:
+            # build_supercell has already applied B.  In that cell the
+            # subgroup origin supplied by iso is -origin_parent @ inv(B).
+            origin_hint = (
+                -np.asarray(sg.origin, dtype=float)
+                @ np.linalg.inv(np.asarray(sg.basis_vectors, dtype=float))
+            )
+        except (ValueError, np.linalg.LinAlgError):
+            pass
+    shifted, origin_shift = _apply_origin_choice(
+        structure, setting, origin_hint
+    )
+    sites = _asymmetric_sites(shifted, setting, spec, origin_shift)
+    return setting, shifted, sites, origin_shift
 
 
 def _setting(sg: SubgroupInfo, *, force_p1: bool) -> _Setting:
@@ -466,12 +490,17 @@ def _space_hm_symbol(raw: str) -> str:
     return " ".join([letter, *parts])
 
 
-def _apply_origin_choice(structure: Structure, setting: _Setting) -> tuple[Structure, np.ndarray]:
+def _apply_origin_choice(
+    structure: Structure,
+    setting: _Setting,
+    origin_hint: Sequence[float] | None = None,
+) -> tuple[Structure, np.ndarray]:
     """Shift onto the conventional ITA setting (origin choice 2 when required).
 
-    Prefer 0 / 1/2 specials and the unshifted cell. Quarter shifts are used only
-    when they improve the asymmetric-unit count or match known ITA tables
-    (e.g. Cmma origin-2). Prefer the zero shift whenever ASU cardinality ties.
+    An origin is valid only when every listed symmetry operation maps each atom
+    onto an atom of the same species. Among valid origins prefer the subgroup's
+    stated origin: fewer asymmetric sites can represent a different setting
+    even when that setting is crystallographically valid.
     """
     if setting.int_number <= 1 or len(structure) == 0:
         return structure, np.zeros(3)
@@ -479,32 +508,64 @@ def _apply_origin_choice(structure: Structure, setting: _Setting) -> tuple[Struc
     species = [s.species_string for s in structure]
     best_shift = np.zeros(3)
     best_score: tuple | None = None
-    for dx in range(4):
-        for dy in range(4):
-            for dz in range(4):
-                shift = np.array([dx, dy, dz], dtype=float) / 4.0
-                coords = np.mod(structure.frac_coords + shift, 1.0)
-                n_unique = _count_unique(coords, species, ops)
-                ita = _ita_match_score(setting.int_number, coords, ops)
-                half = float(np.sum(_half_special_score(coords)))
-                quarters = float(np.sum(_quarter_score(coords)))
-                shift_mag = float(np.linalg.norm(shift))
-                # Minimize unique ASU sites; maximize ITA / half-specials first
-                # (origin choice 2 often needs a non-zero shift); only then prefer
-                # the identity origin and fewer quarter coords.
-                score = (
-                    n_unique,
-                    -ita,
-                    -half,
-                    0 if shift_mag < 1e-8 else 1,
-                    quarters,
-                    shift_mag,
-                )
-                if best_score is None or score < best_score:
-                    best_score = score
-                    best_shift = shift
+    preferred = None
+    shifts = [np.array([dx, dy, dz], dtype=float) / 4.0
+              for dx in range(4) for dy in range(4) for dz in range(4)]
+    if origin_hint is not None and len(origin_hint) == 3:
+        preferred = np.mod(np.asarray(origin_hint, dtype=float), 1.0)
+        for candidate in (preferred, -preferred):
+            shift = np.mod(candidate, 1.0)
+            if not any(np.allclose(shift, old) for old in shifts):
+                shifts.append(shift)
+    for shift in shifts:
+        coords = np.mod(structure.frac_coords + shift, 1.0)
+        invalid = _count_invalid_images(coords, species, ops)
+        if best_score is not None and invalid > best_score[0]:
+            continue
+        n_unique = _count_unique(coords, species, ops)
+        ita = _ita_match_score(setting.int_number, coords, ops)
+        half = float(np.sum(_half_special_score(coords)))
+        quarters = float(np.sum(_quarter_score(coords)))
+        shift_mag = float(np.linalg.norm(shift))
+        score = (
+            invalid,
+            float(np.linalg.norm(
+                (shift - preferred) - np.round(shift - preferred)
+            )) if preferred is not None else 0.0,
+            n_unique,
+            -ita,
+            -half,
+            0 if shift_mag < 1e-8 else 1,
+            quarters,
+            shift_mag,
+        )
+        if best_score is None or score < best_score:
+            best_score = score
+            best_shift = shift
     new_coords = np.mod(structure.frac_coords + best_shift, 1.0)
     return _with_frac_coords(structure, new_coords), best_shift
+
+
+def _count_invalid_images(
+    coords: np.ndarray, species: Sequence[str], ops, tol: float = 1e-4,
+) -> int:
+    """Count operation images absent from the supplied atomic supercell."""
+    groups = {
+        element: np.array([i for i, value in enumerate(species) if value == element])
+        for element in set(species)
+    }
+    invalid = 0
+    for op in ops:
+        transformed = np.mod(
+            coords @ np.asarray(op.rotation_matrix, dtype=float).T
+            + np.asarray(op.translation_vector, dtype=float), 1.0,
+        )
+        for indices in groups.values():
+            delta = transformed[indices, None, :] - coords[None, indices, :]
+            delta -= np.round(delta)
+            matches = np.any(np.max(np.abs(delta), axis=2) < tol, axis=1)
+            invalid += int(np.count_nonzero(~matches))
+    return invalid
 
 
 def _with_frac_coords(structure: Structure, frac_coords: np.ndarray) -> Structure:
@@ -586,18 +647,23 @@ def _asymmetric_sites(
 ) -> list[dict]:
     ops = list(setting.symmetry_ops)
     unique_idx: list[int] = []
+    orbit_types: list[int] = []
     for i, site in enumerate(structure):
-        duplicate = False
-        for j in unique_idx:
+        orbit_type = None
+        for group_index, j in enumerate(unique_idx):
             if site.species_string != structure[j].species_string:
                 continue
             if _in_orbit(site.frac_coords, structure[j].frac_coords, ops):
-                duplicate = True
+                orbit_type = group_index + 1
                 break
-        if not duplicate:
+        if orbit_type is None:
             unique_idx.append(i)
+            orbit_type = len(unique_idx)
+        orbit_types.append(orbit_type)
     stem_order = _stem_appearance_order(structure)
-    spglib_letters = _spglib_wyckoff_letters(structure, setting.int_number)
+    spglib_letters = _spglib_wyckoff_letters(
+        structure, setting.int_number, orbit_types=orbit_types
+    )
     has_table = bool(_wyckoff_table(setting.int_number))
     sites: list[dict] = []
     for i in unique_idx:
@@ -613,6 +679,7 @@ def _asymmetric_sites(
         stem = _site_stem(structure[i], frac, spec, origin_shift)
         sites.append(
             {
+                "index": i,
                 "stem": stem,
                 "element": structure[i].species_string,
                 "multiplicity": mult,
@@ -636,22 +703,39 @@ def _asymmetric_sites(
     return sites
 
 
-def _spglib_wyckoff_letters(structure: Structure, sg_number: int) -> list[str] | None:
-    """Wyckoff letters from spglib for the current cell (best-effort)."""
+def _spglib_wyckoff_letters(
+    structure: Structure,
+    sg_number: int,
+    *,
+    orbit_types: Sequence[int] | None = None,
+) -> list[str] | None:
+    """Return Wyckoff letters in the requested target subgroup.
+
+    A zero-amplitude subgroup structure can still have the symmetry of its
+    parent.  In that case a direct spglib call reports the parent group's
+    Wyckoff letters.  Giving every *target-subgroup orbit* a distinct temporary
+    atom type prevents spglib from merging those orbits through accidental
+    higher symmetry, while retaining every operation of the target subgroup.
+    """
     if sg_number <= 1 or len(structure) == 0:
         return None
     try:
         from spglib import get_symmetry_dataset
     except ImportError:
         return None
-    nums = []
-    for site in structure:
-        try:
-            nums.append(int(site.specie.Z))
-        except (AttributeError, TypeError, ValueError):
+    if orbit_types is not None:
+        if len(orbit_types) != len(structure):
             return None
+        nums = [int(value) for value in orbit_types]
+    else:
+        nums = []
+        for site in structure:
+            try:
+                nums.append(int(site.specie.Z))
+            except (AttributeError, TypeError, ValueError):
+                return None
     cell = (
-        np.asarray(structure.lattice.matrix, dtype=float),
+        _canonical_metric_lattice(sg_number),
         np.asarray(structure.frac_coords, dtype=float),
         nums,
     )
@@ -668,6 +752,31 @@ def _spglib_wyckoff_letters(structure: Structure, sg_number: int) -> list[str] |
     if not wyckoffs or len(wyckoffs) != len(structure):
         return None
     return [str(w) for w in wyckoffs]
+
+
+def _canonical_metric_lattice(sg_number: int) -> np.ndarray:
+    """Generic conventional metric that keeps the ITA abc axis setting.
+
+    spglib may standardize an orthorhombic structure by permuting axes according
+    to the input cell lengths.  Wyckoff letters are setting-dependent, so that
+    would attach valid letters from the wrong axis permutation to an unchanged
+    CIF coordinate.  These deliberately non-degenerate metrics preserve the
+    conventional axis order while satisfying each crystal system's constraints.
+    """
+    number = int(sg_number)
+    if number <= 2:  # triclinic
+        return np.array([[1.0, 0.0, 0.0], [0.2, 1.4, 0.0], [0.1, 0.3, 1.9]])
+    if number <= 15:  # monoclinic, unique axis b
+        return np.array([[1.0, 0.0, 0.0], [0.0, 1.4, 0.0], [0.3, 0.0, 1.9]])
+    if number <= 74:  # orthorhombic
+        return np.diag([1.0, 1.4, 1.9])
+    if number <= 142:  # tetragonal
+        return np.diag([1.0, 1.0, 1.9])
+    if number <= 194:  # trigonal/hexagonal, hexagonal axes
+        return np.array(
+            [[1.0, 0.0, 0.0], [-0.5, np.sqrt(3.0) / 2.0, 0.0], [0.0, 0.0, 1.9]]
+        )
+    return np.eye(3)  # cubic
 
 
 def _stem_appearance_order(structure: Structure) -> dict[str, int]:
@@ -911,7 +1020,17 @@ def _label_stem(label: str | None, element: str) -> str:
 
 def _site_stem(site, frac: np.ndarray, spec: Any, origin_shift: np.ndarray) -> str:
     stem = _label_stem(site.label, site.species_string)
-    if re.match(r"^[A-Za-z]+\d+$", stem):
+    # Source CIF labels can be normalized by pymatgen (ND -> Nd1). When the
+    # original names are available, resolve the parent site before trusting
+    # the generated Structure label.
+    source_labels = {
+        str(entry["display_label"])
+        for entry in (getattr(spec, "parent_wyckoff_sites", None) or [])
+        if entry.get("display_label")
+    }
+    if re.match(r"^[A-Za-z]+\d+$", stem) and (
+        not source_labels or stem in source_labels
+    ):
         return stem
     parent = spec.parent_structure
     sg = spec.subgroup
@@ -950,7 +1069,7 @@ def _parent_site_names(spec: Any) -> dict[int, str]:
         for site in wyckoff:
             species = str(site["species"])
             counts[species] = counts.get(species, 0) + 1
-            tag = f"{species}{counts[species]}"
+            tag = str(site.get("display_label") or f"{species}{counts[species]}")
             for idx in site.get("equivalent_indices", [site.get("representative_index")]):
                 if idx is not None:
                     names[int(idx)] = tag

@@ -419,11 +419,13 @@ def cart_normalized_mode_matrix(
 
 def render_topas(spec: SubgroupExportSpec) -> str:
     """TOPAS.STR：官网 distortion-mode 精修输入（见手册 #topas）。"""
-    from .isodistort_cif import _parent_to_child_transform
+    from .isodistort_cif import _parent_to_child_transform, _subgroup_sites
     from ..utils.parent_header import format_fixed_coord
 
     sg = spec.subgroup
-    sc = spec.structure
+    _setting, sc, subgroup_sites, _origin_shift = _subgroup_sites(
+        spec, spec.structure
+    )
     lat = sc.lattice
     transform = ""
     try:
@@ -451,8 +453,8 @@ def render_topas(spec: SubgroupExportSpec) -> str:
         "'{{{mode definitions",
     ]
     mode_items = list((spec.mode_displacements_sc or {}).items())
-    unique = _unique_site_indices(sc)
-    tags = [_site_tag_official(sc, i, spec) for i in unique]
+    unique = [int(site["index"]) for site in subgroup_sites]
+    tags = [str(site["label"]) for site in subgroup_sites]
     scaled_modes: list[np.ndarray] = []
     amp_bound = 1.41 if n_c > 1 else 2.00
 

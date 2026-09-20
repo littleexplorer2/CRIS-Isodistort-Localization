@@ -50,6 +50,77 @@ def test_format_difference_can_still_have_same_structure(tmp_path: Path) -> None
     assert result.passed
 
 
+def test_ignore_order_compares_expanded_occupancies_not_asu_label_rows(
+    tmp_path: Path,
+) -> None:
+    """ASU metadata lists must not be indexed by expanded-structure indices."""
+    header = """data_ordered
+_cell_length_a 4.1
+_cell_length_b 5.2
+_cell_length_c 6.3
+_cell_angle_alpha 81
+_cell_angle_beta 93
+_cell_angle_gamma 104
+_symmetry_space_group_name_H-M 'P -1'
+_symmetry_Int_Tables_number 2
+loop_
+_space_group_symop_operation_xyz
+'x,y,z'
+'-x,-y,-z'
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+"""
+    local = tmp_path / "local.cif"
+    reference = tmp_path / "reference.cif"
+    local.write_text(
+        header + "Si_local Si 0.10 0.20 0.30 1\nO_local O 0.27 0.36 0.41 1\n",
+        encoding="utf-8",
+    )
+    reference.write_text(
+        header + "O_ref O 0.27 0.36 0.41 1\nSi_ref Si 0.10 0.20 0.30 1\n",
+        encoding="utf-8",
+    )
+
+    result = compare_cif(local, reference, ignore_atom_order=True)
+
+    assert result.structure_equal
+    assert result.details["local_atom_count"] == 4  # two P-1 ASU rows expand to four
+    assert result.details["occupancies_equal"] is True
+    assert result.details["labels_equal"] is None
+    assert "occupancies differ beyond scalar tolerance" not in result.details["issues"]
+    assert "atom labels differ" not in result.details["issues"]
+
+
+def test_ignore_order_uses_complete_bipartite_matching(tmp_path: Path) -> None:
+    """A flexible site must be reassigned so a constrained site can match."""
+    local = tmp_path / "local.cif"
+    reference = tmp_path / "reference.cif"
+    Structure(
+        Lattice.cubic(3.5),
+        ["C", "C"],
+        [[0.10, 0.0, 0.0], [0.85, 0.0, 0.0]],
+    ).to(filename=str(local), fmt="cif")
+    Structure(
+        Lattice.cubic(3.5),
+        ["C", "C"],
+        [[0.00, 0.0, 0.0], [0.30, 0.0, 0.0]],
+    ).to(filename=str(reference), fmt="cif")
+
+    result = compare_cif(
+        local,
+        reference,
+        coordinate_tolerance=0.21,
+        ignore_atom_order=True,
+    )
+
+    assert result.details["coordinates_equal"] is True
+
+
 def test_strict_mode_can_still_detect_format_difference(tmp_path: Path) -> None:
     first = tmp_path / "first.cif"
     second = tmp_path / "second.cif"

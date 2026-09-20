@@ -21,6 +21,10 @@ dist/
 .coverage
 htmlcov/
 
+# ---------- 开发验证资料（用户端部署不需要） ----------
+tests_dev/
+requirements-dev.txt
+
 # ---------- 程序运行输出（导出的 CIF/POSCAR/JSON/临时上传） ----------
 output/
 

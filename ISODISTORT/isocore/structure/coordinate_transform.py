@@ -29,8 +29,8 @@ def build_supercell(structure: Structure,
 
     说明：
     - 整数 3x3 矩阵走 pymatgen 快速路径（自动枚举全部格点拷贝）；
-    - 分数 3x3 矩阵（如带心母相的子群基矢，行列式 < 1 的“亚胞”）由本地
-      实现：新格子 = basis @ 旧格子，旧原子映射进新格子后按周期合并重复位点。
+    - 分数 3x3 矩阵（如带心母相的子群基矢）由本地实现：枚举落入新单胞
+      的全部母胞平移，再按新单胞周期合并重复位点。这同时适用于亚胞和超胞。
       pymatgen 的 ``Structure * matrix`` 只接受整数矩阵，分数矩阵会崩溃
       （LinAlgError: Singular matrix）。
     """
@@ -45,38 +45,53 @@ def build_supercell(structure: Structure,
 
 def _build_fractional_cell(structure: Structure,
                            basis: np.ndarray) -> Structure:
-    """按分数基矢构建新格子：新格子 = basis @ 旧格子；原子映射 + 周期合并。
+    """Build a cell for any nonsingular rational basis in parent coordinates.
 
-    用于子群基矢行列式 < 1 的场景（带心母相）：子群格子是母相格子的
-    亚胞，原子映射后可能出现重合位点（如 Fm-3m 4 原子 -> I4/mmm 2 原子），
-    按周期等价合并。位移畸变会自然分离重合位点（降对称），不会误并。
+    Mapping only the atoms in one parent cell loses copies when ``det(basis)``
+    exceeds one. Enumerate every integer parent-cell translation intersecting
+    the new parallelepiped, then merge equivalent child-cell positions.
     """
     new_lattice = Lattice(basis @ structure.lattice.matrix)
-    frac = np.asarray(structure.frac_coords, dtype=float)
-    # frac_new @ new_lattice == frac_old @ old_lattice
-    # => frac_new @ (basis @ old) == frac_old @ old => frac_new = frac_old @ inv(basis)
-    frac_new = frac @ np.linalg.inv(basis)
-    frac_new = wrap_to_unit_cell(frac_new)
-
+    inverse = np.linalg.inv(basis)
+    corners = np.array([
+        np.array([x, y, z], dtype=float) @ basis
+        for x in (0, 1) for y in (0, 1) for z in (0, 1)
+    ])
     species: list = []
     coords: list[np.ndarray] = []
-    for i, f in enumerate(frac_new):
-        dup = False
-        for j, g in enumerate(coords):
-            d = np.abs(f - g)
-            d = np.minimum(d, 1.0 - d)
-            # 注意：species[j] 是「已收集」坐标的物种——coords 列表可能因
-            # 前面跳过重复位点而与 structure 下标错位，不能直接用
-            # structure[j]（多物种亚胞如 NaCl 4 Na + 4 Cl -> 2 Na + 2 Cl
-            # 时，错位会把 Cl 与 Na 比较，导致重合 Cl 无法合并、畸变结构
-            # 出现原子重叠，spglib 无法确定对称性）。
-            if structure[i].species == species[j] and np.all(d < _MERGE_TOL):
-                dup = True
-                break
-        if not dup:
-            species.append(structure[i].species)
-            coords.append(f)
-    return Structure(new_lattice, species, coords, coords_are_cartesian=False)
+    labels: list[str | None] = []
+    original_indices: list[int] = []
+    for i, site in enumerate(structure):
+        parent_frac = np.asarray(site.frac_coords, dtype=float)
+        low = np.floor(corners.min(axis=0) - parent_frac).astype(int) - 1
+        high = np.ceil(corners.max(axis=0) - parent_frac).astype(int) + 1
+        for nx in range(low[0], high[0] + 1):
+            for ny in range(low[1], high[1] + 1):
+                for nz in range(low[2], high[2] + 1):
+                    child_frac = (parent_frac + [nx, ny, nz]) @ inverse
+                    if np.any(child_frac < -_MERGE_TOL) or np.any(child_frac > 1 + _MERGE_TOL):
+                        continue
+                    child_frac = wrap_to_unit_cell(child_frac)
+                    child_frac[np.isclose(child_frac, 1.0, atol=_MERGE_TOL)] = 0.0
+                    if any(
+                        site.species == species[j]
+                        and np.all(np.abs((child_frac - old) - np.round(child_frac - old)) < _MERGE_TOL)
+                        for j, old in enumerate(coords)
+                    ):
+                        continue
+                    species.append(site.species)
+                    coords.append(child_frac)
+                    labels.append(site.label)
+                    original_indices.append(i)
+    property_names = {key for site in structure for key in site.properties}
+    properties = {
+        key: [structure[i].properties.get(key) for i in original_indices]
+        for key in property_names
+    }
+    return Structure(
+        new_lattice, species, coords, coords_are_cartesian=False,
+        site_properties=properties, labels=labels,
+    )
 
 
 def coordinates_are_equal(c1: np.ndarray, c2: np.ndarray,

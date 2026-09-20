@@ -14,6 +14,7 @@ from __future__ import annotations
 import math
 import re
 from dataclasses import dataclass
+from itertools import product
 from typing import Any
 
 import numpy as np
@@ -39,13 +40,19 @@ class _AtomLayout:
     types: list[tuple[str, str]]  # (stem, element), 1-based index = position+1
     # For each child site (in structure order): 1-based parent-type index
     child_type_idx: list[int]
+    # For each displayed atom image: source index in the child structure.
+    image_source_idx: list[int]
 
 
 def render_isodistort_isoviz(spec: Any) -> str:
     """Return official-style IsoVIZ text for ``spec``."""
+    from .isodistort_cif import _subgroup_sites
+
     sg = spec.subgroup
     parent = spec.parent_structure
-    child = spec.structure
+    setting, child, subgroup_sites, _origin_shift = _subgroup_sites(
+        spec, spec.structure
+    )
     parent_sg = int(spec.parent_sg or 0)
     parent_short = (spec.parent_symbol or hm_symbol(parent_sg) or "").strip()
     child_n = int(sg.space_group_number or 1)
@@ -85,7 +92,9 @@ def render_isodistort_isoviz(spec: Any) -> str:
     lines.extend(_space_group_block("child", child_n, child_short, child))
     lines.extend(_ops_block("child", child_n, child_short))
     lines.extend(_ops_block("parent", parent_sg, parent_short))
-    atom_lines, layout = _atom_blocks(spec, parent, child)
+    atom_lines, layout = _atom_blocks(
+        spec, parent, child, subgroup_sites, setting.symmetry_ops
+    )
     lines.extend(atom_lines)
     lines.extend(_mode_blocks(spec, layout))
     if spec.note:
@@ -199,8 +208,11 @@ def _ops_block(role: str, number: int, short: str) -> list[str]:
 
 
 def _atom_blocks(
-    spec: Any, parent: Structure | None, child: Structure
+    spec: Any, parent: Structure | None, child: Structure,
+    subgroup_sites: list[dict], symmetry_ops: list[SymmOp],
 ) -> tuple[list[str], _AtomLayout]:
+    from .isodistort_cif import _in_orbit
+
     types = _parent_type_list(spec, parent, child)
     stem_to_idx = {stem: i for i, (stem, _el) in enumerate(types, start=1)}
     origin = np.asarray(getattr(spec.subgroup, "origin", None) or [0.0, 0.0, 0.0], dtype=float)
@@ -215,7 +227,44 @@ def _atom_blocks(
             tidx = next((i for i, (_s, e) in enumerate(types, start=1) if e == el), 1)
         child_type_idx.append(tidx)
 
-    layout = _AtomLayout(types=types, child_type_idx=child_type_idx)
+    representatives: dict[int, list[int]] = {i: [] for i in range(1, len(types) + 1)}
+    for site in subgroup_sites:
+        source = int(site["index"])
+        representatives[child_type_idx[source]].append(source)
+    for source, site in enumerate(child):
+        tidx = child_type_idx[source]
+        if not any(
+            _in_orbit(site.frac_coords, child[rep].frac_coords, symmetry_ops)
+            for rep in representatives[tidx]
+        ):
+            representatives[tidx].append(source)
+
+    subtype_by_source: list[int] = []
+    for source, site in enumerate(child):
+        tidx = child_type_idx[source]
+        subtype = next((
+            subnum for subnum, rep in enumerate(representatives[tidx], 1)
+            if _in_orbit(site.frac_coords, child[rep].frac_coords, symmetry_ops)
+        ), 1)
+        subtype_by_source.append(subtype)
+
+    images: list[tuple[int, int, int, np.ndarray, bool]] = []
+    for tidx in range(1, len(types) + 1):
+        for subtype in range(1, len(representatives[tidx]) + 1):
+            for source_idx, site in enumerate(child):
+                if child_type_idx[source_idx] != tidx or subtype_by_source[source_idx] != subtype:
+                    continue
+                frac = np.mod(np.asarray(site.frac_coords, dtype=float), 1.0)
+                frac[np.isclose(frac, 1.0, atol=1e-6)] = 0.0
+                axes = [([0.0, 1.0] if abs(float(x)) < 1e-6 else [float(x)])
+                        for x in frac]
+                for image_number, image_coords in enumerate(product(*axes)):
+                    images.append((source_idx, tidx, subtype, np.asarray(image_coords),
+                                   image_number == 0))
+    layout = _AtomLayout(
+        types=types, child_type_idx=child_type_idx,
+        image_source_idx=[source for source, _type, _subtype, _coord, _inside in images],
+    )
     lines = [
         "#parentatom/label/element ",
         "!atomtypelist ",
@@ -226,25 +275,27 @@ def _atom_blocks(
     lines.append("#parentatom/subatom/label ")
     lines.append("!atomsubtypelist ")
     for i, (stem, _el) in enumerate(types, start=1):
-        lines.append(f"   {i}   1 {stem}_1 ")
+        for subtype in range(1, len(representatives[i]) + 1):
+            lines.append(f"   {i}   {subtype} {stem}_{subtype} ")
     lines.append("")
     lines.append("#parentatom/type/subatom/x/y/z/_for_each_subatom ")
     lines.append("!atomcoordlist ")
-    counters: dict[int, int] = {}
-    for site, tidx in zip(child, child_type_idx, strict=True):
-        counters[tidx] = counters.get(tidx, 0) + 1
-        x, y, z = (float(c) for c in site.frac_coords)
+    counters: dict[tuple[int, int], int] = {}
+    for _source, tidx, subtype, coord, _inside in images:
+        counter_key = (tidx, subtype)
+        counters[counter_key] = counters.get(counter_key, 0) + 1
+        x, y, z = (float(c) for c in coord)
         lines.append(
-            f"    {tidx:d}    1    {counters[tidx]}  {x:8.5f}  {y:8.5f}  {z:8.5f} "
+            f"    {tidx:d}    {subtype:d}    {counters[counter_key]}  "
+            f"{x:8.5f}  {y:8.5f}  {z:8.5f} "
         )
     lines.append("")
-    n_atoms = len(child)
     lines.append("!atomsinunitcell ")
-    for _ in range(n_atoms):
-        lines.append("  1")
+    for _source, _type, _subtype, _coord, inside in images:
+        lines.append("  1" if inside else "  0")
     lines.append("")
     lines.append("!atomocclist ")
-    for _ in range(n_atoms):
+    for _ in images:
         lines.append("  1.00000")
     lines.append("")
     for empty in ("!atommaglist ", "!atomrotlist ", "!bondlist "):
@@ -294,9 +345,10 @@ def _mode_blocks(spec: Any, layout: _AtomLayout) -> list[str]:
             padded[:rows] = mat[:rows]
             mat = padded
         parentatom = _mode_parentatom(pretty, mat, layout, stem_to_idx)
-        type_rows = [i for i, t in enumerate(layout.child_type_idx) if t == parentatom]
+        type_rows = [source for source in layout.image_source_idx
+                     if layout.child_type_idx[source] == parentatom]
         if not type_rows:
-            type_rows = list(range(n_child))
+            type_rows = layout.image_source_idx
             parentatom = 1
         scaled, maxamp_hint = cart_normalized_mode_matrix(
             mat, child.lattice.matrix, centering_mult=n_c
@@ -323,6 +375,15 @@ def _parent_type_list(
     seen: set[str] = set()
     if parent is not None:
         names = _parent_site_names(spec)
+        wyckoff = getattr(spec, "parent_wyckoff_sites", None) or []
+        if wyckoff and all("display_order" in site for site in wyckoff):
+            for site in sorted(wyckoff, key=lambda item: item["display_order"]):
+                idx = int(site["representative_index"])
+                stem = names.get(idx) or _stem(parent[idx].label, parent[idx].species_string)
+                if stem not in seen:
+                    seen.add(stem)
+                    types.append((stem, parent[idx].species_string))
+            return types
         for i, site in enumerate(parent):
             stem = names.get(i) or _stem(site.label, site.species_string)
             if stem in seen:

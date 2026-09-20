@@ -20,7 +20,6 @@ from . import compare_paths as cpaths
 
 SPACE_GROUP_NUMBER_TAGS = ("_symmetry_Int_Tables_number", "_space_group_IT_number")
 SPACE_GROUP_SYMBOL_TAGS = ("_symmetry_space_group_name_H-M", "_space_group_name_H-M_alt")
-OCCUPANCY_TAG = "_atom_site_occupancy"
 LABEL_TAG = "_atom_site_label"
 MAGMOM_TAGS = (
     "_atom_site_moment_crystalaxis_x",
@@ -117,7 +116,9 @@ def _match_atoms(
             return None, maximum
         return list(range(len(local))), maximum
 
-    candidates: list[tuple[float, int, int]] = []
+    candidates: dict[int, list[tuple[float, int]]] = {
+        index: [] for index in range(len(local))
+    }
     for local_index, local_site in enumerate(local):
         for reference_index, reference_site in enumerate(reference):
             if local_site.species_string != reference_site.species_string:
@@ -128,23 +129,40 @@ def _match_atoms(
             )
             distance = float(np.max(np.abs(delta)))
             if distance <= coordinate_tolerance:
-                candidates.append((distance, local_index, reference_index))
+                candidates[local_index].append((distance, reference_index))
 
-    assignments: dict[int, int] = {}
-    used_local: set[int] = set()
-    used_reference: set[int] = set()
-    for _, local_index, reference_index in sorted(candidates):
-        if local_index not in used_local and reference_index not in used_reference:
-            assignments[local_index] = reference_index
-            used_local.add(local_index)
-            used_reference.add(reference_index)
-    if len(assignments) != len(local):
+    # A greedy edge choice can reject a valid mapping when one site has several
+    # neighbours but another site has only one. Augmenting paths find a perfect
+    # species-constrained bipartite matching whenever one exists.
+    for values in candidates.values():
+        values.sort()
+    reference_to_local: dict[int, int] = {}
+
+    def assign(local_index: int, visited: set[int]) -> bool:
+        for _, reference_index in candidates[local_index]:
+            if reference_index in visited:
+                continue
+            visited.add(reference_index)
+            previous = reference_to_local.get(reference_index)
+            if previous is None or assign(previous, visited):
+                reference_to_local[reference_index] = local_index
+                return True
+        return False
+
+    if any(not assign(local_index, set()) for local_index in range(len(local))):
         return None, None
+    assignments = {
+        local_index: reference_index
+        for reference_index, local_index in reference_to_local.items()
+    }
     ordered = [assignments[index] for index in range(len(local))]
     distances = [
-        distance
-        for distance, local_index, reference_index in candidates
-        if assignments.get(local_index) == reference_index
+        next(
+            distance
+            for distance, candidate in candidates[local_index]
+            if candidate == reference_index
+        )
+        for local_index, reference_index in assignments.items()
     ]
     return ordered, max(distances, default=0.0)
 
@@ -174,6 +192,11 @@ def _compare_mapped_scalars(
     return all(abs(local[i] - reference[assignments[i]]) <= tolerance for i in range(len(local)))
 
 
+def _site_occupancies(structure: Structure) -> list[float]:
+    """Occupancy totals for the fully expanded sites returned by pymatgen."""
+    return [float(sum(site.species.values())) for site in structure]
+
+
 def _compare_mapped_vectors(
     local: list[list[float] | None] | None,
     reference: list[list[float] | None] | None,
@@ -199,16 +222,11 @@ def _compare_mapped_vectors(
     )
 
 
-def _compare_mapped_strings(
-    local: Any, reference: Any, assignments: list[int] | None
-) -> bool | None:
-    if local is None and reference is None:
+def _vector_row_count(values: list[list[float] | None]) -> int | None:
+    if len(values) != 3 or any(column is None for column in values):
         return None
-    if not isinstance(local, list) or not isinstance(reference, list) or assignments is None:
-        return False
-    if len(local) != len(reference) or len(local) != len(assignments):
-        return False
-    return all(str(local[i]) == str(reference[assignments[i]]) for i in range(len(local)))
+    lengths = {len(column) for column in values if column is not None}
+    return lengths.pop() if len(lengths) == 1 else None
 
 
 def _declared_space_group(block: dict[str, Any]) -> dict[str, Any]:
@@ -282,22 +300,54 @@ def _compare_structures(
     atom_order_equal = species_order_equal and not ignore_atom_order
 
     occupancies_equal = _compare_mapped_scalars(
-        _numeric_list(local_block, OCCUPANCY_TAG),
-        _numeric_list(reference_block, OCCUPANCY_TAG),
+        _site_occupancies(local),
+        _site_occupancies(reference),
         assignments,
         scalar_tolerance,
     )
     local_moments = [_numeric_list(local_block, tag) for tag in MAGMOM_TAGS]
     reference_moments = [_numeric_list(reference_block, tag) for tag in MAGMOM_TAGS]
     magnetic_present = any(value is not None for value in local_moments + reference_moments)
-    magnetic_equal = _compare_mapped_vectors(
-        local_moments if magnetic_present else None,
-        reference_moments if magnetic_present else None,
-        assignments,
-        scalar_tolerance,
-    )
-    labels_equal = _compare_mapped_strings(
-        local_block.get(LABEL_TAG), reference_block.get(LABEL_TAG), assignments
+    if not magnetic_present:
+        magnetic_equal = None
+    elif ignore_atom_order:
+        # Raw magnetic loops describe ASU rows.  They can use the expanded-site
+        # mapping only when the CIF explicitly lists every expanded site.
+        expanded = len(local)
+        can_map = (
+            _vector_row_count(local_moments) == expanded
+            and _vector_row_count(reference_moments) == len(reference)
+        )
+        magnetic_equal = (
+            _compare_mapped_vectors(
+                local_moments, reference_moments, assignments, scalar_tolerance
+            )
+            if can_map
+            else None
+        )
+    else:
+        local_rows = _vector_row_count(local_moments)
+        reference_rows = _vector_row_count(reference_moments)
+        identity = (
+            list(range(local_rows))
+            if local_rows == reference_rows and local_rows is not None
+            else None
+        )
+        magnetic_equal = _compare_mapped_vectors(
+            local_moments, reference_moments, identity, scalar_tolerance
+        )
+    # CIF labels identify rows in the asymmetric-unit loop; they are not site
+    # properties on pymatgen's symmetry-expanded Structure.  Consequently the
+    # expanded-site assignment cannot index those raw lists.  When row order is
+    # significant compare labels in their declared order.  When row order is
+    # intentionally ignored, labels are display metadata and are not a semantic
+    # failure condition; species, coordinates and expanded occupancies still are.
+    labels_equal = (
+        None
+        if ignore_atom_order
+        else _compare_optional_metadata(
+            local_block.get(LABEL_TAG), reference_block.get(LABEL_TAG)
+        )
     )
 
     declared_local = _declared_space_group(local_block)

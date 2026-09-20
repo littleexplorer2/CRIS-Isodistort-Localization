@@ -58,6 +58,8 @@ class BaseWrapper:
         self._binary_dir_wsl: str = ""
         if self._mode == "wsl":
             self._init_wsl_environment()
+        else:
+            self._init_native_environment()
 
     # ================================================================
     # 平台与环境初始化
@@ -90,6 +92,19 @@ class BaseWrapper:
         self._wsl_mkdir(self._stage_dir)
         self._wsl_cleanup_stale(self._stage_dir)
         self._wsl_link_isodata()
+
+    def _init_native_environment(self) -> None:
+        """Create the short staging directory required by native Linux runs.
+
+        The execution path is shared with WSL and always stages input before
+        invoking an ISOTROPY binary.  Leaving ``_stage_dir`` empty in native
+        mode made the destination ``/iso_*.in`` and failed for non-root users.
+        """
+        uid = os.getuid() if hasattr(os, "getuid") else 0
+        stage = Path(tempfile.gettempdir()) / f"isodistort-{uid}" / self._WSL_TMP_NAME
+        stage.mkdir(parents=True, exist_ok=True)
+        self._stage_dir = str(stage)
+        self._wsl_cleanup_stale(self._stage_dir)
 
     def _wsl(self, command: str, timeout: float | None = None) -> subprocess.CompletedProcess:
         """执行一条 WSL 命令（Linux 模式下直接执行）。

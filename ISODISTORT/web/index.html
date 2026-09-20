@@ -209,7 +209,7 @@
     <p id="dlMethodBox" style="margin:6px 0 4px 0;">
       <label style="font-weight:normal;">
         <span id="dlMethodLabel">Export source (exactly one Method):</span>
-        <select id="dlMethod" style="margin-left:8px;">
+        <select id="dlMethod" style="margin-left:8px;" onchange="updateParametricDownloadHint()">
           <option value="1" id="dlMethodOpt1">Method 1</option>
           <option value="2" id="dlMethodOpt2" selected>Method 2</option>
           <option value="3" id="dlMethodOpt3">Method 3</option>
@@ -235,6 +235,7 @@
       <label style="margin-left:10px; font-weight:normal;">
         <input type="checkbox" id="fmtTopas" checked> <span id="dlFmtTopas">TOPAS.STR</span></label>
     </p>
+    <p class="alert alert-warning" id="distParamFormatNote" style="display:none;"></p>
     <div id="distOut" class="scroll"></div>
   </div>
 
@@ -280,6 +281,7 @@ function term(en) { return en; }
 let STATE = null;
 let spaceGroups = [];       // 230 空间群（Method 3 用）
 let m1Options = null;       // Method 1 下拉数据（可达子群 + lattices）
+let m1OptionsRequest = 0;  // 忽略 Types 改变前尚未完成的下拉请求
 let kpoints = [];
 let irreps = [];
 let subgroups = [];          // Method 2 subgroup rows
@@ -362,7 +364,6 @@ function startBusy(el, opts) {
     + `</div>`;
   const timerEl = el.querySelector("[data-role=elapsed]");
   const statusBox = document.getElementById("statusBox");
-  const prevStatus = statusBox ? statusBox.innerHTML : "";
   if (statusBox) statusBox.classList.add("busy-status");
   const tick = () => {
     const label = t("st.elapsed", fmtElapsed((Date.now() - started) / 1000));
@@ -379,7 +380,10 @@ function startBusy(el, opts) {
       buttons.forEach((b) => { b.disabled = false; });
       if (statusBox) {
         statusBox.classList.remove("busy-status");
-        if (!opts.keepStatus) statusBox.innerHTML = prevStatus;
+        // A slower request may finish after another action has already updated
+        // STATE (notably the Method-1-options request racing Types → Change).
+        // Never restore the HTML snapshot captured when this request started.
+        if (!opts.keepStatus) renderStatusBar(STATE);
       }
     },
   };
@@ -414,6 +418,20 @@ const POINT_GROUPS = [
 const CENTERINGS = [["d", "Default"], ["P", "P"], ["A", "A"], ["B", "B"], ["C", "C"], ["I", "I"], ["F", "F"], ["R", "R"]];
 
 /* ================= 状态栏 + 页头（对齐官网 "Reading CIF file..." 段落） ================= */
+function renderStatusBar(s) {
+  const box = document.getElementById("statusBox");
+  if (!box) return;
+  if (!s) {
+    box.textContent = "—";
+    return;
+  }
+  let status = t("st.types") + ": " + (s.distortion_types || []).join(", ")
+    + " &nbsp;|&nbsp; " + t("st.scope") + ": " + formatScope(s)
+    + " &nbsp;|&nbsp; " + t("st.subgroups") + ": " + s.subgroups
+    + " &nbsp;|&nbsp; " + t("st.modes") + ": " + (s.modes || []).length;
+  if (s.distorted_atoms != null) status += " &nbsp;|&nbsp; " + t("st.distorted") + ": " + s.distorted_atoms;
+  box.innerHTML = status;
+}
 async function refreshStatus() {
   const d = await api("/api/state");
   STATE = d.state;
@@ -439,12 +457,7 @@ async function refreshStatus() {
             ).join(", "));
     para.innerHTML = html;
   }
-  let status = t("st.types") + ": " + s.distortion_types.join(", ")
-    + " &nbsp;|&nbsp; " + t("st.scope") + ": " + formatScope(s)
-    + " &nbsp;|&nbsp; " + t("st.subgroups") + ": " + s.subgroups
-    + " &nbsp;|&nbsp; " + t("st.modes") + ": " + s.modes.length;
-  if (s.distorted_atoms != null) status += " &nbsp;|&nbsp; " + t("st.distorted") + ": " + s.distorted_atoms;
-  document.getElementById("statusBox").innerHTML = status;
+  renderStatusBar(s);
   renderTypes();
 }
 function formatScope(s) {
@@ -574,8 +587,12 @@ async function applyTypes() {
     () => api("/api/set_types", { types, scope }, "POST"),
   );
   if (!d.ok) { showError(msg, d.error); return; }
+  // Use the state returned by the mutation immediately.  This also makes the
+  // blue Types summary independent of a subsequent /api/state round trip.
+  STATE = d.state;
+  renderStatusBar(STATE);
+  renderTypes();
   showOk(msg, t("ok.types"));
-  await refreshStatus();
   loadMethod1Options();  // Types 改变后 Method 1 空间群/格子下拉需重算
 }
 
@@ -594,6 +611,7 @@ async function refreshSpaceGroups() {
 
 /* ================= Method 1：下拉数据（可达子群 + Conventional/Primitive lattice） ================= */
 async function loadMethod1Options() {
+  const request = ++m1OptionsRequest;
   const sgSel = document.getElementById("m1Sg");
   const convSel = document.getElementById("m1ConvLat");
   const primSel = document.getElementById("m1PrimLat");
@@ -605,9 +623,9 @@ async function loadMethod1Options() {
   }
   const hint = document.getElementById("m1SgHint");
   const statusBox = document.getElementById("statusBox");
-  const prevStatus = statusBox ? statusBox.innerHTML : "";
   const started = Date.now();
   const tickHint = () => {
+    if (request !== m1OptionsRequest) return;
     const elabel = t("st.elapsed", fmtElapsed((Date.now() - started) / 1000));
     hint.textContent = `${t("st.wait")} · ${elabel}`;
     if (statusBox) {
@@ -619,6 +637,7 @@ async function loadMethod1Options() {
   if (statusBox) statusBox.classList.add("busy-status");
   try {
     const d = await api("/api/method1_options");
+    if (request !== m1OptionsRequest) return;
     m1Options = d.options || {};
     const sgs = m1Options.space_groups || [];
     // 序号右对齐 + 空间群符号，起始位置统一（对齐官网下拉格式）
@@ -632,12 +651,14 @@ async function loadMethod1Options() {
           `<option value="${l.basis.map(r => r.join(",")).join(";")}">${esc(l.label)}</option>`).join("");
     hint.textContent = t("m1.sgHint", sgs.length);
   } catch (e) {
-    hint.textContent = "-";
+    if (request === m1OptionsRequest) hint.textContent = "-";
   } finally {
     clearInterval(iv);
-    if (statusBox) {
+    if (statusBox && request === m1OptionsRequest) {
       statusBox.classList.remove("busy-status");
-      statusBox.innerHTML = prevStatus;
+      // Redraw from the newest state; a Types change may have completed while
+      // this (older and slower) lattice request was still running.
+      renderStatusBar(STATE);
     }
   }
 }
@@ -654,8 +675,8 @@ function selectedLattice() {
   // 注意：Conventional 与 Primitive 下拉的选项基矢均为母相惯用（conventional）
   // 坐标表达（Primitive 选项是「同一子格在惯用坐标下的显示」），因此都按
   // conventional 帧提交，后端不再做坐标变换（见 lattice_in_conventional_frame）。
-  if (conv) return { lattice: parseBasis(conv), frame: "conventional" };
-  if (prim) return { lattice: parseBasis(prim), frame: "conventional" };
+  if (conv) return { lattice: parseBasis(conv), frame: "conventional", kind: "conventional" };
+  if (prim) return { lattice: parseBasis(prim), frame: "conventional", kind: "primitive" };
   return null;
 }
 function parseBasis(encoded) {
@@ -929,7 +950,7 @@ async function runMethod1() {
     maximal_subgroup_only: document.getElementById("m1Max").checked,
   };
   const lat = selectedLattice();
-  if (lat) { body.lattice = lat.lattice; body.frame = lat.frame; }
+  if (lat) { body.lattice = lat.lattice; body.frame = lat.frame; body.lattice_kind = lat.kind; }
   const d = await withBusy(
     out, t("m1.wait"), [document.getElementById("btnM1")],
     () => api("/api/method1", body, "POST"),
@@ -1256,6 +1277,7 @@ async function runMethod3() {
   renderResultTable(3);
   const dl = document.getElementById("dlMethod");
   if (dl) dl.value = "3";
+  applyMethod3DownloadDefaults();
   try { out.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (e) { /* ignore */ }
   await refreshStatus();
 }
@@ -1288,6 +1310,33 @@ function selectedDownloadFormats() {
   if (document.getElementById("fmtTopas").checked) fmts.push("topas");
   return fmts;
 }
+function candidateHasParametricK(item) {
+  if (item.k_parameters && item.k_parameters.length) return true;
+  const kp = (kpoints || []).find((entry) => entry.label === item.k_point_label);
+  return !!(kp && kp.parameters && kp.parameters.length);
+}
+function updateParametricDownloadHint() {
+  const note = document.getElementById("distParamFormatNote");
+  if (!note) return;
+  const method = Number(document.getElementById("dlMethod").value);
+  const hasParam = itemsFor(method).some(candidateHasParametricK);
+  note.style.display = hasParam ? "block" : "none";
+  note.textContent = hasParam ? t("dist.paramFormatDefault") : "";
+}
+function applyMethod3DownloadDefaults() {
+  if (!m3Items.some(candidateHasParametricK)) {
+    updateParametricDownloadHint();
+    return;
+  }
+  // Parametric-k mode sections cannot be populated by the local 3-D engine.
+  // Start with the one fully supported format; users may deliberately opt in
+  // to placeholder mode files after reading the visible warning.
+  document.getElementById("fmtCif").checked = true;
+  document.getElementById("fmtIsoviz").checked = false;
+  document.getElementById("fmtModes").checked = false;
+  document.getElementById("fmtTopas").checked = false;
+  updateParametricDownloadHint();
+}
 async function downloadAll() {
   const out = document.getElementById("distOut");
   const btn = document.getElementById("btnDlAll");
@@ -1302,11 +1351,7 @@ async function downloadAll() {
   if (!idxs.length) { showError(out, t("dist.noMethod")); return; }
   const needModes = fmts.some((f) => f !== "cif");
   const selected = items.filter((it) => idxs.includes(it.index));
-  const hasParam = selected.some((it) => {
-    if (it.k_parameters && it.k_parameters.length) return true;
-    const kp = (kpoints || []).find((k) => k.label === it.k_point_label);
-    return !!(kp && kp.parameters && kp.parameters.length);
-  });
+  const hasParam = selected.some(candidateHasParametricK);
   let href = `/api/download_all?method=${encodeURIComponent(method)}`
     + `&formats=${encodeURIComponent(fmts.join(","))}`;
   if (idxs.length !== items.length) {
@@ -1443,6 +1488,7 @@ function renderAll() {
   document.getElementById("dlFmtIsoviz").textContent = t("dist.fmtIsoviz");
   document.getElementById("dlFmtModes").textContent = t("dist.fmtModes");
   document.getElementById("dlFmtTopas").textContent = t("dist.fmtTopas");
+  updateParametricDownloadHint();
   document.getElementById("hPrefs").textContent = t("hPrefs");
   document.getElementById("prefsNote").textContent = t("prefs.note");
   document.getElementById("prefsMonoAxes").textContent = t("prefs.monoAxes");
@@ -1473,14 +1519,33 @@ function renderPgSelect() {
 
 /* ================= 生命周期：心跳 / 关闭自动停服 ================= */
 let serverDown = false;
-function sendShutdown() {
-  if (exportingZip) return;
+let pageCloseSent = false;
+const pageClientId = (window.crypto && crypto.randomUUID)
+  ? crypto.randomUUID()
+  : `tab-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+function lifecycleUrl(path) {
+  return `${path}?client_id=${encodeURIComponent(pageClientId)}`;
+}
+function sendPageClosed() {
+  if (pageCloseSent) return;
+  const url = lifecycleUrl("/api/client/close");
   try {
-    if (navigator.sendBeacon) navigator.sendBeacon("/api/shutdown");
-    else fetch("/api/shutdown", { method: "POST", keepalive: true, headers: { "Content-Type": "application/json" }, body: "{}" });
-  } catch (e) { /* 页面关闭阶段忽略异常 */ }
+    let queued = navigator.sendBeacon ? navigator.sendBeacon(url) : false;
+    if (!queued) {
+      fetch(url, {
+        method: "POST", keepalive: true,
+        headers: { "Content-Type": "application/json" }, body: "{}",
+      }).catch(() => {});
+      queued = true;
+    }
+    pageCloseSent = queued;
+  } catch (e) {
+    // beforeunload 失败时保留 pagehide 的第二次发送机会。
+    pageCloseSent = false;
+  }
 }
 function stopServer() {
+  pageCloseSent = true;
   document.getElementById("btnStop").disabled = true;
   document.getElementById("statusBox").innerHTML = `<b>${t("st.stopping")}</b>`;
   fetch("/api/shutdown", { method: "POST" }).catch(() => {});
@@ -1488,26 +1553,35 @@ function stopServer() {
     document.body.innerHTML = `<div class="pad" style="margin-top:60px"><h1>${t("st.stopping")}</h1><p>${t("st.srvDown")}</p></div>`;
   }, 400);
 }
+function pingServer() {
+  return fetch(lifecycleUrl("/api/ping"), { cache: "no-store" }).then(r => {
+    if (!r.ok) throw new Error("bad");
+    serverDown = false;
+  }).catch(() => {
+    if (!serverDown) {
+      serverDown = true;
+      document.getElementById("statusBox").innerHTML = `<b>${t("st.srvDown")}</b>`;
+    }
+  });
+}
 function startHeartbeat() {
-  setInterval(() => {
-    fetch("/api/ping").then(r => {
-      if (!r.ok) throw new Error("bad");
-      serverDown = false;
-    }).catch(() => {
-      if (!serverDown) {
-        serverDown = true;
-        document.getElementById("statusBox").innerHTML = `<b>${t("st.srvDown")}</b>`;
-      }
-    });
-  }, 5000);
+  pingServer();
+  setInterval(pingServer, 5000);
 }
 
 /* ================= 初始化 ================= */
 (async function init() {
-  window.addEventListener("pagehide", sendShutdown);
+  window.addEventListener("pagehide", sendPageClosed);
+  window.addEventListener("beforeunload", sendPageClosed);
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+      pageCloseSent = false;
+      pingServer();
+    }
+  });
+  startHeartbeat();
   await loadI18n();
   renderAll();
-  startHeartbeat();
   await refreshSpaceGroups();
   await refreshKpoints();
   loadMethod1Options();

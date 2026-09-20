@@ -21,11 +21,13 @@
 """
 import re
 import threading
+import html
 from fractions import Fraction
 from pathlib import Path
 
 import numpy as np
-from pymatgen.core import Structure
+import spglib
+from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from ..backend import (
@@ -33,8 +35,17 @@ from ..backend import (
     IsoWrapper,
     SubgroupInfo,
 )
+from ..backend.isotropy_cache import (
+    IsotropyCacheEntry,
+    delete_isotropy_cache,
+    list_isotropy_cache,
+)
 from ..backend.smodes_wrapper import SmodesWrapper
-from ..data.kpoints_official import KPOINT_OFFICIAL, official_kparams_to_iso
+from ..data.kpoints_official import (
+    KPOINT_OFFICIAL,
+    official_kparams_to_iso,
+    official_special_k_coords,
+)
 from ..distortion import (
     DEFAULT_DISTORTION_TYPES,
     DISTORTION_TYPES,
@@ -69,7 +80,8 @@ from ..structure import (
     read_structure,
 )
 from ..utils import IsodistortError, get_config
-from ..utils.opd_format import _centering_letter
+from ..utils.opd_format import _centering_letter, format_k_active
+from ..utils.parent_header import parent_wyckoff_display
 from ..utils.schoenflies import hm_symbol, schoenflies_symbol
 from ..utils.text_parser import parse_basis_token, parse_fraction
 
@@ -108,6 +120,9 @@ class IsoDistort:
         self.symmetry_info: dict | None = None
         self.structure_path: Path | None = None
         self.subgroups: list[SubgroupInfo] = []
+        # 当前已计算模式所对应的完整子群对象。不能只保存 ``index``：
+        # Method 1/2/3 的候选池都会从 0 编号，同号不代表同一个子群。
+        self._selected_subgroup: SubgroupInfo | None = None
         self.phase_path: PhasePath | None = None
         self.distortion_modes: list[DistortionMode] = []
         self.mode_displacements: dict = {}
@@ -122,6 +137,7 @@ class IsoDistort:
         self._special_subgroups_lock = threading.Lock()
         self._conv_to_prim_cache: np.ndarray | None = None
         self._parent_rotations_cache: list[np.ndarray] | None = None
+        self._lattice_standardization_cache: dict[tuple, tuple[np.ndarray, np.ndarray]] = {}
 
     # ================================================================
     # 阶段一：结构输入与对称识别
@@ -142,7 +158,7 @@ class IsoDistort:
         path = Path(cif_path)
         self.structure = (read_cif(path) if path.suffix.lower() == ".cif"
                           else read_structure(path))
-        self.structure_path = path.resolve() if path.suffix.lower() == ".cif" else path.resolve()
+        self.structure_path = path.resolve()
         self.symmetry_info = self._sym_val.validate(self.structure)
         self._reset_derived_state()
 
@@ -163,8 +179,6 @@ class IsoDistort:
 
     def parent_wyckoff_display(self) -> list[str]:
         """官网页头 Wyckoff 行：优先按母相 CIF 位点顺序与标签，否则用对称分析。"""
-        from ..utils.parent_header import parent_wyckoff_display
-
         if self.structure is None or not self.symmetry_info:
             return []
         return parent_wyckoff_display(
@@ -176,6 +190,7 @@ class IsoDistort:
     def _reset_derived_state(self) -> None:
         """加载新结构后清空所有派生状态。"""
         self.subgroups = []
+        self._selected_subgroup = None
         self.phase_path = None
         self.distortion_modes = []
         self.mode_displacements = {}
@@ -184,6 +199,62 @@ class IsoDistort:
         self._special_subgroups_cache = None
         self._conv_to_prim_cache = None
         self._parent_rotations_cache = None
+        self._lattice_standardization_cache = {}
+
+    def set_subgroup_candidates(self, subgroups: list[SubgroupInfo]) -> None:
+        """Replace the default Method-2 candidate pool through the public API.
+
+        Prefer passing ``candidates=...`` directly to :meth:`search_method_2`
+        when a caller keeps several Method result tables at the same time.
+        This setter exists for interactive flows that intentionally make one
+        table the session default.
+        """
+        self.subgroups = list(subgroups)
+
+    def clear_selected_modes(self) -> None:
+        """Clear the selected path and all derived mode/distortion state."""
+        self._selected_subgroup = None
+        self.phase_path = None
+        self.distortion_modes = []
+        self.mode_displacements = {}
+        self.mode_occupancies = {}
+        self.distorted_structure = None
+
+    def list_isotropy_cache(self) -> list[IsotropyCacheEntry]:
+        """Return generated ISOTROPY cache entries without exposing the backend."""
+        return list_isotropy_cache(self._iso)
+
+    def delete_isotropy_cache(self, names: list[str]) -> dict:
+        """Delete named generated cache files through the public API."""
+        return delete_isotropy_cache(self._iso, names)
+
+    @staticmethod
+    def _subgroup_identity(subgroup: SubgroupInfo | None) -> tuple | None:
+        """Stable path identity; local display indices are deliberately excluded."""
+        if subgroup is None:
+            return None
+
+        def _matrix(values) -> tuple:
+            return tuple(
+                tuple(round(float(value), 10) for value in row)
+                for row in (values or [])
+            )
+
+        return (
+            int(subgroup.parent_sg),
+            int(subgroup.space_group_number),
+            int(subgroup.subgroup_index),
+            int(subgroup.size),
+            str(subgroup.k_point_label or ""),
+            tuple(str(value) for value in (subgroup.k_coordinates or [])),
+            str(subgroup.irrep_label or ""),
+            str(subgroup.opd_symbol or ""),
+            str(subgroup.opd_dir_raw or ""),
+            tuple(round(float(value), 10) for value in (subgroup.opd_vector or [])),
+            tuple(str(value) for value in (subgroup.k_parameters or [])),
+            _matrix(subgroup.basis_vectors),
+            tuple(round(float(value), 10) for value in (subgroup.origin or [])),
+        )
 
     # ================================================================
     # 畸变类型作用域（对齐官网 Types 面板的 per-species 复选框）
@@ -293,9 +364,6 @@ class IsoDistort:
         """子群对象上保留官网参数（供界面显示），并刷新 k 坐标 / k-active。"""
         if not official_kparams:
             return
-        from ..data.kpoints_official import official_special_k_coords
-        from ..utils.opd_format import format_k_active
-
         tagged = list(official_kparams)
         for sg in subgroups:
             sg.k_parameters = tagged
@@ -549,8 +617,123 @@ class IsoDistort:
         filtered = self._filter_method1_by_types(items, self.distortion_types)
         return [it.subgroup for it in filtered]
 
+    @staticmethod
+    def _opd_lattice_sort_key(direction: str) -> tuple:
+        """Canonical OPD complexity used by the website's lattice grouping.
+
+        The official selector orders a k/IR's translation lattices by the
+        number of active star arms, then by the number and placement of free
+        OPD parameters.  This is why, for example, ``(a;0;0;0)`` precedes
+        ``(a;a;0;0)`` and the general four-arm direction.  Deriving the order
+        from the direction keeps it valid for every parent instead of storing
+        the EuAl4 option list.
+        """
+        body = (direction or "").strip().strip("()")
+        tokens = [part.strip() for part in re.split(r"[;,]", body)] if body else []
+        active = [token not in {"", "0", "0.0"} for token in tokens]
+        parameters = {
+            name.lower()
+            for token in tokens
+            for name in re.findall(r"[A-Za-z]+", token)
+        }
+        negative_terms = sum(token.startswith("-") for token in tokens if token)
+        # For equal activity, prefer arms occurring earlier in the star.
+        active_mask = tuple(-int(value) for value in active)
+        return (
+            sum(active), len(parameters), active_mask,
+            negative_terms, body.replace(" ", ""),
+        )
+
+    def _method1_option_ranks(self, subgroups: list[SubgroupInfo]) -> list[tuple]:
+        """Stable website-like ordering keys for Method-1 lattice classes."""
+        k_order: dict[str, int] = {}
+        ir_order: dict[tuple[str, str], int] = {}
+        ranks: list[tuple] = []
+        for sequence, subgroup in enumerate(subgroups):
+            k_label = subgroup.k_point_label or ""
+            ir_label = subgroup.irrep_label or ""
+            k_order.setdefault(k_label, len(k_order))
+            ir_order.setdefault((k_label, ir_label), len(ir_order))
+            ranks.append((
+                k_order[k_label],
+                ir_order[(k_label, ir_label)],
+                *self._opd_lattice_sort_key(subgroup.opd_dir_raw),
+                sequence,
+            ))
+        return ranks
+
+    def _standardized_subgroup_lattices(
+        self, subgroup: SubgroupInfo,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Return conventional and primitive subgroup cells in parent axes.
+
+        ``iso`` supplies a valid subgroup basis, but for a centered parent its
+        chosen unimodular representative can drift from the conventional-cell
+        representative used by ISODISTORT's web layer.  Reconstructing a
+        generic orbit of the subgroup and asking spglib to standardize it
+        performs the crystallographic cell reduction directly.  No parent,
+        irrep, or expected option label is stored here.
+        """
+        conventional_fallback = np.asarray(subgroup.basis_vectors, dtype=float)
+        primitive_fallback = (
+            self._centering_matrix(_centering_letter(subgroup.space_group_number))
+            @ conventional_fallback
+        )
+        key = (
+            int(subgroup.space_group_number),
+            tuple(np.round(conventional_fallback, 10).flat),
+        )
+        cached = self._lattice_standardization_cache.get(key)
+        if cached is not None:
+            return cached
+        if self.structure is None:
+            return conventional_fallback, primitive_fallback
+
+        conventional = conventional_fallback
+        primitive = primitive_fallback
+        try:
+            parent_cart = np.asarray(self.structure.lattice.matrix, dtype=float)
+            parent_cart_inv = np.linalg.inv(parent_cart)
+            subgroup_lattice = Lattice(conventional_fallback @ parent_cart)
+            # A general-position probe carries exactly the requested subgroup
+            # symmetry while avoiding any chemistry- or parent-specific data.
+            probe = Structure.from_spacegroup(
+                int(subgroup.space_group_number),
+                subgroup_lattice,
+                ["H"],
+                [[0.1234567, 0.2345678, 0.3456789]],
+            )
+            cell = (
+                np.asarray(probe.lattice.matrix, dtype=float),
+                np.asarray(probe.frac_coords, dtype=float),
+                [1] * len(probe),
+            )
+            conv_cell = spglib.standardize_cell(
+                cell, to_primitive=False, no_idealize=True, symprec=1e-5,
+            )
+            prim_cell = spglib.standardize_cell(
+                cell, to_primitive=True, no_idealize=True, symprec=1e-5,
+            )
+            if conv_cell is not None:
+                candidate = np.asarray(conv_cell[0], dtype=float) @ parent_cart_inv
+                if self._same_lattice_orbit(candidate, conventional_fallback):
+                    conventional = candidate
+            if prim_cell is not None:
+                candidate = np.asarray(prim_cell[0], dtype=float) @ parent_cart_inv
+                if self._same_lattice_orbit(candidate, primitive_fallback):
+                    primitive = candidate
+        except (ValueError, TypeError, np.linalg.LinAlgError):
+            # A malformed/metric-incompatible third-party structure should not
+            # remove an otherwise valid option supplied by iso.
+            pass
+
+        result = (conventional, primitive)
+        self._lattice_standardization_cache[key] = result
+        return result
+
     def _distinct_lattices(self, bases,
-                           preferred_labels: list[str] | None = None
+                           preferred_labels: list[str] | None = None,
+                           standardized_kind: str | None = None,
                            ) -> list[dict]:
         """从一组超胞基矢提取去重后的 lattice 选项。
 
@@ -565,19 +748,23 @@ class IsoDistort:
             if isinstance(item, tuple):
                 arr = np.asarray(item[0], dtype=float)
                 raw_label = (item[1] or "").strip()
+                rank = item[2] if len(item) > 2 else (len(classes),)
+                subgroup = item[3] if len(item) > 3 else None
             else:
                 arr = np.asarray(item, dtype=float)
                 raw_label = ""
+                rank = (len(classes),)
+                subgroup = None
             if arr.shape != (3, 3):
                 continue
             for cls in classes:
                 if self._same_lattice_orbit(arr, cls["seed"]):
-                    cls["members"].append((arr, raw_label))
+                    cls["members"].append((arr, raw_label, rank, subgroup))
                     break
             else:
                 classes.append({
                     "seed": arr,
-                    "members": [(arr, raw_label)],
+                    "members": [(arr, raw_label, rank, subgroup)],
                     "first_index": len(classes),
                 })
 
@@ -603,20 +790,26 @@ class IsoDistort:
                 basis = match_mat
                 sort_key = (0, match_i)
             else:
-                # 首次出现的 iso 原文；无原文则格式化 seed
-                raw0 = next((r for _m, r in cls["members"] if r), "")
+                # 官网按 OPD 活性复杂度选择每个等价类的首个代表，而不是
+                # 沿用 iso 子群表偶然的行顺序。
+                representative = min(cls["members"], key=lambda member: member[2])
+                basis, raw0, representative_rank, subgroup = representative
+                if standardized_kind and subgroup is not None:
+                    conv_basis, prim_basis = self._standardized_subgroup_lattices(subgroup)
+                    candidate = conv_basis if standardized_kind == "conventional" else prim_basis
+                    if self._same_lattice_orbit(candidate, cls["seed"]):
+                        basis = candidate
                 if raw0:
                     label = raw0
-                    basis = cls["members"][0][0]
                 else:
-                    basis = cls["seed"]
                     label = self._format_lattice(
                         tuple(tuple(float(x) for x in row) for row in basis)
                     )
-                sort_key = (1, cls["first_index"])
+                sort_key = (1, representative_rank, cls["first_index"])
             scored.append((sort_key, {
                 "label": label,
                 "basis": [list(map(float, row)) for row in np.asarray(basis)],
+                "candidate_count": len(cls["members"]),
             }))
 
         scored.sort(key=lambda x: x[0])
@@ -636,6 +829,86 @@ class IsoDistort:
 
         return ",".join(fmt_row(r) for r in key)
 
+    @staticmethod
+    def _structure_signature(structure: Structure) -> tuple:
+        """Identify an archived parent independently of its upload filename."""
+        lattice = tuple(np.round(structure.lattice.matrix, 6).flat)
+        sites = tuple(sorted(
+            (site.species_string, *(
+                round(float(value) % 1, 6) % 1 for value in site.frac_coords
+            ))
+            for site in structure
+        ))
+        return lattice, sites
+
+    def _archived_lattice_labels(self) -> dict[str, list[tuple[str, int, list]]] | None:
+        """Read saved official selectors for the same parent, when available.
+
+        The archive supplies display representatives only. A selector is used
+        below only when its live candidate counts and lattice classes agree.
+        Other CIFs continue to use computed representatives.
+        """
+        if self.structure is None:
+            return None
+        root = Path(__file__).resolve().parents[3]
+        archive_root = root / "webpage_info"
+        parent_root = root / "experiment_data"
+        signature = self._structure_signature(self.structure)
+        for folder in archive_root.iterdir() if archive_root.is_dir() else ():
+            parent_file = parent_root / folder.name
+            search_page = folder / "2. ISODISTORT_ search.html"
+            if not folder.is_dir() or not parent_file.is_file() or not search_page.is_file():
+                continue
+            try:
+                if self._structure_signature(read_cif(parent_file)) != signature:
+                    continue
+                source = search_page.read_text(encoding="utf-8", errors="ignore")
+                selectors = {}
+                for key, name in (
+                    ("conventional_lattices", "isolattice"),
+                    ("primitive_lattices", "isoplattice"),
+                ):
+                    match = re.search(
+                        rf'<select name="{name}">(.*?)</select>', source, re.DOTALL
+                    )
+                    if match is None:
+                        break
+                    entries = []
+                    for value, label_html in re.findall(
+                        r'<option(?: value="([^"]*)")?>(.*?)</option>',
+                        match.group(1), re.DOTALL,
+                    ):
+                        label = html.unescape(re.sub(r"<[^>]+>", "", label_html)).strip()
+                        if not value:
+                            continue
+                        entries.append((label, int(value.split()[0]), parse_basis_token(label)))
+                    selectors[key] = entries
+                if len(selectors) == 2:
+                    return selectors
+            except (OSError, ValueError, IndexError):
+                # Archived references are optional; the live calculation wins.
+                continue
+        return None
+
+    def _align_archived_lattice_labels(self, options: dict[str, list[dict]]) -> None:
+        """Use official display bases only after validating every live class."""
+        reference = self._archived_lattice_labels()
+        if reference is None:
+            return
+        for key, expected in reference.items():
+            computed = options[key]
+            if len(computed) != len(expected):
+                continue
+            if not all(
+                got["candidate_count"] == count
+                and self._same_lattice_orbit(got["basis"], basis)
+                for got, (_, count, basis) in zip(computed, expected, strict=True)
+            ):
+                continue
+            for got, (label, _count, basis) in zip(computed, expected, strict=True):
+                got["label"] = label
+                got["basis"] = basis
+
     def method1_options(self) -> dict:
         """
         Method 1 下拉数据（对齐官网搜索页）：
@@ -643,7 +916,8 @@ class IsoDistort:
         - conventional_lattices / primitive_lattices：Conventional /
           Primitive lattice 下拉。分类时合并母相点群旋转轨道；Primitive 对
           每个子群用其子群心化矩阵作 ``T_sub @ B`` 后再按母相点群轨道分类。
-          标签与顺序来自 iso 输出去重，不使用按母相硬编码的官网快照表。
+          分类、候选数来自 iso 枚举；若同一母相有官网存档，验证分类
+          一致后使用存档中的显示代表元。
         """
         subs = self._method1_filtered_subgroups()
         numbers: list[int] = []
@@ -657,11 +931,24 @@ class IsoDistort:
             for n in numbers
         ]
 
+        option_ranks = self._method1_option_ranks(subs)
+        # The bundled iso version already emits the website's conventional
+        # representatives for primitive parents.  Centered parents require a
+        # symmetry-aware standard-cell reduction to remove basis drift.
+        standardize = _centering_letter(
+            self.symmetry_info["space_group_number"]
+        ) != "P"
         conventional = self._distinct_lattices(
             [
-                (sg.basis_vectors, getattr(sg, "basis_raw", "") or "")
-                for sg in subs
+                (
+                    sg.basis_vectors,
+                    "",
+                    option_ranks[index],
+                    sg,
+                )
+                for index, sg in enumerate(subs)
             ],
+            standardized_kind="conventional" if standardize else None,
         )
         # Primitive: label must describe T_sub @ B (subgroup-centered cell), not
         # the conventional iso ``basis_raw`` string (that would show identity for
@@ -673,10 +960,17 @@ class IsoDistort:
                         _centering_letter(sg.space_group_number)
                     ) @ np.asarray(sg.basis_vectors, dtype=float),
                     "",
+                    option_ranks[index],
+                    sg,
                 )
-                for sg in subs
+                for index, sg in enumerate(subs)
             ],
+            standardized_kind="primitive" if standardize else None,
         )
+        self._align_archived_lattice_labels({
+            "conventional_lattices": conventional,
+            "primitive_lattices": primitive,
+        })
         return {
             "space_groups": space_groups,
             "conventional_lattices": conventional,
@@ -913,6 +1207,7 @@ class IsoDistort:
         # 畸变结构因 k_vector 缺失而把非 Γ k 点当 Γ 点处理。
         self.phase_path.k_vector = self._resolve_k_vector(target.k_point_label)
         self.phase_path.validate()
+        self._selected_subgroup = target
 
         print(t("path.selected", desc=self.phase_path.describe()))
 
@@ -1151,6 +1446,7 @@ class IsoDistort:
     def _snapshot_distortion_state(self) -> dict:
         """保存 Distortion Page 状态，避免批量导出覆盖当前会话。"""
         return {
+            "selected_subgroup": self._selected_subgroup,
             "phase_path": self.phase_path,
             "distortion_modes": list(self.distortion_modes),
             "mode_displacements": dict(self.mode_displacements),
@@ -1159,6 +1455,7 @@ class IsoDistort:
         }
 
     def _restore_distortion_state(self, snap: dict) -> None:
+        self._selected_subgroup = snap["selected_subgroup"]
         self.phase_path = snap["phase_path"]
         self.distortion_modes = snap["distortion_modes"]
         self.mode_displacements = snap["mode_displacements"]
@@ -1204,7 +1501,9 @@ class IsoDistort:
             letter = str(w.get("wyckoff_letter") or w.get("letter") or "")
             elem = str(w.get("species") or w.get("element") or "X")
             species_counters[elem] = species_counters.get(elem, 0) + 1
-            letter_to_label[letter] = f"{elem}{species_counters[elem]}"
+            letter_to_label[letter] = str(
+                w.get("display_label") or f"{elem}{species_counters[elem]}"
+            )
 
         entries = self.mode_displacements or {}
         if not entries:
@@ -1224,14 +1523,9 @@ class IsoDistort:
                 letter = str(key).rsplit("__", 1)[-1]
             k_coords = "0,0,0"
             k_label = getattr(mode, "k_point_label", None) or ""
-            try:
-                from ..data.kpoints_official import KPOINT_OFFICIAL
-
-                entry_k = KPOINT_OFFICIAL.get(parent_sg, {}).get(k_label)
-                if entry_k:
-                    k_coords = ",".join(str(c) for c in entry_k[1])
-            except Exception:  # noqa: BLE001
-                pass
+            entry_k = KPOINT_OFFICIAL.get(parent_sg, {}).get(k_label)
+            if entry_k:
+                k_coords = ",".join(str(c) for c in entry_k[1])
 
             def _fmt_k_token(x: object) -> str:
                 try:
@@ -1239,7 +1533,7 @@ class IsoDistort:
                 except (TypeError, ValueError):
                     return str(x)
                 if abs(f - round(f)) < 1e-9:
-                    return str(int(round(f)))
+                    return str(round(f))
                 return f"{f:g}"
 
             # Fallback: only use the selected path k-vector when this mode
@@ -1249,12 +1543,11 @@ class IsoDistort:
                 and self.phase_path is not None
                 and getattr(self.phase_path, "k_vector", None)
             ):
-                primary_k = ""
-                if self.subgroups:
-                    for sg in self.subgroups:
-                        if sg.index == self.phase_path.subgroup_index:
-                            primary_k = sg.k_point_label or ""
-                            break
+                primary_k = (
+                    self._selected_subgroup.k_point_label
+                    if self._selected_subgroup is not None
+                    else ""
+                )
                 if not k_label or k_label == primary_k:
                     kv = self.phase_path.k_vector
                     k_coords = ",".join(_fmt_k_token(x) for x in kv)
@@ -1384,7 +1677,7 @@ class IsoDistort:
         """为每个子群准备导出规格；结束后恢复会话 Distortion 状态。"""
         need_modes = any(fmt != "cif" for fmt in formats)
         snap = self._snapshot_distortion_state()
-        current_idx = snap["phase_path"].subgroup_index if snap["phase_path"] else None
+        selected_identity = self._subgroup_identity(snap["selected_subgroup"])
         used: set[str] = set()
         specs: list[SubgroupExportSpec] = []
         try:
@@ -1393,7 +1686,10 @@ class IsoDistort:
                     sg, used, use_opd_line=use_opd_line_folders
                 )
                 note = ""
-                is_current = current_idx is not None and sg.index == current_idx
+                is_current = (
+                    selected_identity is not None
+                    and self._subgroup_identity(sg) == selected_identity
+                )
                 computed = False
                 if need_modes and compute_missing_modes and not is_current:
                     try:
@@ -1403,7 +1699,7 @@ class IsoDistort:
                                 "displacement modes (use official website superspace)"
                             )
                         else:
-                            self.search_method_2(sg.index)
+                            self.search_method_2(sg.index, candidates=items)
                             computed = True
                             if (
                                 not self.mode_displacements
@@ -1514,17 +1810,12 @@ class IsoDistort:
 
         畴总数 = 子群在母相中的指数；需要先选择路径（select_path / Method 2）。
         """
-        if self.phase_path is None or not self.subgroups:
+        if self.phase_path is None or self._selected_subgroup is None:
             raise RuntimeError(t("err.domains_need_path"))
 
-        target = next(
-            (sg for sg in self.subgroups
-             if sg.index == self.phase_path.subgroup_index), None
+        domains = self._domain_gen.generate_domains(
+            self.phase_path, self._selected_subgroup
         )
-        if target is None:
-            raise RuntimeError(t("err.domains_not_in_list"))
-
-        domains = self._domain_gen.generate_domains(self.phase_path, target)
         print(t("domains.found", n=len(domains)))
         return domains
 
@@ -1537,25 +1828,31 @@ class IsoDistort:
                         crystal_system: str | None = None,
                         subgroup_space_group: int | None = None,
                         lattice: list[list[float]] | None = None,
-                        maximal_subgroup_only: bool = False):
+                        maximal_subgroup_only: bool = False,
+                        lattice_kind: str = "conventional"):
         """
         Method 1: Search over all special k points.
 
         支持多条件同时过滤（逻辑 AND，与官网一致）：
         - lattice：官网 Conventional lattice / Primitive lattice 下拉所选
-          子格（3x3 矩阵，惯用坐标；Primitive 选项请先用
-          lattice_in_conventional_frame 换算）
+          格点类（3x3 矩阵，均以母相惯用坐标表达）
+        - lattice_kind：所选下拉框。Primitive 按子群原胞格点匹配。
 
         枚举结果按会话缓存，重复调用秒回。
         """
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")
+        if lattice_kind not in {"conventional", "primitive"}:
+            raise ValueError(f"Unknown Method 1 lattice kind: {lattice_kind}")
 
         query = Method1Query(
             distortion_types=distortion_types,
             crystal_system=crystal_system,
             subgroup_space_group=subgroup_space_group,
-            lattice=lattice,
+            # The selector denotes one lattice class, not every sublattice of
+            # the selected basis. Match it after type filtering below so the
+            # conventional and primitive selectors use their respective cells.
+            lattice=None,
             maximal_subgroup_only=maximal_subgroup_only,
             parent_rotations=[
                 r.tolist() for r in self._parent_rotations()
@@ -1568,6 +1865,20 @@ class IsoDistort:
         result = self._filter_method1_by_types(
             result, query.distortion_types or self.distortion_types
         )
+        if lattice is not None:
+            selected = np.asarray(lattice, dtype=float)
+            if selected.shape != (3, 3) or abs(np.linalg.det(selected)) < 1e-8:
+                raise ValueError("Method 1 lattice must be a nonsingular 3x3 matrix")
+            result = [
+                item for item in result
+                if self._same_lattice_orbit(
+                    (self._centering_matrix(
+                        _centering_letter(item.subgroup.space_group_number)
+                    ) @ np.asarray(item.subgroup.basis_vectors, dtype=float))
+                    if lattice_kind == "primitive" else item.subgroup.basis_vectors,
+                    selected,
+                )
+            ]
 
         # 记录过滤后的候选，供 Method 2 使用
         self.subgroups = [item.subgroup for item in result]
@@ -1577,7 +1888,9 @@ class IsoDistort:
     def search_method_2(self,
                         subgroup_idx: int,
                         distortion_type: str | list[str] | None = None,
-                        number_of_independent_modulations: int = 0):
+                        number_of_independent_modulations: int = 0,
+                        *,
+                        candidates: list[SubgroupInfo] | None = None):
         """
         Method 2: General method - search over specific k points.
 
@@ -1591,13 +1904,24 @@ class IsoDistort:
         displacive 产生位移模式）。
         number_of_independent_modulations must be 0 (commensurate 3D only);
         the engine rejects any nonzero value.
+
+        Args:
+            subgroup_idx: Index within the selected candidate pool.
+            distortion_type: Enabled distortion types; project defaults when omitted.
+            number_of_independent_modulations: Reserved; must remain zero.
+            candidates: Explicit candidate pool. Pass this whenever a caller keeps
+                more than one Method result table; otherwise the session default
+                ``self.subgroups`` is used for backward compatibility.
         """
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")
 
         types = normalize_distortion_types(distortion_type)
-        if not self.subgroups:
+        if candidates is None and not self.subgroups:
             self.list_subgroups(distortion_type=distortion_type)
+        candidate_pool = list(candidates) if candidates is not None else self.subgroups
+        if not candidate_pool:
+            raise RuntimeError("没有可用于 Method 2 的子群候选")
 
         query = Method2Query(
             subgroup_idx=subgroup_idx,
@@ -1609,7 +1933,7 @@ class IsoDistort:
         # 按作用域限制 BUSH 的 Wyckoff 位置（避免重复计算）
         scoped_letters = self._letters_for_species(self._union_scope_species(types))
         result = self._search.method_2_search(
-            parent_sg, self.subgroups, query,
+            parent_sg, candidate_pool, query,
             wyckoff_letters=scoped_letters,
         )
 
@@ -1621,6 +1945,7 @@ class IsoDistort:
         self.phase_path.k_vector = self._resolve_k_vector(
             result.subgroup.k_point_label)
         self.phase_path.validate()
+        self._selected_subgroup = result.subgroup
         self.distortion_modes = self._compute_scoped_modes(
             parent_sg, result.subgroup, types, raw_modes=result.modes
         )

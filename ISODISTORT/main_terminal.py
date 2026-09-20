@@ -25,6 +25,7 @@ from pathlib import Path
 from isocore.api import IsoDistort
 from isocore.distortion.search_methods import CRYSTAL_SYSTEMS
 from isocore.i18n import t
+from isocore.io import parse_export_formats
 from isocore.utils import IsodistortError, get_config
 from isocore.utils.schoenflies import (
     POINT_GROUP_SCHOENFLIES,
@@ -596,6 +597,7 @@ class IsoDistortConsoleApp:
                 crystal_system=crystal_system,
                 subgroup_space_group=subgroup_space_group,
                 lattice=lattice_matrix,
+                lattice_kind=lattice["kind"] if lattice else "conventional",
                 maximal_subgroup_only=maximal_only,
             )
         self.last_method1 = result
@@ -633,7 +635,10 @@ class IsoDistortConsoleApp:
                 idx = -1
             pool = conv if raw[0] == "c" else prim
             if 0 <= idx < len(pool):
-                return {"matrix": pool[idx]["basis"], "frame": "conventional"}
+                return {
+                    "matrix": pool[idx]["basis"], "frame": "conventional",
+                    "kind": "conventional" if raw[0] == "c" else "primitive",
+                }
         print("Invalid index; skipping lattice filter.")
         return None
 
@@ -665,17 +670,12 @@ class IsoDistortConsoleApp:
 
     def _manage_isotropy_cache(self) -> None:
         """List / batch-delete iso-generated ``i*.iso`` caches (same as web manager)."""
-        from isocore.backend.isotropy_cache import (
-            delete_isotropy_cache,
-            list_isotropy_cache,
-        )
-
         _line()
         print(t("m2.genDbManage"))
         print(t("m2.genDbWarn"))
         while True:
             try:
-                entries = list_isotropy_cache(self.iso._iso)
+                entries = self.iso.list_isotropy_cache()
             except Exception as exc:  # noqa: BLE001 - CLI: show and exit manager
                 print(f"  {exc}")
                 return
@@ -719,7 +719,7 @@ class IsoDistortConsoleApp:
             if not names:
                 print(t("m2.genDbDone"))
                 return
-            result = delete_isotropy_cache(self.iso._iso, names)
+            result = self.iso.delete_isotropy_cache(names)
             print(t("m2.genDbDeleted", len(result.get("deleted") or [])))
             if result.get("skipped"):
                 print(f"  skipped: {', '.join(result['skipped'])}")
@@ -821,7 +821,7 @@ class IsoDistortConsoleApp:
 
         for j, sg in enumerate(all_subs):
             sg.index = j
-        self.iso.subgroups = all_subs
+        self.iso.set_subgroup_candidates(all_subs)
         self.last_method2_subgroups = list(all_subs)
         self.tbl[2] = _empty_tbl(_method2_cols())
         self.tbl[2]["rows"] = [_row_method2(sg) for sg in all_subs]
@@ -926,10 +926,8 @@ class IsoDistortConsoleApp:
     def _compute_modes(self, idx: int, source: str) -> None:
         if source == "method1":
             pool = [item.subgroup for item in self.last_method1]
-            self.iso.subgroups = list(pool)
         elif source == "method3":
             pool = [item.subgroup for item in self.last_method3]
-            self.iso.subgroups = list(pool)
         else:
             pool = list(self.last_method2_subgroups)
         target = next((s for s in pool if s.index == idx), None)
@@ -948,14 +946,14 @@ class IsoDistortConsoleApp:
                 pass
         if is_param:
             self.last_method2 = None
-            self.iso.mode_displacements = {}
-            self.iso.mode_occupancies = {}
+            self.iso.clear_selected_modes()
             print(t("m2.paramKNote"))
             return
         with _ElapsedStatus(t("st.wait")):
             result = self.iso.search_method_2(
                 subgroup_idx=idx,
                 distortion_type=self.distortion_types,
+                candidates=pool,
             )
         self.last_method2 = result
         print(f"Method 2: {len(result.modes) + len(self.iso.mode_occupancies)} mode(s)")
@@ -1113,8 +1111,6 @@ class IsoDistortConsoleApp:
             return
         formats_raw = _prompt(t("ui.export.formats"), "cif,isoviz,modes,topas")
         try:
-            from isocore.io.distortion_formats import parse_export_formats
-
             formats = parse_export_formats(formats_raw)
         except ValueError as exc:
             print(f"  {exc}")
@@ -1133,32 +1129,27 @@ class IsoDistortConsoleApp:
         compute_missing_modes = need_modes
         if need_modes:
             compute_missing_modes = _prompt_yes_no(t("dist.computeModesAsk"), True)
-        saved = list(self.iso.subgroups)
-        try:
-            self.iso.subgroups = list(subs)
-            with _ElapsedStatus(t("dist.zipWait") if as_zip else t("st.wait")):
-                if as_zip:
-                    body = self.iso.export_subgroups_zip(
-                        formats=formats,
-                        subgroups=subs,
-                        compute_missing_modes=compute_missing_modes,
-                        wrapping=None,
-                        use_opd_line_folders=(method == 1),
-                    )
-                    out = Path(dest)
-                    out.parent.mkdir(parents=True, exist_ok=True)
-                    out.write_bytes(body)
-                    print(t("ui.export.done", n=len(subs), dest=out))
-                    return
-                paths = self.iso.export_subgroups(
-                    dest,
+        with _ElapsedStatus(t("dist.zipWait") if as_zip else t("st.wait")):
+            if as_zip:
+                body = self.iso.export_subgroups_zip(
                     formats=formats,
                     subgroups=subs,
                     compute_missing_modes=compute_missing_modes,
+                    wrapping=None,
                     use_opd_line_folders=(method == 1),
                 )
-        finally:
-            self.iso.subgroups = saved
+                out = Path(dest)
+                out.parent.mkdir(parents=True, exist_ok=True)
+                out.write_bytes(body)
+                print(t("ui.export.done", n=len(subs), dest=out))
+                return
+            paths = self.iso.export_subgroups(
+                dest,
+                formats=formats,
+                subgroups=subs,
+                compute_missing_modes=compute_missing_modes,
+                use_opd_line_folders=(method == 1),
+            )
         print(t("ui.export.done", n=len(paths), dest=dest))
         for path in paths[:20]:
             print(f"  {path}")

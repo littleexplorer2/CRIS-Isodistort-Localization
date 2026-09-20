@@ -179,6 +179,7 @@ def format_wyckoff_sites_from_cif(
         return None
     used: set[int] = set()
     lines: list[str] = []
+    matched_labels: list[tuple[int, str]] = []
     species_count: dict[str, int] = {}
     for atom in asu:
         best_i = None
@@ -198,6 +199,7 @@ def format_wyckoff_sites_from_cif(
         species = str(site["species"])
         species_count[species] = species_count.get(species, 0) + 1
         display = (atom.get("label") or atom.get("type_symbol") or "").strip()
+        matched_labels.append((best_i, display))
         lines.append(format_wyckoff_site(
             species=species,
             species_index=species_count[species],
@@ -208,6 +210,11 @@ def format_wyckoff_sites_from_cif(
         ))
     if len(lines) != len(wyckoff_sites):
         return None
+    for order, (site_idx, label) in enumerate(matched_labels):
+        # Preserve the source CIF's atom-site names and order for all export
+        # formats. Pymatgen can normalize or reorder both (ND -> Nd1).
+        wyckoff_sites[site_idx]["display_label"] = label
+        wyckoff_sites[site_idx]["display_order"] = order
     return lines
 
 
