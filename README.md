@@ -16,11 +16,11 @@ https://github.com/littleexplorer2/CRIS-Isodistort-Localization.git
 
 | 子项目 | 一句话 | 详细说明 |
 | --- | --- | --- |
-| **ISODISTORT/** | 本地「子群搜索 + 导出结构」 | 上传母相 CIF → 勾选畸变类型 → Method 1–4 搜索/分解 → Distortion 导出结果表与子群结构 ZIP。Method 2 可生成缺失子群库（WSL `~/.id/tmp/i*.iso`），网页与终端均可 Manage 缓存；参数 k 点的位移模式需官网 (3+d)。见 [ISODISTORT/README.md](ISODISTORT/README.md) |
+| **ISODISTORT/** | 本地「子群搜索 + 导出结构」 | 上传母相 CIF → 勾选畸变类型 → Method 1–4 搜索/分解 → Distortion 导出结果表与子群结构 ZIP。Method 2 可生成缺失子群库（WSL `~/.id/tmp/i*.iso`），网页与终端均可 Manage 缓存；参数 k 点的位移模式走本地 smodes/(3+d)（nmod）。见 [ISODISTORT/README.md](ISODISTORT/README.md) |
 | **ISODISTORT_VALIDATE/** | 核对本地 CIF 是否算对 | 把本地 CIF 放入 `compare/item/`，把官网参考 CIF 放入 `compare/true/`（批量比较须改名一一对应），用 `main.py` 比较并输出 PASS/FAIL。见 [ISODISTORT_VALIDATE/README.md](ISODISTORT_VALIDATE/README.md) |
-| **ISOVIZ_INPUT/** | 把振幅 CSV 写入 `.isoviz` 并启动 IsoVIZ | 从 `input_content/` 读取 CSV 与子群 `.isoviz`，写入 `amp` 后自动打开 Java 版 IsoVIZ（不使用 `output/`）。见 [ISOVIZ_INPUT/README.md](ISOVIZ_INPUT/README.md) |
+| **ISOVIZ_INPUT/** | 把振幅 CSV 写入 `.isoviz` 并启动 IsoVIZ | 从桌面 `Best_Model_Parameters/` 读取 GD CSV，再读入绝对路径的子群 `.isoviz`，写入 `amp` 后打开 Java 版 IsoVIZ。见 [ISOVIZ_INPUT/README.md](ISOVIZ_INPUT/README.md) |
 
-各子项目 README **只讲该项目本身**。跨项目怎么串起来，只在本文件说明。
+仓库级长期规则见 [`AGENTS.md`](AGENTS.md)；各子项目 README **只讲该项目本身**，子项目特有规则与配置分别放在其 `agent.md` 和 `config/settings.yaml`。跨项目怎么串起来，只在本文件说明。
 
 ---
 
@@ -40,7 +40,7 @@ https://github.com/littleexplorer2/CRIS-Isodistort-Localization.git
    把本地 ZIP 里某个 `subgroup.cif`（或旧版 `… CIF.cif`）拷到 `ISODISTORT_VALIDATE/compare/item/`，把官网第 6 页导出的同名子群 CIF（官网常为 `subgroup.cif`）拷到 `compare/true/`。**批量比较时必须把 `true/` 里官网下载的文件改成与 `item/` 完全相同的相对路径和文件名。** 然后运行 `python ISODISTORT_VALIDATE/main.py`（菜单或 `compare` / `batch` 子命令）。不要再传入自定义路径。`compare/` 整目录不入库，由 `main_requirement.py` 在缺失时自动创建。
 
 4. **（可选）用 ISOVIZ_INPUT 看拟合振幅**  
-   把振幅 CSV 放入 `ISOVIZ_INPUT/input_content/data.csv/`，把对应子群 `.isoviz` 放入 `input_content/subgroup.isoviz/`（整个 `input_content/` 不入库，缺失时由安装脚本自动创建）。运行 `ISOVIZ_INPUT/main.py` 读取输入后会**直接启动 IsoVIZ**，本子项目不使用 `output/` 写出结果。
+   GD 会把振幅 CSV 写到桌面 `Best_Model_Parameters/<irrep>_<structure_type>/`。运行 `ISOVIZ_INPUT/main.py`，输入该子文件夹名、CSV 文件名，以及晶体 `.isoviz` 的绝对路径（可带引号），程序会写入 `amp` 并启动 IsoVIZ。
 
 ```text
 母相 CIF
@@ -62,7 +62,7 @@ ISODISTORT  ──►  子群表 / CIF / .isoviz / modes / TOPAS
 | 路径 | 原因 |
 | --- | --- |
 | `experiment_data/` | 实验母相 CIF 等原始数据 |
-| `GD/` | 梯度下降拟合代码与笔记本（本流水线的上游数据来源之一，但不是本仓库要改的部分） |
+| `GD/` | 仓库内占位（gitignore）。实际拟合代码在桌面 `GD（未同步git）`；目标 2 转换器写在该桌面目录，**不要改本仓库 `GD/`** |
 | `webpage_info/` | 官网各步 HTML 存档（按母相分子目录：`EuAl4 Parent.cif/`、`NdNiO2 own.cif/` 等；对照交互顺序用，**勿改**） |
 | `ISODISTORT/isobyu/` | 从 iso.byu.edu 下载的 Linux 二进制（`iso`、`smodes` 等）与 `data_*.txt` 数据库 |
 
@@ -103,37 +103,17 @@ python ISOVIZ_INPUT\main_requirement.py
 
 ---
 
-## 用户需要配置 / 放置的路径（总表）
+## 用户需要配置 / 放置的路径
 
-多数路径有合理默认值；**换机器或换安装位置时**请按下面核对。细节以各子项目 README 的同名小节为准。
+换机器时按**各子项目自己的 README** 核对，不要把细节写回本文件：
 
-| 用途 | 默认位置 / 做法 | 何时需要改 |
+| 子项目 | 配置文件 | 说明 |
 | --- | --- | --- |
-| **ISOTROPY Linux 二进制与 `data_*.txt`** | 放入 `ISODISTORT/isobyu/` | 首次安装必做；若放别处则改 `ISODISTORT/config/settings.yaml` 的 `isobyu.bin_dir` / `data_dir` |
-| **母相 CIF（计算输入）** | 网页上传，或终端选择/粘贴路径；示例只读目录 `experiment_data/` | 每次计算指定你的 CIF，**不要改** `experiment_data/` 里的原始文件 |
-| **临时目录 / 终端导出目录** | `ISODISTORT/output/tmp`、`ISODISTORT/output`（相对 `config/` 写在 `settings.yaml`） | 仅当磁盘空间或策略要求换盘时改 `runtime.temp_dir` / `output_dir` |
-| **VALIDATE 成对 CIF** | 固定目录 `ISODISTORT_VALIDATE/compare/item/` 与 `compare/true/` | **不要改程序路径**；把文件放进这两处，并使相对路径/文件名一一对应 |
-| **ISOVIZ 振幅 CSV + 子群 `.isoviz`** | `ISOVIZ_INPUT/input_content/data.csv/` 与 `…/subgroup.isoviz/` | 把日常输入放进这里，或运行时用 `--data` / `--structure` 指定任意路径 |
-| **IsoVIZ 程序** | 根目录 `ISOViz.lnk`（已 gitignore），或根目录 `.jar`/`.exe`，或环境变量 `ISOVIZ` / `ISOVIZ_JAR` | 本机安装 IsoVIZ 后任选一种方式让程序能找到它；还需 **Java** 在 `PATH` 中 |
-| **VESTA（人工打开 CIF）** | 可选：根目录放 `VESTA.lnk`（已 gitignore）指向本机 `VESTA.exe` | 仅手工抽检用；程序不强制读该快捷方式 |
+| ISODISTORT | [ISODISTORT/config/settings.yaml](ISODISTORT/config/settings.yaml) | `iso` 路径、端口、临时/导出目录。见 [ISODISTORT/README.md](ISODISTORT/README.md) |
+| ISODISTORT_VALIDATE | [ISODISTORT_VALIDATE/config/settings.yaml](ISODISTORT_VALIDATE/config/settings.yaml) | `compare/item` 与 `compare/true`、默认容差。见 [ISODISTORT_VALIDATE/README.md](ISODISTORT_VALIDATE/README.md) |
+| ISOVIZ_INPUT | [ISOVIZ_INPUT/config/settings.yaml](ISOVIZ_INPUT/config/settings.yaml) | 桌面 CSV 目录、IsoVIZ 启动器查找。见 [ISOVIZ_INPUT/README.md](ISOVIZ_INPUT/README.md) |
 
-### 外部可视化工具：VESTA 与 IsoVIZ
-
-本仓库**不附带**下列程序，需自行安装；用于打开 ISODISTORT 导出的结构文件做人工抽检。
-
-| 工具 | 作用（在本项目中） | 下载 |
-| --- | --- | --- |
-| **[VESTA](https://jp-minerals.org/vesta/en/)** | 三维晶体结构可视化。用它打开 Distortion 导出的 **`subgroup.cif`**，检查晶胞、原子位点与对称是否合理。免费（学术/非商业等，以官网许可为准）。 | [下载页](https://jp-minerals.org/vesta/en/download.html)（Windows 常用 `VESTA-win64.zip`，解压后运行 `VESTA.exe`） |
-| **IsoVIZ**（ISOTROPY Suite） | 交互查看畸变模式振幅。用它打开 **`data.isoviz`**。 | 随 [ISOTROPY Suite](https://iso.byu.edu/isotropy.php) 安装；启动方式见 [ISOVIZ_INPUT/README.md](ISOVIZ_INPUT/README.md) |
-
-建议在仓库根目录放置本机快捷方式（已在 `.gitignore`，不会入库）：
-
-- `VESTA.lnk` → 指向解压后的 `VESTA.exe`
-- `ISOViz.lnk` → 指向 IsoVIZ 启动器 / `.jar`
-
-双击快捷方式或「打开方式」即可检查导出文件；**计算流程不依赖**这两个快捷方式是否存在。
-| **WSL / `ISODATA`** | 由封装自动处理（短路径暂存 + 符号链接） | 一般**不必**改系统环境变量；只需装好默认 WSL 发行版 |
-| **网页端口** | `settings.yaml` → `runtime.web_port`（默认 `8000`） | 端口被占用时修改（不是文件路径，但属本机配置） |
+仓库根目录可以放本机快捷方式（已 gitignore）：`VESTA.lnk`、`ISOViz.lnk`。计算流程不依赖它们是否存在；IsoVIZ 查找顺序以 ISOVIZ_INPUT 的 yaml 为准。
 
 跨项目流水线仍见上文「典型工作流」。
 
@@ -143,18 +123,25 @@ python ISOVIZ_INPUT\main_requirement.py
 
 ```text
 CRIS/
-├── README.md                 ← 本文件：总览与跨项目关系
-├── agent.md                  ← AI Agent 工作指南（修改边界、思考方式、验证清单）
-├── .venv/                    ← 共享虚拟环境（不入库）
-├── ISODISTORT/               ← 本地 ISODISTORT（网页 / 终端 / API）
-├── ISODISTORT_VALIDATE/      ← CIF 语义比较（compare/item vs compare/true）
-├── ISOVIZ_INPUT/             ← CSV → 启动 IsoVIZ（input_content/ 不入库）
-├── experiment_data/          ← 【勿改】实验数据
-├── webpage_info/             ← 【勿改】官网 HTML 存档（按母相 CIF 分子目录）
-├── GD/                       ← 【勿改】梯度下降相关
-├── ISOViz.lnk                ← （本机）IsoVIZ 快捷方式，已在 .gitignore
-└── VESTA.lnk                 ← （可选，本机）VESTA 快捷方式，已在 .gitignore
+├── AGENTS.md                      ← 仓库级边界、工作流与文档职责
+├── README.md                      ← 本文件：总览与跨项目关系
+├── .venv/                         ← 三个子项目共用的虚拟环境（不入库）
+├── ISODISTORT/                    ← 本地 ISODISTORT
+│   ├── README.md / agent.md
+│   └── config/settings.yaml
+├── ISODISTORT_VALIDATE/           ← CIF 语义比较
+│   ├── README.md / agent.md
+│   └── config/settings.yaml
+├── ISOVIZ_INPUT/                  ← CSV → 启动 IsoVIZ
+│   ├── README.md / agent.md
+│   └── config/settings.yaml
+├── experiment_data/               ← 【勿改】实验数据
+├── webpage_info/                  ← 【勿改】官网 HTML 存档
+├── GD/                            ← 【勿改】仓库占位（gitignore）
+├── ISOViz.lnk / VESTA.lnk         ← （本机）快捷方式，已 gitignore
 ```
+
+根目录只保留总览、仓库级精简规则、gitignore 与共享 `.venv`。各子项目的使用说明、特有 Agent 规则和运行配置都放在各自目录里；开发进度和验证报告不得写入 `AGENTS.md` / `agent.md`。
 
 ---
 
@@ -162,9 +149,9 @@ CRIS/
 
 | 你想做的事 | 打开 |
 | --- | --- |
-| AI / Agent 修改与验收本仓库 | [agent.md](agent.md) |
-| 安装环境、跑网页/终端搜索子群 | [ISODISTORT/README.md](ISODISTORT/README.md) |
-| 比较本地 CIF 与官网 CIF | 放入 [ISODISTORT_VALIDATE/compare/](ISODISTORT_VALIDATE/compare/) 后运行 `ISODISTORT_VALIDATE/main.py`，见 [ISODISTORT_VALIDATE/README.md](ISODISTORT_VALIDATE/README.md) |
-| 把振幅写入 IsoVIZ 并打开 | 放入 [ISOVIZ_INPUT/input_content/](ISOVIZ_INPUT/input_content/) 后见 [ISOVIZ_INPUT/README.md](ISOVIZ_INPUT/README.md) |
+| 三个子项目如何串起来 | 本文件 |
+| 改 ISODISTORT / 开发目标 | 规则见 [ISODISTORT/agent.md](ISODISTORT/agent.md)，计划见 [ISODISTORT/docs/DEVELOPMENT_PLAN.md](ISODISTORT/docs/DEVELOPMENT_PLAN.md)，使用说明见 [ISODISTORT/README.md](ISODISTORT/README.md) |
+| 比较本地 CIF 与官网 CIF | [ISODISTORT_VALIDATE/agent.md](ISODISTORT_VALIDATE/agent.md)、[ISODISTORT_VALIDATE/README.md](ISODISTORT_VALIDATE/README.md) |
+| 把振幅写入 IsoVIZ 并打开 | [ISOVIZ_INPUT/agent.md](ISOVIZ_INPUT/agent.md)、[ISOVIZ_INPUT/README.md](ISOVIZ_INPUT/README.md) |
 
 官网帮助（概念背景，非本仓库文档）：[ISODISTORT Help](https://iso.byu.edu/isodistorthelp.php)、[ISOTROPY Suite](https://iso.byu.edu/isotropy.php)。

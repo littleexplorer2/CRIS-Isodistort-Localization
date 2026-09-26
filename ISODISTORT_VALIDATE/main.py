@@ -11,6 +11,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from isodistort_validate import compare_paths as cpaths
+from isodistort_validate.config_loader import get_config
 from isodistort_validate.batch_compare import main as batch_cli_main
 from isodistort_validate.batch_compare import run_batch
 from isodistort_validate.compare_cif import _print_result, compare_cif
@@ -62,14 +63,17 @@ def _prompt_yes_no(text: str, default: bool = False) -> bool:
 
 
 def _prompt_common_options() -> dict[str, object]:
+    cfg = get_config()
     options: dict[str, object] = {
-        "lattice_tolerance": _prompt_float("晶格容差", 1e-5),
-        "coordinate_tolerance": _prompt_float("分数坐标容差", 1e-5),
-        "scalar_tolerance": _prompt_float("占据率/磁矩容差", 1e-5),
+        "lattice_tolerance": _prompt_float("晶格容差", cfg.lattice_tolerance),
+        "coordinate_tolerance": _prompt_float("分数坐标容差", cfg.coordinate_tolerance),
+        "scalar_tolerance": _prompt_float("占据率/磁矩容差", cfg.scalar_tolerance),
     }
     print(cpaths.IGNORE_ATOM_ORDER_HELP)
-    options["ignore_atom_order"] = _prompt_yes_no("是否忽略原子排列顺序", False)
-    options["strict"] = _prompt_yes_no("是否启用严格字节比较", False)
+    options["ignore_atom_order"] = _prompt_yes_no(
+        "是否忽略原子排列顺序", cfg.ignore_atom_order
+    )
+    options["strict"] = _prompt_yes_no("是否启用严格字节比较", cfg.strict)
     return options
 
 
@@ -156,7 +160,7 @@ def _run_batch() -> None:
             _print_batch_hint()
         return
     _print_batch_hint()
-    pattern = _prompt("文件匹配模式", "*.cif")
+    pattern = _prompt("文件匹配模式", get_config().pattern)
     options = _prompt_common_options()
     manifest_text = _prompt("SHA-256 manifest 路径（可留空）", allow_empty=True)
     json_output = _prompt_yes_no("是否输出 JSON 报告", False)
@@ -212,6 +216,8 @@ def _show_help() -> None:
     print("批量模式比较两个文件夹中的全部配对，并报告缺失和失败用例。")
     print("默认 n：按 CIF 原子行号一一对应。选 y：按同种元素和分数坐标配对，可忽略行顺序，")
     print("但不忽略坐标或元素种类的真实差异。")
+    print("默认容差与比较目录见本目录 config/settings.yaml。")
+    print("说明见 README.md；Agent 约定见 agent.md。")
     print()
     print(CLI_USAGE)
 

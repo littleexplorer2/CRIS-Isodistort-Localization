@@ -1,0 +1,31 @@
+# ============================================================
+# ISODISTORT_VALIDATE 子项目配置
+# 相对路径均相对本文件所在目录 config/ 解析。
+# 虚拟环境与另外两个子项目共用仓库根 CRIS/.venv
+# （由本目录 main_requirement.py 创建或复用）。
+# ============================================================
+
+# 成对 CIF 比较目录（不要在运行时再传自定义路径）
+compare:
+  # 比较根目录
+  root: "../compare"
+  # 待验证：本地 ISODISTORT 导出的 CIF
+  item_dir: "item"
+  # 参考：官网下载的 CIF（批量比较须改成与 item/ 相同的相对路径和文件名）
+  true_dir: "true"
+  # 递归匹配模式
+  pattern: "*.cif"
+
+# 语义比较默认容差（命令行 / 菜单未改时使用）
+defaults:
+  lattice_tolerance: 0.00001
+  coordinate_tolerance: 0.00001
+  scalar_tolerance: 0.00001
+  # 是否忽略 CIF 原子行顺序（按元素+分数坐标配对）
+  ignore_atom_order: false
+  # 是否额外要求字节完全一致才 PASS（排版调试用）
+  strict: false
+
+runtime:
+  # 入口脚本会自行加入 sys.path；本子项目不需要 ISODATA / WSL
+  python_min: "3.10"

@@ -21,7 +21,9 @@ compare/true/LD1 C1/subgroup.cif
 
 默认看的是**晶体学语义**是否一致，而不是文件排版是否一模一样。若要求字节级完全相同，请加 `--strict`。
 
-本项目与仓库根目录的 `CRIS/.venv` 共用一份 Python 虚拟环境。单对比较和批量比较都从同一个入口启动：`main.py`。
+本项目与仓库根目录的 `CRIS/.venv` 共用一份 Python 虚拟环境。说明与配置都在本目录：[`README.md`](README.md)、[`agent.md`](agent.md)、[`config/settings.yaml`](config/settings.yaml)。子项目之间的关系见仓库根目录 [README.md](../README.md)。
+
+单对比较和批量比较都从同一个入口启动：`main.py`。
 
 ---
 
@@ -63,13 +65,14 @@ LD1 C1/subgroup.cif
 | --- | --- | --- |
 | **本地 CIF（待测）** | `ISODISTORT_VALIDATE/compare/item/` | 放入 ISODISTORT 导出的 `subgroup.cif`（可带子目录，如 `LD1 C1/subgroup.cif`） |
 | **官网 CIF（参考）** | `ISODISTORT_VALIDATE/compare/true/` | 放入官网下载的对应 CIF，并把**相对路径和文件名改成与 `item/` 完全一致** |
-| **目录缺失** | 同上 | 运行 `main_requirement.py` 会自动创建空的 `compare/{item,true}`；无需改配置文件 |
+| **目录缺失** | 同上 | 运行 `main_requirement.py` 会按 `config/settings.yaml` 的默认相对路径自动创建空的 `compare/{item,true}` |
+| **比较容差 / 匹配模式** | `config/settings.yaml` → `defaults` / `compare.pattern` | 换机器一般不用改；要改默认容差或比较根目录时改 yaml（相对 `config/`） |
 | **Python / venv** | 仓库根 `CRIS/.venv` | 与其它子项目共用；用 `.\.venv\Scripts\python.exe` 启动 |
 | **环境变量** | 无 | 本子项目**不需要** `ISODATA` / WSL / IsoVIZ 路径 |
 
-**不要改的：** 把 compare 根目录改到别处（当前入口不支持）；为迁就路径去改程序。应对齐文件名，而不是改代码里的路径常量。
+**不要改的：** 为迁就路径去改程序常量。应对齐文件名，或改 yaml 里的 `compare` 段，而不是在入口里再传一套路径。
 
-跨项目总表见仓库根 [README.md](../README.md)。
+Agent 约定见 [agent.md](agent.md)。跨项目总览见仓库根 [README.md](../README.md)。
 
 ---
 
@@ -130,7 +133,7 @@ python main.py
 | **3. 查看验证说明** | 打印本工具摘要（细节以本 README 为准） |
 | **0. 退出** | 结束 |
 
-菜单**不再询问文件或目录路径**。晶格 / 分数坐标 / 占据率与磁矩容差默认都是 `1e-5`。
+菜单**不再询问文件或目录路径**。晶格 / 分数坐标 / 占据率与磁矩容差默认取 `config/settings.yaml` 的 `defaults`（当前均为 `1e-5`）。
 
 进入菜单、单对比较或批量比较时，若 `item/` 与 `true/` 里有对不上的相对路径，会立刻打印这些文件名，并请你把 `true/` 中官网 CIF 改成与 `item/` 相同。没有成对文件时，单对/批量比较不会继续问容差。
 
@@ -277,9 +280,12 @@ python -m pytest tests_dev -q
 
 ```text
 ISODISTORT_VALIDATE/
+  agent.md                Agent 工作指南（修改边界、验收）
+  README.md               本文件（使用说明）
+  config/settings.yaml    比较目录与默认容差
   main.py                 唯一启动入口（交互菜单 / compare / batch）
-  main_requirement.py     依赖 / 环境 / compare 目录准备
-  isodistort_validate/    计算核心（比较算法、固定路径）
+  main_requirement.py     依赖 / 环境 / compare 目录准备（共用 CRIS/.venv）
+  isodistort_validate/    计算核心（比较算法、配置加载、固定路径）
   compare/                本地比对目录（gitignore，不入库）
     true/                 官网标准答案 CIF（批量比较前须改名以匹配 item/）
     item/                 待验证 CIF
@@ -287,5 +293,4 @@ ISODISTORT_VALIDATE/
   requirements-dev.txt
   pyproject.toml
   tests_dev/              pytest
-  README.md
 ```

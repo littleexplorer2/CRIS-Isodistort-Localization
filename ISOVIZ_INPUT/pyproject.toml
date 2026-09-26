@@ -1,9 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "isoviz-input"
 version = "0.1.0"
-description = "Read amplitude CSV and subgroup .isoviz from input_content, apply amplitudes, and launch IsoVIZ."
+description = "Read amplitude CSV, write amp into subgroup .isoviz, and launch IsoVIZ."
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["isoviz_input*"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "S", "BLE", "RUF", "PL"]
+ignore = ["RUF001", "RUF002", "RUF003", "PLR"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests_dev/*.py" = ["S101"]
+"main.py" = ["E402"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests_dev"]

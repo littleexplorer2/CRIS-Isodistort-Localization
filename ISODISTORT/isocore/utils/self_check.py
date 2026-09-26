@@ -20,15 +20,17 @@ import spglib
 from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-SYMPREC = 1e-3
+from .config_loader import get_config
 
 
 def _symmetry_rotations(structure: Structure) -> set[tuple]:
     """结构全部对称操作的旋转矩阵（元组集合，用于子集判定）。"""
+    cfg = get_config()
     dataset = spglib.get_symmetry_dataset(
         (structure.lattice.matrix, structure.frac_coords,
          structure.atomic_numbers),
-        symprec=SYMPREC, angle_tolerance=1.0,
+        symprec=cfg.symmetry_cartesian_tolerance_angstrom,
+        angle_tolerance=cfg.symmetry_angle_tolerance_degrees,
     )
     rots = set()
     for rot in dataset["rotations"]:
@@ -115,8 +117,17 @@ def run_self_checks(iso, irrep_label: str,
     if distorted is None:
         distorted = iso.generate_distortion(irrep_label=irrep_label,
                                             amplitude=0.1)
-    parent_sg = SpacegroupAnalyzer(parent, symprec=SYMPREC).get_space_group_number()
-    dist_sg = SpacegroupAnalyzer(distorted, symprec=SYMPREC).get_space_group_number()
+    cfg = get_config()
+    parent_sg = SpacegroupAnalyzer(
+        parent,
+        symprec=cfg.symmetry_cartesian_tolerance_angstrom,
+        angle_tolerance=cfg.symmetry_angle_tolerance_degrees,
+    ).get_space_group_number()
+    dist_sg = SpacegroupAnalyzer(
+        distorted,
+        symprec=cfg.symmetry_cartesian_tolerance_angstrom,
+        angle_tolerance=cfg.symmetry_angle_tolerance_degrees,
+    ).get_space_group_number()
     results = {
         "zero_amplitude": check_zero_amplitude(iso, irrep_label),
         "subgroup_rule": check_subgroup_rule(parent_sg, dist_sg,

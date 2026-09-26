@@ -3,7 +3,7 @@
 Must open in the ISOTROPY Suite **IsoVIZ** program (CRIS root ``ISOViz``
 shortcut). Layout follows the official Save interactive distortion ascii
 closely enough for IsoVIZ / ISOVIZ_INPUT; byte-identical copy of the website
-file is not required (see repo ``agent.md``).
+file is not required (see ``ISODISTORT/agent.md``).
 
 IsoVIZ requires that each ``!displacivemodelist`` entry's mode-vector count
 equals the number of ``!atomcoordlist`` rows for that ``parentatom`` type.
@@ -437,20 +437,36 @@ def _mode_parentatom(
 
 
 def _isoviz_mode_label(pretty: str, irrep: str) -> str:
-    """Prefer compact ``GM1+[Al2:e:dsp]A1(a)``-style labels when present."""
+    """Compact IsoVIZ displacive label.
+
+    Special-k (Gamma): ``GM1+[Al2:e:dsp]A1(a)``.
+    Parametric / lock-in: keep the k prefix,
+    ``[0,0,1/6]LD1[Eu0:a:dsp]A2u(a)``.
+    """
+    from fractions import Fraction
+
     text = (pretty or "").strip()
     if not text:
         return irrep
-    # I4/mmm[0,0,0]GM1+(a)[Al2:e:dsp]A1(a) → GM1+[Al2:e:dsp]A1(a)
-    m = re.search(
-        r"((?:GM|LD|DT|X|M|A|R|Z|N|P|H|V)\d*[+-]?)"
-        r"(?:\([^)]*\))?"
-        r"(\[[^\]]+\].*)",
+    m = re.match(
+        r"^(?:[^[\s]+)?\[([^]]+)\]([A-Za-z0-9+-]+)(?:\([^)]*\))?(\[[^\]]+:[^\]]+\].*)$",
         text,
     )
     if m:
-        return f"{m.group(1)}{m.group(2)}"
-    m2 = re.search(rf"({re.escape(irrep)}\S*)", text)
+        k_coords, ir, rest = m.group(1), m.group(2), m.group(3)
+        is_gamma = True
+        for part in k_coords.split(","):
+            try:
+                if abs(float(Fraction(part.strip()))) > 1e-10:
+                    is_gamma = False
+                    break
+            except (ValueError, ZeroDivisionError):
+                is_gamma = False
+                break
+        if is_gamma:
+            return f"{ir}{rest}"
+        return f"[{k_coords}]{ir}{rest}"
+    m2 = re.search(rf"({re.escape(irrep)}\S*)", text) if irrep else None
     if m2:
         return m2.group(1)
     return text

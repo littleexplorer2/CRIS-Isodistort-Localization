@@ -121,7 +121,13 @@
       <span id="lKp">Specify k point:</span>
     </p>
     <div id="kvecBox"></div>
-    <div class="muted-hint" id="m2NmodRemoved"></div>
+    <p>
+      <span id="lNmod"># of independent incommensurate modulations:</span>
+      <input id="nmod" class="span1" value="0" size="2">
+      <button class="btn btn-primary" id="btnNmod" onclick="applyNmod()">Change</button>
+      <span class="muted-hint" id="nmodHint"></span>
+    </p>
+    <b id="m2NmodNote">Important: You must click on Change to implement any changes in the number of independent incommensurate modulations. 0 = 3D lock-in complete modes (harmonics and folding secondary IRs). n ≥ 1 keeps harmonics of n independent q-vectors.</b>
     <label style="font-weight:normal; margin:4px 0;">
       <input type="checkbox" id="genSubgroupDb" onchange="onGenDbChange()">
       <span id="lGenDb">Generate isotropy subgroups database if missing</span>
@@ -291,17 +297,35 @@ let m4Items = [];
 let m4Meta = { rms: null, maxAbs: null };
 let modes = [];             // {irrep_label, opd_symbol, mode_type, wyckoff_sites, ...}
 let nsupValue = 1;
+let nmodValue = 0;
 let genDbValue = false;  // 缺失时在线生成子群数据库（对应官网 Generate isotropy subgroups）
 
 /* ================= 通用 ================= */
+function acceptResponseState(data) {
+  if (!data || !data.state) return;
+  STATE = data.state;
+  if (data.stale_context) {
+    // This tab's row indices belong to an older shared context.  Discard
+    // them before adopting the current revision returned by the server.
+    clearComputedResults();
+    renderStatusBar(STATE);
+    renderTypes();
+  }
+}
 async function api(path, body) {
   const opts = { method: body !== undefined ? "POST" : "GET", headers: {} };
   if (body !== undefined) {
+    const payload = { ...body };
+    if (STATE && Number.isInteger(STATE.revision) && payload.revision === undefined) {
+      payload.revision = STATE.revision;
+    }
     opts.headers["Content-Type"] = "application/json";
-    opts.body = JSON.stringify(body);
+    opts.body = JSON.stringify(payload);
   }
   const r = await fetch(path, opts);
-  return r.json();
+  const data = await r.json();
+  acceptResponseState(data);
+  return data;
 }
 function fileText(file) {
   return new Promise((res, rej) => {
@@ -433,7 +457,17 @@ function renderStatusBar(s) {
   box.innerHTML = status;
 }
 async function refreshStatus() {
+  const previousRevision = STATE && Number.isInteger(STATE.revision)
+    ? STATE.revision : null;
   const d = await api("/api/state");
+  if (previousRevision !== null && d.state
+      && Number.isInteger(d.state.revision)
+      && d.state.revision !== previousRevision) {
+    // A passive refresh must never bless result rows produced by another tab.
+    // Local mutation responses update STATE before refreshStatus is called, so
+    // a revision change observed here necessarily happened outside this page.
+    clearComputedResults();
+  }
   STATE = d.state;
   const s = d.state;
   const para = document.getElementById("infoPara");
@@ -495,18 +529,7 @@ async function loadCif() {
   );
   if (!d.ok) { showError(msg, d.error); document.getElementById("infoPara").textContent = "-"; return; }
   showOk(msg, t("ok.loaded"));
-  m1Items = []; subgroups = []; m3Items = []; m4Items = [];
-  m4Meta = { rms: null, maxAbs: null };
-  tblState[1] = emptyTblState(); tblState[2] = emptyTblState();
-  tblState[3] = emptyTblState(); tblState[4] = emptyTblState();
-  document.getElementById("m1Out").innerHTML = "";
-  document.getElementById("subOut").innerHTML = "";
-  document.getElementById("modesBox").innerHTML = "";
-  document.getElementById("m3Out").innerHTML = "";
-  const m3Modes = document.getElementById("m3ModesBox");
-  if (m3Modes) m3Modes.innerHTML = "";
-  document.getElementById("m4Out").innerHTML = "";
-  m1Options = null;
+  clearComputedResults();
   await refreshStatus();
   await refreshKpoints();
   loadMethod1Options();   // 后台预取 Method 1 下拉数据（首次枚举较慢）
@@ -590,6 +613,7 @@ async function applyTypes() {
   // Use the state returned by the mutation immediately.  This also makes the
   // blue Types summary independent of a subsequent /api/state round trip.
   STATE = d.state;
+  clearComputedResults();
   renderStatusBar(STATE);
   renderTypes();
   showOk(msg, t("ok.types"));
@@ -688,6 +712,25 @@ function emptyTblState() {
 }
 const tblState = { 1: emptyTblState(), 2: emptyTblState(), 3: emptyTblState(), 4: emptyTblState() };
 
+function clearComputedResults() {
+  m1Items = [];
+  subgroups = [];
+  irreps = [];
+  m3Items = [];
+  m4Items = [];
+  modes = [];
+  m4Meta = { rms: null, maxAbs: null };
+  tblState[1] = emptyTblState();
+  tblState[2] = emptyTblState();
+  tblState[3] = emptyTblState();
+  tblState[4] = emptyTblState();
+  for (const id of ["m1Out", "subOut", "modesBox", "m3Out", "m3ModesBox", "m4Out"]) {
+    const node = document.getElementById(id);
+    if (node) node.innerHTML = "";
+  }
+  m1Options = null;
+}
+
 function itemsFor(method) {
   if (method === 1) return m1Items;
   if (method === 2) return subgroups;
@@ -700,6 +743,11 @@ function tblContainer(method) {
 }
 function tblClickSource(method) {
   return { 1: "method1", 2: "subgroups", 3: "method3", 4: null }[method];
+}
+function knownRouteText(route) {
+  const params = (route.k_parameters || []).length
+    ? `(${route.k_parameters.join(",")})` : "";
+  return `${route.k_point_label}${params}:${route.irrep_label} ${route.opd_symbol}`;
 }
 function methodColumns(method) {
   if (method === 4) {
@@ -767,11 +815,16 @@ function methodColumns(method) {
         sortVal: (it) => Number(it.subgroup_index) || 0, exportHeader: "subgroup_index" },
     ];
   }
-  // Method 3: same interactive columns as Method 2, plus point group
-  return [idx, sg, k, ir,
-    { key: "opd", header: "OPD", sortable: true, filterable: true,
-      text: (it) => String(it.opd_symbol || ""), cell: (it) => esc(it.opd_symbol || ""),
-      sortVal: (it) => String(it.opd_symbol || ""), exportHeader: "OPD" },
+  // Method 3 first-stage identity follows the official embedding table.
+  return [idx, sg,
+    { key: "basis", header: "basis", sortable: true, filterable: true,
+      text: (it) => String(it.basis_display || ""),
+      cell: (it) => esc(it.basis_display || ""),
+      sortVal: (it) => String(it.basis_display || ""), exportHeader: "basis" },
+    { key: "origin", header: "origin", sortable: true, filterable: true,
+      text: (it) => String(it.origin_display || ""),
+      cell: (it) => esc(it.origin_display || ""),
+      sortVal: (it) => String(it.origin_display || ""), exportHeader: "origin" },
     { key: "pg", header: term("point group"), sortable: true, filterable: true,
       text: (it) => String(it.point_group || ""), cell: (it) => esc(it.point_group || ""),
       sortVal: (it) => String(it.point_group || ""), exportHeader: "point_group" },
@@ -781,6 +834,10 @@ function methodColumns(method) {
     { key: "i", header: "i", sortable: true, filterable: true,
       text: (it) => String(it.subgroup_index), cell: (it) => it.subgroup_index,
       sortVal: (it) => Number(it.subgroup_index) || 0, exportHeader: "subgroup_index" },
+    { key: "routes", header: "known routes", sortable: true, filterable: true,
+      text: (it) => (it.known_routes || []).map(knownRouteText).join("; "),
+      cell: (it) => esc((it.known_routes || []).map(knownRouteText).join("; ")),
+      sortVal: (it) => Number(it.known_route_count) || 0, exportHeader: "known_routes" },
   ];
 }
 function itemMatches(method, it) {
@@ -831,7 +888,10 @@ function resultTableHtml(method, rows) {
     h += `<tr><td colspan="${cols.length}">-</td></tr>`;
   } else {
     for (const it of rows) {
-      const idxAttr = clickable ? ` class="clickable" data-idx="${esc(it.index)}"` : "";
+      const rowClickable = clickable && it.selectable !== false;
+      const idxAttr = rowClickable
+        ? ` class="clickable" data-idx="${esc(it.index)}"`
+        : (clickable ? ` title="Affine embedding only: coupled route unresolved"` : "");
       h += `<tr${idxAttr}>${cols.map((c) => `<td>${c.cell(it)}</td>`).join("")}</tr>`;
     }
   }
@@ -1170,6 +1230,16 @@ function applyNsup() {
   renderKvecBox();
   showOk(document.getElementById("subOut"), t("ok.nsup", n));
 }
+function applyNmod() {
+  const raw = document.getElementById("nmod").value.trim();
+  const n = parseInt(raw, 10);
+  if (!Number.isInteger(n) || n < 0 || n > 3) {
+    showError(document.getElementById("subOut"), t("err.badNmod"));
+    return;
+  }
+  nmodValue = n;
+  showOk(document.getElementById("subOut"), t("ok.nmod", n));
+}
 
 async function computeModes(idx, source) {
   // Method 3 modes render under Method 3; Method 1/2 keep using Method 2's modesBox.
@@ -1180,17 +1250,6 @@ async function computeModes(idx, source) {
     : source === "method3" ? (m3Items || [])
     : (m1Items || []);
   const sg = pool.find(s => s.index === idx);
-  const kp = kpoints.find(k => k.label === sg?.k_point_label);
-  const isParamK = !!(
-    (sg && sg.k_parameters && sg.k_parameters.length)
-    || (kp && kp.parameters && kp.parameters.length)
-  );
-  if (isParamK) {
-    modes = [];
-    out.innerHTML = `<div class="alert alert-warning">${esc(t("m2.paramKNote"))}</div>`;
-    await refreshStatus();
-    return;
-  }
 
   const d = await withBusy(
     out, t("st.wait"), [],
@@ -1198,6 +1257,7 @@ async function computeModes(idx, source) {
       subgroup_idx: idx,
       distortion_type: STATE ? STATE.distortion_types : undefined,
       nsup: nsupValue,
+      nmod: nmodValue,
       source: source,
     }, "POST"),
   );
@@ -1208,7 +1268,8 @@ async function computeModes(idx, source) {
   }
   modes = d.modes || [];
   const rows = modes.map(m => {
-    let cell = esc(m.irrep_label);
+    const shown = m.pretty_label || m.irrep_label;
+    let cell = esc(shown);
     if (m.mode_type === "occupational") {
       cell += ` <span class="muted-hint">(occ${m.validated ? "" : " · " + t("occ.note")})</span>`;
     } else {
@@ -1218,13 +1279,15 @@ async function computeModes(idx, source) {
   });
   let header = "";
   if (sg) {
-    const basis = (sg.basis_vectors || []).map(r => "(" + r.join(",") + ")").join(" ");
-    const origin = (sg.origin || []).join(",");
+    const basis = sg.basis_display || sg.basis
+      || (sg.basis_vectors || []).map(r => "(" + r.join(",") + ")").join(",");
+    const origin = sg.origin_display
+      || (Array.isArray(sg.origin) ? "(" + sg.origin.join(",") + ")" : String(sg.origin || ""));
     header = `<div class="info">SG ${sg.space_group_number} ${esc(sg.space_group_symbol || "")}`
       + ` · ${t("hK")}=${esc(sg.k_point_label)} · ${t("hIrrep")}=${esc(sg.irrep_label)}`
       + ` · OPD=${esc(sg.opd_symbol)} · s=${sg.size} · i=${sg.subgroup_index}`
       + (sg.is_maximal ? " · maximal" : "")
-      + `<br>${term("supercell")}: ${esc(basis)} · origin=(${esc(origin)})</div>`;
+      + `<br>${term("supercell")}: ${esc(basis)} · origin=${esc(origin)}</div>`;
   }
   out.innerHTML = header + table([t("hIrrep"), "OPD", term("Wyckoff position"), t("hNrep")], rows);
   await refreshStatus();
@@ -1324,17 +1387,6 @@ function updateParametricDownloadHint() {
   note.textContent = hasParam ? t("dist.paramFormatDefault") : "";
 }
 function applyMethod3DownloadDefaults() {
-  if (!m3Items.some(candidateHasParametricK)) {
-    updateParametricDownloadHint();
-    return;
-  }
-  // Parametric-k mode sections cannot be populated by the local 3-D engine.
-  // Start with the one fully supported format; users may deliberately opt in
-  // to placeholder mode files after reading the visible warning.
-  document.getElementById("fmtCif").checked = true;
-  document.getElementById("fmtIsoviz").checked = false;
-  document.getElementById("fmtModes").checked = false;
-  document.getElementById("fmtTopas").checked = false;
   updateParametricDownloadHint();
 }
 async function downloadAll() {
@@ -1353,7 +1405,11 @@ async function downloadAll() {
   const selected = items.filter((it) => idxs.includes(it.index));
   const hasParam = selected.some(candidateHasParametricK);
   let href = `/api/download_all?method=${encodeURIComponent(method)}`
-    + `&formats=${encodeURIComponent(fmts.join(","))}`;
+    + `&formats=${encodeURIComponent(fmts.join(","))}`
+    + `&nmod=${encodeURIComponent(nmodValue)}`;
+  if (STATE && Number.isInteger(STATE.revision)) {
+    href += `&revision=${encodeURIComponent(STATE.revision)}`;
+  }
   if (idxs.length !== items.length) {
     href += `&indices=${encodeURIComponent(idxs.join(","))}`;
   }
@@ -1372,6 +1428,7 @@ async function downloadAll() {
       let msg = t("dist.zipFail");
       try {
         const d = await r.json();
+        acceptResponseState(d);
         if (d && d.error) msg = d.error;
       } catch (e) { /* keep default */ }
       showError(out, msg);
@@ -1451,7 +1508,10 @@ function renderAll() {
   document.getElementById("lNsup").textContent = t("l.nsup");
   document.getElementById("btnNsup").textContent = t("btn.change");
   document.getElementById("m2NsupNote").textContent = t("m2.nsup_note");
-  document.getElementById("m2NmodRemoved").textContent = t("m2.nmodRemoved");
+  document.getElementById("lNmod").textContent = t("l.nmod");
+  document.getElementById("btnNmod").textContent = t("btn.change");
+  document.getElementById("nmodHint").textContent = t("nmod.hint");
+  document.getElementById("m2NmodNote").textContent = t("m2.nmodNote");
   document.getElementById("lGenDb").textContent = t("lGenDb");
   document.getElementById("genDbHelp").textContent = t("m2.genDbHelp");
   document.getElementById("btnGenDbManage").textContent =

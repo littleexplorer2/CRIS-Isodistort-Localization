@@ -406,6 +406,10 @@ def main() -> int:
 
     if args.dev:
         _pip_install(python, project_root / "ISODISTORT" / "requirements-dev.txt")
+        _pip_install(python, project_root / "ISODISTORT_VALIDATE" / "requirements-dev.txt")
+        isoviz_dev = project_root / "ISOVIZ_INPUT" / "requirements-dev.txt"
+        if isoviz_dev.is_file():
+            _pip_install(python, isoviz_dev)
 
     _post_import_smoke_check(project_root, python)
     if has_isobyu:

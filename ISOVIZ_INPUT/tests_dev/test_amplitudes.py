@@ -73,3 +73,65 @@ def test_ensure_input_content_creates_named_folders(tmp_path, monkeypatch):
     assert structure_dir.is_dir()
     assert data_dir.name == "data.csv"
     assert structure_dir.name == "subgroup.isoviz"
+
+
+def test_gd_style_names_match_isoviz_labels():
+    text = (FIXTURES / "sample.isoviz").read_text(encoding="utf-8")
+    from isoviz_input.amplitudes import ModeAmplitude
+
+    modes = [
+        ModeAmplitude(
+            name="I4/mmm[0,0,1/6]LD1(a,b)[Eu0:a:dsp]A2u(a)",
+            amplitude=0.12345,
+            alias="a1",
+        ),
+        ModeAmplitude(
+            name="I4/mmm[0,0,1/3]LD1(a,b)[Eu0:a:dsp]A2u(a)",
+            amplitude=0.5,
+            alias="a2",
+        ),
+    ]
+    patched, report = apply_amplitudes(text, modes)
+    assert len(report.matched) == 2
+    assert report.unmatched_csv == []
+    assert "1    1   0.12345   2.44949" in patched
+    assert "1    2   0.50000   2.82843" in patched
+    assert report.unmatched_isoviz == ["GM1+strain_1(a)"]
+
+
+def test_displacive_alias_fallback_skips_strain():
+    text = (FIXTURES / "sample.isoviz").read_text(encoding="utf-8")
+    from isoviz_input.amplitudes import ModeAmplitude
+
+    modes = [
+        ModeAmplitude(name="unmatched-name-a", amplitude=0.11, alias="a1"),
+        ModeAmplitude(name="unmatched-name-b", amplitude=0.22, alias="a2"),
+    ]
+    patched, report = apply_amplitudes(text, modes)
+    assert len(report.matched) == 2
+    assert "1    1   0.11000   2.44949" in patched
+    assert "1    2   0.22000   2.82843" in patched
+    assert report.unmatched_isoviz == ["GM1+strain_1(a)"]
+
+
+def test_main_uses_quoted_structure_without_launching(monkeypatch):
+    import main as isoviz_main
+
+    launched: dict[str, str] = {}
+
+    def fake_open(path, launcher=None):
+        launched["text"] = Path(path).read_text(encoding="utf-8")
+
+    monkeypatch.setattr(isoviz_main, "open_isoviz", fake_open)
+    monkeypatch.setattr(isoviz_main, "find_isoviz_launcher", lambda: None)
+    rc = isoviz_main.main(
+        [
+            "--data",
+            str(FIXTURES / "sample.csv"),
+            "--structure",
+            f'"{FIXTURES / "sample.isoviz"}"',
+        ]
+    )
+    assert rc == 0
+    assert "0.12345" in launched["text"]
+    assert "0.50000" in launched["text"]

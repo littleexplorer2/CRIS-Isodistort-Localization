@@ -6,31 +6,60 @@ Visible radio text on the website looks like::
 """
 from __future__ import annotations
 
+import math
 from collections.abc import Sequence
 from fractions import Fraction
+from numbers import Integral, Real
 
 import numpy as np
 from pymatgen.symmetry.groups import SpaceGroup
+
+from .lattice import inverse, rational_matrix, transpose
 
 # Official radio line: irrep left-padded to 9, OPD symbol to 5.
 _IRREP_WIDTH = 9
 _OPD_WIDTH = 5
 
 
-def format_number(value: float | int | str) -> str:
-    """Render a coordinate as an integer or reduced fraction (``1/2``, not ``0.5``)."""
+def format_number(value: float | int | str | Fraction) -> str:
+    """Render a coordinate without inventing a nearby rational value.
+
+    Text and :class:`Fraction` inputs carry exact intent and are preserved (or
+    reduced) exactly.  Binary floats are rendered as a fraction only when
+    their *exact binary value* is a reasonably small dyadic rational; other
+    floats use Python's round-trippable decimal spelling.  In particular,
+    ``float(1/97)`` can no longer be rounded to the false value ``0``.
+    """
     if isinstance(value, str):
         text = value.strip()
         if text:
             return text
         return "0"
-    frac = Fraction(value).limit_denominator(48)
+    if isinstance(value, Fraction):
+        frac = value
+    elif isinstance(value, Integral):
+        return str(int(value))
+    elif isinstance(value, Real):
+        number = float(value)
+        if not math.isfinite(number):
+            raise ValueError(f"Coordinate must be finite, got {value!r}")
+        if number == 0:
+            return "0"
+        exact = Fraction.from_float(number)
+        if exact.denominator > 65_536:
+            return repr(number)
+        frac = exact
+    else:
+        raise TypeError(f"Unsupported coordinate value: {value!r}")
     if frac.denominator == 1:
         return str(frac.numerator)
     return f"{frac.numerator}/{frac.denominator}"
 
 
-def format_tuple(values: Sequence[float | int | str], raw: str | None = None) -> str:
+def format_tuple(
+    values: Sequence[float | int | str | Fraction],
+    raw: str | None = None,
+) -> str:
     """``(x,y,z)`` using the iso raw token when present."""
     if raw:
         text = raw.strip()
@@ -42,8 +71,10 @@ def format_tuple(values: Sequence[float | int | str], raw: str | None = None) ->
     return f"({inner})"
 
 
-def format_basis(vectors: Sequence[Sequence[float | int | str]],
-                 raw: str | None = None) -> str:
+def format_basis(
+    vectors: Sequence[Sequence[float | int | str | Fraction]],
+    raw: str | None = None,
+) -> str:
     """``(1,0,0),(0,1,0),(0,0,1)`` (no extra spaces), matching the website."""
     if raw:
         return raw.strip()
@@ -176,6 +207,96 @@ def _k_to_array(coords: Sequence[str | float]) -> np.ndarray:
     return np.asarray(out, dtype=float)
 
 
+def _k_to_fractions(
+    coords: Sequence[str | float | int | Fraction],
+) -> tuple[Fraction, Fraction, Fraction]:
+    """Parse one reciprocal vector without losing stated rational values."""
+    if len(coords) != 3:
+        raise ValueError("A reciprocal vector must contain exactly three components")
+    values: list[Fraction] = []
+    for value in coords:
+        if isinstance(value, Fraction):
+            values.append(value)
+        elif isinstance(value, Integral):
+            values.append(Fraction(int(value), 1))
+        elif isinstance(value, str):
+            values.append(Fraction(value.strip()))
+        elif isinstance(value, Real):
+            number = float(value)
+            if not math.isfinite(number):
+                raise ValueError(f"Coordinate must be finite, got {value!r}")
+            # A binary float no longer carries the user's exact textual intent.
+            # Preserve its round-trippable decimal value; do not guess a nearby
+            # small-denominator fraction here.
+            values.append(Fraction(repr(number)))
+        else:
+            raise TypeError(f"Unsupported reciprocal coordinate: {value!r}")
+    return values[0], values[1], values[2]
+
+
+def _fraction_matrix_vector(matrix, vector):
+    return tuple(
+        sum(matrix[row][column] * vector[column] for column in range(3))
+        for row in range(3)
+    )
+
+
+def _k_equivalent_exact(
+    left: tuple[Fraction, Fraction, Fraction],
+    right: tuple[Fraction, Fraction, Fraction],
+    centering: str,
+) -> bool:
+    """Exact reciprocal-lattice equivalence in conventional coordinates."""
+    delta = tuple(a - b for a, b in zip(left, right, strict=True))
+    if any(value.denominator != 1 for value in delta):
+        return False
+    h, k, ell = (int(value) for value in delta)
+    return _g_allowed(h, k, ell, centering)
+
+
+def _k_score_exact(vector: tuple[Fraction, Fraction, Fraction]) -> tuple:
+    out_of_unit = sum(value < 0 or value > 1 for value in vector)
+    negative = sum(value < 0 for value in vector)
+    return out_of_unit, negative, sum(abs(value) for value in vector)
+
+
+def _canonical_k_exact(
+    vector: tuple[Fraction, Fraction, Fraction],
+    centering: str,
+    max_g: int = 2,
+) -> tuple[Fraction, Fraction, Fraction]:
+    best = vector
+    best_score = _k_score_exact(best)
+    for h in range(-max_g, max_g + 1):
+        for k in range(-max_g, max_g + 1):
+            for ell in range(-max_g, max_g + 1):
+                if not _g_allowed(h, k, ell, centering):
+                    continue
+                candidate = (
+                    vector[0] + h,
+                    vector[1] + k,
+                    vector[2] + ell,
+                )
+                score = _k_score_exact(candidate)
+                if score < best_score:
+                    best = candidate
+                    best_score = score
+    return best
+
+
+def _zero_one_flips_exact(
+    vector: tuple[Fraction, Fraction, Fraction],
+) -> list[tuple[Fraction, Fraction, Fraction]]:
+    result: list[tuple[Fraction, Fraction, Fraction]] = []
+    for index, value in enumerate(vector):
+        if value not in {Fraction(0), Fraction(1)}:
+            continue
+        flipped = list(vector)
+        flipped[index] = Fraction(1) if value == 0 else Fraction(0)
+        result.append((flipped[0], flipped[1], flipped[2]))
+    return result
+
+
 def k_star_tuples(k_coordinates: Sequence[str | float],
                   parent_sg: int) -> list[str]:
     """Star of ``k`` as ``(x,y,z)`` strings in a stable, website-like order.
@@ -188,41 +309,48 @@ def k_star_tuples(k_coordinates: Sequence[str | float],
     if not k_coordinates:
         return ["(0,0,0)"]
     centering = _centering_letter(parent_sg)
-    k0 = _k_to_array(k_coordinates)
+    k0 = _k_to_fractions(k_coordinates)
     sg = SpaceGroup.from_int_number(int(parent_sg))
-    arms: list[np.ndarray] = [k0]
+    arms: list[tuple[Fraction, Fraction, Fraction]] = [k0]
     for op in sg.symmetry_ops:
-        kp = _canonical_k(np.asarray(op.rotation_matrix, dtype=float) @ k0, centering)
-        if any(_k_equivalent(kp, seen, centering) for seen in arms):
+        # Fractional direct coordinates transform as x' = R x; reciprocal
+        # coordinates therefore transform by (R^-1)^T.  Space-group rotation
+        # matrices are integral/unimodular, so the complete star stays exact.
+        rotation = rational_matrix(np.asarray(op.rotation_matrix).tolist())
+        reciprocal_rotation = transpose(inverse(rotation))
+        kp = _canonical_k_exact(
+            _fraction_matrix_vector(reciprocal_rotation, k0), centering,
+        )
+        if any(_k_equivalent_exact(kp, seen, centering) for seen in arms):
             continue
         arms.append(kp)
 
-    ordered: list[np.ndarray] = []
+    ordered: list[tuple[Fraction, Fraction, Fraction]] = []
 
-    def _add(vec: np.ndarray) -> None:
-        if any(_k_equivalent(vec, seen, centering) for seen in ordered):
+    def _add(vec: tuple[Fraction, Fraction, Fraction]) -> None:
+        if any(_k_equivalent_exact(vec, seen, centering) for seen in ordered):
             return
         for arm in arms:
-            if _k_equivalent(vec, arm, centering):
+            if _k_equivalent_exact(vec, arm, centering):
                 ordered.append(arm)
                 return
 
     _add(k0)
     i = 0
     while i < len(ordered):
-        for flip in _zero_one_flips(ordered[i]):
+        for flip in _zero_one_flips_exact(ordered[i]):
             _add(flip)
         i += 1
     rest = [
         arm for arm in arms
-        if not any(_k_equivalent(arm, seen, centering) for seen in ordered)
+        if not any(_k_equivalent_exact(arm, seen, centering) for seen in ordered)
     ]
-    rest.sort(key=lambda v: tuple(np.round(v, 8)))
+    rest.sort()
     ordered.extend(rest)
 
     result = [format_tuple(k_coordinates)]
     for arm in ordered[1:]:
-        result.append(format_tuple(arm.tolist()))
+        result.append(format_tuple(arm))
     return result or [format_tuple(k_coordinates)]
 
 
@@ -344,9 +472,9 @@ def format_opd_line_body(
         origin=origin,
     )
     opd = (
-        f"{str(fields['opd']):<{_OPD_WIDTH}s}"
+        f"{fields['opd']!s:<{_OPD_WIDTH}s}"
         if pad_opd
-        else f"{str(fields['opd'])} "
+        else f"{fields['opd']!s} "
     )
     return (
         f"{opd}{fields['dir']} {int(fields['space_group_number']):>3d} "
@@ -389,7 +517,7 @@ def format_opd_line(
         basis_vectors=basis_vectors,
         origin=origin,
     )
-    irrep = f"{str(fields['irrep']):<{_IRREP_WIDTH}s}"
+    irrep = f"{fields['irrep']!s:<{_IRREP_WIDTH}s}"
     body = format_opd_line_body(
         irrep_label=irrep_label,
         opd_symbol=opd_symbol,

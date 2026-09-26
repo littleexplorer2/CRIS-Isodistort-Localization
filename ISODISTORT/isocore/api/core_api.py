@@ -19,9 +19,9 @@
     iso.export("output", formats=["cif", "poscar"])
     iso.export_subgroups("out_batch", formats=["cif", "topas"])
 """
+import html
 import re
 import threading
-import html
 from fractions import Fraction
 from pathlib import Path
 
@@ -52,6 +52,7 @@ from ..distortion import (
     DistortionEngine,
     DistortionMapper,
     DomainGenerator,
+    FiniteGroup,
     IsoSearchEngine,
     Method1Query,
     Method1ResultItem,
@@ -60,7 +61,12 @@ from ..distortion import (
     Method4Query,
     OccupationalModeGenerator,
     PhasePath,
+    RationalRepresentation,
+    analyze_fixed_space,
+    embedding_from_identity,
     normalize_distortion_types,
+    parent_affine_group,
+    symmetric_square_representation,
 )
 from ..distortion.search_methods import _sg_to_crystal_system
 from ..i18n import t
@@ -80,6 +86,7 @@ from ..structure import (
     read_structure,
 )
 from ..utils import IsodistortError, get_config
+from ..utils.lattice import as_fraction, identity_matrix, multiply
 from ..utils.opd_format import _centering_letter, format_k_active
 from ..utils.parent_header import parent_wyckoff_display
 from ..utils.schoenflies import hm_symbol, schoenflies_symbol
@@ -120,6 +127,12 @@ class IsoDistort:
         self.symmetry_info: dict | None = None
         self.structure_path: Path | None = None
         self.subgroups: list[SubgroupInfo] = []
+        # Affine-only Method-3 diagnostics must survive copying/rehydration of
+        # ``SubgroupInfo`` objects.  Python ``id(...)`` is a process-local
+        # memory address and can be reused, so track the deterministic path
+        # exact content-addressed Seitz embedding ID (with an exact path-key
+        # compatibility fallback) instead.
+        self._unresolved_method3_embedding_keys: set[tuple] = set()
         # 当前已计算模式所对应的完整子群对象。不能只保存 ``index``：
         # Method 1/2/3 的候选池都会从 0 编号，同号不代表同一个子群。
         self._selected_subgroup: SubgroupInfo | None = None
@@ -127,6 +140,9 @@ class IsoDistort:
         self.distortion_modes: list[DistortionMode] = []
         self.mode_displacements: dict = {}
         self.mode_occupancies: dict = {}          # occupational 模式（占据率调制）
+        self.mode_displacements_sc: dict = {}     # parametric complete modes on supercell
+        self._mode_label_overrides: dict[str, str] = {}
+        self.number_of_independent_modulations: int = 0
         self.distorted_structure: Structure | None = None
 
         # 畸变类型作用域（对齐官网 per-species 复选框）：type -> 物种列表（"*"=全部）
@@ -137,6 +153,7 @@ class IsoDistort:
         self._special_subgroups_lock = threading.Lock()
         self._conv_to_prim_cache: np.ndarray | None = None
         self._parent_rotations_cache: list[np.ndarray] | None = None
+        self._strain_representation_cache = None
         self._lattice_standardization_cache: dict[tuple, tuple[np.ndarray, np.ndarray]] = {}
 
     # ================================================================
@@ -161,6 +178,11 @@ class IsoDistort:
         self.structure_path = path.resolve()
         self.symmetry_info = self._sym_val.validate(self.structure)
         self._reset_derived_state()
+        # Parse and attach source-CIF atom-site labels/order at load time.
+        # Web status rendering used to trigger this mutation incidentally,
+        # which made later mode labels depend on whether a UI endpoint had
+        # already been visited.  All entry points must start from one state.
+        self.parent_wyckoff_display()
 
         sg_num = self.symmetry_info["space_group_number"]
         sg_sym = self.symmetry_info["space_group_symbol"]
@@ -190,6 +212,7 @@ class IsoDistort:
     def _reset_derived_state(self) -> None:
         """加载新结构后清空所有派生状态。"""
         self.subgroups = []
+        self._unresolved_method3_embedding_keys = set()
         self._selected_subgroup = None
         self.phase_path = None
         self.distortion_modes = []
@@ -199,6 +222,7 @@ class IsoDistort:
         self._special_subgroups_cache = None
         self._conv_to_prim_cache = None
         self._parent_rotations_cache = None
+        self._strain_representation_cache = None
         self._lattice_standardization_cache = {}
 
     def set_subgroup_candidates(self, subgroups: list[SubgroupInfo]) -> None:
@@ -218,6 +242,8 @@ class IsoDistort:
         self.distortion_modes = []
         self.mode_displacements = {}
         self.mode_occupancies = {}
+        self.mode_displacements_sc = {}
+        self._mode_label_overrides = {}
         self.distorted_structure = None
 
     def list_isotropy_cache(self) -> list[IsotropyCacheEntry]:
@@ -254,6 +280,56 @@ class IsoDistort:
             tuple(str(value) for value in (subgroup.k_parameters or [])),
             _matrix(subgroup.basis_vectors),
             tuple(round(float(value), 10) for value in (subgroup.origin or [])),
+        )
+
+    @staticmethod
+    def _method3_embedding_guard_key(subgroup: SubgroupInfo) -> tuple:
+        """Stable identity for rejecting unresolved affine-only rows.
+
+        Stage-A rows carry a content-addressed ID derived from their exact
+        Seitz subgroup.  Compatibility/mocked rows may lack that field; their
+        fallback key serializes every scientific path component as an exact
+        Fraction (or an unmodified symbolic token), never as a display index
+        or rounded float.  The key therefore survives copying and process
+        rehydration without merging close but distinct embeddings.
+        """
+        embedding_id = str(
+            getattr(subgroup, "_method3_embedding_id", "") or ""
+        ).strip()
+        if embedding_id:
+            return ("exact-embedding-id", embedding_id)
+
+        def scalar(value, *, periodic: bool = False) -> tuple:
+            try:
+                fraction = as_fraction(value)
+            except (TypeError, ValueError):
+                return ("symbol", str(value))
+            if periodic:
+                fraction %= 1
+            return ("fraction", fraction.numerator, fraction.denominator)
+
+        def matrix(values) -> tuple:
+            return tuple(
+                tuple(scalar(value) for value in row)
+                for row in (values or [])
+            )
+
+        return (
+            "exact-path-fallback-v1",
+            int(subgroup.parent_sg),
+            int(subgroup.space_group_number),
+            int(subgroup.subgroup_index),
+            int(subgroup.size),
+            str(subgroup.space_group_symbol or ""),
+            str(subgroup.k_point_label or ""),
+            tuple(scalar(value) for value in (subgroup.k_coordinates or [])),
+            str(subgroup.irrep_label or ""),
+            str(subgroup.opd_symbol or ""),
+            str(subgroup.opd_dir_raw or ""),
+            tuple(scalar(value) for value in (subgroup.opd_vector or [])),
+            tuple(scalar(value) for value in (subgroup.k_parameters or [])),
+            matrix(subgroup.basis_vectors),
+            tuple(scalar(value, periodic=True) for value in (subgroup.origin or [])),
         )
 
     # ================================================================
@@ -335,7 +411,7 @@ class IsoDistort:
                 self.symmetry_info["space_group_number"],
                 self.symmetry_info["wyckoff_sites"],
                 k_point_label,
-                official_kparams,
+                self._resolve_iso_kparams(k_point_label, official_kparams),
                 species_filter=species if species else None,
             )
             if active is not None:
@@ -429,18 +505,18 @@ class IsoDistort:
     def _filter_method1_by_types(self, items, distortion_types) -> list:
         """Keep Method 1 rows that the official site would list for the selected types.
 
-        Magnetic (m*) irreps are dropped unless magnetic is enabled. When
-        displacive/rotational is on, smodes reports which irreps have atomic
-        modes on the parent Wyckoff set. Strain keeps the identity irrep GM1+
-        and even-parity Gamma irreps whose isotropy subgroup changes the
-        crystal system (lattice-strain only, e.g. GM4+ Fmmm in I4/mmm). Those
-        do not appear in smodes. Odd-parity Gamma irreps and same-system
-        silent irreps (e.g. GM3+ I4/m) stay dropped.
+        Each requested physical representation is tested independently and the
+        union is returned.  Displacive/rotational activity comes from smodes;
+        occupational activity requires a generated pattern that independently
+        validates as the requested subgroup; homogeneous strain uses the
+        symmetric metric-tensor representation ``E -> R.T E R``.  An unknown
+        backend result never masquerades as physical activity.
         """
         types = normalize_distortion_types(distortion_types or self.distortion_types)
         want_mag = "magnetic" in types
         want_disp = any(tp in types for tp in ("displacive", "rotational"))
         want_strain = "strain" in types
+        want_occupational = "occupational" in types
         if not items:
             return items
 
@@ -460,55 +536,282 @@ class IsoDistort:
                     species_filter=species if species else None,
                 )
 
+        if want_disp:
+            unresolved = sorted(
+                label for label, active in active_by_k.items() if active is None
+            )
+            if unresolved:
+                raise RuntimeError(
+                    "Could not establish displacive/rotational irrep activity "
+                    "from smodes for k point(s): " + ", ".join(unresolved)
+                )
+
         parent_sg_n = 0
         if self.symmetry_info:
             parent_sg_n = int(self.symmetry_info["space_group_number"])
 
+        occupational_generator = (
+            OccupationalModeGenerator() if want_occupational else None
+        )
+        occupational_scope = (
+            self._scope_species("occupational") if want_occupational else set()
+        )
+
         kept = []
         for item in items:
             ir = (item.subgroup.irrep_label or "").strip()
-            if ir.startswith("m") and not want_mag:
+            if ir.startswith("m"):
+                if want_mag:
+                    kept.append(item)
                 continue
-            if not want_disp:
-                kept.append(item)
-                continue
-            active = active_by_k.get(item.subgroup.k_point_label)
-            if active is None:
-                kept.append(item)
-                continue
-            if ir in active:
-                kept.append(item)
-                continue
+
+            is_active = False
+            if want_disp:
+                active = active_by_k.get(item.subgroup.k_point_label)
+                is_active = active is not None and ir in active
             if want_strain and self._keep_strain_only_irrep(item, parent_sg_n):
+                is_active = True
+            if (
+                occupational_generator is not None
+                and self.structure is not None
+                and self.symmetry_info
+                and occupational_scope
+            ):
+                try:
+                    occupational_modes = occupational_generator.generate(
+                        self.structure,
+                        self.symmetry_info["wyckoff_sites"],
+                        item.subgroup,
+                        occupational_scope,
+                    )
+                except Exception:  # noqa: BLE001 - unsupported route is inactive
+                    occupational_modes = []
+                if any(bool(getattr(mode, "validated", False))
+                       for mode in occupational_modes):
+                    is_active = True
+            if is_active:
                 kept.append(item)
         return kept
 
-    @staticmethod
-    def _keep_strain_only_irrep(item, parent_sg: int) -> bool:
-        """True for strain-tensor isotropy subgroups that smodes does not list."""
+    def _filter_method3_routes_by_types(self, items, distortion_types) -> list:
+        """Filter each Method 3 embedding through its known active routes.
+
+        Method 3 rows are affine subgroup embeddings, while the local search
+        engine discovers them through one or more single-IR routes.  Activity
+        is therefore a property of each route, not of only the representative
+        stored in ``item.subgroup``.  Parameter values are part of the k-point
+        identity and must be supplied (after the existing official-to-backend
+        parameter conversion) to smodes when checking displacement activity.
+
+        The filtering follows the capabilities already exposed elsewhere:
+        displacement/rotation activity comes from smodes, strain uses the
+        symmetric-tensor fixed-space rule, occupational activity requires a
+        generated pattern independently validated as the requested subgroup,
+        and magnetic activity is limited to magnetic (``m*``) irreps.  A
+        failed smodes probe remains unresolved and is not promoted to active.
+        """
+        types = normalize_distortion_types(distortion_types or self.distortion_types)
+        want_displacement = any(
+            name in types for name in ("displacive", "rotational")
+        )
+        want_strain = "strain" in types
+        want_occupational = "occupational" in types
+        want_magnetic = "magnetic" in types
+        if not items:
+            return items
+
+        routes = [
+            route
+            for item in items
+            for route in (
+                item.routes if item.routes is not None else [item.subgroup]
+            )
+        ]
+        active_by_k: dict[tuple[str, tuple[str, ...]], set[str] | None] = {}
+        if (
+            want_displacement
+            and self.structure is not None
+            and self.symmetry_info
+        ):
+            displacement_species: set[str] = set()
+            for name in ("displacive", "rotational"):
+                if name in types:
+                    displacement_species |= self._scope_species(name)
+            for route in routes:
+                k_label = str(route.k_point_label or "")
+                k_parameters = tuple(str(value) for value in (route.k_parameters or []))
+                key = (k_label, k_parameters)
+                if key in active_by_k:
+                    continue
+                if not k_label:
+                    active_by_k[key] = None
+                    continue
+                active_by_k[key] = self._smodes.active_irreps(
+                    self.structure,
+                    self.symmetry_info["space_group_number"],
+                    self.symmetry_info["wyckoff_sites"],
+                    k_label,
+                    self._resolve_iso_kparams(
+                        k_label, list(k_parameters)
+                    ) if k_parameters else None,
+                    species_filter=(
+                        displacement_species if displacement_species else None
+                    ),
+                )
+
+        occupational_generator = (
+            OccupationalModeGenerator() if want_occupational else None
+        )
+        occupational_scope = (
+            self._scope_species("occupational") if want_occupational else set()
+        )
+        parent_sg = int((self.symmetry_info or {}).get("space_group_number") or 0)
+
+        def route_is_active(route: SubgroupInfo) -> bool:
+            irrep = str(route.irrep_label or "").strip()
+            if irrep.startswith("m"):
+                return want_magnetic
+
+            if want_displacement:
+                key = (
+                    str(route.k_point_label or ""),
+                    tuple(str(value) for value in (route.k_parameters or [])),
+                )
+                active = active_by_k.get(key)
+                if active is not None and irrep in active:
+                    return True
+
+            if want_strain:
+                probe = Method1ResultItem(
+                    subgroup=route,
+                    crystal_system=_sg_to_crystal_system(route.space_group_number),
+                    is_maximal=route.is_maximal,
+                )
+                if self._keep_strain_only_irrep(probe, parent_sg):
+                    return True
+
+            if (
+                occupational_generator is not None
+                and self.structure is not None
+                and self.symmetry_info
+                and occupational_scope
+            ):
+                try:
+                    modes = occupational_generator.generate(
+                        self.structure,
+                        self.symmetry_info["wyckoff_sites"],
+                        route,
+                        occupational_scope,
+                    )
+                except Exception:  # noqa: BLE001 - unsupported embedding is inactive
+                    modes = []
+                if any(bool(getattr(mode, "validated", False)) for mode in modes):
+                    return True
+            return False
+
+        kept = []
+        for item in items:
+            candidate_routes = (
+                item.routes if item.routes is not None else [item.subgroup]
+            )
+            if item.routes == [] and getattr(
+                item, "route_resolution", ""
+            ) == "affine_only_unresolved_coupled_route":
+                # Stage A proves the affine embedding independently of an IR
+                # route.  Its distortion-type activity is unresolved rather
+                # than false, so retain it on the first Method-3 page.  A
+                # later click/export must not invent a single-IR route.
+                kept.append(item)
+                continue
+            active_routes = [route for route in candidate_routes if route_is_active(route)]
+            if not active_routes:
+                continue
+            # The representative drives Method 2 after the user clicks a row;
+            # it must itself be one of the surviving routes.
+            item.routes = active_routes
+            item.subgroup = active_routes[0]
+            item.basis = [list(row) for row in (item.subgroup.basis_vectors or [])]
+            kept.append(item)
+
+        # Removed embeddings leave holes in their display handles.  Reindex
+        # only representatives; route indices are not cross-table identities.
+        for index, item in enumerate(kept):
+            item.subgroup.index = index
+        return kept
+
+    def _keep_strain_only_irrep(self, item, parent_sg: int) -> bool:
+        """Whether a route is active in the homogeneous symmetric strain tensor.
+
+        Strain is a Gamma-point, translation-trivial, inversion-even second-rank
+        tensor.  A larger ``dim Fix(H)`` is only necessary: every extra tensor
+        might still have a larger stabilizer ``K > H``.  The exact criterion is
+        therefore ``Fix(H) != 0`` and ``Stab_G(Fix(H)) = H``, evaluated in the
+        actual embedded child orientation with rational matrices.
+        """
         sg = item.subgroup
         klab = (sg.k_point_label or "").strip().upper()
         if klab not in {"GM", "G", "Γ", "GAMMA"}:
             return False
         ir = (sg.irrep_label or "").strip().upper()
-        if ir in {"GM1+", "GM1"}:
-            return True
-        if not ir.endswith("+"):
+        if ir.endswith("-"):
             return False
         if int(getattr(sg, "size", 1) or 1) != 1:
             return False
-        if not parent_sg:
+        if not parent_sg or self.structure is None:
             return False
-        parent_cs = _sg_to_crystal_system(parent_sg)
-        child_cs = _sg_to_crystal_system(int(sg.space_group_number))
-        return child_cs != parent_cs
+        try:
+            if getattr(self, "_strain_representation_cache", None) is None:
+                cfg = getattr(self, "cfg", None) or get_config()
+                parent = parent_affine_group(
+                    self.structure,
+                    symprec=cfg.symmetry_cartesian_tolerance_angstrom,
+                    angle_tolerance_degrees=(
+                        cfg.symmetry_angle_tolerance_degrees
+                    ),
+                )
+                if int(parent.space_group_number) != int(parent_sg):
+                    return False
+                rotations = tuple(dict.fromkeys(
+                    operation.rotation for operation in parent.operations
+                ))
+                group = FiniteGroup.from_operation(
+                    rotations,
+                    identity_matrix(),
+                    multiply,
+                    name="parent crystallographic point group",
+                )
+                vector = RationalRepresentation(
+                    group,
+                    rotations,
+                    name="fractional polar vector",
+                )
+                strain = symmetric_square_representation(
+                    vector,
+                    name="homogeneous symmetric strain",
+                )
+                self._strain_representation_cache = (parent, strain)
+            parent, strain = self._strain_representation_cache
+            embedding = embedding_from_identity(sg, parent)
+            child_rotations = tuple(dict.fromkeys(
+                operation.rotation for operation in embedding.operations
+            ))
+            return analyze_fixed_space(strain, child_rotations).is_reachable
+        except (ArithmeticError, AttributeError, KeyError, TypeError, ValueError):
+            # Unknown is not physical activity.  Alternate/unsupported settings
+            # must first pass exact Seitz reconstruction rather than being
+            # promoted by a crystal-system or fixed-dimension heuristic.
+            return False
 
     def _parent_rotations(self) -> list[np.ndarray]:
         """母相点群旋转矩阵（分数坐标，去重）。"""
         if self._parent_rotations_cache is None:
             if self.structure is None:
                 return [np.eye(3)]
-            sga = SpacegroupAnalyzer(self.structure)
+            sga = SpacegroupAnalyzer(
+                self.structure,
+                symprec=self.cfg.symmetry_cartesian_tolerance_angstrom,
+                angle_tolerance=self.cfg.symmetry_angle_tolerance_degrees,
+            )
             uniq: list[np.ndarray] = []
             seen: set[tuple] = set()
             for op in sga.get_symmetry_operations(cartesian=False):
@@ -583,17 +886,18 @@ class IsoDistort:
     @staticmethod
     def _same_lattice(a, b) -> bool:
         """两个 3x3 超胞基矢是否生成同一格点（GL(3,Z) 等价）。"""
+        tolerance = get_config().lattice_tolerance
         a_arr = np.asarray(a, dtype=float)
         b_arr = np.asarray(b, dtype=float)
         if a_arr.shape != (3, 3) or b_arr.shape != (3, 3):
             return False
-        if abs(abs(np.linalg.det(a_arr)) - abs(np.linalg.det(b_arr))) > 1e-6:
+        if abs(abs(np.linalg.det(a_arr)) - abs(np.linalg.det(b_arr))) > tolerance:
             return False
         try:
             n = a_arr @ np.linalg.inv(b_arr)
         except np.linalg.LinAlgError:
             return False
-        return bool(np.allclose(n, np.round(n), atol=1e-5))
+        return bool(np.allclose(n, np.round(n), atol=tolerance))
 
     def _same_lattice_orbit(self, a, b) -> bool:
         """同一格点类：含母相点群旋转轨道（官网 lattice 选项语义）。"""
@@ -709,10 +1013,16 @@ class IsoDistort:
                 [1] * len(probe),
             )
             conv_cell = spglib.standardize_cell(
-                cell, to_primitive=False, no_idealize=True, symprec=1e-5,
+                cell,
+                to_primitive=False,
+                no_idealize=True,
+                symprec=self.cfg.affine_exact_cartesian_tolerance_angstrom,
             )
             prim_cell = spglib.standardize_cell(
-                cell, to_primitive=True, no_idealize=True, symprec=1e-5,
+                cell,
+                to_primitive=True,
+                no_idealize=True,
+                symprec=self.cfg.affine_exact_cartesian_tolerance_angstrom,
             )
             if conv_cell is not None:
                 candidate = np.asarray(conv_cell[0], dtype=float) @ parent_cart_inv
@@ -1009,27 +1319,42 @@ class IsoDistort:
                     kp.is_special = not kp.parameters
         return kpoints
 
-    def _resolve_k_vector(self, k_point_label: str) -> list[float]:
+    def _resolve_k_vector(self, k_point_label: str,
+                          k_parameters: list | None = None) -> list[float]:
         """把 k 点标签解析为数值坐标（母相倒格分数单位）。
 
-        仅支持无自由参数的特殊 k 点（如 GM=(0,0,0)、M=(1/2,1/2,0)）；
-        带参数 k 点（如 LD 的 a/b/g）无法在超胞副本间确定相位，
-        返回空列表（引擎将按 k=Γ 处理，即不调制）。
+        特殊 k 点直接求值；参数 k（如 LD ``g=1/6``）在提供参数后代入官网坐标。
         """
         if not k_point_label:
             return []
+        parent_sg = int((self.symmetry_info or {}).get("space_group_number") or 0)
+        params = list(k_parameters or [])
+        if not params and self._selected_subgroup is not None:
+            params = list(self._selected_subgroup.k_parameters or [])
+        tokens = official_special_k_coords(
+            parent_sg, k_point_label, None, params or None,
+        )
+        if tokens:
+            try:
+                return [parse_fraction(c) for c in tokens]
+            except (ValueError, IndexError):
+                pass
         try:
-            kpoints = self._iso.list_k_points(
-                self.symmetry_info["space_group_number"])
+            kpoints = self._iso.list_k_points(parent_sg)
         except Exception:  # noqa: BLE001 - 解析失败按无 k 向量处理
             return []
         for kp in kpoints:
             if kp.label != k_point_label:
                 continue
-            if not kp.is_special:
+            if not kp.is_special and not params:
                 return []
             try:
-                return [parse_fraction(c) for c in kp.coordinates]
+                coords = list(kp.coordinates or [])
+                if params:
+                    coords = official_special_k_coords(
+                        parent_sg, k_point_label, coords, params,
+                    ) or coords
+                return [parse_fraction(c) for c in coords]
             except (ValueError, IndexError):
                 return []
         return []
@@ -1205,7 +1530,9 @@ class IsoDistort:
         # 解析 k 点坐标（Bloch 相位调制用；仅特殊 k 点可直接求值）。
         # 与 search_method_2 保持一致，避免同一子群经不同入口产出的
         # 畸变结构因 k_vector 缺失而把非 Γ k 点当 Γ 点处理。
-        self.phase_path.k_vector = self._resolve_k_vector(target.k_point_label)
+        self.phase_path.k_vector = self._resolve_k_vector(
+            target.k_point_label, list(target.k_parameters or []),
+        )
         self.phase_path.validate()
         self._selected_subgroup = target
 
@@ -1228,6 +1555,8 @@ class IsoDistort:
             self.symmetry_info["wyckoff_sites"],
             self.distortion_modes,
         )
+        self._install_special_bush_supercell_modes(target)
+        self._sync_parametric_session_keys()
 
         return self.phase_path
 
@@ -1239,6 +1568,194 @@ class IsoDistort:
                 continue
             scoped |= self._scope_species(tp)
         return scoped
+
+    def _calc_displacive_modes(
+        self,
+        parent_sg: int,
+        target: SubgroupInfo,
+        letters: list[str],
+        *,
+        nmod: int | None = None,
+    ) -> list[DistortionMode]:
+        """Compute the complete child-fixed displacement representation.
+
+        At a special k, ISO BUSH remains authoritative on every Wyckoff orbit
+        carrying a primary/root mode.  A wholly rootless orbit is completed by
+        the same Reynolds-projected child fixed-space engine used for
+        commensurate parameter-k lock-ins.  This distinction matters because
+        the official Complete modes page contains symmetry-allowed secondary
+        modes even when BUSH says ``There is no root mode`` for that orbit.
+        """
+        from ..distortion.superspace import (  # noqa: PLC0415
+            compute_parametric_modes,
+            compute_special_modes_with_rootless_supplement,
+        )
+
+        nmod_val = (
+            self.number_of_independent_modulations if nmod is None else int(nmod)
+        )
+        kpoints = []
+        try:
+            kpoints = self._iso.list_k_points(parent_sg)
+        except Exception:  # noqa: BLE001
+            kpoints = []
+        if getattr(target, "k_parameters", None):
+            result = compute_parametric_modes(
+                self.structure,
+                self.symmetry_info or {},
+                target,
+                letters,
+                self._smodes,
+                kpoints=kpoints,
+                nmod=nmod_val,
+            )
+        else:
+            result = compute_special_modes_with_rootless_supplement(
+                self.structure,
+                self.symmetry_info or {},
+                target,
+                letters,
+                self._iso,
+                self._smodes,
+                kpoints=kpoints,
+            )
+        if result is not None:
+            self._install_parametric_result(result)
+            return result.modes
+        return []
+
+    def _install_parametric_result(self, result) -> None:
+        self.mode_displacements_sc = dict(result.supercell_displacements or {})
+        self._mode_label_overrides = dict(result.labels or {})
+
+    def _install_special_bush_supercell_modes(self, target: SubgroupInfo) -> None:
+        """Install exact BUSH roots and merge any rootless fixed-space modes.
+
+        DISPLAY BUSH supplies representative atoms and relative signs on every
+        orbit with a root mode.  Rootless-orbit secondary modes have already
+        been projected on the child cell by ``compute_parametric_modes`` and
+        are preserved here.  The two sets are disjoint by parent Wyckoff orbit.
+        """
+        if getattr(target, "k_parameters", None):
+            return
+        precomputed = dict(self.mode_displacements_sc or {})
+        precomputed_labels = dict(self._mode_label_overrides or {})
+        if not self.distortion_modes:
+            self.mode_displacements_sc = {}
+            self._mode_label_overrides = {}
+            return
+        basis = target.basis_vectors or [
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 0.0, 1.0],
+        ]
+        parent_group = parent_affine_group(
+            self.structure,
+            symprec=self.cfg.symmetry_cartesian_tolerance_angstrom,
+            angle_tolerance_degrees=self.cfg.symmetry_angle_tolerance_degrees,
+        )
+        embedding = embedding_from_identity(target, parent_group)
+        bush_modes = [
+            mode for mode in self.distortion_modes
+            if self._mode_session_key(mode) not in precomputed
+        ]
+        mapped = {}
+        if bush_modes:
+            mapped = self._dist_mapper.map_bush_modes_to_supercell(
+                self.structure,
+                self.symmetry_info["wyckoff_sites"],
+                bush_modes,
+                basis,
+                cartesian_tolerance=(
+                    self.cfg.symmetry_cartesian_tolerance_angstrom
+                ),
+                subgroup_operations=embedding.operations,
+                subgroup_translation_lattice=[
+                    [float(value) for value in row]
+                    for row in embedding.lattice
+                ],
+            )
+        overlap = set(mapped) & set(precomputed)
+        if overlap:
+            raise RuntimeError(
+                "BUSH and rootless fixed-space modes produced duplicate keys: "
+                + ", ".join(sorted(overlap))
+            )
+        self.mode_displacements_sc = {**mapped, **precomputed}
+        self._mode_label_overrides = precomputed_labels
+
+    def _mode_session_key(self, mode: DistortionMode) -> str:
+        return str(getattr(mode, "amplitude_key", "") or mode.irrep_label)
+
+    def _sync_parametric_session_keys(self) -> None:
+        """Keep supercell modes keyed with scoped DistortionMode objects.
+
+        Parent-cell BUSH mapping can drop a lock-in mode whose copies cancel
+        when folded back to the conventional cell.  Export / generate still
+        need the supercell vectors, so those keys stay even if the parent
+        map is empty.
+        """
+        sc = getattr(self, "mode_displacements_sc", None) or {}
+        overrides = getattr(self, "_mode_label_overrides", None) or {}
+        if not sc:
+            return
+        allowed = {self._mode_session_key(m) for m in (self.distortion_modes or [])}
+        if allowed:
+            sc = {k: v for k, v in sc.items() if k in allowed}
+            overrides = {k: v for k, v in overrides.items() if k in allowed}
+        self.mode_displacements_sc = sc
+        self._mode_label_overrides = overrides
+        n_parent = len(self.structure) if self.structure is not None else 0
+        parent_projection: dict[str, np.ndarray] = {}
+        subgroup = self._selected_subgroup
+        if self.structure is not None and subgroup is not None:
+            from ..distortion.superspace import (  # noqa: PLC0415
+                _periodic_species_bijection,
+            )
+
+            basis = np.asarray(subgroup.basis_vectors or np.eye(3), dtype=float)
+            if basis.shape == (3, 3) and abs(abs(np.linalg.det(basis)) - 1.0) < 1e-8:
+                child = self._supercell_for_subgroup(subgroup)
+                parent_coords = np.asarray(self.structure.frac_coords, dtype=float)
+                child_coords = np.asarray(child.frac_coords, dtype=float)
+                parent_species = [str(site.specie) for site in self.structure]
+                child_species = [str(site.specie) for site in child]
+                child_to_parent = _periodic_species_bijection(
+                    child_coords @ basis,
+                    parent_coords,
+                    child_species,
+                    parent_species,
+                    self.structure.lattice,
+                    self.cfg.symmetry_cartesian_tolerance_angstrom,
+                )
+                if child_to_parent is not None:
+                    for key, arr in sc.items():
+                        values = np.asarray(arr, dtype=float)
+                        if values.shape != (len(child), 3):
+                            continue
+                        projected = np.zeros((n_parent, 3), dtype=float)
+                        for child_index, parent_index in enumerate(child_to_parent):
+                            projected[parent_index] = values[child_index] @ basis
+                        parent_projection[key] = projected
+
+        for key, _arr in sc.items():
+            entry = self.mode_displacements.get(key)
+            if entry is None:
+                mode = next(
+                    (m for m in (self.distortion_modes or [])
+                     if self._mode_session_key(m) == key),
+                    None,
+                )
+                entry = {
+                    "mode": mode,
+                    "displacements": np.zeros((n_parent, 3), dtype=float),
+                    "wyckoff_letter": (mode.wyckoff_site if mode else ""),
+                }
+                self.mode_displacements[key] = entry
+            if key in parent_projection:
+                entry["displacements"] = parent_projection[key]
+            if key in overrides:
+                entry["label"] = overrides[key]
 
     def _compute_scoped_modes(self, parent_sg: int, target: SubgroupInfo,
                               types: list[str],
@@ -1259,7 +1776,7 @@ class IsoDistort:
         if raw_modes is None and bush_types:
             letters = self._letters_for_species(self._union_scope_species(types))
             if letters:
-                raw_modes = self._iso.calc_distortion_modes(parent_sg, target, letters)
+                raw_modes = self._calc_displacive_modes(parent_sg, target, letters)
         if raw_modes:
             allowed_letters: set[str] = set()
             for tp in bush_types:
@@ -1292,6 +1809,27 @@ class IsoDistort:
     # 阶段四-五：生成畸变结构
     # ================================================================
 
+    @staticmethod
+    def _validated_supercell_displacement(
+        label: str,
+        values,
+        expected_atoms: int,
+    ) -> np.ndarray:
+        """Validate a physical child-cell vector; never pad or truncate it."""
+        array = np.asarray(values, dtype=float)
+        expected_shape = (int(expected_atoms), 3)
+        if array.shape != expected_shape:
+            raise ValueError(
+                f"Mode {label!r} has supercell displacement shape {array.shape}; "
+                f"expected {expected_shape}. Refusing to pad or truncate a "
+                "crystallographic mode."
+            )
+        if not bool(np.all(np.isfinite(array))):
+            raise ValueError(
+                f"Mode {label!r} contains non-finite supercell displacements"
+            )
+        return array
+
     def generate_distortion(self, irrep_label: str | None = None,
                             amplitude: float | None = None,
                             supercell: list | None = None) -> Structure:
@@ -1315,6 +1853,39 @@ class IsoDistort:
         if supercell is None and self.phase_path is not None:
             # 默认使用子群超胞基矢
             supercell = self.phase_path.supercell_basis()
+
+        if irrep_label in self.mode_displacements_sc:
+            amp = (self._dist_engine.default_amplitude
+                   if amplitude is None else amplitude)
+            sg = self._selected_subgroup
+            if sg is None:
+                raise RuntimeError(t("err.select_path_first"))
+            sc = self._supercell_for_subgroup(sg)
+            disp = self._validated_supercell_displacement(
+                irrep_label,
+                self.mode_displacements_sc[irrep_label],
+                len(sc),
+            )
+            new_coords = (np.asarray(sc.frac_coords, dtype=float) + amp * disp) % 1.0
+            self.distorted_structure = Structure(
+                lattice=sc.lattice,
+                species=sc.species,
+                coords=new_coords,
+                coords_are_cartesian=False,
+            )
+            print(t("distortion.generated", irrep=irrep_label, amp=amp,
+                    n1=len(self.structure), n2=len(self.distorted_structure),
+                    r=len(self.distorted_structure) / max(len(self.structure), 1)))
+            fname = f"distorted_{irrep_label}"
+            if amplitude is not None:
+                amp_str = str(amplitude).replace(".", "p")
+                fname = f"{fname}_a{amp_str}"
+            paths = self._exporter.auto_export(
+                self.distorted_structure, fname, formats=["cif"],
+            )
+            if paths:
+                print(t("export.default", path=paths[0]))
+            return self.distorted_structure
 
         # occupational 模式：占据率调制（+1 类全占据，-1 类 1-amplitude）
         if irrep_label in self.mode_occupancies:
@@ -1377,6 +1948,50 @@ class IsoDistort:
         """
         if supercell is None and self.phase_path is not None:
             supercell = self.phase_path.supercell_basis()
+
+        sc_labels = [lab for lab in contributions if lab in self.mode_displacements_sc]
+        if sc_labels:
+            sg = self._selected_subgroup
+            if sg is None:
+                raise RuntimeError(t("err.select_path_first"))
+            sc = self._supercell_for_subgroup(sg)
+            total = np.zeros((len(sc), 3), dtype=float)
+            occ_patterns: list[tuple[np.ndarray, float]] = []
+            for label, amp in contributions.items():
+                if label in self.mode_occupancies:
+                    entry = self.mode_occupancies[label]
+                    occ_patterns.append((entry["pattern"], float(amp)))
+                    continue
+                if label not in self.mode_displacements_sc:
+                    raise ValueError(t("mode.invalid", label=label))
+                disp = self._validated_supercell_displacement(
+                    label,
+                    self.mode_displacements_sc[label],
+                    len(sc),
+                )
+                total = total + float(amp) * disp
+            if occ_patterns:
+                raise ValueError(
+                    "parametric complete modes cannot be mixed with occupational "
+                    "patterns in one generate_mixed_distortion call"
+                )
+            new_coords = (np.asarray(sc.frac_coords, dtype=float) + total) % 1.0
+            self.distorted_structure = Structure(
+                lattice=sc.lattice,
+                species=sc.species,
+                coords=new_coords,
+                coords_are_cartesian=False,
+            )
+            label = "mixed"
+            keys = "+".join(sorted(contributions.keys()))
+            if keys:
+                label = f"mixed_{keys}"
+            paths = self._exporter.auto_export(
+                self.distorted_structure, label, formats=["cif"],
+            )
+            if paths:
+                print(t("export.default", path=paths[0]))
+            return self.distorted_structure
 
         total_disp: np.ndarray | None = None
         occ_patterns: list[tuple[np.ndarray, float]] = []
@@ -1448,10 +2063,19 @@ class IsoDistort:
         return {
             "selected_subgroup": self._selected_subgroup,
             "phase_path": self.phase_path,
-            "distortion_modes": list(self.distortion_modes),
-            "mode_displacements": dict(self.mode_displacements),
-            "mode_occupancies": dict(self.mode_occupancies),
+            "distortion_modes": list(self.distortion_modes or []),
+            "mode_displacements": dict(self.mode_displacements or {}),
+            "mode_occupancies": dict(self.mode_occupancies or {}),
+            "mode_displacements_sc": dict(
+                getattr(self, "mode_displacements_sc", None) or {}
+            ),
+            "mode_label_overrides": dict(
+                getattr(self, "_mode_label_overrides", None) or {}
+            ),
             "distorted_structure": self.distorted_structure,
+            "number_of_independent_modulations": int(
+                getattr(self, "number_of_independent_modulations", 0) or 0
+            ),
         }
 
     def _restore_distortion_state(self, snap: dict) -> None:
@@ -1460,7 +2084,12 @@ class IsoDistort:
         self.distortion_modes = snap["distortion_modes"]
         self.mode_displacements = snap["mode_displacements"]
         self.mode_occupancies = snap["mode_occupancies"]
+        self.mode_displacements_sc = snap.get("mode_displacements_sc") or {}
+        self._mode_label_overrides = snap.get("mode_label_overrides") or {}
         self.distorted_structure = snap["distorted_structure"]
+        self.number_of_independent_modulations = int(
+            snap.get("number_of_independent_modulations", 0) or 0
+        )
 
     def _supercell_for_subgroup(self, subgroup) -> Structure:
         """按子群基矢扩胞（零振幅，对应官网默认幅度全 0）。"""
@@ -1509,14 +2138,22 @@ class IsoDistort:
         if not entries:
             # Fallback when displacements were not mapped yet.
             for mode in self.distortion_modes or []:
+                key = str(getattr(mode, "amplitude_key", "") or mode.irrep_label)
                 entries = {
                     **entries,
-                    mode.irrep_label: {"mode": mode, "wyckoff_letter": ""},
+                    key: {"mode": mode, "wyckoff_letter": mode.wyckoff_site or ""},
                 }
 
         for key, entry in entries.items():
             mode = entry.get("mode")
             if mode is None:
+                continue
+            override = (
+                entry.get("label")
+                or self._mode_label_overrides.get(key)
+            )
+            if override:
+                labels[key] = override
                 continue
             letter = str(entry.get("wyckoff_letter") or "")
             if not letter and "__" in str(key):
@@ -1570,15 +2207,51 @@ class IsoDistort:
                     b for b in (mode.bush_modes or [])
                     if (b.wyckoff_letter or "") == letter
                 ]
-                n_comp = 1
+                n_comp = max(int(getattr(mode, "dimension", 1) or 1), 1)
                 if bushes:
                     n_comp = max(
-                        (len(b.displacements) or 1) for b in bushes
+                        n_comp,
+                        *(len(b.displacements) or 1 for b in bushes),
                     )
-                # Site-symmetry irrep (A1/E/…) needs a full site-symmetry
-                # decomposition; use A1 for 1-D and E for multi-component.
-                sym = "A1" if n_comp == 1 else "E"
-                labels[key] = f"{path}[{idx}:{letter}:dsp]{sym}({direction})"
+                sym = str(getattr(mode, "site_irrep", "") or "")
+                if not sym and self.structure is not None:
+                    # DISPLAY BUSH supplies the displacement on the parent
+                    # representative site.  Classify that polar vector in the
+                    # representative's crystallographic site group so parity
+                    # and axis labels (Eu/B2u/...) are retained.  This is a
+                    # point-group calculation, not an IR- or material-specific
+                    # label substitution.
+                    from ..distortion.superspace import (  # noqa: PLC0415
+                        _site_irrep_for_disp,
+                        _site_point_groups,
+                    )
+
+                    try:
+                        representative = int(site["representative_index"])
+                        displacement = np.asarray(
+                            entry.get("displacements"), dtype=float,
+                        )
+                        arrow = displacement[representative]
+                        site_groups = _site_point_groups(self.structure)
+                        sym = _site_irrep_for_disp(
+                            site_groups.get(representative, ""), arrow,
+                        )
+                    except (
+                        KeyError,
+                        TypeError,
+                        ValueError,
+                        IndexError,
+                        np.linalg.LinAlgError,
+                    ):
+                        sym = ""
+                if not sym:
+                    # The numerical vector remains valid, but an unavailable
+                    # site-group decomposition must not invent parity.
+                    sym = "A1" if n_comp == 1 else "E"
+                component = str(
+                    getattr(mode, "opd_component", "") or direction
+                )
+                labels[key] = f"{path}[{idx}:{letter}:dsp]{sym}({component})"
             else:
                 sites = ",".join(sorted({b.wyckoff_letter for b in mode.bush_modes}))
                 labels[key] = (
@@ -1609,6 +2282,14 @@ class IsoDistort:
 
     def _lifted_mode_displacements(self, subgroup) -> dict[str, np.ndarray]:
         """把当前会话的母相模式位移提升到该子群超胞坐标。"""
+        if self.mode_displacements_sc:
+            expected_atoms = len(self._supercell_for_subgroup(subgroup))
+            return {
+                label: self._validated_supercell_displacement(
+                    label, arr, expected_atoms,
+                )
+                for label, arr in self.mode_displacements_sc.items()
+            }
         if not self.mode_displacements:
             return {}
         basis = subgroup.basis_vectors or [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -1663,7 +2344,7 @@ class IsoDistort:
         )
 
     def _is_parametric_subgroup(self, subgroup) -> bool:
-        """带 k 点参数（如 LD g=1/6）的子群：本地 iso 无法计算位移模式。"""
+        """Subgroup of a parametric k point (LD/DT, …)."""
         return bool(getattr(subgroup, "k_parameters", None))
 
     def _collect_export_specs(
@@ -1673,10 +2354,18 @@ class IsoDistort:
         compute_missing_modes: bool,
         *,
         use_opd_line_folders: bool = False,
+        number_of_independent_modulations: int | None = None,
     ) -> list[SubgroupExportSpec]:
         """为每个子群准备导出规格；结束后恢复会话 Distortion 状态。"""
         need_modes = any(fmt != "cif" for fmt in formats)
         snap = self._snapshot_distortion_state()
+        export_nmod = (
+            snap["number_of_independent_modulations"]
+            if number_of_independent_modulations is None
+            else int(number_of_independent_modulations)
+        )
+        if export_nmod < 0:
+            raise ValueError("number_of_independent_modulations must be >= 0")
         selected_identity = self._subgroup_identity(snap["selected_subgroup"])
         used: set[str] = set()
         specs: list[SubgroupExportSpec] = []
@@ -1690,32 +2379,38 @@ class IsoDistort:
                     selected_identity is not None
                     and self._subgroup_identity(sg) == selected_identity
                 )
+                current_modes_match = (
+                    is_current
+                    and snap["number_of_independent_modulations"] == export_nmod
+                )
                 computed = False
-                if need_modes and compute_missing_modes and not is_current:
+                if need_modes and compute_missing_modes and not current_modes_match:
                     try:
-                        if self._is_parametric_subgroup(sg):
+                        self.search_method_2(
+                            sg.index,
+                            number_of_independent_modulations=export_nmod,
+                            candidates=items,
+                        )
+                        computed = True
+                        if (
+                            not self.mode_displacements
+                            and not self.mode_occupancies
+                        ):
                             note = (
-                                "parametric k point: local iso cannot compute "
-                                "displacement modes (use official website superspace)"
+                                "no displacement modes for this path "
+                                "(empty BUSH/smodes table)"
                             )
-                        else:
-                            self.search_method_2(sg.index, candidates=items)
-                            computed = True
-                            if (
-                                not self.mode_displacements
-                                and not self.mode_occupancies
-                            ):
-                                note = (
-                                    "local iso DISPLAY BUSH returned no displacement "
-                                    "modes for this path (no root mode / empty table)"
-                                )
                     except Exception as exc:  # noqa: BLE001 - 批量导出：单子群失败不中断
                         note = str(exc)
                         self._restore_distortion_state(snap)
                 spec = self._spec_for_subgroup(
                     sg,
-                    use_current_modes=need_modes and (is_current or computed),
-                    use_generated_structure=is_current,
+                    use_current_modes=need_modes and (current_modes_match or computed),
+                    # A generated structure carries amplitudes in the cached
+                    # mode basis.  Reusing it after an nmod-triggered mode
+                    # recomputation would mix two incompatible bases in one
+                    # export, so only reuse it with the matching cache.
+                    use_generated_structure=current_modes_match,
                     note=note,
                     folder_name=folder,
                 )
@@ -1734,6 +2429,7 @@ class IsoDistort:
         compute_missing_modes: bool = False,
         *,
         use_opd_line_folders: bool = False,
+        number_of_independent_modulations: int | None = None,
     ) -> list:
         """
         按 Method 2 子群批量导出（每个子群一个文件夹）。
@@ -1743,8 +2439,10 @@ class IsoDistort:
             formats: cif / isoviz / modes / topas（官网第 6 页对应选项）
             subgroups: 默认使用当前会话的子群列表（Method 2 枚举结果）
             compute_missing_modes: 为非当前子群再跑 Method 2 以填充模式类格式；
-                仅 CIF 时不需要。参数 k 点本地无法计算位移模式。
+                仅 CIF 时不需要。参数 k 点子群走 smodes/(3+d) 完整模式。
             use_opd_line_folders: Method 1 导出时文件夹名用完整 OPD 行。
+            number_of_independent_modulations: 批量模式计算使用的 nmod；
+                省略时沿用当前 Distortion 会话的值，并在导出后恢复原状态。
 
         Returns:
             写出的文件路径列表
@@ -1764,6 +2462,7 @@ class IsoDistort:
             fmts,
             compute_missing_modes,
             use_opd_line_folders=use_opd_line_folders,
+            number_of_independent_modulations=number_of_independent_modulations,
         )
         paths: list = []
         for spec in specs:
@@ -1780,10 +2479,13 @@ class IsoDistort:
         wrapping: str | None = None,
         *,
         use_opd_line_folders: bool = False,
+        number_of_independent_modulations: int | None = None,
     ) -> bytes:
         """批量导出为 ZIP 字节（不读写 output_dir，避免混入无关文件）。
 
         ZIP 根下直接是各子群文件夹（官网同款）；``wrapping`` 非空时才加一层前缀。
+        ``number_of_independent_modulations`` 显式控制整包候选的 nmod；省略时
+        沿用当前 Distortion 会话值，绝不把不同 nmod 的缓存模式混入同一 ZIP。
         """
         if self.structure is None:
             raise RuntimeError("请先加载结构 (load_structure)")
@@ -1798,6 +2500,7 @@ class IsoDistort:
             fmts,
             compute_missing_modes,
             use_opd_line_folders=use_opd_line_folders,
+            number_of_independent_modulations=number_of_independent_modulations,
         )
         return build_export_zip(specs, fmts, wrapping=wrapping)
 
@@ -1895,20 +2598,15 @@ class IsoDistort:
         Method 2: General method - search over specific k points.
 
         在 Method 1 候选（或 list_subgroups 枚举）中按序号选择子群，
-        通过真实 iso（DISPLAY BUSH）计算其畸变模式基矢；k 点 / IR / OPD
-        由所选子群（SubgroupInfo）自身携带，无需（也不再接受）重复传参。
-        按 self.distortion_scope 限定物种作用域（displacive/occupational 等），
-        occupational 模式由本地生成器产生（存入 self.mode_occupancies）。
-        distortion_type 缺省时使用项目默认（DEFAULT_DISTORTION_TYPES，
-        对齐官网默认勾选：strain + displacive；本地 strain 不产生模式，
-        displacive 产生位移模式）。
-        number_of_independent_modulations must be 0 (commensurate 3D only);
-        the engine rejects any nonzero value.
+        特殊 k 用 iso DISPLAY BUSH；参数 k 用 smodes + 子群对称性（(3+d)/公度锁定）。
+        k 点 / IR / OPD 由所选子群（SubgroupInfo）自身携带。
+        number_of_independent_modulations：0 = 三维锁定完整模式（含谐波与次级 IR）；
+        n>=1 = 只保留 n 个独立调制波矢的谐波（(3+n)D）。
 
         Args:
             subgroup_idx: Index within the selected candidate pool.
             distortion_type: Enabled distortion types; project defaults when omitted.
-            number_of_independent_modulations: Reserved; must remain zero.
+            number_of_independent_modulations: 0 = 3D lock-in; n = (3+n)D harmonics.
             candidates: Explicit candidate pool. Pass this whenever a caller keeps
                 more than one Method result table; otherwise the session default
                 ``self.subgroups`` is used for backward compatibility.
@@ -1922,28 +2620,66 @@ class IsoDistort:
         candidate_pool = list(candidates) if candidates is not None else self.subgroups
         if not candidate_pool:
             raise RuntimeError("没有可用于 Method 2 的子群候选")
+        selected_candidate = next(
+            (candidate for candidate in candidate_pool if candidate.index == subgroup_idx),
+            None,
+        )
+        if selected_candidate is not None and (
+            self._method3_embedding_guard_key(selected_candidate) in getattr(
+                self, "_unresolved_method3_embedding_keys", set()
+            )
+            or getattr(selected_candidate, "_method3_route_resolution", "")
+            == "affine_only_unresolved_coupled_route"
+        ):
+            raise RuntimeError(
+                "This affine embedding has no resolved single-IR or coupled-IR "
+                "second-stage route; Method 2 mode calculation is not implemented"
+            )
 
+        self.number_of_independent_modulations = int(
+            number_of_independent_modulations or 0
+        )
         query = Method2Query(
             subgroup_idx=subgroup_idx,
             distortion_type=types,
-            number_of_independent_modulations=number_of_independent_modulations,
+            number_of_independent_modulations=self.number_of_independent_modulations,
         )
 
         parent_sg = self.symmetry_info["space_group_number"]
-        # 按作用域限制 BUSH 的 Wyckoff 位置（避免重复计算）
+        # 按作用域限制 BUSH / smodes 的 Wyckoff 位置（避免重复计算）
         scoped_letters = self._letters_for_species(self._union_scope_species(types))
+        kpoints = []
+        iso_backend = getattr(self, "_iso", None)
+        try:
+            if iso_backend is not None:
+                kpoints = iso_backend.list_k_points(parent_sg)
+        except Exception:  # noqa: BLE001
+            kpoints = []
         result = self._search.method_2_search(
             parent_sg, candidate_pool, query,
             wyckoff_letters=scoped_letters,
+            structure=self.structure,
+            wyckoff_sites=(self.symmetry_info or {}).get("wyckoff_sites"),
+            smodes=getattr(self, "_smodes", None),
+            kpoints=kpoints,
+            symmetry_info=self.symmetry_info,
         )
+        meta = getattr(result, "metadata", None) or {}
+        if meta.get("supercell_displacements"):
+            self.mode_displacements_sc = dict(meta["supercell_displacements"])
+            self._mode_label_overrides = dict(meta.get("mode_labels") or {})
+        else:
+            self.mode_displacements_sc = {}
+            self._mode_label_overrides = {}
 
         # 记录路径与模式，供 Distortion Page 使用
         self.phase_path = PhasePath.from_subgroup(
             parent_sg, result.subgroup, types
         )
-        # 解析 k 点坐标（Bloch 相位调制用；仅特殊 k 点可直接求值）
         self.phase_path.k_vector = self._resolve_k_vector(
-            result.subgroup.k_point_label)
+            result.subgroup.k_point_label,
+            list(result.subgroup.k_parameters or []),
+        )
         self.phase_path.validate()
         self._selected_subgroup = result.subgroup
         self.distortion_modes = self._compute_scoped_modes(
@@ -1954,8 +2690,10 @@ class IsoDistort:
             self.symmetry_info["wyckoff_sites"],
             self.distortion_modes,
         )
+        self._install_special_bush_supercell_modes(result.subgroup)
+        self._sync_parametric_session_keys()
         print(t("method2.result", idx=subgroup_idx,
-                n=len(result.modes) + len(self.mode_occupancies)))
+                n=len(self.mode_displacements) + len(self.mode_occupancies)))
         return result
 
     def search_method_3(self,
@@ -1965,7 +2703,8 @@ class IsoDistort:
                         supercell_basis: list[list[str | int | float]] | None = None,
                         direct_sublattice_centering: str | None = None,
                         lattice_type: str = "direct",
-                        generate_if_missing: bool = False):
+                        generate_if_missing: bool = False,
+                        include_affine_only_diagnostics: bool = False):
         """
         Method 3: Search over arbitrary k points for a specified point group and supercell.
 
@@ -1973,8 +2712,9 @@ class IsoDistort:
         space_group_type。lattice_type 为官网 radio（direct/reciprocal）；
         本地引擎暂不支持 reciprocal（倒易超格）模式，会给出明确错误。
 
-        带心支持 Default(``d``) 与 P（primitive / no centering）。非恒等超胞
-        会额外按公度条件推断参数 k（如 LD ``g=1/6``）并枚举；
+        Default 按目标空间群的默认 Bravais centering 解释；显式
+        P/A/B/C/I/F/R 分别按所选 centering 解释为精确 primitive lattice。
+        非母相原胞子格会额外按公度条件推断参数 k（如 LD ``g=1/6``）并枚举；
         ``generate_if_missing`` 与 Method 2 的 GenDB 开关相同。
         """
         if self.structure is None:
@@ -1993,12 +2733,39 @@ class IsoDistort:
             supercell_basis=supercell_basis,
             direct_sublattice_centering=direct_sublattice_centering,
             lattice_type=lattice_type,
+            parent_rotations=[rotation.tolist() for rotation in self._parent_rotations()],
+            parent_structure=self.structure,
+            symmetry_tolerance=self.cfg.symmetry_cartesian_tolerance_angstrom,
+            symmetry_angle_tolerance_degrees=(
+                self.cfg.symmetry_angle_tolerance_degrees
+            ),
+            affine_exact_tolerance=(
+                self.cfg.affine_exact_cartesian_tolerance_angstrom
+            ),
+            fractional_coordinate_tolerance=(
+                self.cfg.fractional_coordinate_tolerance
+            ),
             generate_if_missing=generate_if_missing,
+            include_affine_only_diagnostics=include_affine_only_diagnostics,
         )
         parent_sg = self.symmetry_info["space_group_number"]
         result = self._search.method_3_search(parent_sg, query)
 
+        result = self._filter_method3_routes_by_types(
+            result, query.distortion_types or self.distortion_types
+        )
+
         # 记录过滤后的候选，供 Method 2（search_method_2）使用（与 Method 1 一致）
+        self._unresolved_method3_embedding_keys = set()
+        for item in result:
+            resolution = getattr(item, "route_resolution", "known_single_ir")
+            item.subgroup._method3_route_resolution = resolution
+            embedding_id = str(getattr(item, "embedding_id", "") or "").strip()
+            if embedding_id:
+                item.subgroup._method3_embedding_id = embedding_id
+            if resolution == "affine_only_unresolved_coupled_route":
+                key = self._method3_embedding_guard_key(item.subgroup)
+                self._unresolved_method3_embedding_keys.add(key)
         self.subgroups = [item.subgroup for item in result]
         print(t("method3.result", n=len(result)))
         return result

@@ -291,12 +291,12 @@ def _method3_cols() -> list[tuple[str, str, Callable, Callable, bool]]:
     return [
         ("idx", "idx", lambda r: str(r["index"]), lambda r: int(r["index"]), False),
         ("sg", "SG", lambda r: r["sg"], lambda r: r["_sort_sg"], True),
-        ("k", "k", lambda r: r["k"], lambda r: r["k"], True),
-        ("irrep", "Irrep", lambda r: r["irrep"], lambda r: r["irrep"], True),
-        ("opd", "OPD", lambda r: r["opd"], lambda r: r["opd"], True),
+        ("basis", "basis", lambda r: r["basis"], lambda r: r["basis"], True),
+        ("origin", "origin", lambda r: r["origin"], lambda r: r["origin"], True),
         ("pg", "point group", lambda r: r["pg"], lambda r: r["pg"], True),
         ("s", "s", lambda r: str(r["s"]), lambda r: r["_sort_s"], True),
         ("i", "i", lambda r: str(r["i"]), lambda r: r["_sort_i"], True),
+        ("routes", "known routes", lambda r: r["routes"], lambda r: r["routes"], True),
     ]
 
 
@@ -346,19 +346,34 @@ def _row_method2(sg) -> dict:
 
 def _row_method3(item) -> dict:
     sg = item.subgroup
+    fields = sg.official_fields()
+    routes = item.routes if item.routes is not None else [sg]
+
+    def _route_label(route) -> str:
+        params = (
+            f"({','.join(str(value) for value in route.k_parameters)})"
+            if route.k_parameters else ""
+        )
+        return (
+            f"{route.k_point_label}{params}:"
+            f"{route.irrep_label} {route.opd_symbol}"
+        )
+
     return {
         "index": sg.index,
-        "sg": _sg_text(sg),
-        "k": sg.k_point_label or "",
-        "irrep": sg.irrep_label or "",
-        "opd": sg.opd_symbol or "",
+        "sg": fields["sg"],
+        "basis": fields["basis"],
+        "origin": fields["origin"],
         "pg": item.point_group or "",
-        "s": sg.size,
-        "i": sg.subgroup_index,
+        "s": fields["s"],
+        "i": fields["i"],
+        "routes": "; ".join(_route_label(route) for route in routes),
+        "selectable": bool(routes),
+        "route_resolution": getattr(item, "route_resolution", "known_single_ir"),
         "_sg": sg,
         "_sort_sg": int(sg.space_group_number or 0),
-        "_sort_s": int(sg.size or 0),
-        "_sort_i": int(sg.subgroup_index or 0),
+        "_sort_s": int(fields["s"] or 0),
+        "_sort_i": int(fields["i"] or 0),
     }
 
 
@@ -415,6 +430,7 @@ class IsoDistortConsoleApp:
         self.last_method3: list = []
         self.last_method4: list[dict] = []
         self.last_method4_meta: dict = {"rms": None, "max_abs": None}
+        self.nmod_value = 0
         self.tbl: dict[int, dict] = {
             1: _empty_tbl(_method1_cols()),
             2: _empty_tbl(_method2_cols()),
@@ -646,6 +662,13 @@ class IsoDistortConsoleApp:
         _line()
         print("Method 2: General method - search over specific k points")
         print(t("m2.nmodRemoved"))
+        nmod = _prompt_int(t("l.nmod"), self.nmod_value)
+        if nmod < 0:
+            nmod = 0
+        if nmod > 3:
+            nmod = 3
+        self.nmod_value = nmod
+        self.iso.number_of_independent_modulations = nmod
         groups = self._prompt_kpoint_groups()
         if not groups:
             return
@@ -857,7 +880,17 @@ class IsoDistortConsoleApp:
             cmd = parts[0].lower()
             if allow_idx and cmd.isdigit():
                 idx = int(cmd)
-                if any(r.get("index") == idx for r in st["rows"]):
+                selected = next(
+                    (r for r in st["rows"] if r.get("index") == idx),
+                    None,
+                )
+                if selected is not None and not selected.get("selectable", True):
+                    print(
+                        f"idx={idx} is not selectable: this affine embedding has no "
+                        "resolved second-stage route."
+                    )
+                    continue
+                if selected is not None:
                     return idx
                 print(t("m2.idx_range"))
                 continue
@@ -916,10 +949,16 @@ class IsoDistortConsoleApp:
                 f"| s={row['s']:<3} i={row['i']:<3}"
             )
         elif method == 3:
+            selection = ""
+            if not row.get("selectable", True):
+                selection = " | NOT SELECTABLE (no resolved second-stage route)"
             print(
-                f"  idx={row['index']:3d} | SG {row['sg']:<16s} | k={row['k']:<4s} "
-                f"IR={row['irrep']:<6s} | point_group={row['pg']}"
+                f"  idx={row['index']:3d} | SG {row['sg']:<16s} "
+                f"| point_group={row['pg']} | s={row['s']} i={row['i']}"
+                f"{selection}"
             )
+            print(f"      basis={row['basis']} | origin={row['origin']}")
+            print(f"      known routes={row['routes'] or '(none)'}")
         else:
             print(f"  {row['mode']:<16s} {row['amp']}")
 
@@ -927,6 +966,20 @@ class IsoDistortConsoleApp:
         if source == "method1":
             pool = [item.subgroup for item in self.last_method1]
         elif source == "method3":
+            selected_item = next(
+                (
+                    item
+                    for item in self.last_method3
+                    if int(item.subgroup.index) == idx
+                ),
+                None,
+            )
+            if selected_item is not None and selected_item.routes == []:
+                print(
+                    "This affine embedding has no resolved single-IR or coupled-IR "
+                    "second-stage route; mode calculation is not implemented for it."
+                )
+                return
             pool = [item.subgroup for item in self.last_method3]
         else:
             pool = list(self.last_method2_subgroups)
@@ -934,33 +987,22 @@ class IsoDistortConsoleApp:
         if target is None:
             print(t("m2.idx_range"))
             return
-        # Align with web: subgroup.k_parameters or catalog entry for the k label.
-        is_param = bool(getattr(target, "k_parameters", None))
-        if not is_param and target.k_point_label:
-            try:
-                for kp in self.iso.list_k_points():
-                    if kp.label == target.k_point_label and kp.parameters:
-                        is_param = True
-                        break
-            except IsodistortError:
-                pass
-        if is_param:
-            self.last_method2 = None
-            self.iso.clear_selected_modes()
-            print(t("m2.paramKNote"))
-            return
         with _ElapsedStatus(t("st.wait")):
             result = self.iso.search_method_2(
                 subgroup_idx=idx,
                 distortion_type=self.distortion_types,
+                number_of_independent_modulations=self.nmod_value,
                 candidates=pool,
             )
         self.last_method2 = result
         print(f"Method 2: {len(result.modes) + len(self.iso.mode_occupancies)} mode(s)")
+        overrides = getattr(self.iso, "_mode_label_overrides", {}) or {}
         for mode in result.modes:
+            key = str(getattr(mode, "amplitude_key", "") or mode.irrep_label)
+            pretty = overrides.get(key) or mode.irrep_label
             sites = sorted({b.wyckoff_letter for b in mode.bush_modes})
             print(
-                f"  {mode.irrep_label:<8s} OPD={mode.opd_symbol:<6s} "
+                f"  {pretty}  OPD={mode.opd_symbol:<6s} "
                 f"dim={mode.dimension:<2d} sites={sites}"
             )
         for label, entry in self.iso.mode_occupancies.items():
@@ -992,7 +1034,7 @@ class IsoDistortConsoleApp:
             lattice_type = "direct"
 
         centering = _prompt(
-            "direct sublattice centering (d/P = ok; A/B/C/I/F/R unsupported)",
+            "direct sublattice centering (d/P/A/B/C/I/F/R)",
             "d",
         ).strip() or "d"
         if centering.upper() == "D":
@@ -1021,7 +1063,7 @@ class IsoDistortConsoleApp:
                     lattice_type=lattice_type,
                     generate_if_missing=gen_db,
                 )
-        except (IsodistortError, ValueError) as exc:
+        except (IsodistortError, ValueError, RuntimeError) as exc:
             print(f"Method 3 error: {exc}")
             return
         self.last_method3 = result
@@ -1173,7 +1215,16 @@ class IsoDistortConsoleApp:
         export_headers = {
             1: ["index", "Irrep", "OPD", "Dir", "space_group", "basis", "origin", "s", "i", "k-active"],
             2: ["index", "space_group", "k_point", "irrep", "OPD", "size", "subgroup_index"],
-            3: ["index", "space_group", "k_point", "irrep", "point_group"],
+            3: [
+                "index",
+                "space_group",
+                "basis",
+                "origin",
+                "point_group",
+                "s",
+                "i",
+                "known_routes",
+            ],
             4: ["mode", "amplitude"],
         }
         cols = st["cols"]
@@ -1221,7 +1272,7 @@ class IsoDistortConsoleApp:
 
         mode_count = len(self.iso.mode_displacements) + len(self.iso.mode_occupancies)
         print(f"  Available mapped modes: {mode_count}")
-        print(t("m2.nmodRemoved"))
+        print(f"  nmod (independent modulations): {self.nmod_value}")
 
 
 def main(argv: list[str] | None = None) -> int:

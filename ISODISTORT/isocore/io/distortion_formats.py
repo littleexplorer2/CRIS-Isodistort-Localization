@@ -24,6 +24,7 @@ import numpy as np
 from pymatgen.core import Structure
 
 from ..backend import SubgroupInfo
+from ..utils.config_loader import get_config
 
 # 官网第 6 页 origintype 与本地键的对应
 FORMAT_CIF = "cif"
@@ -233,7 +234,7 @@ def _parent_primitive_volume(parent: Structure | None) -> float:
 def render_complete_modes(spec: SubgroupExportSpec) -> str:
     """Write Complete modes details as a self-contained ``.txt``.
 
-    Acceptance (see repo ``agent.md``): put **all locally computed** supercell /
+    Acceptance (see ``ISODISTORT/agent.md``): put **all locally computed** supercell /
     mode information into this text file inside each subgroup folder of the
     Distortion ZIP. Byte-level match to the official HTML modes page is **not**
     required.
@@ -275,10 +276,16 @@ def render_complete_modes(spec: SubgroupExportSpec) -> str:
             f"{i:6d} {site.species_string:<4s} {x:10.6f} {y:10.6f} {z:10.6f}"
         )
 
-    vp = _parent_primitive_volume(spec.parent_structure)
-    vs = float(lat.volume)
-    # 原胞体积比：超胞可能含多个原胞；用体积比近似 Vp/Vs
-    scale_ap = float(np.sqrt(max(vp, 1e-30) / max(vs, 1e-30)))
+    primitive_size_ratio = int(sg.size or 0)
+    if primitive_size_ratio <= 0:
+        raise ValueError(
+            "subgroup primitive-cell size ratio s must be positive for mode amplitudes"
+        )
+    # ISODISTORT defines Ap = As*sqrt(Vp/Vs).  The OPD field ``s`` is exactly
+    # Vs/Vp for the primitive subgroup and parent cells, so this remains
+    # correct for centred conventional cells and non-standard settings.
+    scale_ap = 1.0 / float(np.sqrt(primitive_size_ratio))
+    centering_mult = _centering_multiplicity(sg.space_group_symbol)
 
     lines.append("")
     lines.append("Mode definitions (every atom in the unit cell)")
@@ -302,12 +309,16 @@ def render_complete_modes(spec: SubgroupExportSpec) -> str:
         max_comp = float(np.max(np.abs(arr)))
         unit = arr / max_comp if max_comp > 1e-16 else arr
         cart = unit @ bmat
-        ssq = float(np.sum(cart * cart))
-        norm = (1.0 / np.sqrt(ssq)) if ssq > 1e-30 else 0.0
+        ssq_conventional = float(np.sum(cart * cart))
+        ssq_primitive = ssq_conventional / centering_mult
+        norm = (1.0 / np.sqrt(ssq_primitive)) if ssq_primitive > 1e-30 else 0.0
         as_amp = float((spec.amplitudes or {}).get(label, 0.0))
         ap_amp = as_amp * scale_ap
-        dmax = float(np.max(np.linalg.norm(cart * as_amp, axis=1))) if as_amp else \
-            float(np.max(np.linalg.norm(cart, axis=1)))
+        dmax = (
+            abs(as_amp) * norm * float(np.max(np.linalg.norm(cart, axis=1)))
+            if norm > 0.0
+            else 0.0
+        )
         lines.append("")
         lines.append(f"Mode {label}  {pretty}")
         lines.append(f"  normfactor = {norm:.6g} Angstrom^-1")
@@ -334,7 +345,12 @@ def _unique_site_indices(structure: Structure) -> list[int]:
     """对称独立位点在超胞中的代表下标；失败时退回全部原子（P1）。"""
     try:
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer  # noqa: PLC0415
-        sga = SpacegroupAnalyzer(structure, symprec=1e-3)
+        cfg = get_config()
+        sga = SpacegroupAnalyzer(
+            structure,
+            symprec=cfg.symmetry_cartesian_tolerance_angstrom,
+            angle_tolerance=cfg.symmetry_angle_tolerance_degrees,
+        )
         eq = sga.get_symmetrized_structure().equivalent_indices
         return [group[0] for group in eq if group]
     except (ValueError, TypeError, np.linalg.LinAlgError, AttributeError):
@@ -398,6 +414,11 @@ def cart_normalized_mode_matrix(
 
     Local iso often emits max-component=1 vectors. Official TOPAS / IsoVIZ use a
     Cartesian primitive-cell normalization (I-centering → factor √2 vs full cell).
+    ``maxamp_hint`` is the amplitude at which the largest Cartesian atomic
+    displacement reaches 1 Angstrom, i.e. ``1 / dmax(As=1)``.  This follows
+    the ISODISTORT definitions of the supercell-normalized amplitude ``As``
+    and ``dmax`` rather than a space-group-centring heuristic.
+
     Returns ``(scaled_matrix, maxamp_hint)``.
     """
     mat = np.asarray(arr, dtype=float)
@@ -413,7 +434,11 @@ def cart_normalized_mode_matrix(
     ssq_prim = ssq / n_c
     scale = (1.0 / np.sqrt(ssq_prim)) if ssq_prim > 1e-30 else 1.0
     scaled = unit * scale
-    maxamp = float(np.sqrt(n_c)) if n_c > 1 else 1.0
+    cartesian_at_as_one = scaled @ bmat
+    dmax_at_as_one = float(
+        np.max(np.linalg.norm(cartesian_at_as_one, axis=1))
+    )
+    maxamp = (1.0 / dmax_at_as_one) if dmax_at_as_one > 1e-30 else 1.0
     return scaled, maxamp
 
 
@@ -456,8 +481,6 @@ def render_topas(spec: SubgroupExportSpec) -> str:
     unique = [int(site["index"]) for site in subgroup_sites]
     tags = [str(site["label"]) for site in subgroup_sites]
     scaled_modes: list[np.ndarray] = []
-    amp_bound = 1.41 if n_c > 1 else 2.00
-
     if not mode_items:
         lines.append("\t\t' (no displacive modes available for this subgroup)")
         if spec.note:
@@ -469,7 +492,7 @@ def render_topas(spec: SubgroupExportSpec) -> str:
                 topas_space_before_ir=True,
             )
             amp = float((spec.amplitudes or {}).get(label, 0.0))
-            scaled, _hint = cart_normalized_mode_matrix(
+            scaled, amp_bound = cart_normalized_mode_matrix(
                 np.asarray(disp, dtype=float), lat.matrix, centering_mult=n_c
             )
             scaled_modes.append(scaled)

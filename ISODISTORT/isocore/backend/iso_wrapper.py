@@ -212,6 +212,28 @@ class DistortionMode:
     k_point_label: str = ""          # k 点
     opd_symbol: str = ""             # 序参量方向
     bush_modes: list[BushMode] = field(default_factory=list)  # 原子级位移模式
+    amplitude_key: str = ""          # unique export/GD key when one IR splits
+    site_irrep: str = ""             # parent-site irrep, e.g. A2u / A1_1
+    k_coords_label: str = ""         # ``0,0,1/6``
+    opd_component: str = "a"         # ``a`` / ``b`` / …
+
+
+def _component_label(index: int) -> str:
+    """Return a stable spreadsheet-style component label (a..z, aa..).
+
+    A DISPLAY BUSH displacement *column* is one independent vector in the
+    subgroup-fixed displacement space.  The label is metadata only; the
+    column itself, rather than this name, defines the scientific identity.
+    """
+    if index < 0:
+        raise ValueError("component index must be non-negative")
+    chars: list[str] = []
+    value = index
+    while True:
+        chars.append(chr(ord("a") + value % 26))
+        value = value // 26 - 1
+        if value < 0:
+            return "".join(reversed(chars))
 
 
 # ================================================================
@@ -610,14 +632,21 @@ class IsoWrapper(BaseWrapper):
             # 已在上方提前报错，此分支仅作防御性保留）
             commands.append(self._kvalue_command(subgroup.k_parameters))
         commands.append(f"VALUE DIRECTION {subgroup.opd_symbol}")
-        for letter in wyckoff_letters:
-            commands.append(f"VALUE WYCKOFF {letter}")
         commands += [
             "SHOW MODES", "SHOW MICROSCOPIC",
             "SHOW SUBGROUP", "SHOW DIRECTION VEC", "SHOW INDEX",
             "SHOW BASIS", "SHOW ORIGIN",
-            "DISPLAY BUSH",
         ]
+        # VALUE WYCKOFF replaces the previously selected orbit; it is not an
+        # accumulating selector.  Emit one BUSH table per requested orbit in
+        # the same ISO session and merge the parsed rows below.  Sending
+        # ``VALUE WYCKOFF d`` followed by ``VALUE WYCKOFF e`` and only one
+        # DISPLAY BUSH silently computed e alone, which removed complete-mode
+        # copies on d (for example EuAl4 GM5+ C1: 2 modes instead of 6).
+        for letter in dict.fromkeys(str(value).strip() for value in wyckoff_letters):
+            if not letter:
+                continue
+            commands.extend((f"VALUE WYCKOFF {letter}", "DISPLAY BUSH"))
         stdout = self._run_session("\n".join(commands) + "\n")
 
         if detect_blocked_generation(stdout):
@@ -632,29 +661,60 @@ class IsoWrapper(BaseWrapper):
         except (ValueError, IndexError) as exc:
             raise OutputParseError("iso", f"解析模式基矢表失败: {exc}") from exc
 
-        # 按 IR + 序参量方向分组为 DistortionMode。
-        # 次级 IR（BUSH 表里出现的 GM1+ 等）用其自身 k 点干名，勿沿用主路径 k。
-        modes: dict[tuple, DistortionMode] = {}
+        # DISPLAY BUSH 的每个 displacement 列是固定子空间
+        # V^H = {u | D(h)u=u, h in H} 的一条独立基矢；续行则是同一
+        # 基矢在其他代表原子上的分量。因此必须按
+        # (IR, OPD, Wyckoff orbit, column) 拆成模式，不能把列相加，
+        # 也不能把续行当成新模式。
+        grouped: dict[tuple[str, str, str], list[BushMode]] = {}
         for row in rows:
-            key = (row["irrep_label"], row["opd_symbol"])
-            mode = modes.get(key)
-            if mode is None:
-                ir = str(row["irrep_label"] or "")
-                k_stem = re.match(r"^([A-Z]+)", ir)
-                mode = DistortionMode(
+            bush = BushMode(**row)
+            key = (bush.irrep_label, bush.opd_symbol, bush.wyckoff_letter)
+            grouped.setdefault(key, []).append(bush)
+
+        modes: list[DistortionMode] = []
+        for (ir, opd, letter), bushes in grouped.items():
+            dimension = max((len(b.displacements) for b in bushes), default=0)
+            if dimension <= 0:
+                continue
+            k_stem = re.match(r"^([A-Z]+)", ir)
+            k_label = k_stem.group(1) if k_stem else subgroup.k_point_label
+            k_coords = ",".join(str(value) for value in subgroup.k_coordinates)
+            for column in range(dimension):
+                component_rows: list[BushMode] = []
+                for bush in bushes:
+                    if column >= len(bush.displacements):
+                        continue
+                    component_rows.append(BushMode(
+                        irrep_label=bush.irrep_label,
+                        opd_symbol=bush.opd_symbol,
+                        wyckoff_letter=bush.wyckoff_letter,
+                        point=list(bush.point),
+                        point_raw=list(bush.point_raw),
+                        displacements=[list(bush.displacements[column])],
+                    ))
+                if not component_rows:
+                    continue
+                component = _component_label(column)
+                # Prefixing with ``IR__`` preserves the public API's ability
+                # to address/sum all copies by the bare irrep label.
+                amplitude_key = f"{ir}__{letter}__{opd}__{component}"
+                modes.append(DistortionMode(
                     irrep_label=ir,
-                    opd_symbol=row["opd_symbol"],
+                    dimension=dimension,
                     mode_type="displacive",
-                    k_point_label=(
-                        k_stem.group(1) if k_stem else subgroup.k_point_label
-                    ),
-                )
-                modes[key] = mode
-            mode.bush_modes.append(BushMode(**row))
-            # 兼容旧接口：basis_vectors 取各代表原子的首个位移向量
-            mode.basis_vectors = [b.displacements[0] for b in mode.bush_modes
-                                  if b.displacements]
-        return list(modes.values())
+                    basis_vectors=[
+                        list(bush.displacements[0]) for bush in component_rows
+                    ],
+                    wyckoff_site=letter,
+                    k_point_label=k_label,
+                    opd_symbol=opd,
+                    bush_modes=component_rows,
+                    amplitude_key=amplitude_key,
+                    k_coords_label=k_coords,
+                    opd_component=component,
+                ))
+        return modes
 
     # ================================================================
     # 畴变体
@@ -700,4 +760,3 @@ class IsoWrapper(BaseWrapper):
         except (ValueError, IndexError) as exc:
             raise OutputParseError("iso", f"解析畴表失败: {exc}") from exc
         return [DomainInfo(**row) for row in rows]
-

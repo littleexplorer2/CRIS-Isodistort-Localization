@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from .config_loader import get_config
+
 
 def cris_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -14,20 +16,31 @@ def cris_root() -> Path:
 
 def find_isoviz_launcher(root: Path | None = None) -> Path | None:
     """Return a shortcut, executable, or JAR if one is configured."""
-    base = root or cris_root()
-    env_path = os.environ.get("ISOVIZ") or os.environ.get("ISOVIZ_JAR")
-    if env_path:
-        candidate = Path(env_path).expanduser()
-        if candidate.is_file():
-            return candidate
-    for name in ("ISOViz.lnk", "IsoVIZ.lnk", "ISOVIZ.lnk", "IsoViz.exe", "ISOViz.exe"):
-        hit = base / name
-        if hit.is_file():
-            return hit
-    for name in ("IsoViz.jar", "ISOViz.jar", "isoviz.jar"):
-        hit = base / name
-        if hit.is_file():
-            return hit
+    cfg = get_config()
+    for env_name in cfg.isoviz_env_vars:
+        env_path = os.environ.get(env_name)
+        if env_path:
+            candidate = Path(env_path).expanduser()
+            if candidate.is_file():
+                return candidate
+    search_dirs = [root] if root is not None else cfg.launcher_search_dirs
+    names = cfg.launcher_names or (
+        "ISOViz.lnk",
+        "IsoVIZ.lnk",
+        "ISOVIZ.lnk",
+        "IsoViz.exe",
+        "ISOViz.exe",
+        "IsoViz.jar",
+        "ISOViz.jar",
+        "isoviz.jar",
+    )
+    for base in search_dirs:
+        if base is None:
+            continue
+        for name in names:
+            hit = Path(base) / name
+            if hit.is_file():
+                return hit
     return None
 
 
@@ -36,20 +49,23 @@ def java_executable() -> str | None:
 
 
 def open_isoviz(isoviz_file: Path, *, launcher: Path | None = None) -> None:
-    """Open a ``.isoviz`` file in IsoVIZ."""
+    """Open a ``.isoviz`` file in IsoVIZ (prefer the CRIS-root shortcut/jar/exe)."""
     target = isoviz_file.resolve()
     if not target.is_file():
         raise FileNotFoundError(f"IsoVIZ file not found: {target}")
     app = launcher or find_isoviz_launcher()
+    if app is not None and app.suffix.lower() == ".jar":
+        _run_jar(app, target)
+        return
+    if app is not None and app.suffix.lower() in {".exe", ".bat", ".cmd"}:
+        subprocess.Popen([str(app), str(target)], close_fds=True)
+        return
     if sys.platform.startswith("win"):
         try:
             os.startfile(str(target))  # type: ignore[attr-defined]
             return
         except OSError:
             pass
-        if app is not None and app.suffix.lower() == ".jar":
-            _run_jar(app, target)
-            return
         if app is not None:
             subprocess.Popen(["cmd", "/c", "start", "", str(app), str(target)], close_fds=True)
             return
@@ -57,9 +73,6 @@ def open_isoviz(isoviz_file: Path, *, launcher: Path | None = None) -> None:
             "Windows could not open the .isoviz file. Associate it with IsoVIZ, "
             "or place ISOViz.lnk in the CRIS root, or set ISOVIZ / ISOVIZ_JAR."
         )
-    if app is not None and app.suffix.lower() == ".jar":
-        _run_jar(app, target)
-        return
     if app is not None:
         subprocess.Popen([str(app), str(target)], close_fds=True)
         return

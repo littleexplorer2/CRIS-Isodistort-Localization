@@ -4,7 +4,7 @@ Must open in **VESTA** (CRIS root shortcut). Official Distortion-page CIF
 (ISODISTORT 6.12.2) is the format target: isotropy-subgroup conventional cell,
 ITA origin choice 2, asymmetric-unit sites, Hall setting, and ISODISTORT
 private loops. Content/layout should track the website as closely as practical;
-byte-identical export is not a project DoD (see repo ``agent.md``).
+byte-identical export is not a project DoD (see ``ISODISTORT/agent.md``).
 """
 from __future__ import annotations
 
@@ -20,6 +20,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.groups import SpaceGroup
 
 from ..backend import SubgroupInfo
+from ..utils.config_loader import get_config
 from ..utils.parent_header import format_fixed_coord, format_wyckoff_sites
 from ..utils.schoenflies import hm_symbol, schoenflies_symbol
 
@@ -740,7 +741,12 @@ def _spglib_wyckoff_letters(
         nums,
     )
     try:
-        ds = get_symmetry_dataset(cell, symprec=1e-4)
+        cfg = get_config()
+        ds = get_symmetry_dataset(
+            cell,
+            symprec=cfg.symmetry_cartesian_tolerance_angstrom,
+            angle_tolerance=cfg.symmetry_angle_tolerance_degrees,
+        )
     except Exception:  # noqa: BLE001 - optional enrichment
         return None
     if ds is None:

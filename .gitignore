@@ -1,28 +1,22 @@
 # environment
 /.venv/
 /.vscode/
-/CRIS.code-workspace/
+/CRIS.code-workspace
 
-# logs
+# logs (repo-wide caches if invoked from the root)
+*.log
 /.pytest_cache/
 /.ruff_cache/
+/.test-tmp*/
 
-# data
+# data (read-only archives, not subproject source)
 /experiment_data/
 /webpage_info/
 /output_compare/
 
-# shortcuts
+# shortcuts kept at the repo root for convenience
 ISOViz.lnk
 VESTA.lnk
 
-# project packages: keep runtime and validation source; exclude local workspace files
-/CRIS.code-workspace
-/agent.md
-
-# developer-only tests and helper scripts
-/ISODISTORT/tests_dev/
-/ISODISTORT/requirements-dev.txt
-
-# to do
+# not part of this git remote
 /GD/

@@ -3,6 +3,7 @@
 
 对应阶段六，步骤11：标准结构文件导出
 """
+import re
 from pathlib import Path
 
 from pymatgen.core import Structure
@@ -25,6 +26,23 @@ class StructureExporter:
         self.output_dir = Path(output_dir) if output_dir else cfg.output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
+    @staticmethod
+    def _safe_filename(filename: str) -> str:
+        """Return one cross-platform-safe basename without changing file data."""
+        # Match the website's Windows-download convention: illegal characters
+        # are deleted (for example I4/mmm -> I4mmm and 1/2 -> 12).
+        safe = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "", str(filename)).rstrip(" .")
+        if not safe:
+            safe = "structure"
+        reserved = {
+            "CON", "PRN", "AUX", "NUL",
+            *(f"COM{i}" for i in range(1, 10)),
+            *(f"LPT{i}" for i in range(1, 10)),
+        }
+        if safe.upper() in reserved:
+            safe = f"_{safe}"
+        return safe[:180].rstrip(" .") or "structure"
+
     def to_cif(self, structure: Structure, filename: str,
                symprec: float | None = None) -> Path:
         """
@@ -39,10 +57,10 @@ class StructureExporter:
             Path: 输出文件路径
 
         """
-        from .isodistort_cif import render_isodistort_cif
+        from .isodistort_cif import render_isodistort_cif  # noqa: PLC0415
 
         text = render_isodistort_cif(structure)
-        path = self.output_dir / f"{filename}.cif"
+        path = self.output_dir / f"{self._safe_filename(filename)}.cif"
         path.write_text(text, encoding="utf-8", newline="\n")
         return path
 
@@ -52,7 +70,7 @@ class StructureExporter:
 
         """
         poscar = Poscar(structure, comment=comment)
-        path = self.output_dir / f"{filename}.vasp"
+        path = self.output_dir / f"{self._safe_filename(filename)}.vasp"
         poscar.write_file(str(path))
         return path
 
@@ -61,7 +79,7 @@ class StructureExporter:
 
         """
         xyz = XYZ(structure)
-        path = self.output_dir / f"{filename}.xyz"
+        path = self.output_dir / f"{self._safe_filename(filename)}.xyz"
         xyz.write_file(str(path))
         return path
 

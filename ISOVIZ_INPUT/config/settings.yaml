@@ -1,0 +1,41 @@
+# ============================================================
+# ISOVIZ_INPUT 子项目配置
+# 相对路径均相对本文件所在目录 config/ 解析。
+# 虚拟环境与另外两个子项目共用仓库根 CRIS/.venv
+# （由本目录 main_requirement.py 创建或复用）。
+# 本子项目不使用 output/：读完 CSV 与 .isoviz 后直接启动 IsoVIZ。
+# ============================================================
+
+paths:
+  # 历史兼容输入目录（gitignore，不入库；默认不再从这里读振幅）
+  input_root: "../input_content"
+  data_dirname: "data.csv"
+  structure_dirname: "subgroup.isoviz"
+  # GD 写出的桌面子目录名
+  best_model_folder_name: "Best_Model_Parameters"
+  # 空字符串 = 自动探测当前用户 Desktop（优先 OneDrive\Desktop）
+  # 也可写成绝对路径，例如 "C:/Users/you/Desktop"
+  best_model_parent: ""
+
+isoviz:
+  # 优先读取这些环境变量指向的 .lnk / .exe / .jar
+  env_vars:
+    - ISOVIZ
+    - ISOVIZ_JAR
+  # 在下列目录中按顺序查找这些文件名
+  launcher_names:
+    - ISOViz.lnk
+    - IsoVIZ.lnk
+    - ISOVIZ.lnk
+    - IsoViz.exe
+    - ISOViz.exe
+    - IsoViz.jar
+    - ISOViz.jar
+    - isoviz.jar
+  # 查找目录：本子项目根，然后是 CRIS 仓库根（可放 ISOViz.lnk）
+  launcher_search_dirs:
+    - ".."
+    - "../.."
+
+runtime:
+  python_min: "3.10"

@@ -10,6 +10,7 @@ from typing import Any
 
 from . import compare_paths as cpaths
 from .compare_cif import compare_cif
+from .config_loader import get_config
 
 
 def _load_manifest(path: Path | None) -> dict[str, str]:
@@ -30,10 +31,15 @@ def _build_parser() -> argparse.ArgumentParser:
         ),
         epilog=cpaths.BATCH_PAIRING_HINT,
     )
-    parser.add_argument("--pattern", default="*.cif", help="recursive file pattern (default: *.cif)")
-    parser.add_argument("--lattice-tol", type=float, default=1e-5)
-    parser.add_argument("--coord-tol", type=float, default=1e-5)
-    parser.add_argument("--scalar-tol", type=float, default=1e-5)
+    cfg = get_config()
+    parser.add_argument(
+        "--pattern",
+        default=cfg.pattern,
+        help=f"recursive file pattern (default: {cfg.pattern})",
+    )
+    parser.add_argument("--lattice-tol", type=float, default=cfg.lattice_tolerance)
+    parser.add_argument("--coord-tol", type=float, default=cfg.coordinate_tolerance)
+    parser.add_argument("--scalar-tol", type=float, default=cfg.scalar_tolerance)
     parser.add_argument(
         "--ignore-atom-order",
         action="store_true",

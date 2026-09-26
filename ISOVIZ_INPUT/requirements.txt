@@ -1,3 +1,2 @@
-# ISOVIZ_INPUT uses only the Python standard library at runtime.
-# Leave this file empty of package pins so the CRIS .venv installer
-# can skip pip when nothing is missing.
+# Reads config/settings.yaml (shared CRIS/.venv already has PyYAML from ISODISTORT).
+pyyaml>=6.0

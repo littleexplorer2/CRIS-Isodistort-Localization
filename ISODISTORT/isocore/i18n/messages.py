@@ -165,7 +165,16 @@ MESSAGES: dict[str, str] = {
     'l.kvec': '<i>k</i> vector {0}:',
     'l.ir': 'Irreducible representation (IR):',
     'l.nmod': '# of independent incommensurate modulations:',
-    'nmod.hint': '(incommensurate modulation superposition is not supported by the local engine)',
+    'nmod.hint': '(0 = all folding k; n≥1 = harmonics of this Method 2 q, plus Gamma)',
+    'm2.nmodNote': (
+        'Important: You must click on Change to implement any changes in the number of '
+        'independent incommensurate modulations. 0 = 3D lock-in (every parent k that '
+        'folds into the child cell, including secondary IRs such as GM/M). '
+        'n≥1 keeps harmonics of the single q selected for this subgroup, plus Gamma. '
+        'Method 2 has one primary q, so 1, 2 and 3 do not add a second modulation.'
+    ),
+    'err.badNmod': 'Number of independent modulations must be an integer 0–3.',
+    'ok.nmod': 'Independent modulations set to {0}.',
     'l.sgsel3': 'Select either space group symmetry:',
     'l.pg': 'or point group (crystal class):',
     'l.lattice': 'Specify a real-space sublattice of the parent lattice with',
@@ -194,16 +203,15 @@ MESSAGES: dict[str, str] = {
     'l.nsup': 'Change number of superposed IRs:',
     'm2.nsup_note': 'Important: You must click on Change to implement any changes in the number of superposed IRs.',
     'm2.nmodRemoved': (
-        'Note: # of independent incommensurate modulations is not available locally '
-        '(requires the official (3+d)-dimensional superspace workflow); use the '
-        'official website for this feature.'
+        'nmod: 0 = 3D lock-in complete modes (every folding k, including secondary IRs); '
+        'n≥1 keeps harmonics of this subgroup\'s single q, plus Gamma. '
+        '1, 2 and 3 do not add another independent modulation.'
     ),
     'm2.paramKpSelected': (
         'Note: you selected a parametric (incommensurate) k point. '
-        'The local engine can enumerate isotropy subgroups, but cannot compute '
-        'displacement modes for them — that needs the official (3+d)-dimensional '
-        'superspace workflow. CIF/structure export still works; mode-based formats '
-        '(isoviz / Complete modes details / TOPAS) will have empty mode sections.'
+        'The local engine enumerates isotropy subgroups and computes complete '
+        'displacive modes via smodes + the child space group (3D lock-in / (3+d) '
+        'harmonics, controlled by nmod).'
     ),
     'm2.enumKp': 'Enumerating subgroups over all irreps of k point {0} (k group {1}/{2})...',
     'm2.noSubsAtKp': 'The local engine could not enumerate/generate subgroups for this k point (common for parametric k points such as LD/DT).',
@@ -215,15 +223,18 @@ MESSAGES: dict[str, str] = {
     'm2.officialUrl': 'Official ISODISTORT: https://landau3.byu.edu/isodistort.php',
     'm2.cancel': '0. Cancel / go back',
     'm2.subsFound': 'Enumerated {0} subgroup(s). Click a row to view its mode basis (official order parameter direction page).',
-    'm3.subsFound': 'Found {0} Method 3 candidate(s). Click a row to view its mode basis.',
+    'm3.subsFound': (
+        'Found {0} local Method 3 embedding candidate(s). '
+        'Click a row to view the representative known route.'
+    ),
     'm3.emptyHint': (
         'No isotropy subgroups matched these Method 3 constraints. '
         'Check space-group / point-group filters and the supercell basis. '
         'For commensurate supercells (e.g. 1×1×6 → LD g=1/6), enable '
         '“Generate isotropy subgroups database if missing” under Method 2 '
         'if the parametric-k database is not cached yet. '
-        'Centering: use Default or P (primitive). A/B/C/I/F/R and reciprocal '
-        'search are not supported locally.'
+        'Default and P/A/B/C/I/F/R centerings are interpreted as exact primitive '
+        'translation lattices. Reciprocal search is not supported locally.'
     ),
     'm2.filter': 'Filter:',
     'm2.clearFilter': 'Clear',
@@ -232,11 +243,9 @@ MESSAGES: dict[str, str] = {
     'm2.downloadCsv': 'Download filtered (csv)',
     'm2.filteredCount': '{0} / {1} after filtering',
     'm2.paramKNote': (
-        'This subgroup belongs to a parametric (incommensurate) k point: '
-        'the local iso binary can only enumerate its subgroups, not compute '
-        'displacement modes (the website uses a (3+d)-dimensional superspace '
-        'mechanism). The subgroup list is still valid — filter or sort it '
-        'here, then download the table from Distortion.'
+        'This subgroup belongs to a parametric k point. Complete displacive modes '
+        'are computed with smodes and the child space-group identity representation '
+        '(nmod=0 lock-in includes folding harmonics and secondary IRs).'
     ),
     'lGenDb': 'Generate isotropy subgroups database if missing',
     'm2.genDbHelp': (
@@ -312,24 +321,20 @@ MESSAGES: dict[str, str] = {
     'dist.noMethod': 'The selected Method has no subgroups to export; run that Method first.',
     'dist.zipWait': (
         'Building ZIP… keep this tab open. Non-CIF formats re-run Method 2 per '
-        'special-k subgroup to fill modes (can take a while). Parametric k points '
-        '(LD/DT, …) cannot fill displacement modes locally — use the official '
-        'website (3+d) superspace workflow. Strain modes are not written '
-        '(nstrain=0). Some paths may omit Wyckoff sites or return an empty BUSH '
-        'table versus the website.'
+        'subgroup to fill modes (can take a while). Parametric k points (LD/DT, …) '
+        'use smodes/(3+d) complete modes (nmod). Strain modes are not written '
+        '(nstrain=0). Some special-k paths may omit Wyckoff sites or return an '
+        'empty BUSH table versus the website.'
     ),
     'dist.zipParamNote': (
-        'Warning: one or more selected subgroups use a parametric (incommensurate) '
-        'k point. Those rows have empty displacement-mode sections because local '
-        'iso cannot compute them — use the official website (3+d) superspace. '
-        'CIF / folder layout still match the website; strain modes remain '
-        'unavailable locally.'
+        'Note: one or more selected subgroups use a parametric k point. '
+        'Displacement modes are filled with the local smodes/(3+d) complete-mode '
+        'engine (nmod). Strain modes remain unavailable locally.'
     ),
     'dist.paramFormatDefault': (
-        'This Method includes a parametric k point. Downloads default to CIF only '
-        'because the local 3-D engine cannot populate its displacement-mode '
-        'sections. You may reselect the other formats, but their mode sections '
-        'will be empty; use the official (3+d) superspace workflow for those modes.'
+        'This Method includes a parametric k point. ZIP formats other than CIF '
+        'now include smodes/(3+d) complete displacive modes (nmod=0 lock-in by '
+        'default). Strain modes are still not written.'
     ),
     'dist.computeModesAsk': (
         'Fill modes for special-k subgroups (isoviz / modes / TOPAS)? '

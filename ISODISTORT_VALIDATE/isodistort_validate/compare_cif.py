@@ -17,6 +17,7 @@ from pymatgen.core import Structure
 from pymatgen.io.cif import CifFile, CifParser
 
 from . import compare_paths as cpaths
+from .config_loader import get_config
 
 SPACE_GROUP_NUMBER_TAGS = ("_symmetry_Int_Tables_number", "_space_group_IT_number")
 SPACE_GROUP_SYMBOL_TAGS = ("_symmetry_space_group_name_H-M", "_space_group_name_H-M_alt")
@@ -508,9 +509,10 @@ def _build_parser() -> argparse.ArgumentParser:
         nargs="?",
         help="CIF path relative to compare/item and compare/true; omit if only one pair exists",
     )
-    parser.add_argument("--lattice-tol", type=float, default=1e-5)
-    parser.add_argument("--coord-tol", type=float, default=1e-5)
-    parser.add_argument("--scalar-tol", type=float, default=1e-5)
+    cfg = get_config()
+    parser.add_argument("--lattice-tol", type=float, default=cfg.lattice_tolerance)
+    parser.add_argument("--coord-tol", type=float, default=cfg.coordinate_tolerance)
+    parser.add_argument("--scalar-tol", type=float, default=cfg.scalar_tolerance)
     parser.add_argument(
         "--ignore-atom-order",
         action="store_true",

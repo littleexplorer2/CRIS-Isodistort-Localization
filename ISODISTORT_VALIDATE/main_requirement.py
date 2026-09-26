@@ -6,7 +6,7 @@ ISODISTORT_VALIDATE 依赖与环境准备脚本。
 2) 若 .venv 不存在则创建；已存在且可用则复用
 3) 只 pip 安装 requirements.txt 里尚未安装的包（已下载的不重复下载）
 4) 检查运行本工具不需要额外环境变量（无 ISODATA / WSL 要求）
-5) 若缺少 compare/、compare/item、compare/true 则自动创建
+5) 若缺少 compare/、compare/item、compare/true 则按 config/settings.yaml 的默认相对路径自动创建
 
 启动入口只有 ``main.py``（交互菜单，或 ``main.py compare`` / ``main.py batch``）。
 批量比较前须把 compare/true/ 中官网 CIF 改成与 compare/item/ 相同的相对路径和文件名。

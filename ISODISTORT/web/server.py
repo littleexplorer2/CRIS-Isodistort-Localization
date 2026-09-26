@@ -21,6 +21,7 @@ import sys
 import threading
 import time
 import urllib.parse
+import uuid
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from pathlib import Path
@@ -52,6 +53,10 @@ class WebSession:
 
     def __init__(self) -> None:
         self._iso = None
+        # Monotonic context version used to reject writes from an older tab.
+        # It protects the shared single-user session without pretending that
+        # each browser tab owns an independent IsoDistort instance.
+        self.revision = 0
         # 官网默认（见 webpage_info 第 2 页 HTML）：includestrain 勾选，
         # Displacive 行的各物种复选框逐个勾选（Eu/Al，等价于全部物种），
         # Occupational/Magnetic/Rotational 整行不勾选
@@ -78,6 +83,31 @@ class WebSession:
 
 
 _SESSION = WebSession()
+# IsoDistort owns mutable structure, candidate and mode state.  Serialize its
+# use under ThreadingHTTPServer so simultaneous requests cannot corrupt or
+# export a half-updated pool.  A monotonic revision rejects stale writes from
+# another tab; tabs still share one session rather than owning isolated state.
+_SESSION_LOCK = threading.RLock()
+
+
+class StaleContextError(RuntimeError):
+    """A browser mutation was based on an older shared-session snapshot."""
+
+
+def _assert_current_revision(value) -> None:
+    """Validate an optional client revision while ``_SESSION_LOCK`` is held."""
+    if value is None or value == "":
+        return  # Backward compatibility for API clients predating revisions.
+    try:
+        expected = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("revision must be an integer") from exc
+    if expected != _SESSION.revision:
+        raise StaleContextError(
+            "Stale context: this tab used revision "
+            f"{expected}, but the current session is revision {_SESSION.revision}. "
+            "Its cached results were discarded; retry from the current state."
+        )
 
 # 230 个空间群（序号 + HM 符号 + Schoenflies 符号），供 Method 1/3 下拉使用
 _SPACE_GROUPS = [
@@ -218,6 +248,7 @@ def _state_summary() -> dict:
     iso = _SESSION.iso
     modes = list(iso.mode_displacements.keys()) + list(iso.mode_occupancies.keys())
     summary = {
+        "revision": _SESSION.revision,
         "language": None,
         "structure": None,
         "subgroups": len(iso.subgroups),
@@ -312,14 +343,24 @@ def _method1_rows(items) -> list[dict]:
 def _method3_rows(items) -> list[dict]:
     """把 Method 3 的 Method3ResultItem 序列化为前端友好的 dict 列表。
 
-    Method 3 结果项只含 subgroup / point_group / basis，没有 Method 1 的
-    crystal_system / is_maximal，因此不能复用 _method1_rows。表列对齐
-    Method 2（SG / k / IR / OPD / s / i）并额外给出 point_group，供网页
-    与 Method 1/2 相同的筛选、排序与点行算模式。
+    官网首屏的科学身份是 SG/basis/origin/s/i embedding，而不是某一个
+    来源 IR/OPD。兼容代表 route 仍随行返回供当前模式计算使用，但界面把
+    所有已知 route 单独标成诊断信息，不能拿它当候选身份。
     """
     rows = []
     for item in items:
         sg = item.subgroup
+        fields = sg.official_fields()
+        routes = item.routes if item.routes is not None else [sg]
+        known_routes = [
+            {
+                "k_point_label": route.k_point_label,
+                "irrep_label": route.irrep_label,
+                "opd_symbol": route.opd_symbol,
+                "k_parameters": list(route.k_parameters or []),
+            }
+            for route in routes
+        ]
         rows.append({
             "index": sg.index,
             "space_group_number": sg.space_group_number,
@@ -333,7 +374,13 @@ def _method3_rows(items) -> list[dict]:
             "point_group": item.point_group,
             "basis_vectors": sg.basis_vectors,
             "origin": sg.origin,
+            "basis_display": fields["basis"],
+            "origin_display": fields["origin"],
             "k_parameters": list(sg.k_parameters or []),
+            "known_routes": known_routes,
+            "known_route_count": len(known_routes),
+            "route_resolution": getattr(item, "route_resolution", "known_single_ir"),
+            "selectable": bool(known_routes),
         })
     return rows
 
@@ -344,7 +391,7 @@ def _write_upload(filename: str, content: str) -> str:
     cfg = get_config()
     upload_dir = cfg.temp_dir / "web_uploads"
     upload_dir.mkdir(parents=True, exist_ok=True)
-    path = upload_dir / safe
+    path = upload_dir / f"{uuid.uuid4().hex}-{safe}"
     path.write_text(content, encoding="utf-8")
     return str(path)
 
@@ -375,14 +422,30 @@ class IsoHandler(BaseHTTPRequestHandler):
         raw = self.rfile.read(length)
         return json.loads(raw.decode("utf-8"))
 
-    def _run(self, fn) -> None:
-        """执行 API 动作，统一错误处理（错误信息按当前语言输出）。"""
+    def _run(self, fn, *, revision=None, mutate: bool = False) -> None:
+        """Run one API action atomically, with optional stale-context protection."""
         try:
-            result = fn()
-            if result is None:
-                result = {}
+            with _SESSION_LOCK:
+                _assert_current_revision(revision)
+                result = fn()
+                if result is None:
+                    result = {}
+                if mutate:
+                    _SESSION.revision += 1
+                    # Endpoint helpers may have made an earlier snapshot.  A
+                    # mutation response must carry the post-commit revision.
+                    result["state"] = _state_summary()
             result.setdefault("ok", True)
             self._send_json(result)
+        except StaleContextError as exc:
+            with _SESSION_LOCK:
+                state = _state_summary()
+            self._send_json({
+                "ok": False,
+                "stale_context": True,
+                "error": str(exc),
+                "state": state,
+            }, status=409)
         except Exception as exc:  # noqa: BLE001 - web 边界：统一转为 JSON 错误
             self._send_json({"ok": False, "error": str(exc)}, status=200)
 
@@ -411,7 +474,11 @@ class IsoHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": True, "active_clients": active_clients})
         elif path == "/api/state":
             _touch_heartbeat()
-            self._send_json({"ok": True, "state": _state_summary()})
+            # Build one coherent snapshot while other ThreadingHTTPServer
+            # handlers may be loading a CIF or replacing candidate pools.
+            with _SESSION_LOCK:
+                state = _state_summary()
+            self._send_json({"ok": True, "state": state})
         elif path == "/api/i18n":
             _touch_heartbeat()
             self._send_json({
@@ -450,13 +517,15 @@ class IsoHandler(BaseHTTPRequestHandler):
             _touch_heartbeat()
             self._run(self._api_isotropy_cache_list)
         elif path == "/api/download":
-            self._serve_download(parsed.query)
+            with _SESSION_LOCK:
+                self._serve_download(parsed.query)
         elif path == "/api/download_all":
             # 一键下载全部输出文件（打包为 ZIP）
             _touch_heartbeat()
             _begin_long_request()
             try:
-                self._serve_download_all()
+                with _SESSION_LOCK:
+                    self._serve_download_all()
             finally:
                 _end_long_request()
         else:
@@ -485,19 +554,39 @@ class IsoHandler(BaseHTTPRequestHandler):
         _touch_heartbeat()
 
         if path == "/api/load_cif":
-            self._run(lambda: self._api_load_cif(data))
+            # Loading a parent explicitly replaces the shared context, even
+            # when another tab has advanced it since this tab's last snapshot.
+            self._run(lambda: self._api_load_cif(data), mutate=True)
         elif path == "/api/set_types":
-            self._run(lambda: self._api_set_types(data))
+            self._run(
+                lambda: self._api_set_types(data),
+                revision=data.get("revision"), mutate=True,
+            )
         elif path == "/api/method1":
-            self._run(lambda: self._api_method1(data))
+            self._run(
+                lambda: self._api_method1(data),
+                revision=data.get("revision"), mutate=True,
+            )
         elif path == "/api/subgroups":
-            self._run(lambda: self._api_subgroups(data))
+            self._run(
+                lambda: self._api_subgroups(data),
+                revision=data.get("revision"), mutate=True,
+            )
         elif path == "/api/method2":
-            self._run(lambda: self._api_method2(data))
+            self._run(
+                lambda: self._api_method2(data),
+                revision=data.get("revision"), mutate=True,
+            )
         elif path == "/api/method3":
-            self._run(lambda: self._api_method3(data))
+            self._run(
+                lambda: self._api_method3(data),
+                revision=data.get("revision"), mutate=True,
+            )
         elif path == "/api/method4":
-            self._run(lambda: self._api_method4(data))
+            self._run(
+                lambda: self._api_method4(data),
+                revision=data.get("revision"), mutate=True,
+            )
         elif path == "/api/isotropy_cache/delete":
             self._run(lambda: self._api_isotropy_cache_delete(data))
         else:
@@ -518,7 +607,7 @@ class IsoHandler(BaseHTTPRequestHandler):
         _SESSION.iso.set_distortion_types(_SESSION.distortion_types)
         _SESSION.method1, _SESSION.method2, _SESSION.method3 = [], None, []
         _SESSION.method2_subgroups = []
-        return {"state": _state_summary()}
+        return {}
 
     def _api_set_types(self, data: dict) -> dict:
         types = data.get("types", ["strain"])
@@ -534,7 +623,14 @@ class IsoHandler(BaseHTTPRequestHandler):
             # 同步到底层 IsoDistort（模式计算按作用域过滤）
             _SESSION.iso.set_distortion_scope(_SESSION.distortion_scope)
         _SESSION.iso.set_distortion_types(_SESSION.distortion_types)
-        return {"state": _state_summary()}
+        # Every result below the Types panel depends on these selections.
+        # Clear both the web-owned tables and all derived engine state so a
+        # later click cannot reuse a path computed under the previous scope.
+        _SESSION.method1, _SESSION.method2, _SESSION.method3 = [], None, []
+        _SESSION.method2_subgroups = []
+        _SESSION.iso.set_subgroup_candidates([])
+        _SESSION.iso.clear_selected_modes()
+        return {}
 
     def _api_method1(self, data: dict) -> dict:
         lattice = data.get("lattice")
@@ -551,7 +647,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             maximal_subgroup_only=bool(data.get("maximal_subgroup_only", False)),
         )
         _SESSION.method1 = result
-        return {"candidates": _method1_rows(result), "state": _state_summary()}
+        return {"candidates": _method1_rows(result)}
 
     def _api_subgroups(self, data: dict) -> dict:
         # 对齐官网 Method 2：枚举指定 k 点（+ 参数）下全部 IR 的子群。
@@ -575,7 +671,7 @@ class IsoHandler(BaseHTTPRequestHandler):
                 sg.index = j
             _SESSION.iso.set_subgroup_candidates(all_subs)
             _SESSION.method2_subgroups = list(all_subs)
-            return {"subgroups": _subgroup_rows(all_subs), "state": _state_summary()}
+            return {"subgroups": _subgroup_rows(all_subs)}
         # 兼容旧版单 k 点（可带 ir 参数）路径
         if data.get("ir"):
             subs = _SESSION.iso.list_subgroups_at(
@@ -592,7 +688,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             )
         _SESSION.iso.set_subgroup_candidates(subs)
         _SESSION.method2_subgroups = list(subs)
-        return {"subgroups": _subgroup_rows(subs), "state": _state_summary()}
+        return {"subgroups": _subgroup_rows(subs)}
 
     def _api_method2(self, data: dict) -> dict:
         idx = data.get("subgroup_idx")
@@ -610,6 +706,19 @@ class IsoHandler(BaseHTTPRequestHandler):
         elif source == "method3":
             if not _SESSION.method3:
                 raise ValueError("Method 3 candidate table is not available")
+            selected_item = next(
+                (
+                    item
+                    for item in _SESSION.method3
+                    if int(item.subgroup.index) == idx
+                ),
+                None,
+            )
+            if selected_item is not None and selected_item.routes == []:
+                raise ValueError(
+                    "This affine embedding has no resolved single-IR or coupled-IR "
+                    "second-stage route; mode calculation is not implemented for it"
+                )
             candidates = [item.subgroup for item in _SESSION.method3]
         elif source == "subgroups":
             if not _SESSION.method2_subgroups:
@@ -622,20 +731,31 @@ class IsoHandler(BaseHTTPRequestHandler):
             raise ValueError(f"Unknown Method 2 candidate source: {source}")
         iso.set_distortion_scope(_SESSION.distortion_scope)
         iso.set_distortion_types(_SESSION.distortion_types)
+        nmod = data.get("nmod", data.get("number_of_independent_modulations", 0))
+        try:
+            nmod = int(nmod or 0)
+        except (TypeError, ValueError):
+            nmod = 0
         result = iso.search_method_2(
             subgroup_idx=idx,
             distortion_type=data.get("distortion_type", _SESSION.distortion_types),
+            number_of_independent_modulations=nmod,
             candidates=candidates,
         )
         _SESSION.method2 = result
         modes = []
         for m in result.modes:
+            key = str(getattr(m, "amplitude_key", "") or m.irrep_label)
+            pretty = iso._mode_label_overrides.get(key, "")
             modes.append({
-                "irrep_label": m.irrep_label,
+                "irrep_label": key,
+                "pretty_label": pretty or m.irrep_label,
                 "opd_symbol": m.opd_symbol,
                 "mode_type": m.mode_type,
                 "wyckoff_sites": sorted({b.wyckoff_letter for b in m.bush_modes}),
                 "n_representatives": len(m.bush_modes),
+                "site_irrep": getattr(m, "site_irrep", "") or "",
+                "k_coords": getattr(m, "k_coords_label", "") or "",
             })
         for label, entry in iso.mode_occupancies.items():
             om = entry["mode"]
@@ -648,7 +768,7 @@ class IsoHandler(BaseHTTPRequestHandler):
                 "validated": entry["validated"],
                 "note": entry["note"],
             })
-        return {"modes": modes, "state": _state_summary()}
+        return {"modes": modes}
 
     def _api_method3(self, data: dict) -> dict:
         result = _SESSION.iso.search_method_3(
@@ -661,7 +781,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             generate_if_missing=bool(data.get("generate", False)),
         )
         _SESSION.method3 = result
-        return {"candidates": _method3_rows(result), "state": _state_summary()}
+        return {"candidates": _method3_rows(result)}
 
     def _api_method4(self, data: dict) -> dict:
         content = data.get("content", "")
@@ -777,6 +897,19 @@ class IsoHandler(BaseHTTPRequestHandler):
         """
         parsed = urllib.parse.urlparse(self.path)
         qs = urllib.parse.parse_qs(parsed.query)
+        try:
+            _assert_current_revision((qs.get("revision") or [None])[0])
+        except StaleContextError as exc:
+            self._send_json({
+                "ok": False,
+                "stale_context": True,
+                "error": str(exc),
+                "state": _state_summary(),
+            }, status=409)
+            return
+        except ValueError as exc:
+            self._send_json({"ok": False, "error": str(exc)}, status=400)
+            return
         method_vals = qs.get("method") or ["2"]
         try:
             if len(method_vals) > 1:
@@ -819,12 +952,17 @@ class IsoHandler(BaseHTTPRequestHandler):
             }, 404)
             return
         # 勾选了 isoviz / modes / topas 时，对子群补跑 Method 2 以填充模式
-        # （长计算由网页 busy 进度条提示）。参数 k 点本地无法算位移模式。
+        # （长计算由网页 busy 进度条提示）。参数 k 走 smodes/(3+d) 完整模式。
         need_modes = any(fmt != "cif" for fmt in fmts)
         compute_q = (qs.get("compute_modes") or ["1"])[0].strip().lower()
         # 默认开启；显式 compute_modes=0 可跳过（仅结构骨架，速度快）
         want_compute = compute_q not in ("0", "false", "no")
         compute_missing_modes = need_modes and want_compute
+        nmod_raw = (qs.get("nmod") or ["0"])[0].strip()
+        try:
+            export_nmod = int(nmod_raw or 0)
+        except ValueError:
+            export_nmod = 0
         try:
             body = iso.export_subgroups_zip(
                 formats=fmts,
@@ -832,6 +970,7 @@ class IsoHandler(BaseHTTPRequestHandler):
                 compute_missing_modes=compute_missing_modes,
                 wrapping=None,
                 use_opd_line_folders=(method == 1),
+                number_of_independent_modulations=export_nmod,
             )
         except Exception as exc:  # noqa: BLE001 - web 边界：统一转为 JSON 错误
             self._send_json({"ok": False, "error": str(exc)}, 500)

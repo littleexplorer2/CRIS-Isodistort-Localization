@@ -4,8 +4,8 @@ ISOVIZ_INPUT 依赖与环境准备脚本。
 在 CRIS 仓库根目录使用同一份虚拟环境 ``CRIS/.venv``：
 1) 检查 Python >= 3.10，没有则提示
 2) 若 .venv 不存在则创建
-3) 只 pip 安装 requirements.txt 里尚未安装的包
-4) 检查 Java（IsoVIZ 运行需要），以及 CRIS 根目录的 ISOViz.lnk
+3) 只 pip 安装 requirements.txt 里尚未安装的包（含 PyYAML，用于 config/settings.yaml）
+4) 检查 Java（IsoVIZ 运行需要），以及 yaml 中配置的 IsoVIZ 启动器
 5) 若缺少 input_content/ 以及其中的 data.csv、subgroup.isoviz 文件夹则自动新建
    （本子项目不使用 output 文件夹；读入振幅后直接启动 IsoVIZ）
 
@@ -166,15 +166,23 @@ def _check_isoviz_shortcut(project_root: Path) -> None:
 
 
 def _ensure_input_content(isoviz_root: Path) -> None:
-    from isoviz_input.paths import DATA_DIR, INPUT_ROOT, STRUCTURE_DIR, ensure_input_content
+    from isoviz_input.paths import (
+        DATA_DIR,
+        INPUT_ROOT,
+        STRUCTURE_DIR,
+        ensure_best_model_root,
+        ensure_input_content,
+    )
 
     created = [folder for folder in (INPUT_ROOT, DATA_DIR, STRUCTURE_DIR) if not folder.exists()]
     ensure_input_content()
     for folder in created:
         print(f"[paths] Creating missing folder: {folder}")
+    desktop_root = ensure_best_model_root()
     print(f"[paths] OK: input_content = {isoviz_root / 'input_content'}")
     print(f"[paths] OK: amplitude CSV folder = {DATA_DIR}")
     print(f"[paths] OK: subgroup .isoviz folder = {STRUCTURE_DIR}")
+    print(f"[paths] OK: Best_Model_Parameters = {desktop_root}")
 
 
 def main() -> int:
@@ -213,10 +221,11 @@ def main() -> int:
     print("\n=== DONE ===")
     if _is_windows():
         print(f"Use venv python: {python}")
-        print(f"  {python} ISOVIZ_INPUT\\main.py --data <csv> --structure <file.isoviz>")
+        print(f"  {python} ISOVIZ_INPUT\\main.py")
+        print("  (prompts for Best_Model_Parameters folder, CSV name, and .isoviz path)")
     else:
         print(f"Use venv python: {python}")
-        print(f"  {python} ISOVIZ_INPUT/main.py --data <csv> --structure <file.isoviz>")
+        print(f"  {python} ISOVIZ_INPUT/main.py")
     return 0
 
 

@@ -1,0 +1,1396 @@
+{
+  "schema": 2,
+  "purpose": "Exact official-site download batch for Method 3 differential validation",
+  "signature": "624ca888c370614ee7fb14ad63e45817da7adcc2e73b7e7cd1a73bce46655455",
+  "download_status": "see_output_validation_audit_reports",
+  "official_download_root": "output_compare/<parent>/官网/Method3/<readable-case-folder>/",
+  "local_download_root": "output_compare/<parent>/现有网页版交互/Method3/<readable-case-folder>/",
+  "official_centering_instruction": "Select the radio button immediately after Default for every case. Do not select P: it means primitive/no centering on the official site.",
+  "per_case_downloads": [
+    "complete Method 3 result page (HTML)",
+    "one subgroup ZIP for every returned candidate; the expected candidate alone is not sufficient when the table has additional rows"
+  ],
+  "preflight_semantics": "Local single-IR subset presence check only. local_subset_candidate_count is not an official expected Method 3 embedding count or proof of completeness.",
+  "parents": [
+    {
+      "parent_cif": "EuAl4 Parent.cif",
+      "parent_space_group_type": 139,
+      "case_count": 20,
+      "cases": [
+        {
+          "id": "M3-EU-01",
+          "readable_case_folder": "M3-EU-01 - SG139 - GM1+ P1",
+          "space_group_type": 139,
+          "supercell_basis": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM1+",
+            "opd": "P1",
+            "sg": 139
+          },
+          "category": "identity"
+        },
+        {
+          "id": "M3-EU-02",
+          "readable_case_folder": "M3-EU-02 - SG71 - GM2+ P1",
+          "space_group_type": 71,
+          "supercell_basis": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM2+",
+            "opd": "P1",
+            "sg": 71
+          },
+          "category": "identity"
+        },
+        {
+          "id": "M3-EU-03",
+          "readable_case_folder": "M3-EU-03 - SG107 - GM3- P1",
+          "space_group_type": 107,
+          "supercell_basis": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM3-",
+            "opd": "P1",
+            "sg": 107
+          },
+          "category": "identity"
+        },
+        {
+          "id": "M3-EU-04",
+          "readable_case_folder": "M3-EU-04 - SG12 - GM5+ P1",
+          "space_group_type": 12,
+          "supercell_basis": [
+            [
+              0,
+              1,
+              1
+            ],
+            [
+              -1,
+              0,
+              0
+            ],
+            [
+              0,
+              -1,
+              0
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM5+",
+            "opd": "P1",
+            "sg": 12
+          },
+          "category": "oriented-cell"
+        },
+        {
+          "id": "M3-EU-05",
+          "readable_case_folder": "M3-EU-05 - SG8 - GM5- C1",
+          "space_group_type": 8,
+          "supercell_basis": [
+            [
+              -1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              1,
+              0,
+              0
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM5-",
+            "opd": "C1",
+            "sg": 8
+          },
+          "category": "oriented-cell"
+        },
+        {
+          "id": "M3-EU-06",
+          "readable_case_folder": "M3-EU-06 - SG44 - GM5- P1",
+          "space_group_type": 44,
+          "supercell_basis": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              1,
+              0,
+              0
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM5-",
+            "opd": "P1",
+            "sg": 44
+          },
+          "category": "oriented-cell"
+        },
+        {
+          "id": "M3-EU-07",
+          "readable_case_folder": "M3-EU-07 - SG123 - M1+ P1",
+          "space_group_type": 123,
+          "supercell_basis": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "M1+",
+            "opd": "P1",
+            "sg": 123
+          },
+          "category": "identity"
+        },
+        {
+          "id": "M3-EU-08",
+          "readable_case_folder": "M3-EU-08 - SG129 - M3- P1",
+          "space_group_type": 129,
+          "supercell_basis": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "M3-",
+            "opd": "P1",
+            "sg": 129
+          },
+          "category": "identity"
+        },
+        {
+          "id": "M3-EU-09",
+          "readable_case_folder": "M3-EU-09 - SG47 - X1+ C1",
+          "space_group_type": 47,
+          "supercell_basis": [
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              -1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "X1+",
+            "opd": "C1",
+            "sg": 47
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-EU-10",
+          "readable_case_folder": "M3-EU-10 - SG125 - X1- P1",
+          "space_group_type": 125,
+          "supercell_basis": [
+            [
+              1,
+              -1,
+              0
+            ],
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "X1-",
+            "opd": "P1",
+            "sg": 125
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-EU-11",
+          "readable_case_folder": "M3-EU-11 - SG119 - P1 C1",
+          "space_group_type": 119,
+          "supercell_basis": [
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              -1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              2
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "P1",
+            "opd": "C1",
+            "sg": 119
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-EU-12",
+          "readable_case_folder": "M3-EU-12 - SG140 - P2 P3",
+          "space_group_type": 140,
+          "supercell_basis": [
+            [
+              -1,
+              1,
+              0
+            ],
+            [
+              -1,
+              -1,
+              0
+            ],
+            [
+              0,
+              0,
+              2
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "P2",
+            "opd": "P3",
+            "sg": 140
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-EU-13",
+          "readable_case_folder": "M3-EU-13 - SG2 - N1+ 4D1",
+          "space_group_type": 2,
+          "supercell_basis": [
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              2,
+              0
+            ],
+            [
+              -1,
+              -1,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "N1+",
+            "opd": "4D1",
+            "sg": 2
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-EU-14",
+          "readable_case_folder": "M3-EU-14 - SG65 - N1+ P1",
+          "space_group_type": 65,
+          "supercell_basis": [
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              -2
+            ],
+            [
+              0,
+              1,
+              0
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "N1+",
+            "opd": "P1",
+            "sg": 65
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-EU-15",
+          "readable_case_folder": "M3-EU-15 - SG122 - P5 P1",
+          "space_group_type": 122,
+          "supercell_basis": [
+            [
+              -1,
+              1,
+              0
+            ],
+            [
+              -1,
+              -1,
+              0
+            ],
+            [
+              0,
+              0,
+              2
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "P5",
+            "opd": "P1",
+            "sg": 122
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-EU-16",
+          "readable_case_folder": "M3-EU-16 - SG24 - P5 C3",
+          "space_group_type": 24,
+          "supercell_basis": [
+            [
+              0,
+              0,
+              -2
+            ],
+            [
+              -1,
+              -1,
+              0
+            ],
+            [
+              -1,
+              1,
+              0
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "P5",
+            "opd": "C3",
+            "sg": 24
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-EU-17",
+          "readable_case_folder": "M3-EU-17 - SG99 - LD1 C1",
+          "space_group_type": 99,
+          "supercell_basis": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              6
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "LD1",
+            "opd": "C1",
+            "sg": 99
+          },
+          "category": "parameter-k"
+        },
+        {
+          "id": "M3-EU-18",
+          "readable_case_folder": "M3-EU-18 - SG123 - LD1 P1",
+          "space_group_type": 123,
+          "supercell_basis": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              6
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "LD1",
+            "opd": "P1",
+            "sg": 123
+          },
+          "category": "parameter-k"
+        },
+        {
+          "id": "M3-EU-19",
+          "readable_case_folder": "M3-EU-19 - SG105 - LD2 C1",
+          "space_group_type": 105,
+          "supercell_basis": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              6
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "LD2",
+            "opd": "C1",
+            "sg": 105
+          },
+          "category": "parameter-k"
+        },
+        {
+          "id": "M3-EU-20",
+          "readable_case_folder": "M3-EU-20 - SG20 - LD5 C4",
+          "space_group_type": 20,
+          "supercell_basis": [
+            [
+              -1,
+              1,
+              0
+            ],
+            [
+              -1,
+              -1,
+              0
+            ],
+            [
+              0,
+              0,
+              6
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "LD5",
+            "opd": "C4",
+            "sg": 20
+          },
+          "category": "parameter-k"
+        }
+      ]
+    },
+    {
+      "parent_cif": "NdNiO2 own.cif",
+      "parent_space_group_type": 123,
+      "case_count": 20,
+      "cases": [
+        {
+          "id": "M3-ND-01",
+          "readable_case_folder": "M3-ND-01 - SG123 - GM1+ P1",
+          "space_group_type": 123,
+          "supercell_basis": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM1+",
+            "opd": "P1",
+            "sg": 123
+          },
+          "category": "identity"
+        },
+        {
+          "id": "M3-ND-02",
+          "readable_case_folder": "M3-ND-02 - SG47 - GM2+ P1",
+          "space_group_type": 47,
+          "supercell_basis": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM2+",
+            "opd": "P1",
+            "sg": 47
+          },
+          "category": "identity"
+        },
+        {
+          "id": "M3-ND-03",
+          "readable_case_folder": "M3-ND-03 - SG99 - GM3- P1",
+          "space_group_type": 99,
+          "supercell_basis": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM3-",
+            "opd": "P1",
+            "sg": 99
+          },
+          "category": "identity"
+        },
+        {
+          "id": "M3-ND-04",
+          "readable_case_folder": "M3-ND-04 - SG115 - GM4- P1",
+          "space_group_type": 115,
+          "supercell_basis": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM4-",
+            "opd": "P1",
+            "sg": 115
+          },
+          "category": "identity"
+        },
+        {
+          "id": "M3-ND-05",
+          "readable_case_folder": "M3-ND-05 - SG2 - GM5+ C1",
+          "space_group_type": 2,
+          "supercell_basis": [
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM5+",
+            "opd": "C1",
+            "sg": 2
+          },
+          "category": "oriented-cell"
+        },
+        {
+          "id": "M3-ND-06",
+          "readable_case_folder": "M3-ND-06 - SG10 - GM5+ P1",
+          "space_group_type": 10,
+          "supercell_basis": [
+            [
+              0,
+              0,
+              -1
+            ],
+            [
+              -1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM5+",
+            "opd": "P1",
+            "sg": 10
+          },
+          "category": "oriented-cell"
+        },
+        {
+          "id": "M3-ND-07",
+          "readable_case_folder": "M3-ND-07 - SG6 - GM5- C1",
+          "space_group_type": 6,
+          "supercell_basis": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              1,
+              0,
+              0
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM5-",
+            "opd": "C1",
+            "sg": 6
+          },
+          "category": "oriented-cell"
+        },
+        {
+          "id": "M3-ND-08",
+          "readable_case_folder": "M3-ND-08 - SG25 - GM5- P1",
+          "space_group_type": 25,
+          "supercell_basis": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              1,
+              0,
+              0
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "GM5-",
+            "opd": "P1",
+            "sg": 25
+          },
+          "category": "oriented-cell"
+        },
+        {
+          "id": "M3-ND-09",
+          "readable_case_folder": "M3-ND-09 - SG123 - M1+ P1",
+          "space_group_type": 123,
+          "supercell_basis": [
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              -1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "M1+",
+            "opd": "P1",
+            "sg": 123
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-ND-10",
+          "readable_case_folder": "M3-ND-10 - SG127 - M2+ P1",
+          "space_group_type": 127,
+          "supercell_basis": [
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              -1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "M2+",
+            "opd": "P1",
+            "sg": 127
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-ND-11",
+          "readable_case_folder": "M3-ND-11 - SG129 - M2- P1",
+          "space_group_type": 129,
+          "supercell_basis": [
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              -1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "M2-",
+            "opd": "P1",
+            "sg": 129
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-ND-12",
+          "readable_case_folder": "M3-ND-12 - SG139 - A1+ P1",
+          "space_group_type": 139,
+          "supercell_basis": [
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              -1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              2
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "A1+",
+            "opd": "P1",
+            "sg": 139
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-ND-13",
+          "readable_case_folder": "M3-ND-13 - SG140 - A2+ P1",
+          "space_group_type": 140,
+          "supercell_basis": [
+            [
+              1,
+              1,
+              0
+            ],
+            [
+              -1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              2
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "A2+",
+            "opd": "P1",
+            "sg": 140
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-ND-14",
+          "readable_case_folder": "M3-ND-14 - SG47 - X1+ C1",
+          "space_group_type": 47,
+          "supercell_basis": [
+            [
+              2,
+              0,
+              0
+            ],
+            [
+              0,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "X1+",
+            "opd": "C1",
+            "sg": 47
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-ND-15",
+          "readable_case_folder": "M3-ND-15 - SG123 - Z1+ P1",
+          "space_group_type": 123,
+          "supercell_basis": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              2
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "Z1+",
+            "opd": "P1",
+            "sg": 123
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-ND-16",
+          "readable_case_folder": "M3-ND-16 - SG11 - Z5+ C1",
+          "space_group_type": 11,
+          "supercell_basis": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              2
+            ],
+            [
+              1,
+              0,
+              0
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "Z5+",
+            "opd": "C1",
+            "sg": 11
+          },
+          "category": "special-supercell"
+        },
+        {
+          "id": "M3-ND-17",
+          "readable_case_folder": "M3-ND-17 - SG47 - Y1 P1",
+          "space_group_type": 47,
+          "supercell_basis": [
+            [
+              -3,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              0,
+              2,
+              0
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "Y1",
+            "opd": "P1",
+            "sg": 47
+          },
+          "category": "parameter-k"
+        },
+        {
+          "id": "M3-ND-18",
+          "readable_case_folder": "M3-ND-18 - SG25 - Y1 C1",
+          "space_group_type": 25,
+          "supercell_basis": [
+            [
+              0,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              3,
+              0,
+              0
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "Y1",
+            "opd": "C1",
+            "sg": 25
+          },
+          "category": "parameter-k"
+        },
+        {
+          "id": "M3-ND-19",
+          "readable_case_folder": "M3-ND-19 - SG49 - Y2 P1",
+          "space_group_type": 49,
+          "supercell_basis": [
+            [
+              -3,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              0,
+              2,
+              0
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "Y2",
+            "opd": "P1",
+            "sg": 49
+          },
+          "category": "parameter-k"
+        },
+        {
+          "id": "M3-ND-20",
+          "readable_case_folder": "M3-ND-20 - SG51 - Y2 P2",
+          "space_group_type": 51,
+          "supercell_basis": [
+            [
+              0,
+              2,
+              0
+            ],
+            [
+              -3,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "direct_sublattice_centering": "d",
+          "lattice_type": "direct",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "expected_candidate": {
+            "irrep": "Y2",
+            "opd": "P2",
+            "sg": 51
+          },
+          "category": "parameter-k"
+        }
+      ]
+    }
+  ],
+  "preflight": {
+    "status": "not_run",
+    "completed": 0,
+    "total": 40,
+    "results": {}
+  }
+}

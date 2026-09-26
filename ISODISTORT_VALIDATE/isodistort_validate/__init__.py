@@ -2,9 +2,11 @@
 
 from .batch_compare import run_batch
 from .compare_cif import ComparisonResult, compare_cif
+from .config_loader import Config, get_config
 from .compare_paths import (
     BATCH_PAIRING_HINT,
     COMPARE_ROOT,
+    DEFAULT_PATTERN,
     IGNORE_ATOM_ORDER_HELP,
     ITEM_DIR,
     TRUE_DIR,
@@ -18,13 +20,16 @@ from .compare_paths import (
 __all__ = [
     "BATCH_PAIRING_HINT",
     "COMPARE_ROOT",
+    "Config",
     "ComparisonResult",
+    "DEFAULT_PATTERN",
     "IGNORE_ATOM_ORDER_HELP",
     "ITEM_DIR",
     "TRUE_DIR",
     "VALIDATE_ROOT",
     "compare_cif",
     "ensure_compare_dirs",
+    "get_config",
     "pairing_status",
     "resolve_pair",
     "run_batch",

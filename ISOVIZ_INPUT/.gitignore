@@ -1,7 +1,28 @@
-# 本地输入（不入库）：input_content/data.csv/ 与 input_content/subgroup.isoviz/
+# ============================================================
+# ISOVIZ_INPUT —— 子项目级 .gitignore
+# ============================================================
+
+# ---------- Python 常规 ----------
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+build/
+dist/
+*.log
+
+# ---------- 虚拟环境（本子项目不自建；共用 CRIS/.venv） ----------
+.venv/
+
+# ---------- 测试 / 静态检查缓存 ----------
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ---------- 本地输入（不入库） ----------
 input_content/
+
 # 历史残留写出目录（本工具不再使用 output/）
 output/
-__pycache__/
-.pytest_cache/
-*.pyc

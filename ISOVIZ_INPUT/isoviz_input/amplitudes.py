@@ -119,6 +119,7 @@ def apply_amplitudes(isoviz_text: str, modes: list[ModeAmplitude]) -> tuple[str,
     matched: list[tuple[str, float]] = []
     unmatched_isoviz: list[str] = []
     sequential = 0
+    displacive_index = 0
     section = ""
     out: list[str] = []
     for line in isoviz_text.splitlines(keepends=True):
@@ -134,8 +135,15 @@ def apply_amplitudes(isoviz_text: str, modes: list[ModeAmplitude]) -> tuple[str,
             out.append(line)
             continue
         sequential += 1
+        if section == "displacivemodelist":
+            displacive_index += 1
         label = header.group("label").strip()
-        hit = _consume(remaining, label, sequential)
+        hit = _consume(
+            remaining,
+            label,
+            sequential,
+            displacive_index=displacive_index if section == "displacivemodelist" else None,
+        )
         if hit is None:
             unmatched_isoviz.append(label)
             out.append(line)
@@ -196,15 +204,35 @@ def _format_amp(value: float, original: str) -> str:
     return text
 
 
-def _consume(remaining: list[ModeAmplitude], label: str, order: int) -> ModeAmplitude | None:
+def _consume(
+    remaining: list[ModeAmplitude],
+    label: str,
+    order: int,
+    *,
+    displacive_index: int | None = None,
+) -> ModeAmplitude | None:
     key = _norm(label)
+    finger = _fingerprint(label)
     for i, mode in enumerate(remaining):
         if mode.name and _norm(mode.name) == key:
             return remaining.pop(i)
     for i, mode in enumerate(remaining):
-        name = _norm(mode.name)
-        if name and name != _norm(mode.alias) and (name in key or key in name):
+        name_finger = _fingerprint(mode.name)
+        if mode.name and name_finger and name_finger == finger:
             return remaining.pop(i)
+    for i, mode in enumerate(remaining):
+        name = _norm(mode.name)
+        name_finger = _fingerprint(mode.name)
+        if not name or name == _norm(mode.alias):
+            continue
+        if name in key or key in name or (name_finger and finger and (name_finger in finger or finger in name_finger)):
+            return remaining.pop(i)
+    if displacive_index is not None:
+        for i, mode in enumerate(remaining):
+            if not mode.name or _norm(mode.name) == _norm(mode.alias):
+                continue
+            if _alias_number(mode.alias) == displacive_index:
+                return remaining.pop(i)
     alias = f"a{order}"
     for i, mode in enumerate(remaining):
         if _norm(mode.alias) != alias:
@@ -233,3 +261,25 @@ def _repair_row(row: list[str], n_header: int, name_idx: int | None) -> list[str
 
 def _norm(text: str) -> str:
     return re.sub(r"\s+", "", text.strip().lower())
+
+
+def _alias_number(alias: str) -> int | None:
+    match = re.fullmatch(r"a(\d+)", _norm(alias))
+    return int(match.group(1)) if match else None
+
+
+def _fingerprint(text: str) -> str:
+    """Normalize GD Mario labels and IsoVIZ labels so they can match.
+
+    Example:
+    ``I4/mmm[0,0,1/6]LD1(a,b)[Eu0:a:dsp]A2u(a)``
+    and ``[0,0,1/6]LD1[Eu1:a:dsp]A2u(a)`` both become
+    ``[0,0,1/6]ld1[eu:a:dsp]a2u(a)``.
+    """
+    raw = _norm(text)
+    if not raw:
+        return ""
+    raw = re.sub(r"^[a-z0-9/]+(?=\[)", "", raw)
+    raw = re.sub(r"(\[[^\]]+\])([a-z]+\d*[+-]?)\([^)]*\)(\[)", r"\1\2\3", raw)
+    raw = re.sub(r"\[([a-z]+)\d*:", r"[\1:", raw)
+    return raw

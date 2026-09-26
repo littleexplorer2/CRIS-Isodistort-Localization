@@ -1,6 +1,7 @@
 """
 配置加载器 - 读取 settings.yaml 并设置 ISODATA 环境变量
 """
+import math
 import os
 from pathlib import Path
 
@@ -95,6 +96,43 @@ class Config:
         """
         return self._cfg["runtime"].get("generation_timeout", 3600)
 
+    def _nonnegative_runtime_int(self, key: str, default: int = 0) -> int:
+        """Return a non-negative integer runtime limit.
+
+        Method 3 cost limits use ``0`` as the explicit unlimited sentinel.
+        Reject invalid or negative YAML values at the configuration boundary so
+        callers cannot accidentally reinterpret a bad limit as "unlimited".
+        """
+        value = self._cfg["runtime"].get(key, default)
+        try:
+            parsed = int(value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Invalid configuration runtime.{key}={value!r}: "
+                "expected a non-negative integer (0 = unlimited)"
+            ) from exc
+        if isinstance(value, float) and not value.is_integer():
+            raise ValueError(
+                f"Invalid configuration runtime.{key}={value!r}: "
+                "expected a non-negative integer (0 = unlimited)"
+            )
+        if parsed < 0:
+            raise ValueError(
+                f"Invalid configuration runtime.{key}={parsed}: "
+                "expected a non-negative integer (0 = unlimited)"
+            )
+        return parsed
+
+    @property
+    def method3_max_parametric_values(self) -> int:
+        """Maximum exact parametric-k searches in Method 3; 0 is unlimited."""
+        return self._nonnegative_runtime_int("method3_max_parametric_values")
+
+    @property
+    def method3_max_backend_queries(self) -> int:
+        """Maximum Method 3 ``list_irreps`` + ``list_subgroups`` calls."""
+        return self._nonnegative_runtime_int("method3_max_backend_queries")
+
     @property
     def web_port(self) -> int:
         """网页端监听端口（web/server.py 使用）。"""
@@ -108,15 +146,73 @@ class Config:
         """
         return int(self._cfg["runtime"].get("web_idle_timeout", 60))
 
+    def _positive_default_float(self, key: str, fallback: str | None = None) -> float:
+        """Read one finite positive numerical tolerance from ``defaults``.
+
+        Coordinate tolerances are scientific input, not boolean switches.  A
+        zero, negative or non-finite value would silently change a symmetry
+        problem into an ill-defined exact/always-failing comparison, so reject
+        it at the configuration boundary.
+        """
+        defaults = self._cfg["defaults"]
+        if key in defaults:
+            raw = defaults[key]
+        elif fallback is not None and fallback in defaults:
+            raw = defaults[fallback]
+        else:
+            raise KeyError(f"missing defaults.{key}")
+        try:
+            value = float(raw)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Invalid configuration defaults.{key}={raw!r}: "
+                "expected a finite positive number"
+            ) from exc
+        if not math.isfinite(value) or value <= 0.0:
+            raise ValueError(
+                f"Invalid configuration defaults.{key}={raw!r}: "
+                "expected a finite positive number"
+            )
+        return value
+
+    @property
+    def symmetry_cartesian_tolerance_angstrom(self) -> float:
+        """spglib/pymatgen ``symprec`` for uploaded structures, in Å.
+
+        The fallback keeps old user configuration files readable.  Despite
+        its historical name, ``position_tolerance`` was always passed to
+        ``symprec`` and therefore also had Cartesian-length semantics.
+        """
+        return self._positive_default_float(
+            "symmetry_cartesian_tolerance_angstrom", "position_tolerance"
+        )
+
+    @property
+    def symmetry_angle_tolerance_degrees(self) -> float:
+        """pymatgen/spglib lattice-angle tolerance, in degrees."""
+        return self._positive_default_float("symmetry_angle_tolerance_degrees")
+
+    @property
+    def affine_exact_cartesian_tolerance_angstrom(self) -> float:
+        """spglib length tolerance for exact synthetic affine data, in Å."""
+        return self._positive_default_float(
+            "affine_exact_cartesian_tolerance_angstrom"
+        )
+
+    @property
+    def fractional_coordinate_tolerance(self) -> float:
+        """Dimensionless residual for float-to-rational coordinate recovery."""
+        return self._positive_default_float("fractional_coordinate_tolerance")
+
     @property
     def position_tolerance(self) -> float:
-        """原子位置容差（分数坐标）。"""
-        return self._cfg["defaults"]["position_tolerance"]
+        """Backward-compatible alias for the Cartesian Å symmetry tolerance."""
+        return self.symmetry_cartesian_tolerance_angstrom
 
     @property
     def lattice_tolerance(self) -> float:
-        """晶格容差。"""
-        return float(self._cfg["defaults"]["lattice_tolerance"])
+        """Dimensionless lattice/integer-matrix residual tolerance."""
+        return self._positive_default_float("lattice_tolerance")
 
     @property
     def eps(self) -> float:
@@ -125,7 +221,9 @@ class Config:
         与 ``defaults.eps`` 对齐；缺省时回退到 ``lattice_tolerance``（0.00001）。
         """
         defaults = self._cfg["defaults"]
-        return float(defaults.get("eps", defaults["lattice_tolerance"]))
+        if "eps" not in defaults:
+            return self.lattice_tolerance
+        return self._positive_default_float("eps")
 
     @property
     def defaults(self) -> dict:

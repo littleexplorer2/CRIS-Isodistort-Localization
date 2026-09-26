@@ -4,8 +4,8 @@
 对应阶段四，步骤8：畸变基矢到原子坐标的映射
 
 映射规则（基于实测 DISPLAY BUSH 输出）：
-- BUSH 每行给出某 Wyckoff 位置一个“代表原子”的位移向量（可能多个，
-  对应模式的不同分量）；本实现取第一个向量作为该位点的位移模式。
+- BUSH 每个位移列是子群固定子空间的一条独立基矢。
+  ``IsoWrapper`` 已按列拆分，因此这里的每个 ``BushMode`` 恰含一个向量。
 - 若某位点只有一个代表原子行（常见于 Gamma 点均匀模式），则将该位移
   均匀作用于该位点的全部等效原子。
 - 若某位点有多个代表原子行，每个代表对应模式分裂出的一个子轨道：
@@ -20,12 +20,14 @@
 """
 
 import re
+from collections.abc import Sequence
 from fractions import Fraction
 
 import numpy as np
-from pymatgen.core import Structure
+from pymatgen.core import Lattice, Structure
 
 from ..backend import BushMode, DistortionMode
+from ..structure import build_supercell
 
 
 class DistortionMapper:
@@ -83,16 +85,20 @@ class DistortionMapper:
                     continue
                 displacements = np.zeros((n_atoms, 3))
 
-                # 解析每个代表点（含自由参数 -> 结构真实坐标）
-                # 多维模式（一个代表多个分量向量）取各分量之和
-                # （OPD 通用方向近似），模式级再归一化使最大位移为 1
+                # 解析每个代表点（含自由参数 -> 结构真实坐标）。
+                # 列在 wrapper 层已拆分；如果再收到多列数据，说明上游
+                # 违反模式身份约定，必须显式报错而不是静默相加。
                 reps: list[tuple[np.ndarray, np.ndarray]] = []
                 for bush in bushes:
                     if not bush.displacements:
                         continue
+                    if len(bush.displacements) != 1:
+                        raise ValueError(
+                            "DISPLAY BUSH displacement columns must be split "
+                            "into independent DistortionMode objects before mapping"
+                        )
                     point = self._resolve_rep_point(bush, structure, indices)
-                    vec = np.sum(
-                        np.asarray(bush.displacements, dtype=float), axis=0)
+                    vec = np.asarray(bush.displacements[0], dtype=float)
                     reps.append((point, vec))
                 if not reps:
                     continue
@@ -153,6 +159,15 @@ class DistortionMapper:
 
             if not letter_disps:
                 continue
+            unique = str(getattr(mode, "amplitude_key", "") or "")
+            if unique:
+                letter, displacements = next(iter(letter_disps.items()))
+                result[unique] = {
+                    "mode": mode,
+                    "displacements": displacements,
+                    "wyckoff_letter": letter,
+                }
+                continue
             if len(letter_disps) == 1:
                 letter, displacements = next(iter(letter_disps.items()))
                 result[mode.irrep_label] = {
@@ -169,6 +184,211 @@ class DistortionMapper:
                         "wyckoff_letter": letter,
                     }
 
+        return result
+
+    def map_bush_modes_to_supercell(
+        self,
+        structure: Structure,
+        wyckoff_sites: list[dict],
+        modes: list[DistortionMode],
+        basis_vectors: list[list[float]],
+        *,
+        cartesian_tolerance: float = 1e-4,
+        subgroup_operations: Sequence[object] | None = None,
+        subgroup_translation_lattice: Sequence[Sequence[float]] | None = None,
+    ) -> dict[str, np.ndarray]:
+        """Map complete DISPLAY BUSH basis vectors directly to the child cell.
+
+        BUSH continuation rows already contain the relative signs/phases on
+        every representative atom of the selected isotropy subgroup.  For a
+        child basis ``B`` (rows in parent fractional coordinates), a child
+        atom at parent coordinate ``x`` belongs to a BUSH representative
+        ``p`` precisely when ``x-p`` belongs to the subgroup's *primitive*
+        translation lattice ``T_H``.  Its arrow is transformed to the printed
+        conventional child basis as ``du_child = du_parent @ inv(B)``.  The
+        distinction matters for A/B/C/I/F/R centered child groups.
+
+        This is deliberately different from reconstructing every mode with a
+        cosine of the *primary* k vector: a single BUSH table can also contain
+        secondary irreps at GM/X/N/etc., each with its own phase pattern.
+        Missing or conflicting representatives are treated as invalid output
+        rather than silently replaced by a guessed Bloch phase.
+        """
+        if not modes:
+            return {}
+        basis = np.asarray(basis_vectors, dtype=float)
+        if basis.shape != (3, 3) or not np.all(np.isfinite(basis)):
+            raise ValueError("subgroup basis must be a finite 3x3 matrix")
+        det = float(np.linalg.det(basis))
+        if abs(det) < 1e-12:
+            raise ValueError("subgroup basis vectors must be linearly independent")
+        if cartesian_tolerance <= 0 or not np.isfinite(cartesian_tolerance):
+            raise ValueError("cartesian_tolerance must be finite and positive")
+
+        child = build_supercell(structure, basis)
+        inverse = np.linalg.inv(basis)
+        translation_basis = np.asarray(
+            subgroup_translation_lattice
+            if subgroup_translation_lattice is not None
+            else basis,
+            dtype=float,
+        )
+        if (
+            translation_basis.shape != (3, 3)
+            or not np.all(np.isfinite(translation_basis))
+            or abs(float(np.linalg.det(translation_basis))) < 1e-12
+        ):
+            raise ValueError(
+                "subgroup primitive translation lattice must be a finite "
+                "nonsingular 3x3 matrix"
+            )
+        translation_inverse = np.linalg.inv(translation_basis)
+        parent_lattice = np.asarray(structure.lattice.matrix, dtype=float)
+        translation_metric = Lattice(translation_basis @ parent_lattice)
+        parent_coords = np.asarray(structure.frac_coords, dtype=float)
+        child_as_parent = np.asarray(child.frac_coords, dtype=float) @ basis
+
+        # Map each generated child atom back to one actual parent-cell site.
+        # The species check prevents coincident special positions belonging to
+        # different chemical orbits from being conflated.
+        child_parent_index: list[int] = []
+        for child_index, coord in enumerate(child_as_parent):
+            best_index = -1
+            best_distance = float("inf")
+            for parent_index, parent_coord in enumerate(parent_coords):
+                if child[child_index].species != structure[parent_index].species:
+                    continue
+                # Component-wise wrapping of fractional coordinates is not a
+                # nearest-image construction in a skew cell.  The direct-
+                # lattice metric must choose the integer image that minimizes
+                # ``||(coord-parent_coord-n) B||``.
+                distance = float(
+                    structure.lattice.get_distance_and_image(
+                        parent_coord, coord,
+                    )[0]
+                )
+                if distance < best_distance:
+                    best_index = parent_index
+                    best_distance = distance
+            if best_index < 0 or best_distance > cartesian_tolerance:
+                raise ValueError(
+                    "cannot map child atom to a chemically matching parent site: "
+                    f"child index {child_index}, residual {best_distance:.6g} Å"
+                )
+            child_parent_index.append(best_index)
+
+        parent_groups: list[tuple[str, set[int], list[int]]] = []
+        for site_info in wyckoff_sites:
+            indices = [int(value) for value in site_info["equivalent_indices"]]
+            parent_groups.append((
+                str(site_info["wyckoff_letter"]),
+                set(indices),
+                indices,
+            ))
+
+        operation_data: list[tuple[np.ndarray, np.ndarray]] = []
+        for operation in subgroup_operations or ():
+            rotation = np.asarray(operation.rotation, dtype=float)
+            translation = np.asarray(
+                operation.translation, dtype=float,
+            )
+            if rotation.shape != (3, 3) or translation.shape != (3,):
+                raise ValueError("subgroup Seitz operations must contain R(3x3), t(3)")
+            operation_data.append((rotation, translation))
+        if not operation_data:
+            operation_data.append((np.eye(3), np.zeros(3)))
+
+        result: dict[str, np.ndarray] = {}
+        for mode in modes:
+            key = str(mode.amplitude_key or mode.irrep_label)
+            if not key:
+                raise ValueError("DISPLAY BUSH mode has no stable amplitude key")
+            parent_arrows = np.zeros((len(child), 3), dtype=float)
+            assigned = np.zeros(len(child), dtype=bool)
+            target_letter = str(mode.wyckoff_site or "")
+
+            for letter, parent_index_set, parent_indices in parent_groups:
+                if target_letter and letter != target_letter:
+                    continue
+                bushes = [
+                    bush for bush in mode.bush_modes
+                    if str(bush.wyckoff_letter) == letter
+                ]
+                if not bushes:
+                    continue
+                reps: list[tuple[np.ndarray, np.ndarray]] = []
+                for bush in bushes:
+                    if len(bush.displacements) != 1:
+                        raise ValueError(
+                            "DISPLAY BUSH displacement columns must be split "
+                            "before child-cell mapping"
+                        )
+                    point = self._resolve_rep_point(
+                        bush, structure, parent_indices,
+                    )
+                    arrow = np.asarray(bush.displacements[0], dtype=float)
+                    if point.shape != (3,) or arrow.shape != (3,):
+                        raise ValueError("BUSH point and displacement must be 3-vectors")
+                    for rotation, translation in operation_data:
+                        # Seitz convention is x' = R x + t for column
+                        # coordinates.  Points/arrows here are row vectors.
+                        reps.append((
+                            point @ rotation.T + translation,
+                            arrow @ rotation.T,
+                        ))
+
+                group_children = [
+                    index for index, parent_index in enumerate(child_parent_index)
+                    if parent_index in parent_index_set
+                ]
+                for child_index in group_children:
+                    coord = child_as_parent[child_index]
+                    matches: list[np.ndarray] = []
+                    for point, arrow in reps:
+                        translation_delta = (coord - point) @ translation_inverse
+                        # ``translation_delta`` is fractional in an arbitrary
+                        # primitive basis of the subgroup translation lattice.
+                        # Rounding its components is not a nearest-image
+                        # construction when that basis is skew or unreduced;
+                        # it would make BUSH coverage depend on the chosen
+                        # (GL(3,Z)-equivalent) lattice basis.  Minimize in the
+                        # actual direct-lattice metric instead.
+                        distance = float(
+                            translation_metric.get_distance_and_image(
+                                translation_delta, np.zeros(3),
+                            )[0]
+                        )
+                        if distance <= cartesian_tolerance:
+                            matches.append(arrow)
+                    if not matches:
+                        raise ValueError(
+                            "DISPLAY BUSH table does not cover child atom "
+                            f"{child_index} in Wyckoff orbit {letter!r}"
+                        )
+                    reference = matches[0]
+                    if any(
+                        float(np.linalg.norm((other - reference) @ parent_lattice))
+                        > cartesian_tolerance
+                        for other in matches[1:]
+                    ):
+                        raise ValueError(
+                            "DISPLAY BUSH representatives assign conflicting arrows "
+                            f"to child atom {child_index}"
+                        )
+                    parent_arrows[child_index] = reference
+                    assigned[child_index] = True
+
+            if not np.any(assigned):
+                raise ValueError(
+                    f"DISPLAY BUSH mode {key!r} did not map to any child atom"
+                )
+            # Preserve the established UI amplitude convention: the largest
+            # parent-fractional arrow norm is one.  The physically essential
+            # direction/phase is exact before the child-coordinate transform.
+            scale = float(np.max(np.linalg.norm(parent_arrows, axis=1)))
+            if scale <= 1e-12:
+                raise ValueError(f"DISPLAY BUSH mode {key!r} is identically zero")
+            result[key] = (parent_arrows / scale) @ inverse
         return result
 
     # ----------------------------------------------------------------
@@ -258,12 +478,17 @@ class DistortionMapper:
         delta = a - b
         return bool(np.allclose(delta - np.round(delta), 0.0, atol=atol))
 
-    @staticmethod
-    def _periodic_distance(a: np.ndarray, b: np.ndarray) -> float:
-        """分数坐标的最小镜像距离。"""
-        delta = a - b
-        delta -= np.round(delta)
-        return float(np.linalg.norm(delta))
+    def _periodic_distance(self, a: np.ndarray, b: np.ndarray) -> float:
+        """Return the shortest periodic distance in the direct-lattice metric.
+
+        Fractional Euclidean distance has no crystallographic meaning unless
+        the basis is orthonormal.  ``get_distance_and_image`` minimizes over
+        lattice translations using the actual parent lattice, including skew
+        and anisotropic cells.
+        """
+        if self._conv_matrix is None:
+            raise RuntimeError("parent lattice is not initialized")
+        return float(Lattice(self._conv_matrix).get_distance_and_image(a, b)[0])
 
 
 def _has_letter(token: str) -> bool:

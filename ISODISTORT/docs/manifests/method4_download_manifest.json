@@ -1,0 +1,379 @@
+{
+  "schema": 1,
+  "purpose": "Frozen daughter-CIF upload batch for the future Method 4 differential",
+  "signature": "25cc0dd0749706e2d0443bac54aeec7259713a41fb3cccc74ebe54fc0da014a0",
+  "method4_executed": false,
+  "official_download_status": "not_downloaded",
+  "official_download_root": "output_compare/<parent>/官网/Method4/<readable-case-folder>/",
+  "local_download_root": "output_compare/<parent>/现有网页版交互/Method4/<readable-case-folder>/",
+  "readable_case_folders": {
+    "G01-zero": "G01 - gamma - zero",
+    "G02-positive-reordered": "G02 - gamma - positive - reordered",
+    "G03-negative-wrapped": "G03 - gamma - negative - wrapped",
+    "G04-two-mode": "G04 - gamma - two-mode",
+    "G05-origin-shift": "G05 - gamma - origin-shift",
+    "G06-near-bound-noise": "G06 - gamma - near-bound-noise",
+    "P01-zero-supercell": "P01 - parameter-k - zero-supercell",
+    "P02-positive-supercell": "P02 - parameter-k - positive-supercell",
+    "P03-mixed-reordered-wrapped": "P03 - parameter-k - mixed-reordered-wrapped",
+    "F01-species-mismatch": "F01 - expected-failure - species-mismatch",
+    "F02-invalid-lattice": "F02 - expected-failure - invalid-lattice",
+    "F03-distance-threshold": "F03 - expected-failure - distance-threshold"
+  },
+  "per_case_downloads": [
+    "the exact uploaded daughter.cif whose SHA-256 matches this manifest",
+    "parent-CIF identity and Complete modes details for the selected path/subgroup context",
+    "complete Method 4 result page (HTML)",
+    "amplitude table txt/csv when offered; otherwise preserve the full HTML table",
+    "official error page/text for expected failures"
+  ],
+  "local_only_checks": [
+    "calling Method 4 before selecting/calculating modes must be rejected"
+  ],
+  "parents": {
+    "EuAl4 Parent.cif": {
+      "parent_cif": "experiment_data\\EuAl4 Parent.cif",
+      "gamma_context": {
+        "sg": 12,
+        "irrep": "GM5+",
+        "opd": "P1"
+      },
+      "parameter_context": {
+        "sg": 99,
+        "irrep": "LD1",
+        "opd": "C1",
+        "basis": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            6
+          ]
+        ]
+      },
+      "cases": {
+        "G01-zero": {
+          "context": "gamma",
+          "contributions": {
+            "GM2+[0,0,0]__d__B2(a)": 0.0
+          },
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/G01-zero/daughter.cif",
+          "sha256": "70a48a55acb92c5a9372bb09e9b3d4b209a057f9378a026edf4b4a4ced105011",
+          "atom_count": 10,
+          "formula": "Eu2 Al8"
+        },
+        "G02-positive-reordered": {
+          "context": "gamma",
+          "contributions": {
+            "GM2+[0,0,0]__d__B2(a)": 0.08
+          },
+          "transform": "reverse atom rows",
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/G02-positive-reordered/daughter.cif",
+          "sha256": "4636f60730ba8fb1ee1a1bad70f14bf0389815295eac30626ae594b959fe9eba",
+          "atom_count": 10,
+          "formula": "Eu2 Al8"
+        },
+        "G03-negative-wrapped": {
+          "context": "gamma",
+          "contributions": {
+            "GM2+[0,0,0]__d__B2(a)": -0.08
+          },
+          "transform": "integer periodic images",
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/G03-negative-wrapped/daughter.cif",
+          "sha256": "a92257ee42e467503132071cf28d52c45e83bc1f0a0a7a95b52b1544cba5655d",
+          "atom_count": 10,
+          "formula": "Eu2 Al8"
+        },
+        "G04-two-mode": {
+          "context": "gamma",
+          "contributions": {
+            "GM2+[0,0,0]__d__B2(a)": 0.06,
+            "GM5+[0,0,0]__d__E(a)": -0.035
+          },
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/G04-two-mode/daughter.cif",
+          "sha256": "14bd05cf6f128f85222cfcc3649ca4f4f49e11783bb6584f0241cfdf71d31ff8",
+          "atom_count": 10,
+          "formula": "Eu2 Al8"
+        },
+        "G05-origin-shift": {
+          "context": "gamma",
+          "contributions": {
+            "GM2+[0,0,0]__d__B2(a)": 0.06,
+            "GM5+[0,0,0]__d__E(a)": -0.035
+          },
+          "provided_origin_shift": [
+            0.125,
+            0.25,
+            0.0
+          ],
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/G05-origin-shift/daughter.cif",
+          "sha256": "59f8f7d169b32cd6edb0b960303eb33e53f4bd8e97607a1e90f7743e1717c2a5",
+          "atom_count": 10,
+          "formula": "Eu2 Al8"
+        },
+        "G06-near-bound-noise": {
+          "context": "gamma",
+          "contributions": {
+            "GM2+[0,0,0]__d__B2(a)": 0.18,
+            "GM5+[0,0,0]__d__E(a)": 0.11
+          },
+          "noise_sigma_fractional": 2e-05,
+          "expect": "success_with_nonzero_residual",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/G06-near-bound-noise/daughter.cif",
+          "sha256": "3fb220d193eb6f95e34ef1f512176f424781d7ab4b0b2851823b32effa9f5148",
+          "atom_count": 10,
+          "formula": "Eu2 Al8"
+        },
+        "P01-zero-supercell": {
+          "context": "parameter",
+          "contributions": {
+            "LD1[0,0,1/6]__a__A2u(a)": 0.0
+          },
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/P01-zero-supercell/daughter.cif",
+          "sha256": "80a535d8d5bdd7ac7ca0921ab44a6c54310115bb7ee26acbe7af82361ca26439",
+          "atom_count": 60,
+          "formula": "Eu12 Al48"
+        },
+        "P02-positive-supercell": {
+          "context": "parameter",
+          "contributions": {
+            "LD1[0,0,1/6]__a__A2u(a)": 0.07
+          },
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/P02-positive-supercell/daughter.cif",
+          "sha256": "deaeae72395ff01b0b5df2c1917cf38b75c6fb262e37cdb1bcb0589f8f531465",
+          "atom_count": 60,
+          "formula": "Eu12 Al48"
+        },
+        "P03-mixed-reordered-wrapped": {
+          "context": "parameter",
+          "contributions": {
+            "LD1[0,0,1/6]__a__A2u(a)": 0.05,
+            "LD1[0,0,1/6]__a__A2u(b)": -0.03
+          },
+          "transform": "reverse atom rows and integer periodic images",
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/P03-mixed-reordered-wrapped/daughter.cif",
+          "sha256": "b277bb77468f2c68ada5cda3a9eeb235795584d1cccb787233bba3d983c2dfee",
+          "atom_count": 60,
+          "formula": "Eu12 Al48"
+        },
+        "F01-species-mismatch": {
+          "context": "gamma",
+          "expect": "reject_species_or_stoichiometry",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/F01-species-mismatch/daughter.cif",
+          "sha256": "e74b295c00b9c373ba988f6450d457d6e5578d9484258ae3a538fbe21ac5187c",
+          "atom_count": 10,
+          "formula": "Eu1 Al8 H1"
+        },
+        "F02-invalid-lattice": {
+          "context": "gamma",
+          "expect": "reject_incompatible_lattice",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/F02-invalid-lattice/daughter.cif",
+          "sha256": "8d84e644cb0d387f386f3ac39c1768f04db10ca25c2378887bc762cf0b58fd03",
+          "atom_count": 10,
+          "formula": "Eu2 Al8"
+        },
+        "F03-distance-threshold": {
+          "context": "gamma",
+          "atom_matching_method": "robust",
+          "robust_distance_threshold": 0.1,
+          "expect": "reject_unmatched_atom",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/F03-distance-threshold/daughter.cif",
+          "sha256": "4b00750e02711a4ac2e706636da8a2ab1cf9c4362d6e4ec7e75a4e27100c2af9",
+          "atom_count": 10,
+          "formula": "Eu2 Al8"
+        }
+      }
+    },
+    "NdNiO2 own.cif": {
+      "parent_cif": "experiment_data\\NdNiO2 own.cif",
+      "gamma_context": {
+        "sg": 6,
+        "irrep": "GM5-",
+        "opd": "C1"
+      },
+      "parameter_context": {
+        "sg": 47,
+        "irrep": "Y1",
+        "opd": "P1",
+        "basis": [
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            0,
+            2,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "cases": {
+        "G01-zero": {
+          "context": "gamma",
+          "contributions": {
+            "GM5-[0,0,0]__d__Eu(a)": 0.0
+          },
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/G01-zero/daughter.cif",
+          "sha256": "a06c6eebace45337a0fd6875ffac3853996becac6ff0074e1aace24be7157b0c",
+          "atom_count": 4,
+          "formula": "Nd1 Ni1 O2"
+        },
+        "G02-positive-reordered": {
+          "context": "gamma",
+          "contributions": {
+            "GM5-[0,0,0]__d__Eu(a)": 0.08
+          },
+          "transform": "reverse atom rows",
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/G02-positive-reordered/daughter.cif",
+          "sha256": "3be0b2570669a20fcf1d9e7245535ce2545f53eadcd30886e1c9204675226385",
+          "atom_count": 4,
+          "formula": "Nd1 Ni1 O2"
+        },
+        "G03-negative-wrapped": {
+          "context": "gamma",
+          "contributions": {
+            "GM5-[0,0,0]__d__Eu(a)": -0.08
+          },
+          "transform": "integer periodic images",
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/G03-negative-wrapped/daughter.cif",
+          "sha256": "75bf3280a3d4822e64365a59e428e71a6ea7b26ed89416c2c8868631925b0bca",
+          "atom_count": 4,
+          "formula": "Nd1 Ni1 O2"
+        },
+        "G04-two-mode": {
+          "context": "gamma",
+          "contributions": {
+            "GM5-[0,0,0]__d__Eu(a)": 0.06,
+            "GM5-[0,0,0]__d__Eu(b)": -0.035
+          },
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/G04-two-mode/daughter.cif",
+          "sha256": "43429870f43befb482d09caa2f5e9abd40319215757d5f2850fada8113cf5568",
+          "atom_count": 4,
+          "formula": "Nd1 Ni1 O2"
+        },
+        "G05-origin-shift": {
+          "context": "gamma",
+          "contributions": {
+            "GM5-[0,0,0]__d__Eu(a)": 0.06,
+            "GM5-[0,0,0]__d__Eu(b)": -0.035
+          },
+          "provided_origin_shift": [
+            0.125,
+            0.25,
+            0.0
+          ],
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/G05-origin-shift/daughter.cif",
+          "sha256": "44ca37cfcdc8bfd5ca718ca6b9d2dcda7118444d75fc8878fc24d2ab0f11a10a",
+          "atom_count": 4,
+          "formula": "Nd1 Ni1 O2"
+        },
+        "G06-near-bound-noise": {
+          "context": "gamma",
+          "contributions": {
+            "GM5-[0,0,0]__d__Eu(a)": 0.18,
+            "GM5-[0,0,0]__d__Eu(b)": 0.11
+          },
+          "noise_sigma_fractional": 2e-05,
+          "expect": "success_with_nonzero_residual",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/G06-near-bound-noise/daughter.cif",
+          "sha256": "9a72a3cff1bedab8ffda01b1a6189b66138b0e56610cdd5778a54900673e1111",
+          "atom_count": 4,
+          "formula": "Nd1 Ni1 O2"
+        },
+        "P01-zero-supercell": {
+          "context": "parameter",
+          "contributions": {
+            "Y1[1/3,1/2,0]__d__Eu(a)": 0.0
+          },
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/P01-zero-supercell/daughter.cif",
+          "sha256": "6597a6964357e2b3088be917adb954175641b0dfcd48516b9be3c1d28ec9cafd",
+          "atom_count": 24,
+          "formula": "Nd6 Ni6 O12"
+        },
+        "P02-positive-supercell": {
+          "context": "parameter",
+          "contributions": {
+            "Y1[1/3,1/2,0]__d__Eu(a)": 0.07
+          },
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/P02-positive-supercell/daughter.cif",
+          "sha256": "1dce618d711bf03589b81aa4509bb2def121920f57a4c13ec55ff8e438c0f57b",
+          "atom_count": 24,
+          "formula": "Nd6 Ni6 O12"
+        },
+        "P03-mixed-reordered-wrapped": {
+          "context": "parameter",
+          "contributions": {
+            "Y1[1/3,1/2,0]__d__Eu(a)": 0.05,
+            "X1+[0,1/2,0]__d__Eu(a)": -0.03
+          },
+          "transform": "reverse atom rows and integer periodic images",
+          "expect": "success",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/P03-mixed-reordered-wrapped/daughter.cif",
+          "sha256": "eef72701ecd5f73bff58c654aa9156ce2669fbd4462fec116020bc7e0c7ad5d4",
+          "atom_count": 24,
+          "formula": "Nd6 Ni6 O12"
+        },
+        "F01-species-mismatch": {
+          "context": "gamma",
+          "expect": "reject_species_or_stoichiometry",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/F01-species-mismatch/daughter.cif",
+          "sha256": "5cb8858ff0d90cd66ccc00b11ea3872ad71fda1c5f83494bd5b01094f65d501e",
+          "atom_count": 4,
+          "formula": "Ni1 H1 O2"
+        },
+        "F02-invalid-lattice": {
+          "context": "gamma",
+          "expect": "reject_incompatible_lattice",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/F02-invalid-lattice/daughter.cif",
+          "sha256": "9d8f28dfb26399075f2407b785ca97606f4f84697d8e8831a438ce25b3e1ba3b",
+          "atom_count": 4,
+          "formula": "Nd1 Ni1 O2"
+        },
+        "F03-distance-threshold": {
+          "context": "gamma",
+          "atom_matching_method": "robust",
+          "robust_distance_threshold": 0.1,
+          "expect": "reject_unmatched_atom",
+          "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/F03-distance-threshold/daughter.cif",
+          "sha256": "02b41e63c770b9c4e5ff0a622429841be5e74478f1ca478c9755bff459332e36",
+          "atom_count": 4,
+          "formula": "Nd1 Ni1 O2"
+        }
+      }
+    }
+  },
+  "updated_at": "2026-09-24T04:27:32.623573+00:00",
+  "status": "inputs_frozen",
+  "case_count": 24,
+  "finished_at": "2026-09-24T04:27:32.625575+00:00"
+}

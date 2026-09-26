@@ -1,0 +1,25 @@
+# 外部测试结构来源（COD, https://www.crystallography.net/cod/）
+
+- SrTiO3_Pm3m: 已缓存
+- BaTiO3_Pm3m: 已缓存
+- WO3_Pm3m: 已缓存
+- LaMnO3_Pbnm: 已缓存
+- Si_Fd3m: 已缓存
+- NaCl_Fm3m: 已缓存
+- BaTiO3_P4mmm: 已缓存
+- BiFeO3_R3c: 已缓存
+- ZnO_P63mc: 已缓存
+- GaN_P63mc: 已缓存
+- CsCl_Pm3m: 已缓存
+- SiO2_quartz: 已缓存
+- MgO_Fm3m: 已缓存
+- Fe2O3_hematite: https://www.crystallography.net/cod/1011267.cif （OK SG=167 atoms=10；赤铁矿（R-3c 167，刚玉型））
+- CaCO3_calcite: https://www.crystallography.net/cod/1010928.cif （OK SG=167 atoms=10；方解石（R-3c 167，碳酸盐））
+- TiO2_rutile: https://www.crystallography.net/cod/1511015.cif （OK SG=136 atoms=6；金红石（P4_2/mnm 136））
+- TiO2_anatase: https://www.crystallography.net/cod/1010942.cif （OK SG=141 atoms=12；锐钛矿（I4_1/amd 141））
+- CaF2_fluorite: https://www.crystallography.net/cod/1000043.cif （OK SG=225 atoms=12；萤石（Fm-3m 225））
+- BaSO4_barite: https://www.crystallography.net/cod/1000037.cif （OK SG=62 atoms=24；重晶石（Pnma 62））
+- MgAl2O4_spinel: https://www.crystallography.net/cod/1010129.cif （OK SG=227 atoms=56；尖晶石（Fd-3m 227））
+- KBr_Fm3m: https://www.crystallography.net/cod/1010046.cif （OK SG=225 atoms=8；岩盐型（KBr））
+- Al2O3_corundum: https://www.crystallography.net/cod/1000017.cif （OK SG=167 atoms=30；刚玉（R-3c 167））
+- CaTiO3_Pbnm: https://www.crystallography.net/cod/1000022.cif （OK SG=62 atoms=20；正交钙钛矿（Pbnm 62））

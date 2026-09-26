@@ -22,10 +22,56 @@ class SymmetryValidator:
     4. 获取 Wyckoff 位置分配
     """
 
-    def __init__(self, tolerance: float | None = None):
-
+    def __init__(
+        self,
+        tolerance: float | None = None,
+        *,
+        angle_tolerance_degrees: float | None = None,
+    ):
         cfg = get_config()
-        self.tolerance = tolerance or cfg.position_tolerance
+        # pymatgen forwards ``symprec`` to spglib as an absolute Cartesian
+        # distance in the structure's lattice unit (Å here), not as a
+        # fractional-coordinate residual.  Keep ``tolerance`` as a compatible
+        # public argument, but make its physical meaning explicit internally.
+        self.symprec_angstrom = (
+            cfg.symmetry_cartesian_tolerance_angstrom
+            if tolerance is None
+            else float(tolerance)
+        )
+        self.angle_tolerance_degrees = (
+            cfg.symmetry_angle_tolerance_degrees
+            if angle_tolerance_degrees is None
+            else float(angle_tolerance_degrees)
+        )
+        if not np.isfinite(self.symprec_angstrom) or self.symprec_angstrom <= 0:
+            raise ValueError("symmetry tolerance must be a finite positive Å value")
+        if (
+            not np.isfinite(self.angle_tolerance_degrees)
+            or self.angle_tolerance_degrees <= 0
+        ):
+            raise ValueError("angle tolerance must be a finite positive degree value")
+        # Compatibility for callers/reporters that used ``validator.tolerance``.
+        self.tolerance = self.symprec_angstrom
+
+    @staticmethod
+    def fractional_norm_upper_bound(
+        structure: Structure, cartesian_tolerance_angstrom: float
+    ) -> float:
+        """Convert a Cartesian distance threshold to a safe fractional bound.
+
+        For row-vector coordinates ``dr_cart = dr_frac @ A``, singular-value
+        analysis gives ``||dr_frac|| <= ||dr_cart|| / sigma_min(A)``.  The
+        result is dimensionless and depends on the full cell metric, so it
+        remains meaningful for skewed as well as differently scaled cells.
+        It is diagnostic only; spglib receives the Cartesian tolerance itself.
+        """
+        singular_values = np.linalg.svd(
+            np.asarray(structure.lattice.matrix, dtype=float), compute_uv=False
+        )
+        smallest = float(np.min(singular_values))
+        if not np.isfinite(smallest) or smallest <= 0:
+            raise ValueError("structure lattice must be finite and nonsingular")
+        return float(cartesian_tolerance_angstrom) / smallest
 
     def validate(self, structure: Structure) -> dict:
         """
@@ -35,7 +81,11 @@ class SymmetryValidator:
             dict: 包含空间群号、空间群符号、Wyckoff位点、是否有序等信息
 
         """
-        sga = SpacegroupAnalyzer(structure, symprec=self.tolerance)
+        sga = SpacegroupAnalyzer(
+            structure,
+            symprec=self.symprec_angstrom,
+            angle_tolerance=self.angle_tolerance_degrees,
+        )
 
         sg_number = sga.get_space_group_number()
         sg_symbol = sga.get_space_group_symbol()
@@ -70,7 +120,16 @@ class SymmetryValidator:
             "space_group_symbol": sg_symbol,
             "wyckoff_sites": wyckoff_sites,
             "has_disorder": has_disorder,
-            "tolerance": self.tolerance,
+            # Keep the old field for API compatibility, but add unambiguous
+            # units and the lattice-dependent fractional-coordinate bound.
+            "tolerance": self.symprec_angstrom,
+            "symmetry_tolerance_angstrom": self.symprec_angstrom,
+            "symmetry_angle_tolerance_degrees": self.angle_tolerance_degrees,
+            "fractional_norm_tolerance_upper_bound": (
+                self.fractional_norm_upper_bound(
+                    structure, self.symprec_angstrom
+                )
+            ),
         }
 
     @staticmethod
@@ -78,7 +137,12 @@ class SymmetryValidator:
         """获取点阵中心类型 (P/I/F/A/B/C/R)
 
         """
-        sga = SpacegroupAnalyzer(structure)
+        cfg = get_config()
+        sga = SpacegroupAnalyzer(
+            structure,
+            symprec=cfg.symmetry_cartesian_tolerance_angstrom,
+            angle_tolerance=cfg.symmetry_angle_tolerance_degrees,
+        )
         sg_symbol = sga.get_space_group_symbol()
         # 简单提取第一个字母
         return sg_symbol[0] if sg_symbol else "P"

@@ -2,18 +2,21 @@
 
 Official reference CIFs go in ``compare/true/``. Local files to check go in
 ``compare/item/``. Pairing is by relative path under those two folders.
-Both folders live next to the package (``ISODISTORT_VALIDATE/compare/``),
-not inside ``isodistort_validate/``.
+Paths come from ``config/settings.yaml`` (defaults: ``ISODISTORT_VALIDATE/compare/``).
 """
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
-VALIDATE_ROOT = Path(__file__).resolve().parents[1]
-COMPARE_ROOT = VALIDATE_ROOT / "compare"
-ITEM_DIR = COMPARE_ROOT / "item"
-TRUE_DIR = COMPARE_ROOT / "true"
+from .config_loader import get_config
+
+_cfg = get_config()
+VALIDATE_ROOT = _cfg.project_root
+COMPARE_ROOT = _cfg.compare_root
+ITEM_DIR = _cfg.item_dir
+TRUE_DIR = _cfg.true_dir
+DEFAULT_PATTERN = _cfg.pattern
 
 BATCH_PAIRING_HINT = (
     "批量比较按相对路径配对：请把官网下载到 compare/true/ 的 CIF "
@@ -37,7 +40,9 @@ def ensure_compare_dirs() -> tuple[Path, Path]:
     return ITEM_DIR, TRUE_DIR
 
 
-def list_relative_cifs(root: Path, pattern: str = "*.cif") -> list[str]:
+def list_relative_cifs(root: Path, pattern: str | None = None) -> list[str]:
+    if pattern is None:
+        pattern = DEFAULT_PATTERN
     if not root.is_dir():
         return []
     return sorted(
@@ -47,8 +52,10 @@ def list_relative_cifs(root: Path, pattern: str = "*.cif") -> list[str]:
     )
 
 
-def pairing_status(pattern: str = "*.cif") -> tuple[list[str], list[str], list[str]]:
+def pairing_status(pattern: str | None = None) -> tuple[list[str], list[str], list[str]]:
     """Return ``(paired, item_only, true_only)`` relative CIF paths."""
+    if pattern is None:
+        pattern = DEFAULT_PATTERN
     ensure_compare_dirs()
     item = set(list_relative_cifs(ITEM_DIR, pattern))
     true = set(list_relative_cifs(TRUE_DIR, pattern))
@@ -72,7 +79,7 @@ def format_unpaired_warning(item_only: list[str], true_only: list[str]) -> str |
     return "\n".join(lines)
 
 
-def warn_unpaired_filenames(*, file=None, pattern: str = "*.cif") -> bool:
+def warn_unpaired_filenames(*, file=None, pattern: str | None = None) -> bool:
     """Print a rename reminder as soon as unpaired CIF names are found.
 
     Returns True when a mismatch exists. ``file`` defaults to stderr so JSON

@@ -56,9 +56,30 @@ class OccupationalMode:
 class OccupationalModeGenerator:
     """按子群超胞生成 +1/-1 交替占据率模式（v1 近似）。"""
 
-    def __init__(self, tolerance: float | None = None) -> None:
+    def __init__(
+        self,
+        tolerance: float | None = None,
+        *,
+        angle_tolerance_degrees: float | None = None,
+    ) -> None:
         cfg = get_config()
-        self.tolerance = tolerance or cfg.position_tolerance
+        self.tolerance = (
+            cfg.symmetry_cartesian_tolerance_angstrom
+            if tolerance is None
+            else float(tolerance)
+        )
+        self.angle_tolerance_degrees = (
+            cfg.symmetry_angle_tolerance_degrees
+            if angle_tolerance_degrees is None
+            else float(angle_tolerance_degrees)
+        )
+        if not np.isfinite(self.tolerance) or self.tolerance <= 0:
+            raise ValueError("symmetry tolerance must be a finite positive Å value")
+        if (
+            not np.isfinite(self.angle_tolerance_degrees)
+            or self.angle_tolerance_degrees <= 0
+        ):
+            raise ValueError("angle tolerance must be a finite positive degree value")
 
     # ----------------------------------------------------------------
     # 主入口
@@ -195,7 +216,11 @@ class OccupationalModeGenerator:
                     new_species.append(site.species_string)
             ordered = Structure(sc.lattice, new_species, sc.frac_coords,
                                 coords_are_cartesian=False)
-            sg = SpacegroupAnalyzer(ordered, symprec=self.tolerance)
+            sg = SpacegroupAnalyzer(
+                ordered,
+                symprec=self.tolerance,
+                angle_tolerance=self.angle_tolerance_degrees,
+            )
             return sg.get_space_group_number() == subgroup.space_group_number
         except Exception:  # noqa: BLE001 - 校验失败不阻断，返回 False
             return False
