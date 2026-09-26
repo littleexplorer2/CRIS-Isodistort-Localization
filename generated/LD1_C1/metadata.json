@@ -1,0 +1,41 @@
+{
+  "cif": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS\\experiment_data\\EuAl4 Parent.cif",
+  "k_label": "LD",
+  "k_params": [
+    "1/6"
+  ],
+  "irrep": "LD1",
+  "opd": "C1",
+  "nmod": 0,
+  "parent_sg": 139,
+  "parent_symbol": "I4/mmm",
+  "child_sg": 99,
+  "child_symbol": "P4mm",
+  "basis": [
+    [
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      6.0
+    ]
+  ],
+  "origin": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "n_modes": 48,
+  "n_atoms": 60,
+  "parent_cells_in_supercell": 6,
+  "maxamp_convention": "sqrt(N_parent_cells) after primitive Cartesian RMS = 1",
+  "norm_factors": "1 (mode vectors already cart-normalized)"
+}
