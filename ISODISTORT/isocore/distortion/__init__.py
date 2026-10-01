@@ -12,6 +12,12 @@ from .affine_embeddings import (
     locate_embedding_subgroup,
     parent_affine_group,
 )
+from .coupled_routes import (
+    CoupledRouteCandidate,
+    CoupledRouteWitness,
+    lift_embedding_subgroup,
+    resolve_coupled_route_witness,
+)
 from .distortion_engine import DistortionEngine
 from .distortion_mapper import DistortionMapper
 from .domain_generator import DomainGenerator
@@ -45,6 +51,7 @@ from .inverse_landau_adapter import (
     build_selected_character_representation,
     build_selected_representation,
     diagnose_embedding_feasibility,
+    diagnose_embeddings_feasibility,
     parent_frame_fingerprint,
     quotient_finite_group,
     stable_embedding_id,
@@ -68,6 +75,7 @@ from .search_methods import (
     Method4Query,
     Method4Result,
 )
+from .strain import HomogeneousStrainResult, decompose_homogeneous_strain
 from .superspace import ParametricModeResult, compute_parametric_modes
 
 __all__ = [
@@ -77,6 +85,8 @@ __all__ = [
     "AffineEmbedding",
     "AffineOperation",
     "AffineQuotient",
+    "CoupledRouteCandidate",
+    "CoupledRouteWitness",
     "DiagnosticCharacterRepresentationBundle",
     "DiagnosticRepresentationBundle",
     "DistortionEngine",
@@ -88,6 +98,7 @@ __all__ = [
     "FixedSpaceFeasibility",
     "FixedSpaceFeasibilityAnalyzer",
     "FixedSpaceFeasibilitySummary",
+    "HomogeneousStrainResult",
     "IsoSearchEngine",
     "Method1Query",
     "Method1ResultItem",
@@ -110,7 +121,9 @@ __all__ = [
     "build_selected_representation",
     "character_representation",
     "compute_parametric_modes",
+    "decompose_homogeneous_strain",
     "diagnose_embedding_feasibility",
+    "diagnose_embeddings_feasibility",
     "direct_sum_character_representations",
     "direct_sum_representations",
     "embedding_from_identity",
@@ -119,6 +132,7 @@ __all__ = [
     "fixed_space_basis",
     "fixed_space_projector",
     "homogeneous_strain_representation",
+    "lift_embedding_subgroup",
     "locate_embedding_subgroup",
     "normalize_distortion_types",
     "parent_affine_group",
@@ -127,6 +141,7 @@ __all__ = [
     "polar_vector_representation",
     "quotient_finite_group",
     "remove_uniform_site_vectors",
+    "resolve_coupled_route_witness",
     "site_displacement_representation",
     "site_scalar_representation",
     "site_vector_character_representation",

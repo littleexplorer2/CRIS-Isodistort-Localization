@@ -12,7 +12,7 @@ Wyckoff multiplicity/letter still come from symmetry analysis of the loaded cell
 """
 from __future__ import annotations
 
-import re
+import shlex
 from collections.abc import Sequence
 from fractions import Fraction
 from pathlib import Path
@@ -113,22 +113,47 @@ def parse_cif_atom_site_rows(cif_path: str | Path) -> list[dict]:
     (e.g. ``ND`` / ``NI``), without pymatgen element normalization.
     """
     text = Path(cif_path).read_text(encoding="utf-8", errors="replace")
+    lines = text.splitlines()
     rows: list[dict] = []
-    for loop_m in re.finditer(
-        r"(?is)loop_\s*((?:_[a-z0-9_.]+\s*)+)([^_]*?)(?=\nloop_|\n#|\ndata_|\Z)",
-        text,
-    ):
-        tags = re.findall(r"_[a-z0-9_.]+", loop_m.group(1), flags=re.I)
+    line_index = 0
+    while line_index < len(lines):
+        if lines[line_index].strip().lower() != "loop_":
+            line_index += 1
+            continue
+        line_index += 1
+        tags: list[str] = []
+        while line_index < len(lines):
+            stripped = lines[line_index].strip()
+            if not stripped.startswith("_"):
+                break
+            tags.append(stripped.split(maxsplit=1)[0])
+            line_index += 1
         lower = [t.lower() for t in tags]
         if "_atom_site_fract_x" not in lower:
+            # Continue scanning by lines. The former whole-file regex could
+            # catastrophically backtrack on FullProf templates containing
+            # many non-structural loops and underscore-rich values.
             continue
-        body = loop_m.group(2)
         tokens: list[str] = []
-        for line in body.splitlines():
-            line = line.strip()
-            if not line or line.startswith("#"):
+        while line_index < len(lines):
+            stripped = lines[line_index].strip()
+            lowered = stripped.lower()
+            if (
+                lowered == "loop_"
+                or lowered.startswith("data_")
+                or lowered.startswith("save_")
+                or stripped.startswith("_")
+            ):
+                break
+            line_index += 1
+            if not stripped or stripped.startswith("#"):
                 continue
-            tokens.extend(line.split())
+            try:
+                tokens.extend(shlex.split(stripped, comments=True, posix=True))
+            except ValueError:
+                # Keep permissive behavior for imperfect legacy CIF rows; the
+                # numeric atom-site fields are validated below before use.
+                tokens.extend(stripped.split())
         n = len(tags)
         if n == 0 or len(tokens) < n:
             continue

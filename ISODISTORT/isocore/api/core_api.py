@@ -83,6 +83,7 @@ from ..structure import (
     SymmetryValidator,
     build_supercell,
     read_cif,
+    read_cif_space_group_number,
     read_structure,
 )
 from ..utils import IsodistortError, get_config
@@ -714,15 +715,18 @@ class IsoDistort:
             candidate_routes = (
                 item.routes if item.routes is not None else [item.subgroup]
             )
-            if item.routes == [] and getattr(
-                item, "route_resolution", ""
-            ) == "affine_only_unresolved_coupled_route":
-                # Stage A proves the affine embedding independently of an IR
-                # route.  Its distortion-type activity is unresolved rather
-                # than false, so retain it on the first Method-3 page.  A
-                # later click/export must not invent a single-IR route.
-                kept.append(item)
-                continue
+            if item.routes == []:
+                resolution = getattr(item, "route_resolution", "")
+                if resolution == "exact_fixed_space":
+                    # Search-stage exact character analysis already proved
+                    # reachability in the requested strain/displacive direct
+                    # sum.  There is no single route to re-filter here.
+                    kept.append(item)
+                    continue
+                if resolution == "affine_only_unresolved_coupled_route":
+                    # Explicit diagnostics remain visible but nonselectable.
+                    kept.append(item)
+                    continue
             active_routes = [route for route in candidate_routes if route_is_active(route)]
             if not active_routes:
                 continue
@@ -1599,7 +1603,17 @@ class IsoDistort:
             kpoints = self._iso.list_k_points(parent_sg)
         except Exception:  # noqa: BLE001
             kpoints = []
-        if getattr(target, "k_parameters", None):
+        if getattr(target, "_method3_route_resolution", "") == "exact_fixed_space":
+            result = compute_parametric_modes(
+                self.structure,
+                self.symmetry_info or {},
+                target,
+                letters,
+                self._smodes,
+                kpoints=kpoints,
+                nmod=0,
+            )
+        elif getattr(target, "k_parameters", None):
             result = compute_parametric_modes(
                 self.structure,
                 self.symmetry_info or {},
@@ -1637,6 +1651,8 @@ class IsoDistort:
         are preserved here.  The two sets are disjoint by parent Wyckoff orbit.
         """
         if getattr(target, "k_parameters", None):
+            return
+        if getattr(target, "_method3_route_resolution", "") == "exact_fixed_space":
             return
         precomputed = dict(self.mode_displacements_sc or {})
         precomputed_labels = dict(self._mode_label_overrides or {})
@@ -2704,6 +2720,7 @@ class IsoDistort:
                         direct_sublattice_centering: str | None = None,
                         lattice_type: str = "direct",
                         generate_if_missing: bool = False,
+                        resolve_coupled_routes: bool = True,
                         include_affine_only_diagnostics: bool = False):
         """
         Method 3: Search over arbitrary k points for a specified point group and supercell.
@@ -2726,8 +2743,17 @@ class IsoDistort:
                 "请使用 direct（实空间子格）。官网该选项的完整实现在后续版本中支持。"
             )
 
+        normalized_types = normalize_distortion_types(
+            distortion_types or self.distortion_types
+        )
+        displacive_species = (
+            tuple(sorted(self._scope_species("displacive")))
+            if "displacive" in normalized_types
+            else None
+        )
+
         query = Method3Query(
-            distortion_types=distortion_types,
+            distortion_types=normalized_types,
             point_group=point_group,
             space_group_type=space_group_type,
             supercell_basis=supercell_basis,
@@ -2746,7 +2772,9 @@ class IsoDistort:
                 self.cfg.fractional_coordinate_tolerance
             ),
             generate_if_missing=generate_if_missing,
+            resolve_coupled_routes=resolve_coupled_routes,
             include_affine_only_diagnostics=include_affine_only_diagnostics,
+            displacive_species=displacive_species,
         )
         parent_sg = self.symmetry_info["space_group_number"]
         result = self._search.method_3_search(parent_sg, query)
@@ -2784,25 +2812,45 @@ class IsoDistort:
         """
         if self.structure is None:
             raise RuntimeError("请先加载母相结构 (load_structure)")
-        if not self.mode_displacements:
+        if not self.mode_displacements and not self.mode_displacements_sc:
             raise RuntimeError("请先通过 select_path 或 search_method_2 计算模式")
 
         distorted_structure = read_cif(distorted_cif_path)
-        parent = self.structure
-        mode_disp = {k: v["displacements"] for k, v in self.mode_displacements.items()}
-        if len(distorted_structure) != len(parent):
-            # 超胞畸变：母相与模式位移提升到超胞坐标系（原实现直接报错，
-            # 导致任何超胞畸变都无法分解——与官网行为不一致）。
-            basis = self._resolve_distorted_supercell_basis(distorted_structure)
-            k_vec = (self.phase_path.k_vector
-                     if self.phase_path is not None else None)
-            parent, mode_disp = self._dist_engine.lift_mode_displacements(
-                parent, basis, mode_disp, k_vector=k_vec
+        parent, mode_disp = self._method4_reference_modes(distorted_structure)
+        daughter_sg = read_cif_space_group_number(distorted_cif_path)
+        if daughter_sg is None:
+            daughter_sg = int(SpacegroupAnalyzer(
+                distorted_structure,
+                symprec=self.cfg.symmetry_cartesian_tolerance_angstrom,
+                angle_tolerance=self.cfg.symmetry_angle_tolerance_degrees,
+            ).get_space_group_number())
+        daughter_multiplicity = self._centering_multiplicity(daughter_sg)
+        parent_sg = int((self.symmetry_info or {}).get("space_group_number") or 1)
+        parent_multiplicity = self._centering_multiplicity(parent_sg)
+        parent_primitive_volume = float(self.structure.lattice.volume) / parent_multiplicity
+        child_primitive_volume = float(parent.lattice.volume) / daughter_multiplicity
+        supercell_size = child_primitive_volume / parent_primitive_volume
+        if self._selected_subgroup is not None:
+            parent_to_child_basis = np.asarray(
+                self._selected_subgroup.basis_vectors or np.eye(3),
+                dtype=float,
+            )
+        elif len(distorted_structure) == len(self.structure):
+            parent_to_child_basis = np.eye(3)
+        else:
+            parent_to_child_basis = self._resolve_distorted_supercell_basis(
+                distorted_structure
             )
         query = Method4Query(
             atom_matching_method=atom_matching_method,
             robust_distance_threshold=robust_distance_threshold,
             provided_origin_shift=provided_origin_shift,
+            primitive_cell_multiplicity=daughter_multiplicity,
+            supercell_size=supercell_size,
+            reference_parent_lattice=np.asarray(
+                self.structure.lattice.matrix, dtype=float
+            ).tolist(),
+            parent_to_child_basis=parent_to_child_basis.tolist(),
         )
 
         result = self._search.method_4_decompose(
@@ -2814,6 +2862,65 @@ class IsoDistort:
 
         print(t("method4.result", n=len(result.amplitudes), rms=result.rms_residual))
         return result
+
+    @staticmethod
+    def _centering_multiplicity(space_group_number: int) -> int:
+        letter = _centering_letter(int(space_group_number))
+        if letter == "F":
+            return 4
+        if letter == "R":
+            return 3
+        if letter in {"A", "B", "C", "I"}:
+            return 2
+        return 1
+
+    def _method4_reference_modes(self, distorted: Structure
+                                 ) -> tuple[Structure, dict[str, np.ndarray]]:
+        """Return the undistorted child cell and modes in that cell's basis.
+
+        Method 2 can select a rotated index-one cell as well as a true
+        supercell.  Atom-count equality therefore does *not* imply that the
+        uploaded daughter is expressed in the original parent setting.  The
+        selected subgroup cell is the scientific reference in both cases.
+        """
+        if self.structure is None:
+            raise RuntimeError("请先加载母相结构 (load_structure)")
+        parent_modes = {
+            key: value["displacements"]
+            for key, value in self.mode_displacements.items()
+        }
+        subgroup = self._selected_subgroup
+        if subgroup is not None:
+            reference = self._supercell_for_subgroup(subgroup)
+            if self.mode_displacements_sc:
+                modes = {
+                    key: self._validated_supercell_displacement(
+                        key,
+                        values,
+                        len(reference),
+                    )
+                    for key, values in self.mode_displacements_sc.items()
+                }
+                return reference, modes
+            basis = subgroup.basis_vectors or np.eye(3).tolist()
+            k_vec = self.phase_path.k_vector if self.phase_path is not None else None
+            return self._dist_engine.lift_mode_displacements(
+                self.structure,
+                basis,
+                parent_modes,
+                k_vector=k_vec,
+            )
+
+        if len(distorted) == len(self.structure):
+            return self.structure, parent_modes
+        basis = self._resolve_distorted_supercell_basis(distorted)
+        k_vec = self.phase_path.k_vector if self.phase_path is not None else None
+        return self._dist_engine.lift_mode_displacements(
+            self.structure,
+            basis,
+            parent_modes,
+            k_vector=k_vec,
+        )
 
     def _resolve_distorted_supercell_basis(self, distorted: Structure
                                            ) -> np.ndarray:

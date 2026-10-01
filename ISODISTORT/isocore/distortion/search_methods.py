@@ -13,6 +13,7 @@ from heapq import merge
 import numpy as np
 from pymatgen.core import Structure
 from pymatgen.symmetry.groups import SpaceGroup
+from scipy.optimize import linear_sum_assignment
 
 from ..backend import DistortionMode, IsoWrapper, KPointInfo, SubgroupInfo
 from ..data.kpoints_official import (
@@ -30,6 +31,7 @@ from ..utils.lattice import (
     matrix_key,
     multiply,
     rational_matrix,
+    same_lattice,
     same_lattice_in_point_group_orbit,
     transpose,
 )
@@ -43,8 +45,18 @@ from .affine_embeddings import (
     parent_affine_group,
     standardized_embedding_identity,
 )
-from .inverse_landau_adapter import stable_embedding_id
+from .coupled_routes import (
+    CoupledRouteCandidate,
+    CoupledRouteWitness,
+    resolve_coupled_route_witness,
+)
+from .inverse_landau_adapter import (
+    EmbeddingFeasibilityDiagnostic,
+    diagnose_embeddings_feasibility,
+    stable_embedding_id,
+)
 from .phase_path import normalize_distortion_types
+from .strain import decompose_homogeneous_strain
 
 CRYSTAL_SYSTEMS = {
     "triclinic",
@@ -909,10 +921,17 @@ class Method3Query:
     # Dimensionless residual for recovering spglib transforms/origins as
     # rationals; exact Seitz reconstruction is still required afterwards.
     fractional_coordinate_tolerance: float | None = None
-    # Diagnostic only until a fixed-subspace/inverse-Landau calculation proves
-    # activity for the selected distortion types and attaches a second-stage
-    # route.  User-facing web/terminal calls leave this disabled.
+    # Retain exact Stage-A rows which fail or have not completed the physical
+    # reachability/coupled-stabilizer proof.  These rows are nonselectable.
     include_affine_only_diagnostics: bool = False
+    # Product/API entry points enable the exact Stage-A + Stage-B coupled
+    # search.  The low-level engine keeps it opt-in so callers that only need
+    # the historical single-IR enumeration do not pay the finite-group cost.
+    resolve_coupled_routes: bool = False
+    # Species strings included in the displacive Stage-B representation.
+    # None means every structure site.  A selected-species common shift is a
+    # relative optical degree of freedom and is not removed as rigid motion.
+    displacive_species: Sequence[str] | None = None
     # 参数 k 点子群库缺失时是否在线生成（与 Method 2 GenDB 同一开关）
     generate_if_missing: bool = False
 
@@ -933,6 +952,9 @@ class Method3ResultItem:
     affine_embedding: AffineEmbedding | None = None
     route_resolution: str = "known_single_ir"
     embedding_id: str | None = None
+    coupled_witness: CoupledRouteWitness | None = None
+    feasibility_status: str | None = None
+    fixed_space_dimension: int | None = None
 
 
 @dataclass
@@ -940,16 +962,35 @@ class Method4Query:
     """Method 4: mode decomposition of distorted structure."""
 
     atom_matching_method: str = "nearest-site"
+    # Cartesian distance in angstrom.  A fractional-coordinate cutoff would
+    # have a different physical meaning for every lattice and crystal axis.
     robust_distance_threshold: float = 0.25
     provided_origin_shift: Sequence[float] | None = None
+    # Number of primitive daughter cells represented by the comparison cell.
+    # Official As is normalized within one primitive supercell.
+    primitive_cell_multiplicity: int = 1
+    # Primitive-supercell volume divided by primitive-parent volume.
+    supercell_size: float = 1.0
+    # Conventional parent lattice and the exact Method-4 basis.  Supplying
+    # both expresses strain in the website's parent-axis convention.  Direct
+    # low-level callers may omit them; the undistorted comparison cell and an
+    # identity basis are then used.
+    reference_parent_lattice: Sequence[Sequence[float]] | None = None
+    parent_to_child_basis: Sequence[Sequence[float]] | None = None
 
 
 @dataclass
 class Method4Result:
+    # Official-style primitive-supercell-normalized As amplitudes (angstrom).
     amplitudes: dict[str, float]
+    parent_cell_amplitudes: dict[str, float]
+    raw_coefficients: dict[str, float]
+    mode_normfactors: dict[str, float]
     rms_residual: float
     max_abs_residual: float
     assignments: list[int]
+    strain_voigt_engineering: dict[str, float]
+    strain_tensor: list[list[float]]
     metadata: dict[str, object]
 
 
@@ -1087,7 +1128,39 @@ class IsoSearchEngine:
         modes = []
         extra_meta: dict = {}
         if wyckoff_letters:
-            if target.k_parameters and structure is not None and smodes is not None:
+            method3_resolution = str(
+                getattr(target, "_method3_route_resolution", "") or ""
+            )
+            if (
+                method3_resolution == "exact_fixed_space"
+                and structure is not None
+                and smodes is not None
+            ):
+                from .superspace import compute_parametric_modes  # noqa: PLC0415
+
+                info = dict(symmetry_info or {})
+                info.setdefault("space_group_number", parent_sg)
+                if wyckoff_sites is not None:
+                    info["wyckoff_sites"] = list(wyckoff_sites)
+                complete_result = compute_parametric_modes(
+                    structure,
+                    info,
+                    target,
+                    wyckoff_letters,
+                    smodes,  # type: ignore[arg-type]
+                    kpoints=kpoints,
+                    # A coupled embedding has no single distinguished q.
+                    # Its complete 3D fixed space must include every k class
+                    # folded by the selected child translation lattice.
+                    nmod=0,
+                )
+                modes = complete_result.modes
+                extra_meta["supercell_displacements"] = (
+                    complete_result.supercell_displacements
+                )
+                extra_meta["mode_labels"] = complete_result.labels
+                extra_meta["coupled_mode_note"] = complete_result.note
+            elif target.k_parameters and structure is not None and smodes is not None:
                 from .superspace import compute_parametric_modes  # noqa: PLC0415
 
                 info = dict(symmetry_info or {})
@@ -1158,7 +1231,7 @@ class IsoSearchEngine:
 
     def method_3_search(self, parent_sg: int, query: Method3Query) -> list[Method3ResultItem]:
         """
-        官网 Method 3 的本地单-IR 子集实现（特殊 k + 公度参数 k）：
+        官网 Method 3 的精确 affine-embedding 搜索（特殊 k + 公度参数 k）：
 
         - 若同时提供 point_group 与 space_group_type，空间群选择优先；
         - Default 按目标空间群的 Bravais centering 解释；P/A/B/C/I/F/R
@@ -1171,9 +1244,11 @@ class IsoSearchEngine:
           ``T k(p) in Z^3``；枚举 ``0 <= p < 1`` 的全部公度解，而非只猜
           ``1/d``，再查询各 IR 子群（可 ``generate_if_missing``）。
 
-        已知限制：这仍不是完整的 inverse-Landau/COPL 搜索；仅由单-IR 路径
-        出发，可能遗漏只有 coupled IR 才产生的嵌入。reciprocal 模式不支持；
-        多参数平面/一般 k（GP）未自动推断。
+        空间群查询还会枚举目标 affine embeddings，并对没有单-IR 路径的
+        候选执行精确 fixed-space 可达性判定。可达候选只有在枚举出的单-IR
+        稳定子于同一有限商中的精确交集等于目标嵌入时才成为产品结果；这
+        覆盖 coupled-IR 路径而不从空间群号或样例名称猜测。reciprocal 模式
+        不支持；多参数平面/一般 k（GP）的单-IR 稳定子尚未自动枚举。
         参数 k 的位移模式与 Method 2 相同，在选中子群后走 smodes/(3+d)。
         Method 2 只携带一个主波矢，因此 nmod=1、2、3 都只保留该 q 的谐波
         （含 Γ）；不会再引入第二个独立调制波矢。nmod=0 才保留全部折叠 k。
@@ -1256,7 +1331,10 @@ class IsoSearchEngine:
         embedding_routes: list[list[SubgroupInfo]] = []
         embedding_models: list[AffineEmbedding | None] = []
         if parent_model is not None:
-            if query.space_group_type and query.include_affine_only_diagnostics:
+            if query.space_group_type and (
+                query.resolve_coupled_routes
+                or query.include_affine_only_diagnostics
+            ):
                 parent_cartesian = query.parent_structure.lattice.matrix
                 affine_candidates = enumerate_target_affine_embeddings(
                     parent_model,
@@ -1403,31 +1481,156 @@ class IsoSearchEngine:
             ):
                 routes.append(sg)
 
-        result: list[Method3ResultItem] = []
-        for i, sg in enumerate(matched):
-            sg.index = i
-            route_resolution = (
-                "known_single_ir" if embedding_routes[i]
-                else "affine_only_unresolved_coupled_route"
-            )
-            embedding_id = None
-            if (
-                route_resolution == "affine_only_unresolved_coupled_route"
-                and parent_model is not None
-                and embedding_models[i] is not None
-            ):
-                embedding_id = stable_embedding_id(
-                    parent_model, embedding_models[i]
+        feasibility: dict[int, EmbeddingFeasibilityDiagnostic] = {}
+        coupled_witnesses: dict[int, CoupledRouteWitness] = {}
+        if parent_model is not None and query.space_group_type and (
+            query.resolve_coupled_routes
+            or query.include_affine_only_diagnostics
+        ):
+            route_candidates: list[CoupledRouteCandidate] = []
+            for route in subgroups:
+                try:
+                    route_model = embedding_from_identity(
+                        _subgroup_identity_in_parent_axes(route, parent_model),
+                        parent_model,
+                    )
+                except (ArithmeticError, KeyError, TypeError, ValueError):
+                    continue
+                route_candidates.append(CoupledRouteCandidate(route, route_model))
+
+            unresolved = [
+                index
+                for index, model in enumerate(embedding_models)
+                if not embedding_routes[index] and model is not None
+            ]
+            groups: list[list[int]] = []
+            for index in unresolved:
+                model = embedding_models[index]
+                if model is None:
+                    raise RuntimeError(
+                        "Method 3 unresolved embedding lost its exact affine model"
+                    )
+                group = next(
+                    (
+                        existing
+                        for existing in groups
+                        if same_lattice(
+                            embedding_models[existing[0]].lattice,  # type: ignore[union-attr]
+                            model.lattice,
+                        )
+                    ),
+                    None,
                 )
+                if group is None:
+                    groups.append([index])
+                else:
+                    group.append(index)
+
+            config = get_config()
+            for group in groups:
+                models = [embedding_models[index] for index in group]
+                diagnostics = diagnose_embeddings_feasibility(
+                    parent_model,
+                    [model for model in models if model is not None],
+                    query.parent_structure,
+                    distortion_types,
+                    max_quotient_order=config.method3_max_quotient_order,
+                    site_tolerance_angstrom=query.symmetry_tolerance,
+                    displacive_species=query.displacive_species,
+                )
+                for index, diagnostic in zip(group, diagnostics, strict=True):
+                    feasibility[index] = diagnostic
+                    if diagnostic.status != "embedding_feasible":
+                        continue
+                    model = embedding_models[index]
+                    if model is None:
+                        raise RuntimeError(
+                            "Method 3 feasible embedding lost its exact affine model"
+                        )
+                    witness = resolve_coupled_route_witness(
+                        parent_model,
+                        model,
+                        route_candidates,
+                        max_quotient_order=config.method3_max_quotient_order,
+                        max_intersection_states=config.method3_max_coupled_states,
+                    )
+                    if witness is not None:
+                        coupled_witnesses[index] = witness
+
+        result: list[Method3ResultItem] = []
+        product_embedding_models: list[AffineEmbedding] = []
+        for source_index, sg in enumerate(matched):
+            diagnostic = feasibility.get(source_index)
+            witness = coupled_witnesses.get(source_index)
+            if embedding_routes[source_index]:
+                route_resolution = "known_single_ir"
+            elif witness is not None:
+                route_resolution = "exact_fixed_space"
+            elif diagnostic is not None and diagnostic.status == "embedding_infeasible":
+                route_resolution = "affine_only_infeasible"
+            else:
+                route_resolution = "affine_only_unresolved_coupled_route"
+
+            if (
+                route_resolution not in {"known_single_ir", "exact_fixed_space"}
+                and not query.include_affine_only_diagnostics
+            ):
+                continue
+            model = embedding_models[source_index]
+            if (
+                not query.include_affine_only_diagnostics
+                and model is not None
+                and parent_model is not None
+                and any(
+                    affine_equivalence(
+                        model,
+                        existing,
+                        parent_model,
+                        allow_parent_conjugacy=True,
+                    )
+                    is not None
+                    for existing in product_embedding_models
+                )
+            ):
+                # Method 3 lists one representative per parent-affine orbit;
+                # physical domains belong to the later Domains page.  ISO
+                # single-IR rows are encountered first and therefore retain
+                # their canonical display representative when one exists.
+                continue
+            sg.index = len(result)
+            embedding_id = (
+                diagnostic.embedding_id
+                if diagnostic is not None
+                else (
+                    stable_embedding_id(parent_model, embedding_models[source_index])
+                    if parent_model is not None
+                    and embedding_models[source_index] is not None
+                    else None
+                )
+            )
+            sg._method3_route_resolution = route_resolution
+            if embedding_id:
+                sg._method3_embedding_id = embedding_id
             result.append(Method3ResultItem(
                 subgroup=sg,
                 point_group=_space_group_to_point_group(sg.space_group_number),
                 basis=[list(row) for row in (sg.basis_vectors or [])],
-                routes=embedding_routes[i],
-                affine_embedding=embedding_models[i],
+                routes=embedding_routes[source_index],
+                affine_embedding=embedding_models[source_index],
                 route_resolution=route_resolution,
                 embedding_id=embedding_id,
+                coupled_witness=witness,
+                feasibility_status=(diagnostic.status if diagnostic is not None else None),
+                fixed_space_dimension=(
+                    diagnostic.fixed_space.fixed_dimension
+                    if diagnostic is not None
+                    and diagnostic.fixed_space is not None
+                    and hasattr(diagnostic.fixed_space, "fixed_dimension")
+                    else None
+                ),
             ))
+            if model is not None:
+                product_embedding_models.append(model)
         return result
 
     def _method3_parametric_subgroups(
@@ -1649,8 +1852,69 @@ class IsoSearchEngine:
                 "to have the same atom count"
             )
 
+        parent_metric = np.asarray(parent_structure.lattice.metric_tensor, dtype=float)
+        distorted_metric = np.asarray(
+            distorted_structure.lattice.metric_tensor, dtype=float,
+        )
+        metric_scale = max(float(np.linalg.norm(parent_metric)), 1.0)
+        lattice_residual = float(
+            np.linalg.norm(distorted_metric - parent_metric) / metric_scale
+        )
+        lattice_tolerance = float(get_config().lattice_tolerance)
+        reference_parent_lattice = np.asarray(
+            query.reference_parent_lattice
+            if query.reference_parent_lattice is not None
+            else parent_structure.lattice.matrix,
+            dtype=float,
+        )
+        parent_to_child_basis = np.asarray(
+            query.parent_to_child_basis
+            if query.parent_to_child_basis is not None
+            else np.eye(3),
+            dtype=float,
+        )
+        if (query.reference_parent_lattice is None) != (
+            query.parent_to_child_basis is None
+        ):
+            raise ValueError(
+                "reference_parent_lattice and parent_to_child_basis must be "
+                "provided together"
+            )
+        expected_reference_lattice = parent_to_child_basis @ reference_parent_lattice
+        expected_reference_metric = (
+            expected_reference_lattice @ expected_reference_lattice.T
+        )
+        reference_metric_scale = max(
+            float(np.linalg.norm(expected_reference_metric)), 1.0
+        )
+        reference_metric_residual = float(
+            np.linalg.norm(parent_metric - expected_reference_metric)
+            / reference_metric_scale
+        )
+        if reference_metric_residual > lattice_tolerance:
+            raise ValueError(
+                "Selected Method 4 basis is incompatible with the undistorted "
+                f"reference cell (relative metric residual "
+                f"{reference_metric_residual:.6g} > {lattice_tolerance:.6g})"
+            )
+        strain = decompose_homogeneous_strain(
+            reference_parent_lattice,
+            parent_to_child_basis,
+            distorted_structure.lattice.matrix,
+        )
+
         assignments = self._match_atoms(parent_structure, distorted_structure, query)
-        delta = self._build_delta_vector(parent_structure, distorted_structure, assignments)
+        delta_fractional = self._build_delta_vector(
+            parent_structure,
+            distorted_structure,
+            assignments,
+            query,
+        ).reshape((-1, 3))
+        lattice = np.asarray(parent_structure.lattice.matrix, dtype=float)
+        # Fit and report residuals in Cartesian angstroms.  This makes the
+        # least-squares metric invariant to the choice and scale of fractional
+        # axes, while retaining the exact generation coefficients.
+        delta = (delta_fractional @ lattice).reshape(-1)
 
         mode_labels = list(mode_displacements.keys())
         if not mode_labels:
@@ -1658,31 +1922,115 @@ class IsoSearchEngine:
 
         columns = []
         for label in mode_labels:
-            vec = np.asarray(mode_displacements[label], dtype=float).reshape(-1)
-            if vec.size != delta.size:
+            fractional = np.asarray(mode_displacements[label], dtype=float)
+            expected_shape = (len(parent_structure), 3)
+            if fractional.shape != expected_shape:
                 raise ValueError(
-                    f"Mode {label} has incompatible size {vec.size}, expected {delta.size}"
+                    f"Mode {label} has incompatible shape {fractional.shape}, "
+                    f"expected {expected_shape}"
                 )
+            if not bool(np.all(np.isfinite(fractional))):
+                raise ValueError(f"Mode {label} contains non-finite displacements")
+            vec = (fractional @ lattice).reshape(-1)
             columns.append(vec)
         a_matrix = np.column_stack(columns)
 
-        coeffs, _, _, _ = np.linalg.lstsq(a_matrix, delta, rcond=None)
+        coeffs, _, rank, singular_values = np.linalg.lstsq(
+            a_matrix,
+            delta,
+            rcond=None,
+        )
+        if int(rank) < len(mode_labels):
+            raise ValueError(
+                "Method 4 mode basis is linearly dependent: "
+                f"rank {rank} for {len(mode_labels)} modes; amplitudes are not unique"
+            )
         reconstructed = a_matrix @ coeffs
         residual = delta - reconstructed
 
-        amplitudes = {mode_labels[i]: float(coeffs[i]) for i in range(len(mode_labels))}
+        primitive_multiplicity = int(query.primitive_cell_multiplicity)
+        if primitive_multiplicity <= 0:
+            raise ValueError("primitive_cell_multiplicity must be a positive integer")
+        supercell_size = float(query.supercell_size)
+        if not math.isfinite(supercell_size) or supercell_size <= 0:
+            raise ValueError("supercell_size must be a positive finite value")
+        # The fitted columns are raw fractional mode vectors expressed in
+        # Cartesian angstrom.  Official normfactor makes the root-summed-square
+        # change within one primitive supercell equal to one.  A conventional
+        # centered cell contains ``primitive_multiplicity`` identical primitive
+        # cells, so divide its column norm by sqrt(multiplicity).
+        conventional_norms = np.linalg.norm(a_matrix, axis=0)
+        primitive_norms = conventional_norms / math.sqrt(primitive_multiplicity)
+        if bool(np.any(primitive_norms <= 0)):
+            raise ValueError("Method 4 mode basis contains a zero-norm vector")
+        normfactors_array = 1.0 / primitive_norms
+        raw_coefficients = {
+            mode_labels[i]: float(coeffs[i]) for i in range(len(mode_labels))
+        }
+        amplitudes = {
+            mode_labels[i]: float(coeffs[i] / normfactors_array[i])
+            for i in range(len(mode_labels))
+        }
+        parent_cell_amplitudes = {
+            label: float(value / math.sqrt(supercell_size))
+            for label, value in amplitudes.items()
+        }
+        mode_normfactors = {
+            mode_labels[i]: float(normfactors_array[i])
+            for i in range(len(mode_labels))
+        }
         rms = float(np.sqrt(np.mean(residual ** 2)))
         max_abs = float(np.max(np.abs(residual)))
+        condition_number = (
+            float(singular_values[0] / singular_values[-1])
+            if len(singular_values) and singular_values[-1] > 0
+            else float("inf")
+        )
 
         return Method4Result(
             amplitudes=amplitudes,
+            parent_cell_amplitudes=parent_cell_amplitudes,
+            raw_coefficients=raw_coefficients,
+            mode_normfactors=mode_normfactors,
             rms_residual=rms,
             max_abs_residual=max_abs,
             assignments=assignments,
+            strain_voigt_engineering={
+                label: float(value)
+                for label, value in zip(
+                    ("xx", "yy", "zz", "2yz", "2xz", "2xy"),
+                    strain.voigt_engineering,
+                    strict=True,
+                )
+            },
+            strain_tensor=[
+                [float(value) for value in row]
+                for row in strain.tensor
+            ],
             metadata={
                 "atom_matching_method": query.atom_matching_method,
                 "provided_origin_shift": list(query.provided_origin_shift)
                 if query.provided_origin_shift is not None else None,
+                "residual_unit": "angstrom",
+                "lattice_metric_relative_residual": lattice_residual,
+                "reference_lattice_metric_relative_residual": (
+                    reference_metric_residual
+                ),
+                "strain_reconstruction_relative_metric_residual": (
+                    strain.relative_metric_residual
+                ),
+                "strain_convention": (
+                    "ISODISTORT applied Voigt order "
+                    "(xx,yy,zz,2yz,2xz,2xy); M=I+epsilon"
+                ),
+                "mode_matrix_rank": int(rank),
+                "mode_matrix_columns": len(mode_labels),
+                "mode_matrix_condition_number": condition_number,
+                "amplitude_unit": "angstrom",
+                "amplitude_convention": "As primitive-supercell normalized",
+                "parent_cell_amplitude_convention": "Ap = As / sqrt(s)",
+                "primitive_cell_multiplicity": primitive_multiplicity,
+                "supercell_size": supercell_size,
             },
         )
 
@@ -1699,43 +2047,68 @@ class IsoSearchEngine:
         if query.atom_matching_method not in {"nearest-site", "robust"}:
             raise ValueError("atom_matching_method must be 'nearest-site' or 'robust'")
 
-        assignments: list[int] = []
-        used: set[int] = set()
+        threshold = float(query.robust_distance_threshold)
+        if not math.isfinite(threshold) or threshold <= 0:
+            raise ValueError("robust_distance_threshold must be a positive finite angstrom value")
+        shift = self._origin_shift(query)
+        distorted_coords = np.asarray(distorted_structure.frac_coords, dtype=float) - shift
+        parent_coords = np.asarray(parent_structure.frac_coords, dtype=float)
+        assignments = [-1] * len(parent_structure)
+        parent_species = [site.species_string for site in parent_structure]
+        distorted_species = [site.species_string for site in distorted_structure]
 
-        for i, site in enumerate(parent_structure):
-            species = site.species_string
-            parent_coord = np.asarray(site.frac_coords)
-            candidates = []
-            for j, dst in enumerate(distorted_structure):
-                if j in used:
-                    continue
-                if dst.species_string != species:
-                    continue
-                delta = self._fractional_delta(parent_coord, np.asarray(dst.frac_coords))
-                dist = float(np.linalg.norm(delta))
-                if query.atom_matching_method == "nearest-site":
-                    candidates.append((dist, j))
-                else:
-                    if dist <= query.robust_distance_threshold:
-                        candidates.append((dist, j))
+        for species in sorted(set(parent_species) | set(distorted_species)):
+            parent_indices = [
+                index for index, value in enumerate(parent_species) if value == species
+            ]
+            distorted_indices = [
+                index for index, value in enumerate(distorted_species) if value == species
+            ]
+            if len(parent_indices) != len(distorted_indices):
+                raise ValueError(
+                    f"Cannot match species {species}: parent has {len(parent_indices)} "
+                    f"site(s), distorted structure has {len(distorted_indices)}"
+                )
+            if not parent_indices:
+                continue
+            distances = parent_structure.lattice.get_all_distances(
+                parent_coords[parent_indices],
+                distorted_coords[distorted_indices],
+            )
+            rows, columns = linear_sum_assignment(distances)
+            for row, column in zip(rows, columns, strict=True):
+                distance = float(distances[row, column])
+                parent_index = parent_indices[int(row)]
+                if query.atom_matching_method == "robust" and distance > threshold:
+                    raise ValueError(
+                        f"Cannot match parent atom index {parent_index} ({species}): "
+                        f"best global assignment distance {distance:.6g} angstrom exceeds "
+                        f"threshold {threshold:.6g} angstrom"
+                    )
+                assignments[parent_index] = distorted_indices[int(column)]
 
-            if not candidates:
-                raise ValueError(f"Cannot match parent atom index {i} ({species})")
-
-            candidates.sort(key=lambda t: t[0])
-            chosen = candidates[0][1]
-            assignments.append(chosen)
-            used.add(chosen)
-
+        if any(index < 0 for index in assignments):
+            raise ValueError("Cannot construct a complete species-preserving atom assignment")
         return assignments
+
+    @staticmethod
+    def _origin_shift(query: Method4Query) -> np.ndarray:
+        if query.provided_origin_shift is None:
+            return np.zeros(3, dtype=float)
+        shift = np.asarray(query.provided_origin_shift, dtype=float)
+        if shift.shape != (3,) or not bool(np.all(np.isfinite(shift))):
+            raise ValueError("provided_origin_shift must contain three finite fractional values")
+        return shift
 
     def _build_delta_vector(self,
                             parent_structure: Structure,
                             distorted_structure: Structure,
-                            assignments: Sequence[int]) -> np.ndarray:
+                            assignments: Sequence[int],
+                            query: Method4Query) -> np.ndarray:
+        shift = self._origin_shift(query)
         delta_rows = []
         for i, j in enumerate(assignments):
             p = np.asarray(parent_structure[i].frac_coords)
-            d = np.asarray(distorted_structure[j].frac_coords)
+            d = np.asarray(distorted_structure[j].frac_coords) - shift
             delta_rows.append(self._fractional_delta(p, d))
         return np.asarray(delta_rows, dtype=float).reshape(-1)

@@ -201,6 +201,23 @@
       <span id="lM4File">Upload distorted structure from CIF file:</span>
       <input type="file" id="dauFile" accept=".cif,.CIF">
     </p>
+    <p>
+      <label><span id="lM4Matching">Atom-matching method:</span>
+        <select id="m4Matching">
+          <option value="nearest-site" id="m4Nearest">nearest-site (global minimum assignment)</option>
+          <option value="robust" id="m4Robust">robust (reject assignments beyond threshold)</option>
+        </select>
+      </label>
+      <label style="margin-left:12px;"><span id="lM4Threshold">Robust distance threshold (angstrom):</span>
+        <input id="m4Threshold" class="span1" size="5" value="0.25">
+      </label>
+    </p>
+    <p>
+      <span id="lM4Origin">Known origin shift (daughter fractional x,y,z; optional):</span>
+      <input id="m4OriginX" class="span1" size="5" placeholder="x">
+      <input id="m4OriginY" class="span1" size="5" placeholder="y">
+      <input id="m4OriginZ" class="span1" size="5" placeholder="z">
+    </p>
     <div id="m4Out" class="scroll"></div>
   </div>
 
@@ -294,7 +311,7 @@ let subgroups = [];          // Method 2 subgroup rows
 let m1Items = [];
 let m3Items = [];
 let m4Items = [];
-let m4Meta = { rms: null, maxAbs: null };
+let m4Meta = { rms: null, maxAbs: null, strain: null, strainTensor: null, metadata: null };
 let modes = [];             // {irrep_label, opd_symbol, mode_type, wyckoff_sites, ...}
 let nsupValue = 1;
 let nmodValue = 0;
@@ -719,7 +736,7 @@ function clearComputedResults() {
   m3Items = [];
   m4Items = [];
   modes = [];
-  m4Meta = { rms: null, maxAbs: null };
+  m4Meta = { rms: null, maxAbs: null, strain: null, strainTensor: null, metadata: null };
   tblState[1] = emptyTblState();
   tblState[2] = emptyTblState();
   tblState[3] = emptyTblState();
@@ -755,9 +772,19 @@ function methodColumns(method) {
       { key: "mode", header: t("hMode"), sortable: true, filterable: true,
         text: (it) => String(it.mode || ""), cell: (it) => esc(it.mode),
         sortVal: (it) => String(it.mode || ""), exportHeader: "mode" },
-      { key: "amp", header: term("amplitude"), sortable: true, filterable: true,
-        text: (it) => String(it.amplitude), cell: (it) => Number(it.amplitude).toFixed(6),
-        sortVal: (it) => Number(it.amplitude) || 0, exportHeader: "amplitude" },
+      { key: "amp", header: t("hAs"), sortable: true, filterable: true,
+        text: (it) => String(it.As), cell: (it) => Number(it.As).toFixed(6),
+        sortVal: (it) => Number(it.As) || 0, exportHeader: "As_angstrom" },
+      { key: "ap", header: t("hAp"), sortable: true, filterable: true,
+        text: (it) => String(it.Ap), cell: (it) => Number(it.Ap).toFixed(6),
+        sortVal: (it) => Number(it.Ap) || 0, exportHeader: "Ap_angstrom" },
+      { key: "raw", header: t("hRawCoefficient"), sortable: true, filterable: true,
+        text: (it) => String(it.raw), cell: (it) => Number(it.raw).toFixed(8),
+        sortVal: (it) => Number(it.raw) || 0, exportHeader: "raw_coefficient" },
+      { key: "norm", header: t("hNormfactor"), sortable: true, filterable: true,
+        text: (it) => String(it.normfactor), cell: (it) => Number(it.normfactor).toFixed(8),
+        sortVal: (it) => Number(it.normfactor) || 0,
+        exportHeader: "normfactor_inverse_angstrom" },
     ];
   }
   const idx = { key: "idx", header: t("hIdx"), sortable: false, filterable: false,
@@ -834,7 +861,11 @@ function methodColumns(method) {
     { key: "i", header: "i", sortable: true, filterable: true,
       text: (it) => String(it.subgroup_index), cell: (it) => it.subgroup_index,
       sortVal: (it) => Number(it.subgroup_index) || 0, exportHeader: "subgroup_index" },
-    { key: "routes", header: "known routes", sortable: true, filterable: true,
+    { key: "resolution", header: t("hRouteStatus"), sortable: true, filterable: true,
+      text: (it) => String(it.route_resolution || ""),
+      cell: (it) => esc(it.route_resolution || ""),
+      sortVal: (it) => String(it.route_resolution || ""), exportHeader: "route_resolution" },
+    { key: "routes", header: t("hKnownRoutes"), sortable: true, filterable: true,
       text: (it) => (it.known_routes || []).map(knownRouteText).join("; "),
       cell: (it) => esc((it.known_routes || []).map(knownRouteText).join("; ")),
       sortVal: (it) => Number(it.known_route_count) || 0, exportHeader: "known_routes" },
@@ -953,9 +984,17 @@ function renderResultTable(method) {
   if (method === 2) html += `<div class="info">${t("m2.subsFound", items.length)}</div>`;
   if (method === 3) html += `<div class="info">${t("m3.subsFound", items.length)}</div>`;
   if (method === 4 && m4Meta.rms != null) {
-    html += `<div class="info">RMS ${Number(m4Meta.rms).toExponential(3)}`
-      + (m4Meta.maxAbs != null ? ` · max |A| ${Number(m4Meta.maxAbs).toExponential(3)}` : "")
-      + `</div>`;
+    const rms = Number(m4Meta.rms).toExponential(3);
+    const maxAbs = Number(m4Meta.maxAbs).toExponential(3);
+    html += `<div class="info">${esc(t("m4.residualSummary", rms, maxAbs))}</div>`;
+    if (m4Meta.strain) {
+      const strainText = ["xx", "yy", "zz", "2yz", "2xz", "2xy"]
+        .map((label) => `${label}=${Number(m4Meta.strain[label]).toPrecision(8)}`)
+        .join(", ");
+      const convention = (m4Meta.metadata || {}).strain_convention ||
+        "engineering Voigt order (xx,yy,zz,2yz,2xz,2xy)";
+      html += `<div class="info">${esc(t("m4.strainSummary", convention, strainText))}</div>`;
+    }
   }
   html += filterControlsHtml(method);
   html += `<div id="tblWrap${method}">${resultTableHtml(method, rows)}</div>`;
@@ -1350,17 +1389,37 @@ async function runMethod4() {
   const out = document.getElementById("m4Out");
   if (!f) { showError(out, t("err.noFile")); return; }
   const content = await fileText(f);
+  const originRaw = ["m4OriginX", "m4OriginY", "m4OriginZ"]
+    .map((id) => document.getElementById(id).value.trim());
+  const providedOrigin = originRaw.some((value) => value !== "")
+    ? originRaw.map((value) => Number(value || "0")) : null;
+  if (providedOrigin && providedOrigin.some((value) => !Number.isFinite(value))) {
+    showError(out, "Origin shift must contain finite numbers."); return;
+  }
   const d = await withBusy(
     out, t("st.wait"), [document.getElementById("btnM4")],
     () => api("/api/method4", {
       filename: f.name, content,
-      atom_matching_method: "nearest-site",
-      robust_distance_threshold: 0.25,
+      atom_matching_method: document.getElementById("m4Matching").value,
+      robust_distance_threshold: Number(document.getElementById("m4Threshold").value),
+      provided_origin_shift: providedOrigin,
     }, "POST"),
   );
   if (!d.ok) { showError(out, d.error); return; }
-  m4Items = Object.entries(d.amplitudes || {}).map(([mode, amplitude]) => ({ mode, amplitude: +amplitude }));
-  m4Meta = { rms: d.rms_residual, maxAbs: d.max_abs_residual };
+  m4Items = Object.entries(d.amplitudes || {}).map(([mode, As]) => ({
+    mode,
+    As: +As,
+    Ap: +(d.parent_cell_amplitudes || {})[mode],
+    raw: +(d.raw_coefficients || {})[mode],
+    normfactor: +(d.mode_normfactors || {})[mode],
+  }));
+  m4Meta = {
+    rms: d.rms_residual,
+    maxAbs: d.max_abs_residual,
+    strain: d.strain_voigt_engineering || null,
+    strainTensor: d.strain_tensor || null,
+    metadata: d.metadata || null,
+  };
   tblState[4] = emptyTblState();
   renderResultTable(4);
 }
@@ -1531,6 +1590,11 @@ function renderAll() {
   document.getElementById("hM4").textContent = t("m4.title");
   document.getElementById("btnM4").textContent = t("btn.ok");
   document.getElementById("lM4File").textContent = t("l.m4file");
+  document.getElementById("lM4Matching").textContent = t("l.m4matching");
+  document.getElementById("lM4Threshold").textContent = t("l.m4threshold");
+  document.getElementById("lM4Origin").textContent = t("l.m4origin");
+  document.getElementById("m4Nearest").textContent = t("m4.nearest");
+  document.getElementById("m4Robust").textContent = t("m4.robust");
   document.getElementById("hDistPage").textContent = t("dist.title");
   document.getElementById("btnDlAll").textContent = t("dist.downloadAll");
   document.getElementById("distNote").textContent = t("dist.note");

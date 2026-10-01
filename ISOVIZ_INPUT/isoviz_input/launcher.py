@@ -58,23 +58,34 @@ def open_isoviz(isoviz_file: Path, *, launcher: Path | None = None) -> None:
         _run_jar(app, target)
         return
     if app is not None and app.suffix.lower() in {".exe", ".bat", ".cmd"}:
-        subprocess.Popen([str(app), str(target)], close_fds=True)
+        subprocess.Popen([str(app), str(target)], close_fds=True)  # noqa: S603
+        return
+    if app is not None and app.suffix.lower() == ".lnk" and sys.platform.startswith("win"):
+        # A configured shortcut is an explicit launcher choice.  Do not first
+        # rely on the machine's possibly unrelated .isoviz file association.
+        subprocess.Popen(  # noqa: S603 - configured local GUI launcher
+            ["cmd", "/c", "start", "", str(app), str(target)],  # noqa: S607
+            close_fds=True,
+        )
         return
     if sys.platform.startswith("win"):
         try:
-            os.startfile(str(target))  # type: ignore[attr-defined]
+            os.startfile(str(target))  # type: ignore[attr-defined]  # noqa: S606
             return
         except OSError:
             pass
         if app is not None:
-            subprocess.Popen(["cmd", "/c", "start", "", str(app), str(target)], close_fds=True)
+            subprocess.Popen(  # noqa: S603
+                ["cmd", "/c", "start", "", str(app), str(target)],  # noqa: S607
+                close_fds=True,
+            )
             return
         raise RuntimeError(
             "Windows could not open the .isoviz file. Associate it with IsoVIZ, "
             "or place ISOViz.lnk in the CRIS root, or set ISOVIZ / ISOVIZ_JAR."
         )
     if app is not None:
-        subprocess.Popen([str(app), str(target)], close_fds=True)
+        subprocess.Popen([str(app), str(target)], close_fds=True)  # noqa: S603
         return
     raise RuntimeError(
         "IsoVIZ was not found. Install the Java IsoVIZ tool, or set ISOVIZ / ISOVIZ_JAR "
@@ -86,4 +97,7 @@ def _run_jar(jar: Path, isoviz_file: Path) -> None:
     java = java_executable()
     if not java:
         raise RuntimeError("Java is required to launch IsoVIZ from a .jar file.")
-    subprocess.Popen([java, "-jar", str(jar), str(isoviz_file)], close_fds=True)
+    subprocess.Popen(  # noqa: S603
+        [java, "-jar", str(jar), str(isoviz_file)],
+        close_fds=True,
+    )

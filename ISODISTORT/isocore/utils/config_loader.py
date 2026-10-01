@@ -134,6 +134,22 @@ class Config:
         return self._nonnegative_runtime_int("method3_max_backend_queries")
 
     @property
+    def method3_max_quotient_order(self) -> int:
+        """Maximum exact Method 3 affine-quotient order; must be positive."""
+        value = self._nonnegative_runtime_int("method3_max_quotient_order")
+        if value < 1:
+            raise ValueError(
+                "Invalid configuration runtime.method3_max_quotient_order: "
+                "expected a positive integer"
+            )
+        return value
+
+    @property
+    def method3_max_coupled_states(self) -> int:
+        """Maximum exact stabilizer intersections; zero is unlimited."""
+        return self._nonnegative_runtime_int("method3_max_coupled_states")
+
+    @property
     def web_port(self) -> int:
         """网页端监听端口（web/server.py 使用）。"""
         return int(self._cfg["runtime"].get("web_port", 8000))

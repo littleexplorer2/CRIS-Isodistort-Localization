@@ -35,7 +35,10 @@ from main_terminal import (  # noqa: E402
     IsoDistortConsoleApp,
     _empty_tbl,
     _method3_cols,
+    _method4_cols,
+    _parse_optional_origin_shift,
     _row_method3,
+    _row_method4,
 )
 from web import server as web_server  # noqa: E402
 
@@ -120,6 +123,7 @@ def _restore_session():
     """每个测试后重置共享网页会话，避免与三接口测试相互污染。"""
     web_server._reset_lifecycle()
     yield
+    web_server._SESSION.cleanup_uploads()
     web_server._SESSION = web_server.WebSession()
     web_server._reset_lifecycle()
 
@@ -228,6 +232,9 @@ def test_index_served(server):
     assert "clearComputedResults();" in body
     assert "&revision=${encodeURIComponent(STATE.revision)}" in body
     assert "knownRouteText" in body
+    assert 'exportHeader: "route_resolution"' in body
+    assert 't("m4.strainSummary"' in body
+    assert "d.strain_voigt_engineering" in body
     assert "statusBox.innerHTML = prevStatus" not in body
     assert "progress-striped" in body
     assert "fmtElapsed" in body
@@ -304,6 +311,7 @@ def test_method3_rows_keep_numbers_and_add_official_fraction_display(capsys):
     assert "basis={(0,1/2,1),(-1,0,0),(0,-1/4,0)}" in output
     assert "origin=(1/2,-1/4,0)" in output
     assert "known routes=LD(1/6):GM1+ P1" in output
+    assert "route status=known_single_ir" in output
     assert " k=" not in output
     assert "IR=" not in output
 
@@ -349,6 +357,33 @@ def test_method3_affine_only_row_is_not_selectable_or_fake_route(
     assert "NOT SELECTABLE (no resolved second-stage route)" in output
     assert "idx=3 is not selectable" in output
     assert "known routes=(none)" in output
+
+
+def test_method3_exact_fixed_space_row_is_selectable_without_fake_single_ir_route():
+    subgroup = SubgroupInfo(
+        index=4,
+        space_group_number=12,
+        space_group_symbol="C2/m",
+        subgroup_index=4,
+        size=2,
+        basis_vectors=[[1, 0, 0], [0, 1, 0], [0, 0, 2]],
+        origin=[0, 0, 0],
+    )
+    item = Method3ResultItem(
+        subgroup=subgroup,
+        point_group="2/m",
+        basis=subgroup.basis_vectors,
+        routes=[],
+        route_resolution="exact_fixed_space",
+    )
+
+    web_row = web_server._method3_rows([item])[0]
+    terminal_row = _row_method3(item)
+    assert web_row["known_routes"] == []
+    assert terminal_row["routes"] == ""
+    assert web_row["route_resolution"] == terminal_row["route_resolution"]
+    assert web_row["selectable"] is True
+    assert terminal_row["selectable"] is True
 
 
 def test_terminal_method3_filtered_csv_uses_embedding_headers(
@@ -397,6 +432,7 @@ def test_terminal_method3_filtered_csv_uses_embedding_headers(
         "point_group",
         "s",
         "i",
+        "route_resolution",
         "known_routes",
     ]
     assert rows[1] == [
@@ -407,8 +443,173 @@ def test_terminal_method3_filtered_csv_uses_embedding_headers(
         "2/m",
         "4",
         "8",
+        "known_single_ir",
         "LD(1/6):GM1+ P1",
     ]
+
+
+def test_method4_terminal_row_and_origin_parser_match_web(capsys):
+    assert _parse_optional_origin_shift("") is None
+    assert _parse_optional_origin_shift("0.5") == [0.5, 0.0, 0.0]
+    assert _parse_optional_origin_shift(",0.25,") == [0.0, 0.25, 0.0]
+    with pytest.raises(ValueError, match="at most three"):
+        _parse_optional_origin_shift("0,0,0,0")
+    with pytest.raises(ValueError, match="finite"):
+        _parse_optional_origin_shift("nan,0,0")
+
+    row = _row_method4("GM5+ Eu1(a)", 1.25, 0.75, -0.125, 2.5)
+    app = object.__new__(IsoDistortConsoleApp)
+    app._print_table_row(4, row)
+    output = capsys.readouterr().out
+    assert "GM5+ Eu1(a)" in output
+    assert "1.250000" in output
+    assert "0.750000" in output
+    assert "-0.12500000" in output
+    assert "2.50000000" in output
+    assert [column[0] for column in _method4_cols()] == [
+        "mode", "amp", "ap", "raw", "norm",
+    ]
+
+
+def test_terminal_method4_keeps_full_web_payload(tmp_path, monkeypatch, capsys):
+    daughter = tmp_path / "daughter.cif"
+    daughter.write_text("data_test\n", encoding="utf-8")
+    seen = {}
+    result = SimpleNamespace(
+        amplitudes={"mode": 1.0},
+        parent_cell_amplitudes={"mode": 2.0},
+        raw_coefficients={"mode": 3.0},
+        mode_normfactors={"mode": 4.0},
+        strain_voigt_engineering={
+            "xx": 0.1, "yy": 0.2, "zz": 0.3,
+            "2yz": 0.0, "2xz": 0.0, "2xy": 0.0,
+        },
+        strain_tensor=[[0.1, 0.0, 0.0], [0.0, 0.2, 0.0], [0.0, 0.0, 0.3]],
+        rms_residual=1e-9,
+        max_abs_residual=2e-9,
+        metadata={"strain_convention": "test convention"},
+    )
+
+    def _search(**kwargs):
+        seen.update(kwargs)
+        return result
+
+    app = object.__new__(IsoDistortConsoleApp)
+    app.project_root = tmp_path
+    app.iso = SimpleNamespace(search_method_4=_search)
+    app.last_method4 = []
+    app.last_method4_meta = {}
+    app.tbl = {}
+    monkeypatch.setattr(main_terminal, "_choose_cif", lambda *_args: daughter)
+    monkeypatch.setattr(
+        main_terminal,
+        "_prompt",
+        lambda prompt, *_args: "nearest-site" if "Atom matching" in prompt else ",0.25,",
+    )
+    monkeypatch.setattr(main_terminal, "_prompt_float", lambda *_args: 0.25)
+    monkeypatch.setattr(app, "_review_result_table", lambda *_args, **_kwargs: None)
+
+    app._run_method_4()
+
+    assert seen["provided_origin_shift"] == [0.0, 0.25, 0.0]
+    assert app.last_method4[0]["ap"] == "2.000000"
+    assert app.last_method4[0]["raw"] == "3.00000000"
+    assert app.last_method4[0]["norm"] == "4.00000000"
+    assert app.last_method4_meta["strain_tensor"][2][2] == pytest.approx(0.3)
+    assert app.last_method4_meta["metadata"]["strain_convention"] == "test convention"
+    output = capsys.readouterr().out
+    assert "Homogeneous strain (test convention)" in output
+
+
+def test_terminal_method4_reports_matching_failure(tmp_path, monkeypatch, capsys):
+    daughter = tmp_path / "bad.cif"
+    daughter.write_text("data_bad\n", encoding="utf-8")
+
+    def _fail(**_kwargs):
+        raise ValueError("matching failed")
+
+    app = object.__new__(IsoDistortConsoleApp)
+    app.project_root = tmp_path
+    app.iso = SimpleNamespace(search_method_4=_fail)
+    monkeypatch.setattr(main_terminal, "_choose_cif", lambda *_args: daughter)
+    monkeypatch.setattr(
+        main_terminal,
+        "_prompt",
+        lambda prompt, *_args: "nearest-site" if "Atom matching" in prompt else "",
+    )
+    monkeypatch.setattr(main_terminal, "_prompt_float", lambda *_args: 0.25)
+
+    app._run_method_4()
+
+    assert "Method 4 error: matching failed" in capsys.readouterr().out
+
+
+def test_method4_api_removes_daughter_upload(tmp_path, monkeypatch):
+    upload_dir = tmp_path / "web_uploads"
+    upload_dir.mkdir()
+    uploaded = upload_dir / "daughter.cif"
+    uploaded.write_text("data_test\n", encoding="utf-8")
+
+    result = SimpleNamespace(
+        amplitudes={"mode": 1.0},
+        parent_cell_amplitudes={"mode": 2.0},
+        raw_coefficients={"mode": 3.0},
+        mode_normfactors={"mode": 4.0},
+        strain_voigt_engineering={
+            "xx": 0.1, "yy": 0.2, "zz": 0.3,
+            "2yz": 0.0, "2xz": 0.0, "2xy": 0.0,
+        },
+        strain_tensor=[[0.1, 0.0, 0.0], [0.0, 0.2, 0.0], [0.0, 0.0, 0.3]],
+        rms_residual=1e-9,
+        max_abs_residual=2e-9,
+        metadata={"strain_convention": "test convention"},
+    )
+    stub = SimpleNamespace(search_method_4=lambda **_kwargs: result)
+    web_server._SESSION._iso = stub
+    monkeypatch.setattr(web_server, "_write_upload", lambda *_args: str(uploaded))
+
+    handler = object.__new__(web_server.IsoHandler)
+    payload = handler._api_method4({"content": "data_test", "filename": "daughter.cif"})
+
+    assert payload["strain_voigt_engineering"]["xx"] == pytest.approx(0.1)
+    assert payload["strain_tensor"][2][2] == pytest.approx(0.3)
+    assert not uploaded.exists()
+
+
+def test_method4_api_removes_daughter_upload_after_failure(tmp_path, monkeypatch):
+    upload_dir = tmp_path / "web_uploads"
+    upload_dir.mkdir()
+    uploaded = upload_dir / "bad-daughter.cif"
+    uploaded.write_text("data_bad\n", encoding="utf-8")
+
+    def _fail(**_kwargs):
+        raise ValueError("matching failed")
+
+    web_server._SESSION._iso = SimpleNamespace(search_method_4=_fail)
+    monkeypatch.setattr(web_server, "_write_upload", lambda *_args: str(uploaded))
+
+    handler = object.__new__(web_server.IsoHandler)
+    with pytest.raises(ValueError, match="matching failed"):
+        handler._api_method4({"content": "data_bad", "filename": "bad.cif"})
+    assert not uploaded.exists()
+
+
+def test_web_session_replaces_and_cleans_parent_upload(tmp_path):
+    upload_dir = tmp_path / "web_uploads"
+    upload_dir.mkdir()
+    first = upload_dir / "first.cif"
+    second = upload_dir / "second.cif"
+    first.write_text("first", encoding="utf-8")
+    second.write_text("second", encoding="utf-8")
+    session = web_server.WebSession()
+
+    session.replace_parent_upload(first)
+    assert first.exists()
+    session.replace_parent_upload(second)
+    assert not first.exists()
+    assert second.exists()
+    session.cleanup_uploads()
+    assert not second.exists()
 
 
 def test_i18n_endpoint(server):

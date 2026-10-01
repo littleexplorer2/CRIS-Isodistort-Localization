@@ -1,10 +1,11 @@
-"""Diagnostic bridge from exact Method-3 embeddings to inverse Landau tests.
+"""Bridge from exact Method-3 embeddings to inverse Landau tests.
 
-This module is intentionally not connected to the web, terminal, or default
-Method-3 search.  It translates the exact affine quotient
+It translates the exact affine quotient
 ``N_G(T_s)/T_s`` into finite-group representations and reports only
 embedding-level symmetry feasibility.  It does **not** infer IR labels,
-coupled routes, mode amplitudes, or selectable product rows.
+coupled-route labels or mode amplitudes.  The batch character calculation is
+also used as the exact physical-reachability gate for route-less Method-3
+embeddings before a separate complete fixed-space mode calculation.
 
 The structure-coordinate boundary is the only floating-point step: finite
 supercell sites are matched with the configured Cartesian Å tolerance.
@@ -34,6 +35,7 @@ from ..utils.lattice import (
     inverse,
     matrix_key,
     rational_matrix,
+    same_lattice,
 )
 from .affine_embeddings import (
     AffineEmbedding,
@@ -48,6 +50,8 @@ from .inverse_landau import (
     ExactCharacterRepresentation,
     FiniteGroup,
     FixedSpaceFeasibility,
+    FixedSpaceFeasibilityAnalyzer,
+    FixedSpaceFeasibilitySummary,
     RationalRepresentation,
     analyze_fixed_space,
     character_representation,
@@ -104,7 +108,7 @@ class DiagnosticCharacterRepresentationBundle:
 
 @dataclass(frozen=True)
 class EmbeddingFeasibilityDiagnostic:
-    """Non-product diagnostic result for one Stage-A embedding."""
+    """Exact physical-reachability result for one Stage-A embedding."""
 
     embedding_id: str
     status: str
@@ -117,7 +121,7 @@ class EmbeddingFeasibilityDiagnostic:
     representation_dimension: int | None
     site_count: int | None
     max_site_match_error_angstrom: float | None
-    fixed_space: FixedSpaceFeasibility | None
+    fixed_space: FixedSpaceFeasibility | FixedSpaceFeasibilitySummary | None
 
     @property
     def is_symmetry_reachable(self) -> bool | None:
@@ -380,13 +384,23 @@ def _supercell_sites_and_permutations(
     structure: Structure,
     *,
     tolerance_angstrom: float,
-) -> tuple[tuple[tuple[int, ...], ...], int, float]:
+    species_filter: Sequence[str] | None = None,
+) -> tuple[tuple[tuple[int, ...], ...], int, float, bool]:
     child_lattice_float = np.asarray(quotient.lattice, dtype=float)
     parent_to_child = np.linalg.inv(child_lattice_float)
     child_cartesian = Lattice(child_lattice_float @ structure.lattice.matrix)
     cosets = translation_cosets(parent.lattice, quotient.lattice)
+    selected_species = (
+        None if species_filter is None else {str(item) for item in species_filter}
+    )
+    selected_parent_sites = [
+        site
+        for site in structure
+        if selected_species is None or site.species_string in selected_species
+    ]
+    includes_all_parent_sites = len(selected_parent_sites) == len(structure)
     sites: list[_SupercellSite] = []
-    for site in structure:
+    for site in selected_parent_sites:
         signature = _species_signature(site)
         parent_position = np.asarray(site.frac_coords, dtype=float)
         for coset in cosets:
@@ -413,11 +427,21 @@ def _supercell_sites_and_permutations(
                     )
                 )
 
-    expected_count = Fraction(len(structure)) * abs(determinant(quotient.lattice))
+    expected_count = Fraction(len(selected_parent_sites)) * abs(
+        determinant(quotient.lattice)
+    )
     if expected_count.denominator != 1 or len(sites) != int(expected_count):
         raise ValueError(
             "recovered supercell-site multiplicity disagrees with the exact "
             f"lattice-volume invariant: recovered={len(sites)}, expected={expected_count}"
+        )
+
+    if not sites:
+        return (
+            tuple(() for _operation in quotient.operations),
+            0,
+            0.0,
+            includes_all_parent_sites,
         )
 
     permutations: list[tuple[int, ...]] = []
@@ -457,7 +481,12 @@ def _supercell_sites_and_permutations(
         if len(set(permutation)) != len(sites):
             raise ValueError("affine operation site action is not bijective")
         permutations.append(tuple(permutation))
-    return tuple(permutations), len(sites), maximum_error
+    return (
+        tuple(permutations),
+        len(sites),
+        maximum_error,
+        includes_all_parent_sites,
+    )
 
 
 def build_selected_representation(
@@ -467,6 +496,7 @@ def build_selected_representation(
     distortion_types: str | Sequence[str] = ("strain", "displacive"),
     *,
     site_tolerance_angstrom: float | None = None,
+    displacive_species: Sequence[str] | None = None,
 ) -> DiagnosticRepresentationBundle:
     """Build supported physical-Type actions without assigning IR routes."""
     selected = _normalize_types(distortion_types)
@@ -494,28 +524,41 @@ def build_selected_representation(
 
     if "displacive" in selected:
         tolerance = _positive_cartesian_tolerance(site_tolerance_angstrom)
-        permutations, site_count, maximum_error = _supercell_sites_and_permutations(
+        (
+            permutations,
+            site_count,
+            maximum_error,
+            includes_all_parent_sites,
+        ) = _supercell_sites_and_permutations(
             parent,
             quotient,
             structure,
             tolerance_angstrom=tolerance,
+            species_filter=displacive_species,
         )
-        if site_count >= 2:
+        if site_count >= 1:
             full = site_vector_representation(
                 group,
                 permutations,
                 vector,
                 name="finite-supercell atomic displacements",
             )
-            components.append(
-                remove_uniform_site_vectors(
-                    full,
-                    site_count=site_count,
-                    vector_dimension=3,
-                    name="internal finite-supercell atomic displacements",
-                )
-            )
-            names.append("displacive")
+            if includes_all_parent_sites:
+                if site_count >= 2:
+                    components.append(
+                        remove_uniform_site_vectors(
+                            full,
+                            site_count=site_count,
+                            vector_dimension=3,
+                            name="internal finite-supercell atomic displacements",
+                        )
+                    )
+                    names.append("displacive")
+            else:
+                # A common displacement of only the selected species is a
+                # real relative mode, not a rigid translation of the crystal.
+                components.append(full)
+                names.append("displacive")
 
     if not components:
         representation = None
@@ -544,6 +587,7 @@ def build_selected_character_representation(
     distortion_types: str | Sequence[str] = ("strain", "displacive"),
     *,
     site_tolerance_angstrom: float | None = None,
+    displacive_species: Sequence[str] | None = None,
 ) -> DiagnosticCharacterRepresentationBundle:
     """Build the same selected physical action as exact character data.
 
@@ -582,20 +626,30 @@ def build_selected_character_representation(
 
     if "displacive" in selected:
         tolerance = _positive_cartesian_tolerance(site_tolerance_angstrom)
-        permutations, site_count, maximum_error = _supercell_sites_and_permutations(
+        (
+            permutations,
+            site_count,
+            maximum_error,
+            includes_all_parent_sites,
+        ) = _supercell_sites_and_permutations(
             parent,
             quotient,
             structure,
             tolerance_angstrom=tolerance,
+            species_filter=displacive_species,
         )
-        if site_count >= 2:
+        if site_count >= 1 and (not includes_all_parent_sites or site_count >= 2):
             components.append(
                 site_vector_character_representation(
                     group,
                     permutations,
                     vector,
-                    remove_uniform_vectors=True,
-                    name="internal finite-supercell atomic displacements",
+                    remove_uniform_vectors=includes_all_parent_sites,
+                    name=(
+                        "internal finite-supercell atomic displacements"
+                        if includes_all_parent_sites
+                        else "selected-species finite-supercell atomic displacements"
+                    ),
                 )
             )
             names.append("displacive")
@@ -628,6 +682,7 @@ def diagnose_embedding_feasibility(
     *,
     max_quotient_order: int = 512,
     site_tolerance_angstrom: float | None = None,
+    displacive_species: Sequence[str] | None = None,
 ) -> EmbeddingFeasibilityDiagnostic:
     """Run an embedding-level Stage-B diagnostic, never a selectable route."""
     quotient = build_affine_quotient(
@@ -643,6 +698,7 @@ def diagnose_embedding_feasibility(
         structure,
         distortion_types,
         site_tolerance_angstrom=site_tolerance_angstrom,
+        displacive_species=displacive_species,
     )
     if bundle.unsupported_types:
         status = "unsupported_distortion_types"
@@ -674,6 +730,95 @@ def diagnose_embedding_feasibility(
     )
 
 
+def diagnose_embeddings_feasibility(
+    parent: ParentAffineGroup,
+    embeddings: Sequence[AffineEmbedding],
+    structure: Structure,
+    distortion_types: str | Sequence[str] = ("strain", "displacive"),
+    *,
+    max_quotient_order: int = 512,
+    site_tolerance_angstrom: float | None = None,
+    displacive_species: Sequence[str] | None = None,
+) -> list[EmbeddingFeasibilityDiagnostic]:
+    """Analyze embeddings sharing one translation lattice with one exact model.
+
+    The character criterion is exactly equivalent to the dense Reynolds
+    projector test for reachability, but constructing the finite-supercell
+    representation and subgroup-dimension cache only once makes a complete
+    Method-3 result table practical.  Input order is preserved.
+    """
+
+    items = list(embeddings)
+    if not items:
+        return []
+    reference_lattice = items[0].lattice
+    if any(not same_lattice(item.lattice, reference_lattice) for item in items[1:]):
+        raise ValueError("batch feasibility embeddings must share one translation lattice")
+    quotient = build_affine_quotient(
+        parent,
+        reference_lattice,
+        max_quotient_order=max_quotient_order,
+    )
+    bundle = build_selected_character_representation(
+        parent,
+        quotient,
+        structure,
+        distortion_types,
+        site_tolerance_angstrom=site_tolerance_angstrom,
+        displacive_species=displacive_species,
+    )
+    analyzer = (
+        FixedSpaceFeasibilityAnalyzer(bundle.representation)
+        if bundle.representation is not None and not bundle.unsupported_types
+        else None
+    )
+
+    results: list[EmbeddingFeasibilityDiagnostic] = []
+    for embedding in items:
+        subgroup = locate_embedding_subgroup(embedding, quotient)
+        identifier = stable_embedding_id(parent, embedding, quotient=quotient)
+        if bundle.unsupported_types:
+            status = "unsupported_distortion_types"
+            route_status = "not_analyzed_unsupported_types"
+            analysis = None
+        elif bundle.representation is None:
+            status = "no_physical_degrees_of_freedom"
+            route_status = "not_analyzed_no_physical_degrees_of_freedom"
+            analysis = None
+        else:
+            if analyzer is None:
+                raise RuntimeError(
+                    "fixed-space analyzer was not constructed for a supported "
+                    "non-empty representation"
+                )
+            analysis = analyzer.analyze(subgroup)
+            status = (
+                "embedding_feasible"
+                if analysis.is_reachable
+                else "embedding_infeasible"
+            )
+            route_status = "unresolved_irrep_decomposition"
+        results.append(EmbeddingFeasibilityDiagnostic(
+            embedding_id=identifier,
+            status=status,
+            route_status=route_status,
+            selectable=False,
+            selected_types=bundle.selected_types,
+            unsupported_types=bundle.unsupported_types,
+            quotient_order=len(quotient.operations),
+            subgroup_indices=subgroup,
+            representation_dimension=(
+                None
+                if bundle.representation is None
+                else bundle.representation.dimension
+            ),
+            site_count=bundle.site_count,
+            max_site_match_error_angstrom=bundle.max_site_match_error_angstrom,
+            fixed_space=analysis,
+        ))
+    return results
+
+
 __all__ = [
     "DiagnosticCharacterRepresentationBundle",
     "DiagnosticRepresentationBundle",
@@ -681,6 +826,7 @@ __all__ = [
     "build_selected_character_representation",
     "build_selected_representation",
     "diagnose_embedding_feasibility",
+    "diagnose_embeddings_feasibility",
     "parent_frame_fingerprint",
     "quotient_finite_group",
     "stable_embedding_id",

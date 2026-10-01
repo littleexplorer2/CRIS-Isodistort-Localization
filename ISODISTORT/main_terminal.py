@@ -22,6 +22,8 @@ import time
 from collections.abc import Callable, Sequence
 from pathlib import Path
 
+import numpy as np
+
 from isocore.api import IsoDistort
 from isocore.distortion.search_methods import CRYSTAL_SYSTEMS
 from isocore.i18n import t
@@ -113,6 +115,23 @@ def _prompt_float(text: str, default: float | None = None) -> float:
             return float(raw)
         except ValueError:
             print(t("ui.prompt.float"))
+
+
+def _parse_optional_origin_shift(raw: str) -> list[float] | None:
+    """Parse the web-compatible optional x,y,z daughter-origin input."""
+    if not raw.strip():
+        return None
+    parts = raw.split(",")
+    if len(parts) > 3:
+        raise ValueError("origin shift accepts at most three comma-separated values")
+    parts.extend([""] * (3 - len(parts)))
+    try:
+        values = [float(value.strip() or "0") for value in parts]
+    except ValueError as exc:
+        raise ValueError("origin shift must contain finite numbers") from exc
+    if not all(np.isfinite(values)):
+        raise ValueError("origin shift must contain finite numbers")
+    return values
 
 
 def _prompt_yes_no(text: str, default_yes: bool = False) -> bool:
@@ -296,14 +315,24 @@ def _method3_cols() -> list[tuple[str, str, Callable, Callable, bool]]:
         ("pg", "point group", lambda r: r["pg"], lambda r: r["pg"], True),
         ("s", "s", lambda r: str(r["s"]), lambda r: r["_sort_s"], True),
         ("i", "i", lambda r: str(r["i"]), lambda r: r["_sort_i"], True),
-        ("routes", "known routes", lambda r: r["routes"], lambda r: r["routes"], True),
+        (
+            "resolution",
+            t("hRouteStatus"),
+            lambda r: r["route_resolution"],
+            lambda r: r["route_resolution"],
+            True,
+        ),
+        ("routes", t("hKnownRoutes"), lambda r: r["routes"], lambda r: r["routes"], True),
     ]
 
 
 def _method4_cols() -> list[tuple[str, str, Callable, Callable, bool]]:
     return [
         ("mode", "mode", lambda r: r["mode"], lambda r: r["mode"], True),
-        ("amp", "amplitude", lambda r: r["amp"], lambda r: r["_sort_amp"], True),
+        ("amp", t("hAs"), lambda r: r["amp"], lambda r: r["_sort_amp"], True),
+        ("ap", t("hAp"), lambda r: r["ap"], lambda r: r["_sort_ap"], True),
+        ("raw", t("hRawCoefficient"), lambda r: r["raw"], lambda r: r["_sort_raw"], True),
+        ("norm", t("hNormfactor"), lambda r: r["norm"], lambda r: r["_sort_norm"], True),
     ]
 
 
@@ -368,7 +397,9 @@ def _row_method3(item) -> dict:
         "s": fields["s"],
         "i": fields["i"],
         "routes": "; ".join(_route_label(route) for route in routes),
-        "selectable": bool(routes),
+        "selectable": bool(routes) or getattr(
+            item, "route_resolution", ""
+        ) == "exact_fixed_space",
         "route_resolution": getattr(item, "route_resolution", "known_single_ir"),
         "_sg": sg,
         "_sort_sg": int(sg.space_group_number or 0),
@@ -377,11 +408,17 @@ def _row_method3(item) -> dict:
     }
 
 
-def _row_method4(mode: str, amp: float) -> dict:
+def _row_method4(mode: str, amp: float, ap: float, raw: float, norm: float) -> dict:
     return {
         "mode": mode,
         "amp": f"{amp:.6f}",
+        "ap": f"{ap:.6f}",
+        "raw": f"{raw:.8f}",
+        "norm": f"{norm:.8f}",
         "_sort_amp": float(amp),
+        "_sort_ap": float(ap),
+        "_sort_raw": float(raw),
+        "_sort_norm": float(norm),
     }
 
 
@@ -429,7 +466,13 @@ class IsoDistortConsoleApp:
         self.last_method2_subgroups: list = []
         self.last_method3: list = []
         self.last_method4: list[dict] = []
-        self.last_method4_meta: dict = {"rms": None, "max_abs": None}
+        self.last_method4_meta: dict = {
+            "rms": None,
+            "max_abs": None,
+            "strain_voigt_engineering": {},
+            "strain_tensor": [],
+            "metadata": {},
+        }
         self.nmod_value = 0
         self.tbl: dict[int, dict] = {
             1: _empty_tbl(_method1_cols()),
@@ -488,7 +531,13 @@ class IsoDistortConsoleApp:
         self.last_method2_subgroups = []
         self.last_method3 = []
         self.last_method4 = []
-        self.last_method4_meta = {"rms": None, "max_abs": None}
+        self.last_method4_meta = {
+            "rms": None,
+            "max_abs": None,
+            "strain_voigt_engineering": {},
+            "strain_tensor": [],
+            "metadata": {},
+        }
         self.tbl = {
             1: _empty_tbl(_method1_cols()),
             2: _empty_tbl(_method2_cols()),
@@ -958,9 +1007,13 @@ class IsoDistortConsoleApp:
                 f"{selection}"
             )
             print(f"      basis={row['basis']} | origin={row['origin']}")
+            print(f"      route status={row['route_resolution']}")
             print(f"      known routes={row['routes'] or '(none)'}")
         else:
-            print(f"  {row['mode']:<16s} {row['amp']}")
+            print(
+                f"  {row['mode']:<16s} {row['amp']:>12s} {row['ap']:>12s} "
+                f"{row['raw']:>14s} {row['norm']:>18s}"
+            )
 
     def _compute_modes(self, idx: int, source: str) -> None:
         if source == "method1":
@@ -974,7 +1027,12 @@ class IsoDistortConsoleApp:
                 ),
                 None,
             )
-            if selected_item is not None and selected_item.routes == []:
+            if (
+                selected_item is not None
+                and selected_item.routes == []
+                and getattr(selected_item, "route_resolution", "")
+                != "exact_fixed_space"
+            ):
                 print(
                     "This affine embedding has no resolved single-IR or coupled-IR "
                     "second-stage route; mode calculation is not implemented for it."
@@ -1079,28 +1137,67 @@ class IsoDistortConsoleApp:
         print("Method 4: Mode decomposition of a distorted structure")
         daughter_cif = _choose_cif(self.project_root, "Choose a daughter CIF")
 
-        # 与网页一致：使用官网默认匹配参数（nearest-site / 阈值 0.25）
-        with _ElapsedStatus(t("st.wait")):
-            result = self.iso.search_method_4(
-                distorted_cif_path=daughter_cif,
-                atom_matching_method="nearest-site",
-                robust_distance_threshold=0.25,
-                provided_origin_shift=None,
-            )
+        matching = _prompt(
+            "Atom matching (nearest-site/robust)",
+            "nearest-site",
+        ).strip().lower()
+        if matching not in {"nearest-site", "robust"}:
+            print("Method 4 error: matching must be nearest-site or robust")
+            return
+        threshold = _prompt_float("Robust distance threshold (angstrom)", 0.25)
+        origin_raw = _prompt(
+            "Known daughter origin shift x,y,z "
+            "(optional; blank components mean zero)",
+            "",
+        ).strip()
+        try:
+            origin_shift = _parse_optional_origin_shift(origin_raw)
+        except ValueError as exc:
+            print(f"Method 4 error: {exc}")
+            return
+
+        try:
+            with _ElapsedStatus(t("st.wait")):
+                result = self.iso.search_method_4(
+                    distorted_cif_path=daughter_cif,
+                    atom_matching_method=matching,
+                    robust_distance_threshold=threshold,
+                    provided_origin_shift=origin_shift,
+                )
+        except (IsodistortError, ValueError, RuntimeError) as exc:
+            print(f"Method 4 error: {exc}")
+            return
 
         ranked = sorted(result.amplitudes.items(), key=lambda kv: abs(kv[1]), reverse=True)
-        self.last_method4 = [_row_method4(label, float(amp)) for label, amp in ranked]
+        self.last_method4 = [
+            _row_method4(
+                label,
+                float(amp),
+                float(result.parent_cell_amplitudes[label]),
+                float(result.raw_coefficients[label]),
+                float(result.mode_normfactors[label]),
+            )
+            for label, amp in ranked
+        ]
         self.last_method4_meta = {
             "rms": result.rms_residual,
             "max_abs": result.max_abs_residual,
+            "strain_voigt_engineering": dict(result.strain_voigt_engineering),
+            "strain_tensor": [list(row) for row in result.strain_tensor],
+            "metadata": dict(result.metadata),
         }
         self.tbl[4] = _empty_tbl(_method4_cols())
         self.tbl[4]["rows"] = list(self.last_method4)
         print(t("m4.result_title"))
         print(
-            f"RMS residual: {result.rms_residual:.8e}  "
-            f"Max residual: {result.max_abs_residual:.8e}"
+            f"RMS residual: {result.rms_residual:.8e} angstrom  "
+            f"Max residual component: {result.max_abs_residual:.8e} angstrom"
         )
+        strain_text = ", ".join(
+            f"{label}={value:.8g}"
+            for label, value in result.strain_voigt_engineering.items()
+        )
+        print(t("m4.strainSummary", result.metadata["strain_convention"], strain_text))
         self._review_result_table(4, allow_idx=False)
 
     # ----------------------------------------------------------------
@@ -1223,9 +1320,16 @@ class IsoDistortConsoleApp:
                 "point_group",
                 "s",
                 "i",
+                "route_resolution",
                 "known_routes",
             ],
-            4: ["mode", "amplitude"],
+            4: [
+                "mode",
+                "As_angstrom",
+                "Ap_angstrom",
+                "raw_coefficient",
+                "normfactor_inverse_angstrom",
+            ],
         }
         cols = st["cols"]
         headers = export_headers[method]

@@ -163,7 +163,7 @@ CSV **必须有表头**。识别列名时不区分大小写。常用（与梯度
 ### 完整示例
 
 ```powershell
-cd C:\Users\devou\OneDrive\Desktop\CRIS
+cd <CRIS 根目录>
 
 # 1) 准备环境（若尚未做过）
 python ISOVIZ_INPUT\main_requirement.py
@@ -175,6 +175,26 @@ python ISOVIZ_INPUT\main_requirement.py
 # 或非交互：
 # .\.venv\Scripts\python.exe ISOVIZ_INPUT\main.py --folder LD1_C1 --csv-name LD1_C1_best_model_parameters.csv --structure "D:\data\LD1_C1.isoviz"
 ```
+
+### 建议你第一次这样试用
+
+1. 先运行 GD 笔记本的保存单元，确认
+   `Desktop\Best_Model_Parameters\LD1_C1\LD1_C1_best_model_parameters.csv`
+   实际存在。只有 `LD1_C1` 空目录时，主程序无法继续。
+2. 使用与这份 CSV **同一个 IR/OPD/path** 导出的官方 `.isoviz`；不能把
+   `LD1_C1` 振幅写进另一个子群文件后再据此判断结构是否正确。
+3. 从 CRIS 根目录运行 `.\.venv\Scripts\python.exe ISOVIZ_INPUT\main.py`，依次输入
+   `LD1_C1`、CSV 文件名和 `.isoviz` 的绝对路径。
+4. 先看终端报告：`[matched]` 应大于 0；`[csv leftover]` 表示 CSV 中有模式未写入；
+   `isoviz modes without CSV values` 表示这些滑条保留原值。这两类不一定都是错误，
+   但在判定结构前必须逐项解释。
+5. IsoVIZ 打开后，核对母相/子群、模式总数和标签，并抽查终端列出的 `amp`；
+   然后观察结构是否随这些振幅变化。`Best Model Parameter` 是写入值，
+   `Normalized Amplitude` 不是。
+
+如果默认查找位置没有 IsoVIZ 启动器，仅有 Java 还不够；请把 `ISOViz.lnk`
+放到 CRIS 根目录或 `ISOVIZ_INPUT/`，或者设置 `ISOVIZ` / `ISOVIZ_JAR`。源
+`.isoviz` 和 CSV 都不会被修改；被打开的是系统临时目录中的副本。
 
 ---
 
@@ -192,6 +212,37 @@ python ISOVIZ_INPUT\main_requirement.py --dev
 ```
 
 测试使用 `tests_dev/fixtures/` 内的样本，不依赖你本机的 `input_content/`。
+
+### GUI 打开与数据识别验收
+
+普通 pytest 现在自动覆盖三层：CSV/标签匹配与 `amp` 写入、补丁后模式身份和结构
+元数据保持、JAR/EXE/Windows 快捷方式是否把临时 `.isoviz` 作为明确参数传给
+IsoVIZ。这些测试不弹出窗口。
+
+此前的测试只把启动函数替换成 mock，并检查它收到的文本，**不能证明窗口真的打开，
+也不能证明 Java IsoVIZ 已识别结构和模式**。现在新增了显式手工验收器：
+
+```powershell
+# 只生成临时文件、静态报告和 GUI 中应看到的值；不启动 GUI
+.\.venv\Scripts\python.exe ISOVIZ_INPUT\tests_dev\manual\validate_isoviz_gui.py `
+  --data "C:\path\to\Best_Model_Parameters\LD1_C1\LD1_C1_best_model_parameters.csv" `
+  --structure "D:\data\LD1_C1.isoviz"
+
+# 之后需要补跑的真实 GUI 验收；会启动并询问两个独立问题
+.\.venv\Scripts\python.exe ISOVIZ_INPUT\tests_dev\manual\validate_isoviz_gui.py `
+  --data "C:\path\to\Best_Model_Parameters\LD1_C1\LD1_C1_best_model_parameters.csv" `
+  --structure "D:\data\LD1_C1.isoviz" `
+  --launch
+```
+
+`--launch` 后必须分别确认：
+
+1. IsoVIZ 窗口确实打开了脚本生成的临时文件；
+2. 窗口中的 parent/child 信息、模式标签和 `amp` 与终端期望清单一致。
+
+脚本把临时 `.isoviz` 和 `validation_report.json` 放在系统临时目录。没有
+`--launch` 时 GUI 状态为 `not_run`；只完成进程分发、没有人工确认时也不得写成
+“IsoVIZ 已正确识别”。这是 GUI 没有机器可读加载回执时的必要边界。
 
 ---
 

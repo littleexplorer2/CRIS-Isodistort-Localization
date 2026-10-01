@@ -35,3 +35,7 @@ runtime:
   # Method 3 budgets. Zero means unlimited; overflow fails rather than truncates.
   method3_max_parametric_values: 0
   method3_max_backend_queries: 0
+  # Exact finite-group/coupled-intersection safety boundaries. Overflow fails
+  # loudly; zero coupled states means unlimited rather than truncating output.
+  method3_max_quotient_order: 512
+  method3_max_coupled_states: 100000

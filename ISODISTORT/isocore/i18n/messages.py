@@ -14,7 +14,10 @@ MESSAGES: dict[str, str] = {
     'path.selected': '[Path selected] {desc}',
     'modes.found': '[Mode calculation] {n} distortion modes',
     'mode.sites': '  {irrep:<8s} {opd:<6s} affecting {n} Wyckoff position(s)',
-    'mode.empty': "This subgroup has no displacement modes on the structure's Wyckoff positions (type filtering is applied at the mode-calculation stage)",
+    'mode.empty': (
+        "This subgroup has no displacement modes on the structure's Wyckoff positions "
+        "(type filtering is applied at the mode-calculation stage)"
+    ),
     'distortion.generated': '[Distortion] mode {irrep}, amplitude {amp}, atoms {n1} -> {n2} (supercell factor {r:g})',
     'mode.invalid': 'Mode {label} does not exist',
     'export.default': '[Auto-export] CIF written: {path}',
@@ -134,17 +137,26 @@ MESSAGES: dict[str, str] = {
     'hIdx': 'idx',
     'hK': 'k point',
     'hIrrep': 'Irrep',
+    'hRouteStatus': 'route status',
+    'hKnownRoutes': 'known routes',
     'hDir': 'Dir',
     'hKActive': 'k-active',
     'hNrep': 'Reps',
     'hMode': 'Mode',
+    'hAs': 'As (angstrom)',
+    'hAp': 'Ap (angstrom)',
+    'hRawCoefficient': 'raw coefficient',
+    'hNormfactor': 'normfactor (1/angstrom)',
     'hGen': 'Generator',
     'web.title': 'ISODISTORT: search',
     'types.title': 'Types of distortions to be considered',
     'btn.ok': 'OK',
     'btn.change': 'Change',
     'btn.stop': 'Stop',
-    'type.note': 'Important: You must click on Change to implement any changes in the above type of distortions to be considered.',
+    'type.note': (
+        'Important: You must click on Change to implement any changes in the '
+        'above type of distortions to be considered.'
+    ),
     'ok.types': 'Types updated.',
     'l.cs': 'Crystal system(s):',
     'l.sgsel': 'Space-group symmetry:',
@@ -180,6 +192,13 @@ MESSAGES: dict[str, str] = {
     'l.lattice': 'Specify a real-space sublattice of the parent lattice with',
     'l.cent': 'centering:',
     'l.m4file': 'Upload distorted structure from CIF file:',
+    'l.m4matching': 'Atom-matching method:',
+    'l.m4threshold': 'Robust distance threshold (angstrom):',
+    'l.m4origin': 'Known origin shift (daughter fractional x,y,z; optional):',
+    'm4.nearest': 'nearest-site (global minimum assignment)',
+    'm4.robust': 'robust (reject assignments beyond threshold)',
+    'm4.residualSummary': 'RMS residual {0} angstrom · max |residual component| {1} angstrom',
+    'm4.strainSummary': 'Homogeneous strain ({0}): {1}',
     'st.stopping': 'Stopping the server and releasing the port…',
     'st.srvDown': 'Cannot reach the server — it may have stopped. Close this page or rerun main_web.py.',
     'st.noSubs': 'No subgroups.',
@@ -214,15 +233,27 @@ MESSAGES: dict[str, str] = {
         'harmonics, controlled by nmod).'
     ),
     'm2.enumKp': 'Enumerating subgroups over all irreps of k point {0} (k group {1}/{2})...',
-    'm2.noSubsAtKp': 'The local engine could not enumerate/generate subgroups for this k point (common for parametric k points such as LD/DT).',
+    'm2.noSubsAtKp': (
+        'The local engine could not enumerate/generate subgroups for this k point '
+        '(common for parametric k points such as LD/DT).'
+    ),
     'm2.chooseNext': 'Choose next step:',
     'm2.localCompute': '① Compute with local resources',
-    'm2.localComputeDesc': "Use your machine to generate this k point's subgroup database (Generate isotropy subgroups; may take minutes to hours, then cached)",
+    'm2.localComputeDesc': (
+        "Use your machine to generate this k point's subgroup database "
+        '(Generate isotropy subgroups; may take minutes to hours, then cached)'
+    ),
     'm2.gotoOfficial': '② Retry on the ISODISTORT website',
-    'm2.gotoOfficialDesc': 'Run Method 2 with the same parent CIF and (k point, parameters) on the website (this k point generates subgroups there)',
+    'm2.gotoOfficialDesc': (
+        'Run Method 2 with the same parent CIF and (k point, parameters) on the '
+        'website (this k point generates subgroups there)'
+    ),
     'm2.officialUrl': 'Official ISODISTORT: https://landau3.byu.edu/isodistort.php',
     'm2.cancel': '0. Cancel / go back',
-    'm2.subsFound': 'Enumerated {0} subgroup(s). Click a row to view its mode basis (official order parameter direction page).',
+    'm2.subsFound': (
+        'Enumerated {0} subgroup(s). Click a row to view its mode basis '
+        '(official order parameter direction page).'
+    ),
     'm3.subsFound': (
         'Found {0} local Method 3 embedding candidate(s). '
         'Click a row to view the representative known route.'
@@ -279,7 +310,10 @@ MESSAGES: dict[str, str] = {
     'm2.genDbColTime': 'Saved',
     'm2.genDb': '(generating subgroup database)',
     'm2.genDbRetry': 'Retry with local database generation',
-    'm2.genDbAsk': 'The local subgroup database for this parametric k point is missing. Generate it now (may take a long time)?',
+    'm2.genDbAsk': (
+        'The local subgroup database for this parametric k point is missing. '
+        'Generate it now (may take a long time)?'
+    ),
     'm1.sgUnreachable': (
         'That space group is not in the reachable list for the current Types; '
         'the search would return no rows. Pick a listed number or leave blank.'
@@ -344,7 +378,10 @@ MESSAGES: dict[str, str] = {
     'dist.zipDone': 'Downloaded ZIP ({0} subgroup(s)).',
     'dist.zipFail': 'ZIP download failed.',
     'hPrefs': 'Space-Group Preferences',
-    'prefs.note': 'The local engine uses these fixed defaults (international standard setting, i.e. the website defaults); they cannot be modified locally.',
+    'prefs.note': (
+        'The local engine uses these fixed defaults (international standard setting, '
+        'i.e. the website defaults); they cannot be modified locally.'
+    ),
     'prefs.monoAxes': 'Monoclinic axes:',
     'prefs.monoCell': 'Monoclinic cell choice:',
     'prefs.orthoAxes': 'Orthorhombic axes:',
@@ -352,7 +389,13 @@ MESSAGES: dict[str, str] = {
     'prefs.origin': 'Origin choice:',
     'prefs.ssg': 'Superspace group setting:',
     'prefs.ssgValue': 'standard (IT-C)',
-    'prefs.fixedNote': "Reason: the local iso binary only supports the international standard setting; custom settings (axes/cell choice/origin/SSG etc.) cause a Syntax error, so the website's preference-editing panel is not available locally; computations always use the defaults above. Superspace-group setting is fixed to standard (IT-C).",
+    'prefs.fixedNote': (
+        'Reason: the local iso binary only supports the international standard '
+        'setting; custom settings (axes/cell choice/origin/SSG etc.) cause a Syntax '
+        "error, so the website's preference-editing panel is not available locally; "
+        'computations always use the defaults above. Superspace-group setting is '
+        'fixed to standard (IT-C).'
+    ),
     'prefs.terminalBlock': (
         'Space-Group Preferences (fixed, same as the web panel):\n'
         '  Monoclinic axes a(b)c, monoclinic cell choice 1, orthorhombic axes abc,\n'
@@ -360,7 +403,10 @@ MESSAGES: dict[str, str] = {
         '  Custom axes/cell/origin cannot be changed.'
     ),
     'm3.centEnd': 'centering.',
-    'm1.cs': 'Optional crystal system (triclinic/monoclinic/orthorhombic/tetragonal/trigonal/hexagonal/cubic; blank = no filter)',
+    'm1.cs': (
+        'Optional crystal system (triclinic/monoclinic/orthorhombic/tetragonal/'
+        'trigonal/hexagonal/cubic; blank = no filter)'
+    ),
     'm1.sg': 'Optional subgroup space group number (blank = no filter)',
     'm1.maximal': 'Keep only maximal subgroups?',
     'm1.sublattice': 'Enter a direct sublattice filter (a,b,c)?',

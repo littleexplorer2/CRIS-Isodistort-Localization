@@ -25,6 +25,38 @@ def read_cif(file_path: str | Path, primitive: bool = False) -> Structure:
     return structure
 
 
+def read_cif_space_group_number(file_path: str | Path) -> int | None:
+    """Return the space-group number declared by a CIF, if present.
+
+    Method 4 must respect the daughter setting declared in the uploaded CIF.
+    Detecting symmetry from coordinates instead can silently promote a P1
+    full-atom input to a higher-symmetry group and change the primitive-cell
+    normalization used for official As/Ap amplitudes.
+    """
+    parser = CifParser(str(file_path))
+    blocks = parser.as_dict()
+    if not blocks:
+        return None
+    block = next(iter(blocks.values()))
+    for key in (
+        "_space_group_IT_number",
+        "_space_group.it_number",
+        "_symmetry_Int_Tables_number",
+    ):
+        value = block.get(key)
+        if isinstance(value, list):
+            value = value[0] if value else None
+        if value in (None, "", "?", "."):
+            continue
+        try:
+            number = int(float(str(value).strip()))
+        except ValueError:
+            continue
+        if 1 <= number <= 230:
+            return number
+    return None
+
+
 def read_structure(file_path: str | Path) -> Structure:
     """按扩展名读取常见晶体结构文件（CIF / VASP POSCAR / xyz）。
 

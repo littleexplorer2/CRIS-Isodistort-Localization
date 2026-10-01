@@ -1,5 +1,5 @@
 """structure 包 - 晶体结构处理层"""
-from .cif_io import read_cif, read_structure
+from .cif_io import read_cif, read_cif_space_group_number, read_structure
 from .coordinate_transform import (
     build_supercell,
     coordinates_are_equal,
@@ -12,6 +12,7 @@ __all__ = [
     "build_supercell",
     "coordinates_are_equal",
     "read_cif",
+    "read_cif_space_group_number",
     "read_structure",
     "wrap_to_unit_cell",
 ]

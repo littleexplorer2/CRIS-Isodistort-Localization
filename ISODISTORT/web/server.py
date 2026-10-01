@@ -53,6 +53,7 @@ class WebSession:
 
     def __init__(self) -> None:
         self._iso = None
+        self.parent_upload_path: Path | None = None
         # Monotonic context version used to reject writes from an older tab.
         # It protects the shared single-user session without pretending that
         # each browser tab owns an independent IsoDistort instance.
@@ -80,6 +81,17 @@ class WebSession:
         if self._iso is None:
             self._iso = IsoDistort()
         return self._iso
+
+    def replace_parent_upload(self, path: str | Path) -> None:
+        previous = self.parent_upload_path
+        self.parent_upload_path = Path(path)
+        if previous is not None and previous != self.parent_upload_path:
+            _discard_upload(previous)
+
+    def cleanup_uploads(self) -> None:
+        if self.parent_upload_path is not None:
+            _discard_upload(self.parent_upload_path)
+            self.parent_upload_path = None
 
 
 _SESSION = WebSession()
@@ -380,7 +392,9 @@ def _method3_rows(items) -> list[dict]:
             "known_routes": known_routes,
             "known_route_count": len(known_routes),
             "route_resolution": getattr(item, "route_resolution", "known_single_ir"),
-            "selectable": bool(known_routes),
+            "selectable": bool(known_routes) or getattr(
+                item, "route_resolution", ""
+            ) == "exact_fixed_space",
         })
     return rows
 
@@ -394,6 +408,15 @@ def _write_upload(filename: str, content: str) -> str:
     path = upload_dir / f"{uuid.uuid4().hex}-{safe}"
     path.write_text(content, encoding="utf-8")
     return str(path)
+
+
+def _discard_upload(path: str | Path) -> None:
+    """Remove one generated upload and its directory when it becomes empty."""
+    upload_path = Path(path)
+    with contextlib.suppress(FileNotFoundError):
+        upload_path.unlink()
+    with contextlib.suppress(FileNotFoundError, OSError):
+        upload_path.parent.rmdir()
 
 
 class IsoHandler(BaseHTTPRequestHandler):
@@ -602,7 +625,12 @@ class IsoHandler(BaseHTTPRequestHandler):
         if not content.strip():
             raise ValueError("CIF 内容为空 / CIF content is empty")
         path = _write_upload(filename, content)
-        _SESSION.iso.load_structure(path)
+        try:
+            _SESSION.iso.load_structure(path)
+        except Exception:
+            _discard_upload(path)
+            raise
+        _SESSION.replace_parent_upload(path)
         _SESSION.iso.set_distortion_scope(_SESSION.distortion_scope)
         _SESSION.iso.set_distortion_types(_SESSION.distortion_types)
         _SESSION.method1, _SESSION.method2, _SESSION.method3 = [], None, []
@@ -714,7 +742,12 @@ class IsoHandler(BaseHTTPRequestHandler):
                 ),
                 None,
             )
-            if selected_item is not None and selected_item.routes == []:
+            if (
+                selected_item is not None
+                and selected_item.routes == []
+                and getattr(selected_item, "route_resolution", "")
+                != "exact_fixed_space"
+            ):
                 raise ValueError(
                     "This affine embedding has no resolved single-IR or coupled-IR "
                     "second-stage route; mode calculation is not implemented for it"
@@ -788,17 +821,32 @@ class IsoHandler(BaseHTTPRequestHandler):
         if not content.strip():
             raise ValueError("Daughter CIF 内容为空 / daughter CIF content is empty")
         path = _write_upload(data.get("filename", "daughter.cif"), content)
-        result = _SESSION.iso.search_method_4(
-            distorted_cif_path=path,
-            atom_matching_method=data.get("atom_matching_method", "nearest-site"),
-            robust_distance_threshold=float(data.get("robust_distance_threshold", 0.25)),
-            provided_origin_shift=data.get("provided_origin_shift"),
-        )
+        try:
+            result = _SESSION.iso.search_method_4(
+                distorted_cif_path=path,
+                atom_matching_method=data.get("atom_matching_method", "nearest-site"),
+                robust_distance_threshold=float(data.get("robust_distance_threshold", 0.25)),
+                provided_origin_shift=data.get("provided_origin_shift"),
+            )
+        finally:
+            _discard_upload(path)
         ranked = sorted(result.amplitudes.items(), key=lambda kv: abs(kv[1]), reverse=True)
         return {
             "amplitudes": {k: float(v) for k, v in ranked},
+            "parent_cell_amplitudes": {
+                k: float(result.parent_cell_amplitudes[k]) for k, _ in ranked
+            },
+            "raw_coefficients": {
+                k: float(result.raw_coefficients[k]) for k, _ in ranked
+            },
+            "mode_normfactors": {
+                k: float(result.mode_normfactors[k]) for k, _ in ranked
+            },
+            "strain_voigt_engineering": dict(result.strain_voigt_engineering),
+            "strain_tensor": result.strain_tensor,
             "rms_residual": result.rms_residual,
             "max_abs_residual": result.max_abs_residual,
+            "metadata": result.metadata,
         }
 
     def _api_isotropy_cache_list(self) -> dict:
@@ -1058,6 +1106,8 @@ def main() -> int:
         print("\n服务已停止 / Server stopped.")
     finally:
         server.server_close()
+        with _SESSION_LOCK:
+            _SESSION.cleanup_uploads()
     print("已退出并释放端口 / Exited, port released.", flush=True)
     return 0
 

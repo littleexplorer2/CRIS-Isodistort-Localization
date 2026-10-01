@@ -2,7 +2,7 @@
 
 实际脚本位于 `tests_dev/manual/`，不会被 pytest 自动收集；用于生成 CIF 与批量回归。
 
-Method 1–4 的官网差分、候选归一、四格式导出、网页/终端/API 一致性与科学验收统一见 [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)。Method 1/2 的 current-source live 报告必须与最终源码签名一致，旧签名不能冒充新结论。Method 3 官网集已经全部核定：EuAl4 20/20、35 个 embedding；NdNiO2 20/20、42 个 embedding。Method 4 只冻结了输入，尚未运行分解或官网差分。扩展样本、性能和并发阶段也只在开发计划维护。
+Method 1–4 的官网差分、候选归一、四格式导出、网页/终端/API 一致性与科学验收统一见 [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md)。Method 1/2 的 current-source live 报告必须与最终源码签名一致，旧签名不能冒充新结论。Method 3 官网集已经全部核定：EuAl4 20/20、35 个 embedding；NdNiO2 20/20、42 个 embedding。coupled 产品接入后已用当前源码从头重跑 40 组比较，结果为 13 exact + 27 affine-equivalent + 0 differences、0 errors；特殊-k与参数-k代表 coupled 行的完整位移模式数分别与官网 `2/2`、`22/22` 一致。Method 4 双母相本地/官网 24 例也已闭合，精确状态见验证报告。扩展样本、性能和并发阶段只在开发计划维护。
 
 现有保存输出的只读审计，以及可选的真实 Method 3 iso/WSL 烟雾：
 
@@ -14,6 +14,10 @@ python tests_dev/manual/audit_method3_downloads.py "../output_compare/EuAl4 Pare
 python tests_dev/manual/audit_method3_downloads.py "../output_compare/NdNiO2 own.cif/官网/Method3" --json-output output/validation/method3_official_download_audit_ndnio2.json
 python tests_dev/manual/audit_method3_embedding_routes.py --omit-raw-output
 python tests_dev/manual/compare_method3_official_local.py --restart
+python tests_dev/manual/audit_method3_basis_metamorphism.py
+python tests_dev/manual/prepare_method4_inputs.py --force
+python tests_dev/manual/validate_method4_local.py --update-manifest-status
+python tests_dev/manual/audit_method4_official.py --parent "EuAl4 Parent.cif"
 ```
 
 审计按 CIF 内部候选身份配对，以精确整幺模变换证明等价子格，并将等价表示
@@ -39,9 +43,11 @@ ISOTROPY COUPLED` 只用于已知 embedding 之后的 route/COPL 第二阶段。
 `(Q,q)(R,t)(Q,q)⁻¹=(QRQ⁻¹,Qt+q-QRQ⁻¹q)`。只有能给出 exact/共轭
 witness 的 basis/origin 差异才计为 `affine_equivalent`；验证错误或无法证明的项仍是差异。
 
-默认只使用首屏结果表证明完整性的 authoritative 案例；只要存在 provisional 或 skipped 案例，route/比较 CLI 默认返回非零。`--allow-candidate-inventory` 与 `--accept-provisional` 仅用于将来诊断不完整批次，不能把候选目录升级成完整官网集合。当前 40 个案例和 77 条 embedding 全部 authoritative；route 审计为 `61 single_ir_exact + 16 coupled_ir_required`，0 条 indeterminate、0 个错误/跳过。默认本地路径只覆盖 61 条 single-IR，缺少的 16 条均为 coupled-only。
+默认只使用首屏结果表证明完整性的 authoritative 案例；只要存在 provisional 或 skipped 案例，route/比较 CLI 默认返回非零。`--allow-candidate-inventory` 与 `--accept-provisional` 仅用于将来诊断不完整批次，不能把候选目录升级成完整官网集合。当前 40 个案例和 77 条 embedding 全部 authoritative；route 审计为 `61 single_ir_exact + 16 coupled_ir_required`，0 条 indeterminate、0 个错误/跳过。该分类描述每条官网 embedding 是否可由一个 IR 单独稳定，不因产品实现变化而改写；当前默认空间群产品查询已覆盖 77/77。
 
-阶段 A affine 枚举只用于诊断，生产默认值为 `include_affine_only_diagnostics=False`。即使显式开启，route-less 结果也不可选择，不能继续计算 Method 2 模式或导出；在 fixed-subspace/inverse-Landau 第二阶段完成前，不得把阶段 A 候选混入网页/终端可交付结果。
+`audit_method3_basis_metamorphism.py` 不新增官网金标准；它把 40 个查询各改写成两种精确 GL(3,Z) representative，并先证明 basis+centering 仍生成同一 primitive lattice，再要求稳定 embedding ID 多重集完全相同。报告的 `source_signature` 覆盖审计器、manifest、搜索/仿射/格子核心和两份母相 CIF，源码变化后必须重跑。`validate_method4_local.py` 校验固定 daughter CIF 的 SHA-256、原始拟合系数、`As/Ap/normfactor`、Å residual、匹配、秩/条件数和失败用例；该报告只证明本地逆一致性。`audit_method4_official.py` 只读 `output_compare/`，核对冻结输入哈希、官网完整子群身份、模式/应变幅值、CIF/TOPAS/IsoVIZ 一致性，以及可唯一配对模式的 `normfactor` 和 `As/Ap`；机器报告写入 `output/validation/method4_official_audit.json`。
+
+空间群产品查询默认启用 Stage A/B 和 coupled 稳定子交集证明；只有 `known_single_ir` 或经 exact fixed-space 可达性与交集见证双重证明的 `exact_fixed_space` 行可选择。Displacive 的逐物种选择会传入 Stage-B 表示；部分物种的共同位移保留为相对自由度，只有覆盖全部结构位点时才扣除三维全晶体刚体平移。`include_affine_only_diagnostics=True` 仍会额外显示不可达/未解析 Stage-A 行，但这些诊断行不得进入 Method 2 或导出。
 
 `validate_method_outputs.py --live-method12` 使用独立的源码/输入签名与原子 checkpoint；当前源码长测结束前只引用 `live_method12_report.json` 的实时状态，不预填最终通过数。需要明确抛弃兼容断点时使用 `--live-method12-restart`。
 

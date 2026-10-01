@@ -733,9 +733,9 @@ def test_subgroup_cif_origin_preserves_atom_count(tmp_path):
 
 def test_explicit_valid_origin_outweighs_asymmetric_site_count():
     """NdNiO2 A1+ P1 uses origin zero even though z=1/4 has fewer ASU rows."""
+    from isocore.io.isodistort_cif import _apply_origin_choice, _setting
     from isocore.structure import SymmetryValidator, read_cif
     from isocore.structure.coordinate_transform import build_supercell
-    from isocore.io.isodistort_cif import _apply_origin_choice, _setting
     from isocore.utils.parent_header import parent_wyckoff_display
 
     path = _REPO / "experiment_data" / "NdNiO2 own.cif"
@@ -872,6 +872,37 @@ def test_exports_preserve_parent_cif_atom_labels_and_order():
     assert [row.split()[1] for row in type_rows.splitlines()] == ["O", "ND", "NI"]
     site_rows = render_cif(parent, spec).split("_atom_site_label", 1)[1]
     assert "O_1" in site_rows and "ND_1" in site_rows and "NI_1" in site_rows
+
+
+def test_parent_header_reads_atom_sites_after_fullprof_global_block(tmp_path):
+    """FullProf metadata loops must not trap atom-site discovery in an earlier block."""
+    from isocore.utils.parent_header import parse_cif_atom_site_rows
+
+    path = tmp_path / "fullprof_multiblock.cif"
+    path.write_text(
+        """data_global
+loop_
+_publ_manuscript_incl_extra_item
+_publ_manuscript_incl_extra_info
+_publ_manuscript_incl_extra_defn
+'_pd_proc_ls_prof_cR_factor' 'corrected background' no
+data_structure
+loop_
+_atom_site_label
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_type_symbol
+La1 1.0 1.0 0.43204 La
+Ni1 0.5 0.5 0.5 Ni
+""",
+        encoding="utf-8",
+    )
+
+    assert parse_cif_atom_site_rows(path) == [
+        {"label": "La1", "type_symbol": "La", "frac": (1.0, 1.0, 0.43204)},
+        {"label": "Ni1", "type_symbol": "Ni", "frac": (0.5, 0.5, 0.5)},
+    ]
 
 
 def test_pmmm_wyckoff_letters_use_target_orbits_and_fixed_abc_setting():

@@ -22,7 +22,7 @@
 | 加载母相 | 在 "Parent CIF" 选文件并点 "Load" | 页头显示空间群、晶格、Wyckoff 位点 |
 | 设畸变类型 | 勾选后点 "Change" | 后续 Method 按你勾选的类型过滤 |
 | Method 1–3 | 设过滤条件，点 "OK" | 一张可筛选、排序的子群结果表；点一行可看模式 |
-| Method 4 | 上传女儿相 CIF，点 "OK" | 模式幅度表 + RMS residual（不是子群列表） |
+| Method 4 | 上传女儿相 CIF，点 "OK" | 官网口径 `As/Ap`、原始拟合系数、`normfactor` + RMS residual（不是子群列表） |
 | Distortion | 选 Method、下表 / 勾格式、下 ZIP | 筛选后的 txt/csv；Method 1–3 的结构文件 ZIP |
 
 **官网 Distortion 页上的 "Generate"（按模式幅度生成畸变结构）和 "Domains"（畴列表）已从本地网页/终端删除**——本项目目标是「得到子群结构信息或文件」，Method OK + ZIP 已给出零振幅超胞 CIF 与模式文件。Python API 仍保留 `generate_distortion` / `generate_domains` 供脚本使用。
@@ -180,6 +180,8 @@ cd <CRIS 根目录>
 | `runtime.generation_timeout` | Method 2 生成缺失 isotropy 子群库的超时 | `3600` |
 | `runtime.method3_max_parametric_values` | Method 3 精确公度参数搜索值上限；超限时在 `list_irreps` 前报错，不截断 | `0`（不限制） |
 | `runtime.method3_max_backend_queries` | Method 3 参数路径的 `list_irreps + list_subgroups` 查询总上限；超限时在任何 `list_subgroups` 前报错 | `0`（不限制） |
+| `runtime.method3_max_quotient_order` | Method 3 exact affine/fixed-space 有限商的最大阶数；超限明确失败 | `512` |
+| `runtime.method3_max_coupled_states` | coupled 稳定子交集动态规划的最大不同状态数；超限明确失败，`0` 为不限制 | `100000` |
 
 容差采用两层误差模型：来自 CIF/实验或弛豫结构的对称性识别用 Å 制
 `symmetry_cartesian_tolerance_angstrom`；Method 3 Stage-A 内部由整数/有理数精确
@@ -334,13 +336,13 @@ NdNiO2 等其它 CIF 会显示该文件自己的空间群、晶胞与 `_atom_sit
 | **"Specify a real-space sublattice… Default / P / A / B / C / I / F / R centering"** | **direct** 实空间子格。Default 在选空间群时使用目标 SG 的默认 Bravais centering、只选点群时使用 P；显式 P/A/B/C/I/F/R 分别把 conventional basis 精确换算为 primitive translation lattice。输入必须确为母晶格子格 |
 | **"Specify a primitive reciprocal-space superlattice"** | **reciprocal**：**本地不支持**，请用 direct |
 | **"Choose a representative basis:"** | 3×3 基矢：`a'` / `b'` / `c'` 相对母相 a,b,c 的系数（可填分数）。官网会同时检查该 basis 与目标空间群默认 centering 是否构成母晶格的子格；轴序、负号和带心都重要，不能因为体积相同就随意换成单位矩阵。非恒等整数超胞会推断公度参数 k（如 `(0,0,6)` → LD `g=1/6`）并枚举；若子群库缺失，勾选 Method 2 的 **Generate isotropy subgroups database if missing** |
-| **"OK"** | 得到当前本地可枚举的 affine subgroup embedding 子集；完整官网 Method 3 能力仍见下方限制 |
+| **"OK"** | 空间群查询得到 single-IR 与经 exact fixed-space/稳定子交集证明的 coupled affine embeddings；未覆盖范围见下方限制 |
 
 网页/终端传入的分数字符串全程保留为精确有理数；恒等与非恒等 basis 都只匹配母相点群轨道下的同一 lattice class，不会再把任意更大超胞当作命中。对一参数线，引擎可解析 `-a+1` / `1-a` / `a+1/2` 等仿射坐标，在母相完整 reciprocal k-star 上精确求出 `0 ≤ a < 1` 的全部公度解，并用母相中心化格子的倒格矢等价关系排除已由特殊 k 枚举的端点；同一物理 k-star 的参数路线会按精确倒格矢等价关系去重。这不等于支持 Method 3 的 reciprocal-sublattice 输入。
 
-官网首屏候选的科学身份是 `(SG,basis,origin,s,i)` embedding；表中 `basis` / `origin` 优先显示 iso 的官网式精确分数原文，`known routes` 只是本地已知 k/IR/OPD 来源的诊断信息，不能把 route 数误当作官网候选数。Types 按 route 过滤，只要 embedding 至少有一条活动 route 就保留；参数 k 在活性检查与选中后的位移模式中先做官网参数尺度 → iso 内部尺度转换，随后走 smodes/(3+d) 完整模式（nmod）。
+官网首屏候选的科学身份是 `(SG,basis,origin,s,i)` embedding；表中 `basis` / `origin` 优先显示 iso 的官网式精确分数原文，`known routes` 只是本地已知 k/IR/OPD 来源的诊断信息，不能把 route 数误当作官网候选数。single-IR embedding 按各 route 的 Types 活性过滤；coupled embedding 则在所选 `strain ⊕ displacive` 表示中直接做 exact fixed-space 判定。Displacive 的逐物种作用域会进入该表示；只移动部分物种时，其共同位移是相对光学自由度，不会被误删为全晶体刚体平移。参数 k 在活性检查与选中后的位移模式中先做官网参数尺度 → iso 内部尺度转换，随后走 smodes/(3+d) 完整模式（nmod）。
 
-官网对照不能只比较 basis/origin 字符串。生产代码和验证工具都会在母相分数坐标中用精确有理数重建 Seitz 操作，按子群 primitive translation lattice 取模；生产结果仅合并已证明为同一算子子群的重复路线，并保留官网会分别列出的母群共轭 orientation/domain embedding。独立的阶段 A 诊断按有限平移商 `N_G(T_s)/T_s`、Seitz 闭包和 cocycle 条件枚举 affine lifts；阶段 B 再在所选 `strain ⊕ displacive` 表示中用精确固定空间及点态稳定子判据排除物理不可达项。40 组权威官网查询共有 77 条 embedding；默认路径覆盖全部 61 条 single-IR 身份，缺少 16 条 coupled-IR-only。阶段 A 覆盖 77/77，但额外产生 62 个母群共轭多重项和 3 个新轨道；阶段 B 保留全部官网项并精确拒绝这 3 个假阳性。由于 coupled IR/OPD 分解及真实 modes 尚未连接，阶段 A/B 仍默认关闭，route-less 行不可选择或导出；只选 point group 时也仍使用 single-IR 子集。项目附带的 ISO 9.6.1 没有直接枚举首屏 embedding 的命令，`DISPLAY DIRECTION` / `DISPLAY ISOTROPY COUPLED` 是已知 embedding 后的 route 工具，不能用它们或 `SHOW DOMAIN` 代替完整第一阶段。
+官网对照不能只比较 basis/origin 字符串。生产代码和验证工具都会在母相分数坐标中用精确有理数重建 Seitz 操作，按子群 primitive translation lattice 取模。空间群查询的阶段 A 按有限平移商 `N_G(T_s)/T_s`、Seitz 闭包和 cocycle 条件枚举 affine lifts；阶段 B 在所选 `strain ⊕ displacive` 表示中用 exact character/fixed-space 点态稳定子判据排除物理不可达项。对没有单-IR route 的可达 embedding，所有候选单-IR 稳定子连同平移陪集被提升到同一有限商，只有其精确交集等于目标 `H` 才成为可选择的 `exact_fixed_space` 行；母群仿射共轭只在 Method 3 首屏保留一个代表元，物理畴留给 Domains 阶段。选中后以 nmod=0 计算该子群全部折叠 k 的完整位移 fixed space，不把任选的一对 IR 冒充唯一 primary route。当前 40 组权威官网查询的 77 条 embedding 全部匹配：13 组逐字段一致、27 组精确 affine 等价、0 差异、0 错误；此前缺少的 16 条 coupled-only 已接入。只选 point group 时仍使用 single-IR 子集；项目附带的 ISO 9.6.1 没有直接枚举首屏 embedding 的命令，`DISPLAY DIRECTION` / `DISPLAY ISOTROPY COUPLED` 是已知 embedding 后的 route 工具，不能用它们或 `SHOW DOMAIN` 代替完整第一阶段。
 
 Method 3 的空间群下拉已对 `webpage_info/EuAl4 Parent.cif/2. ISODISTORT_ search.html` 做 230 项全量回归：编号、旧版 IT Hermann–Mauguin 简写和 Schoenflies 标号必须逐项一致。
 
@@ -349,11 +351,16 @@ Method 3 的空间群下拉已对 `webpage_info/EuAl4 Parent.cif/2. ISODISTORT_ 
 | 选项 | 作用 |
 | --- | --- |
 | **"Upload distorted structure from CIF file:"** | 上传**已经畸变**的女儿相 CIF |
-| **"OK"** | 输出**全部**模式幅度（可 Filter / 排序）和 RMS residual |
+| **"Atom-matching method:"** | `nearest-site` 使用按物种的全局最小笛卡尔距离分配；`robust` 还会拒绝超过阈值的匹配 |
+| **"Robust distance threshold (angstrom):"** | robust 匹配的物理距离上限，单位 Å；不是随晶胞变化的分数坐标距离 |
+| **"Known origin shift..."** | 可选的女儿相分数坐标原点平移 `(x,y,z)`；留空表示 0/未指定 |
+| **"OK"** | 输出**全部**位移模式的 `As`、`Ap`、原始拟合系数和 `normfactor`（可 Filter / 排序），六个应用 Voigt 应变分量 `(xx,yy,zz,2yz,2xz,2xy)`，以及单位为 Å 的 RMS/max residual |
 
 这是**分解**，不是子群列表。**不能**作为 Distortion ZIP 的结构来源，但可以在 Distortion 下载该幅度表的 txt/csv。
 
-当前只完成了 Method 4 验证计划与 24 个固定 daughter-CIF 输入的准备；尚未运行本轮官网对照、批量分解或 debug，因此这里描述的是既有接口语义，不代表已通过与官网一致性验收。
+当前源码的 displacive 生成→分解闭环能恢复无噪声系数并报告带噪声 residual；原子匹配使用真实晶格下的全局一一映射，`As` 按女儿原胞内笛卡尔模式范数归一化，`Ap=As/sqrt(s)`。均匀应变不再用固定 metric 差门禁拒绝：程序按冻结的母相晶格与 basis，从女儿相 metric 解出旋转无关的对称 `M=I+epsilon`，并报告应用工程剪切 Voigt 分量。机器报告为 `output/validation/method4_local_validation.json` 和 `output/validation/method4_official_audit.json`。
+
+重冻结清单的本地双母相 24/24 通过；官网 24/24 个案例也都使用正确冻结输入，审计为 23 个完全通过、EuAl4 G05 auto-origin 1 个证据警告、0 个失败。Nd F01 已按物种不匹配拒绝，F02 的 8% 晶格变化已作为纯均匀应变成功分解，F03 用 robust `dmax=0.1 Å` 按预期匹配失败。G05 warning 仅表示 auto-origin 运行缺 basis HTML；填写截图、accepted result identity、完整导出与显式-origin 对照均通过，不要求重跑。上述结果关闭了两母相 Method 4 当前矩阵，但不等于跨晶系科研级验收。
 
 ---
 
@@ -406,6 +413,8 @@ GM1+ P1 (a) 139 I4mmm, .../      # Method 1：完整 OPD 行（删除 /，官网
 | Method 2 GenDB 说明 | 勾选旁一句长帮助 + 警告（`m2.genDbHelp`） | 同一句文案后提问是否生成 |
 | Method 2 缓存管理 | 「Manage cached subgroup databases」选中删除 | Method 2「Open cache manager?」；空库恢复选 3 也可进管理 |
 | 子群库缺失 | 勾选 Generate if missing；失败时可本地生成 / 官网链接 | 提问 Generate；恢复选项：本地生成 / 打印官网 URL / 管理缓存 |
+| Method 3 结果 | `route status` 与 `known routes` 同时显示、筛选和导出 | 同左；coupled fixed-space 行不会因没有单 IR 路线而丢失状态 |
+| Method 4 结果 | `As`、`Ap`、raw coefficient、normfactor、residual 与六分量均匀应变 | 同左；原点输入的空分量按 0 处理 |
 | 下载 | 浏览器 ZIP / txt/csv | 菜单 **7. Distortion** → ZIP 或目录写到 `output/` |
 | 模式补算 | 默认开启；URL `compute_modes=0` 可关 | 导出时询问（默认 yes，对应网页默认） |
 
@@ -465,24 +474,25 @@ iso.export_subgroups(
 
 1. **Windows 必须经 WSL** 调用 Linux 版 `iso`。  
    Linux 原生运行会自动在系统临时目录建立按 uid 隔离的短 staging 目录；不会再尝试写入根目录 `/iso_*.in`。
-2. **应变模式未实现**：CIF / TOPAS / ISOVIZ 中 `_iso_strainmode_number` 恒为 0，不写 `strain_N(a)` 行，不改晶格参数。官网勾选 strain 时仍会写出 `strain_*(a)` 与非零 `_iso_strainmode_number`。  
+2. **symmetry-adapted 应变模式生成/导出未实现**：Method 4 已能从晶格 metric 分解并报告六个应用应变分量，但 CIF / TOPAS / ISOVIZ 中 `_iso_strainmode_number` 仍为 0，不写官网式 `GM… strain_N(a)` 模式标签/幅度，也不支持由 strain mode 主动生成晶格。
 3. **参数 k 点（LD/DT 等）**：可枚举子群（+ Generate DB）；位移模式由 **smodes + 子群恒等表示** 计算（三维锁定 / (3+d) 谐波，由 nmod 控制）。网页不再把这类结果默认降级为仅 CIF。
 4. **nmod / (3+d) superspace**：本地可编辑 nmod（0–3）。0 = 公度锁定，保留全部折叠 k。n≥1 = 只保留 Method 2 所选那一个 q 的谐波，再加上 Γ；1、2、3 不会增加第二条独立调制。标签格式对齐官网 `Parent[k]IR(opd)[Site:letter:dsp]siteIR(comp)`。IsoVIZ 对非 Γ 的 k 保留 `[kx,ky,kz]IR[...]` 前缀。二维 IR 的第二个实分量用母相平移（含心平移）做相位正交；旋转星臂分别保存展示坐标与实际相位坐标，自共轭特殊 k 的简并基由含平移的母相 little group 补齐。折叠商按母相中心化倒格矢计算（I 心整数奇偶余类不会误合并），搜索范围跟着子群基矢走，不限于 5 个母相单胞。最终模式空间在笛卡尔坐标中用修正 Gram–Schmidt 求精确数值秩，不再用固定点积阈值误删或重复计数。
-5. **Method 3**：reciprocal-sublattice 输入不支持。direct 的 exact centering/primitive-lattice 语义、一参数仿射 k 线的全公度解、完整 reciprocal k-star、中心化母格子的特殊点等价去重、同一 k-star route 去重、官网/ISO 参数尺度恢复，以及候选的精确 Seitz 身份判定已实现。阶段 A 能枚举 closed affine lifts；阶段 B 能在 `strain ⊕ displacive` 表示中精确判定 fixed-space 可达性。但 coupled IR/OPD 分解和 modes 产品连接尚未实现，所以两阶段诊断仍默认关闭且 route-less 行不可计算模式。默认结果表（以及 point-group-only 查询）仍从 single-IR 特殊 k 与一参数公度 k route 出发，会遗漏 16 条已核定 coupled-only 候选；不会用 `SHOW DOMAIN` 畴数或样例硬编码填满。
-6. **magnetic**：带 `m` 前缀的 IR 默认不进入流程。  
-7. **occupational**：本地为 ±1 占据近似，校验失败会标明。  
-8. **rotational-only Types**：当前用 smodes 的位移活性作为 rotational route 的近似筛选，尚无独立的刚性转动/轴矢量模式生成器；不应把 rotational-only 结果称为与官网严格等价。
-9. **Distortion Generate / Domains**：官网有，本地网页/终端已去掉。
-10. **界面仅英语**。
-11. **导出验收（见本目录 `agent.md`）**：网页与终端共用 `IsoDistort.export_subgroups_zip` / `_collect_export_specs`（**仅交互壳不同**）。ZIP 内每子群文件夹含 `subgroup.cif` / `data.isoviz` / `topas.str` / `Complete modes details.txt`。
+5. **Method 3**：reciprocal-sublattice 输入不支持。空间群 direct 查询已接入 closed affine lifts、`strain ⊕ displacive` exact fixed-space 可达性、single-IR 稳定子精确交集见证和完整 fixed-space 位移模式，因此当前双母相 40 组/77 条权威 embedding 无欠枚举。搜索单-IR 稳定子的 k 域仍限于特殊 k 与一参数公度线；任意/多参数 k、point-group-only affine 枚举，以及 rotational/occupational/magnetic 的同等级 Stage-B 表示尚未完成。`exact_fixed_space` 行不声明某一组 IR 是唯一 primary COPL 分解，但可计算目标子群的完整折叠-k位移模式；不会用 `SHOW DOMAIN` 畴数或样例硬编码填满。
+6. **Method 4**：重冻结本地矩阵 24/24 通过；官网 24/24 个有效案例为 23 pass + EuAl4 G05 auto-origin 1 个证据警告，0 fail。G05 仅缺 auto-origin basis HTML，已有清晰填写截图和一致结果身份；本地仍只报告六维应用张量，尚不输出官网 symmetry-adapted strain mode 幅度，occupancy/magnetic/rotational 分解也未验收。
+7. **magnetic**：带 `m` 前缀的 IR 默认不进入流程。
+8. **occupational**：本地为 ±1 占据近似，校验失败会标明。
+9. **rotational-only Types**：当前用 smodes 的位移活性作为 rotational route 的近似筛选，尚无独立的刚性转动/轴矢量模式生成器；不应把 rotational-only 结果称为与官网严格等价。
+10. **Distortion Generate / Domains**：官网有，本地网页/终端已去掉。
+11. **界面仅英语**。
+12. **导出验收（见本目录 `agent.md`）**：网页与终端共用 `IsoDistort.export_subgroups_zip` / `_collect_export_specs`（**仅交互壳不同**）。ZIP 内每子群文件夹含 `subgroup.cif` / `data.isoviz` / `topas.str` / `Complete modes details.txt`。
     - **modes `.txt`**：完整写入本地计算结果即可，**不要求**与官网 HTML 逐字节一致。  
     - **CIF / isoviz / TOPAS**：内容与格式尽量靠官网；`.cif` 须能用 **[VESTA](https://jp-minerals.org/vesta/en/)**（[下载](https://jp-minerals.org/vesta/en/download.html)）打开，`.isoviz` 须能用 **ISOViz**（ISOTROPY IsoVIZ）打开。根目录可放 `VESTA.lnk` / `ISOViz.lnk` 便于抽检。  
     - TOPAS / IsoVIZ 位移向量按**原胞笛卡尔 Σ‖Δr‖²=1** 归一化（惯用胞求和除以 centering 重数）。官网 `As` 的物理最大位移为 `dmax=|As|·normfactor·max_i‖u_i B‖`，因此滑条/TOPAS 对称界为 `maxamp=1/dmax(As=1)`；不能按点阵类型硬编码 `√2`/`2`。
-    - CIF、TOPAS 和 ISOVIZ 共用目标子群的原点与位点轨道；不能再用零振幅母相的对称性合并子群位点。ISOVIZ 会按原始 CIF 位点顺序写类型和子位点，并为边界周期像写对应模式向量。其他允许的表示差异包括 symop 顺序、周期像及子位点排序、basis 点群等价代表元；应变模式仍未实现。VALIDATE 默认语义比较；`--strict` 仅排版调试。
-12. **位点对称标号的适用范围**：位移模式会把等价位点矢量通过轨道 transporter 拉回 Wyckoff representative，再按 representative 的 polar-vector site point group 分类；这已覆盖当前官网审计中的 `A1/E/B2/A2u/B2u/B3u` 等标签及多 Wyckoff 独立幅度键。但尚未实现对所有 site group、轴矢量/磁/占位模式的通用 character-table decomposition，超出该范围的标签只能视为诊断信息。
-13. **Method 1 文件夹 basis/origin**：来自本地 iso，可能与官网取点群等价的另一组代表元（IR/OPD/SG/s/i/k-active 仍应对上）。正式审计不用文件夹名配对，而以 CIF 内候选身份配对；basis 必须通过精确整数幺模变换证明生成同一子格，再统一到官网表示比较结构。报告分别保留“原始表示完全相同”和“已归一到官网表示”的数量。
-14. **Method 2 短文件夹名**：本地与官网均用 `IR OPD`（如 `LD5 C4`）。若人工整理的 `output_compare` 里文件夹名与 CIF 内 OPD 行不一致（例如文件夹叫 `LD5 C4` 但 CIF 实为 `P4 … Pnma`），按文件夹名硬配对会得到假差异；应以 CIF 内 `# … k-active=` 行为准。
-15. **子群 CIF 的 ASU 行数 / 部分晶胞边长**：子群设定、原点与不对称单元取位与官网不完全相同时，ASU 行数或 a/b/c 可能不同；应检查展开后的原子数、化学计量和结构匹配。分数基矢扩胞需包含新晶胞内全部母胞平移，导出时原点须使目标子群对称操作映射到同种原子。勿按文件文本差异硬编码答案。
+    - CIF、TOPAS 和 ISOVIZ 共用目标子群的原点与位点轨道；不能再用零振幅母相的对称性合并子群位点。ISOVIZ 会按原始 CIF 位点顺序写类型和子位点，并为边界周期像写对应模式向量。其他允许的表示差异包括 symop 顺序、周期像及子位点排序、basis 点群等价代表元；symmetry-adapted 应变模式导出仍未实现。VALIDATE 默认语义比较；`--strict` 仅排版调试。
+13. **位点对称标号的适用范围**：位移模式会把等价位点矢量通过轨道 transporter 拉回 Wyckoff representative，再按 representative 的 polar-vector site point group 分类；这已覆盖当前官网审计中的 `A1/E/B2/A2u/B2u/B3u` 等标签及多 Wyckoff 独立幅度键。但尚未实现对所有 site group、轴矢量/磁/占位模式的通用 character-table decomposition，超出该范围的标签只能视为诊断信息。
+14. **Method 1 文件夹 basis/origin**：来自本地 iso，可能与官网取点群等价的另一组代表元（IR/OPD/SG/s/i/k-active 仍应对上）。正式审计不用文件夹名配对，而以 CIF 内候选身份配对；basis 必须通过精确整数幺模变换证明生成同一子格，再统一到官网表示比较结构。报告分别保留“原始表示完全相同”和“已归一到官网表示”的数量。
+15. **Method 2 短文件夹名**：本地与官网均用 `IR OPD`（如 `LD5 C4`）。若人工整理的 `output_compare` 里文件夹名与 CIF 内 OPD 行不一致（例如文件夹叫 `LD5 C4` 但 CIF 实为 `P4 … Pnma`），按文件夹名硬配对会得到假差异；应以 CIF 内 `# … k-active=` 行为准。
+16. **子群 CIF 的 ASU 行数 / 部分晶胞边长**：子群设定、原点与不对称单元取位与官网不完全相同时，ASU 行数或 a/b/c 可能不同；应检查展开后的原子数、化学计量和结构匹配。分数基矢扩胞需包含新晶胞内全部母胞平移，导出时原点须使目标子群对称操作映射到同种原子。勿按文件文本差异硬编码答案。
 
 更细的差异用 `output_compare/<母相>/{官网,现有网页版交互}/Method1|2` 做 diff；上表是用户最常撞到的几条。
 

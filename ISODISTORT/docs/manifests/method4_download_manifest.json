@@ -1,9 +1,38 @@
 {
-  "schema": 1,
-  "purpose": "Frozen daughter-CIF upload batch for the future Method 4 differential",
-  "signature": "25cc0dd0749706e2d0443bac54aeec7259713a41fb3cccc74ebe54fc0da014a0",
-  "method4_executed": false,
-  "official_download_status": "not_downloaded",
+  "schema": 2,
+  "purpose": "Frozen daughter-CIF batch for the Method 4 local/official differential",
+  "signature": "23c951b9bf23cd5c259e6fb22ff02a2645b8e41071a79ed855bb0fd5ac50b279",
+  "method4_executed": true,
+  "official_download_status": "complete_24_of_24_valid",
+  "official_audit_status": "pass_with_warnings_24_of_24_valid",
+  "official_audited_cases": [
+    "EuAl4 Parent.cif/G01-zero",
+    "EuAl4 Parent.cif/G02-positive-reordered",
+    "EuAl4 Parent.cif/G03-negative-wrapped",
+    "EuAl4 Parent.cif/G04-two-mode",
+    "EuAl4 Parent.cif/G05-origin-shift",
+    "EuAl4 Parent.cif/G06-near-bound-noise",
+    "EuAl4 Parent.cif/P01-zero-supercell",
+    "EuAl4 Parent.cif/P02-positive-supercell",
+    "EuAl4 Parent.cif/P03-mixed-reordered-wrapped",
+    "EuAl4 Parent.cif/F01-species-mismatch",
+    "EuAl4 Parent.cif/F02-invalid-lattice",
+    "EuAl4 Parent.cif/F03-distance-threshold",
+    "NdNiO2 own.cif/G01-zero",
+    "NdNiO2 own.cif/G02-positive-reordered",
+    "NdNiO2 own.cif/G03-negative-wrapped",
+    "NdNiO2 own.cif/G04-two-mode",
+    "NdNiO2 own.cif/G05-origin-shift",
+    "NdNiO2 own.cif/G06-near-bound-noise",
+    "NdNiO2 own.cif/P01-zero-supercell",
+    "NdNiO2 own.cif/P02-positive-supercell",
+    "NdNiO2 own.cif/P03-mixed-reordered-wrapped",
+    "NdNiO2 own.cif/F01-species-mismatch",
+    "NdNiO2 own.cif/F02-invalid-lattice",
+    "NdNiO2 own.cif/F03-distance-threshold"
+  ],
+  "official_action_required": [],
+  "official_audit_report": "ISODISTORT/output/validation/method4_official_audit.json",
   "official_download_root": "output_compare/<parent>/官网/Method4/<readable-case-folder>/",
   "local_download_root": "output_compare/<parent>/现有网页版交互/Method4/<readable-case-folder>/",
   "readable_case_folders": {
@@ -22,17 +51,53 @@
   },
   "per_case_downloads": [
     "the exact uploaded daughter.cif whose SHA-256 matches this manifest",
-    "parent-CIF identity and Complete modes details for the selected path/subgroup context",
+    "parent-CIF identity",
+    "basis/origin/matching page HTML plus a screenshot or print-to-PDF captured after dynamic controls were set; if the HTML was not preserved, retain the legible capture and record an evidence warning rather than rerunning accepted numerical artifacts",
     "complete Method 4 result page (HTML)",
+    "Complete modes details page (HTML) with the full official mode labels and order",
+    "the individually offered subgroup.cif, topas.str, and data.isoviz exports",
     "amplitude table txt/csv when offered; otherwise preserve the full HTML table",
     "official error page/text for expected failures"
   ],
+  "case_specific_downloads": {
+    "G05-origin-shift": [
+      "case root: explicit-origin run using official_origin_shift_parent_fractional, with the six standard artifacts, uploaded daughter copy, and completed-controls screenshot/PDF",
+      "auto-origin/: automatic-origin run with the same six standard artifact names and a completed-controls screenshot/PDF"
+    ],
+    "G06-near-bound-noise": [
+      "compare amplitudes for uniquely matched shared target modes",
+      "record nonzero extra official P1 modes; do not require official full-P1 residual to equal the local subgroup-restricted residual"
+    ],
+    "P02-positive-supercell": [
+      "input is scaled to a 0.30 angstrom maximum site displacement so nearest-site matching remains identifiable",
+      "preserve the superseded large-displacement nearest-site failure page as diagnostic evidence"
+    ],
+    "P03-mixed-reordered-wrapped": [
+      "input is scaled to a 0.35 angstrom maximum site displacement while retaining two components, reversed rows, and periodic images",
+      "preserve the superseded large-displacement nearest-site failure page as diagnostic evidence"
+    ],
+    "F02-invalid-lattice": [
+      "the frozen 8 percent lattice deformation is a valid homogeneous strain, not an incompatible lattice",
+      "EuAl4 official Method 4 accepted it as a pure-strain result; retain the downloaded result, details, CIF, TOPAS, IsoVIZ, controls, and uploaded daughter",
+      "the legacy expected-failure folder name is retained only to avoid moving or redownloading the authoritative archive",
+      "compare the six applied IsoVIZ strain-vector components after multiplying each symmetry-mode amplitude by its archived mode vector"
+    ]
+  },
   "local_only_checks": [
     "calling Method 4 before selecting/calculating modes must be rejected"
   ],
+  "local_validation_tolerances": {
+    "exact_amplitude_abs": 2e-07,
+    "exact_rms_residual_angstrom_max": 1e-06,
+    "noise_amplitude_abs": 0.0005,
+    "noise_rms_residual_angstrom_min": 1e-07,
+    "noise_rms_residual_angstrom_max": 0.005,
+    "strain_component_abs": 5e-07,
+    "strain_metric_relative_residual": 1e-10
+  },
   "parents": {
     "EuAl4 Parent.cif": {
-      "parent_cif": "experiment_data\\EuAl4 Parent.cif",
+      "parent_cif": "experiment_data/EuAl4 Parent.cif",
       "gamma_context": {
         "sg": 12,
         "irrep": "GM5+",
@@ -64,7 +129,7 @@
         "G01-zero": {
           "context": "gamma",
           "contributions": {
-            "GM2+[0,0,0]__d__B2(a)": 0.0
+            "GM5+__d__P1(1)__a": 0.0
           },
           "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/G01-zero/daughter.cif",
@@ -75,66 +140,72 @@
         "G02-positive-reordered": {
           "context": "gamma",
           "contributions": {
-            "GM2+[0,0,0]__d__B2(a)": 0.08
+            "GM5+__d__P1(1)__a": 0.08
           },
           "transform": "reverse atom rows",
           "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/G02-positive-reordered/daughter.cif",
-          "sha256": "4636f60730ba8fb1ee1a1bad70f14bf0389815295eac30626ae594b959fe9eba",
+          "sha256": "9d199f30157f62f0e2f50d503c4ca7bd89f5ce36f2e4f459290f3d8973ce41ab",
           "atom_count": 10,
           "formula": "Eu2 Al8"
         },
         "G03-negative-wrapped": {
           "context": "gamma",
           "contributions": {
-            "GM2+[0,0,0]__d__B2(a)": -0.08
+            "GM5+__d__P1(1)__a": -0.08
           },
           "transform": "integer periodic images",
           "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/G03-negative-wrapped/daughter.cif",
-          "sha256": "a92257ee42e467503132071cf28d52c45e83bc1f0a0a7a95b52b1544cba5655d",
+          "sha256": "4eeecf98a800cc321b3afb1eab7d01de02110f2a5aefab898f0b4eb9c8cf9319",
           "atom_count": 10,
           "formula": "Eu2 Al8"
         },
         "G04-two-mode": {
           "context": "gamma",
           "contributions": {
-            "GM2+[0,0,0]__d__B2(a)": 0.06,
-            "GM5+[0,0,0]__d__E(a)": -0.035
+            "GM5+__d__P1(1)__a": 0.06,
+            "GM2+__d__P1(1)__a": -0.035
           },
           "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/G04-two-mode/daughter.cif",
-          "sha256": "14bd05cf6f128f85222cfcc3649ca4f4f49e11783bb6584f0241cfdf71d31ff8",
+          "sha256": "ab91774577bfc262bf38b0fbfc834a5c49b44c0434fcb8f3a7f9595d6f10c0aa",
           "atom_count": 10,
           "formula": "Eu2 Al8"
         },
         "G05-origin-shift": {
           "context": "gamma",
           "contributions": {
-            "GM2+[0,0,0]__d__B2(a)": 0.06,
-            "GM5+[0,0,0]__d__E(a)": -0.035
+            "GM5+__d__P1(1)__a": 0.06,
+            "GM2+__d__P1(1)__a": -0.035
           },
           "provided_origin_shift": [
             0.125,
             0.25,
             0.0
           ],
+          "provided_origin_shift_coordinate_system": "daughter fractional",
+          "official_origin_shift_parent_fractional": [
+            -0.25,
+            -0.125,
+            -0.125
+          ],
           "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/G05-origin-shift/daughter.cif",
-          "sha256": "59f8f7d169b32cd6edb0b960303eb33e53f4bd8e97607a1e90f7743e1717c2a5",
+          "sha256": "a503025301b508690dcf3941f2080d39f1abd7d440ca0cef63a010a875a32dda",
           "atom_count": 10,
           "formula": "Eu2 Al8"
         },
         "G06-near-bound-noise": {
           "context": "gamma",
           "contributions": {
-            "GM2+[0,0,0]__d__B2(a)": 0.18,
-            "GM5+[0,0,0]__d__E(a)": 0.11
+            "GM5+__d__P1(1)__a": 0.18,
+            "GM2+__d__P1(1)__a": 0.11
           },
           "noise_sigma_fractional": 2e-05,
           "expect": "success_with_nonzero_residual",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/G06-near-bound-noise/daughter.cif",
-          "sha256": "3fb220d193eb6f95e34ef1f512176f424781d7ab4b0b2851823b32effa9f5148",
+          "sha256": "3123a08d4bd167fd371caf9b5779b8d6dc223024e66496ab515f28fbb718ef32",
           "atom_count": 10,
           "formula": "Eu2 Al8"
         },
@@ -152,24 +223,26 @@
         "P02-positive-supercell": {
           "context": "parameter",
           "contributions": {
-            "LD1[0,0,1/6]__a__A2u(a)": 0.07
+            "LD1[0,0,1/6]__a__A2u(a)": 0.004479082683865469
           },
+          "target_max_displacement_angstrom": 0.3,
           "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/P02-positive-supercell/daughter.cif",
-          "sha256": "deaeae72395ff01b0b5df2c1917cf38b75c6fb262e37cdb1bcb0589f8f531465",
+          "sha256": "330d02508fb33459a3d6522ca26be320d0ab3c6aff1dae1ee10e517becd3b73b",
           "atom_count": 60,
           "formula": "Eu12 Al48"
         },
         "P03-mixed-reordered-wrapped": {
           "context": "parameter",
           "contributions": {
-            "LD1[0,0,1/6]__a__A2u(a)": 0.05,
-            "LD1[0,0,1/6]__a__A2u(b)": -0.03
+            "LD1[0,0,1/6]__a__A2u(a)": 0.004481528317891248,
+            "LD1[0,0,1/6]__a__A2u(b)": -0.0026889169907347494
           },
+          "target_max_displacement_angstrom": 0.35,
           "transform": "reverse atom rows and integer periodic images",
           "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/P03-mixed-reordered-wrapped/daughter.cif",
-          "sha256": "b277bb77468f2c68ada5cda3a9eeb235795584d1cccb787233bba3d983c2dfee",
+          "sha256": "68eb78ec18ea4da3562cfb6a1bedcfec73286b1811d5f3386d632d18a41af41e",
           "atom_count": 60,
           "formula": "Eu12 Al48"
         },
@@ -183,7 +256,12 @@
         },
         "F02-invalid-lattice": {
           "context": "gamma",
-          "expect": "reject_incompatible_lattice",
+          "contributions": {
+            "GM5+__d__P1(1)__a": 0.0
+          },
+          "lattice_transform": "scale child direct-lattice vector 1 by 1.08",
+          "expect_nonzero_strain": true,
+          "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/F02-invalid-lattice/daughter.cif",
           "sha256": "8d84e644cb0d387f386f3ac39c1768f04db10ca25c2378887bc762cf0b58fd03",
           "atom_count": 10,
@@ -199,10 +277,162 @@
           "atom_count": 10,
           "formula": "Eu2 Al8"
         }
+      },
+      "resolved_contexts": {
+        "gamma": {
+          "candidate_identity": {
+            "irrep": "GM5+",
+            "opd": "P1",
+            "dir": "(a,0)",
+            "sg": "12 C2/m",
+            "basis": "{(0,1,1),(1,0,0),(0,0,-1)}",
+            "origin": "(0,0,0)",
+            "s": 1,
+            "i": 4,
+            "k_active": "(0,0,0)"
+          },
+          "basis_vectors": [
+            [
+              0.0,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              -1.0
+            ]
+          ],
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "space_group_number": 12,
+          "space_group_symbol": "C2/m",
+          "subgroup_index": 4,
+          "size": 1,
+          "k_point_label": "GM",
+          "k_parameters": [],
+          "k_coordinates": [
+            "0",
+            "0",
+            "0"
+          ],
+          "mode_labels": [
+            "GM5+__d__P1(1)__a",
+            "GM2+__d__P1(1)__a",
+            "GM5+__e__P1(1)__a",
+            "GM1+__e__P1(1)__a"
+          ]
+        },
+        "parameter": {
+          "candidate_identity": {
+            "irrep": "LD1",
+            "opd": "C1",
+            "dir": "(a,b)",
+            "sg": "99 P4mm",
+            "basis": "{(1,0,0),(0,1,0),(0,0,6)}",
+            "origin": "(0,0,0)",
+            "s": 12,
+            "i": 24,
+            "k_active": "(0,0,1/6)"
+          },
+          "basis_vectors": [
+            [
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              6.0
+            ]
+          ],
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "space_group_number": 99,
+          "space_group_symbol": "P4mm",
+          "subgroup_index": 24,
+          "size": 12,
+          "k_point_label": "LD",
+          "k_parameters": [
+            "1/6"
+          ],
+          "k_coordinates": [
+            "0",
+            "0",
+            "1/6"
+          ],
+          "mode_labels": [
+            "LD1[0,0,1/6]__a__A2u(a)",
+            "LD1[0,0,1/6]__a__A2u(b)",
+            "GM3-[0,0,0]__a__A2u(a)",
+            "LD1[0,0,1/3]__a__A2u(a)",
+            "LD1[0,0,1/3]__a__A2u(b)",
+            "LD1[0,0,1/2]__a__A2u(a)",
+            "LD1[0,0,1/2]__a__A2u(b)",
+            "LD1[0,0,2/3]__a__A2u(a)",
+            "LD1[0,0,2/3]__a__A2u(b)",
+            "LD1[0,0,5/6]__a__A2u(a)",
+            "LD1[0,0,5/6]__a__A2u(b)",
+            "M3-[1,1,1]__a__A2u(a)",
+            "LD1[0,0,1/6]__d__B2(a)",
+            "LD1[0,0,1/6]__d__B2(b)",
+            "GM3-[0,0,0]__d__B2(a)",
+            "LD1[0,0,1/3]__d__B2(a)",
+            "LD1[0,0,1/3]__d__B2(b)",
+            "LD1[0,0,1/2]__d__B2(a)",
+            "LD1[0,0,1/2]__d__B2(b)",
+            "LD1[0,0,2/3]__d__B2(a)",
+            "LD1[0,0,2/3]__d__B2(b)",
+            "LD1[0,0,5/6]__d__B2(a)",
+            "LD1[0,0,5/6]__d__B2(b)",
+            "M1+[1,1,1]__d__B2(a)",
+            "LD1[0,0,1/6]__e__A1_1(a)",
+            "LD1[0,0,1/6]__e__A1_1(b)",
+            "LD1[0,0,1/6]__e__A1_2(a)",
+            "LD1[0,0,1/6]__e__A1_2(b)",
+            "GM1+[0,0,0]__e__A1(a)",
+            "GM3-[0,0,0]__e__A1(a)",
+            "LD1[0,0,1/3]__e__A1_1(a)",
+            "LD1[0,0,1/3]__e__A1_1(b)",
+            "LD1[0,0,1/3]__e__A1_2(a)",
+            "LD1[0,0,1/3]__e__A1_2(b)",
+            "LD1[0,0,1/2]__e__A1_1(a)",
+            "LD1[0,0,1/2]__e__A1_1(b)",
+            "LD1[0,0,1/2]__e__A1_2(a)",
+            "LD1[0,0,1/2]__e__A1_2(b)",
+            "LD1[0,0,2/3]__e__A1_1(a)",
+            "LD1[0,0,2/3]__e__A1_1(b)",
+            "LD1[0,0,2/3]__e__A1_2(a)",
+            "LD1[0,0,2/3]__e__A1_2(b)",
+            "LD1[0,0,5/6]__e__A1_1(a)",
+            "LD1[0,0,5/6]__e__A1_1(b)",
+            "LD1[0,0,5/6]__e__A1_2(a)",
+            "LD1[0,0,5/6]__e__A1_2(b)",
+            "M1+[1,1,1]__e__A1(a)",
+            "M3-[1,1,1]__e__A1(a)"
+          ]
+        }
       }
     },
     "NdNiO2 own.cif": {
-      "parent_cif": "experiment_data\\NdNiO2 own.cif",
+      "parent_cif": "experiment_data/NdNiO2 own.cif",
       "gamma_context": {
         "sg": 6,
         "irrep": "GM5-",
@@ -234,7 +464,7 @@
         "G01-zero": {
           "context": "gamma",
           "contributions": {
-            "GM5-[0,0,0]__d__Eu(a)": 0.0
+            "GM5-__d__C1(1)__a": 0.0
           },
           "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/G01-zero/daughter.cif",
@@ -245,7 +475,7 @@
         "G02-positive-reordered": {
           "context": "gamma",
           "contributions": {
-            "GM5-[0,0,0]__d__Eu(a)": 0.08
+            "GM5-__d__C1(1)__a": 0.08
           },
           "transform": "reverse atom rows",
           "expect": "success",
@@ -257,7 +487,7 @@
         "G03-negative-wrapped": {
           "context": "gamma",
           "contributions": {
-            "GM5-[0,0,0]__d__Eu(a)": -0.08
+            "GM5-__d__C1(1)__a": -0.08
           },
           "transform": "integer periodic images",
           "expect": "success",
@@ -269,8 +499,8 @@
         "G04-two-mode": {
           "context": "gamma",
           "contributions": {
-            "GM5-[0,0,0]__d__Eu(a)": 0.06,
-            "GM5-[0,0,0]__d__Eu(b)": -0.035
+            "GM5-__d__C1(1)__a": 0.06,
+            "GM5-__d__C1(1)__b": -0.035
           },
           "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/G04-two-mode/daughter.cif",
@@ -281,13 +511,19 @@
         "G05-origin-shift": {
           "context": "gamma",
           "contributions": {
-            "GM5-[0,0,0]__d__Eu(a)": 0.06,
-            "GM5-[0,0,0]__d__Eu(b)": -0.035
+            "GM5-__d__C1(1)__a": 0.06,
+            "GM5-__d__C1(1)__b": -0.035
           },
           "provided_origin_shift": [
             0.125,
             0.25,
             0.0
+          ],
+          "provided_origin_shift_coordinate_system": "daughter fractional",
+          "official_origin_shift_parent_fractional": [
+            0.0,
+            -0.125,
+            -0.25
           ],
           "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/G05-origin-shift/daughter.cif",
@@ -298,8 +534,8 @@
         "G06-near-bound-noise": {
           "context": "gamma",
           "contributions": {
-            "GM5-[0,0,0]__d__Eu(a)": 0.18,
-            "GM5-[0,0,0]__d__Eu(b)": 0.11
+            "GM5-__d__C1(1)__a": 0.18,
+            "GM5-__d__C1(1)__b": 0.11
           },
           "noise_sigma_fractional": 2e-05,
           "expect": "success_with_nonzero_residual",
@@ -322,24 +558,26 @@
         "P02-positive-supercell": {
           "context": "parameter",
           "contributions": {
-            "Y1[1/3,1/2,0]__d__Eu(a)": 0.07
+            "Y1[1/3,1/2,0]__d__Eu(a)": 0.03825749846968759
           },
+          "target_max_displacement_angstrom": 0.3,
           "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/P02-positive-supercell/daughter.cif",
-          "sha256": "1dce618d711bf03589b81aa4509bb2def121920f57a4c13ec55ff8e438c0f57b",
+          "sha256": "cb40967bb044efea4e3b172210611b222f1fcdf314fda52019f25362aab9e954",
           "atom_count": 24,
           "formula": "Nd6 Ni6 O12"
         },
         "P03-mixed-reordered-wrapped": {
           "context": "parameter",
           "contributions": {
-            "Y1[1/3,1/2,0]__d__Eu(a)": 0.05,
-            "X1+[0,1/2,0]__d__Eu(a)": -0.03
+            "Y1[1/3,1/2,0]__d__Eu(a)": 0.027896092634155094,
+            "X1+[0,1/2,0]__d__Eu(a)": -0.016737655580493057
           },
+          "target_max_displacement_angstrom": 0.35,
           "transform": "reverse atom rows and integer periodic images",
           "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/P03-mixed-reordered-wrapped/daughter.cif",
-          "sha256": "eef72701ecd5f73bff58c654aa9156ce2669fbd4462fec116020bc7e0c7ad5d4",
+          "sha256": "5767c7ba01741a716e5dcda6f17d6d7d0952e1ef1a6c542dcd0ea003224f5e4c",
           "atom_count": 24,
           "formula": "Nd6 Ni6 O12"
         },
@@ -353,7 +591,12 @@
         },
         "F02-invalid-lattice": {
           "context": "gamma",
-          "expect": "reject_incompatible_lattice",
+          "contributions": {
+            "GM5-__d__C1(1)__a": 0.0
+          },
+          "lattice_transform": "scale child direct-lattice vector 1 by 1.08",
+          "expect_nonzero_strain": true,
+          "expect": "success",
           "daughter_cif": "ISODISTORT/output/validation/method4_inputs/NdNiO2/F02-invalid-lattice/daughter.cif",
           "sha256": "9d8f28dfb26399075f2407b785ca97606f4f84697d8e8831a438ce25b3e1ba3b",
           "atom_count": 4,
@@ -369,11 +612,132 @@
           "atom_count": 4,
           "formula": "Nd1 Ni1 O2"
         }
+      },
+      "resolved_contexts": {
+        "gamma": {
+          "candidate_identity": {
+            "irrep": "GM5-",
+            "opd": "C1",
+            "dir": "(a,b)",
+            "sg": "6 Pm",
+            "basis": "{(0,1,0),(0,0,1),(1,0,0)}",
+            "origin": "(0,0,0)",
+            "s": 1,
+            "i": 8,
+            "k_active": "(0,0,0)"
+          },
+          "basis_vectors": [
+            [
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "space_group_number": 6,
+          "space_group_symbol": "Pm",
+          "subgroup_index": 8,
+          "size": 1,
+          "k_point_label": "GM",
+          "k_parameters": [],
+          "k_coordinates": [
+            "0",
+            "0",
+            "0"
+          ],
+          "mode_labels": [
+            "GM5-__d__C1(1)__a",
+            "GM5-__d__C1(1)__b",
+            "GM5-__a__C1(1)__a",
+            "GM5-__a__C1(1)__b",
+            "GM5-__f__C1(1)__a",
+            "GM5-__f__C1(1)__b",
+            "GM5-__f__C1(1)__c",
+            "GM5-__f__C1(1)__d"
+          ]
+        },
+        "parameter": {
+          "candidate_identity": {
+            "irrep": "Y1",
+            "opd": "P1",
+            "dir": "(a,0;0,0)",
+            "sg": "47 Pmmm",
+            "basis": "{(-3,0,0),(0,0,1),(0,2,0)}",
+            "origin": "(0,0,0)",
+            "s": 6,
+            "i": 12,
+            "k_active": "(1/3,1/2,0)"
+          },
+          "basis_vectors": [
+            [
+              -3.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0
+            ],
+            [
+              0.0,
+              2.0,
+              0.0
+            ]
+          ],
+          "origin": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "space_group_number": 47,
+          "space_group_symbol": "Pmmm",
+          "subgroup_index": 12,
+          "size": 6,
+          "k_point_label": "Y",
+          "k_parameters": [
+            "1/3"
+          ],
+          "k_coordinates": [
+            "1/3",
+            "1/2",
+            "0"
+          ],
+          "mode_labels": [
+            "Y1[1/3,1/2,0]__d__Eu(a)",
+            "X1+[0,1/2,0]__d__Eu(a)",
+            "DT1[0,1/3,0]__d__Eu(a)",
+            "Y1[1/3,1/2,0]__a__Eu(a)",
+            "DT1[0,1/3,0]__a__Eu(a)",
+            "Y1[1/3,1/2,0]__f__B2u_1(a)",
+            "Y1[1/3,1/2,0]__f__B2u_2(a)",
+            "X1+[0,1/2,0]__f__B2u(a)",
+            "DT1[0,1/3,0]__f__B2u(a)",
+            "DT1[0,1/3,0]__f__B3u(a)"
+          ]
+        }
       }
     }
   },
-  "updated_at": "2026-09-24T04:27:32.623573+00:00",
-  "status": "inputs_frozen",
+  "updated_at": "2026-10-01T13:53:26+00:00",
+  "status": "inputs_refrozen_strain_capable",
   "case_count": 24,
-  "finished_at": "2026-09-24T04:27:32.625575+00:00"
+  "finished_at": "2026-10-01T13:53:26+00:00",
+  "local_validation_status": "pass",
+  "local_validation_report": "ISODISTORT/output/validation/method4_local_validation.json",
+  "local_validation_completed_at": "2026-10-01T13:57:20.567933+00:00"
 }

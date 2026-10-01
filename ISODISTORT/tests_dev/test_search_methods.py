@@ -676,7 +676,10 @@ def test_method3_full_entry_uses_uploaded_parent_lattice_for_stage_a() -> None:
     signatures: list[list[tuple[int, tuple[tuple[Fraction, ...], ...]]]] = []
     for structure in _i4mmm_coordinate_presentations():
         per_structure = []
-        for target, centering in ((139, "d"), (123, "P")):
+        for target, centering, expected_resolution in (
+            (139, "d", "affine_only_unresolved_coupled_route"),
+            (123, "P", "affine_only_infeasible"),
+        ):
             items = IsoSearchEngine(_NoRoutes()).method_3_search(
                 139,
                 Method3Query(
@@ -691,7 +694,7 @@ def test_method3_full_entry_uses_uploaded_parent_lattice_for_stage_a() -> None:
             )
             assert len(items) == 1
             assert items[0].routes == []
-            assert items[0].route_resolution == "affine_only_unresolved_coupled_route"
+            assert items[0].route_resolution == expected_resolution
             per_structure.append((
                 items[0].subgroup.space_group_number,
                 tuple(tuple(row) for row in items[0].subgroup.basis_vectors),
@@ -1893,6 +1896,52 @@ def test_special_modes_complete_only_wholly_rootless_orbits(monkeypatch) -> None
     assert "rootless orbit(s) e" in result.note
 
 
+def test_exact_fixed_space_method3_row_uses_complete_folded_mode_space(
+    monkeypatch,
+) -> None:
+    target = _method3_route("GM2+")
+    target.k_point_label = ""
+    target.irrep_label = ""
+    target.k_parameters = []
+    target._method3_route_resolution = "exact_fixed_space"
+    mode = DistortionMode(
+        irrep_label="GM2+",
+        wyckoff_site="a",
+        amplitude_key="GM2+[0,0,0]__a__A(a)",
+    )
+    seen = {}
+
+    def _fixed_space(parent, symmetry_info, selected, letters, smodes, **kwargs):
+        seen.update(kwargs)
+        assert selected is target
+        assert letters == ["a"]
+        return superspace_module.ParametricModeResult(
+            modes=[mode],
+            supercell_displacements={mode.amplitude_key: np.zeros((1, 3))},
+            labels={mode.amplitude_key: "complete coupled mode"},
+            nmod=0,
+            note="complete fixed space",
+        )
+
+    monkeypatch.setattr(superspace_module, "compute_parametric_modes", _fixed_space)
+    result = _make_engine().method_2_search(
+        3,
+        [target],
+        Method2Query(subgroup_idx=target.index, number_of_independent_modulations=3),
+        wyckoff_letters=["a"],
+        structure=Structure(Lattice.cubic(4), ["Na"], [[0, 0, 0]]),
+        wyckoff_sites=[],
+        smodes=object(),
+        kpoints=[],
+        symmetry_info={"space_group_number": 3},
+    )
+
+    assert result.modes == [mode]
+    assert seen["nmod"] == 0
+    assert result.metadata["coupled_mode_note"] == "complete fixed space"
+    assert set(result.metadata["supercell_displacements"]) == {mode.amplitude_key}
+
+
 def test_method_4_decomposition_recovery():
     engine = _make_engine()
 
@@ -1912,6 +1961,179 @@ def test_method_4_decomposition_recovery():
         Method4Query(atom_matching_method="nearest-site"),
     )
 
-    assert abs(result.amplitudes["GM1+"] - 0.03) < 1e-8
+    assert abs(result.raw_coefficients["GM1+"] - 0.03) < 1e-8
+    assert abs(result.amplitudes["GM1+"] - 0.15) < 1e-8
+    assert abs(result.parent_cell_amplitudes["GM1+"] - 0.15) < 1e-8
+    assert abs(result.mode_normfactors["GM1+"] - 0.2) < 1e-8
     assert abs(result.amplitudes["R5-"]) < 1e-8
     assert result.rms_residual < 1e-10
+
+
+def test_method_4_applies_origin_shift_and_reports_cartesian_residuals():
+    engine = _make_engine()
+    parent = Structure(
+        Lattice.orthorhombic(4.0, 5.0, 6.0),
+        ["Na", "Cl"],
+        [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5]],
+    )
+    mode = np.array([[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
+    shift = np.array([0.125, 0.25, 0.0])
+    distorted = Structure(
+        parent.lattice,
+        list(parent.species),
+        np.asarray(parent.frac_coords) + 0.03 * mode + shift,
+        coords_are_cartesian=False,
+        to_unit_cell=False,
+    )
+
+    result = engine.method_4_decompose(
+        parent,
+        distorted,
+        {"GM1+": mode},
+        Method4Query(provided_origin_shift=shift),
+    )
+
+    assert result.raw_coefficients["GM1+"] == pytest.approx(0.03, abs=1e-10)
+    assert result.amplitudes["GM1+"] == pytest.approx(0.12, abs=1e-10)
+    assert result.rms_residual == pytest.approx(0.0, abs=1e-10)
+    assert result.metadata["residual_unit"] == "angstrom"
+
+
+def test_method_4_uses_global_cartesian_atom_assignment():
+    engine = _make_engine()
+    parent = Structure(
+        Lattice.orthorhombic(10.0, 5.0, 5.0),
+        ["Na", "Na"],
+        [[0.10, 0.0, 0.0], [0.20, 0.0, 0.0]],
+    )
+    distorted = Structure(
+        parent.lattice,
+        ["Na", "Na"],
+        [[0.19, 0.0, 0.0], [0.00, 0.0, 0.0]],
+    )
+    mode = np.array([[0.0, 1.0, 0.0], [0.0, 0.0, 0.0]])
+
+    result = engine.method_4_decompose(
+        parent,
+        distorted,
+        {"mode": mode},
+        Method4Query(),
+    )
+
+    assert result.assignments == [1, 0]
+
+
+def test_method_4_decomposes_homogeneous_lattice_strain():
+    engine = _make_engine()
+    parent = Structure(Lattice.cubic(5.0), ["Na"], [[0.0, 0.0, 0.0]])
+    distorted = Structure(Lattice.cubic(5.4), ["Na"], [[0.0, 0.0, 0.0]])
+
+    result = engine.method_4_decompose(
+        parent,
+        distorted,
+        {"mode": np.ones((1, 3))},
+        Method4Query(),
+    )
+
+    assert result.strain_voigt_engineering == pytest.approx(
+        {"xx": 0.08, "yy": 0.08, "zz": 0.08, "2yz": 0, "2xz": 0, "2xy": 0}
+    )
+    assert result.metadata["strain_reconstruction_relative_metric_residual"] < 1e-14
+
+
+def test_method_4_rejects_basis_incompatible_with_reference_cell():
+    engine = _make_engine()
+    parent = Structure(Lattice.cubic(5.0), ["Na"], [[0.0, 0.0, 0.0]])
+
+    with pytest.raises(ValueError, match="basis is incompatible"):
+        engine.method_4_decompose(
+            parent,
+            parent.copy(),
+            {"mode": np.ones((1, 3))},
+            Method4Query(
+                reference_parent_lattice=np.eye(3).tolist(),
+                parent_to_child_basis=np.eye(3).tolist(),
+            ),
+        )
+
+
+def test_method_4_robust_threshold_is_cartesian_angstrom():
+    engine = _make_engine()
+    parent = Structure(
+        Lattice.orthorhombic(10.0, 2.0, 2.0),
+        ["Na"],
+        [[0.0, 0.0, 0.0]],
+    )
+    distorted = Structure(parent.lattice, ["Na"], [[0.06, 0.0, 0.0]])
+
+    with pytest.raises(ValueError, match="Cannot match"):
+        engine.method_4_decompose(
+            parent,
+            distorted,
+            {"mode": np.ones((1, 3))},
+            Method4Query(
+                atom_matching_method="robust",
+                robust_distance_threshold=0.25,
+            ),
+        )
+
+
+def test_method_4_rejects_rank_deficient_mode_basis():
+    engine = _make_engine()
+    parent = Structure(Lattice.cubic(5.0), ["Na"], [[0.0, 0.0, 0.0]])
+
+    with pytest.raises(ValueError, match="linearly dependent"):
+        engine.method_4_decompose(
+            parent,
+            parent.copy(),
+            {
+                "mode-a": np.array([[1.0, 0.0, 0.0]]),
+                "mode-b": np.array([[2.0, 0.0, 0.0]]),
+            },
+            Method4Query(),
+        )
+
+
+def test_method_4_reports_official_As_and_Ap_normalization():
+    engine = _make_engine()
+    parent = Structure(Lattice.cubic(4.0), ["Na"], [[0.0, 0.0, 0.0]])
+    mode = np.array([[1.0, 0.0, 0.0]])
+    distorted = Structure(parent.lattice, ["Na"], [[0.03, 0.0, 0.0]])
+
+    result = engine.method_4_decompose(
+        parent,
+        distorted,
+        {"mode": mode},
+        Method4Query(primitive_cell_multiplicity=2, supercell_size=4),
+    )
+
+    assert result.raw_coefficients["mode"] == pytest.approx(0.03)
+    assert result.mode_normfactors["mode"] == pytest.approx(np.sqrt(2) / 4)
+    assert result.amplitudes["mode"] == pytest.approx(0.12 / np.sqrt(2))
+    assert result.parent_cell_amplitudes["mode"] == pytest.approx(0.06 / np.sqrt(2))
+
+
+def test_method_4_api_uses_selected_child_cell_and_precomputed_modes():
+    api = object.__new__(IsoDistort)
+    api.structure = Structure(
+        Lattice.orthorhombic(4.0, 5.0, 6.0),
+        ["Na"],
+        [[0.25, 0.0, 0.0]],
+    )
+    api._selected_subgroup = SimpleNamespace(
+        basis_vectors=[[0, 1, 0], [1, 0, 0], [0, 0, -1]],
+    )
+    api.mode_displacements = {
+        "parent-mode": {"displacements": np.array([[1.0, 0.0, 0.0]])},
+    }
+    child_mode = np.array([[0.0, 0.25, 0.0]])
+    api.mode_displacements_sc = {"child-mode": child_mode}
+    api._dist_engine = SimpleNamespace()
+
+    expected_child = api._supercell_for_subgroup(api._selected_subgroup)
+    reference, modes = api._method4_reference_modes(expected_child.copy())
+
+    assert np.allclose(reference.lattice.matrix, expected_child.lattice.matrix)
+    assert np.allclose(reference.frac_coords, expected_child.frac_coords)
+    assert set(modes) == {"child-mode"}
+    assert np.array_equal(modes["child-mode"], child_mode)

@@ -19,6 +19,7 @@ from isocore.distortion.inverse_landau_adapter import (
     build_selected_character_representation,
     build_selected_representation,
     diagnose_embedding_feasibility,
+    diagnose_embeddings_feasibility,
     stable_embedding_id,
 )
 from isocore.utils.lattice import identity_matrix, multiply, rational_matrix
@@ -173,6 +174,43 @@ def test_real_ndnio2_strain_cannot_break_translation_but_displacement_can() -> N
     assert displacive.fixed_space.is_reachable
 
 
+def test_batch_feasibility_matches_individual_character_criterion() -> None:
+    structure = Structure.from_file(experiment_data_dir() / "NdNiO2 own.cif")
+    parent = parent_affine_group(structure)
+    identity = AffineOperation(
+        identity_matrix(),
+        (Fraction(0), Fraction(0), Fraction(0)),
+    )
+    embeddings = [
+        AffineEmbedding(parent.lattice, parent.operations, parent.hall_number),
+        AffineEmbedding(parent.lattice, (identity,)),
+    ]
+
+    batch = diagnose_embeddings_feasibility(
+        parent,
+        embeddings,
+        structure,
+        ("strain", "displacive"),
+    )
+    individual = [
+        diagnose_embedding_feasibility(
+            parent,
+            embedding,
+            structure,
+            ("strain", "displacive"),
+        )
+        for embedding in embeddings
+    ]
+
+    assert [item.status for item in batch] == [item.status for item in individual]
+    assert [item.embedding_id for item in batch] == [
+        item.embedding_id for item in individual
+    ]
+    assert [item.fixed_space.is_reachable for item in batch] == [
+        item.fixed_space.is_reachable for item in individual
+    ]
+
+
 def test_real_selected_character_bundle_matches_dense_representation() -> None:
     structure = Structure.from_file(experiment_data_dir() / "NdNiO2 own.cif")
     parent = parent_affine_group(structure)
@@ -207,6 +245,37 @@ def test_real_selected_character_bundle_matches_dense_representation() -> None:
         character.representation
     ).analyze(subgroup)
     assert character_result == dense_result
+
+
+def test_selected_species_displacement_keeps_relative_uniform_vector() -> None:
+    structure = Structure.from_file(experiment_data_dir() / "NdNiO2 own.cif")
+    parent = parent_affine_group(structure)
+    quotient = build_affine_quotient(parent, parent.lattice)
+
+    dense = build_selected_representation(
+        parent,
+        quotient,
+        structure,
+        "displacive",
+        displacive_species=("Nd",),
+    )
+    character = build_selected_character_representation(
+        parent,
+        quotient,
+        structure,
+        "displacive",
+        displacive_species=("Nd",),
+    )
+
+    assert dense.site_count == 1
+    assert dense.representation is not None
+    assert dense.representation.dimension == 3
+    assert character.representation is not None
+    assert character.representation.dimension == 3
+    assert character.representation.characters == tuple(
+        sum(matrix[index][index] for index in range(len(matrix)))
+        for matrix in dense.representation.matrices
+    )
 
 
 def test_rotational_and_magnetic_are_explicitly_unsupported() -> None:

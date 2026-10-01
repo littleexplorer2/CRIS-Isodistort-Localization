@@ -21,14 +21,15 @@ from .paths import (
     resolve_isoviz_path,
     strip_user_path,
 )
+from .validation import section_scalar, validate_patched_text
 
 __all__ = [
-    "Config",
     "DATA_DIR",
     "INPUT_ROOT",
+    "STRUCTURE_DIR",
+    "Config",
     "ModeAmplitude",
     "PatchReport",
-    "STRUCTURE_DIR",
     "apply_amplitudes",
     "best_model_root",
     "ensure_best_model_root",
@@ -41,5 +42,7 @@ __all__ = [
     "read_amplitude_csv",
     "resolve_best_model_csv",
     "resolve_isoviz_path",
+    "section_scalar",
     "strip_user_path",
+    "validate_patched_text",
 ]
