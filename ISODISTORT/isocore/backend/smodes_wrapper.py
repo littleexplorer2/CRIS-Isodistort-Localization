@@ -206,7 +206,16 @@ class SmodesWrapper(BaseWrapper):
         ]
         for site in wyckoff_sites:
             idx = site["representative_index"]
-            frac = structure[idx].frac_coords
+            standard = site.get("standard_representative_frac_coords")
+            if standard is None:
+                frac = np.asarray(structure[idx].frac_coords, dtype=float)
+            else:
+                frac = np.asarray(standard, dtype=float)
+                if frac.shape != (3,) or not np.all(np.isfinite(frac)):
+                    raise ValueError(
+                        "standard Wyckoff representative must be a finite "
+                        "fractional 3-vector"
+                    )
             letter = site["wyckoff_letter"]
             species = site["species"]
             # smodes：Wyckoff 字母 + 分数坐标（无自由度坐标可省略）

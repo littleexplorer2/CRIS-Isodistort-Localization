@@ -7,16 +7,26 @@ from fractions import Fraction
 from pathlib import Path
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
 
 import isocore.api
 import tests_dev.manual.validate_method_outputs as validation_module
+from tests_dev.manual.audit_method1_4310_live import (
+    _atomic_json,
+    _classify_cif_result,
+    _frozen_pair_preflight,
+    _frozen_preflight_summary,
+    _frozen_report_status,
+    _source_record_set_integrity,
+)
 from tests_dev.manual.validate_method_outputs import (
     _count_local_displacive_modes,
     _live12_checkpoint_policy,
     _live12_signature,
     audit_output_root,
     bases_generate_same_lattice,
+    compare_cif_alternate_settings,
     parse_candidate_header,
     run_live_method12_audit,
 )
@@ -24,6 +34,33 @@ from tests_dev.manual.validate_method_outputs import (
 
 def _basis(rows: tuple[tuple[int, int, int], ...]):
     return tuple(tuple(Fraction(value) for value in row) for row in rows)
+
+
+def test_4310_audit_json_converts_numpy_scalars_and_rejects_unknowns(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "report.json"
+    _atomic_json(
+        output,
+        {
+            "passed": np.bool_(True),
+            "rank": np.int64(3),
+            "nonfinite": [
+                float("inf"),
+                float("-inf"),
+                float("nan"),
+                np.float64("inf"),
+            ],
+        },
+    )
+    assert json.loads(output.read_text(encoding="utf-8")) == {
+        "passed": True,
+        "rank": 3,
+        "nonfinite": [None, None, None, None],
+    }
+
+    with pytest.raises(TypeError, match="is not JSON serializable"):
+        _atomic_json(output, {"unsupported": object()})
 
 
 def test_equivalent_basis_accepts_integer_unimodular_change() -> None:
@@ -36,6 +73,732 @@ def test_equivalent_basis_rejects_different_sublattice() -> None:
     reference = _basis(((1, 0, 0), (0, 1, 0), (0, 0, 2)))
     different = _basis(((2, 0, 0), (0, 1, 0), (0, 0, 2)))
     assert not bases_generate_same_lattice(reference, different)
+
+
+def _write_setting_cif(
+    path: Path,
+    *,
+    basis: str = "(1,0,0),(0,1,0),(0,0,1)",
+    origin: str = "(0,0,0)",
+    cell: tuple[str, str, str, str, str, str] = (
+        "1.00000",
+        "1.00000",
+        "1.00000",
+        "90.00000",
+        "90.00000",
+        "90.00000",
+    ),
+    species: str = "C",
+    coordinates: tuple[str, str, str] = ("0.10000", "0.20000", "0.30000"),
+    occupancy: str = "1.00000",
+    atom_rows: tuple[tuple[str, str, str, str, str, str], ...] | None = None,
+    symmetry_operations: tuple[str, ...] | None = ("x,y,z",),
+    magnetic_moments: tuple[tuple[str, str, str], ...] | None = None,
+    space_group_symbol: str = "P 1",
+    space_group_number: str | None = "1",
+) -> None:
+    a, b, c, alpha, beta, gamma = cell
+    x, y, z = coordinates
+    number_line = (
+        f"_symmetry_Int_Tables_number {space_group_number}\n"
+        if space_group_number is not None
+        else ""
+    )
+    if atom_rows is None:
+        atom_rows = ((f"{species}1", species, x, y, z, occupancy),)
+    if magnetic_moments is not None and len(magnetic_moments) != len(atom_rows):
+        raise ValueError("magnetic moment rows must align with atom rows")
+    symmetry_loop = ""
+    if symmetry_operations is not None:
+        symmetry_loop = (
+            "loop_\n_symmetry_equiv_pos_as_xyz\n"
+            + "\n".join(f"'{operation}'" for operation in symmetry_operations)
+            + "\n"
+        )
+    moment_columns = ""
+    if magnetic_moments is not None:
+        moment_columns = (
+            "_atom_site_moment.crystalaxis_x\n"
+            "_atom_site_moment.crystalaxis_y\n"
+            "_atom_site_moment.crystalaxis_z\n"
+        )
+    atom_lines = []
+    for index, row in enumerate(atom_rows):
+        fields = list(row)
+        if magnetic_moments is not None:
+            fields.extend(magnetic_moments[index])
+        atom_lines.append(" ".join(fields))
+    path.write_text(
+        f"""# IR: GM1+
+# P1 (a) 1 P1, basis={{{basis}}}, origin={origin}, s=1, i=1, k-active= (0,0,0)
+data_test
+_cell_length_a {a}
+_cell_length_b {b}
+_cell_length_c {c}
+_cell_angle_alpha {alpha}
+_cell_angle_beta {beta}
+_cell_angle_gamma {gamma}
+_symmetry_space_group_name_H-M '{space_group_symbol}'
+{number_line}{symmetry_loop}loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+{moment_columns}{chr(10).join(atom_lines)}
+""",
+        encoding="utf-8",
+    )
+
+
+def test_precision_cif_comparison_applies_exact_basis_origin_and_rounding(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(
+        local,
+        basis="(1,1,0),(0,1,0),(0,0,1)",
+        origin="(1/2,0,0)",
+        cell=(
+            "1.41421",
+            "1.00000",
+            "1.00000",
+            "90.00000",
+            "90.00000",
+            "45.00000",
+        ),
+        coordinates=("0.10000", "0.20000", "0.30000"),
+    )
+    _write_setting_cif(
+        official,
+        coordinates=("0.59999", "0.30001", "0.30000"),
+    )
+
+    comparison = compare_cif_alternate_settings(local, official)
+
+    assert comparison.equivalent
+    assert comparison.conclusive
+    assert comparison.details["transform"] == {
+        "local_to_official_matrix": [[1, 1, 0], [0, 1, 0], [0, 0, 1]],
+        "origin_shift_in_official_cell": ["1/2", 0, 0],
+        "determinant": 1,
+        "integer": True,
+        "unimodular": True,
+        "unique": True,
+        "coordinate_convention": "x_official = x_local @ U + q (mod 1)",
+    }
+    assert comparison.details["precision"][
+        "coordinate_bound_by_official_component"
+    ] == pytest.approx([1e-5, 1.5e-5, 1e-5])
+    assert comparison.details["lattice"]["metric_equal_at_output_precision"]
+    assert comparison.details["sites"]["coordinates_equal_at_output_precision"]
+
+
+@pytest.mark.parametrize(
+    ("change", "expected_issue"),
+    [
+        ({"coordinates": ("0.10002", "0.20000", "0.30000")}, "coordinate-mismatch-outside-output-precision"),
+        ({"species": "O"}, "species-count-mismatch"),
+        ({"occupancy": "0.99998"}, "occupancy-mismatch-outside-output-precision"),
+    ],
+)
+def test_precision_cif_comparison_rejects_semantic_changes(
+    tmp_path: Path,
+    change: dict[str, object],
+    expected_issue: str,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(local, **change)
+    _write_setting_cif(official)
+
+    comparison = compare_cif_alternate_settings(local, official)
+
+    assert not comparison.equivalent
+    assert expected_issue in comparison.details["issues"]
+    if expected_issue == "coordinate-mismatch-outside-output-precision":
+        assert "occupancy-mismatch-outside-output-precision" not in comparison.details["issues"]
+
+
+def test_precision_cif_comparison_accepts_occupancy_rounding_boundary(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(local, occupancy="0.99999")
+    _write_setting_cif(official, occupancy="1.00000")
+
+    comparison = compare_cif_alternate_settings(local, official)
+
+    assert comparison.equivalent
+    assert not comparison.details["sites"]["composition_equal"]
+    assert comparison.details["sites"]["occupancies_equal_at_output_precision"]
+
+
+def test_precision_cif_comparison_rejects_gram_difference_beyond_precision(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(
+        local,
+        basis="(1,1,0),(0,1,0),(0,0,1)",
+        cell=(
+            "1.41430",
+            "1.00000",
+            "1.00000",
+            "90.00000",
+            "90.00000",
+            "45.00000",
+        ),
+    )
+    _write_setting_cif(
+        official,
+        coordinates=("0.10000", "0.30000", "0.30000"),
+    )
+
+    comparison = compare_cif_alternate_settings(local, official)
+
+    assert not comparison.equivalent
+    assert "lattice-metric-outside-output-precision" in comparison.details["issues"]
+    assert comparison.details["lattice"]["failed_components"]
+
+
+def test_precision_cif_comparison_requires_one_joint_metric_witness(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(
+        local,
+        basis="(1,1,0),(0,1,0),(0,0,1)",
+        cell=(
+            "1.58113883",
+            "1.00000000",
+            "1.00000000",
+            "90.00000000",
+            "90.00000000",
+            "18.43494882",
+        ),
+        coordinates=("0.10000000", "0.20000000", "0.30000000"),
+    )
+    # Every transformed Gram-component interval overlaps independently because
+    # the printed official b length is intentionally coarse.  The same b cannot
+    # satisfy local G22=1 and local G12=1.5, so there is no joint cell witness.
+    _write_setting_cif(
+        official,
+        cell=(
+            "1.00000000",
+            "1",
+            "1.00000000",
+            "90.00000000",
+            "90.00000000",
+            "90.00000000",
+        ),
+        coordinates=("0.10000000", "0.30000000", "0.30000000"),
+    )
+
+    comparison = compare_cif_alternate_settings(
+        local,
+        official,
+        direct_details={},
+    )
+
+    assert not comparison.details["lattice"]["failed_components"]
+    assert not comparison.details["lattice"]["joint_feasibility_witness"]["found"]
+    assert not comparison.equivalent
+    assert not comparison.conclusive
+    assert "lattice-output-precision-joint-feasibility-not-proven" in (
+        comparison.details["inconclusive_reasons"]
+    )
+
+
+def test_precision_cif_comparison_rejects_non_unimodular_basis(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(local, basis="(2,0,0),(0,1,0),(0,0,1)")
+    _write_setting_cif(official)
+
+    comparison = compare_cif_alternate_settings(local, official)
+
+    assert not comparison.equivalent
+    assert comparison.details["transform"]["determinant"] == 2
+    assert comparison.details["issues"] == ["non-unimodular-basis-transform"]
+
+
+def test_precision_cif_comparison_marks_multiple_setting_headers_inconclusive(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(local)
+    _write_setting_cif(official)
+    text = local.read_text(encoding="utf-8")
+    duplicate = next(
+        line
+        for line in text.splitlines()
+        if line.startswith("#") and "basis={" in line
+    )
+    local.write_text(f"{duplicate}\n{text}", encoding="utf-8")
+
+    comparison = compare_cif_alternate_settings(
+        local,
+        official,
+        direct_details={},
+    )
+
+    assert not comparison.equivalent
+    assert not comparison.conclusive
+    assert not comparison.details["transform"]["unique"]
+    assert comparison.details["inconclusive_reasons"] == [
+        "setting-transform-not-uniquely-declared"
+    ]
+
+
+def test_precision_cif_comparison_conjugates_full_seitz_set_exactly(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(
+        local,
+        basis="(1,1,0),(0,1,0),(0,0,1)",
+        origin="(1/2,1/3,1/4)",
+        cell=(
+            "1.41421356",
+            "1.00000000",
+            "1.00000000",
+            "90.00000000",
+            "90.00000000",
+            "45.00000000",
+        ),
+        coordinates=("0.10000000", "0.20000000", "0.30000000"),
+        symmetry_operations=(
+            "x,y,z",
+            "x,y,z",  # duplicate declarations are removed before set comparison
+            "y+1/4,x+3/4,z+1/2",
+            "y+1/4,x+3/4,z+1/2",
+        ),
+    )
+    _write_setting_cif(
+        official,
+        cell=(
+            "1.00000000",
+            "1.00000000",
+            "1.00000000",
+            "90.00000000",
+            "90.00000000",
+            "90.00000000",
+        ),
+        coordinates=("0.60000000", "0.63333333", "0.55000000"),
+        symmetry_operations=(
+            "x,y,z",
+            "-x+y+11/12,y+1,z+1/2",
+        ),
+    )
+
+    comparison = compare_cif_alternate_settings(
+        local,
+        official,
+        direct_details={},
+    )
+
+    assert comparison.equivalent
+    operation = comparison.details["space_group"]["operation_comparison"]
+    assert operation["status"] == "equivalent"
+    assert operation["local_declared_operation_count"] == 4
+    assert operation["local_unique_operation_count"] == 2
+    assert operation["official_declared_operation_count"] == 2
+    assert operation["official_unique_operation_count"] == 2
+    witness = comparison.details["lattice"]["joint_feasibility_witness"]
+    assert witness["all_six_gram_components_jointly_validated"]
+    assert all(witness["local_components_inside_printed_box_intervals"])
+    assert all(witness["official_components_inside_printed_box_intervals"])
+
+
+def test_precision_cif_comparison_rejects_tampered_seitz_translation(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    common_local = {
+        "basis": "(1,1,0),(0,1,0),(0,0,1)",
+        "origin": "(1/2,1/3,1/4)",
+        "cell": (
+            "1.41421356",
+            "1.00000000",
+            "1.00000000",
+            "90.00000000",
+            "90.00000000",
+            "45.00000000",
+        ),
+        "coordinates": ("0.10000000", "0.20000000", "0.30000000"),
+        "symmetry_operations": ("x,y,z", "y+1/4,x+3/4,z+1/2"),
+    }
+    _write_setting_cif(local, **common_local)
+    _write_setting_cif(
+        official,
+        cell=(
+            "1.00000000",
+            "1.00000000",
+            "1.00000000",
+            "90.00000000",
+            "90.00000000",
+            "90.00000000",
+        ),
+        coordinates=("0.60000000", "0.63333333", "0.55000000"),
+        symmetry_operations=("x,y,z", "-x+y+1/12,y,z+1/2"),
+    )
+
+    comparison = compare_cif_alternate_settings(
+        local,
+        official,
+        direct_details={},
+    )
+
+    assert not comparison.equivalent
+    assert comparison.conclusive
+    assert "declared-space-group-operation-mismatch" in comparison.details["issues"]
+    operation = comparison.details["space_group"]["operation_comparison"]
+    assert operation["missing_operation_count"] == 1
+    assert operation["extra_operation_count"] == 1
+
+
+def test_precision_cif_comparison_keeps_inferred_symmetry_diagnostic(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(local)
+    _write_setting_cif(official)
+    direct_details = {
+        "declared_space_group_equal": True,
+        "inferred_space_group_equal": False,
+        "space_group": {
+            "local_inferred": {"number": 123, "symbol": "P4/mmm"},
+            "reference_inferred": {"number": 139, "symbol": "I4/mmm"},
+        },
+        "issues": [
+            "spglib-inferred space group differs",
+            "declared space group does not match spglib inference",
+        ],
+    }
+
+    comparison = compare_cif_alternate_settings(
+        local,
+        official,
+        direct_details=direct_details,
+    )
+
+    assert comparison.equivalent
+    assert comparison.details["space_group"]["inference_is_diagnostic_only"]
+    assert comparison.details["diagnostics"] == [
+        "spglib-inferred-space-group-differs",
+        "declared-space-group-differs-from-spglib-inference",
+    ]
+
+
+def test_precision_cif_comparison_prefers_declared_it_number_over_symbol(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(local, space_group_symbol="P 1")
+    _write_setting_cif(official, space_group_symbol="P1 alternate spelling")
+
+    comparison = compare_cif_alternate_settings(local, official)
+
+    assert comparison.equivalent
+    assert comparison.details["space_group"]["declared_comparison_status"] == (
+        "same-it-number"
+    )
+    assert "declared-symbol-differs-with-same-it-number" in comparison.details[
+        "diagnostics"
+    ]
+
+
+def test_precision_cif_comparison_rejects_different_declared_it_numbers(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(local, space_group_number="1")
+    _write_setting_cif(official, space_group_number="2")
+
+    comparison = compare_cif_alternate_settings(local, official)
+
+    assert not comparison.equivalent
+    assert "declared-space-group-it-number-mismatch" in comparison.details["issues"]
+
+
+def test_precision_cif_comparison_marks_unresolved_symbols_inconclusive(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(
+        local,
+        space_group_symbol="P 1",
+        space_group_number=None,
+        symmetry_operations=None,
+    )
+    _write_setting_cif(
+        official,
+        space_group_symbol="P1 alternate setting",
+        space_group_number=None,
+        symmetry_operations=None,
+    )
+
+    comparison = compare_cif_alternate_settings(local, official, direct_details={})
+
+    assert not comparison.equivalent
+    assert not comparison.conclusive
+    assert comparison.details["space_group"]["declared_comparison_status"] == (
+        "inconclusive-without-comparable-it-numbers"
+    )
+    assert "declared-space-group-comparison-inconclusive" in comparison.details[
+        "diagnostics"
+    ]
+    assert comparison.details["inconclusive_reasons"] == [
+        "declared-space-group-operation-equivalence-not-proven"
+    ]
+
+
+def test_precision_cif_comparison_allows_disordered_site_total_occupancy_one(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    rows = (
+        ("C1", "C", "0.10000", "0.20000", "0.30000", "0.40000"),
+        ("O1", "O", "0.10000", "0.20000", "0.30000", "0.60000"),
+    )
+    _write_setting_cif(local, atom_rows=rows)
+    _write_setting_cif(official, atom_rows=rows)
+
+    comparison = compare_cif_alternate_settings(
+        local,
+        official,
+        direct_details={},
+    )
+
+    assert comparison.equivalent
+    assert comparison.details["sites"]["local_atom_count"] == 2
+    assert comparison.details["sites"]["local_composition"] == {"C": 0.4, "O": 0.6}
+
+
+def test_precision_cif_comparison_rejects_raw_occupancy_above_one(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(local, occupancy="1.10000")
+    _write_setting_cif(official)
+
+    with pytest.raises(ValueError, match="invalid occupancy"):
+        compare_cif_alternate_settings(local, official, direct_details={})
+
+
+def test_precision_cif_comparison_rejects_total_site_occupancy_above_one(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    rows = (
+        ("C1", "C", "0.10000", "0.20000", "0.30000", "0.60000"),
+        ("O1", "O", "0.10000", "0.20000", "0.30000", "0.50000"),
+    )
+    _write_setting_cif(local, atom_rows=rows)
+    _write_setting_cif(official)
+
+    with pytest.raises(ValueError, match="exceed total occupancy 1"):
+        compare_cif_alternate_settings(local, official, direct_details={})
+
+
+def test_precision_cif_comparison_requires_one_aligned_raw_atom_loop(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(local)
+    _write_setting_cif(official)
+    text = local.read_text(encoding="utf-8")
+    normal_loop = """loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+C1 C 0.10000 0.20000 0.30000 1.00000
+"""
+    split_loops = """loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_z
+_atom_site_occupancy
+C1 C 0.10000 0.30000 1.00000
+loop_
+_atom_site_fract_y
+0.20000
+"""
+    local.write_text(text.replace(normal_loop, split_loops), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="exactly one atom-site loop"):
+        compare_cif_alternate_settings(local, official, direct_details={})
+
+
+def test_precision_cif_comparison_propagates_precision_per_atom_row(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(
+        local,
+        atom_rows=(
+            ("C1", "C", "0.10002", "0.20000", "0.30000", "1.00000"),
+            ("O1", "O", "0.5", "0.6", "0.7", "1.0"),
+        ),
+    )
+    _write_setting_cif(
+        official,
+        atom_rows=(
+            ("C1", "C", "0.10000", "0.20000", "0.30000", "1.00000"),
+            ("O1", "O", "0.5", "0.6", "0.7", "1.0"),
+        ),
+    )
+
+    comparison = compare_cif_alternate_settings(
+        local,
+        official,
+        direct_details={},
+    )
+
+    assert not comparison.equivalent
+    assert comparison.conclusive
+    assert "coordinate-mismatch-outside-output-precision" in comparison.details["issues"]
+    assert comparison.details["precision"][
+        "local_coordinate_quantum_ranges_by_component"
+    ][0] == pytest.approx([1e-5, 0.1])
+
+
+def test_precision_cif_comparison_marks_magnetic_cif_inconclusive(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    _write_setting_cif(
+        local,
+        magnetic_moments=(("1.0", "0.0", "0.0"),),
+    )
+    _write_setting_cif(
+        official,
+        magnetic_moments=(("1.0", "0.0", "0.0"),),
+    )
+
+    comparison = compare_cif_alternate_settings(
+        local,
+        official,
+        direct_details={},
+    )
+
+    assert not comparison.equivalent
+    assert not comparison.conclusive
+    assert "magnetic-moment-setting-transform-not-implemented" in (
+        comparison.details["inconclusive_reasons"]
+    )
+
+
+def test_direct_match_cannot_override_precision_aware_failure() -> None:
+    setting = SimpleNamespace(equivalent=False, conclusive=True)
+
+    assert _classify_cif_result(
+        setting,
+        direct_structure_equal=True,
+        equivalent_setting_label="precision-equivalent-setting",
+    ) == "failed"
+
+
+def test_frozen_report_integrity_closes_count_uniqueness_and_drift_gates() -> None:
+    source = {
+        "summary": {"completed_records": 2},
+        "identity": {
+            "paired_candidates": 2,
+            "official_candidates": 2,
+            "live_candidates": 2,
+            "duplicate_live": [],
+            "duplicate_official": [],
+            "extra_live": [],
+            "missing_live": [],
+        },
+        "signature_unchanged_at_completion": True,
+    }
+    duplicate_records = [
+        {"identity": "same", "position": 1, "errors": []},
+        {"identity": "same", "position": 1, "errors": []},
+    ]
+
+    failures, expected_count, identities, positions = _source_record_set_integrity(
+        source,
+        duplicate_records,
+    )
+    codes = {failure["code"] for failure in failures}
+
+    assert expected_count == 2
+    assert identities == ["same", "same"]
+    assert positions == [1, 1]
+    assert "source-identities-not-unique-and-complete" in codes
+    assert "source-positions-not-unique-and-complete" in codes
+    accepted_records = [
+        {"status": "direct"},
+        {"status": "precision-equivalent-setting"},
+    ]
+    assert _frozen_report_status(accepted_records, failures) == "complete-failed"
+    assert _frozen_report_status(
+        accepted_records,
+        [{"code": "frozen-cif-corpus-changed-during-reanalysis"}],
+    ) == "complete-failed"
+    assert _frozen_report_status(accepted_records, []) == "complete-passed"
+
+
+def test_frozen_pair_preflight_records_raw_loops_operations_and_unique_transform(
+    tmp_path: Path,
+) -> None:
+    local = tmp_path / "local.cif"
+    official = tmp_path / "official.cif"
+    rows = (
+        ("C1", "C", "0.10000", "0.20000", "0.30000", "0.40000"),
+        ("O1", "O", "0.10000", "0.20000", "0.30000", "0.60000"),
+    )
+    _write_setting_cif(local, atom_rows=rows)
+    _write_setting_cif(official, atom_rows=rows)
+
+    preflight = _frozen_pair_preflight(local, official)
+    summary = _frozen_preflight_summary([{"preflight": preflight}])
+
+    assert preflight["transform"] == {
+        "unique": True,
+        "matrix": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+        "origin_shift": [0, 0, 0],
+        "determinant": 1,
+        "integer": True,
+        "unimodular": True,
+    }
+    assert preflight["local"]["atom_site_raw_row_count"] == 2
+    assert preflight["local"]["space_group_operation_tags"] == [
+        "_symmetry_equiv_pos_as_xyz"
+    ]
+    assert preflight["local"]["space_group_declared_operation_count"] == 1
+    assert preflight["local"]["space_group_unique_operation_count"] == 1
+    assert summary["record_pairs_parsed"] == 1
+    assert summary["parse_error_count"] == 0
+    assert summary["unique_transform_count"] == 1
+    assert summary["non_unimodular_transform_count"] == 0
 
 
 def test_candidate_identity_reduces_origin_modulo_integer_translation(tmp_path: Path) -> None:

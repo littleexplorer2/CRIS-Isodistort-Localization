@@ -10,8 +10,25 @@
   `D:\OneDrive\...` 原始数据。
 - 可改主体：`ISODISTORT/`（除 `isobyu/`）、`ISODISTORT_VALIDATE/`、
   `ISOVIZ_INPUT/`。
-- 三个子项目共用根目录 `.venv`；运行 Python 一律用
-  `.\.venv\Scripts\python.exe`，除非用户明确要求，不重建环境。
+- 三个子项目共用根目录内的实体 `.venv`，除非用户明确要求，不重建环境。普通
+  Python 命令使用 `.\.venv\Scripts\python.exe`；本机从 OneDrive 内的解释器调用
+  WSL 会触发 `Wsl/E_ACCESSDENIED`，需要 WSL 的 ISODISTORT 命令改用根目录
+  `.\run_cris.ps1 <Python 参数>`，包括 `main_web.py`、`main_terminal.py` 和相关测试；
+  其依赖仍只从 `.venv` 加载。两个入口会拒绝已知必失败的直接 `.venv` 启动。
+
+## DSH 诊断会话
+
+- DSH 源码 checkout 为 `C:\Users\devou\deepseek-harness`。从 CRIS 根目录用
+  `C:\Users\devou\deepseek-harness\node_modules\.bin\tsx.cmd --tsconfig
+  C:\Users\devou\deepseek-harness\tsconfig.json
+  C:\Users\devou\deepseek-harness\apps\cli\src\bin.ts --profile headless`
+  启动，保证 Session 工作目录与只读诊断范围是本仓库；不使用 npm/npx 中的另一份
+  DSH。多行提示词从 `prompt.md` 经 stdin 传入；不要把多行文本作为 `.cmd` 的位置
+  参数，否则 Windows 包装器可能只传递第一行。
+- 每次调用先建立
+  `ISODISTORT/output/validation/dsh_sessions/<timestamp>-<slug>/`，至少保存
+  `prompt.md`、`metadata.json`、原始 stdout 和 stderr；该目录不提交。提示词必须重申
+  DSH 只读以及本文件中的受保护目录，禁止 DSH 修改或清理任何工作区文件。
 
 ## 文档职责
 

@@ -10,13 +10,16 @@ Scientific conventions
 ----------------------
 
 * Fractional positions are equivalent modulo integer translations.
-* Atom correspondence is a species-preserving maximum bipartite matching in
-  Cartesian distance, rather than CIF/file row order.
+* Candidate headers define one exact ``GL(3,Z)`` child-setting/origin map.
+  Atom correspondence is then a species-preserving maximum bipartite matching
+  in Cartesian distance, rather than CIF/file row order.
 * Fractional displacement rows are converted with ``u_cart = u_frac @ L``
   where the rows of ``L`` are the direct-lattice vectors in Angstrom.
-* One-dimensional modes are compared up to a global sign.  Multi-column mode
-  families are compared through singular values of their orthonormal bases;
-  the reported principal angle is therefore invariant under a basis rotation.
+* Modes are grouped by k point, parent irrep, and stable physical parent-site
+  orbit.  One-dimensional modes are compared up to a global sign, while each
+  multi-column group is compared through singular values of orthonormal bases;
+  the reported principal angle is invariant under a basis rotation but cannot
+  hide a missing, duplicated, or orbit-swapped column.
   Per-vector amplitude bounds in such a family are consequently compared as
   an unordered multiset: component/copy names do not canonically identify a
   basis vector inside a degenerate or repeated-irrep subspace.
@@ -42,17 +45,16 @@ import platform
 import re
 import sys
 import time
-import warnings
 from collections.abc import Iterable
 from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from fractions import Fraction
 from importlib.metadata import version
 from pathlib import Path
 from typing import Any
 
 import numpy as np
-from pymatgen.io.cif import CifParser
 
 SCRIPT_PATH = Path(__file__).resolve()
 PROJECT_ROOT = SCRIPT_PATH.parents[2]
@@ -75,7 +77,7 @@ DEFAULT_LIVE_CHECKPOINT = (
     / "method12_numeric_semantic_live_audit_checkpoint.json"
 )
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 CHECKPOINT_SCHEMA = 1
 
 TOLERANCES: dict[str, float | str] = {
@@ -113,6 +115,7 @@ PRODUCTION_SIGNATURE_FILES = (
     PROJECT_ROOT / "isocore" / "distortion" / "superspace.py",
     PROJECT_ROOT / "isocore" / "io" / "distortion_formats.py",
     PROJECT_ROOT / "isocore" / "io" / "isodistort_isoviz.py",
+    PROJECT_ROOT / "tests_dev" / "manual" / "validate_method_outputs.py",
 )
 
 
@@ -121,7 +124,7 @@ LIVE_CASE_MATRIX: tuple[dict[str, Any], ...] = (
         "id": "EU_M2_LD1_C1_NMOD0",
         "parent": "EuAl4 Parent.cif",
         "method": "Method2",
-        "folder": "LD1 C1",
+        "folder": "LD1_C1",
         "coverage": ["parameter-k", "nmod=0", "four-exports", "live-current-source"],
         "nmod": 0,
         "selector": {
@@ -139,7 +142,7 @@ LIVE_CASE_MATRIX: tuple[dict[str, Any], ...] = (
         "id": "ND_M2_Y1_C1_NMOD0",
         "parent": "NdNiO2 own.cif",
         "method": "Method2",
-        "folder": "Y1 C1",
+        "folder": "Y1_C1",
         "coverage": ["parameter-k", "nmod=0", "four-exports", "live-current-source"],
         "nmod": 0,
         "selector": {
@@ -157,10 +160,7 @@ LIVE_CASE_MATRIX: tuple[dict[str, Any], ...] = (
         "id": "EU_M1_X4M_C1_SPECIAL_K",
         "parent": "EuAl4 Parent.cif",
         "method": "Method1",
-        "folder": (
-            "X4- C1 (a;b) 49 Pccm, basis={(1,1,0),(-1,1,0),(0,0,1)}, "
-            "origin=(0,12,0), s=4, i=8, k-active= (12,12,0),(12,12,1)"
-        ),
+        "folder": "X4-_C1_SG49",
         "coverage": ["non-Gamma-special-k", "four-exports", "live-current-source"],
         "nmod": 0,
         "selector": {
@@ -203,12 +203,55 @@ class ModeDataset:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass(frozen=True, order=True, slots=True)
+class ModeGroupKey:
+    """Basis-independent identity of one physical parent-irrep/orbit space."""
+
+    k_point: tuple[str, ...]
+    parent_irrep: str
+    orbit_id: str
+
+
+@dataclass(frozen=True, order=True, slots=True)
+class ModeIdentity:
+    """A mode identity before choosing component/copy basis vectors."""
+
+    group: ModeGroupKey
+    site_irrep: str
+
+
+@dataclass(frozen=True, slots=True)
+class DatasetSettingTransform:
+    """Exact child-setting map ``x_official = x_local @ U + q``."""
+
+    matrix: tuple[tuple[Fraction, Fraction, Fraction], ...]
+    origin_shift: tuple[Fraction, Fraction, Fraction]
+
+    def as_dict(self) -> dict[str, Any]:
+        def encode(value: Fraction) -> str:
+            return (
+                str(value.numerator)
+                if value.denominator == 1
+                else f"{value.numerator}/{value.denominator}"
+            )
+
+        return {
+            "coordinate_convention": "x_official = x_local @ U + q (mod 1)",
+            "local_to_official_matrix": [
+                [encode(value) for value in row] for row in self.matrix
+            ],
+            "origin_shift_in_official_cell": [
+                encode(value) for value in self.origin_shift
+            ],
+        }
+
+
 CASE_MATRIX: tuple[dict[str, Any], ...] = (
     {
         "id": "EU_M2_LD1_C1_NMOD0",
         "parent": "EuAl4 Parent.cif",
         "method": "Method2",
-        "folder": "LD1 C1",
+        "folder": "LD1_C1",
         "coverage": ["parameter-k", "nmod=0", "four-exports"],
         "nmod": 0,
     },
@@ -216,7 +259,7 @@ CASE_MATRIX: tuple[dict[str, Any], ...] = (
         "id": "ND_M2_Y1_C1_NMOD0",
         "parent": "NdNiO2 own.cif",
         "method": "Method2",
-        "folder": "Y1 C1",
+        "folder": "Y1_C1",
         "coverage": ["parameter-k", "nmod=0", "four-exports"],
         "nmod": 0,
     },
@@ -224,10 +267,7 @@ CASE_MATRIX: tuple[dict[str, Any], ...] = (
         "id": "EU_M1_X4M_C1_SPECIAL_K",
         "parent": "EuAl4 Parent.cif",
         "method": "Method1",
-        "folder": (
-            "X4- C1 (a;b) 49 Pccm, basis={(1,1,0),(-1,1,0),(0,0,1)}, "
-            "origin=(0,12,0), s=4, i=8, k-active= (12,12,0),(12,12,1)"
-        ),
+        "folder": "X4-_C1_SG49",
         "coverage": ["non-Gamma-special-k", "four-exports"],
         "nmod": None,
     },
@@ -350,19 +390,161 @@ def _canonical_label(label: str, *, compact: bool = False) -> str:
     return value.casefold()
 
 
-def _family_key(label: str) -> str:
-    value = re.sub(r"\([A-Za-z0-9_]+\)$", "", label)
-    # Repeated copies of the same site irrep (A1_1/A1_2, etc.) have no
-    # canonical basis: an orthogonal rotation may mix them.  Compare their
-    # joint fixed subspace instead of assigning physical meaning to suffixes.
-    return re.sub(r"_\d+$", "", value)
+def _canonical_fraction_token(value: str) -> str:
+    token = value.strip().casefold()
+    try:
+        number = Fraction(token) % 1
+    except (ValueError, ZeroDivisionError):
+        return token
+    return (
+        str(number.numerator)
+        if number.denominator == 1
+        else f"{number.numerator}/{number.denominator}"
+    )
 
 
-def _labels_by_family(labels: Iterable[str]) -> dict[str, list[str]]:
-    grouped: dict[str, list[str]] = {}
-    for label in sorted(labels):
-        grouped.setdefault(_family_key(label), []).append(label)
-    return grouped
+def _mode_identity(label: str) -> ModeIdentity:
+    """Parse the scientific identity carried by an ISODISTORT mode label.
+
+    Component letters and repeated-copy suffixes choose a basis inside a fixed
+    subspace.  The k point, parent irrep, physical parent-site orbit, and site
+    irrep remain semantic identities and may not be exchanged silently.
+    """
+
+    value = re.sub(r"#duplicate\d+$", "", _canonical_label(label))
+    site = re.search(r"\[(?P<orbit>[^\]]+):dsp\]", value)
+    if site is None:
+        raise ValueError(f"mode label has no [orbit:dsp] identity: {label!r}")
+    before = value[: site.start()]
+    k_matches = list(re.finditer(r"\[([^\]]+)\]", before))
+    if k_matches:
+        k_match = k_matches[-1]
+        k_point = tuple(
+            _canonical_fraction_token(token)
+            for token in k_match.group(1).split(",")
+        )
+        parent_irrep = before[k_match.end() :]
+    else:
+        k_point = ()
+        parent_irrep = before
+    parent_irrep = parent_irrep.strip().casefold()
+    if not parent_irrep:
+        raise ValueError(f"mode label has no parent irrep: {label!r}")
+    orbit_id = site.group("orbit").strip().casefold()
+    if not orbit_id:
+        raise ValueError(f"mode label has no physical orbit identity: {label!r}")
+    site_irrep = value[site.end() :]
+    site_irrep = re.sub(r"\([^()]*(?:\)|$)", "", site_irrep)
+    site_irrep = re.sub(r"_\d+$", "", site_irrep).strip().casefold()
+    if not site_irrep:
+        raise ValueError(f"mode label has no site irrep: {label!r}")
+    return ModeIdentity(
+        group=ModeGroupKey(k_point, parent_irrep, orbit_id),
+        site_irrep=site_irrep,
+    )
+
+
+def _mode_groups(
+    modes: dict[str, Mode],
+) -> tuple[
+    dict[ModeGroupKey, list[str]],
+    dict[ModeIdentity, list[str]],
+    dict[str, str],
+]:
+    groups: dict[ModeGroupKey, list[str]] = {}
+    identities: dict[ModeIdentity, list[str]] = {}
+    errors: dict[str, str] = {}
+    for label in sorted(modes):
+        try:
+            identity = _mode_identity(label)
+        except ValueError as exc:
+            errors[label] = str(exc)
+            continue
+        groups.setdefault(identity.group, []).append(label)
+        identities.setdefault(identity, []).append(label)
+    return groups, identities, errors
+
+
+def _group_key_dict(key: ModeGroupKey) -> dict[str, Any]:
+    return {
+        "k_point": list(key.k_point),
+        "parent_irrep": key.parent_irrep,
+        "orbit_id": key.orbit_id,
+    }
+
+
+def _identity_key_dict(identity: ModeIdentity) -> dict[str, Any]:
+    return {**_group_key_dict(identity.group), "site_irrep": identity.site_irrep}
+
+
+def _dataset_in_official_setting(
+    dataset: ModeDataset,
+    transform: DatasetSettingTransform,
+    official_lattice: np.ndarray,
+) -> ModeDataset:
+    """Apply the exact child-coordinate map to atoms and displacement rows."""
+
+    matrix = np.asarray(
+        [[float(value) for value in row] for row in transform.matrix],
+        dtype=float,
+    )
+    shift = np.asarray([float(value) for value in transform.origin_shift], dtype=float)
+    atoms = [
+        Atom(atom.species, np.mod(atom.frac @ matrix + shift, 1.0), atom.token)
+        for atom in dataset.atoms
+    ]
+    modes = {
+        label: Mode(
+            label,
+            mode.vectors @ matrix,
+            normfactor=mode.normfactor,
+            amplitude_bound=mode.amplitude_bound,
+            amplitude_supercell=mode.amplitude_supercell,
+            amplitude_parent=mode.amplitude_parent,
+            dmax_angstrom=mode.dmax_angstrom,
+        )
+        for label, mode in dataset.modes.items()
+    }
+    predicted_local_lattice = matrix @ np.asarray(official_lattice, dtype=float)
+    lattice_residual = float(
+        np.max(np.abs(predicted_local_lattice - np.asarray(dataset.lattice, dtype=float)))
+    )
+    return ModeDataset(
+        atoms,
+        np.asarray(official_lattice, dtype=float),
+        modes,
+        {
+            **dataset.metadata,
+            "setting_transform": transform.as_dict(),
+            "max_local_lattice_component_residual_angstrom": lattice_residual,
+        },
+    )
+
+
+def setting_transform_from_cifs(
+    official_path: Path,
+    local_path: Path,
+) -> DatasetSettingTransform:
+    """Read the unique exact GL(3,Z) child-setting map from CIF headers."""
+
+    from tests_dev.manual import validate_method_outputs as precision
+
+    official = precision.parse_candidate_header(Path(official_path))
+    local = precision.parse_candidate_header(Path(local_path))
+    matrix = precision._multiply(local.basis, precision._inverse(official.basis))
+    determinant = precision._determinant(matrix)
+    if not all(value.denominator == 1 for row in matrix for value in row):
+        raise ValueError("declared local-to-official child transform is not integer")
+    if abs(determinant) != 1:
+        raise ValueError(
+            "declared local-to-official child transform is not unimodular: "
+            f"det={determinant}"
+        )
+    origin_shift = precision._vector_multiply(
+        tuple(local.origin[index] - official.origin[index] for index in range(3)),
+        precision._inverse(official.basis),
+    )
+    return DatasetSettingTransform(matrix=matrix, origin_shift=origin_shift)
 
 
 def _unique_mode_label(label: str, modes: dict[str, Mode]) -> str:
@@ -935,50 +1117,23 @@ def parse_topas(path: Path, lattice: np.ndarray) -> ModeDataset:
     return ModeDataset(atoms, lattice, modes, {"path": str(path.resolve()), "format": "topas"})
 
 
-def _lattice_lengths_angles(lattice: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    lengths = np.linalg.norm(lattice, axis=1)
-    angles = []
-    for left, right in ((1, 2), (0, 2), (0, 1)):
-        cosine = np.dot(lattice[left], lattice[right]) / (lengths[left] * lengths[right])
-        angles.append(math.degrees(math.acos(float(np.clip(cosine, -1.0, 1.0)))))
-    return lengths, np.array(angles)
-
-
 def compare_cif(official: Path, local: Path) -> dict[str, Any]:
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", UserWarning)
-        left = CifParser(str(official)).parse_structures(primitive=False)[0]
-        right = CifParser(str(local)).parse_structures(primitive=False)[0]
-    left_atoms = [Atom(str(site.specie), np.asarray(site.frac_coords, dtype=float)) for site in left]
-    right_atoms = [Atom(str(site.specie), np.asarray(site.frac_coords, dtype=float)) for site in right]
-    left_lengths, left_angles = _lattice_lengths_angles(left.lattice.matrix)
-    right_lengths, right_angles = _lattice_lengths_angles(right.lattice.matrix)
-    length_error = float(np.max(np.abs(left_lengths - right_lengths)))
-    angle_error = float(np.max(np.abs(left_angles - right_angles)))
-    try:
-        _mapping, atom_error = _atom_bijection(
-            left_atoms,
-            right_atoms,
-            left.lattice.matrix,
-            float(TOLERANCES["atom_cartesian_distance_angstrom"]),
-        )
-        mapping_error = None
-    except ValueError as exc:
-        atom_error = None
-        mapping_error = str(exc)
-    passed = (
-        mapping_error is None
-        and length_error <= float(TOLERANCES["lattice_length_angstrom"])
-        and angle_error <= float(TOLERANCES["lattice_angle_degrees"])
+    # Keep one precision-aware CIF implementation.  It proves a unique exact
+    # GL(3,Z) setting/origin map, a joint (not component-wise) metric witness,
+    # raw-loop coordinate/occupancy compatibility, and full Seitz-set
+    # conjugacy.  A missing proof is inconclusive rather than a pass.
+    from tests_dev.manual import validate_method_outputs as precision
+
+    result = precision.compare_cif_alternate_settings(
+        Path(local),
+        Path(official),
     )
+    status = "pass" if result.equivalent else ("fail" if result.conclusive else "inconclusive")
     return {
-        "status": "pass" if passed else "fail",
-        "official_atom_count": len(left_atoms),
-        "local_atom_count": len(right_atoms),
-        "max_lattice_length_error_angstrom": length_error,
-        "max_lattice_angle_error_degrees": angle_error,
-        "max_species_periodic_mapping_error_angstrom": atom_error,
-        "mapping_error": mapping_error,
+        "status": status,
+        "equivalent": result.equivalent,
+        "conclusive": result.conclusive,
+        **result.details,
     }
 
 
@@ -1128,48 +1283,81 @@ def compare_mode_datasets(
     official: ModeDataset,
     local: ModeDataset,
     *,
+    setting_transform: DatasetSettingTransform | None = None,
     compare_normfactors: bool = False,
     compare_amplitude_bounds: bool = False,
     compare_mode_amplitudes: bool = False,
     require_unit_norm: bool = False,
 ) -> dict[str, Any]:
+    official_formula_source = official
+    local_formula_source = local
+    if setting_transform is not None:
+        local = _dataset_in_official_setting(
+            local,
+            setting_transform,
+            official.lattice,
+        )
     official = _active_dataset(official)
     local = _active_dataset(local)
     official, local = _compatible_compact_keys(official, local)
     official_labels = set(official.modes)
     local_labels = set(local.modes)
-    official_families = _labels_by_family(official_labels)
-    local_families = _labels_by_family(local_labels)
+    official_groups, official_families, official_identity_errors = _mode_groups(
+        official.modes
+    )
+    local_groups, local_families, local_identity_errors = _mode_groups(local.modes)
     balanced_families = {
         family
         for family in official_families.keys() & local_families.keys()
         if len(official_families[family]) == len(local_families[family])
     }
-    # Component letters (a/b/...) and repeated-copy suffixes (_1/_2/...)
-    # select a basis inside one fixed irrep subspace; they are not canonical
-    # identities.  Exact-label differences are therefore semantic failures
-    # only when their fixed k/irrep/site/site-irrep family or multiplicity also
-    # differs.
-    exact_missing = sorted(official_labels - local_labels)
-    exact_extra = sorted(local_labels - official_labels)
-    missing = sorted(
-        label for label in exact_missing
-        if _family_key(label) not in balanced_families
-    )
-    extra = sorted(
-        label for label in exact_extra
-        if _family_key(label) not in balanced_families
-    )
+
+    def identity_excess_labels(
+        source: dict[ModeIdentity, list[str]],
+        target: dict[ModeIdentity, list[str]],
+    ) -> list[str]:
+        labels: list[str] = []
+        for identity in sorted(source):
+            excess = len(source[identity]) - len(target.get(identity, ()))
+            if excess > 0:
+                labels.extend(sorted(source[identity])[-excess:])
+        return sorted(labels)
+
+    missing = identity_excess_labels(official_families, local_families)
+    extra = identity_excess_labels(local_families, official_families)
     label_reassignments = [
         {
-            "family": family,
+            "family": _identity_key_dict(family),
             "official_labels": official_families[family],
             "local_labels": local_families[family],
         }
         for family in sorted(balanced_families)
         if set(official_families[family]) != set(local_families[family])
     ]
+    group_multiplicity_mismatches = [
+        {
+            "group": _group_key_dict(group),
+            "official_column_count": len(official_groups.get(group, ())),
+            "local_column_count": len(local_groups.get(group, ())),
+        }
+        for group in sorted(official_groups.keys() | local_groups.keys())
+        if len(official_groups.get(group, ())) != len(local_groups.get(group, ()))
+    ]
+    site_irrep_multiplicity_mismatches = [
+        {
+            "identity": _identity_key_dict(identity),
+            "official_column_count": len(official_families.get(identity, ())),
+            "local_column_count": len(local_families.get(identity, ())),
+        }
+        for identity in sorted(official_families.keys() | local_families.keys())
+        if len(official_families.get(identity, ()))
+        != len(local_families.get(identity, ()))
+    ]
     try:
+        # Complete-modes/IsoVIZ/TOPAS atom tables may choose a translated
+        # conventional-cell coset even after the candidate-declared U,q map is
+        # applied.  Prove one species-preserving global presentation shift;
+        # vector spaces are then compared on the resulting atom bijection.
         mapping, atom_error, origin_shift = _atom_bijection_with_origin_shift(
             official.atoms,
             local.atoms,
@@ -1180,16 +1368,16 @@ def compare_mode_datasets(
     except ValueError as exc:
         mapping, atom_error, origin_shift, mapping_error = [], None, None, str(exc)
 
-    common_families = sorted(official_families.keys() & local_families.keys())
+    common_groups = sorted(official_groups.keys() & local_groups.keys())
     family_results = []
     maximum_angle = 0.0
     maximum_gram_error = 0.0
     maximum_unit_norm_error = 0.0
     overall_subspace: dict[str, Any] | None = None
     if mapping_error is None:
-        for family in common_families:
-            left_labels = official_families[family]
-            right_labels = local_families[family]
+        for family in common_groups:
+            left_labels = official_groups[family]
+            right_labels = local_groups[family]
             left_matrix = _cartesian_matrix(official, left_labels)
             right_matrix = _cartesian_matrix(local, right_labels, reorder=mapping)
             left_basis, left_rank = _orthonormal_basis(left_matrix)
@@ -1222,7 +1410,7 @@ def compare_mode_datasets(
             maximum_unit_norm_error = max(maximum_unit_norm_error, unit_norm_error)
             family_results.append(
                 {
-                    "family": family,
+                    "family": _group_key_dict(family),
                     "official_dimension": len(left_labels),
                     "local_dimension": len(right_labels),
                     "official_rank": left_rank,
@@ -1315,7 +1503,7 @@ def compare_mode_datasets(
             )
             bound_family_multiset_results.append(
                 {
-                    "family": family,
+                    "family": _identity_key_dict(family),
                     "dimension": len(left_labels),
                     "max_sorted_multiset_abs_error": error,
                 }
@@ -1333,8 +1521,8 @@ def compare_mode_datasets(
     official_formula: dict[str, Any] | None = None
     local_formula: dict[str, Any] | None = None
     if compare_mode_amplitudes:
-        official_formula = _amplitude_formula_audit(official)
-        local_formula = _amplitude_formula_audit(local)
+        official_formula = _amplitude_formula_audit(official_formula_source)
+        local_formula = _amplitude_formula_audit(local_formula_source)
         as_errors = []
         ap_errors = []
         dmax_errors = []
@@ -1398,6 +1586,21 @@ def compare_mode_datasets(
         failure_reasons.append(f"{len(missing)} official mode labels missing locally")
     if extra:
         failure_reasons.append(f"{len(extra)} extra local mode labels")
+    if group_multiplicity_mismatches:
+        failure_reasons.append(
+            f"{len(group_multiplicity_mismatches)} k/parent-irrep/orbit groups have "
+            "different column multiplicity"
+        )
+    if site_irrep_multiplicity_mismatches:
+        failure_reasons.append(
+            f"{len(site_irrep_multiplicity_mismatches)} site-irrep identities have "
+            "different column multiplicity"
+        )
+    if official_identity_errors or local_identity_errors:
+        inconclusive_reasons.append(
+            "one or more mode labels could not be assigned a scientific "
+            "(k, parent irrep, physical orbit, site irrep) identity"
+        )
     if mapping_error:
         inconclusive_reasons.append(mapping_error)
     if maximum_angle > float(TOLERANCES["mode_principal_angle_degrees"]):
@@ -1463,7 +1666,16 @@ def compare_mode_datasets(
         "max_species_periodic_mapping_error_angstrom": atom_error,
         "global_origin_shift_fractional_official_to_local": origin_shift,
         "mapping_error": mapping_error,
-        "family_count": len(common_families),
+        "setting_transform": (
+            setting_transform.as_dict() if setting_transform is not None else None
+        ),
+        "family_count": len(common_groups),
+        "mode_identity_parse_errors": {
+            "official": official_identity_errors,
+            "local": local_identity_errors,
+        },
+        "group_multiplicity_mismatches": group_multiplicity_mismatches,
+        "site_irrep_multiplicity_mismatches": site_irrep_multiplicity_mismatches,
         "max_principal_angle_degrees": maximum_angle,
         "max_gram_eigenvalue_abs_error": maximum_gram_error,
         "max_unit_norm_abs_error": maximum_unit_norm_error,
@@ -1782,7 +1994,7 @@ def _generate_live_case(
     try:
         if str(PROJECT_ROOT) not in sys.path:
             sys.path.insert(0, str(PROJECT_ROOT))
-        from isocore.api import IsoDistort  # noqa: PLC0415
+        from isocore.api import IsoDistort
 
         selector = case["selector"]
         api = IsoDistort(language="en")
@@ -1964,11 +2176,16 @@ def _audit_directories(
             "resumed_from_checkpoint": False,
         }
     try:
+        setting_transform = setting_transform_from_cifs(
+            official / "subgroup.cif",
+            local / "subgroup.cif",
+        )
         official_modes = parse_official_modes_html(_find_modes_html(official))
         local_modes = parse_local_modes_text(local / "Complete modes details.txt")
         modes_result = compare_mode_datasets(
             official_modes,
             local_modes,
+            setting_transform=setting_transform,
             compare_normfactors=True,
             compare_mode_amplitudes=True,
             require_unit_norm=True,
@@ -1978,6 +2195,7 @@ def _audit_directories(
         isoviz_result = compare_mode_datasets(
             official_isoviz,
             local_isoviz,
+            setting_transform=setting_transform,
             compare_amplitude_bounds=True,
             require_unit_norm=True,
         )
@@ -1986,6 +2204,7 @@ def _audit_directories(
         topas_result = compare_mode_datasets(
             official_topas,
             local_topas,
+            setting_transform=setting_transform,
             compare_amplitude_bounds=True,
         )
         cif_result = compare_cif(official / "subgroup.cif", local / "subgroup.cif")

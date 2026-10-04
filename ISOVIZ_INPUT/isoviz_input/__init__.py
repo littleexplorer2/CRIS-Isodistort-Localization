@@ -1,5 +1,7 @@
 """Feed GD amplitude CSV files into official IsoVIZ ``.isoviz`` structures."""
 
+__version__ = "0.4.0"
+
 from .amplitudes import (
     ModeAmplitude,
     PatchReport,
@@ -30,6 +32,7 @@ __all__ = [
     "Config",
     "ModeAmplitude",
     "PatchReport",
+    "__version__",
     "apply_amplitudes",
     "best_model_root",
     "ensure_best_model_root",

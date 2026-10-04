@@ -16,6 +16,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from isocore.api import IsoDistort
 from isocore.backend import FindsymWrapper, IsoWrapper, SubgroupInfo
+from isocore.structure import read_cif
 
 MATCHER = StructureMatcher(ltol=1e-5, stol=1e-3, angle_tol=0.001)
 COORD_TOL = 1e-5
@@ -428,6 +429,128 @@ def test_ndnio2_rootless_oxygen_secondary_modes_are_completed():
     assert len(iso.mode_displacements) == 4
     oxygen = [mode.irrep_label for mode in iso.distortion_modes if mode.wyckoff_site == "f"]
     assert oxygen == ["M1+", "M2+"]
+
+
+def test_4310_n1plus_4d1_complete_modes_cover_the_child_cell():
+    """A multi-arm special-k route must not lose part of a rooted orbit."""
+    cif = DATA_DIR / "4310_tetra.cif"
+    official = (
+        Path(__file__).resolve().parents[2]
+        / "output_compare"
+        / "4310_tetra.cif"
+        / "官网"
+        / "Method1"
+        / "N1+_4D1_SG2"
+        / "data.isoviz"
+    )
+    if not cif.is_file() or not official.is_file():
+        pytest.skip("validated 4310 parent/official Method 1 reference unavailable")
+
+    official_text = official.read_text(encoding="utf-8-sig")
+    mode_block = official_text.split("!displacivemodelist", 1)[1]
+    expected = len(re.findall(r"(?m)^\s*\d+\s+\d+\s+[-+0-9.Ee]+\s+", mode_block))
+    assert expected > 0
+
+    iso = IsoDistort(language="en")
+    iso.set_distortion_scope({
+        "displacive": ["*"], "occupational": [], "strain": [],
+        "magnetic": [], "rotational": [],
+    })
+    iso.load_structure(cif)
+    candidates = [
+        item.subgroup
+        for item in iso.search_method_1(distortion_types=["strain", "displacive"])
+    ]
+    target = next(
+        subgroup for subgroup in candidates
+        if subgroup.irrep_label == "N1+" and subgroup.opd_symbol == "4D1"
+    )
+
+    iso.search_method_2(
+        target.index,
+        distortion_type=["displacive"],
+        candidates=candidates,
+    )
+
+    assert len(iso.mode_displacements_sc) == expected
+
+
+def test_shifted_4310_parent_is_canonicalized_before_method1_and_modes():
+    """An equivalent global origin shift must not change Method 1 completeness."""
+    cif = DATA_DIR / "4310_tetra.cif"
+    official = (
+        Path(__file__).resolve().parents[2]
+        / "output_compare"
+        / "4310_tetra.cif"
+        / "官网"
+        / "Method1"
+        / "N1+_4D1_SG2"
+        / "data.isoviz"
+    )
+    if not cif.is_file() or not official.is_file():
+        pytest.skip("validated 4310 parent/official Method 1 reference unavailable")
+
+    shifted = read_cif(cif)
+    shifted.translate_sites(
+        range(len(shifted)),
+        [0.0, 0.0, 0.1],
+        frac_coords=True,
+        to_unit_cell=True,
+    )
+    iso = IsoDistort(language="en")
+    iso.set_distortion_scope({
+        "displacive": ["*"], "occupational": [], "strain": [],
+        "magnetic": [], "rotational": [],
+    })
+    iso.set_structure(shifted)
+
+    assert iso.symmetry_info["parent_orbit_standardization"]["status"] == "canonicalized"
+    assert iso.symmetry_info["space_group_number"] == 139
+    assert "Ni1 2a (0,0,0)" in iso.parent_wyckoff_display()
+
+    candidates = [
+        item.subgroup
+        for item in iso.search_method_1(distortion_types=["strain", "displacive"])
+    ]
+    assert len(candidates) == 125
+    target = next(
+        subgroup for subgroup in candidates
+        if subgroup.irrep_label == "N1+" and subgroup.opd_symbol == "4D1"
+    )
+    iso.search_method_2(
+        target.index,
+        distortion_type=["displacive"],
+        candidates=candidates,
+    )
+
+    official_text = official.read_text(encoding="utf-8-sig")
+    mode_block = official_text.split("!displacivemodelist", 1)[1]
+    expected = len(re.findall(r"(?m)^\s*\d+\s+\d+\s+[-+0-9.Ee]+\s+", mode_block))
+    assert len(iso.mode_displacements_sc) == expected
+
+
+def test_primitive_centered_parent_is_canonicalized_as_a_complete_cell():
+    conventional = Structure.from_spacegroup(
+        225,
+        [[5.64, 0, 0], [0, 5.64, 0], [0, 0, 5.64]],
+        ["Na", "Cl"],
+        [[0, 0, 0], [0.5, 0.5, 0.5]],
+    )
+    primitive = SpacegroupAnalyzer(
+        conventional, symprec=1e-3
+    ).get_primitive_standard_structure()
+    assert len(primitive) == 2
+
+    iso = IsoDistort(language="en")
+    standardized = iso.set_structure(primitive)
+
+    assert iso.symmetry_info["space_group_number"] == 225
+    assert iso.symmetry_info["parent_orbit_standardization"]["status"] == "canonicalized"
+    assert len(standardized) == 8
+    assert {
+        (site["multiplicity"], site["wyckoff_letter"], site["species"])
+        for site in iso.symmetry_info["wyckoff_sites"]
+    } == {(4, "a", "Na"), (4, "b", "Cl")}
 
 
 def test_iso_kpoints_and_subgroups():

@@ -492,7 +492,9 @@ def _default_relative_path() -> str:
     extra = "" if len(paired) <= 8 else f" ... ({len(paired)} files)"
     raise ValueError(
         "compare/item 与 compare/true 中有多对 CIF，请给出相对路径，"
-        f"或改用 python main.py batch。可用文件: {preview}{extra}"
+        "或从 CRIS 根目录改用 .\\.venv\\Scripts\\python.exe "
+        "ISODISTORT_VALIDATE\\main.py batch。"
+        f"可用文件: {preview}{extra}"
     )
 
 

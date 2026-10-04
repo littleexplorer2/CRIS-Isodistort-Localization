@@ -13,7 +13,7 @@ import pytest
 from pymatgen.core import Lattice, Structure
 
 from isocore.api.core_api import IsoDistort
-from isocore.backend import SubgroupInfo
+from isocore.backend import FindsymResult, FindsymWrapper, SubgroupInfo
 from isocore.io.distortion_formats import (
     FORMAT_CIF,
     FORMAT_ISOVIZ,
@@ -22,23 +22,139 @@ from isocore.io.distortion_formats import (
     SubgroupExportSpec,
     build_export_zip,
     cart_normalized_mode_matrix,
+    folder_label_for_subgroup,
     format_filename,
+    method3_case_folder,
     parse_export_formats,
     parse_export_method,
     render_cif,
     render_complete_modes,
     render_isoviz,
     render_topas,
+    subgroup_identity_digest,
     subgroup_label,
     unique_folder_name,
+    write_subgroup_files,
 )
-from isocore.utils import format_opd_line, parse_subgroup_table
+from isocore.utils import OutputParseError, format_opd_line, parse_subgroup_table
 from isocore.utils.opd_format import format_k_active, format_number, k_star_tuples
 
 _REPO = Path(__file__).resolve().parents[2]
 _OFFICIAL_HTML = (
     _REPO / "webpage_info" / "a. ISODISTORT_ order parameter direction.html"
 )
+
+
+def test_findsym_parser_retains_standard_wyckoff_form_and_signed_parameter():
+    raw = """\
+Space Group: 139  D4h-17    I4/mmm
+Origin at    0.00000   0.00000   0.00000
+Vectors a,b,c:
+   1.00000   0.00000   0.00000
+   0.00000   1.00000   0.00000
+   0.00000   0.00000   1.00000
+Atomic positions and occupancies in terms of a,b,c:
+Wyckoff position e (11), z = -0.13885
+    1   0.00000   0.00000   0.86115     1.00000
+------------------------------------------
+# CIF file created by FINDSYM, version 7.1.3
+data_findsym-output
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_fract_symmform
+11 1 4 e 0.0000000000 0.0000000000 0.8611500000 1.0000000000 0,0,Dz
+"""
+    result = FindsymWrapper._parse_output(raw)
+    assert result.origin == (0.0, 0.0, 0.0)
+    assert np.allclose(result.basis_vectors, np.eye(3))
+    assert result.wyckoff_sites[0]["parameters"] == {"z": -0.13885}
+    assert result.standardized_sites == [{
+        "atom_type": "1",
+        "multiplicity": 4,
+        "wyckoff_letter": "e",
+        "representative_frac_coords": [0.0, 0.0, 0.86115],
+        "symmform": "0,0,z",
+        "parameters": {"z": -0.13885},
+        "input_atom_indices": [0],
+    }]
+
+
+def test_findsym_orbit_metadata_rejects_a_missing_setting_transform():
+    structure = Structure(Lattice.cubic(4), ["H"], [[0, 0, 0]])
+    wrapper = object.__new__(FindsymWrapper)
+    wrapper.identify = lambda *args, **kwargs: FindsymResult(  # type: ignore[method-assign]
+        space_group_number=1,
+        standardized_sites=[{
+            "atom_type": "1",
+            "multiplicity": 1,
+            "wyckoff_letter": "a",
+            "representative_frac_coords": [0.0, 0.0, 0.0],
+            "symmform": "x,y,z",
+            "parameters": {"x": 0.0, "y": 0.0, "z": 0.0},
+        }],
+    )
+
+    with pytest.raises(OutputParseError, match="basis transformation"):
+        wrapper.standardize_wyckoff_orbits(
+            structure,
+            [{
+                "wyckoff_letter": "a",
+                "multiplicity": 1,
+                "equivalent_indices": [0],
+                "orbit_id": "p1:a:h",
+            }],
+            expected_space_group=1,
+        )
+
+
+def test_findsym_symmform_supports_implicit_crystallographic_products():
+    assert FindsymWrapper._absolute_symmform(
+        [0.2, 0.05, 0.3],
+        "2Dx,1/2Dx,Dz",
+        {"x": 0.1, "z": 0.3},
+    ) == "2x,1/2x,z"
+
+
+def test_findsym_parser_matches_reordered_repeated_letters_by_output_label():
+    raw = """\
+Space Group: 139  D4h-17    I4/mmm
+Origin at    0.00000   0.00000   0.00000
+Vectors a,b,c:
+   1.00000   0.00000   0.00000
+   0.00000   1.00000   0.00000
+   0.00000   0.00000   1.00000
+Atomic positions and occupancies in terms of a,b,c:
+Wyckoff position e (11), z = 0.125
+    1   0.00000   0.00000   0.12500     1.00000
+Wyckoff position e (21), z = 0.375
+    2   0.00000   0.00000   0.37500     1.00000
+------------------------------------------
+# CIF file created by FINDSYM, version 7.1.3
+data_findsym-output
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_fract_symmform
+21 2 4 e 0.0000000000 0.0000000000 0.3750000000 1.0000000000 0,0,Dz
+11 1 4 e 0.0000000000 0.0000000000 0.1250000000 1.0000000000 0,0,Dz
+"""
+    result = FindsymWrapper._parse_output(raw)
+    by_type = {site["atom_type"]: site for site in result.standardized_sites}
+    assert by_type["1"]["parameters"] == {"z": 0.125}
+    assert by_type["2"]["parameters"] == {"z": 0.375}
 
 
 # --- from test_opd_format.py ---
@@ -153,7 +269,11 @@ def test_y_star_keeps_exact_thirds_after_reciprocal_rotation():
 
 
 def test_strain_only_gamma_keeps_gm4_not_gm3():
-    api = IsoDistort()
+    # This exercises the exact strain representation only.  Bypass the public
+    # constructor so an unavailable WSL wrapper cannot turn a pure unit test
+    # into an environment-dependent integration test.
+    api = object.__new__(IsoDistort)
+    api._strain_representation_cache = None
     api.structure = Structure.from_spacegroup(
         "I4/mmm", Lattice.tetragonal(4.0, 10.0), ["Eu"], [[0, 0, 0]],
     )
@@ -395,22 +515,12 @@ def test_subgroup_label_and_filenames():
     assert format_filename("LD1 C1", FORMAT_TOPAS) == "topas.str"
 
 
-def test_safe_name_deletes_slash_like_official_windows_download():
-    """官网 Windows 下载删除 ``/``：``I4/mmm``→``I4mmm``，``1/2``→``12``。"""
+def test_safe_name_cleans_windows_characters_without_losing_irrep_signs():
     from isocore.io.distortion_formats import safe_name
 
-    assert safe_name("I4/mmm") == "I4mmm"
-    assert safe_name("C2/m") == "C2m"
-    assert (
-        safe_name(
-            "GM5+ C1 (a,b) 2 P-1, basis={(1,0,0),(0,1,0),(-1/2,-1/2,1/2)}, "
-            "origin=(0,0,0), s=1, i=8, k-active= (0,0,0)"
-        )
-        == (
-            "GM5+ C1 (a,b) 2 P-1, basis={(1,0,0),(0,1,0),(-12,-12,12)}, "
-            "origin=(0,0,0), s=1, i=8, k-active= (0,0,0)"
-        )
-    )
+    assert safe_name("N1+/<bad>: 4D1*") == "N1+_bad_4D1"
+    assert safe_name("N1- 4D1") == "N1-_4D1"
+    assert safe_name("CON") == "_CON"
 
 
 def test_opd_line_body_omits_irrep_for_cif_comment():
@@ -448,13 +558,43 @@ def test_opd_line_body_omits_irrep_for_cif_comment():
     assert m2.startswith("C1 (a,b)  99 P4mm")
 
 
-def test_unique_folder_name_disambiguates():
+def test_short_folder_names_follow_each_method_rule():
+    subgroup = _sg("N1+", "4D1", number=2)
+
+    assert folder_label_for_subgroup(subgroup, export_method=1) == "N1+_4D1_SG2"
+    assert folder_label_for_subgroup(subgroup, export_method=2) == "N1+_4D1"
+    assert (
+        folder_label_for_subgroup(subgroup, export_method=3, sequence=7)
+        == "C07_SG2"
+    )
+
+
+def test_unique_folder_name_disambiguates_with_stable_identity_digest():
     used: set[str] = set()
-    a = unique_folder_name(_sg("LD1", "C1", index=0, symbol="P4/mmm"), used)
-    b = unique_folder_name(_sg("LD1", "C1", index=1, symbol="P4mm"), used)
-    assert a == "LD1 C1"
-    assert b == "LD1 C1 P4mm"
+    first = _sg("LD1", "C1", index=0, symbol="P4/mmm")
+    second = _sg("LD1", "C1", index=1, symbol="P4mm")
+    second.origin = [0.5, 0, 0]
+
+    a = unique_folder_name(first, used, export_method=1)
+    b = unique_folder_name(second, used, export_method=1)
+
+    assert a == "LD1_C1_SG123"
+    assert re.fullmatch(r"LD1_C1_SG123_[0-9a-f]{10}", b)
     assert a != b
+
+    case_insensitive_used = {"ld1_c1"}
+    method2 = unique_folder_name(first, case_insensitive_used, export_method=2)
+    assert re.fullmatch(r"LD1_C1_[0-9a-f]{10}", method2)
+
+
+def test_method3_generated_case_id_is_generic_and_order_independent():
+    first = _sg("GM1+", "P1", index=0, number=139)
+    second = _sg("N1+", "4D1", index=1, number=2)
+
+    generated = method3_case_folder([first, second])
+    assert re.fullmatch(r"M3-[0-9a-f]{10}", generated)
+    assert generated == method3_case_folder([second, first])
+    assert method3_case_folder([first], "case:01") == "case_01"
 
 
 def test_zip_contains_only_method2_subgroups_named_by_ir_opd():
@@ -470,7 +610,7 @@ def test_zip_contains_only_method2_subgroups_named_by_ir_opd():
             parent_sg=139,
             parent_symbol="I4/mmm",
             mode_displacements_sc=disp,
-            folder_name="LD1 C1",
+            folder_name="LD1_C1",
         ),
         SubgroupExportSpec(
             subgroup=_sg("LD5", "P6", index=1, number=11, symbol="P2_1/m"),
@@ -478,7 +618,7 @@ def test_zip_contains_only_method2_subgroups_named_by_ir_opd():
             parent_structure=parent,
             parent_sg=139,
             parent_symbol="I4/mmm",
-            folder_name="LD5 P6",
+            folder_name="LD5_P6",
         ),
     ]
     raw = build_export_zip(
@@ -489,13 +629,13 @@ def test_zip_contains_only_method2_subgroups_named_by_ir_opd():
         names = zf.namelist()
 
     # 各子群文件夹在 ZIP 根下（官网同款）
-    assert any(n.startswith("LD1 C1/") for n in names)
-    assert any(n.startswith("LD5 P6/") for n in names)
-    assert "LD1 C1/subgroup.cif" in names
-    assert "LD1 C1/data.isoviz" in names
-    assert "LD1 C1/Complete modes details.txt" in names
-    assert "LD1 C1/topas.str" in names
-    assert "LD5 P6/subgroup.cif" in names
+    assert any(n.startswith("LD1_C1/") for n in names)
+    assert any(n.startswith("LD5_P6/") for n in names)
+    assert "LD1_C1/subgroup.cif" in names
+    assert "LD1_C1/data.isoviz" in names
+    assert "LD1_C1/Complete modes details.txt" in names
+    assert "LD1_C1/topas.str" in names
+    assert "LD5_P6/subgroup.cif" in names
     # 不应出现旧版 output_dir 风格的无关文件名
     joined = "\n".join(names)
     assert "mixed_" not in joined
@@ -508,12 +648,164 @@ def test_cif_only_zip_has_no_other_formats():
     spec = SubgroupExportSpec(
         subgroup=_sg("LD1", "C1"),
         structure=_cubic(),
-        folder_name="LD1 C1",
+        folder_name="LD1_C1",
     )
     raw = build_export_zip([spec], [FORMAT_CIF])
     with zipfile.ZipFile(io.BytesIO(raw)) as zf:
         names = zf.namelist()
-    assert names == ["LD1 C1/subgroup.cif"]
+    assert names == ["LD1_C1/subgroup.cif"]
+
+
+def test_zip_never_emits_duplicate_paths_for_colliding_short_names():
+    parent = _cubic()
+    first = _sg("LD1", "C1", index=0)
+    second = _sg("LD1", "C1", index=1)
+    second.origin = [0.5, 0, 0]
+    specs = [
+        SubgroupExportSpec(first, parent, folder_name="LD1_C1"),
+        SubgroupExportSpec(second, parent, folder_name="LD1_C1"),
+    ]
+
+    raw = build_export_zip(specs, [FORMAT_CIF])
+    with zipfile.ZipFile(io.BytesIO(raw)) as zf:
+        names = zf.namelist()
+
+    assert len(names) == 2
+    assert len({name.casefold() for name in names}) == 2
+    assert "LD1_C1/subgroup.cif" in names
+    assert any(
+        re.fullmatch(r"LD1_C1_[0-9a-f]{10}/subgroup\.cif", name)
+        for name in names
+    )
+
+
+def _minimal_export_api(parent: Structure) -> IsoDistort:
+    iso = object.__new__(IsoDistort)
+    iso.structure = parent
+    iso.symmetry_info = None
+    iso.distortion_types = []
+    iso._selected_subgroup = None
+    iso.phase_path = None
+    iso.distortion_modes = []
+    iso.mode_displacements = {}
+    iso.mode_occupancies = {}
+    iso.mode_displacements_sc = {}
+    iso._mode_label_overrides = {}
+    iso.distorted_structure = None
+    iso.number_of_independent_modulations = 0
+    iso._spec_for_subgroup = lambda subgroup, **kwargs: SubgroupExportSpec(
+        subgroup=subgroup,
+        structure=parent,
+        folder_name=kwargs["folder_name"],
+    )
+    return iso
+
+
+def test_method3_api_zip_uses_generated_case_and_short_candidate_folders():
+    parent = _cubic()
+    first = _sg("GM1+", "P1", index=0, number=139)
+    second = _sg("N1+", "4D1", index=1, number=2)
+    iso = _minimal_export_api(parent)
+
+    raw = iso.export_subgroups_zip(
+        formats=[FORMAT_CIF],
+        subgroups=[first, second],
+        export_method=3,
+    )
+    with zipfile.ZipFile(io.BytesIO(raw)) as zf:
+        names = zf.namelist()
+
+    case = method3_case_folder([first, second])
+    assert names == [
+        f"{case}/C01_SG139/subgroup.cif",
+        f"{case}/C02_SG2/subgroup.cif",
+    ]
+
+
+def test_directory_export_never_overwrites_an_existing_short_folder(tmp_path):
+    parent = _cubic()
+    subgroup = _sg("N1+", "4D1", index=0, number=2)
+    iso = _minimal_export_api(parent)
+
+    first = iso.export_subgroups(
+        tmp_path,
+        formats=[FORMAT_CIF],
+        subgroups=[subgroup],
+        export_method=1,
+    )
+    second = iso.export_subgroups(
+        tmp_path,
+        formats=[FORMAT_CIF],
+        subgroups=[subgroup],
+        export_method=1,
+    )
+
+    assert first == [tmp_path / "N1+_4D1_SG2" / "subgroup.cif"]
+    assert second[0].parent.name == (
+        f"N1+_4D1_SG2_{subgroup_identity_digest(subgroup)}"
+    )
+    assert first[0].read_bytes() == second[0].read_bytes()
+
+
+def test_directory_writer_render_failure_leaves_no_destination(
+    tmp_path,
+    monkeypatch,
+):
+    spec = SubgroupExportSpec(
+        subgroup=_sg("LD1", "C1"),
+        structure=_cubic(),
+        folder_name="LD1_C1",
+    )
+    dest_dir = tmp_path / "LD1_C1"
+
+    def fail_on_second_format(fmt, _spec):
+        if fmt == FORMAT_ISOVIZ:
+            raise RuntimeError("later render failed")
+        return b"first format"
+
+    monkeypatch.setattr(
+        "isocore.io.distortion_formats.render_format",
+        fail_on_second_format,
+    )
+
+    with pytest.raises(RuntimeError, match="later render failed"):
+        write_subgroup_files(dest_dir, spec, [FORMAT_CIF, FORMAT_ISOVIZ])
+
+    assert not dest_dir.exists()
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_directory_writer_rejects_existing_destination_without_changes(tmp_path):
+    spec = SubgroupExportSpec(
+        subgroup=_sg("LD1", "C1"),
+        structure=_cubic(),
+        folder_name="LD1_C1",
+    )
+    dest_dir = tmp_path / "LD1_C1"
+    dest_dir.mkdir()
+    sentinel = dest_dir / "keep.txt"
+    sentinel.write_bytes(b"unchanged")
+
+    with pytest.raises(FileExistsError, match="目标目录已存在"):
+        write_subgroup_files(dest_dir, spec, [FORMAT_CIF])
+
+    assert sentinel.read_bytes() == b"unchanged"
+    assert list(dest_dir.iterdir()) == [sentinel]
+
+
+def test_directory_writer_rejects_duplicate_filenames_before_publication(tmp_path):
+    spec = SubgroupExportSpec(
+        subgroup=_sg("LD1", "C1"),
+        structure=_cubic(),
+        folder_name="LD1_C1",
+    )
+    dest_dir = tmp_path / "LD1_C1"
+
+    with pytest.raises(ValueError, match="重复文件名"):
+        write_subgroup_files(dest_dir, spec, [FORMAT_CIF, FORMAT_CIF])
+
+    assert not dest_dir.exists()
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_format_writers_contain_official_markers():

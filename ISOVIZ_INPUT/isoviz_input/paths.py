@@ -33,9 +33,7 @@ def user_desktop() -> Path:
     for path in candidates:
         if path.is_dir():
             return path
-    fallback = env_home / "Desktop"
-    fallback.mkdir(parents=True, exist_ok=True)
-    return fallback
+    return env_home / "Desktop"
 
 
 def best_model_root() -> Path:

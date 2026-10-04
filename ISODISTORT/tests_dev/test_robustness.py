@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib
+from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -12,7 +13,7 @@ from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from isocore.api import IsoDistort
-from isocore.backend import SubgroupInfo
+from isocore.backend import BushMode, DistortionMode, SubgroupInfo
 from isocore.distortion import DistortionEngine, OccupationalModeGenerator
 from isocore.io import StructureExporter
 from isocore.structure import read_cif
@@ -285,7 +286,7 @@ def test_method2_explicit_candidates_do_not_replace_other_result_pool():
             return {}
 
     iso = object.__new__(IsoDistort)
-    iso.structure = object()
+    iso.structure = Structure(Lattice.cubic(1.0), ["H"], [[0.0, 0.0, 0.0]])
     iso.symmetry_info = {"space_group_number": 139, "wyckoff_sites": []}
     iso.subgroups = [wrong]
     iso._selected_subgroup = None
@@ -294,7 +295,7 @@ def test_method2_explicit_candidates_do_not_replace_other_result_pool():
     iso._iso = SimpleNamespace(list_k_points=lambda *_a, **_k: [])
     iso._smodes = None
     iso._letters_for_species = lambda species: []
-    iso._union_scope_species = lambda types: set()
+    iso._union_scope_species = lambda types, **_kwargs: set()
     iso._resolve_k_vector = lambda *a, **k: [0.0, 0.0, 0.0]
     iso._compute_scoped_modes = lambda *args, **kwargs: []
     iso.mode_occupancies = {}
@@ -333,6 +334,149 @@ def test_export_current_modes_require_full_subgroup_identity():
     assert specs[0].use_generated_structure is False
 
 
+def test_export_current_cache_uses_exact_embedding_identity():
+    """Embeddings that differ below display precision must not share cached modes."""
+
+    selected = _candidate(index=0, irrep="GM1+")
+    other = _candidate(index=0, irrep="GM1+")
+    other.basis_vectors[0][0] = "1.00000000001"
+    iso = object.__new__(IsoDistort)
+    iso._selected_subgroup = selected
+    iso.phase_path = SimpleNamespace(subgroup_index=0)
+    iso.distortion_modes = []
+    iso.mode_displacements = {"cached": {}}
+    iso.mode_occupancies = {}
+    iso.mode_displacements_sc = {}
+    iso._mode_label_overrides = {}
+    iso.distorted_structure = None
+    iso.number_of_independent_modulations = 0
+    iso._spec_for_subgroup = lambda subgroup, **kwargs: SimpleNamespace(
+        subgroup=subgroup, **kwargs
+    )
+
+    specs = iso._collect_export_specs([other], ["modes"], False)
+
+    assert specs[0].use_current_modes is False
+    assert specs[0].use_generated_structure is False
+
+
+def test_same_affine_embedding_different_routes_never_share_mode_or_final_cache():
+    selected = _candidate(index=0, irrep="GM1+")
+    selected._method3_embedding_id = "same-affine-subgroup"
+    selected.k_coordinates = ["0", "0", "0"]
+    selected.opd_dir_raw = "(a)"
+    selected.opd_vector = [1]
+
+    changed_irrep = deepcopy(selected)
+    changed_irrep.irrep_label = "GM2+"
+    changed_opd = deepcopy(selected)
+    changed_opd.opd_symbol = "P2"
+    changed_opd.opd_dir_raw = "(a,b)"
+    changed_opd.opd_vector = [1, 1]
+    changed_k = deepcopy(selected)
+    changed_k.k_point_label = "X"
+    changed_k.k_coordinates = ["1/2", "0", "0"]
+
+    selected_key = IsoDistort._method3_embedding_guard_key(selected)
+    assert all(
+        IsoDistort._method3_embedding_guard_key(candidate) != selected_key
+        for candidate in (changed_irrep, changed_opd, changed_k)
+    )
+
+    iso = object.__new__(IsoDistort)
+    iso._selected_subgroup = selected
+    iso.phase_path = SimpleNamespace(subgroup_index=0)
+    iso.distortion_modes = []
+    iso.mode_displacements = {"cached": {}}
+    iso.mode_occupancies = {}
+    iso.mode_displacements_sc = {}
+    iso._mode_label_overrides = {}
+    iso.distorted_structure = object()
+    iso.number_of_independent_modulations = 0
+    iso.distortion_types = ["displacive"]
+    iso.distortion_scope = {}
+    iso._scope_species = lambda _kind, **_kwargs: {"H"}
+    selected_context = iso._mode_context_key(
+        selected,
+        0,
+        ["displacive"],
+        {},
+    )
+    iso._mode_cache_key = selected_context
+    iso._generated_structure_cache_key = selected_context
+    iso._spec_for_subgroup = lambda subgroup, **kwargs: SimpleNamespace(
+        subgroup=subgroup, **kwargs
+    )
+
+    specs = iso._collect_export_specs([changed_irrep], ["modes"], False)
+
+    assert specs[0].use_current_modes is False
+    assert specs[0].use_generated_structure is False
+
+
+def test_method2_rejects_duplicate_local_candidate_indices():
+    iso = object.__new__(IsoDistort)
+    iso.structure = object()
+    iso.subgroups = []
+    first = _candidate(index=0, irrep="GM1+")
+    second = _candidate(index=0, irrep="GM2+")
+
+    with pytest.raises(ValueError, match="ambiguous"):
+        iso.search_method_2(0, candidates=[first, second])
+
+
+def test_compute_scoped_modes_does_not_mutate_source_mode():
+    raw = DistortionMode(
+        irrep_label="GM1+",
+        mode_type="magnetic",
+        wyckoff_site="a",
+        wyckoff_orbit_id="orbit-a",
+        bush_modes=[
+            BushMode(
+                irrep_label="GM1+",
+                opd_symbol="P1",
+                wyckoff_letter="a",
+                point=[0.0, 0.0, 0.0],
+            )
+        ],
+    )
+    iso = object.__new__(IsoDistort)
+    iso.mode_occupancies = {}
+    iso._scope_species = lambda _kind, **_kwargs: {"Fe"}
+    iso._letters_for_species = lambda _species: ["a"]
+    iso._orbit_ids_for_species = lambda _species: ["orbit-a"]
+
+    scoped = iso._compute_scoped_modes(
+        139,
+        _candidate(index=0, irrep="GM1+"),
+        ["displacive"],
+        raw_modes=[raw],
+    )
+
+    assert raw.mode_type == "magnetic"
+    assert scoped[0] is not raw
+    assert scoped[0].mode_type == "displacive"
+
+
+@pytest.mark.parametrize(
+    ("export_method", "legacy"),
+    ((2, True), (3, False)),
+)
+def test_export_method_rejects_conflicting_legacy_folder_switch(
+    export_method,
+    legacy,
+):
+    with pytest.raises(ValueError, match="conflicts"):
+        IsoDistort._export_folder_method(export_method, legacy)
+
+
+def test_export_method_legacy_switch_remains_compatible_when_new_argument_omitted():
+    assert IsoDistort._export_folder_method(None, None) == 2
+    assert IsoDistort._export_folder_method(None, True) == 1
+    assert IsoDistort._export_folder_method(None, False) == 2
+    assert IsoDistort._export_folder_method(1, True) == 1
+
+
 def test_export_recomputes_every_candidate_for_requested_nmod_and_restores_state():
     """A ZIP must not mix cached modes from one nmod with nmod=0 fallbacks."""
     selected = _candidate(index=0, irrep="LD1")
@@ -340,13 +484,30 @@ def test_export_recomputes_every_candidate_for_requested_nmod_and_restores_state
     iso = object.__new__(IsoDistort)
     iso._selected_subgroup = selected
     iso.phase_path = SimpleNamespace(subgroup_index=0)
-    iso.distortion_modes = []
+    original_mode = DistortionMode(
+        irrep_label="LD1",
+        mode_type="magnetic",
+        wyckoff_site="a",
+        wyckoff_orbit_id="orbit-a",
+        bush_modes=[
+            BushMode(
+                irrep_label="LD1",
+                opd_symbol="P1",
+                wyckoff_letter="a",
+                point=[0.0, 0.0, 0.0],
+            )
+        ],
+    )
+    iso.distortion_modes = [original_mode]
     iso.mode_displacements = {"cached-nmod-1": {}}
     iso.mode_occupancies = {}
     iso.mode_displacements_sc = {}
     iso._mode_label_overrides = {}
     iso.distorted_structure = None
     iso.number_of_independent_modulations = 1
+    iso._scope_species = lambda _kind, **_kwargs: {"Fe"}
+    iso._letters_for_species = lambda _species: ["a"]
+    iso._orbit_ids_for_species = lambda _species: ["orbit-a"]
     iso._spec_for_subgroup = lambda subgroup, **kwargs: SimpleNamespace(
         subgroup=subgroup, **kwargs
     )
@@ -355,13 +516,23 @@ def test_export_recomputes_every_candidate_for_requested_nmod_and_restores_state
     def search_method_2(
         subgroup_idx,
         *,
+        distortion_type,
         number_of_independent_modulations,
         candidates,
+        distortion_scope,
     ):
         calls.append((subgroup_idx, number_of_independent_modulations))
-        iso._selected_subgroup = candidates[subgroup_idx]
+        assert distortion_type == ["displacive", "strain"]
+        assert distortion_scope == {}
+        iso._selected_subgroup = candidates[0]
         iso.number_of_independent_modulations = number_of_independent_modulations
         iso.mode_displacements = {f"fresh-{subgroup_idx}": {}}
+        iso.distortion_modes = iso._compute_scoped_modes(
+            139,
+            candidates[0],
+            ["displacive"],
+            raw_modes=[original_mode],
+        )
 
     iso.search_method_2 = search_method_2
 
@@ -376,6 +547,8 @@ def test_export_recomputes_every_candidate_for_requested_nmod_and_restores_state
     assert [spec.use_current_modes for spec in specs] == [True, True]
     assert [spec.use_generated_structure for spec in specs] == [False, False]
     assert iso._selected_subgroup is selected
+    assert iso.distortion_modes == [original_mode]
+    assert iso.distortion_modes[0].mode_type == "magnetic"
     assert iso.mode_displacements == {"cached-nmod-1": {}}
     assert iso.number_of_independent_modulations == 1
 

@@ -1,6 +1,12 @@
-# ISODISTORT（本地版）
+# ISODISTORT 0.4.0（本地版）
 
-本目录把 [ISODISTORT](https://iso.byu.edu/isodistort.php)（BYU 的晶体畸变搜索工具）做成**可离线运行**的程序。
+本目录在现有本地网页版的功能范围内，对
+[ISODISTORT](https://landau3.byu.edu/isodistort.php)（BYU 的晶体畸变搜索工具）
+进行可离线运行的本地化实现。官网存在但本地网页版没有的功能暂不属于逆向范围。
+当前开发聚焦于 debug、结果准确性和对任意适用晶体的泛用性。计算按空间群作用、
+直接/倒易格、k-star、小群与表示、Wyckoff 轨道、setting/origin、超胞及 superspace
+等定义逐步推导，并以 Stokes、Campbell、Hatch 等人的 ISOTROPY/ISODISTORT 论文、
+官方帮助和晶体学不变量交叉核验；官网文件用于验证结果，不作为按样例拼公式的来源。
 
 你不需要先懂晶体学术语。用白话理解工作流即可：
 
@@ -9,9 +15,9 @@
 3. 用 Method 1 / 2 / 3 **搜索**可能的子群（对称性降低后的候选结构列表）；或用 Method 4 把已经畸变的结构**分解**成模式幅度。  
 4. 在 **Distortion** 区下载筛选后的结果表，以及子群结构文件（CIF、IsoVIZ、模式详情、TOPAS 等）。
 
-计算后端是 ISOTROPY Suite 的 Linux 程序 `iso` / `smodes` 与 `data_*.txt` 数据库（放在本目录的 `isobyu/`，只读）。同一套引擎支持三种用法：**网页**、**终端菜单**、**Python API**。网页与终端界面为**英语**（没有语言切换）。界面上看到的英文标签，下文一律用引号标出。
+计算后端是 ISOTROPY Suite 的 Linux 程序 `iso` / `findsym` / `smodes` 与 `data_*.txt` 数据库（放在本目录的 `isobyu/`，只读）。同一套引擎支持三种用法：**网页**、**终端菜单**、**Python API**。网页与终端界面为**英语**（没有语言切换）。界面上看到的英文标签，下文一律用引号标出。
 
-本项目与仓库根目录的 `CRIS/.venv` 共用一份 Python 虚拟环境。子项目关系见根目录 [README.md](../README.md)；开发规则见 [agent.md](agent.md)，开发计划见 [docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md)，已完成修复和验证结果见 [docs/BUGFIX_VALIDATION_REPORT.md](docs/BUGFIX_VALIDATION_REPORT.md)。
+本项目与仓库根目录的实体 `CRIS/.venv` 共用一份 Python 虚拟环境。由于本机的 OneDrive 安全限制，调用 WSL 的命令使用根目录 `run_cris.ps1`，该启动器仍只加载 `.venv` 中的第三方包。子项目关系见根目录 [README.md](../README.md)；开发规则见 [agent.md](agent.md)，开发计划见 [docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md)，已完成修复和验证结果见 [docs/BUGFIX_VALIDATION_REPORT.md](docs/BUGFIX_VALIDATION_REPORT.md)。
 
 ---
 
@@ -25,7 +31,11 @@
 | Method 4 | 上传女儿相 CIF，点 "OK" | 官网口径 `As/Ap`、原始拟合系数、`normfactor` + RMS residual（不是子群列表） |
 | Distortion | 选 Method、下表 / 勾格式、下 ZIP | 筛选后的 txt/csv；Method 1–3 的结构文件 ZIP |
 
-**官网 Distortion 页上的 "Generate"（按模式幅度生成畸变结构）和 "Domains"（畴列表）已从本地网页/终端删除**——本项目目标是「得到子群结构信息或文件」，Method OK + ZIP 已给出零振幅超胞 CIF 与模式文件。Python API 仍保留 `generate_distortion` / `generate_domains` 供脚本使用。
+本地网页/终端不提供官网内置在线晶体结构查看、Distortion **"Generate"**
+（按模式幅度生成畸变结构）或 **"Domains"**（畴列表）；这些功能不在当前逆向范围。
+结构可通过导出的 CIF / IsoVIZ 文件交给 VESTA / IsoVIZ 查看。Python API 中保留的
+`generate_distortion` / `generate_domains` 仅供脚本和验证使用，不表示当前网页产品
+范围或与官网对应功能一致的承诺。
 
 Method 1 点 OK 后的结果表字段与官网序参量方向页（`webpage_info/` 中 `a.` 开头的存档）一致：官网是一条条 radio，本地仍用可筛选、排序的表格展示同样的 token（`Irrep` / `OPD` / `Dir` / `SG` / `basis` / `origin` / `s` / `i` / `k-active`），并多一列 `idx` 供点选计算模式。
 
@@ -39,7 +49,7 @@ Method 1 点 OK 后的结果表字段与官网序参量方向页（`webpage_info
 
 | 项目 | 要求 |
 | --- | --- |
-| Python | **3.10 或更高**（开发在 3.12.5 上验证过） |
+| Python | **3.10 或更高**（当前产品化验证使用 3.12） |
 | Windows | **必须安装 WSL**（`isobyu/iso` 是 Linux ELF，通过 WSL 调用） |
 | Linux 本机 | 可直接跑 `iso`，无需 WSL |
 | ISOTROPY 套件 | 自行下载 Linux 版，放入 `ISODISTORT/isobyu/`（仓库**不附带**二进制） |
@@ -47,7 +57,7 @@ Method 1 点 OK 后的结果表字段与官网序参量方向页（`webpage_info
 检查 Python：
 
 ```powershell
-python --version
+py -3.10 --version
 ```
 
 检查 WSL（仅 Windows）：
@@ -75,10 +85,10 @@ cd CRIS-Isodistort-Localization
 ISODISTORT/isobyu/
 ```
 
-- 可执行文件：`iso`、`smodes`（可选还有 `findsym`、`comsubs`）  
+- 必需可执行文件：`iso`、`findsym`、`smodes`（`comsubs` 仍为可选）
 - 数据库：全部 `data_*.txt`
 
-**不要**把 Windows 可执行文件放进去。`main_requirement.py` **不会**自动下载套件；若缺少 `isobyu/`，只会新建空目录并打印下载地址。
+**不要**把 Windows 可执行文件放进去。根安装器不会自动下载、覆盖或修改该只读目录；缺少文件时，`doctor` 会列出失败项和人工下载提示。
 
 ### 2.4 安装 Python 依赖
 
@@ -86,49 +96,40 @@ ISODISTORT/isobyu/
 
 ```powershell
 cd <CRIS 根目录>
-python ISODISTORT\main_requirement.py
+py -3.10 setup_cris.py install --project isodistort
 ```
 
-该脚本会：
+若还要使用另外两个子项目，把 `--project isodistort` 改为 `--project all` 或直接省略。安装器会校验 Python 版本、创建或复用根 `.venv`、按声明的版本约束安装依赖、补齐 `output/tmp/`，再运行只读诊断。它不会自动下载第三方 ISOTROPY 文件。
 
-1. 确认 Python ≥ 3.10  
-2. 在 Windows 上检查 WSL  
-3. 确保存在 `ISODISTORT/output/`（及 `output/tmp/`）  
-4. 检查 `isobyu/`（没有则建空目录并提醒下载）  
-5. 若缺少 `ISODISTORT_VALIDATE/compare/{item,true}` 则自动创建  
-6. 若缺少 `ISOVIZ_INPUT/input_content/{data.csv,subgroup.isoviz}` 则自动创建（ISOVIZ 子项目不使用 `output/`）  
-7. 创建或复用根目录 `CRIS/.venv`，只安装尚未存在的依赖  
-8. 若 `isobyu` 里已有数据库，会检查并配置 **ISODATA**（`iso` 读数据库用的环境变量；运行时由配置自动设置，WSL 侧会建短路径符号链接，一般**不必**在 Windows 系统属性里永久 `setx ISODATA`）
-
-可选参数：
-
-| 参数 | 作用 |
-| --- | --- |
-| `--dev` | 额外安装 `requirements-dev.txt`（pytest / ruff） |
-| `--recreate` | 删除后重建 `.venv` |
-
-成功后请用提示的解释器，例如：
+开发与测试环境：
 
 ```powershell
-.\.venv\Scripts\python.exe ISODISTORT\main_web.py
+py -3.10 setup_cris.py install --project isodistort --dev
 ```
 
-激活虚拟环境（可选）：
+安装后可随时单独复查环境：
 
 ```powershell
-.\.venv\Scripts\Activate.ps1
+.\run_cris.ps1 setup_cris.py doctor --project isodistort
 ```
 
-**若运行很久像卡死，且终端提示符没有 `(.venv)`：** 多半是虚拟环境没有正确加载。请关闭当前进程，用上面的 `.\.venv\Scripts\python.exe …` 重新启动（或先 `Activate.ps1` 再运行）。不要用未激活的系统 Python 去跑长计算。
+`doctor` 会分别检查 Python 依赖、配置导入、WSL 默认发行版、`iso`/`findsym`/`smodes`、WSL 执行权限、`data_*.txt`、`ISODATA` 与运行目录。有 `FAIL` 时不要开始正式计算；完整安装参数和离线 wheelhouse 流程见仓库根 [README.md](../README.md)。`--recreate` 只在 `.venv` 损坏或 Python 主/次版本改变时使用。
 
-若 PowerShell 禁止执行脚本，直接用上面的全路径即可。
+成功后使用根目录启动器：
+
+```powershell
+.\run_cris.ps1 ISODISTORT\main_web.py
+```
+
+`run_cris.ps1` 会设置 `.venv` 的包路径和脚本路径，无需先执行 `Activate.ps1`。若 PowerShell 阻止本地脚本，可对当前进程执行 `Set-ExecutionPolicy -Scope Process Bypass` 后重试。直接用 `.venv\Scripts\python.exe` 启动 `main_web.py` 或 `main_terminal.py` 会在进入程序前打印正确命令并退出，因为该进程链在本机必然得到 `Wsl/E_ACCESSDENIED`。
 
 ### 2.5 安装后至少应看到
 
-- `ISODISTORT/main_web.py`、`main_terminal.py`、`main_requirement.py`  
+- 根目录 `setup_cris.py`、`VERSION` 与 `.venv/`
+- `ISODISTORT/main_web.py`、`main_terminal.py`
 - `ISODISTORT/config/settings.yaml`  
 - `ISODISTORT/web/index.html`  
-- `ISODISTORT/isobyu/iso` 以及若干 `data_*.txt`
+- `ISODISTORT/isobyu/iso`、`findsym`、`smodes` 以及若干 `data_*.txt`
 
 ---
 
@@ -138,10 +139,10 @@ python ISODISTORT\main_requirement.py
 
 ```powershell
 cd <CRIS 根目录>
-.\.venv\Scripts\python.exe ISODISTORT\main_web.py
+.\run_cris.ps1 ISODISTORT\main_web.py
 ```
 
-默认打开 `http://127.0.0.1:8000/`。端口见 `config/settings.yaml` 的 `runtime.web_port`；被占用时会自动顺延约 20 个端口，再不行则让系统分配。控制台会打印最终 URL。
+默认打开 `http://127.0.0.1:8000/`。端口见 `config/settings.yaml` 的 `runtime.web_port`；被占用时会自动顺延约 20 个端口，再不行则让系统分配。控制台会打印最终 URL；Windows Shell 已收到打开请求时还会打印 `Browser launch requested`，所有打开方式都失败时则明确提示手动访问该 URL。
 
 - 右上角 **"Stop"**：停止服务并释放端口。  
 - 每个标签页都有独立心跳；关闭**最后一个**本地标签后通常约 2 秒内自动停服、终端退出并释放端口。刷新页面有短暂宽限，多标签页中关闭其中一个不会误停服务。
@@ -152,7 +153,7 @@ cd <CRIS 根目录>
 ### 3.2 终端
 
 ```powershell
-.\.venv\Scripts\python.exe ISODISTORT\main_terminal.py
+.\run_cris.ps1 ISODISTORT\main_terminal.py
 ```
 
 先选母相 CIF（在 `ISODISTORT/` 下最多列出 30 个 `.cif`，排除 `output/`；仓库外文件请选手动输入路径），再进入 Search Page 菜单。方括号里的值是默认值，直接回车即采用。
@@ -202,7 +203,7 @@ Method 2 勾选生成缺失子群库时，`iso` 把可复用的 `i*.iso` 写在 
 
 | 项目 | 默认 | 你要做什么 |
 | --- | --- | --- |
-| **ISOTROPY 套件** | `ISODISTORT/isobyu/` | 首次必放 Linux 版 `iso` / `smodes` / 全部 `data_*.txt`（见 §2.3）。**不要**改该目录里已有二进制内容以外的「为过单测抄答案」；目录本身只读约定见根 README |
+| **ISOTROPY 套件** | `ISODISTORT/isobyu/` | 首次必放 Linux 版 `iso` / `findsym` / `smodes` / 全部 `data_*.txt`（见 §2.3）。**不要**改该目录里已有二进制内容以外的「为过单测抄答案」；目录本身只读约定见根 README |
 | **改套件位置** | `config/settings.yaml` → `isobyu.bin_dir` / `data_dir` | 仅当二进制不在默认 `../isobyu` 时修改（路径相对 `config/`） |
 | **母相 CIF** | 运行时选择 | 网页：上传；终端：列表选择或粘贴绝对/相对路径。示例：`experiment_data/EuAl4 Parent.cif`、`NdNiO2 own.cif`（只读，请复制后再改）。页头显示从该 CIF 读取 |
 | **临时文件（Windows）** | `runtime.temp_dir` → `../output/tmp` | 网页上传、写入 WSL 前的 Windows 侧临时目录；空间不够时可改到其它盘（仍相对 `config/`） |
@@ -246,7 +247,7 @@ Al1 4d (0,1/2,1/4),
 Al2 4e (0,0,z), z= 0.38000
 ```
 
-NdNiO2 等其它 CIF 会显示该文件自己的空间群、晶胞与 `_atom_site_label` / 位点顺序（如 `O 2f`、`ND 1d`、`NI 1a`）。
+NdNiO2 等其它 CIF 会显示该文件自己的空间群、晶胞与 `_atom_site_label` / 位点顺序（如 `O 2f`、`ND 1d`、`NI 1a`）。若输入使用同一空间群的等价非标准 basis/origin，程序会把晶格、全部原子和每个独立物理 Wyckoff 轨道一起规范到 conventional standard setting，再用这一个内部结构生成页头、搜索结果和模式；不会把标准代表坐标单独套到未变换的输入结构。无法保持空间群、轨道身份或多重度时会明确拒绝载入。
 
 含义（白话）：
 
@@ -275,6 +276,7 @@ NdNiO2 等其它 CIF 会显示该文件自己的空间群、晶胞与 `_atom_sit
 
 - 复选框互不联动；点 Change 时按 **all > none > 具体物种** 解释。  
 - 默认与官网第 2 页一致：Strain + Displacive 各物种勾选。
+- Displacive 的逐物种作用域按独立物理 Wyckoff 轨道传给模式后端；同一 Wyckoff 字母下的多个独立轨道不会合并成一个位点。
 - 点 Change 后，顶部蓝色状态栏直接使用该次提交返回的最新状态重绘；Method 1 下拉若仍在后台加载，结束时也只会重绘最新状态，不会把旧 Types 文本覆盖回来。
 
 ---
@@ -342,7 +344,7 @@ NdNiO2 等其它 CIF 会显示该文件自己的空间群、晶胞与 `_atom_sit
 
 官网首屏候选的科学身份是 `(SG,basis,origin,s,i)` embedding；表中 `basis` / `origin` 优先显示 iso 的官网式精确分数原文，`known routes` 只是本地已知 k/IR/OPD 来源的诊断信息，不能把 route 数误当作官网候选数。single-IR embedding 按各 route 的 Types 活性过滤；coupled embedding 则在所选 `strain ⊕ displacive` 表示中直接做 exact fixed-space 判定。Displacive 的逐物种作用域会进入该表示；只移动部分物种时，其共同位移是相对光学自由度，不会被误删为全晶体刚体平移。参数 k 在活性检查与选中后的位移模式中先做官网参数尺度 → iso 内部尺度转换，随后走 smodes/(3+d) 完整模式（nmod）。
 
-官网对照不能只比较 basis/origin 字符串。生产代码和验证工具都会在母相分数坐标中用精确有理数重建 Seitz 操作，按子群 primitive translation lattice 取模。空间群查询的阶段 A 按有限平移商 `N_G(T_s)/T_s`、Seitz 闭包和 cocycle 条件枚举 affine lifts；阶段 B 在所选 `strain ⊕ displacive` 表示中用 exact character/fixed-space 点态稳定子判据排除物理不可达项。对没有单-IR route 的可达 embedding，所有候选单-IR 稳定子连同平移陪集被提升到同一有限商，只有其精确交集等于目标 `H` 才成为可选择的 `exact_fixed_space` 行；母群仿射共轭只在 Method 3 首屏保留一个代表元，物理畴留给 Domains 阶段。选中后以 nmod=0 计算该子群全部折叠 k 的完整位移 fixed space，不把任选的一对 IR 冒充唯一 primary route。当前 40 组权威官网查询的 77 条 embedding 全部匹配：13 组逐字段一致、27 组精确 affine 等价、0 差异、0 错误；此前缺少的 16 条 coupled-only 已接入。只选 point group 时仍使用 single-IR 子集；项目附带的 ISO 9.6.1 没有直接枚举首屏 embedding 的命令，`DISPLAY DIRECTION` / `DISPLAY ISOTROPY COUPLED` 是已知 embedding 后的 route 工具，不能用它们或 `SHOW DOMAIN` 代替完整第一阶段。
+官网对照不能只比较 basis/origin 字符串。生产代码和验证工具都会在母相分数坐标中用精确有理数重建 Seitz 操作，按子群 primitive translation lattice 取模。空间群查询的阶段 A 按有限平移商 `N_G(T_s)/T_s`、Seitz 闭包和 cocycle 条件枚举 affine lifts；阶段 B 在所选 `strain ⊕ displacive` 表示中用 exact character/fixed-space 点态稳定子判据排除物理不可达项。对没有单-IR route 的可达 embedding，所有候选单-IR 稳定子连同平移陪集被提升到同一有限商，只有其精确交集等于目标 `H` 才成为可选择的 `exact_fixed_space` 行；母群仿射共轭只在 Method 3 首屏保留一个代表元，物理畴枚举不属于当前本地网页版范围。选中后以 nmod=0 计算该子群全部折叠 k 的完整位移 fixed space，不把任选的一对 IR 冒充唯一 primary route。当前 40 组权威官网查询的 77 条 embedding 全部匹配：13 组逐字段一致、27 组精确 affine 等价、0 差异、0 错误；此前缺少的 16 条 coupled-only 已接入。只选 point group 时仍使用 single-IR 子集；项目附带的 ISO 9.6.1 没有直接枚举首屏 embedding 的命令，`DISPLAY DIRECTION` / `DISPLAY ISOTROPY COUPLED` 是已知 embedding 后的 route 工具，不能用它们或 `SHOW DOMAIN` 代替完整第一阶段。
 
 Method 3 的空间群下拉已对 `webpage_info/EuAl4 Parent.cif/2. ISODISTORT_ search.html` 做 230 项全量回归：编号、旧版 IT Hermann–Mauguin 简写和 Schoenflies 标号必须逐项一致。
 
@@ -354,13 +356,15 @@ Method 3 的空间群下拉已对 `webpage_info/EuAl4 Parent.cif/2. ISODISTORT_ 
 | **"Atom-matching method:"** | `nearest-site` 使用按物种的全局最小笛卡尔距离分配；`robust` 还会拒绝超过阈值的匹配 |
 | **"Robust distance threshold (angstrom):"** | robust 匹配的物理距离上限，单位 Å；不是随晶胞变化的分数坐标距离 |
 | **"Known origin shift..."** | 可选的女儿相分数坐标原点平移 `(x,y,z)`；留空表示 0/未指定 |
-| **"OK"** | 输出**全部**位移模式的 `As`、`Ap`、原始拟合系数和 `normfactor`（可 Filter / 排序），六个应用 Voigt 应变分量 `(xx,yy,zz,2yz,2xz,2xy)`，以及单位为 Å 的 RMS/max residual |
+| **"OK"** | 输出**全部**位移模式的 `As`、`Ap`、原始拟合系数和 `normfactor`（可 Filter / 排序）；勾选 strain 且已有精确目标子群时，还输出官网顺序的 symmetry-adapted strain mode 幅度、CIF raw-coordinate sum、应用工程应变 `q=(E11,E22,E33,2E23,2E13,2E12)`，以及单位为 Å 的 RMS/max residual |
 
 这是**分解**，不是子群列表。**不能**作为 Distortion ZIP 的结构来源，但可以在 Distortion 下载该幅度表的 txt/csv。
 
-当前源码的 displacive 生成→分解闭环能恢复无噪声系数并报告带噪声 residual；原子匹配使用真实晶格下的全局一一映射，`As` 按女儿原胞内笛卡尔模式范数归一化，`Ap=As/sqrt(s)`。均匀应变不再用固定 metric 差门禁拒绝：程序按冻结的母相晶格与 basis，从女儿相 metric 解出旋转无关的对称 `M=I+epsilon`，并报告应用工程剪切 Voigt 分量。机器报告为 `output/validation/method4_local_validation.json` 和 `output/validation/method4_official_audit.json`。
+当前源码的 displacive 生成→分解闭环能恢复无噪声系数并报告带噪声 residual；原子匹配使用真实晶格下的全局一一映射，`As` 按女儿原胞内笛卡尔模式范数归一化，`Ap=As/sqrt(s)`。均匀应变使用官网的母胞基坐标约定：母胞行晶格为 `P`、子群 basis 为 `B`，程序由女儿相 metric 解对称正定 `M=I+E`，满足 `M (P P^T) M = B^-1 (D D^T) B^-T`，并以 `B M P` 重建女儿胞。这里的工程 Voigt `q` 对非正交母胞不是 Cartesian 张量分量。
 
-重冻结清单的本地双母相 24/24 通过；官网 24/24 个案例也都使用正确冻结输入，审计为 23 个完全通过、EuAl4 G05 auto-origin 1 个证据警告、0 个失败。Nd F01 已按物种不匹配拒绝，F02 的 8% 晶格变化已作为纯均匀应变成功分解，F03 用 robust `dmax=0.1 Å` 按预期匹配失败。G05 warning 仅表示 auto-origin 运行缺 basis HTML；填写截图、accepted result identity、完整导出与显式-origin 对照均通过，不要求重跑。上述结果关闭了两母相 Method 4 当前矩阵，但不等于跨晶系科研级验收。
+官网 CIF 的 `_iso_strain_value` 和 strain matrix 使用 `q_raw`，IsoVIZ 与 Method 4 实际晶格使用 `q_unit=normfactor*q_raw`；模式幅度 `a_i` 因而分别给出 `Σa_i q_raw_i` 与应用应变 `Σa_i q_unit_i`，两个六维量不会混用。规范模式来自本地 ISO 的 rank-[12] `DISPLAY DISTORTION`，再由目标 embedding 的 `DISPLAY DIRECTION` 约束；程序还会用实际嵌入点群操作和实际母胞 metric 独立计算固定子空间并核对完整 span。缺少或不通过这条证据链时会明确失败，不会按晶系硬编码模式或猜 `GM` 标签。机器报告为 `output/validation/method4_local_validation.json` 和 `output/validation/method4_official_audit.json`。
+
+清单签名对应的本地双母相冻结快照 24/24 通过；官网 24/24 个案例也都使用正确冻结输入，审计为 23 个完全通过、EuAl4 G05 auto-origin 1 个证据警告、0 个失败。Nd F01 已按物种不匹配拒绝，F02 的 8% 晶格变化已作为纯均匀应变成功分解，F03 用 robust `dmax=0.1 Å` 按预期匹配失败。G05 warning 仅表示 auto-origin 运行缺 basis HTML；填写截图、accepted result identity、完整导出与显式-origin 对照均通过，不要求重跑。上述结果关闭了两母相归档/冻结矩阵，但不等于当前源码 24/24 重跑或跨晶系科研级验收。
 
 ---
 
@@ -379,18 +383,51 @@ Method 3 的空间群下拉已对 `webpage_info/EuAl4 Parent.cif/2. ISODISTORT_ 
 | → **"TOPAS.STR"** | TOPAS 结构文件 |
 | **"Download all (ZIP)"** | 打包 Method **1 / 2 / 3** 当前筛选命中的子群文件（无筛选则全部），**只含勾选格式**，**不扫描** `output/`。选 Method 4 再点 ZIP 会提示改用表格下载。勾选了 isoviz / modes / topas 时，会对子群补跑 Method 2 以填充模式（可能较慢，界面有进度条）；**参数 k 点**（如 LD）走 smodes/(3+d) 完整模式（nmod，默认 0）。仅 CIF 或 URL 带 `compute_modes=0` 时可跳过补算 |
 
-压缩包名形如 `isodistort_methodN.zip`，解压后**直接是各子群文件夹**（与官网下载结构一致）：
+生产 core 会把已验证的 ISO microscopic 列映射到精确 emitted child frame，并把稳定原子
+ID、父子原子映射、查询的 `(parent/child SG, B, q, primary IR/OPD)`、精确 `VECTOR`
+方向和未混合来源列一起交给 `DisplaciveExportData`。官方 microscopic 表只覆盖部分代表点
+时，程序只有在公共点域满秩、变基唯一且 BUSH 全域延拓通过秩、条件数、残差和摘要复核后
+才发布；证据不全的候选会在整批发布前返回带完整身份的结构化错误。
+
+勾选 strain 时，CIF、IsoVIZ 和 Complete modes 共用同一个应变数据契约和模式顺序。CIF 写完整的 mode number/label/value/norm/raw matrix，IsoVIZ 写 `q_unit` 且 strain `maxamp=0.1`，Complete modes 同时说明 `q_raw`、`q_unit`、`normfactor`、幅度和两种六维和。官网 TOPAS 文件不导出 strain-mode 精修参数；本地同样只写由 `B M(Σa_i q_unit_i) P` 得到的固定实际晶胞。若参考子胞不能与 `B P` 严格对应，TOPAS 导出会报错而不编造晶格关系。
+
+共享合同已覆盖非零 strain 与已验证位移同时存在的情况：依据
+[ISODISTORT 官方说明](https://iso.byu.edu/isodistorthelp.php)，位移模式的幅度、
+归一化因子和 lattice-coordinate 模式向量不随 strain 改变；程序因此保留已验证的
+位移分数坐标，并只把最终晶格重建为 `B M P`。生产 core 和四个 writer 使用同一合同；
+跨晶系、混合/部分占位及尚未建立同等级身份链的模式类型仍需另行验收。
+
+当前源码已通过 symmetry-adapted strain 的定向回归，并以 EuAl4 F02 完成一例真实
+WSL 端到端验证；这只证明该单例链路，不等于当前源码已重跑 Method 4 的 24/24
+冻结矩阵，也不构成跨晶系验证。精确计数和报告位置见
+[验证报告](docs/BUGFIX_VALIDATION_REPORT.md)。
+
+压缩包名形如 `isodistort_methodN.zip`。Method 1/2 解压后直接是短子群目录；
+Method 3 先有一个稳定案例目录：API 可用 `stable_case_id` 指定，网页/终端则根据
+当次导出的候选集合生成通用的 `M3-<摘要>`，不包含特定晶体或样例名称。
 
 ```text
-LD1 C1/                          # Method 2/3：IR + OPD
+GM1+_P1_SG139/                   # Method 1：IR_OPD_SG<number>
+  subgroup.cif
+  data.isoviz
+  Complete modes details.txt
+  topas.str
+LD1_C1/                          # Method 2：IR_OPD
   subgroup.cif
   data.isoviz
   Complete modes details.txt     # 官网为 HTML 页；本地用 .txt
   topas.str
-GM1+ P1 (a) 139 I4mmm, .../      # Method 1：完整 OPD 行（删除 /，官网 Windows 同款）
-  subgroup.cif
-  ...
+M3-a1b2c3d4e5/                   # Method 3：自动生成的稳定案例目录（示意）
+  C01_SG139/
+    subgroup.cif
+    data.isoviz
+    Complete modes details.txt
+    topas.str
 ```
+
+`+` / `-` 与 `4D1` 等 IR/OPD token 会保留，Windows 非法字符会替换为下划线。
+若不同候选得到同一短名，程序会追加候选完整身份的短摘要；目录导出遇到已有同名
+目录也会另建摘要/序号目录，不覆盖原文件。四种内部文件名保持不变。
 
 单行点选后出现的模式表在 Method 2 区域，仅供查看。
 
@@ -402,7 +439,7 @@ GM1+ P1 (a) 139 I4mmm, .../      # Method 1：完整 OPD 行（删除 /，官网
 
 ## 8. 网页 vs 终端
 
-网页与终端调用**同一套** `isocore` API（Method 1–4 参数、子群枚举、`export_subgroups_zip` 的 `wrapping=None` / Method 1 OPD 文件夹名 / 模式补算策略一致）。根据网页版交互逻辑与内容对齐终端版交互：终端可以分步提问，但选项、英文提示和结果表列与网页一致。差异只在交互壳：
+网页与终端调用**同一套** `isocore` API（Method 1–4 参数、子群枚举、`export_subgroups_zip` 的 Method 选择、短目录命名和模式补算策略一致）。根据网页版交互逻辑与内容对齐终端版交互：终端可以分步提问，但选项、英文提示和结果表列与网页一致。差异只在交互壳：
 
 | | 网页 | 终端 |
 | --- | --- | --- |
@@ -416,7 +453,7 @@ GM1+ P1 (a) 139 I4mmm, .../      # Method 1：完整 OPD 行（删除 /，官网
 | Method 3 结果 | `route status` 与 `known routes` 同时显示、筛选和导出 | 同左；coupled fixed-space 行不会因没有单 IR 路线而丢失状态 |
 | Method 4 结果 | `As`、`Ap`、raw coefficient、normfactor、residual 与六分量均匀应变 | 同左；原点输入的空分量按 0 处理 |
 | 下载 | 浏览器 ZIP / txt/csv | 菜单 **7. Distortion** → ZIP 或目录写到 `output/` |
-| 模式补算 | 默认开启；URL `compute_modes=0` 可关 | 导出时询问（默认 yes，对应网页默认） |
+| 模式补算 | 默认开启；URL `compute_modes=0` 可关；显式传递当前 nmod | 导出时询问（默认 yes），ZIP 与目录导出显式传递同一 nmod |
 
 终端主菜单摘要：
 
@@ -466,7 +503,8 @@ iso.export_subgroups(
 
 当程序同时保留多个 Method 的结果表时，必须把候选池显式传给 `search_method_2(..., candidates=...)`，并把导出池显式传给 `export_subgroups(..., subgroups=...)`。各 Method 的显示索引都会从 0 开始，不能把索引当成跨表唯一 ID，也不要从界面层直接改 `iso.subgroups`、`mode_displacements` 或私有 `iso._iso`。单一路径脚本仍可省略 `candidates`，沿用最近一次 API 产生的默认候选池。
 
-`generate_distortion` / `generate_mixed_distortion` / `generate_domains` 仍在 API 中，网页和终端不再调用。
+`generate_distortion` / `generate_mixed_distortion` / `generate_domains` 仍在 API 中，
+仅供脚本和内部验证；网页和终端不调用，也不属于当前网页逆向范围。
 
 ---
 
@@ -474,25 +512,50 @@ iso.export_subgroups(
 
 1. **Windows 必须经 WSL** 调用 Linux 版 `iso`。  
    Linux 原生运行会自动在系统临时目录建立按 uid 隔离的短 staging 目录；不会再尝试写入根目录 `/iso_*.in`。
-2. **symmetry-adapted 应变模式生成/导出未实现**：Method 4 已能从晶格 metric 分解并报告六个应用应变分量，但 CIF / TOPAS / ISOVIZ 中 `_iso_strainmode_number` 仍为 0，不写官网式 `GM… strain_N(a)` 模式标签/幅度，也不支持由 strain mode 主动生成晶格。
+2. **symmetry-adapted 应变模式采用 fail-closed**：勾选 strain 后，程序必须取得 ISO rank-[12] 宏观基、目标 embedding 的 invariant directions，并通过实际 metric fixed-space 的整空间核验，才会写 CIF / IsoVIZ / Complete modes，并据此计算 TOPAS 的固定实际晶胞。ISO 输出缺失、解析不完整、模式数不符或 span 核验失败都会中止该候选导出；不会退回无标签坐标轴基或猜 `GM` 标签。TOPAS 按官网行为不提供 strain-mode 精修参数。
 3. **参数 k 点（LD/DT 等）**：可枚举子群（+ Generate DB）；位移模式由 **smodes + 子群恒等表示** 计算（三维锁定 / (3+d) 谐波，由 nmod 控制）。网页不再把这类结果默认降级为仅 CIF。
 4. **nmod / (3+d) superspace**：本地可编辑 nmod（0–3）。0 = 公度锁定，保留全部折叠 k。n≥1 = 只保留 Method 2 所选那一个 q 的谐波，再加上 Γ；1、2、3 不会增加第二条独立调制。标签格式对齐官网 `Parent[k]IR(opd)[Site:letter:dsp]siteIR(comp)`。IsoVIZ 对非 Γ 的 k 保留 `[kx,ky,kz]IR[...]` 前缀。二维 IR 的第二个实分量用母相平移（含心平移）做相位正交；旋转星臂分别保存展示坐标与实际相位坐标，自共轭特殊 k 的简并基由含平移的母相 little group 补齐。折叠商按母相中心化倒格矢计算（I 心整数奇偶余类不会误合并），搜索范围跟着子群基矢走，不限于 5 个母相单胞。最终模式空间在笛卡尔坐标中用修正 Gram–Schmidt 求精确数值秩，不再用固定点积阈值误删或重复计数。
 5. **Method 3**：reciprocal-sublattice 输入不支持。空间群 direct 查询已接入 closed affine lifts、`strain ⊕ displacive` exact fixed-space 可达性、single-IR 稳定子精确交集见证和完整 fixed-space 位移模式，因此当前双母相 40 组/77 条权威 embedding 无欠枚举。搜索单-IR 稳定子的 k 域仍限于特殊 k 与一参数公度线；任意/多参数 k、point-group-only affine 枚举，以及 rotational/occupational/magnetic 的同等级 Stage-B 表示尚未完成。`exact_fixed_space` 行不声明某一组 IR 是唯一 primary COPL 分解，但可计算目标子群的完整折叠-k位移模式；不会用 `SHOW DOMAIN` 畴数或样例硬编码填满。
-6. **Method 4**：重冻结本地矩阵 24/24 通过；官网 24/24 个有效案例为 23 pass + EuAl4 G05 auto-origin 1 个证据警告，0 fail。G05 仅缺 auto-origin basis HTML，已有清晰填写截图和一致结果身份；本地仍只报告六维应用张量，尚不输出官网 symmetry-adapted strain mode 幅度，occupancy/magnetic/rotational 分解也未验收。
+6. **Method 4**：只有勾选 strain 且会话中保留精确目标子群 embedding 时，才报告官网顺序的 symmetry-adapted strain mode 幅度；低层 API 未提供 canonical basis 时会把模式状态标为 unresolved，同时仍可报告由 metric 解出的应用 `q`。occupancy / magnetic / rotational 分解尚未验收。当前实测结果以 [验证报告](docs/BUGFIX_VALIDATION_REPORT.md) 为准。
 7. **magnetic**：带 `m` 前缀的 IR 默认不进入流程。
 8. **occupational**：本地为 ±1 占据近似，校验失败会标明。
 9. **rotational-only Types**：当前用 smodes 的位移活性作为 rotational route 的近似筛选，尚无独立的刚性转动/轴矢量模式生成器；不应把 rotational-only 结果称为与官网严格等价。
-10. **Distortion Generate / Domains**：官网有，本地网页/终端已去掉。
+10. **官网内置在线结构查看、Distortion Generate / Domains**：不属于当前本地
+    网页逆向范围；使用导出的 CIF / IsoVIZ 与外部 VESTA / IsoVIZ 查看结构。
 11. **界面仅英语**。
 12. **导出验收（见本目录 `agent.md`）**：网页与终端共用 `IsoDistort.export_subgroups_zip` / `_collect_export_specs`（**仅交互壳不同**）。ZIP 内每子群文件夹含 `subgroup.cif` / `data.isoviz` / `topas.str` / `Complete modes details.txt`。
     - **modes `.txt`**：完整写入本地计算结果即可，**不要求**与官网 HTML 逐字节一致。  
     - **CIF / isoviz / TOPAS**：内容与格式尽量靠官网；`.cif` 须能用 **[VESTA](https://jp-minerals.org/vesta/en/)**（[下载](https://jp-minerals.org/vesta/en/download.html)）打开，`.isoviz` 须能用 **ISOViz**（ISOTROPY IsoVIZ）打开。根目录可放 `VESTA.lnk` / `ISOViz.lnk` 便于抽检。  
     - TOPAS / IsoVIZ 位移向量按**原胞笛卡尔 Σ‖Δr‖²=1** 归一化（惯用胞求和除以 centering 重数）。官网 `As` 的物理最大位移为 `dmax=|As|·normfactor·max_i‖u_i B‖`，因此滑条/TOPAS 对称界为 `maxamp=1/dmax(As=1)`；不能按点阵类型硬编码 `√2`/`2`。
-    - CIF、TOPAS 和 ISOVIZ 共用目标子群的原点与位点轨道；不能再用零振幅母相的对称性合并子群位点。ISOVIZ 会按原始 CIF 位点顺序写类型和子位点，并为边界周期像写对应模式向量。其他允许的表示差异包括 symop 顺序、周期像及子位点排序、basis 点群等价代表元；symmetry-adapted 应变模式导出仍未实现。VALIDATE 默认语义比较；`--strict` 仅排版调试。
-13. **位点对称标号的适用范围**：位移模式会把等价位点矢量通过轨道 transporter 拉回 Wyckoff representative，再按 representative 的 polar-vector site point group 分类；这已覆盖当前官网审计中的 `A1/E/B2/A2u/B2u/B3u` 等标签及多 Wyckoff 独立幅度键。但尚未实现对所有 site group、轴矢量/磁/占位模式的通用 character-table decomposition，超出该范围的标签只能视为诊断信息。
-14. **Method 1 文件夹 basis/origin**：来自本地 iso，可能与官网取点群等价的另一组代表元（IR/OPD/SG/s/i/k-active 仍应对上）。正式审计不用文件夹名配对，而以 CIF 内候选身份配对；basis 必须通过精确整数幺模变换证明生成同一子格，再统一到官网表示比较结构。报告分别保留“原始表示完全相同”和“已归一到官网表示”的数量。
-15. **Method 2 短文件夹名**：本地与官网均用 `IR OPD`（如 `LD5 C4`）。若人工整理的 `output_compare` 里文件夹名与 CIF 内 OPD 行不一致（例如文件夹叫 `LD5 C4` 但 CIF 实为 `P4 … Pnma`），按文件夹名硬配对会得到假差异；应以 CIF 内 `# … k-active=` 行为准。
-16. **子群 CIF 的 ASU 行数 / 部分晶胞边长**：子群设定、原点与不对称单元取位与官网不完全相同时，ASU 行数或 a/b/c 可能不同；应检查展开后的原子数、化学计量和结构匹配。分数基矢扩胞需包含新晶胞内全部母胞平移，导出时原点须使目标子群对称操作映射到同种原子。勿按文件文本差异硬编码答案。
+    - CIF、TOPAS 和 ISOVIZ 共用目标子群的原点与位点轨道；不能再用零振幅母相的对称性合并子群位点。ISOVIZ 会按原始 CIF 位点顺序写类型和子位点，并为边界周期像写对应模式向量。其他允许的表示差异包括 symop 顺序、周期像及子位点排序、basis 点群等价代表元。CIF、ISOVIZ 和 Complete modes 的应变模式标签、顺序、`q_raw`、`q_unit`、`normfactor` 和幅度由同一契约生成；TOPAS 只写固定实际晶胞，不包含 strain-mode 参数。VALIDATE 默认语义比较，`--strict` 仅排版调试。
+13. **位点模式标号采用 fail-closed**：程序先用目标 embedding 的精确
+    `DISPLAY DIRECTION` 构造 primitive-integer `VALUE DIRECTION VECTOR,...` 查询，再从
+    oriented `DISPLAY DISTORTION` 表读取 `(global irrep, Wyckoff, site irrep, component)`
+    身份。命名 OPD token 只作为 primary 子群身份门禁，不能替代 exact invariant direction。
+    只有同一 `(global irrep, Wyckoff)` 的列空间与 BUSH 空间在秩、独立性和主角度上吻合，
+    且每列来源完整、唯一时，标签才标为 `verified`。若官网只打印稀疏点域，程序会在已证明
+    的公共点域求唯一 `R_common T=C_common`，再以 `C_full=R_full T` 延拓到完整 BUSH 点域；
+    该延拓有独立证据，不会冒充官网直接打印的行。缺块、非唯一/病态变基、残差超限、
+    未证明的非 Γ 平移相位和纯数值 fallback 均保持 `unresolved`。
+14. **位移导出采用已验证合同并 fail-closed**：CIF、IsoVIZ、Complete modes 和 TOPAS
+    四个 writer 已统一接入 `DisplaciveExportData`。共享模型验证 Seitz frame、子群轨道、
+    自由坐标、max-component-one 模式尺度、primitive norm 与未混合 microscopic 来源；
+    每列模式还必须绑定精确有理 k、物理 `orbit_id`、已解析 frame/atom-order 和唯一来源列。
+    父相、参考子胞与最终结构使用不可变快照；显式父子原子映射逐项验证
+    `x_parent=x_child B+q`、化学身份、物理轨道和完整平移陪集。IR、OPD、母/子空间群、
+    `B,q`、embedding ID、primary `VECTOR` 与由平移格推导的 `s` 也会在每次 writer 调用前
+    重新核对，不能由可变子群字段改写 `As→Ap`、模式标签或查询 setting。生产 core 只接受
+    与 canonical ISO 列逐项一致的 lifted arrays，匿名或混合来源列会拒绝。合同当前只接受
+    单物种满占位点；混合/部分占位在四种格式都有无损表示之前同样拒绝。磁盘与 ZIP 都先把
+    全部候选渲染完并汇总错误；新/空目标直接发布，已有非空目标写入带内容摘要的
+    `.isodistort-batch-v1-<digest>.ready` 目录及逐文件大小/SHA-256 manifest，并以进程锁和
+    文件锁保证并发批次只能整批成功或整批拒绝。成功但确实没有模式仍与失败区分。
+    IsoVIZ 的 parent-atom 类型只来自
+    权威物理轨道映射，同元素的不同轨道不会合并或按显示标签猜测。共享合同已定向验证
+    非零 strain + displacive 的组合；已覆盖的真实非 P1 结果与最终全量状态见验证报告。
+15. **Method 1 候选 setting**：本地 iso 给出的 basis/origin 可能是官网代表元的点群等价表示（IR/OPD/SG/s/i/k-active 仍应对上）。正式审计不用短目录名配对，而以 CIF 内候选身份配对；basis 必须通过精确整数幺模变换证明生成同一子格，再统一到官网表示比较结构。报告分别保留“原始表示完全相同”和“已归一到官网表示”的数量。
+16. **Method 2 短目录名**：当前导出和对照目录使用 `<IR>_<OPD>`（如 `LD5_C4`）。短名只用于定位；若目录名与 CIF 内 OPD 行不一致，按目录名硬配对会得到假差异，审计仍须以 CIF 内完整身份和 `# … k-active=` 行为准。
+17. **子群 CIF 的 ASU 行数 / 部分晶胞边长**：子群设定、原点与不对称单元取位与官网不完全相同时，ASU 行数或 a/b/c 可能不同；应检查展开后的原子数、化学计量和结构匹配。分数基矢扩胞需包含新晶胞内全部母胞平移，导出时原点须使目标子群对称操作映射到同种原子。勿按文件文本差异硬编码答案。
 
 更细的差异用 `output_compare/<母相>/{官网,现有网页版交互}/Method1|2` 做 diff；上表是用户最常撞到的几条。
 
@@ -504,23 +567,23 @@ iso.export_subgroups(
 
 ```powershell
 cd <CRIS 根目录>
-python ISODISTORT\main_requirement.py --dev
-.\.venv\Scripts\python.exe -m pytest ISODISTORT\tests_dev -q
+py -3.10 setup_cris.py install --project isodistort --dev
+.\run_cris.ps1 -m pytest ISODISTORT\tests_dev -q --tb=line --basetemp .test-tmp-isodistort
 ```
 
 若已经进入 `ISODISTORT/` 目录：
 
 ```powershell
-..\.venv\Scripts\python.exe -m pytest tests_dev -q
+..\run_cris.ps1 -m pytest tests_dev -q
 ```
 
-可选：在 `ISODISTORT/` 下执行 `ruff check .`。依赖 WSL 的用例在 WSL 不可用时会跳过。
+可选：从根目录执行 `.\run_cris.ps1 -m ruff check ISODISTORT`。依赖 WSL 的用例在 WSL 不可用时会跳过。
 
 手工/长时验证说明见 [docs/MANUAL_VALIDATION.md](docs/MANUAL_VALIDATION.md)，实际脚本位于 `tests_dev/manual/`，例如：
 
 ```powershell
-..\.venv\Scripts\python.exe tests_dev\manual\run_web.py spotcheck
-..\.venv\Scripts\python.exe tests_dev\manual\run_batch.py cif30
+..\run_cris.ps1 tests_dev\manual\run_web.py spotcheck
+..\run_cris.ps1 tests_dev\manual\run_batch.py cif30
 ```
 
 Method 1–4 的开发阶段、后续顺序和完成标准维护在
@@ -544,10 +607,11 @@ Method 1–4 的开发阶段、后续顺序和完成标准维护在
 | ZIP 报没有子群 | 先对下拉框里选中的 Method 1/2/3 点 OK |
 | Method 2 参数 k 点无子群 | 勾选 / 回答 **"Generate isotropy subgroups database if missing"** 后重试（可能极慢）；可用 **"Manage cached subgroup databases"** 查看或删除已生成的 `i*.iso` |
 | Method 2 缓存占磁盘 | 网页 Manage…，或终端 Method 2「Open cache manager?」按编号/`all` 删除 |
-| Method 2 文件夹名对上了但 SG/HM 不同 | 先看 CIF 内 OPD 行是否与文件夹名一致；`output_compare` 人工整理时可能把 `P4` 结果放进名为 `LD5 C4` 的目录。本地 ZIP 按真实 `IR OPD` 命名 |
-| 模式数少于官网 / `nstrain=0` | 当前 Method 1/2 位移模式全量审计已一致；`nstrain=0` 仍是未实现的应变模式。若新产物的位移模式数仍少，运行 `validate_method_outputs.py --live-method12` 并按 bug 处理 |
-| Method 1 文件夹 basis 与官网不同 | 不按目录名判定；运行统一审计器，以 CIF 候选身份配对并用精确整幺模变换证明同一子格，再归一为官网表示比较 |
+| Method 2 短目录名对上了但 SG/HM 不同 | `<IR>_<OPD>` 只用于定位；先核对 CIF 内完整候选身份和 OPD / `k-active` 行。本地 ZIP 按真实 IR/OPD 生成短名，审计不以目录名作为科学身份 |
+| 模式数少于官网 / `nstrain=0` | 先核对候选完整 identity、Types 与 nmod。未勾选 strain 时 `nstrain=0` 是预期；已勾选时必须取得并核验 ISO rank-[12] canonical basis，否则导出应明确报错。若位移模式数仍少，运行对应的 current-source live 审计并按 bug 处理 |
+| Method 1 候选 basis 与官网不同 | 不按短目录名判定；运行统一审计器，以 CIF 候选身份配对并用精确整幺模变换证明同一子格，再归一为官网表示比较 |
 | 端口被占用 | 改 `web_port` 或关掉旧的 `main_web.py` |
+| 终端打印 URL 但没有打开浏览器 | 确认从 CRIS 根目录使用 `.\run_cris.ps1`；若没有 `Browser launch requested`，按终端提示手动打开最终 URL |
 | OneDrive 路径偶发文件锁 | 可拷到非同步本地盘再试 |
 
 ---
@@ -560,7 +624,8 @@ ISODISTORT/
 ├── README.md            本文件（用户使用说明）
 ├── docs/                其余说明文档、验证指南、来源记录与下载清单
 │   └── manifests/       Method 3/4 官网下载或上传批次清单
-├── main_web.py / main_terminal.py / main_requirement.py
+├── main_web.py / main_terminal.py
+├── main_requirement.py  旧安装命令兼容转发；实现位于根 setup_cris.py
 ├── web/                 网页（server.py + index.html + static/）
 ├── isocore/             计算核心（api / backend / structure / distortion / io）
 ├── config/settings.yaml

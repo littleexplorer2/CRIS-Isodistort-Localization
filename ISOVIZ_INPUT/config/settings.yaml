@@ -2,7 +2,7 @@
 # ISOVIZ_INPUT 子项目配置
 # 相对路径均相对本文件所在目录 config/ 解析。
 # 虚拟环境与另外两个子项目共用仓库根 CRIS/.venv
-# （由本目录 main_requirement.py 创建或复用）。
+# （由仓库根 setup_cris.py 创建或复用）。
 # 本子项目不使用 output/：读完 CSV 与 .isoviz 后直接启动 IsoVIZ。
 # ============================================================
 

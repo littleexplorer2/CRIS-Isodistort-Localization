@@ -112,7 +112,9 @@ def _integer_delta(k1: np.ndarray, k2: np.ndarray) -> tuple[int, int, int] | Non
 
 
 def _g_allowed(h: int, k: int, ell: int, centering: str) -> bool:
-    letter = (centering or "P")[:1].upper()
+    letter = str(centering or "").strip()[:1].upper()
+    if not letter:
+        raise ValueError("reciprocal-lattice centering is required")
     if letter == "P":
         return True
     if letter == "I":
@@ -125,7 +127,12 @@ def _g_allowed(h: int, k: int, ell: int, centering: str) -> bool:
         return (h + ell) % 2 == 0
     if letter == "C":
         return (h + k) % 2 == 0
-    return True
+    if letter == "R":
+        # Pymatgen's conventional R space-group operations use hexagonal
+        # axes.  The centering translations (2/3,1/3,1/3) and
+        # (1/3,2/3,2/3) therefore require 2h+k+l = 0 (mod 3).
+        return (2 * h + k + ell) % 3 == 0
+    raise ValueError(f"unsupported reciprocal-lattice centering {centering!r}")
 
 
 def _k_score(k: np.ndarray) -> tuple:
@@ -179,22 +186,7 @@ def _k_equivalent(k1: np.ndarray, k2: np.ndarray, centering: str) -> bool:
     if delta is None:
         return False
     h, k, ell = delta
-    letter = (centering or "P")[:1].upper()
-    if letter == "P":
-        return True
-    if letter == "I":
-        return (h + k + ell) % 2 == 0
-    if letter == "F":
-        return (h % 2) == (k % 2) == (ell % 2)
-    if letter == "A":
-        return (k + ell) % 2 == 0
-    if letter == "B":
-        return (h + ell) % 2 == 0
-    if letter == "C":
-        return (h + k) % 2 == 0
-    if letter == "R":
-        return True
-    return True
+    return _g_allowed(h, k, ell, centering)
 
 
 def _k_to_array(coords: Sequence[str | float]) -> np.ndarray:
@@ -297,17 +289,20 @@ def _zero_one_flips_exact(
     return result
 
 
-def k_star_tuples(k_coordinates: Sequence[str | float],
-                  parent_sg: int) -> list[str]:
-    """Star of ``k`` as ``(x,y,z)`` strings in a stable, website-like order.
+def k_star_fraction_vectors(
+    k_coordinates: Sequence[str | float | int | Fraction],
+    parent_sg: int,
+) -> list[tuple[Fraction, Fraction, Fraction]]:
+    """Return the complete reciprocal star as exact conventional vectors.
 
-    The listed seed is kept (not reduced by centering). Remaining arms are
-    ordered as on the ISODISTORT OPD page: 0↔1 partners of the seed first,
-    then leftover arms sorted by coordinates. For I4/mmm this yields N =
-    ``(1/2,0,1/2),(1/2,1,1/2),(0,1/2,1/2),(1,1/2,1/2)``.
+    Arms are deduplicated modulo the parent Bravais reciprocal lattice.  The
+    seed is retained as stated and the remaining arms use the same stable
+    ordering as the website-facing formatter.  Keeping this layer exact lets
+    representation code prove Bloch phases without parsing formatted text or
+    rounding a boundary wavevector.
     """
     if not k_coordinates:
-        return ["(0,0,0)"]
+        return [(Fraction(0), Fraction(0), Fraction(0))]
     centering = _centering_letter(parent_sg)
     k0 = _k_to_fractions(k_coordinates)
     sg = SpaceGroup.from_int_number(int(parent_sg))
@@ -347,6 +342,20 @@ def k_star_tuples(k_coordinates: Sequence[str | float],
     ]
     rest.sort()
     ordered.extend(rest)
+
+    return ordered or [k0]
+
+
+def k_star_tuples(k_coordinates: Sequence[str | float],
+                  parent_sg: int) -> list[str]:
+    """Star of ``k`` as ``(x,y,z)`` strings in a stable, website-like order.
+
+    The listed seed is kept (not reduced by centering). Remaining arms are
+    ordered as on the ISODISTORT OPD page: 0↔1 partners of the seed first,
+    then leftover arms sorted by coordinates. For I4/mmm this yields N =
+    ``(1/2,0,1/2),(1/2,1,1/2),(0,1/2,1/2),(1,1/2,1/2)``.
+    """
+    ordered = k_star_fraction_vectors(k_coordinates, parent_sg)
 
     result = [format_tuple(k_coordinates)]
     for arm in ordered[1:]:

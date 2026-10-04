@@ -1,4 +1,4 @@
-# ISODISTORT_VALIDATE
+# ISODISTORT_VALIDATE 0.4.0
 
 把**本地算出的 CIF**与**官网导出的参考 CIF**放在固定目录里比较，判断两边是不是「同一种晶体结构」。你不需要先学晶体学：工具会检查晶格、原子、坐标、占据率、磁矩、空间群声明等，并给出 **PASS** 或 **FAIL**。
 
@@ -65,7 +65,7 @@ LD1 C1/subgroup.cif
 | --- | --- | --- |
 | **本地 CIF（待测）** | `ISODISTORT_VALIDATE/compare/item/` | 放入 ISODISTORT 导出的 `subgroup.cif`（可带子目录，如 `LD1 C1/subgroup.cif`） |
 | **官网 CIF（参考）** | `ISODISTORT_VALIDATE/compare/true/` | 放入官网下载的对应 CIF，并把**相对路径和文件名改成与 `item/` 完全一致** |
-| **目录缺失** | 同上 | 运行 `main_requirement.py` 会按 `config/settings.yaml` 的默认相对路径自动创建空的 `compare/{item,true}` |
+| **目录缺失** | 同上 | 运行根目录 `setup_cris.py install --project validate` 会按 yaml 创建空的 `compare/{item,true}` |
 | **比较容差 / 匹配模式** | `config/settings.yaml` → `defaults` / `compare.pattern` | 换机器一般不用改；要改默认容差或比较根目录时改 yaml（相对 `config/`） |
 | **Python / venv** | 仓库根 `CRIS/.venv` | 与其它子项目共用；用 `.\.venv\Scripts\python.exe` 启动 |
 | **环境变量** | 无 | 本子项目**不需要** `ISODATA` / WSL / IsoVIZ 路径 |
@@ -78,31 +78,30 @@ Agent 约定见 [agent.md](agent.md)。跨项目总览见仓库根 [README.md](.
 
 ## 安装
 
-需要 **Python ≥ 3.10**。本项目与仓库根目录的 `CRIS/.venv` 共用一份虚拟环境。在仓库根目录执行本子项目的准备脚本：
+需要 **Python ≥ 3.10**。本项目与另外两个子项目共用根目录 `CRIS/.venv`。在仓库根目录执行统一安装入口：
 
 ```powershell
 cd <CRIS 根目录>
-python ISODISTORT_VALIDATE\main_requirement.py
+py -3.10 setup_cris.py install --project validate
 ```
 
 该脚本会：
 
-1. 确认 Python ≥ 3.10  
-2. 创建或复用 `CRIS/.venv`，只安装尚未存在的依赖（已下载的包不会重新下载）  
-3. 检查运行本工具**不需要**额外环境变量（无 ISODATA / WSL）  
-4. 若缺少 `compare/`、`compare/item/`、`compare/true/` 则自动创建  
+1. 确认 Python ≥ 3.10；
+2. 创建或复用 `CRIS/.venv`，并按版本约束安装依赖；
+3. 创建缺失的 `compare/`、`compare/item/`、`compare/true/`；
+4. 运行包导入、依赖完整性和目录诊断。本工具不需要 ISODATA、WSL、Java 或 IsoVIZ。
 
 开发测试额外依赖：
 
 ```powershell
-python ISODISTORT_VALIDATE\main_requirement.py --dev
+py -3.10 setup_cris.py install --project validate --dev
 ```
 
-也可以继续用上游统一安装脚本（同样会创建/复用 `.venv`，并补上 VALIDATE 的 compare 目录）：
+只做只读诊断：
 
 ```powershell
-python ISODISTORT\main_requirement.py
-python ISODISTORT\main_requirement.py --dev
+.\.venv\Scripts\python.exe setup_cris.py doctor --project validate
 ```
 
 之后请用虚拟环境里的解释器运行本目录脚本，例如：
@@ -111,7 +110,7 @@ python ISODISTORT\main_requirement.py --dev
 .\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py
 ```
 
-或先 `cd ISODISTORT_VALIDATE` 再运行 `python main.py`（需已激活该 venv）。
+也可以先激活根 `.venv` 再进入本目录；为避免误用系统 Python，本文后续命令仍使用解释器绝对相对路径。
 
 ---
 
@@ -120,8 +119,8 @@ python ISODISTORT\main_requirement.py --dev
 单对比较和批量比较都走这一个文件。
 
 ```powershell
-cd ISODISTORT_VALIDATE
-python main.py
+cd <CRIS 根目录>
+.\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py
 ```
 
 无参数时进入菜单：
@@ -151,11 +150,11 @@ CIF 里每个原子占一行。这个选项决定两边原子怎么对上号：
 ### 命令行（同一入口）
 
 ```powershell
-python main.py compare "LD1 C1/subgroup.cif"
-python main.py compare
-python main.py batch
-python main.py batch --json > report.json
-python main.py batch --pattern "subgroup.cif"
+.\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py compare "LD1 C1/subgroup.cif"
+.\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py compare
+.\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py batch
+.\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py batch --json > report.json
+.\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py batch --pattern "subgroup.cif"
 ```
 
 `compare` 在 `compare/item` 里只有一个 CIF 时可以省略相对路径。`batch` 始终比较固定目录，按相对路径配对。
@@ -177,7 +176,7 @@ python main.py batch --pattern "subgroup.cif"
 容差示例：
 
 ```powershell
-python main.py compare "LD1 C1/subgroup.cif" `
+.\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py compare "LD1 C1/subgroup.cif" `
   --lattice-tol 1e-5 --coord-tol 1e-5 --scalar-tol 1e-5
 ```
 
@@ -185,7 +184,7 @@ python main.py compare "LD1 C1/subgroup.cif" `
 
 ```powershell
 Get-FileHash "ISODISTORT_VALIDATE\compare\true\sample.cif" -Algorithm SHA256
-python main.py compare sample.cif --reference-sha256 "这里填写64位十六进制"
+.\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py compare sample.cif --reference-sha256 "这里填写64位十六进制"
 ```
 
 ### `batch` 参数
@@ -253,14 +252,8 @@ Summary: total=…, passed=…, failed=…
 ## 测试
 
 ```powershell
-cd ISODISTORT_VALIDATE
-python -m pytest tests_dev -q
-```
-
-或从仓库根目录：
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest ISODISTORT_VALIDATE\tests_dev -q
+cd <CRIS 根目录>
+.\.venv\Scripts\python.exe -m pytest ISODISTORT_VALIDATE\tests_dev -q --tb=line --basetemp .test-tmp-validate
 ```
 
 若要对仓库 `output_compare/` 中 Method 1/2/3 保存结果按候选身份批量配对，
@@ -284,7 +277,7 @@ ISODISTORT_VALIDATE/
   README.md               本文件（使用说明）
   config/settings.yaml    比较目录与默认容差
   main.py                 唯一启动入口（交互菜单 / compare / batch）
-  main_requirement.py     依赖 / 环境 / compare 目录准备（共用 CRIS/.venv）
+  main_requirement.py     旧安装命令兼容转发；实现位于根 setup_cris.py
   isodistort_validate/    计算核心（比较算法、配置加载、固定路径）
   compare/                本地比对目录（gitignore，不入库）
     true/                 官网标准答案 CIF（批量比较前须改名以匹配 item/）

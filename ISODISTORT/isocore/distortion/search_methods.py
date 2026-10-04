@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import math
 import re
+import warnings
 from collections.abc import Sequence
 from dataclasses import dataclass
 from fractions import Fraction
@@ -971,12 +972,17 @@ class Method4Query:
     primitive_cell_multiplicity: int = 1
     # Primitive-supercell volume divided by primitive-parent volume.
     supercell_size: float = 1.0
-    # Conventional parent lattice and the exact Method-4 basis.  Supplying
-    # both expresses strain in the website's parent-axis convention.  Direct
-    # low-level callers may omit them; the undistorted comparison cell and an
-    # identity basis are then used.
+    # Conventional parent lattice and the exact Method-4 basis. Supplying both
+    # expresses the official symmetric multiplier in parent-lattice-basis
+    # coordinates. Direct low-level callers may omit them; the undistorted
+    # comparison cell and an identity basis are then used.
     reference_parent_lattice: Sequence[Sequence[float]] | None = None
     parent_to_child_basis: Sequence[Sequence[float]] | None = None
+    strain_mode_labels: Sequence[str] | None = None
+    strain_mode_irrep_labels: Sequence[str] | None = None
+    strain_mode_q_raw: Sequence[Sequence[float]] | None = None
+    strain_mode_q_unit: Sequence[Sequence[float]] | None = None
+    strain_mode_normfactors: Sequence[float] | None = None
 
 
 @dataclass
@@ -989,9 +995,36 @@ class Method4Result:
     rms_residual: float
     max_abs_residual: float
     assignments: list[int]
-    strain_voigt_engineering: dict[str, float]
-    strain_tensor: list[list[float]]
+    strain_mode_amplitudes: dict[str, float]
+    strain_modes: list[dict[str, object]]
+    strain_raw_coordinate_sum_parent_basis: dict[str, float] | None
+    strain_applied_engineering_q_parent_basis: dict[str, float]
+    strain_tensor_parent_basis: list[list[float]]
+    strain_multiplier_parent_basis: list[list[float]]
     metadata: dict[str, object]
+
+    @property
+    def strain_voigt_engineering(self) -> dict[str, float]:
+        """Deprecated alias for the same applied parent-basis q object."""
+
+        warnings.warn(
+            "strain_voigt_engineering is deprecated; use "
+            "strain_applied_engineering_q_parent_basis",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.strain_applied_engineering_q_parent_basis
+
+    @property
+    def strain_tensor(self) -> list[list[float]]:
+        """Deprecated alias for the same parent-basis tensor object."""
+
+        warnings.warn(
+            "strain_tensor is deprecated; use strain_tensor_parent_basis",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.strain_tensor_parent_basis
 
 
 class IsoSearchEngine:
@@ -1077,6 +1110,7 @@ class IsoSearchEngine:
                         query: Method2Query,
                         wyckoff_letters: Sequence[str] | None = None,
                         *,
+                        wyckoff_orbit_ids: Sequence[str] | None = None,
                         structure: Structure | None = None,
                         wyckoff_sites: Sequence[dict] | None = None,
                         smodes: object | None = None,
@@ -1094,6 +1128,7 @@ class IsoSearchEngine:
             subgroups: 子群候选列表（来自 Method 1 或 list_subgroups）
             query: Method 2 查询参数（subgroup_idx 必填）
             wyckoff_letters: 母相结构各原子的 Wyckoff 位置字母
+            wyckoff_orbit_ids: 作用域内物理 Wyckoff 轨道的稳定身份
 
         Returns:
             Method2Result
@@ -1153,6 +1188,7 @@ class IsoSearchEngine:
                     # Its complete 3D fixed space must include every k class
                     # folded by the selected child translation lattice.
                     nmod=0,
+                    wyckoff_orbit_ids=wyckoff_orbit_ids,
                 )
                 modes = complete_result.modes
                 extra_meta["supercell_displacements"] = (
@@ -1175,6 +1211,7 @@ class IsoSearchEngine:
                     smodes,  # type: ignore[arg-type]
                     kpoints=kpoints,
                     nmod=effective_nmod,
+                    wyckoff_orbit_ids=wyckoff_orbit_ids,
                 )
                 modes = complete_result.modes
                 extra_meta["supercell_displacements"] = complete_result.supercell_displacements
@@ -1197,6 +1234,7 @@ class IsoSearchEngine:
                     self._iso,
                     smodes,  # type: ignore[arg-type]
                     kpoints=kpoints,
+                    wyckoff_orbit_ids=wyckoff_orbit_ids,
                 )
                 modes = complete_result.modes
                 extra_meta["supercell_displacements"] = (
@@ -1987,6 +2025,93 @@ class IsoSearchEngine:
             else float("inf")
         )
 
+        strain_mode_labels = list(query.strain_mode_labels or [])
+        strain_irreps = list(query.strain_mode_irrep_labels or [])
+        strain_raw_rows = list(query.strain_mode_q_raw or [])
+        strain_unit_rows = list(query.strain_mode_q_unit or [])
+        strain_normfactors = list(query.strain_mode_normfactors or [])
+        strain_mode_amplitudes: dict[str, float] = {}
+        strain_mode_definitions: list[dict[str, object]] = []
+        strain_raw_coordinate_sum: dict[str, float] | None = None
+        strain_mode_status = "unresolved_missing_canonical_basis"
+        supplied_lengths = {
+            len(strain_mode_labels),
+            len(strain_irreps),
+            len(strain_raw_rows),
+            len(strain_unit_rows),
+            len(strain_normfactors),
+        }
+        if supplied_lengths != {0}:
+            if len(supplied_lengths) != 1 or not strain_mode_labels:
+                raise ValueError(
+                    "Method 4 canonical strain mode fields must be supplied "
+                    "together with equal nonzero lengths"
+                )
+            raw_matrix = np.column_stack(
+                [np.asarray(row, dtype=float) for row in strain_raw_rows]
+            )
+            unit_matrix = np.column_stack(
+                [np.asarray(row, dtype=float) for row in strain_unit_rows]
+            )
+            if raw_matrix.shape[0] != 6 or unit_matrix.shape != raw_matrix.shape:
+                raise ValueError(
+                    "Method 4 canonical strain modes must contain six-component rows"
+                )
+            if not np.all(np.isfinite(raw_matrix)) or not np.all(
+                np.isfinite(unit_matrix)
+            ):
+                raise ValueError("Method 4 canonical strain modes must be finite")
+            for column, normfactor in enumerate(strain_normfactors):
+                if not math.isfinite(float(normfactor)) or float(normfactor) <= 0:
+                    raise ValueError("Method 4 strain normfactors must be positive")
+                if not np.allclose(
+                    unit_matrix[:, column],
+                    float(normfactor) * raw_matrix[:, column],
+                    rtol=5.0e-5,
+                    atol=5.0e-5,
+                ):
+                    raise ValueError(
+                        "Method 4 q_unit must equal normfactor*q_raw"
+                    )
+            strain_coefficients, _, strain_rank, _ = np.linalg.lstsq(
+                unit_matrix,
+                strain.applied_engineering_q_parent_basis,
+                rcond=None,
+            )
+            if int(strain_rank) < len(strain_mode_labels):
+                raise ValueError("Method 4 canonical strain basis is dependent")
+            strain_fit_residual = float(
+                np.linalg.norm(
+                    unit_matrix @ strain_coefficients
+                    - strain.applied_engineering_q_parent_basis
+                )
+            )
+            if strain_fit_residual > max(5.0e-7, lattice_tolerance * 10.0):
+                raise ValueError(
+                    "Method 4 applied strain is outside the selected subgroup's "
+                    "canonical strain fixed space"
+                )
+            strain_mode_amplitudes = {
+                label: float(strain_coefficients[index])
+                for index, label in enumerate(strain_mode_labels)
+            }
+            raw_sum = raw_matrix @ strain_coefficients
+            strain_raw_coordinate_sum = {
+                label: float(value)
+                for label, value in zip(strain.voigt_order, raw_sum, strict=True)
+            }
+            strain_mode_definitions = [
+                {
+                    "label": label,
+                    "irrep_label": strain_irreps[index],
+                    "q_raw": [float(value) for value in raw_matrix[:, index]],
+                    "q_unit": [float(value) for value in unit_matrix[:, index]],
+                    "normfactor": float(strain_normfactors[index]),
+                }
+                for index, label in enumerate(strain_mode_labels)
+            ]
+            strain_mode_status = "canonical_iso_rank_12"
+
         return Method4Result(
             amplitudes=amplitudes,
             parent_cell_amplitudes=parent_cell_amplitudes,
@@ -1995,17 +2120,24 @@ class IsoSearchEngine:
             rms_residual=rms,
             max_abs_residual=max_abs,
             assignments=assignments,
-            strain_voigt_engineering={
+            strain_mode_amplitudes=strain_mode_amplitudes,
+            strain_modes=strain_mode_definitions,
+            strain_raw_coordinate_sum_parent_basis=strain_raw_coordinate_sum,
+            strain_applied_engineering_q_parent_basis={
                 label: float(value)
                 for label, value in zip(
-                    ("xx", "yy", "zz", "2yz", "2xz", "2xy"),
-                    strain.voigt_engineering,
+                    strain.voigt_order,
+                    strain.applied_engineering_q_parent_basis,
                     strict=True,
                 )
             },
-            strain_tensor=[
+            strain_tensor_parent_basis=[
                 [float(value) for value in row]
-                for row in strain.tensor
+                for row in strain.strain_tensor_parent_basis
+            ],
+            strain_multiplier_parent_basis=[
+                [float(value) for value in row]
+                for row in strain.multiplier_parent_basis
             ],
             metadata={
                 "atom_matching_method": query.atom_matching_method,
@@ -2019,10 +2151,24 @@ class IsoSearchEngine:
                 "strain_reconstruction_relative_metric_residual": (
                     strain.relative_metric_residual
                 ),
+                "strain_coordinate_frame": strain.coordinate_frame,
+                "strain_voigt_order": list(strain.voigt_order),
+                "strain_column_lattice_action": strain.column_lattice_action,
+                "strain_row_lattice_action": strain.row_lattice_action,
+                "strain_child_lattice_action": strain.child_lattice_action,
+                "strain_metric_equation": strain.metric_equation,
                 "strain_convention": (
-                    "ISODISTORT applied Voigt order "
-                    "(xx,yy,zz,2yz,2xz,2xy); M=I+epsilon"
+                    "parent-lattice-basis engineering q order "
+                    "(E11,E22,E33,2E23,2E13,2E12); M=I+E; "
+                    "child row lattice B@M@P"
                 ),
+                "strain_mode_status": strain_mode_status,
+                "deprecated_result_aliases": {
+                    "strain_voigt_engineering": (
+                        "strain_applied_engineering_q_parent_basis"
+                    ),
+                    "strain_tensor": "strain_tensor_parent_basis",
+                },
                 "mode_matrix_rank": int(rank),
                 "mode_matrix_columns": len(mode_labels),
                 "mode_matrix_condition_number": condition_number,

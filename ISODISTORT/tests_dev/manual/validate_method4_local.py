@@ -150,7 +150,9 @@ def _check_success(
             issues.append(f"exact-case RMS {rms} angstrom exceeds {upper}")
     strain = {
         str(key): float(value)
-        for key, value in result.strain_voigt_engineering.items()
+        for key, value in (
+            result.strain_applied_engineering_q_parent_basis.items()
+        )
     }
     strain_norm = float(np.linalg.norm(list(strain.values())))
     strain_tolerance = float(tolerances.get("strain_component_abs", 5e-7))
@@ -187,8 +189,14 @@ def _check_success(
         "rms_residual_angstrom": rms,
         "max_abs_residual_angstrom": float(result.max_abs_residual),
         "assignments": [int(value) for value in result.assignments],
-        "strain_voigt_engineering": strain,
-        "strain_tensor": result.strain_tensor,
+        "strain_mode_amplitudes": result.strain_mode_amplitudes,
+        "strain_modes": result.strain_modes,
+        "strain_raw_coordinate_sum_parent_basis": (
+            result.strain_raw_coordinate_sum_parent_basis
+        ),
+        "strain_applied_engineering_q_parent_basis": strain,
+        "strain_tensor_parent_basis": result.strain_tensor_parent_basis,
+        "strain_multiplier_parent_basis": result.strain_multiplier_parent_basis,
         "metadata": result.metadata,
     }
     return not issues, issues, details

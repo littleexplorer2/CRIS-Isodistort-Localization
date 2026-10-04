@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import re
 import warnings
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
 from fractions import Fraction
 from functools import lru_cache
@@ -40,7 +40,26 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
 
-from ..backend.iso_wrapper import BushMode, DistortionMode, SubgroupInfo
+from ..backend.iso_mode_models import (
+    ModeIdentity,
+    ModeSubspaceValidation,
+    SignedColumnAlignment,
+    validate_cartesian_subspaces,
+    validate_microscopic_mode_source,
+    validate_signed_cartesian_columns,
+)
+from ..backend.iso_wrapper import (
+    BushMode,
+    DistortionMode,
+    MicroscopicDomainExtensionEvidence,
+    SubgroupInfo,
+    _component_label,
+    microscopic_bush_column_digest,
+    microscopic_bush_row_digest,
+    microscopic_bush_source_float_column_digest,
+    microscopic_extension_digest,
+    microscopic_source_basis_digest,
+)
 from ..backend.smodes_wrapper import SmodesAtom, SmodesModeBlock, SmodesWrapper
 from ..data.kpoints_official import (
     KPOINT_OFFICIAL,
@@ -49,6 +68,7 @@ from ..data.kpoints_official import (
 )
 from ..structure.coordinate_transform import build_supercell
 from ..utils.config_loader import get_config
+from ..utils.exceptions import IsodistortError
 from ..utils.lattice import (
     centering_primitive_matrix,
     determinant,
@@ -57,38 +77,12 @@ from ..utils.lattice import (
     multiply,
     rational_matrix,
 )
+from ..utils.opd_format import k_star_fraction_vectors
 from ..utils.schoenflies import hm_symbol
 from .search_methods import (
     _k_compatible_with_supercell,
     _param_value_candidates,
 )
-
-_SITE_VECTOR_IRREPS: dict[str, dict[str, str]] = {
-    "4/mmm": {"z": "A2u", "xy": "Eu"},
-    "4mm": {"z": "A1", "xy": "E"},
-    "4/m": {"z": "Au", "xy": "Eu"},
-    "4": {"z": "A", "xy": "E"},
-    "-4m2": {"z": "B2", "xy": "E"},
-    "-42m": {"z": "B2", "xy": "E"},
-    "-4": {"z": "B", "xy": "E"},
-    "mmm": {"x": "B3u", "y": "B2u", "z": "B1u"},
-    "mm2": {"x": "B1", "y": "B2", "z": "A1"},
-    "m2m": {"x": "B1", "y": "A1", "z": "B2"},
-    "2mm": {"x": "A1", "y": "B1", "z": "B2"},
-    "2/m": {"z": "Au", "xy": "Bu"},
-    "m": {"z": "A'", "xy": "A'"},
-    "2": {"z": "A", "xy": "B"},
-    "-3m": {"z": "A2u", "xy": "Eu"},
-    "3m": {"z": "A1", "xy": "E"},
-    "-3": {"z": "Au", "xy": "Eu"},
-    "3": {"z": "A", "xy": "E"},
-    "m-3m": {"xyz": "T1u"},
-    "m-3": {"xyz": "T1u"},
-    "432": {"xyz": "T1"},
-    "-43m": {"xyz": "T2"},
-    "1": {"xyz": "A"},
-    "-1": {"xyz": "Au"},
-}
 
 
 @dataclass
@@ -102,6 +96,1568 @@ class ParametricModeResult:
     note: str = ""
 
 
+def _wyckoff_orbit_id(site: dict, ordinal: int = 0) -> str:
+    """Return the stable physical-orbit identity, with a legacy fallback.
+
+    Current ``symmetry_info`` producers provide a content-addressed
+    ``orbit_id``.  The fallback keeps older API fixtures usable while still
+    distinguishing repeated occurrences of the same Wyckoff letter.
+    """
+    identity = str(site.get("orbit_id") or "").strip()
+    if identity:
+        return identity
+    letter = str(site.get("wyckoff_letter") or site.get("letter") or "")
+    species = str(site.get("species") or site.get("element") or "")
+    indices = ",".join(
+        str(int(value)) for value in (site.get("equivalent_indices") or ())
+    )
+    representative = str(site.get("representative_index", ordinal))
+    return f"legacy:{letter}:{species}:{representative}:{indices}"
+
+
+def _orbit_key_token(orbit_id: str) -> str:
+    """Filesystem/export-safe token for an internal amplitude key."""
+    token = re.sub(r"[^A-Za-z0-9_.+-]+", "-", str(orbit_id)).strip("-")
+    return token or "orbit"
+
+
+def _instantiate_bush_modes_by_orbit(
+    modes: Sequence[DistortionMode],
+    wyckoff_sites: Sequence[dict],
+    requested_letters: Sequence[str],
+    requested_orbit_ids: Sequence[str] | None = None,
+) -> list[DistortionMode]:
+    """Give each independent occurrence of a Wyckoff position its own copy.
+
+    ISO ``DISPLAY BUSH`` is parameterized by Wyckoff *letter*.  When the
+    parent contains several independent sites on that position, the returned
+    symbolic basis applies independently to every physical orbit.  Treating
+    the letter as the orbit identity collapses those copies and can also mix
+    incompatible free-coordinate values during child-cell mapping.
+    """
+    requested = {str(value) for value in requested_letters if str(value)}
+    requested_orbit_sequence = [
+        str(value) for value in (requested_orbit_ids or ()) if str(value)
+    ]
+    requested_orbits = set(requested_orbit_sequence)
+    if len(requested_orbits) != len(requested_orbit_sequence):
+        raise ValueError("requested physical orbit identities contain duplicates")
+    all_requested_entries = [
+        (ordinal, site)
+        for ordinal, site in enumerate(wyckoff_sites)
+        if str(site.get("wyckoff_letter") or site.get("letter") or "")
+        in requested
+    ]
+    all_orbit_ids = [
+        _wyckoff_orbit_id(site, ordinal) for ordinal, site in all_requested_entries
+    ]
+    if len(set(all_orbit_ids)) != len(all_orbit_ids):
+        raise ValueError("physical Wyckoff orbit identities are not unique")
+    if requested_orbits and not requested_orbits.issubset(set(all_orbit_ids)):
+        missing = sorted(requested_orbits - set(all_orbit_ids))
+        raise ValueError(
+            "requested physical Wyckoff orbit metadata is missing: " + ", ".join(missing)
+        )
+    site_entries = [
+        (ordinal, site)
+        for ordinal, site in all_requested_entries
+        if (
+            not requested_orbits
+            or _wyckoff_orbit_id(site, ordinal) in requested_orbits
+        )
+    ]
+    if not wyckoff_sites:
+        unresolved: list[DistortionMode] = []
+        for mode in modes:
+            identity = mode.mode_identity
+            if identity is not None:
+                identity = replace(
+                    identity,
+                    site_irrep=None,
+                    copy_index=None,
+                    component_index=None,
+                    component_label=None,
+                    source="unresolved",
+                    status="unresolved",
+                    reason="physical_orbit_metadata_unavailable",
+                )
+            unresolved.append(replace(
+                mode,
+                site_irrep="",
+                mode_identity=identity,
+            ))
+        return unresolved
+    if not site_entries:
+        if modes:
+            raise ValueError("no requested physical Wyckoff orbit can receive the modes")
+        return []
+    all_letter_counts: dict[str, int] = {}
+    for site in wyckoff_sites:
+        letter = str(site.get("wyckoff_letter") or site.get("letter") or "")
+        all_letter_counts[letter] = all_letter_counts.get(letter, 0) + 1
+    by_letter: dict[str, list[tuple[int, dict]]] = {}
+    for ordinal, site in site_entries:
+        letter = str(site.get("wyckoff_letter") or site.get("letter") or "")
+        by_letter.setdefault(letter, []).append((ordinal, site))
+
+    expanded: list[DistortionMode] = []
+    for mode in modes:
+        letter = str(mode.wyckoff_site or "")
+        matches = by_letter.get(letter) or []
+        if not matches:
+            raise ValueError(
+                f"mode Wyckoff letter {letter!r} has no physical orbit metadata"
+            )
+        repeated = all_letter_counts.get(letter, 0) > 1
+        for ordinal, site in matches:
+            orbit_id = _wyckoff_orbit_id(site, ordinal)
+            key = str(mode.amplitude_key or mode.irrep_label)
+            if repeated:
+                marker = f"__{letter}__"
+                replacement = f"__{letter}@{_orbit_key_token(orbit_id)}__"
+                key = (
+                    key.replace(marker, replacement, 1)
+                    if marker in key
+                    else f"{key}__{replacement.strip('_')}"
+                )
+            identity = getattr(mode, "mode_identity", None)
+            if identity is not None:
+                identity = replace(identity, orbit_id=orbit_id)
+            expanded.append(replace(
+                mode,
+                amplitude_key=key,
+                wyckoff_orbit_id=orbit_id,
+                mode_identity=identity,
+            ))
+    return expanded
+
+
+_AffineCoordinate = tuple[Fraction, Fraction, Fraction, Fraction]
+_SymbolicPointKey = tuple[_AffineCoordinate, _AffineCoordinate, _AffineCoordinate]
+_IntegerTranslation = tuple[int, int, int]
+_SymbolicPointTransport = tuple[_SymbolicPointKey, _IntegerTranslation]
+
+
+@dataclass(frozen=True)
+class _SymbolicSubspaceProof:
+    """The exact symbolic-row domain used for one whole-space comparison."""
+
+    validation: ModeSubspaceValidation
+    comparison_domain_kind: str = ""
+    reference_points: tuple[_SymbolicPointKey, ...] = ()
+    comparison_points: tuple[_SymbolicPointKey, ...] = ()
+    reference_full: tuple[np.ndarray, ...] = ()
+    reference_comparison: tuple[np.ndarray, ...] = ()
+    candidate_comparison: tuple[np.ndarray, ...] = ()
+    transports: tuple[_SymbolicPointTransport, ...] = ()
+    ordered_reference_basis_digest: str = ""
+    ordered_candidate_binding_digest: str = ""
+
+
+def _ordered_symbolic_basis_digest(
+    points: Sequence[_SymbolicPointKey],
+    arrays: Sequence[np.ndarray],
+) -> str:
+    """Bind an ordered symbolic basis to its normalized point domain."""
+
+    return microscopic_extension_digest({
+        "points": tuple(points),
+        "arrays": tuple(
+            np.asarray(array, dtype=float).tolist() for array in arrays
+        ),
+    })
+
+
+def _ordered_candidate_binding_digest(
+    modes: Sequence[DistortionMode],
+) -> str:
+    """Bind proof columns to the exact ordered ISO source identities and rows."""
+
+    payload: list[dict[str, object]] = []
+    for mode in modes:
+        identity = mode.mode_identity
+        provenance = mode.microscopic_provenance
+        if identity is None or provenance is None:
+            raise ValueError("proof_candidate_identity_or_provenance_missing")
+        if (
+            identity.component_index != provenance.source_column_index
+            or identity.global_irrep != provenance.query_irrep_label
+            or identity.global_irrep != provenance.source_global_irrep
+            or identity.wyckoff_letter != provenance.source_wyckoff_letter
+            or identity.site_irrep != provenance.source_site_irrep
+        ):
+            raise ValueError("proof_candidate_identity_provenance_mismatch")
+        if microscopic_bush_row_digest(mode.bush_modes) != provenance.exact_row_digest:
+            raise ValueError("proof_candidate_source_row_digest_mismatch")
+        if (
+            microscopic_bush_source_float_column_digest(mode.bush_modes)
+            != provenance.source_float_column_digest
+        ):
+            raise ValueError("proof_candidate_source_vector_digest_mismatch")
+        payload.append({
+            "source_order_key": provenance.source_order_key,
+            "exact_source_token": provenance.exact_source_token,
+            "identity_token": identity.stable_token,
+            "exact_row_digest": provenance.exact_row_digest,
+            "exact_vector_digest": provenance.exact_vector_digest,
+            "source_float_column_digest": provenance.source_float_column_digest,
+        })
+    return microscopic_extension_digest(payload)
+
+
+def _parse_affine_coordinate(expression: str) -> _AffineCoordinate:
+    """Parse one exact affine ISO coordinate in ``x,y,z``.
+
+    Only rational affine expressions are accepted.  Unsupported syntax fails
+    closed rather than comparing two points through a numerical substitution
+    that could accidentally identify distinct Wyckoff parameters.
+    """
+
+    compact = re.sub(r"\s+", "", str(expression))
+    if not compact:
+        raise ValueError("empty symbolic coordinate")
+    coefficients = {"x": Fraction(0), "y": Fraction(0), "z": Fraction(0)}
+    constant = Fraction(0)
+    term_re = re.compile(
+        r"(?P<sign>[+-]?)"
+        r"(?:"
+        r"(?:(?P<coefficient>\d+(?:/\d+)?)?\*?(?P<variable>[xyz])"
+        r"(?:/(?P<divisor>\d+))?)"
+        r"|(?P<constant>\d+(?:/\d+)?)"
+        r")"
+    )
+    offset = 0
+    while offset < len(compact):
+        match = term_re.match(compact, offset)
+        if match is None:
+            raise ValueError(f"unsupported affine coordinate {expression!r}")
+        sign = -1 if match.group("sign") == "-" else 1
+        variable = match.group("variable")
+        if variable is None:
+            constant += sign * Fraction(match.group("constant"))
+        else:
+            coefficient = Fraction(match.group("coefficient") or 1)
+            if match.group("divisor"):
+                coefficient /= int(match.group("divisor"))
+            coefficients[variable] += sign * coefficient
+        offset = match.end()
+    return (
+        coefficients["x"],
+        coefficients["y"],
+        coefficients["z"],
+        constant,
+    )
+
+
+def _symbolic_point_key(bush: BushMode) -> _SymbolicPointKey:
+    raw = tuple(str(value) for value in bush.point_raw)
+    if len(raw) != 3 or not all(value.strip() for value in raw):
+        raise ValueError("mode row lacks a complete symbolic representative point")
+    return tuple(_parse_affine_coordinate(value) for value in raw)  # type: ignore[return-value]
+
+
+def _point_mod_integer_key(point: _SymbolicPointKey) -> _SymbolicPointKey:
+    return tuple(
+        (x, y, z, constant % 1)
+        for x, y, z, constant in point
+    )  # type: ignore[return-value]
+
+
+def _integer_point_translation(
+    reference: _SymbolicPointKey,
+    candidate: _SymbolicPointKey,
+) -> _IntegerTranslation:
+    """Return the exact conventional-cell translation candidate-reference."""
+
+    translation: list[int] = []
+    for reference_coord, candidate_coord in zip(reference, candidate, strict=True):
+        if reference_coord[:3] != candidate_coord[:3]:
+            raise ValueError("symbolic points have different affine parameters")
+        delta = candidate_coord[3] - reference_coord[3]
+        if delta.denominator != 1:
+            raise ValueError("symbolic points do not differ by an integer translation")
+        translation.append(int(delta))
+    return tuple(translation)  # type: ignore[return-value]
+
+
+def _exact_mode_k_identity(
+    mode: DistortionMode,
+) -> tuple[int, tuple[Fraction, Fraction, Fraction]]:
+    """Return one mode's exact parent SG and printed representative k vector."""
+
+    identity = mode.mode_identity
+    parent_sg = int(identity.parent_sg) if identity is not None else 0
+    raw = tuple(identity.k_coordinates) if identity is not None else ()
+    if not raw:
+        raw = tuple(
+            token.strip()
+            for token in str(mode.k_coords_label or "").split(",")
+            if token.strip()
+        )
+    if parent_sg <= 0 or len(raw) != 3:
+        raise ValueError("mode lacks one exact parent-SG/k identity")
+    try:
+        k_coordinates = tuple(Fraction(str(token).strip()) for token in raw)
+    except (ValueError, ZeroDivisionError) as exc:
+        raise ValueError("mode k coordinates are not exact rational numbers") from exc
+    return parent_sg, k_coordinates  # type: ignore[return-value]
+
+
+def _common_exact_k_identity(
+    candidate_modes: Sequence[DistortionMode],
+) -> tuple[int, tuple[Fraction, Fraction, Fraction]]:
+    """Return the microscopic columns' common exact k identity.
+
+    A BUSH table can contain secondary irreps while its legacy mode metadata
+    still carries the selected primary k.  The ISO microscopic block is the
+    per-global-irrep identity source used by the verified-label gate, so only
+    those candidate columns may authorize a nonzero symbolic transporter.
+    """
+
+    identities = [_exact_mode_k_identity(mode) for mode in candidate_modes]
+    if not identities or any(identity != identities[0] for identity in identities[1:]):
+        raise ValueError("mode columns do not share one exact parent-SG/k identity")
+    return identities[0]
+
+
+def _is_parent_gamma(
+    parent_sg: int,
+    k_coordinates: tuple[Fraction, Fraction, Fraction],
+) -> bool:
+    """Whether k is an exact reciprocal vector of the centered parent lattice."""
+
+    if any(value.denominator != 1 for value in k_coordinates):
+        return False
+    symbol = (hm_symbol(int(parent_sg)) or "P").replace(" ", "")
+    centering = next((char for char in symbol if char.isalpha()), "P").upper()
+    half = Fraction(1, 2)
+    third = Fraction(1, 3)
+    extra_translations = {
+        "I": ((half, half, half),),
+        "A": ((0, half, half),),
+        "B": ((half, 0, half),),
+        "C": ((half, half, 0),),
+        "F": ((0, half, half), (half, 0, half), (half, half, 0)),
+        "R": ((2 * third, third, third), (third, 2 * third, 2 * third)),
+    }
+    return all(
+        sum(
+            (
+                wavevector * translation
+                for wavevector, translation in zip(
+                    k_coordinates, centering_translation, strict=True,
+                )
+            ),
+            Fraction(0),
+        ).denominator == 1
+        for centering_translation in extra_translations.get(centering, ())
+    )
+
+
+def _proven_real_transport_phase(
+    translation: _IntegerTranslation,
+    *,
+    parent_sg: int,
+    k_coordinates: tuple[Fraction, Fraction, Fraction],
+) -> int:
+    """Return the common real Bloch phase of every arm of the exact k star.
+
+    ``ModeIdentity.k_coordinates`` does not bind individual columns to star
+    arms.  Such a binding is unnecessary when the requested parent-lattice
+    translation acts as the same real scalar on the *complete* star: every
+    possible arm assignment then gives the same ``+1`` or ``-1``.  Different
+    arm phases or a non-real phase remain unresolved and fail closed.
+    """
+
+    if not any(translation):
+        return 1
+    if _is_parent_gamma(parent_sg, k_coordinates):
+        return 1
+    phases: set[int] = set()
+    for arm in k_star_fraction_vectors(k_coordinates, parent_sg):
+        exponent = sum(
+            component * shift
+            for component, shift in zip(arm, translation, strict=True)
+        ) % 1
+        if exponent == 0:
+            phases.add(1)
+        elif exponent == Fraction(1, 2):
+            phases.add(-1)
+        else:
+            raise ValueError(
+                "non-Gamma integer translation lacks component-to-star-arm "
+                "phase evidence"
+            )
+    if len(phases) != 1:
+        raise ValueError(
+            "non-Gamma integer translation lacks component-to-star-arm phase evidence"
+        )
+    return next(iter(phases))
+
+
+def _mode_point_rows(mode: DistortionMode) -> dict[_SymbolicPointKey, np.ndarray]:
+    rows: dict[_SymbolicPointKey, np.ndarray] = {}
+    for bush in mode.bush_modes:
+        point = _symbolic_point_key(bush)
+        if point in rows:
+            raise ValueError("mode contains a duplicate symbolic representative point")
+        if len(bush.displacements) != 1:
+            raise ValueError("mode columns must be split before subspace validation")
+        vector = np.asarray(bush.displacements[0], dtype=float)
+        if vector.shape != (3,) or not np.all(np.isfinite(vector)):
+            raise ValueError("mode displacement must be one finite 3-vector")
+        rows[point] = vector
+    if not rows:
+        raise ValueError("mode contains no symbolic representative points")
+    return rows
+
+
+def _common_point_rows(
+    modes: Sequence[DistortionMode],
+) -> tuple[list[_SymbolicPointKey], list[dict[_SymbolicPointKey, np.ndarray]]]:
+    row_maps = [_mode_point_rows(mode) for mode in modes]
+    if not row_maps:
+        return [], []
+    points = set(row_maps[0])
+    if any(set(rows) != points for rows in row_maps[1:]):
+        raise ValueError("mode columns do not share one symbolic point domain")
+    return sorted(points), row_maps
+
+
+def _symbolic_mode_arrays(
+    modes: Sequence[DistortionMode],
+    point_order: Sequence[_SymbolicPointKey],
+) -> list[np.ndarray]:
+    """Materialise split ISO columns on one proven symbolic point domain."""
+
+    arrays: list[np.ndarray] = []
+    for mode in modes:
+        rows = _mode_point_rows(mode)
+        if any(point not in rows for point in point_order):
+            raise ValueError("mode point is absent from the requested symbolic domain")
+        arrays.append(np.asarray([rows[point] for point in point_order], dtype=float))
+    return arrays
+
+
+def _match_candidate_points_to_reference(
+    reference_points: Sequence[_SymbolicPointKey],
+    reference_rows: Sequence[dict[_SymbolicPointKey, np.ndarray]],
+    candidate_points: Sequence[_SymbolicPointKey],
+    *,
+    parent_sg: int,
+    k_coordinates: tuple[Fraction, Fraction, Fraction],
+) -> list[_SymbolicPointTransport]:
+    """Match a sparse ISO representative domain to BUSH without guessing phase.
+
+    Exact affine expressions win.  A nonzero integer transporter is retained,
+    rather than erased modulo one, and must have a proven scalar real Bloch
+    phase.  A non-Gamma transport is also proven when every exact k-star arm
+    has the same real phase, so no component-to-arm assignment is needed.
+    Multiple possible transporters are accepted only when every reference
+    column gives the same phase-transported row.
+    """
+
+    by_mod: dict[_SymbolicPointKey, list[_SymbolicPointKey]] = {}
+    for point in reference_points:
+        by_mod.setdefault(_point_mod_integer_key(point), []).append(point)
+
+    edges: dict[int, tuple[_SymbolicPointKey, ...]] = {}
+    transports: dict[tuple[int, _SymbolicPointKey], _IntegerTranslation] = {}
+    for candidate_index, point in enumerate(candidate_points):
+        # A literal common representative is the strongest possible edge and
+        # is locked to itself.  Nonliteral representatives may use every
+        # modulo-integer BUSH image only after all such images are proven to
+        # carry the same transported row on every reference column.
+        choices = [point] if point in reference_points else sorted(
+            by_mod.get(_point_mod_integer_key(point), [])
+        )
+        if not choices:
+            raise ValueError("candidate point is absent from the BUSH point domain")
+        transported_rows: list[tuple[_SymbolicPointKey, int]] = []
+        for choice in choices:
+            translation = _integer_point_translation(choice, point)
+            try:
+                phase = _proven_real_transport_phase(
+                    translation,
+                    parent_sg=parent_sg,
+                    k_coordinates=k_coordinates,
+                )
+            except ValueError:
+                # This image supplies no scalar proof for an unknown arm
+                # assignment.  Another image can still be a valid edge when
+                # its translation has one common real phase on the full star.
+                continue
+            transported_rows.append((choice, phase))
+            transports[(candidate_index, choice)] = translation
+        if not transported_rows:
+            raise ValueError(
+                "non-Gamma integer translation lacks component-to-star-arm "
+                "phase evidence"
+            )
+        first_choice, first_phase = transported_rows[0]
+        for other, other_phase in transported_rows[1:]:
+            if any(
+                not np.array_equal(
+                    first_phase * rows[first_choice],
+                    other_phase * rows[other],
+                )
+                for rows in reference_rows
+            ):
+                raise ValueError(
+                    "integer-translation point match has an unresolved phase"
+                )
+        edges[candidate_index] = tuple(choice for choice, _phase in transported_rows)
+
+    # Find a deterministic complete injection rather than greedily choosing
+    # the first image in each modulo class.  Exact edges have width one and are
+    # considered first; constrained nonexact rows precede flexible ones.
+    reference_owner: dict[_SymbolicPointKey, int] = {}
+    assignment: dict[int, _SymbolicPointKey] = {}
+
+    def _augment(candidate_index: int, seen: set[_SymbolicPointKey]) -> bool:
+        for choice in edges[candidate_index]:
+            if choice in seen:
+                continue
+            seen.add(choice)
+            incumbent = reference_owner.get(choice)
+            if incumbent is None or _augment(incumbent, seen):
+                reference_owner[choice] = candidate_index
+                assignment[candidate_index] = choice
+                return True
+        return False
+
+    candidate_order = sorted(
+        range(len(candidate_points)),
+        key=lambda index: (len(edges[index]), candidate_points[index]),
+    )
+    for candidate_index in candidate_order:
+        if not _augment(candidate_index, set()):
+            raise ValueError(
+                "candidate points map non-injectively onto the BUSH domain"
+            )
+    return [
+        (
+            assignment[index],
+            transports[(index, assignment[index])],
+        )
+        for index in range(len(candidate_points))
+    ]
+
+
+def _transported_symbolic_mode_arrays(
+    modes: Sequence[DistortionMode],
+    transports: Sequence[_SymbolicPointTransport],
+    *,
+    parent_sg: int,
+    k_coordinates: tuple[Fraction, Fraction, Fraction],
+) -> list[np.ndarray]:
+    """Materialise reference columns on the candidate point representatives."""
+
+    arrays: list[np.ndarray] = []
+    for mode in modes:
+        rows = _mode_point_rows(mode)
+        transported_rows: list[np.ndarray] = []
+        for point, translation in transports:
+            if point not in rows:
+                raise ValueError("mode point is absent from the transported domain")
+            phase = _proven_real_transport_phase(
+                translation,
+                parent_sg=parent_sg,
+                k_coordinates=k_coordinates,
+            )
+            transported_rows.append(phase * rows[point])
+        arrays.append(np.asarray(transported_rows, dtype=float))
+    return arrays
+
+
+def _symbolic_subspace_proof(
+    reference_modes: Sequence[DistortionMode],
+    candidate_modes: Sequence[DistortionMode],
+    lattice: np.ndarray,
+) -> _SymbolicSubspaceProof:
+    """Build the exact-row proof used for comparison and domain extension.
+
+    ``DISPLAY BUSH`` commonly expands every child-cell image while
+    ``DISPLAY DISTORTION`` prints a smaller representative set.  Comparison is
+    therefore performed on the candidate's point domain, after proving that
+    restricting the BUSH columns to that domain preserves their full rank.
+    """
+
+    reference_points, reference_rows = _common_point_rows(reference_modes)
+    candidate_points, _candidate_rows = _common_point_rows(candidate_modes)
+    if not reference_points or not candidate_points:
+        return _SymbolicSubspaceProof(
+            ModeSubspaceValidation(False, 0, 0, 0.0, "empty_point_domain")
+        )
+    parent_sg, k_coordinates = _common_exact_k_identity(candidate_modes)
+    reference_full = _symbolic_mode_arrays(reference_modes, reference_points)
+    candidate = _symbolic_mode_arrays(candidate_modes, candidate_points)
+    reference_self = validate_cartesian_subspaces(
+        reference_full, reference_full, lattice
+    )
+    full_rank = reference_self.reference_rank
+    if full_rank != len(reference_modes):
+        return _SymbolicSubspaceProof(
+            ModeSubspaceValidation(
+                False,
+                full_rank,
+                0,
+                0.0,
+                "reference_columns_not_independent",
+            )
+        )
+    candidate_self = validate_cartesian_subspaces(candidate, candidate, lattice)
+    if candidate_self.reference_rank != len(candidate_modes):
+        return _SymbolicSubspaceProof(
+            ModeSubspaceValidation(
+                False,
+                full_rank,
+                candidate_self.reference_rank,
+                0.0,
+                "candidate_columns_not_independent",
+            )
+        )
+    if len(reference_modes) != len(candidate_modes):
+        return _SymbolicSubspaceProof(
+            ModeSubspaceValidation(
+                False,
+                full_rank,
+                candidate_self.reference_rank,
+                0.0,
+                "rank_mismatch",
+            )
+        )
+    ordered_reference_basis_digest = _ordered_symbolic_basis_digest(
+        reference_points, reference_full,
+    )
+    ordered_candidate_binding_digest = _ordered_candidate_binding_digest(
+        candidate_modes,
+    )
+
+    # Prefer an exact common representative domain.  If restriction to those
+    # literally identical symbolic rows is injective on both spaces, it fixes
+    # every column coefficient without assigning any star arm or Bloch phase.
+    # This is the strongest available proof for non-Gamma blocks whose two ISO
+    # displays choose partly different integer-translated representatives.
+    common_points = sorted(set(reference_points).intersection(candidate_points))
+    if common_points:
+        reference_common = _symbolic_mode_arrays(reference_modes, common_points)
+        candidate_common = _symbolic_mode_arrays(candidate_modes, common_points)
+        reference_common_rank = validate_cartesian_subspaces(
+            reference_common, reference_common, lattice
+        ).reference_rank
+        candidate_common_rank = validate_cartesian_subspaces(
+            candidate_common, candidate_common, lattice
+        ).reference_rank
+        if (
+            reference_common_rank == full_rank
+            and candidate_common_rank == candidate_self.reference_rank
+        ):
+            validation = validate_cartesian_subspaces(
+                reference_common, candidate_common, lattice,
+            )
+            return _SymbolicSubspaceProof(
+                validation=validation,
+                comparison_domain_kind="exact_common_points",
+                reference_points=tuple(reference_points),
+                comparison_points=tuple(common_points),
+                reference_full=tuple(reference_full),
+                reference_comparison=tuple(reference_common),
+                candidate_comparison=tuple(candidate_common),
+                transports=tuple((point, (0, 0, 0)) for point in common_points),
+                ordered_reference_basis_digest=ordered_reference_basis_digest,
+                ordered_candidate_binding_digest=ordered_candidate_binding_digest,
+            )
+
+    # A rank-losing common domain cannot determine the basis change.  Only in
+    # that case consider integer-translated rows, retaining the existing
+    # fail-closed phase proof for non-Gamma star arms.
+    matched_reference_points = _match_candidate_points_to_reference(
+        reference_points,
+        reference_rows,
+        candidate_points,
+        parent_sg=parent_sg,
+        k_coordinates=k_coordinates,
+    )
+    reference_restricted = _transported_symbolic_mode_arrays(
+        reference_modes,
+        matched_reference_points,
+        parent_sg=parent_sg,
+        k_coordinates=k_coordinates,
+    )
+    restricted_rank = validate_cartesian_subspaces(
+        reference_restricted, reference_restricted, lattice
+    ).reference_rank
+    if restricted_rank != full_rank:
+        candidate_rank = validate_cartesian_subspaces(
+            candidate, candidate, lattice
+        ).reference_rank
+        return _SymbolicSubspaceProof(
+            ModeSubspaceValidation(
+                False,
+                full_rank,
+                candidate_rank,
+                0.0,
+                "candidate_point_domain_loses_reference_rank",
+            )
+        )
+    validation = validate_cartesian_subspaces(reference_restricted, candidate, lattice)
+    return _SymbolicSubspaceProof(
+        validation=validation,
+        comparison_domain_kind="phase_proven_transported_points",
+        reference_points=tuple(reference_points),
+        comparison_points=tuple(candidate_points),
+        reference_full=tuple(reference_full),
+        reference_comparison=tuple(reference_restricted),
+        candidate_comparison=tuple(candidate),
+        transports=tuple(matched_reference_points),
+        ordered_reference_basis_digest=ordered_reference_basis_digest,
+        ordered_candidate_binding_digest=ordered_candidate_binding_digest,
+    )
+
+
+def validate_symbolic_mode_subspaces(
+    reference_modes: Sequence[DistortionMode],
+    candidate_modes: Sequence[DistortionMode],
+    lattice: np.ndarray,
+) -> ModeSubspaceValidation:
+    """Compare BUSH and microscopic columns as complete Cartesian spaces."""
+
+    return _symbolic_subspace_proof(
+        reference_modes, candidate_modes, lattice,
+    ).validation
+
+
+def _cartesian_column_matrix(
+    arrays: Sequence[np.ndarray],
+    lattice: np.ndarray,
+) -> np.ndarray:
+    """Stack fractional displacement arrays as Cartesian mode columns."""
+
+    lattice_array = np.asarray(lattice, dtype=float)
+    if lattice_array.shape != (3, 3) or not np.all(np.isfinite(lattice_array)):
+        raise ValueError("domain extension requires one finite 3x3 lattice")
+    vectors: list[np.ndarray] = []
+    row_count: int | None = None
+    for item in arrays:
+        array = np.asarray(item, dtype=float)
+        if array.ndim != 2 or array.shape[1] != 3 or not np.all(np.isfinite(array)):
+            raise ValueError("domain-extension modes must be finite (n_points, 3) arrays")
+        if row_count is None:
+            row_count = int(array.shape[0])
+        elif int(array.shape[0]) != row_count:
+            raise ValueError("domain-extension modes do not share one point domain")
+        vectors.append((array @ lattice_array).reshape(-1))
+    if not vectors:
+        return np.zeros((0, 0), dtype=float)
+    return np.column_stack(vectors)
+
+
+def _matrix_rank_condition(
+    matrix: np.ndarray,
+    expected_rank: int,
+    *,
+    rtol: float,
+    atol: float,
+    subject: str,
+) -> tuple[float, float]:
+    """Return condition/threshold after a scale-aware full-rank proof."""
+
+    singular = np.linalg.svd(np.asarray(matrix, dtype=float), compute_uv=False)
+    largest = float(singular[0]) if singular.size else 0.0
+    threshold = max(float(atol), float(rtol) * largest)
+    machine_threshold = (
+        np.finfo(float).eps * max(np.asarray(matrix).shape, default=1) * largest
+    )
+    numerical_rank = int(np.count_nonzero(singular > machine_threshold))
+    if numerical_rank != expected_rank or singular.size < expected_rank:
+        raise ValueError(f"{subject}_rank_loss")
+    smallest = float(singular[expected_rank - 1])
+    condition = largest / smallest
+    maximum_condition = 1.0 / max(float(rtol), np.finfo(float).eps)
+    if (
+        not np.isfinite(condition)
+        or condition > maximum_condition
+        or smallest <= threshold
+    ):
+        raise ValueError(f"{subject}_ill_conditioned")
+    return condition, threshold
+
+
+def _extend_microscopic_modes_to_reference_domain(
+    reference_modes: Sequence[DistortionMode],
+    candidate_modes: Sequence[DistortionMode],
+    lattice: np.ndarray,
+    proof: _SymbolicSubspaceProof,
+    *,
+    rtol: float = 1e-8,
+    atol_angstrom: float = 1e-10,
+) -> list[DistortionMode]:
+    """Uniquely extend sparse canonical ISO columns over the full BUSH domain.
+
+    The direct ISO provenance remains attached to the sparse source column.
+    A separate immutable evidence object records the only accepted operation:
+    solve ``R_common @ T = C_common`` on the already proven comparison domain,
+    then apply that same nonsingular ``T`` to ``R_full``.  No column ordering,
+    missing row is guessed here.  A transported non-Gamma row is accepted only
+    when its exact parent k star proves one common real scalar phase.
+    """
+
+    if not proof.validation.matched:
+        raise ValueError("subspace_not_matched")
+    if any(mode.microscopic_domain_extension is not None for mode in candidate_modes):
+        raise ValueError("source_column_already_extended")
+    if (
+        not proof.ordered_candidate_binding_digest
+        or _ordered_candidate_binding_digest(candidate_modes)
+        != proof.ordered_candidate_binding_digest
+    ):
+        raise ValueError("proof_candidate_binding_mismatch")
+    if not proof.ordered_reference_basis_digest:
+        raise ValueError("proof_reference_basis_mismatch")
+    if (
+        _ordered_symbolic_basis_digest(
+            proof.reference_points, proof.reference_full,
+        )
+        != proof.ordered_reference_basis_digest
+    ):
+        raise ValueError("proof_reference_basis_mismatch")
+    current_reference_full = _symbolic_mode_arrays(
+        reference_modes, proof.reference_points,
+    )
+    if (
+        _ordered_symbolic_basis_digest(
+            proof.reference_points, current_reference_full,
+        )
+        != proof.ordered_reference_basis_digest
+    ):
+        raise ValueError("proof_reference_basis_mismatch")
+    candidate_points, _candidate_rows = _common_point_rows(candidate_modes)
+    if (
+        len(candidate_points) == len(proof.reference_points)
+        and set(candidate_points) == set(proof.reference_points)
+    ):
+        return list(candidate_modes)
+
+    mode_count = len(candidate_modes)
+    if mode_count <= 0 or len(reference_modes) != mode_count:
+        raise ValueError("mode_count_mismatch")
+    if (
+        len(proof.reference_comparison) != mode_count
+        or len(proof.candidate_comparison) != mode_count
+        or len(proof.reference_full) != mode_count
+    ):
+        raise ValueError("comparison_basis_width_mismatch")
+
+    reference_common = _cartesian_column_matrix(
+        proof.reference_comparison, lattice,
+    )
+    canonical_common = _cartesian_column_matrix(
+        proof.candidate_comparison, lattice,
+    )
+    reference_condition, _reference_threshold = _matrix_rank_condition(
+        reference_common,
+        mode_count,
+        rtol=rtol,
+        atol=atol_angstrom,
+        subject="reference_common",
+    )
+    canonical_condition, _canonical_threshold = _matrix_rank_condition(
+        canonical_common,
+        mode_count,
+        rtol=rtol,
+        atol=atol_angstrom,
+        subject="canonical_common",
+    )
+    change_of_basis, _residuals, solved_rank, _singular = np.linalg.lstsq(
+        reference_common,
+        canonical_common,
+        rcond=None,
+    )
+    if solved_rank != mode_count or change_of_basis.shape != (mode_count, mode_count):
+        raise ValueError("change_of_basis_not_unique")
+    change_condition, _change_threshold = _matrix_rank_condition(
+        change_of_basis,
+        mode_count,
+        rtol=rtol,
+        atol=np.finfo(float).eps,
+        subject="change_of_basis",
+    )
+    reconstructed_common = reference_common @ change_of_basis
+    common_residual = float(np.linalg.norm(
+        reconstructed_common - canonical_common,
+    ))
+    common_tolerance = float(
+        atol_angstrom
+        + rtol * max(
+            float(np.linalg.norm(reconstructed_common)),
+            float(np.linalg.norm(canonical_common)),
+        )
+    )
+    if not np.isfinite(common_residual) or common_residual > common_tolerance:
+        raise ValueError("change_of_basis_residual_exceeds_tolerance")
+
+    # ``T`` was solved in the Cartesian metric so the residual has physical
+    # length units.  Right-side basis coefficients are unchanged by the common
+    # invertible fractional-to-Cartesian map, hence the same ``T`` extends the
+    # full fractional columns without pairing reference and canonical columns.
+    reference_full_fractional = np.column_stack([
+        np.asarray(array, dtype=float).reshape(-1)
+        for array in proof.reference_full
+    ])
+    extended_matrix = reference_full_fractional @ change_of_basis
+    if not np.all(np.isfinite(extended_matrix)):
+        raise ValueError("extended_basis_not_finite")
+    point_count = len(proof.reference_points)
+    extended_arrays = tuple(
+        extended_matrix[:, column].reshape(point_count, 3)
+        for column in range(mode_count)
+    )
+    extended_self = validate_cartesian_subspaces(
+        extended_arrays, extended_arrays, lattice,
+        rtol=rtol, atol=atol_angstrom,
+    )
+    if extended_self.reference_rank != mode_count:
+        raise ValueError("extended_basis_rank_loss")
+    full_equivalence = validate_cartesian_subspaces(
+        proof.reference_full, extended_arrays, lattice,
+        rtol=rtol, atol=atol_angstrom,
+    )
+    if not full_equivalence.matched:
+        raise ValueError("extended_basis_subspace_mismatch")
+
+    templates = {
+        _symbolic_point_key(bush): bush
+        for bush in reference_modes[0].bush_modes
+    }
+    if set(templates) != set(proof.reference_points):
+        raise ValueError("reference_point_template_mismatch")
+    preliminary: list[DistortionMode] = []
+    for mode, array in zip(candidate_modes, extended_arrays, strict=True):
+        bushes = [
+            replace(
+                templates[point],
+                irrep_label=mode.irrep_label,
+                opd_symbol=mode.opd_symbol,
+                wyckoff_letter=mode.wyckoff_site,
+                displacements=[[float(value) for value in array[row]]],
+            )
+            for row, point in enumerate(proof.reference_points)
+        ]
+        preliminary.append(replace(
+            mode,
+            basis_vectors=[list(bush.displacements[0]) for bush in bushes],
+            bush_modes=bushes,
+            microscopic_domain_extension=None,
+        ))
+
+    parent_sg, k_coordinates = _common_exact_k_identity(candidate_modes)
+    if proof.comparison_domain_kind == "exact_common_points":
+        extended_comparison = _symbolic_mode_arrays(
+            preliminary, proof.comparison_points,
+        )
+    elif proof.comparison_domain_kind == "phase_proven_transported_points":
+        extended_comparison = _transported_symbolic_mode_arrays(
+            preliminary,
+            proof.transports,
+            parent_sg=parent_sg,
+            k_coordinates=k_coordinates,
+        )
+    else:
+        raise ValueError("comparison_domain_unresolved")
+    restricted_extended = _cartesian_column_matrix(extended_comparison, lattice)
+    restriction_residual = float(np.linalg.norm(
+        restricted_extended - canonical_common,
+    ))
+    restriction_tolerance = float(
+        atol_angstrom
+        + rtol * max(
+            float(np.linalg.norm(restricted_extended)),
+            float(np.linalg.norm(canonical_common)),
+        )
+    )
+    if (
+        not np.isfinite(restriction_residual)
+        or restriction_residual > restriction_tolerance
+    ):
+        raise ValueError("extended_basis_restriction_mismatch")
+
+    point_payload = tuple(proof.reference_points)
+    comparison_point_payload = tuple(proof.comparison_points)
+    transport_payload = tuple(
+        {
+            "candidate_point": candidate_point,
+            "reference_point": reference_point,
+            "integer_translation": translation,
+            "proven_real_phase": _proven_real_transport_phase(
+                translation,
+                parent_sg=parent_sg,
+                k_coordinates=k_coordinates,
+            ),
+        }
+        for candidate_point, (reference_point, translation) in zip(
+            proof.comparison_points, proof.transports, strict=True,
+        )
+    )
+    reference_basis_digest = _ordered_symbolic_basis_digest(
+        point_payload, proof.reference_full,
+    )
+    source_basis_digest = microscopic_source_basis_digest(candidate_modes)
+    change_digest = microscopic_extension_digest(change_of_basis.tolist())
+    comparison_point_digest = microscopic_extension_digest(comparison_point_payload)
+    full_point_digest = microscopic_extension_digest(point_payload)
+    transport_digest = microscopic_extension_digest(transport_payload)
+    extended_column_digests = tuple(
+        microscopic_bush_column_digest(mode.bush_modes) for mode in preliminary
+    )
+    extended_basis_digest = microscopic_extension_digest({
+        "full_point_digest": full_point_digest,
+        "ordered_column_digests": extended_column_digests,
+    })
+    maximum_residual = max(common_residual, restriction_residual)
+    residual_tolerance = max(common_tolerance, restriction_tolerance)
+    maximum_normalized_residual = max(
+        common_residual / common_tolerance,
+        restriction_residual / restriction_tolerance,
+    )
+    maximum_condition = 1.0 / max(float(rtol), np.finfo(float).eps)
+    result: list[DistortionMode] = []
+    for column, mode in enumerate(preliminary):
+        provenance = mode.microscopic_provenance
+        if provenance is None:
+            raise ValueError("canonical_source_provenance_missing")
+        evidence = MicroscopicDomainExtensionEvidence(
+            schema_version="bush-domain-extension-v1",
+            relation_status="verified_bush_domain_extension",
+            comparison_domain_kind=proof.comparison_domain_kind,
+            comparison_point_count=len(proof.comparison_points),
+            full_point_count=len(proof.reference_points),
+            mode_count=mode_count,
+            reference_rank=mode_count,
+            canonical_output_column_index=column,
+            comparison_point_digest=comparison_point_digest,
+            full_point_digest=full_point_digest,
+            transport_digest=transport_digest,
+            reference_basis_digest=reference_basis_digest,
+            canonical_source_basis_digest=source_basis_digest,
+            canonical_source_column_token=provenance.exact_source_token,
+            canonical_source_order_key=provenance.source_order_key,
+            change_of_basis_digest=change_digest,
+            extended_basis_digest=extended_basis_digest,
+            extended_column_digest=extended_column_digests[column],
+            coefficient_column=tuple(
+                float(value) for value in change_of_basis[:, column]
+            ),
+            reference_condition_number=reference_condition,
+            canonical_condition_number=canonical_condition,
+            change_of_basis_condition_number=change_condition,
+            rank_relative_tolerance=float(rtol),
+            cartesian_absolute_tolerance_angstrom=float(atol_angstrom),
+            maximum_condition_number=maximum_condition,
+            maximum_cartesian_residual_angstrom=maximum_residual,
+            residual_tolerance_angstrom=residual_tolerance,
+            maximum_normalized_residual=maximum_normalized_residual,
+            residual_norm="cartesian_frobenius_angstrom",
+            matrix_convention="R_common@T=C_common;C_full=R_full@T",
+        )
+        result.append(replace(mode, microscopic_domain_extension=evidence))
+    return result
+
+
+def validate_symbolic_mode_column_alignment(
+    current_modes: Sequence[DistortionMode],
+    canonical_modes: Sequence[DistortionMode],
+    lattice: np.ndarray,
+) -> SignedColumnAlignment:
+    """Prove that each BUSH column is one scaled canonical ISO column.
+
+    Point rows are first transported onto the canonical microscopic symbolic
+    domain.  The subsequent Cartesian test accepts a column permutation and a
+    positive or negative scalar, but rejects every non-diagonal basis change.
+    """
+
+    current_points, current_rows = _common_point_rows(current_modes)
+    canonical_points, _canonical_rows = _common_point_rows(canonical_modes)
+    if not current_points or not canonical_points:
+        return SignedColumnAlignment(False, 0, 0, reason="empty_point_domain")
+    parent_sg, k_coordinates = _common_exact_k_identity(canonical_modes)
+    transports = _match_candidate_points_to_reference(
+        current_points,
+        current_rows,
+        canonical_points,
+        parent_sg=parent_sg,
+        k_coordinates=k_coordinates,
+    )
+    current = _transported_symbolic_mode_arrays(
+        current_modes,
+        transports,
+        parent_sg=parent_sg,
+        k_coordinates=k_coordinates,
+    )
+    canonical = _symbolic_mode_arrays(canonical_modes, canonical_points)
+    return validate_signed_cartesian_columns(canonical, current, lattice)
+
+
+def _ordered_microscopic_source_columns(
+    modes: Sequence[DistortionMode],
+) -> tuple[list[DistortionMode], str | None]:
+    """Validate and restore exact ISO query/block/column source order."""
+
+    if not modes:
+        return [], "microscopic_source_columns_missing"
+    provenances = [mode.microscopic_provenance for mode in modes]
+    if any(provenance is None for provenance in provenances):
+        return [], "microscopic_column_provenance_missing"
+    resolved = [provenance for provenance in provenances if provenance is not None]
+    if any(provenance.query_order is None for provenance in resolved):
+        return [], "microscopic_query_assignment_unresolved"
+    if len({provenance.query_digest for provenance in resolved}) != 1:
+        return [], "microscopic_query_provenance_mismatch"
+    tokens = [provenance.stable_token for provenance in resolved]
+    if len(tokens) != len(set(tokens)):
+        return [], "microscopic_source_column_not_unique"
+    positions = [
+        (
+            provenance.query_digest,
+            provenance.source_block_order,
+            provenance.source_column_index,
+        )
+        for provenance in resolved
+    ]
+    if len(positions) != len(set(positions)):
+        return [], "microscopic_source_position_not_unique"
+
+    by_block: dict[tuple[str, int], list] = {}
+    for provenance in resolved:
+        by_block.setdefault(
+            (provenance.query_digest, provenance.source_block_order), []
+        ).append(provenance)
+    for block in by_block.values():
+        counts = {provenance.source_block_column_count for provenance in block}
+        if len(counts) != 1:
+            return [], "microscopic_source_block_width_mismatch"
+        count = next(iter(counts))
+        if {provenance.source_column_index for provenance in block} != set(range(count)):
+            return [], "microscopic_source_block_column_missing"
+
+    for mode, provenance in zip(modes, resolved, strict=True):
+        identity = mode.mode_identity
+        if identity is None:
+            return [], "microscopic_identity_provenance_mismatch"
+        if identity.status == "unresolved":
+            return [], identity.reason or "microscopic_identity_unresolved"
+        try:
+            exact_k = tuple(Fraction(token) for token in identity.k_coordinates)
+        except (ValueError, ZeroDivisionError):
+            return [], "microscopic_k_identity_not_exact"
+        if len(exact_k) != 3:
+            return [], identity.reason or "microscopic_k_identity_unresolved"
+        if (
+            identity.component_index != provenance.source_column_index
+            or identity.global_irrep != provenance.query_irrep_label
+            or identity.global_irrep != provenance.source_global_irrep
+            or identity.wyckoff_letter != provenance.source_wyckoff_letter
+            or identity.site_irrep != provenance.source_site_irrep
+        ):
+            return [], "microscopic_identity_provenance_mismatch"
+    return sorted(
+        modes,
+        key=lambda mode: mode.microscopic_provenance.source_order_key,  # type: ignore[union-attr]
+    ), None
+
+
+def _unresolved_modes(
+    modes: Sequence[DistortionMode],
+    *,
+    parent_sg: int,
+    reason: str,
+) -> list[DistortionMode]:
+    unresolved: list[DistortionMode] = []
+    for mode in modes:
+        k_tokens = tuple(
+            token for token in str(mode.k_coords_label or "").split(",") if token != ""
+        )
+        identity = ModeIdentity.unresolved(
+            parent_sg=parent_sg,
+            global_irrep=mode.irrep_label,
+            k_coordinates=k_tokens,
+            wyckoff_letter=mode.wyckoff_site,
+            orbit_id=mode.wyckoff_orbit_id,
+            reason=reason,
+        )
+        unresolved.append(replace(
+            mode,
+            site_irrep="",
+            mode_identity=identity,
+            microscopic_domain_extension=None,
+        ))
+    return unresolved
+
+
+def _select_verified_microscopic_modes(
+    parent: Structure,
+    bush_modes: Sequence[DistortionMode],
+    microscopic_modes: Sequence[DistortionMode],
+    *,
+    parent_sg: int,
+) -> tuple[list[DistortionMode], dict[tuple[str, str], ModeSubspaceValidation]]:
+    """Install direction-resolved ISO columns after whole-space validation.
+
+    ``DISPLAY BUSH`` and direction-resolved ``DISPLAY DISTORTION`` are two
+    bases of the same child-fixed space.  A multidimensional fixed space may
+    use a non-diagonal change of basis, so signed one-column alignment is not
+    a scientific requirement here.  Rank and principal-angle equality of the
+    complete symbolic Cartesian spaces is required before the ordered exact
+    ISO columns, their amplitude keys, and their provenance are installed.
+    """
+
+    bush_groups: dict[tuple[str, str], list[DistortionMode]] = {}
+    microscopic_groups: dict[tuple[str, str], list[DistortionMode]] = {}
+    for mode in bush_modes:
+        bush_groups.setdefault((mode.irrep_label, mode.wyckoff_site), []).append(mode)
+    for mode in microscopic_modes:
+        microscopic_groups.setdefault((mode.irrep_label, mode.wyckoff_site), []).append(mode)
+
+    selected: list[DistortionMode] = []
+    diagnostics: dict[tuple[str, str], ModeSubspaceValidation] = {}
+    for key, reference in bush_groups.items():
+        candidate = microscopic_groups.get(key)
+        if not candidate:
+            selected.extend(_unresolved_modes(
+                reference,
+                parent_sg=parent_sg,
+                reason="iso_microscopic_block_missing",
+            ))
+            continue
+        candidate, provenance_reason = _ordered_microscopic_source_columns(candidate)
+        if provenance_reason is not None:
+            diagnostics[key] = ModeSubspaceValidation(
+                False, 0, 0, 0.0, provenance_reason
+            )
+            selected.extend(_unresolved_modes(
+                reference,
+                parent_sg=parent_sg,
+                reason=provenance_reason,
+            ))
+            continue
+        lattice = np.asarray(parent.lattice.matrix, dtype=float)
+        proof: _SymbolicSubspaceProof | None = None
+        try:
+            proof = _symbolic_subspace_proof(reference, candidate, lattice)
+            validation = proof.validation
+        except (ValueError, np.linalg.LinAlgError):
+            validation = ModeSubspaceValidation(
+                False, 0, 0, 0.0, "subspace_validation_error"
+            )
+        diagnostics[key] = validation
+        if validation.matched:
+            identities = [mode.mode_identity for mode in candidate]
+            identity_metadata_complete = all(
+                identity is not None
+                and identity.source == "iso_microscopic"
+                and identity.site_irrep
+                and identity.component_label
+                and identity.global_irrep == mode.irrep_label
+                and identity.wyckoff_letter == mode.wyckoff_site
+                for mode, identity in zip(candidate, identities, strict=True)
+            )
+            identity_tokens = [
+                identity.stable_token
+                for identity in identities
+                if identity is not None
+            ]
+            if (
+                not identity_metadata_complete
+                or len(identity_tokens) != len(set(identity_tokens))
+            ):
+                reason = (
+                    "microscopic_identity_metadata_missing"
+                    if not identity_metadata_complete
+                    else "microscopic_identity_not_unique"
+                )
+                diagnostics[key] = replace(validation, matched=False, reason=reason)
+                selected.extend(_unresolved_modes(
+                    reference,
+                    parent_sg=parent_sg,
+                    reason=reason,
+                ))
+                continue
+            if proof is None:
+                raise RuntimeError("matched microscopic subspace lacks its proof")
+            try:
+                candidate = _extend_microscopic_modes_to_reference_domain(
+                    reference,
+                    candidate,
+                    lattice,
+                    proof,
+                )
+            except (ValueError, np.linalg.LinAlgError) as exc:
+                reason = f"microscopic_domain_extension_failed:{exc}"
+                diagnostics[key] = replace(
+                    validation, matched=False, reason=reason,
+                )
+                selected.extend(_unresolved_modes(
+                    reference,
+                    parent_sg=parent_sg,
+                    reason=reason,
+                ))
+                continue
+            selected.extend(
+                replace(
+                    mode,
+                    mode_identity=replace(
+                        identity,
+                        status="verified",
+                        reason=None,
+                    ),
+                )
+                for mode, identity in zip(candidate, identities, strict=True)
+                if identity is not None
+            )
+        else:
+            selected.extend(_unresolved_modes(
+                reference,
+                parent_sg=parent_sg,
+                reason=validation.reason or "iso_bush_subspace_mismatch",
+            ))
+    return selected, diagnostics
+
+
+def _ordered_complete_microscopic_space(
+    modes: Sequence[DistortionMode],
+) -> list[DistortionMode]:
+    """Validate every ISO query block and return one deterministic union.
+
+    A child-fixed orbit can contain columns from several global irreps, hence
+    several independent ``DISPLAY DISTORTION`` queries.  Completeness is
+    checked inside each immutable query provenance before those query spaces
+    are combined; grouping the whole orbit by one digest would incorrectly
+    reject a legitimate direct sum.
+    """
+
+    by_query: dict[tuple[str, int], list[DistortionMode]] = {}
+    for mode in modes:
+        provenance = mode.microscopic_provenance
+        if provenance is None:
+            raise ValueError("rootless microscopic column provenance is missing")
+        if provenance.query_order is None:
+            raise ValueError("rootless microscopic query order is unresolved")
+        by_query.setdefault(
+            (provenance.query_digest, int(provenance.query_order)), []
+        ).append(mode)
+    ordered_queries: list[tuple[int, str, list[DistortionMode]]] = []
+    for (digest, query_order), query_modes in by_query.items():
+        query_irreps = {
+            mode.microscopic_provenance.query_irrep_label  # type: ignore[union-attr]
+            for mode in query_modes
+        }
+        if len(query_irreps) != 1 or None in query_irreps:
+            raise ValueError(
+                "one rootless microscopic query order names multiple irreps"
+            )
+        ordered, reason = _ordered_microscopic_source_columns(query_modes)
+        if reason is not None:
+            raise ValueError(
+                f"rootless microscopic query {digest[:12]} is incomplete: {reason}"
+            )
+        ordered_queries.append((query_order, digest, ordered))
+    query_positions = [item[0] for item in ordered_queries]
+    if len(query_positions) != len(set(query_positions)):
+        raise ValueError("rootless microscopic queries have duplicate source order")
+    return [
+        mode
+        for _query_order, _digest, query_modes in sorted(ordered_queries)
+        for mode in query_modes
+    ]
+
+
+def _replace_rootless_supplement_basis(
+    supplement: ParametricModeResult,
+    microscopic_modes: Sequence[DistortionMode],
+    microscopic_displacements: Mapping[str, np.ndarray],
+    child_lattice: np.ndarray,
+) -> ParametricModeResult:
+    """Replace a complete SMODES fixed space by canonical ISO columns.
+
+    The comparison is intentionally per physical parent orbit and on the
+    *whole* Cartesian space.  A non-diagonal basis change is valid; missing
+    columns, rank loss, a cross-orbit column, or incomplete provenance rejects
+    the replacement.  On success the returned amplitude keys and arrays are
+    both the canonical ISO basis, keeping user amplitudes in one coordinate
+    system.
+    """
+
+    reference_modes = list(supplement.modes)
+    candidate_modes = list(microscopic_modes)
+    if not reference_modes or not candidate_modes:
+        raise ValueError("rootless basis replacement requires two nonempty spaces")
+    reference_orbits = {
+        str(mode.wyckoff_orbit_id or "") for mode in reference_modes
+    }
+    candidate_orbits = {
+        str(mode.wyckoff_orbit_id or "") for mode in candidate_modes
+    }
+    if "" in reference_orbits or "" in candidate_orbits:
+        raise ValueError("rootless basis replacement requires physical orbit IDs")
+    if candidate_orbits != reference_orbits:
+        raise ValueError(
+            "rootless microscopic columns cross or omit physical orbits: "
+            f"reference={sorted(reference_orbits)}, candidate={sorted(candidate_orbits)}"
+        )
+
+    reference_keys = [str(mode.amplitude_key or mode.irrep_label) for mode in reference_modes]
+    candidate_keys = [str(mode.amplitude_key or mode.irrep_label) for mode in candidate_modes]
+    if (
+        any(not key for key in reference_keys + candidate_keys)
+        or len(reference_keys) != len(set(reference_keys))
+        or len(candidate_keys) != len(set(candidate_keys))
+    ):
+        raise ValueError("rootless mode amplitude keys must be nonempty and unique")
+    if set(reference_keys) != set(supplement.supercell_displacements):
+        raise ValueError("rootless SMODES arrays do not cover the complete reference basis")
+    if set(candidate_keys) != set(microscopic_displacements):
+        raise ValueError("rootless ISO arrays do not cover the complete canonical basis")
+
+    orbit_order: list[str] = []
+    for mode in reference_modes:
+        orbit_id = str(mode.wyckoff_orbit_id)
+        if orbit_id not in orbit_order:
+            orbit_order.append(orbit_id)
+    verified_modes: list[DistortionMode] = []
+    verified_arrays: dict[str, np.ndarray] = {}
+    for orbit_id in orbit_order:
+        reference = [
+            mode for mode in reference_modes
+            if str(mode.wyckoff_orbit_id) == orbit_id
+        ]
+        candidate = _ordered_complete_microscopic_space([
+            mode for mode in candidate_modes
+            if str(mode.wyckoff_orbit_id) == orbit_id
+        ])
+        reference_arrays = [
+            np.asarray(
+                supplement.supercell_displacements[
+                    str(mode.amplitude_key or mode.irrep_label)
+                ],
+                dtype=float,
+            )
+            for mode in reference
+        ]
+        candidate_arrays = [
+            np.asarray(
+                microscopic_displacements[
+                    str(mode.amplitude_key or mode.irrep_label)
+                ],
+                dtype=float,
+            )
+            for mode in candidate
+        ]
+        shapes = {array.shape for array in reference_arrays + candidate_arrays}
+        if len(shapes) != 1 or next(iter(shapes), ()) != (
+            reference_arrays[0].shape[0],
+            3,
+        ):
+            raise ValueError("rootless fixed-space columns use incompatible atom frames")
+        validation = validate_cartesian_subspaces(
+            reference_arrays,
+            candidate_arrays,
+            np.asarray(child_lattice, dtype=float),
+        )
+        if (
+            not validation.matched
+            or len(reference) != len(candidate)
+            or validation.reference_rank != len(reference)
+            or validation.candidate_rank != len(candidate)
+        ):
+            raise ValueError(
+                "rootless ISO space is not the complete child-fixed space for "
+                f"orbit {orbit_id!r}: {validation.reason or 'rank_or_dimension_mismatch'}"
+            )
+        orbit_tokens: set[str] = set()
+        for mode, array in zip(candidate, candidate_arrays, strict=True):
+            identity = mode.mode_identity
+            provenance = mode.microscopic_provenance
+            if identity is None or provenance is None:
+                raise ValueError("rootless microscopic identity is incomplete")
+            if str(identity.orbit_id) != orbit_id:
+                raise ValueError("rootless microscopic identity crosses physical orbits")
+            verified_identity = replace(identity, status="verified", reason=None)
+            validate_microscopic_mode_source(verified_identity, provenance)
+            token = verified_identity.stable_token
+            if token in orbit_tokens:
+                raise ValueError("rootless microscopic mode identity is not unique")
+            orbit_tokens.add(token)
+            verified_mode = replace(mode, mode_identity=verified_identity)
+            key = str(verified_mode.amplitude_key or verified_mode.irrep_label)
+            verified_modes.append(verified_mode)
+            verified_arrays[key] = array
+
+    if len(verified_arrays) != len(verified_modes):
+        raise ValueError("rootless canonical amplitude keys collide across physical orbits")
+    return ParametricModeResult(
+        modes=verified_modes,
+        supercell_displacements=verified_arrays,
+        labels={},
+        nmod=supplement.nmod,
+        note=(
+            supplement.note + "; canonical ISO microscopic basis installed"
+        ).strip("; "),
+    )
+
+
+def _canonicalize_rootless_supplement(
+    parent: Structure,
+    symmetry_info: dict,
+    subgroup: SubgroupInfo,
+    supplement: ParametricModeResult,
+    raw_microscopic_modes: Sequence[DistortionMode],
+    rootless_letters: Sequence[str],
+    rootless_orbit_ids: Sequence[str],
+) -> ParametricModeResult:
+    """Map ISO rootless columns into the SMODES child frame and prove equality."""
+
+    from .affine_embeddings import (  # noqa: PLC0415
+        embedding_from_identity,
+        parent_affine_group,
+    )
+    from .distortion_mapper import DistortionMapper  # noqa: PLC0415
+
+    sites = list(symmetry_info.get("wyckoff_sites") or [])
+    rootless_set = {str(value) for value in rootless_letters}
+    relevant_raw = [
+        mode for mode in raw_microscopic_modes
+        if str(mode.wyckoff_site or "") in rootless_set
+    ]
+    candidates = _instantiate_bush_modes_by_orbit(
+        relevant_raw,
+        sites,
+        rootless_letters,
+        rootless_orbit_ids,
+    )
+    parent_group = parent_affine_group(parent)
+    embedding = embedding_from_identity(subgroup, parent_group)
+    basis = subgroup.basis_vectors or [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+    mapped = DistortionMapper().map_bush_modes_to_supercell(
+        parent,
+        sites,
+        candidates,
+        basis,
+        cartesian_tolerance=get_config().symmetry_cartesian_tolerance_angstrom,
+        subgroup_operations=embedding.operations,
+        subgroup_translation_lattice=[
+            [float(value) for value in row] for row in embedding.lattice
+        ],
+        subgroup_context=subgroup,
+    )
+    child = build_supercell(parent, basis)
+    return _replace_rootless_supplement_basis(
+        supplement,
+        candidates,
+        mapped,
+        np.asarray(child.lattice.matrix, dtype=float),
+    )
+
+
 def compute_special_modes_with_rootless_supplement(
     parent: Structure,
     symmetry_info: dict,
@@ -111,16 +1667,20 @@ def compute_special_modes_with_rootless_supplement(
     smodes: SmodesWrapper | None,
     *,
     kpoints: Sequence | None = None,
+    wyckoff_orbit_ids: Sequence[str] | None = None,
 ) -> ParametricModeResult:
-    """Return complete special-k modes without replacing exact BUSH roots.
+    """Return complete special-k modes with audited microscopic identities.
 
     ``DISPLAY BUSH`` is conditioned on the selected primary order parameter.
     Consequently it can legitimately say ``There is no root mode`` for a
     parent Wyckoff orbit even though that orbit carries secondary modes fixed
     by the selected child group.  The displacement representation is a direct
-    sum over parent Wyckoff orbits, so an orbit with at least one BUSH root is
-    kept exactly as returned by ISO, while a wholly rootless orbit is completed
-    from ``Fix(H) = image(|H|^-1 sum_h D(h))``.
+    sum over parent Wyckoff orbits.  ISO microscopic columns are adopted only
+    when their complete Cartesian column space matches the corresponding BUSH
+    space by rank and principal angles.  BUSH columns remain numerically usable
+    but explicitly unresolved when that evidence is missing or inconsistent.
+    A wholly rootless orbit is completed from
+    ``Fix(H) = image(|H|^-1 sum_h D(h))`` and likewise remains unresolved.
 
     The returned ``supercell_displacements`` contains only supplemented
     vectors.  Callers must map the retained BUSH modes with the exact subgroup
@@ -129,17 +1689,94 @@ def compute_special_modes_with_rootless_supplement(
     requested = list(dict.fromkeys(
         str(value).strip() for value in wyckoff_letters if str(value).strip()
     ))
-    bush_modes = iso.calc_distortion_modes(
-        int(symmetry_info.get("space_group_number") or subgroup.parent_sg or 0),
+    requested_orbit_sequence = [
+        str(value) for value in (wyckoff_orbit_ids or ()) if str(value)
+    ]
+    requested_orbits = set(requested_orbit_sequence)
+    if len(requested_orbits) != len(requested_orbit_sequence):
+        raise ValueError("requested physical orbit identities contain duplicates")
+    parent_sg = int(
+        symmetry_info.get("space_group_number") or subgroup.parent_sg or 0
+    )
+    raw_bush_modes = iso.calc_distortion_modes(
+        parent_sg,
         subgroup,
         wyckoff_letters=requested,
     )
-    rooted = {
-        str(mode.wyckoff_site or "").strip()
-        for mode in bush_modes
-        if str(mode.wyckoff_site or "").strip()
-    }
-    rootless = [letter for letter in requested if letter not in rooted]
+    microscopic_diagnostic = ""
+    try:
+        raw_microscopic_modes = iso.calc_microscopic_distortion_modes(
+            parent_sg,
+            subgroup,
+            requested,
+        )
+    except (
+        AttributeError,
+        IsodistortError,
+        ValueError,
+        IndexError,
+        np.linalg.LinAlgError,
+    ) as exc:
+        raw_microscopic_modes = []
+        microscopic_diagnostic = (
+            "ISO microscopic query failed: "
+            f"{type(exc).__name__}: {exc}"
+        )
+    if not raw_microscopic_modes and not microscopic_diagnostic:
+        microscopic_diagnostic = "ISO microscopic query returned no columns"
+    if raw_microscopic_modes:
+        selected_raw, _microscopic_diagnostics = _select_verified_microscopic_modes(
+            parent,
+            raw_bush_modes,
+            raw_microscopic_modes,
+            parent_sg=parent_sg,
+        )
+    else:
+        selected_raw = _unresolved_modes(
+            raw_bush_modes,
+            parent_sg=parent_sg,
+            reason="iso_microscopic_output_unavailable",
+        )
+    sites = list(symmetry_info.get("wyckoff_sites") or [])
+    bush_modes = _instantiate_bush_modes_by_orbit(
+        selected_raw, sites, requested, requested_orbit_sequence,
+    )
+    if sites:
+        selected_sites = [
+            (ordinal, site)
+            for ordinal, site in enumerate(sites)
+            if str(site.get("wyckoff_letter") or site.get("letter") or "")
+            in requested
+            and (
+                not requested_orbits
+                or _wyckoff_orbit_id(site, ordinal) in requested_orbits
+            )
+        ]
+        rooted_orbits = {
+            str(mode.wyckoff_orbit_id or "")
+            for mode in bush_modes
+            if str(mode.wyckoff_orbit_id or "")
+        }
+        rootless_sites = [
+            (ordinal, site) for ordinal, site in selected_sites
+            if _wyckoff_orbit_id(site, ordinal) not in rooted_orbits
+        ]
+        rootless = list(dict.fromkeys(
+            str(site.get("wyckoff_letter") or site.get("letter") or "")
+            for _ordinal, site in rootless_sites
+        ))
+        rootless_orbits = [
+            _wyckoff_orbit_id(site, ordinal)
+            for ordinal, site in rootless_sites
+        ]
+    else:
+        rooted = {
+            str(mode.wyckoff_site or "").strip()
+            for mode in bush_modes
+            if str(mode.wyckoff_site or "").strip()
+        }
+        rootless = [letter for letter in requested if letter not in rooted]
+        rootless_orbits = []
     if not rootless or smodes is None:
         return ParametricModeResult(
             modes=bush_modes,
@@ -161,16 +1798,46 @@ def compute_special_modes_with_rootless_supplement(
         smodes,
         kpoints=kpoints,
         nmod=0,
+        wyckoff_orbit_ids=rootless_orbits or None,
     )
+    if raw_microscopic_modes and sites and rootless_orbits:
+        try:
+            supplement = _canonicalize_rootless_supplement(
+                parent,
+                symmetry_info,
+                subgroup,
+                supplement,
+                raw_microscopic_modes,
+                rootless,
+                rootless_orbits,
+            )
+        except (ValueError, IsodistortError, np.linalg.LinAlgError) as exc:
+            # The Reynolds/SMODES basis remains a valid numerical fixed space,
+            # but without a proven whole-space ISO replacement its individual
+            # scientific identities stay explicitly unresolved and export
+            # continues to fail closed.
+            supplement = replace(
+                supplement,
+                note=(
+                    supplement.note
+                    + "; canonical ISO microscopic replacement rejected: "
+                    + str(exc)
+                ).strip("; "),
+            )
+    note_parts = [
+        "special k: verified microscopic roots plus child-fixed supplement on "
+        f"rootless orbit(s) {', '.join(rootless)}"
+    ]
+    if supplement.note:
+        note_parts.append(supplement.note)
+    if microscopic_diagnostic:
+        note_parts.append(microscopic_diagnostic)
     return ParametricModeResult(
         modes=[*bush_modes, *supplement.modes],
         supercell_displacements=dict(supplement.supercell_displacements),
         labels=dict(supplement.labels),
         nmod=0,
-        note=(
-            "special k: exact BUSH roots plus child-fixed supplement on "
-            f"rootless orbit(s) {', '.join(rootless)}"
-        ),
+        note="; ".join(note_parts),
     )
 
 
@@ -1270,6 +2937,13 @@ def _parent_map(parent: Structure, supercell: Structure, basis: np.ndarray
 
 
 def _site_point_groups(parent: Structure) -> dict[int, str]:
+    """Return spglib's oriented site-symmetry symbols unchanged.
+
+    Dots carry crystallographic orientation information (for example ``m..``
+    versus ``.m.``), so normalising them away makes the result unsuitable for
+    representation labels.  This helper is retained for diagnostic callers;
+    labels themselves come from ISO's oriented microscopic tables.
+    """
     try:
         cfg = get_config()
         sga = SpacegroupAnalyzer(
@@ -1283,7 +2957,7 @@ def _site_point_groups(parent: Structure) -> dict[int, str]:
         return {}
     out: dict[int, str] = {}
     for i, sym in enumerate(symbols):
-        out[i] = str(sym).replace(".", "")
+        out[i] = str(sym)
     return out
 
 
@@ -1345,31 +3019,17 @@ def _site_transport_rotations(
 
 
 def _site_irrep_for_disp(site_pg: str, disp: np.ndarray) -> str:
-    axis = "xyz"
-    absd = np.abs(np.asarray(disp, dtype=float).reshape(-1))
-    if absd.size >= 3:
-        if absd[2] >= absd[0] and absd[2] >= absd[1] and absd[2] > 1e-8:
-            axis = "z"
-        elif absd[0] >= absd[1] and absd[0] > 1e-8 and absd[2] < 0.25 * absd[0]:
-            axis = "x" if absd[1] < 0.25 * absd[0] else "xy"
-        elif absd[1] >= absd[0] and absd[1] > 1e-8 and absd[2] < 0.25 * absd[1]:
-            axis = "y" if absd[0] < 0.25 * absd[1] else "xy"
-        elif absd[0] > 1e-8 or absd[1] > 1e-8:
-            axis = "xy"
-    table = _SITE_VECTOR_IRREPS.get(site_pg) or _SITE_VECTOR_IRREPS.get(
-        site_pg.replace("1", "")
-    )
-    if not table:
-        return "A1"
-    if axis in table:
-        return table[axis]
-    if axis in ("x", "y") and "xy" in table:
-        return table["xy"]
-    if "xyz" in table:
-        return table["xyz"]
-    if "z" in table:
-        return table["z"]
-    return next(iter(table.values()))
+    """Compatibility shim for callers that lack an audited mode identity.
+
+    One arbitrary displacement vector need not span an irreducible subspace,
+    especially after a degenerate basis rotation.  A label therefore cannot
+    be inferred from its largest Cartesian component.  Returning the empty
+    unresolved value keeps staged callers fail-closed until they consume the
+    ISO microscopic :class:`ModeIdentity` directly.
+    """
+
+    _ = site_pg, disp
+    return ""
 
 
 def _looks_numeric(token: str) -> bool:
@@ -1433,36 +3093,20 @@ def _site_irrep_sort_key(site_ir: str) -> tuple:
     return (m.group(1), int(m.group(2) or 0), m.group(3) or "", int(m.group(4) or 0))
 
 
-def _mode_copy_component_indices(
-    mode_count: int,
-    irrep_dimension: int,
-    ordinal: int,
-) -> tuple[int, int]:
-    """Map a projected basis vector to copy and component indices.
-
-    If the child-invariant projection retains fewer vectors than the raw
-    parent/star degeneracy, those vectors are components of one restricted
-    copy (``a``, ``b``, ...), not several one-component copies all called
-    ``a``.  More vectors than the irrep dimension form additional copies.
-    """
-    count = max(int(mode_count), 1)
-    dimension = max(int(irrep_dimension), 1)
-    index = int(ordinal)
-    if index < 0 or index >= count:
-        raise IndexError("mode ordinal is outside the projected basis")
-    if count <= dimension:
-        return 0, index
-    return divmod(index, dimension)
-
-
-def _display_site_label(wyckoff_sites: Sequence[dict], letter: str) -> tuple[str, str]:
+def _display_site_label(
+    wyckoff_sites: Sequence[dict],
+    letter: str,
+    orbit_id: str = "",
+) -> tuple[str, str]:
     counters: dict[str, int] = {}
-    for site in wyckoff_sites:
+    for ordinal, site in enumerate(wyckoff_sites):
         let = str(site.get("wyckoff_letter") or "")
         elem = str(site.get("species") or "X")
         counters[elem] = counters.get(elem, 0) + 1
         label = str(site.get("display_label") or f"{elem}{counters[elem]}")
-        if let == letter:
+        if let == letter and (
+            not orbit_id or _wyckoff_orbit_id(site, ordinal) == orbit_id
+        ):
             return label, elem
     return "X1", "X"
 
@@ -1734,6 +3378,7 @@ def compute_parametric_modes(
     *,
     kpoints: Sequence | None = None,
     nmod: int = 0,
+    wyckoff_orbit_ids: Sequence[str] | None = None,
 ) -> ParametricModeResult:
     """Complete displacive modes for a parametric-k isotropy subgroup."""
     parent_sg = int(symmetry_info.get("space_group_number") or subgroup.parent_sg or 0)
@@ -1769,15 +3414,25 @@ def compute_parametric_modes(
             note="child space-group operations do not act completely on the supercell",
     )
     allowed_letters = {str(x) for x in wyckoff_letters if str(x)}
-    letter_of_parent = {
-        int(site["representative_index"]): str(site["wyckoff_letter"])
-        for site in wyckoff_sites
+    requested_orbits = {
+        str(value) for value in (wyckoff_orbit_ids or ()) if str(value)
     }
-    for site in wyckoff_sites:
+    site_by_orbit: dict[str, dict] = {}
+    orbit_of_parent: dict[int, str] = {}
+    letter_of_orbit: dict[str, str] = {}
+    for ordinal, site in enumerate(wyckoff_sites):
+        orbit_id = _wyckoff_orbit_id(site, ordinal)
+        letter = str(site.get("wyckoff_letter") or "")
+        site_by_orbit[orbit_id] = site
+        letter_of_orbit[orbit_id] = letter
+        orbit_of_parent[int(site["representative_index"])] = orbit_id
         for eq in site.get("equivalent_indices") or []:
-            letter_of_parent[int(eq)] = str(site["wyckoff_letter"])
-    site_pg = _site_point_groups(parent)
-    site_transport_rotations = _site_transport_rotations(parent, wyckoff_sites)
+            orbit_of_parent[int(eq)] = orbit_id
+    allowed_orbits = {
+        orbit_id for orbit_id, letter in letter_of_orbit.items()
+        if (not allowed_letters or letter in allowed_letters)
+        and (not requested_orbits or orbit_id in requested_orbits)
+    }
     primary = _primary_candidate(subgroup, parent_sg)
     nmod = max(int(nmod), 0)
 
@@ -1815,17 +3470,8 @@ def compute_parametric_modes(
         smodes, parent, parent_sg, wyckoff_sites, specs,
     )
 
-    free_comps = opd_free_components(
-        getattr(subgroup, "opd_dir_raw", "") or "",
-        subgroup.opd_symbol or "",
-    )
     parent_sym = hm_symbol(parent_sg) or str(symmetry_info.get("space_group_symbol") or "P1")
     parent_compact = parent_sym.replace(" ", "")
-    opd_body = (getattr(subgroup, "opd_dir_raw", "") or "").strip()
-    if opd_body.startswith("(") and ")" in opd_body:
-        opd_dir = opd_body[1:opd_body.index(")")]
-    else:
-        opd_dir = ",".join(free_comps) if len(free_comps) > 1 else (free_comps[0] if free_comps else "a")
 
     collected: list[tuple[str, DistortionMode, np.ndarray, str]] = []
     used_keys: set[str] = set()
@@ -1839,13 +3485,15 @@ def compute_parametric_modes(
         used_keys.add(key)
         return key
 
-    letter_order = [
-        str(site.get("wyckoff_letter") or "")
-        for site in wyckoff_sites
-        if str(site.get("wyckoff_letter") or "")
+    orbit_order = [
+        _wyckoff_orbit_id(site, ordinal)
+        for ordinal, site in enumerate(wyckoff_sites)
+        if _wyckoff_orbit_id(site, ordinal) in allowed_orbits
     ]
-    primary_ir = (subgroup.irrep_label or "").strip()
-
+    orbit_letter_counts: dict[str, int] = {}
+    for orbit_id in orbit_order:
+        letter = letter_of_orbit.get(orbit_id, "")
+        orbit_letter_counts[letter] = orbit_letter_counts.get(letter, 0) + 1
     def _k_tokens_for(block: SmodesModeBlock) -> tuple[str, ...]:
         raw = tuple(
             format_k_token(parse_k_token(tok)) if _looks_numeric(tok) else str(tok)
@@ -1867,19 +3515,20 @@ def compute_parametric_modes(
         disp = _map_smodes_block_to_supercell(block, supercell)
         if disp is None:
             continue
-        by_letter: dict[str, np.ndarray] = {}
+        by_orbit: dict[str, np.ndarray] = {}
         for j in range(len(supercell)):
-            letter = letter_of_parent.get(int(parent_idx[j]), "")
-            if allowed_letters and letter not in allowed_letters:
+            orbit_id = orbit_of_parent.get(int(parent_idx[j]), "")
+            if orbit_id not in allowed_orbits:
                 continue
-            if letter not in by_letter:
-                by_letter[letter] = np.zeros_like(disp)
-            by_letter[letter][j] = disp[j]
+            if orbit_id not in by_orbit:
+                by_orbit[orbit_id] = np.zeros_like(disp)
+            by_orbit[orbit_id][j] = disp[j]
         k_tokens = _k_tokens_for(block)
-        for letter, part in by_letter.items():
+        for orbit_id, part in by_orbit.items():
             if float(np.max(np.abs(part))) < 1e-10:
                 continue
-            group_key = (k_tokens, block.irrep, letter)
+            letter = letter_of_orbit.get(orbit_id, "")
+            group_key = (k_tokens, block.irrep, orbit_id, letter)
             grouped.setdefault(group_key, []).append((block, part, letter))
             if int(getattr(block, "degeneracy", 1) or 1) < 2:
                 continue
@@ -1918,7 +3567,7 @@ def compute_parametric_modes(
                 continue
             grouped[group_key].append((block, partner, letter))
 
-    for (k_tokens, irrep, letter), group_items in grouped.items():
+    for (k_tokens, irrep, orbit_id, letter), group_items in grouped.items():
         # A smodes basis is not generally aligned with the selected OPD.  An
         # invariant mode can be a linear combination of several degenerate
         # blocks/star arms, so project the whole seed space and retain an
@@ -1955,106 +3604,56 @@ def compute_parametric_modes(
             cart = part @ np.asarray(supercell.lattice.matrix, dtype=float)
             return (-float(np.sum(cart * cart)),)
         sorted_items = sorted(projected_items_final, key=_weight)
-        deg = max((blk.degeneracy for blk, _p, _l in sorted_items), default=1)
-        is_primary = bool(primary_ir) and (
-            irrep == primary_ir or irrep.startswith(primary_ir)
-        )
-        if is_primary:
-            comps = list(free_comps) or ["a"]
-        else:
-            comps = ["a"] if max(int(deg), 1) <= 1 else list("abcdefgh"[:max(int(deg), 1)])
-        n_comp = max(len(comps), 1)
-        ir_opd = (
-            opd_dir
-            if is_primary and opd_dir
-            else (",".join(comps) if len(comps) > 1 else comps[0])
-        )
-        classified_items: list[
-            tuple[SmodesModeBlock, np.ndarray, str, int, np.ndarray, str]
-        ] = []
-        for _blk, part, _let in sorted_items:
-            representative_index = next(
-                (
-                    int(site["representative_index"])
-                    for site in wyckoff_sites
-                    if str(site.get("wyckoff_letter") or "") == letter
-                ),
-                0,
-            )
+        # SMODES/Gram--Schmidt columns define a valid numerical fixed space,
+        # but their individual orientation does not define a local site irrep,
+        # repeated-copy order, or official component name.  Keep every
+        # independent vector with an explicit unresolved identity.  A later
+        # ISO microscopic query may replace the *whole* group by a canonical
+        # basis after rank/principal-angle validation; it must never label
+        # these columns one by one.
+        for basis_index, (_blk, part, _let) in enumerate(sorted_items):
+            orbit_site = site_by_orbit.get(orbit_id) or {}
+            representative_index = int(orbit_site.get("representative_index", 0))
             representative_arrow = np.zeros(3, dtype=float)
-            for j in range(len(supercell)):
-                pi = int(parent_idx[j])
-                if letter_of_parent.get(pi) != letter:
+            for child_index in range(len(supercell)):
+                if int(parent_idx[child_index]) != representative_index:
                     continue
-                parent_arrow = np.asarray(part[j], dtype=float) @ basis
-                transporter = site_transport_rotations.get(pi)
-                if transporter is None:
-                    continue
-                pulled_arrow = parent_arrow @ np.linalg.inv(transporter).T
-                if float(np.linalg.norm(pulled_arrow)) > float(
-                    np.linalg.norm(representative_arrow)
-                ):
-                    representative_arrow = np.array(
-                        pulled_arrow, dtype=float, copy=True,
-                    )
-            pg = site_pg.get(representative_index, "")
-            site_ir = _site_irrep_for_disp(pg, representative_arrow)
-            classified_items.append((
-                _blk,
-                part,
-                _let,
-                representative_index,
-                representative_arrow,
-                site_ir,
-            ))
-
-        site_ir_counts: dict[str, int] = {}
-        for *_unused, site_ir in classified_items:
-            site_ir_counts[site_ir] = site_ir_counts.get(site_ir, 0) + 1
-        site_ir_ordinals: dict[str, int] = {}
-        for (
-            _blk,
-            part,
-            _let,
-            representative_index,
-            representative_arrow,
-            site_ir,
-        ) in classified_items:
-            site_ordinal = site_ir_ordinals.get(site_ir, 0)
-            site_ir_ordinals[site_ir] = site_ordinal + 1
-            site_count = site_ir_counts[site_ir]
-            copy_idx, comp_idx = _mode_copy_component_indices(
-                site_count, n_comp, site_ordinal,
-            )
-            if comp_idx >= len(comps):
-                if nmod > 0:
-                    continue
-                comp_idx = 0
-            component = comps[comp_idx]
+                arrow = np.asarray(part[child_index], dtype=float) @ basis
+                if float(np.linalg.norm(arrow)) > float(np.linalg.norm(representative_arrow)):
+                    representative_arrow = np.array(arrow, dtype=float, copy=True)
+            component = _component_label(basis_index)
             nrm = float(np.max(np.abs(part)))
             normalized_part = part
             if nrm > 1e-16:
                 normalized_part = part / nrm
-            n_site_copies = (
-                (site_count + n_comp - 1) // n_comp if n_comp else site_count
+            site_name, _elem = _display_site_label(
+                wyckoff_sites, letter, orbit_id,
             )
-            display_site_ir = site_ir
-            if n_site_copies > 1:
-                display_site_ir = f"{site_ir}_{copy_idx + 1}"
-            site_name, _elem = _display_site_label(wyckoff_sites, letter)
             k_joined = ",".join(k_tokens) if k_tokens else "0,0,0"
             stem = irrep[:2] if irrep else (subgroup.k_point_label or "")
             k_label = _blk.k_label or stem
+            site_token = letter
+            if orbit_letter_counts.get(letter, 0) > 1:
+                site_token = f"{letter}@{_orbit_key_token(orbit_id)}"
             key = _unique_key(
-                f"{irrep}[{k_joined}]__{letter}__{display_site_ir}({component})"
+                f"{irrep}[{k_joined}]__{site_token}__"
+                f"unresolved({component})"
             )
             pretty = (
-                f"{parent_compact}[{k_joined}]{irrep}({ir_opd})"
-                f"[{site_name}:{letter}:dsp]{display_site_ir}({component})"
+                f"{parent_compact}[{k_joined}]{irrep}"
+                f"[{site_name}:{letter}:dsp]?"
+            )
+            identity = ModeIdentity.unresolved(
+                parent_sg=parent_sg,
+                global_irrep=irrep,
+                k_coordinates=tuple(k_tokens),
+                wyckoff_letter=letter,
+                orbit_id=orbit_id,
+                reason="smodes_basis_has_no_iso_microscopic_identity",
             )
             mode = DistortionMode(
                 irrep_label=irrep,
-                dimension=max(n_comp, 1),
+                dimension=max(len(sorted_items), 1),
                 mode_type="displacive",
                 wyckoff_site=letter,
                 k_point_label=k_label,
@@ -2069,9 +3668,11 @@ def compute_parametric_modes(
                     )
                 ],
                 amplitude_key=key,
-                site_irrep=display_site_ir,
+                site_irrep="",
                 k_coords_label=k_joined,
                 opd_component=component,
+                wyckoff_orbit_id=orbit_id,
+                mode_identity=identity,
             )
             collected.append((key, mode, normalized_part, pretty))
 
@@ -2089,8 +3690,8 @@ def compute_parametric_modes(
 
     def _kept_sort(item: tuple[str, DistortionMode, np.ndarray, str]) -> tuple:
         mode = item[1]
-        letter = mode.wyckoff_site or ""
-        site_i = letter_order.index(letter) if letter in letter_order else 99
+        orbit_id = str(mode.wyckoff_orbit_id or "")
+        site_i = orbit_order.index(orbit_id) if orbit_id in orbit_order else 99
         fam = _k_family_rank(mode.k_coords_label or "", primary)
         return (
             site_i,

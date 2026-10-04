@@ -22,6 +22,7 @@ from isocore.backend import (
     KPointInfo,
     SubgroupInfo,
 )
+from isocore.backend.iso_mode_models import ModeIdentity
 from isocore.distortion import (
     AffineEmbedding,
     AffineOperation,
@@ -79,6 +80,124 @@ def _i4mmm_parent() -> Structure:
         ["Eu"],
         [[0, 0, 0]],
     )
+
+
+def _bare_mode_label_api(mode: DistortionMode) -> IsoDistort:
+    api = object.__new__(IsoDistort)
+    api.structure = Structure(Lattice.cubic(4.0), ["Na"], [[0.0, 0.0, 0.0]])
+    api.symmetry_info = {
+        "space_group_number": 221,
+        "wyckoff_sites": [
+            {
+                "wyckoff_letter": "a",
+                "orbit_id": "orbit-a",
+                "species": "Na",
+                "display_label": "Na1",
+                "representative_index": 0,
+            }
+        ],
+    }
+    api.mode_displacements = {
+        mode.amplitude_key: {
+            "mode": mode,
+            "wyckoff_letter": "a",
+            "displacements": np.array([[1.0, 0.0, 0.0]]),
+        }
+    }
+    api.distortion_modes = [mode]
+    api.mode_occupancies = {}
+    api._mode_label_overrides = {}
+    api.phase_path = None
+    api._selected_subgroup = None
+    return api
+
+
+def test_mode_labels_use_only_verified_iso_microscopic_identity() -> None:
+    identity = ModeIdentity(
+        parent_sg=221,
+        global_irrep="GM4-",
+        k_coordinates=("0", "0", "0"),
+        wyckoff_letter="a",
+        orbit_id="orbit-a",
+        site_irrep="T1u",
+        component_index=0,
+        component_label="a",
+        source="iso_microscopic",
+        status="verified",
+    )
+    mode = DistortionMode(
+        irrep_label="GM4-",
+        wyckoff_site="a",
+        wyckoff_orbit_id="orbit-a",
+        amplitude_key="verified-mode",
+        mode_identity=identity,
+    )
+
+    labels = _bare_mode_label_api(mode)._mode_labels_now()
+
+    assert labels == {
+        "verified-mode": "Pm-3m[0,0,0]GM4-(a)[Na1:a:dsp]T1u(a)"
+    }
+
+
+def test_mode_labels_use_each_microscopic_irreps_complete_direction() -> None:
+    identity = ModeIdentity(
+        parent_sg=139,
+        global_irrep="X1+",
+        k_coordinates=("1/2", "1/2", "0"),
+        wyckoff_letter="a",
+        orbit_id="orbit-a",
+        site_irrep="A1",
+        component_index=0,
+        component_label="a",
+        source="iso_microscopic",
+        status="verified",
+    )
+    mode = DistortionMode(
+        irrep_label="X1+",
+        wyckoff_site="a",
+        wyckoff_orbit_id="orbit-a",
+        k_point_label="X",
+        opd_symbol="C1",
+        opd_dir_raw="(a;a)",
+        amplitude_key="secondary-x-mode",
+        mode_identity=identity,
+    )
+    api = _bare_mode_label_api(mode)
+    api.symmetry_info["space_group_number"] = 139
+    api.phase_path = SimpleNamespace(opd_dir_raw="(a;b;c;d)")
+
+    labels = api._mode_labels_now()
+
+    assert labels == {
+        "secondary-x-mode": (
+            "I4/mmm[1/2,1/2,0]X1+(a;a)[Na1:a:dsp]A1(a)"
+        )
+    }
+
+
+def test_mode_labels_fail_closed_for_unresolved_site_irrep() -> None:
+    mode = DistortionMode(
+        irrep_label="GM4-",
+        wyckoff_site="a",
+        wyckoff_orbit_id="orbit-a",
+        amplitude_key="unresolved-mode",
+        mode_identity=ModeIdentity.unresolved(
+            parent_sg=221,
+            global_irrep="GM4-",
+            k_coordinates=("0", "0", "0"),
+            wyckoff_letter="a",
+            orbit_id="orbit-a",
+            reason="test evidence is absent",
+        ),
+    )
+
+    api = _bare_mode_label_api(mode)
+    api._mode_label_overrides = {
+        "unresolved-mode": "Pm-3m[0,0,0]GM4-(a)[Na1:a:dsp]A1(a)"
+    }
+    with pytest.raises(ValueError, match="test evidence is absent"):
+        api._mode_labels_now()
 
 
 def test_method3_api_propagates_physical_tolerance_model(monkeypatch) -> None:
@@ -1879,6 +1998,7 @@ def test_special_modes_complete_only_wholly_rootless_orbits(monkeypatch) -> None
             supercell_displacements={secondary.amplitude_key: np.zeros((2, 3))},
             labels={secondary.amplitude_key: "secondary"},
             nmod=0,
+            note="fixed-space diagnostic retained",
         )
 
     monkeypatch.setattr(superspace_module, "compute_parametric_modes", _fixed_space)
@@ -1891,9 +2011,225 @@ def test_special_modes_complete_only_wholly_rootless_orbits(monkeypatch) -> None
         object(),
     )
 
-    assert result.modes == [bush, secondary]
+    assert [mode.irrep_label for mode in result.modes] == ["P2", "GM1+"]
+    # Without physical-orbit metadata the numerical BUSH column remains
+    # available, but its scientific identity must fail closed.
+    assert result.modes[0].site_irrep == ""
+    assert result.modes[0].mode_identity.status == "unresolved"
+    assert (
+        result.modes[0].mode_identity.reason
+        == "physical_orbit_metadata_unavailable"
+    )
+    assert result.modes[1] is secondary
     assert set(result.supercell_displacements) == {secondary.amplitude_key}
     assert "rootless orbit(s) e" in result.note
+    assert "fixed-space diagnostic retained" in result.note
+    assert "ISO microscopic query failed: AttributeError" in result.note
+
+
+def test_special_modes_split_repeated_letters_into_physical_orbits(
+    monkeypatch,
+) -> None:
+    subgroup = _method3_route("P2")
+    subgroup.k_parameters = []
+    bush = DistortionMode(
+        irrep_label="P2",
+        wyckoff_site="e",
+        amplitude_key="P2__e__C1__a",
+        bush_modes=[BushMode(
+            irrep_label="P2",
+            opd_symbol="C1",
+            wyckoff_letter="e",
+            point=[0, 0, 0],
+            displacements=[[1, 0, 0]],
+        )],
+    )
+    secondary = DistortionMode(
+        irrep_label="GM1+",
+        wyckoff_site="g",
+        wyckoff_orbit_id="orbit-g",
+        amplitude_key="GM1+[0,0,0]__g__A1(a)",
+    )
+    sites = [
+        {"orbit_id": "orbit-e-1", "wyckoff_letter": "e"},
+        {"orbit_id": "orbit-e-2", "wyckoff_letter": "e"},
+        {"orbit_id": "orbit-g", "wyckoff_letter": "g"},
+    ]
+
+    class _Iso:
+        def calc_distortion_modes(self, parent_sg, selected, wyckoff_letters):
+            assert wyckoff_letters == ["e", "g"]
+            return [bush]
+
+    def _fixed_space(parent, symmetry_info, selected, letters, smodes, **kwargs):
+        assert letters == ["g"]
+        assert kwargs["wyckoff_orbit_ids"] == ["orbit-g"]
+        return superspace_module.ParametricModeResult(
+            modes=[secondary],
+            supercell_displacements={secondary.amplitude_key: np.zeros((2, 3))},
+            labels={secondary.amplitude_key: "secondary"},
+            nmod=0,
+        )
+
+    monkeypatch.setattr(superspace_module, "compute_parametric_modes", _fixed_space)
+    result = superspace_module.compute_special_modes_with_rootless_supplement(
+        object(),
+        {"space_group_number": 139, "wyckoff_sites": sites},
+        subgroup,
+        ["e", "g"],
+        _Iso(),
+        object(),
+    )
+
+    rooted = [mode for mode in result.modes if mode.wyckoff_site == "e"]
+    assert [mode.wyckoff_orbit_id for mode in rooted] == [
+        "orbit-e-1", "orbit-e-2",
+    ]
+    assert len({mode.amplitude_key for mode in rooted}) == 2
+    assert result.modes[-1] is secondary
+
+
+def test_displacive_species_scope_keeps_only_selected_shared_letter_orbits(
+    monkeypatch,
+) -> None:
+    target = _method3_route("P2")
+    target.k_parameters = []
+    rooted = DistortionMode(
+        irrep_label="P2",
+        wyckoff_site="e",
+        amplitude_key="P2__e__C1__a",
+        bush_modes=[BushMode(
+            irrep_label="P2",
+            opd_symbol="C1",
+            wyckoff_letter="e",
+            point=[0, 0, 0],
+            displacements=[[1, 0, 0]],
+        )],
+    )
+    secondary = DistortionMode(
+        irrep_label="GM1+",
+        wyckoff_site="g",
+        wyckoff_orbit_id="orbit-h-g",
+        amplitude_key="GM1+__orbit-h-g",
+        bush_modes=[BushMode(
+            irrep_label="GM1+",
+            opd_symbol="C1",
+            wyckoff_letter="g",
+            point=[0, 0, 0],
+            displacements=[[0, 1, 0]],
+        )],
+    )
+    sites = [
+        {"orbit_id": "orbit-h-e", "wyckoff_letter": "e", "species": "H"},
+        {"orbit_id": "orbit-he-e", "wyckoff_letter": "e", "species": "He"},
+        {"orbit_id": "orbit-h-g", "wyckoff_letter": "g", "species": "H"},
+        {"orbit_id": "orbit-he-g", "wyckoff_letter": "g", "species": "He"},
+    ]
+
+    class _Iso:
+        @staticmethod
+        def list_k_points(parent_sg):
+            return []
+
+        @staticmethod
+        def calc_distortion_modes(parent_sg, selected, wyckoff_letters):
+            assert wyckoff_letters == ["e", "g"]
+            return [rooted]
+
+    def _fixed_space(parent, symmetry_info, selected, letters, smodes, **kwargs):
+        assert letters == ["g"]
+        assert kwargs["wyckoff_orbit_ids"] == ["orbit-h-g"]
+        return superspace_module.ParametricModeResult(
+            modes=[secondary],
+            supercell_displacements={secondary.amplitude_key: np.zeros((2, 3))},
+            labels={secondary.amplitude_key: "secondary"},
+            nmod=0,
+        )
+
+    monkeypatch.setattr(superspace_module, "compute_parametric_modes", _fixed_space)
+    api = object.__new__(IsoDistort)
+    api.structure = [
+        SimpleNamespace(species_string="H"),
+        SimpleNamespace(species_string="He"),
+    ]
+    api.symmetry_info = {"space_group_number": 139, "wyckoff_sites": sites}
+    api.distortion_scope = {"displacive": ["H"]}
+    api.number_of_independent_modulations = 0
+    api._iso = _Iso()
+    api._smodes = object()
+
+    modes = api._compute_scoped_modes(139, target, ["displacive"])
+
+    assert [mode.wyckoff_orbit_id for mode in modes] == [
+        "orbit-h-e", "orbit-h-g",
+    ]
+    assert "orbit-h-e" in modes[0].amplitude_key
+    assert all("orbit-he" not in mode.amplitude_key for mode in modes)
+
+
+def test_special_modes_complete_all_rootless_physical_orbits(monkeypatch) -> None:
+    subgroup = _method3_route("P2")
+    subgroup.k_parameters = []
+    sites = [
+        {"orbit_id": "orbit-e-1", "wyckoff_letter": "e"},
+        {"orbit_id": "orbit-e-2", "wyckoff_letter": "e"},
+    ]
+    secondary = [
+        DistortionMode(
+            irrep_label="GM1+",
+            wyckoff_site="e",
+            wyckoff_orbit_id=orbit_id,
+            amplitude_key=f"GM1+__{orbit_id}",
+        )
+        for orbit_id in ("orbit-e-1", "orbit-e-2")
+    ]
+
+    class _Iso:
+        def calc_distortion_modes(self, parent_sg, selected, wyckoff_letters):
+            return []
+
+        def calc_microscopic_distortion_modes(
+            self, parent_sg, selected, wyckoff_letters
+        ):
+            return secondary
+
+    def _fixed_space(parent, symmetry_info, selected, letters, smodes, **kwargs):
+        assert letters == ["e"]
+        assert kwargs["wyckoff_orbit_ids"] == ["orbit-e-1", "orbit-e-2"]
+        return superspace_module.ParametricModeResult(
+            modes=secondary,
+            supercell_displacements={
+                mode.amplitude_key: np.zeros((2, 3)) for mode in secondary
+            },
+            labels={mode.amplitude_key: mode.amplitude_key for mode in secondary},
+            nmod=0,
+            note="rootless fixed-space note",
+        )
+
+    monkeypatch.setattr(superspace_module, "compute_parametric_modes", _fixed_space)
+    def _reject_replacement(*_args, **_kwargs):
+        raise ValueError("whole-space mismatch")
+
+    monkeypatch.setattr(
+        superspace_module,
+        "_canonicalize_rootless_supplement",
+        _reject_replacement,
+    )
+    result = superspace_module.compute_special_modes_with_rootless_supplement(
+        object(),
+        {"space_group_number": 139, "wyckoff_sites": sites},
+        subgroup,
+        ["e"],
+        _Iso(),
+        object(),
+    )
+
+    assert result.modes == secondary
+    assert set(result.supercell_displacements) == {
+        "GM1+__orbit-e-1", "GM1+__orbit-e-2",
+    }
+    assert "rootless fixed-space note" in result.note
+    assert "canonical ISO microscopic replacement rejected: whole-space mismatch" in result.note
 
 
 def test_exact_fixed_space_method3_row_uses_complete_folded_mode_space(
@@ -2035,10 +2371,107 @@ def test_method_4_decomposes_homogeneous_lattice_strain():
         Method4Query(),
     )
 
-    assert result.strain_voigt_engineering == pytest.approx(
-        {"xx": 0.08, "yy": 0.08, "zz": 0.08, "2yz": 0, "2xz": 0, "2xy": 0}
+    assert result.strain_applied_engineering_q_parent_basis == pytest.approx(
+        {"11": 0.08, "22": 0.08, "33": 0.08, "2*23": 0, "2*13": 0, "2*12": 0}
     )
+    assert result.strain_mode_amplitudes == {}
+    assert result.strain_raw_coordinate_sum_parent_basis is None
+    assert result.metadata["strain_mode_status"] == "unresolved_missing_canonical_basis"
     assert result.metadata["strain_reconstruction_relative_metric_residual"] < 1e-14
+
+
+def test_method_4_matches_eual4_f02_canonical_strain_contract():
+    engine = _make_engine()
+    parent_lattice = np.diag([4.402, 4.402, 11.163])
+    basis = np.array(
+        [[0.0, 1.0, 1.0], [1.0, 0.0, 0.0], [0.0, 0.0, -1.0]]
+    )
+    labels = [
+        "GM1+strain_1(a)",
+        "GM1+strain_2(a)",
+        "GM2+strain(a)",
+        "GM4+strain(a)",
+        "GM5+strain(a)",
+        "GM5+strain(b)",
+    ]
+    irreps = ["GM1+", "GM1+", "GM2+", "GM4+", "GM5+", "GM5+"]
+    q_raw = np.array(
+        [
+            [1, 1, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0],
+            [1, -1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 1, 0],
+        ],
+        dtype=float,
+    )
+    normfactors = np.array(
+        [1 / np.sqrt(2), 1, 1 / np.sqrt(2), np.sqrt(2), np.sqrt(2), np.sqrt(2)]
+    )
+    q_unit = q_raw * normfactors[:, None]
+    expected_amplitudes = np.array([0.06016, -0.00036, -0.06016, 0, 0.09683, 0])
+    expected_raw_sum = expected_amplitudes @ q_raw
+    expected_applied_q = expected_amplitudes @ q_unit
+    multiplier = np.eye(3) + np.array(
+        [
+            [expected_applied_q[0], expected_applied_q[5] / 2, expected_applied_q[4] / 2],
+            [expected_applied_q[5] / 2, expected_applied_q[1], expected_applied_q[3] / 2],
+            [expected_applied_q[4] / 2, expected_applied_q[3] / 2, expected_applied_q[2]],
+        ]
+    )
+    reference = Structure(
+        Lattice(basis @ parent_lattice), ["Na"], [[0.0, 0.0, 0.0]]
+    )
+    distorted = Structure(
+        Lattice(basis @ multiplier @ parent_lattice),
+        ["Na"],
+        [[0.0, 0.0, 0.0]],
+    )
+
+    result = engine.method_4_decompose(
+        reference,
+        distorted,
+        {"displacive-test-mode": np.array([[1.0, 0.0, 0.0]])},
+        Method4Query(
+            reference_parent_lattice=parent_lattice.tolist(),
+            parent_to_child_basis=basis.tolist(),
+            strain_mode_labels=labels,
+            strain_mode_irrep_labels=irreps,
+            strain_mode_q_raw=q_raw.tolist(),
+            strain_mode_q_unit=q_unit.tolist(),
+            strain_mode_normfactors=normfactors.tolist(),
+        ),
+    )
+
+    assert list(result.strain_mode_amplitudes) == labels
+    assert list(result.strain_mode_amplitudes.values()) == pytest.approx(
+        expected_amplitudes, abs=2.0e-10
+    )
+    assert result.strain_raw_coordinate_sum_parent_basis == pytest.approx(
+        dict(
+            zip(
+                ("11", "22", "33", "2*23", "2*13", "2*12"),
+                expected_raw_sum,
+                strict=True,
+            )
+        ),
+        abs=2.0e-10,
+    )
+    assert result.strain_applied_engineering_q_parent_basis == pytest.approx(
+        dict(
+            zip(
+                ("11", "22", "33", "2*23", "2*13", "2*12"),
+                expected_applied_q,
+                strict=True,
+            )
+        ),
+        abs=2.0e-10,
+    )
+    assert result.metadata["strain_mode_status"] == "canonical_iso_rank_12"
+    assert [mode["label"] for mode in result.strain_modes] == labels
+    assert [mode["q_raw"] for mode in result.strain_modes] == pytest.approx(q_raw)
+    assert [mode["q_unit"] for mode in result.strain_modes] == pytest.approx(q_unit)
 
 
 def test_method_4_rejects_basis_incompatible_with_reference_cell():

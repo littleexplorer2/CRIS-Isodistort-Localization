@@ -12,6 +12,7 @@ import threading
 import time
 import urllib.error
 import urllib.request
+from contextlib import nullcontext
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -25,6 +26,7 @@ sys.path.insert(0, str(_PROJECT_ROOT))
 from data_dir import experiment_data_dir  # noqa: E402
 
 import main_terminal  # noqa: E402
+import runtime_launcher  # noqa: E402
 from isocore.api import IsoDistort  # noqa: E402
 from isocore.backend import SubgroupInfo  # noqa: E402
 from isocore.distortion import Method3ResultItem  # noqa: E402
@@ -234,7 +236,8 @@ def test_index_served(server):
     assert "knownRouteText" in body
     assert 'exportHeader: "route_resolution"' in body
     assert 't("m4.strainSummary"' in body
-    assert "d.strain_voigt_engineering" in body
+    assert "d.strain_applied_engineering_q_parent_basis" in body
+    assert "d.strain_raw_coordinate_sum_parent_basis" in body
     assert "statusBox.innerHTML = prevStatus" not in body
     assert "progress-striped" in body
     assert "fmtElapsed" in body
@@ -254,6 +257,85 @@ def test_index_served(server):
     assert 'id="dlMethodOpt3"' in body
     assert 'id="dlMethodOpt4"' in body
     assert 'multiple' not in body.split('id="dlMethod"')[1].split(">")[0]
+
+
+def test_browser_launch_uses_windows_shell(monkeypatch, capsys):
+    seen: dict = {}
+
+    def fake_run(command, **kwargs):
+        seen["command"] = command
+        seen["kwargs"] = kwargs
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(web_server.sys, "platform", "win32")
+    monkeypatch.setattr(
+        web_server.shutil,
+        "which",
+        lambda _name: r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe",
+    )
+    monkeypatch.setattr(web_server.subprocess, "run", fake_run)
+    monkeypatch.setattr(
+        web_server.webbrowser,
+        "open",
+        lambda *_args, **_kwargs: pytest.fail("stdlib fallback should not run"),
+    )
+
+    url = "http://127.0.0.1:8123/"
+    assert web_server._open_browser(url) is True
+    assert seen["command"] == [
+        r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe",
+        "-NoProfile",
+        "-WindowStyle",
+        "Hidden",
+        "-Command",
+        "Start-Process -FilePath 'http://127.0.0.1:8123/'",
+    ]
+    assert seen["kwargs"]["timeout"] == 10
+    assert f"Browser launch requested: {url}" in capsys.readouterr().out
+
+
+def test_browser_launch_reports_manual_url_after_all_dispatchers_fail(
+    monkeypatch,
+    capsys,
+):
+    monkeypatch.setattr(web_server, "_open_browser_from_windows_shell", lambda _url: False)
+    monkeypatch.setattr(web_server.webbrowser, "open", lambda *_args, **_kwargs: False)
+    monkeypatch.setattr(web_server.webbrowser, "open_new", lambda *_args, **_kwargs: False)
+
+    url = "http://127.0.0.1:8124/"
+    assert web_server._open_browser(url) is False
+    assert f"请手动访问: {url}" in capsys.readouterr().out
+
+
+def test_direct_windows_entry_fails_with_repository_runner_command(
+    tmp_path,
+    monkeypatch,
+    capsys,
+):
+    repository = tmp_path / "CRIS"
+    project = repository / "ISODISTORT"
+    script = project / "main_web.py"
+    current = repository / ".venv" / "Scripts" / "python.exe"
+    for path in (script, current):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"")
+
+    monkeypatch.setattr(runtime_launcher.sys, "platform", "win32")
+    monkeypatch.setattr(runtime_launcher.sys, "executable", str(current))
+    monkeypatch.setattr(
+        runtime_launcher.sys,
+        "_base_executable",
+        str(tmp_path / "Python312" / "python.exe"),
+        raising=False,
+    )
+
+    with pytest.raises(SystemExit) as excinfo:
+        runtime_launcher.require_cris_runner(script)
+
+    assert excinfo.value.code == 2
+    error = capsys.readouterr().err
+    assert "cannot run WSL" in error
+    assert ".\\run_cris.ps1 ISODISTORT\\main_web.py" in error
 
 
 def test_state_endpoint_builds_snapshot_under_session_lock(server, monkeypatch):
@@ -448,6 +530,62 @@ def test_terminal_method3_filtered_csv_uses_embedding_headers(
     ]
 
 
+@pytest.mark.parametrize("as_zip", [True, False])
+def test_terminal_subgroup_export_passes_same_nmod_as_web(
+    tmp_path,
+    monkeypatch,
+    as_zip,
+):
+    subgroup = SimpleNamespace(index=0, k_parameters=["1/6"])
+    seen: dict = {}
+
+    class ExportIsoStub:
+        cfg = SimpleNamespace(output_dir=tmp_path)
+
+        def export_subgroups_zip(self, **kwargs):
+            seen.update(kwargs)
+            return b"zip"
+
+        def export_subgroups(self, destination, **kwargs):
+            seen["destination"] = destination
+            seen.update(kwargs)
+            return [tmp_path / "subgroup.cif"]
+
+    app = object.__new__(IsoDistortConsoleApp)
+    app.iso = ExportIsoStub()
+    app.last_method1 = [SimpleNamespace(subgroup=subgroup)]
+    app.last_method2 = None
+    app.last_method2_subgroups = []
+    app.last_method3 = []
+    app.nmod_value = 2
+    app.tbl = {1: _empty_tbl([])}
+
+    destination = tmp_path / ("method1.zip" if as_zip else "method1")
+    prompt_answers = iter(["modes", str(destination)])
+    yes_no_answers = iter([as_zip, True])
+    monkeypatch.setattr(
+        main_terminal,
+        "_prompt",
+        lambda *_args, **_kwargs: next(prompt_answers),
+    )
+    monkeypatch.setattr(
+        main_terminal,
+        "_prompt_yes_no",
+        lambda *_args, **_kwargs: next(yes_no_answers),
+    )
+    monkeypatch.setattr(
+        main_terminal,
+        "_ElapsedStatus",
+        lambda *_args, **_kwargs: nullcontext(),
+    )
+
+    app._export_subgroups_flow(1)
+
+    assert seen["number_of_independent_modulations"] == 2
+    assert seen["export_method"] == 1
+    assert seen["subgroups"] == [subgroup]
+
+
 def test_method4_terminal_row_and_origin_parser_match_web(capsys):
     assert _parse_optional_origin_shift("") is None
     assert _parse_optional_origin_shift("0.5") == [0.5, 0.0, 0.0]
@@ -480,11 +618,28 @@ def test_terminal_method4_keeps_full_web_payload(tmp_path, monkeypatch, capsys):
         parent_cell_amplitudes={"mode": 2.0},
         raw_coefficients={"mode": 3.0},
         mode_normfactors={"mode": 4.0},
-        strain_voigt_engineering={
-            "xx": 0.1, "yy": 0.2, "zz": 0.3,
-            "2yz": 0.0, "2xz": 0.0, "2xy": 0.0,
+        strain_mode_amplitudes={"GM1+strain(a)": 0.1},
+        strain_modes=[{
+            "label": "GM1+strain(a)",
+            "irrep_label": "GM1+",
+            "q_raw": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "q_unit": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "normfactor": 1.0,
+        }],
+        strain_raw_coordinate_sum_parent_basis={
+            "11": 0.1, "22": 0.2, "33": 0.3,
+            "2*23": 0.0, "2*13": 0.0, "2*12": 0.0,
         },
-        strain_tensor=[[0.1, 0.0, 0.0], [0.0, 0.2, 0.0], [0.0, 0.0, 0.3]],
+        strain_applied_engineering_q_parent_basis={
+            "11": 0.1, "22": 0.2, "33": 0.3,
+            "2*23": 0.0, "2*13": 0.0, "2*12": 0.0,
+        },
+        strain_tensor_parent_basis=[
+            [0.1, 0.0, 0.0], [0.0, 0.2, 0.0], [0.0, 0.0, 0.3]
+        ],
+        strain_multiplier_parent_basis=[
+            [1.1, 0.0, 0.0], [0.0, 1.2, 0.0], [0.0, 0.0, 1.3]
+        ],
         rms_residual=1e-9,
         max_abs_residual=2e-9,
         metadata={"strain_convention": "test convention"},
@@ -515,7 +670,10 @@ def test_terminal_method4_keeps_full_web_payload(tmp_path, monkeypatch, capsys):
     assert app.last_method4[0]["ap"] == "2.000000"
     assert app.last_method4[0]["raw"] == "3.00000000"
     assert app.last_method4[0]["norm"] == "4.00000000"
-    assert app.last_method4_meta["strain_tensor"][2][2] == pytest.approx(0.3)
+    assert app.last_method4_meta["strain_tensor_parent_basis"][2][2] == pytest.approx(0.3)
+    assert app.last_method4_meta["strain_mode_amplitudes"] == {
+        "GM1+strain(a)": pytest.approx(0.1)
+    }
     assert app.last_method4_meta["metadata"]["strain_convention"] == "test convention"
     output = capsys.readouterr().out
     assert "Homogeneous strain (test convention)" in output
@@ -555,11 +713,28 @@ def test_method4_api_removes_daughter_upload(tmp_path, monkeypatch):
         parent_cell_amplitudes={"mode": 2.0},
         raw_coefficients={"mode": 3.0},
         mode_normfactors={"mode": 4.0},
-        strain_voigt_engineering={
-            "xx": 0.1, "yy": 0.2, "zz": 0.3,
-            "2yz": 0.0, "2xz": 0.0, "2xy": 0.0,
+        strain_mode_amplitudes={"GM1+strain(a)": 0.1},
+        strain_modes=[{
+            "label": "GM1+strain(a)",
+            "irrep_label": "GM1+",
+            "q_raw": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "q_unit": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "normfactor": 1.0,
+        }],
+        strain_raw_coordinate_sum_parent_basis={
+            "11": 0.1, "22": 0.2, "33": 0.3,
+            "2*23": 0.0, "2*13": 0.0, "2*12": 0.0,
         },
-        strain_tensor=[[0.1, 0.0, 0.0], [0.0, 0.2, 0.0], [0.0, 0.0, 0.3]],
+        strain_applied_engineering_q_parent_basis={
+            "11": 0.1, "22": 0.2, "33": 0.3,
+            "2*23": 0.0, "2*13": 0.0, "2*12": 0.0,
+        },
+        strain_tensor_parent_basis=[
+            [0.1, 0.0, 0.0], [0.0, 0.2, 0.0], [0.0, 0.0, 0.3]
+        ],
+        strain_multiplier_parent_basis=[
+            [1.1, 0.0, 0.0], [0.0, 1.2, 0.0], [0.0, 0.0, 1.3]
+        ],
         rms_residual=1e-9,
         max_abs_residual=2e-9,
         metadata={"strain_convention": "test convention"},
@@ -571,8 +746,14 @@ def test_method4_api_removes_daughter_upload(tmp_path, monkeypatch):
     handler = object.__new__(web_server.IsoHandler)
     payload = handler._api_method4({"content": "data_test", "filename": "daughter.cif"})
 
-    assert payload["strain_voigt_engineering"]["xx"] == pytest.approx(0.1)
-    assert payload["strain_tensor"][2][2] == pytest.approx(0.3)
+    assert payload["strain_applied_engineering_q_parent_basis"]["11"] == pytest.approx(0.1)
+    assert payload["strain_raw_coordinate_sum_parent_basis"]["11"] == pytest.approx(0.1)
+    assert payload["strain_tensor_parent_basis"][2][2] == pytest.approx(0.3)
+    assert payload["strain_mode_amplitudes"]["GM1+strain(a)"] == pytest.approx(0.1)
+    assert payload["strain_voigt_engineering"] == payload[
+        "strain_applied_engineering_q_parent_basis"
+    ]
+    assert payload["strain_tensor"] == payload["strain_tensor_parent_basis"]
     assert not uploaded.exists()
 
 
@@ -903,6 +1084,7 @@ def test_download_all_passes_nmod_without_mutating_cached_mode_context(server):
         assert response.read() == b"test-zip"
 
     assert seen["number_of_independent_modulations"] == 2
+    assert seen["export_method"] == 1
     assert seen["subgroups"] == [subgroup]
     assert stub.number_of_independent_modulations == 1
 
@@ -941,6 +1123,36 @@ def test_load_cif_endpoint(server):
     # 官网 "Default space-group preferences: ..." 行
     assert "monoclinic axes a(b)c" in data["state"]["structure"]["preferences"]
     assert data["state"]["species"] == ["Al", "Eu"]
+
+
+@pytest.mark.skipif(not _wsl_available(), reason="WSL 不可用，跳过真实计算端点")
+def test_load_4310_endpoint_reports_each_standard_wyckoff_orbit(server):
+    cif = experiment_data_dir() / "4310_tetra.cif"
+    if not cif.exists():
+        pytest.skip("4310 CIF 不存在")
+    body = json.dumps({
+        "filename": "4310_tetra.cif",
+        "content": cif.read_text(encoding="utf-8"),
+    }).encode("utf-8")
+    request = urllib.request.Request(
+        f"http://127.0.0.1:{server.port}/api/load_cif",
+        data=body,
+        headers={"Content-Type": "application/json"},
+    )
+    with urllib.request.urlopen(request) as response:  # noqa: S310
+        data = json.loads(response.read().decode("utf-8"))
+
+    assert data["ok"]
+    assert data["state"]["structure"]["wyckoff_display"] == [
+        "La1 4e (0,0,z), z= 0.43204",
+        "La2 4e (0,0,z), z= 0.30148",
+        "Ni1 2a (0,0,0)",
+        "Ni2 4e (0,0,z), z=-0.13885",
+        "O1 8g (0,1/2,z), z= 0.36070",
+        "O3 4c (0,1/2,0)",
+        "O4 4e (0,0,z), z=-0.21680",
+        "O2 4e (0,0,z), z=-0.06780",
+    ]
 
 
 @pytest.mark.skipif(not _wsl_available(), reason="WSL 不可用，跳过真实计算端点")

@@ -14,11 +14,13 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from isocore.api import IsoDistort
 from isocore.backend import BushMode, DistortionMode, SubgroupInfo
+from isocore.backend.iso_mode_models import ModeIdentity
 from isocore.distortion import DistortionEngine, DistortionMapper, OccupationalModeGenerator
 from isocore.distortion.phase_path import (
     DEFAULT_DISTORTION_TYPES,
     normalize_distortion_types,
 )
+from isocore.structure import build_supercell
 from isocore.utils.self_check import (
     check_linearity,
     check_mode_orthogonality,
@@ -316,6 +318,251 @@ def test_bush_supercell_mapping_rejects_incomplete_representatives():
         DistortionMapper().map_bush_modes_to_supercell(
             parent, sites, [mode], [[2, 0, 0], [0, 1, 0], [0, 0, 1]],
         )
+
+
+def test_zone_center_bush_rows_repeat_over_centered_parent_translations():
+    """A Gamma column printed for one primitive parent cell covers a larger child."""
+    parent = Structure(
+        Lattice.cubic(4.0),
+        ["H"] * 4,
+        [[0, 0, 0.2], [0, 0, 0.8], [0.5, 0.5, 0.7], [0.5, 0.5, 0.3]],
+    )
+    orbit_id = "centered-orbit"
+    sites = [{
+        "wyckoff_letter": "e",
+        "orbit_id": orbit_id,
+        "equivalent_indices": [0, 1, 2, 3],
+        "standard_representative_parameters": {"z": 0.2},
+    }]
+    mode = DistortionMode(
+        irrep_label="GM",
+        wyckoff_site="e",
+        wyckoff_orbit_id=orbit_id,
+        amplitude_key="gamma-column",
+        mode_identity=ModeIdentity(
+            parent_sg=1,
+            global_irrep="GM",
+            k_coordinates=("0", "0", "0"),
+            wyckoff_letter="e",
+            orbit_id=orbit_id,
+            source="iso_microscopic",
+            status="verified",
+        ),
+        bush_modes=[
+            BushMode("GM", "P1", "e", [0, 0, 0],
+                     ["0", "0", "z"], [[0, 0, 1]]),
+            BushMode("GM", "P1", "e", [0, 0, 0],
+                     ["0", "0", "-z"], [[0, 0, -1]]),
+        ],
+    )
+    basis = [[2, 0, 0], [0, 2, 0], [0, 0, 2]]
+    mapped = DistortionMapper().map_bush_modes_to_supercell(
+        parent, sites, [mode], basis,
+    )[mode.amplitude_key]
+    child = build_supercell(parent, basis)
+    assert mapped.shape == (len(child), 3)
+    for index, site in enumerate(child):
+        parent_z = (site.frac_coords @ np.asarray(basis))[2] % 1
+        expected = 0.5 if np.isclose(parent_z, (0.2, 0.7)).any() else -0.5
+        assert np.allclose(mapped[index], [0, 0, expected])
+
+
+def test_bush_rows_repeat_only_along_translations_invariant_under_k_star():
+    """An in-plane boundary k permits c repetition but changes a/b phase."""
+    parent = Structure(Lattice.tetragonal(4.0, 8.0), ["H"], [[0, 0, 0]])
+    sites = [{"wyckoff_letter": "a", "equivalent_indices": [0]}]
+    mode = DistortionMode(
+        irrep_label="X",
+        wyckoff_site="a",
+        amplitude_key="boundary-column",
+        mode_identity=ModeIdentity(
+            parent_sg=123,
+            global_irrep="X",
+            k_coordinates=("1/2", "1/2", "0"),
+            wyckoff_letter="a",
+            source="iso_microscopic",
+            status="verified",
+        ),
+        bush_modes=[
+            BushMode("X", "P1", "a", [0, 0, 0],
+                     ["0", "0", "0"], [[1, 0, 0]]),
+            BushMode("X", "P1", "a", [1, 0, 0],
+                     ["1", "0", "0"], [[-1, 0, 0]]),
+            BushMode("X", "P1", "a", [0, 1, 0],
+                     ["0", "1", "0"], [[-1, 0, 0]]),
+            BushMode("X", "P1", "a", [1, 1, 0],
+                     ["1", "1", "0"], [[1, 0, 0]]),
+        ],
+    )
+    basis = [[2, 0, 0], [0, 2, 0], [0, 0, 2]]
+    mapped = DistortionMapper().map_bush_modes_to_supercell(
+        parent, sites, [mode], basis,
+    )[mode.amplitude_key]
+    child = build_supercell(parent, basis)
+    for index, site in enumerate(child):
+        x, y, _z = site.frac_coords @ np.asarray(basis)
+        expected = 0.5 * (-1) ** (round(x) + round(y))
+        assert np.allclose(mapped[index], [expected, 0, 0])
+
+
+def test_explicit_multiarm_bush_rows_can_select_one_star_arm():
+    """Complete BUSH rows can prove that one arm of a two-arm star is active."""
+    parent = Structure(Lattice.tetragonal(4.0, 8.0), ["H"], [[0, 0, 0]])
+    sites = [{"wyckoff_letter": "a", "equivalent_indices": [0]}]
+    mode = DistortionMode(
+        irrep_label="X1+",
+        wyckoff_site="a",
+        amplitude_key="single-arm-column",
+        opd_symbol="C1",
+        opd_component="a",
+        mode_identity=ModeIdentity(
+            parent_sg=123,
+            global_irrep="X1+",
+            k_coordinates=("0", "1/2", "0"),
+            wyckoff_letter="a",
+            source="iso_microscopic",
+            status="verified",
+        ),
+        bush_modes=[
+            BushMode("X1+", "C1", "a", [0, 0, 0],
+                     ["0", "0", "0"], [[1, 0, 0]]),
+            BushMode("X1+", "C1", "a", [1, 0, 0],
+                     ["1", "0", "0"], [[-1, 0, 0]]),
+            BushMode("X1+", "C1", "a", [0, 1, 0],
+                     ["0", "1", "0"], [[1, 0, 0]]),
+            BushMode("X1+", "C1", "a", [1, 1, 0],
+                     ["1", "1", "0"], [[-1, 0, 0]]),
+        ],
+    )
+    basis = [[2, 0, 0], [0, 2, 0], [0, 0, 1]]
+    mapped = DistortionMapper().map_bush_modes_to_supercell(
+        parent, sites, [mode], basis,
+    )[mode.amplitude_key]
+    child = build_supercell(parent, basis)
+    for index, site in enumerate(child):
+        x, _y, _z = site.frac_coords @ np.asarray(basis)
+        assert np.allclose(mapped[index], [0.5 * (-1) ** round(x), 0, 0])
+
+
+def test_sparse_multiarm_bush_without_column_arm_weights_fails_closed():
+    """A star identity and local column label do not identify its active arm.
+
+    At the one printed translation, both legitimate X-star completions
+    ``u=(-1)^x e_x`` and ``u=(-1)^y e_x`` have the same arrow.  The C1 OPD
+    name and local ``a`` component do not bind this microscopic column to
+    either arm, so repeating it would invent missing source information.
+    """
+    parent = Structure(Lattice.tetragonal(4.0, 8.0), ["H"], [[0, 0, 0]])
+    mode = DistortionMode(
+        irrep_label="X1+",
+        wyckoff_site="a",
+        amplitude_key="ambiguous-single-arm-column",
+        opd_symbol="C1",
+        opd_component="a",
+        mode_identity=ModeIdentity(
+            parent_sg=123,
+            global_irrep="X1+",
+            k_coordinates=("0", "1/2", "0"),
+            wyckoff_letter="a",
+            source="iso_microscopic",
+            status="verified",
+        ),
+        bush_modes=[BushMode(
+            "X1+", "C1", "a", [0, 0, 0],
+            ["0", "0", "0"], [[1, 0, 0]],
+        )],
+    )
+    with pytest.raises(ValueError, match="does not cover child atom"):
+        DistortionMapper().map_bush_modes_to_supercell(
+            parent,
+            [{"wyckoff_letter": "a", "equivalent_indices": [0]}],
+            [mode],
+            [[2, 0, 0], [0, 2, 0], [0, 0, 1]],
+        )
+
+
+def test_integer_conventional_k_does_not_hide_centering_phase():
+    """An integer conventional k can still be nonzero on a centered lattice."""
+    parent = Structure(
+        Lattice.cubic(4.0), ["H", "H"], [[0, 0, 0], [0.5, 0.5, 0.5]],
+    )
+    mode = DistortionMode(
+        irrep_label="boundary",
+        wyckoff_site="a",
+        amplitude_key="centered-boundary",
+        mode_identity=ModeIdentity(
+            parent_sg=229,
+            global_irrep="boundary",
+            k_coordinates=("1", "0", "0"),
+            wyckoff_letter="a",
+            source="iso_microscopic",
+            status="verified",
+        ),
+        bush_modes=[BushMode(
+            "boundary", "P1", "a", [0, 0, 0],
+            ["0", "0", "0"], [[1, 0, 0]],
+        )],
+    )
+    with pytest.raises(ValueError, match="does not cover child atom"):
+        DistortionMapper().map_bush_modes_to_supercell(
+            parent,
+            [{"wyckoff_letter": "a", "equivalent_indices": [0, 1]}],
+            [mode],
+            [[2, 0, 0], [0, 2, 0], [0, 0, 2]],
+        )
+
+
+def test_bush_mapping_uses_standard_representative_for_one_physical_orbit():
+    """A centered equivalent input point must use the standard free parameter."""
+    parent = Structure(
+        Lattice.cubic(4.0),
+        ["H", "He"],
+        [[0.5, 0.5, 0.25], [0.0, 0.0, 0.1]],
+    )
+    sites = [
+        {
+            "orbit_id": "hydrogen-e",
+            "wyckoff_letter": "e",
+            "multiplicity": 1,
+            "species": "H",
+            "representative_index": 0,
+            "equivalent_indices": [0],
+            "standard_representative_frac_coords": [0.0, 0.0, -0.25],
+            "standard_representative_symmform": "0,0,z",
+            "standard_representative_parameters": {"z": -0.25},
+        },
+        {
+            "orbit_id": "helium-e",
+            "wyckoff_letter": "e",
+            "multiplicity": 1,
+            "species": "He",
+            "representative_index": 1,
+            "equivalent_indices": [1],
+        },
+    ]
+    mode = DistortionMode(
+        irrep_label="N1+",
+        wyckoff_site="e",
+        wyckoff_orbit_id="hydrogen-e",
+        amplitude_key="N1+__e@hydrogen-e__P1__a",
+        bush_modes=[BushMode(
+            "N1+", "P1", "e", [0, 0, 0],
+            ["0", "0", "z"], [[1, 0, 0]],
+        )],
+    )
+
+    mapped = DistortionMapper().map_bush_modes_to_supercell(
+        parent,
+        sites,
+        [mode],
+        [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+        subgroup_translation_lattice=[
+            [1, 0, 0], [0, 1, 0], [0.5, 0.5, 0.5],
+        ],
+    )[mode.amplitude_key]
+
+    assert np.allclose(mapped[0], [1, 0, 0])
+    assert np.allclose(mapped[1], [0, 0, 0])
 
 
 # --- from test_occupational_modes.py ---

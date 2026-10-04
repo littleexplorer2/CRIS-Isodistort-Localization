@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -10,16 +11,17 @@ ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from isodistort_validate import compare_paths as cpaths
-from isodistort_validate.config_loader import get_config
 from isodistort_validate.batch_compare import main as batch_cli_main
 from isodistort_validate.batch_compare import run_batch
 from isodistort_validate.compare_cif import _print_result, compare_cif
 from isodistort_validate.compare_cif import main as compare_cli_main
+from isodistort_validate.config_loader import get_config
 
-CLI_USAGE = """无参数时进入交互菜单。命令行：
-  python main.py compare [相对路径] [选项]
-  python main.py batch [选项]
+from isodistort_validate import compare_paths as cpaths
+
+CLI_USAGE = r"""无参数时进入交互菜单。从 CRIS 根目录运行：
+  .\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py compare [相对路径] [选项]
+  .\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py batch [选项]
 """
 
 
@@ -183,8 +185,6 @@ def _run_batch() -> None:
         return
 
     if json_output:
-        import json
-
         summary = {"total": len(results), "passed": len(results) - failed,
                    "failed": failed, "results": results}
         print(json.dumps(summary, ensure_ascii=False, indent=2))
@@ -256,8 +256,8 @@ def main(argv: list[str] | None = None) -> int:
         print(CLI_USAGE)
         _print_batch_hint()
         print("查看子命令帮助：")
-        print("  python main.py compare --help")
-        print("  python main.py batch --help")
+        print(r"  .\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py compare --help")
+        print(r"  .\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py batch --help")
         return 0
     if argv[0] == "compare":
         return compare_cli_main(argv[1:])

@@ -1,4 +1,4 @@
-# ISOVIZ_INPUT
+# ISOVIZ_INPUT 0.4.0
 
 把振幅表（CSV）里的数值写进官方 IsoVIZ 的子群结构文件（`.isoviz`），并**自动启动** Java 版 IsoVIZ，查看畸变后的晶体结构。本子项目**不使用** `output/`：读完输入文件和参数后直接打开 IsoVIZ，而不是把结果写成仓库里的产物文件。
 
@@ -22,7 +22,7 @@ ISOVIZ_INPUT/
   README.md               本文件（使用说明）
   config/settings.yaml    桌面 CSV 目录、input_content、IsoVIZ 查找规则
   main.py                 读取输入并启动 IsoVIZ
-  main_requirement.py     检查/创建 CRIS/.venv，只安装缺失依赖；补齐 input_content/
+  main_requirement.py     旧命令兼容转发；实际安装逻辑在根 setup_cris.py
   requirements.txt        运行时依赖（PyYAML）
   requirements-dev.txt    开发依赖（pytest）
   pyproject.toml
@@ -66,11 +66,11 @@ Agent 约定见 [agent.md](agent.md)。跨项目总览见仓库根 [README.md](.
 
 ### 1. Python 环境
 
-需要 **Python ≥ 3.10**。在 **CRIS 根目录**执行：
+需要 **Python ≥ 3.10**。在 **CRIS 根目录**执行统一安装入口：
 
 ```powershell
 cd <CRIS 根目录>
-python ISOVIZ_INPUT\main_requirement.py
+py -3.10 setup_cris.py install --project isoviz
 ```
 
 可选：
@@ -82,16 +82,15 @@ python ISOVIZ_INPUT\main_requirement.py
 
 脚本会：
 
-1. 确认 Python 版本  
-2. 若缺少 `input_content/` 以及桌面 `Best_Model_Parameters/` 则自动新建
-3. 检查 **Java**（`java` / `javaw` 是否在 PATH；IsoVIZ 是 Java 程序）  
-4. 创建或复用 `CRIS/.venv`，只 `pip install` 尚未安装的包  
-5. 查找 IsoVIZ 启动方式（CRIS 根目录的 `ISOViz.lnk` / `.jar` / `.exe`）
+1. 确认 Python 版本；
+2. 创建或复用 `CRIS/.venv`，并按版本约束安装依赖；
+3. 补齐仓库内历史兼容的 `input_content/` 目录；
+4. 检查 Java、IsoVIZ 启动器以及桌面 `Best_Model_Parameters` 中是否已有 CSV。缺少用户 CSV 记为 `WARN`，不会伪装成 GUI 已验证。
 
-也可以用上游统一安装脚本（同样使用 `CRIS/.venv`，并会补齐上述输入文件夹）：
+只做只读诊断：
 
 ```powershell
-python ISODISTORT\main_requirement.py
+.\.venv\Scripts\python.exe setup_cris.py doctor --project isoviz
 ```
 
 ### 2. Java 与 IsoVIZ（必需）
@@ -166,7 +165,7 @@ CSV **必须有表头**。识别列名时不区分大小写。常用（与梯度
 cd <CRIS 根目录>
 
 # 1) 准备环境（若尚未做过）
-python ISOVIZ_INPUT\main_requirement.py
+py -3.10 setup_cris.py install --project isoviz
 
 # 2) 运行 GD 笔记本写出 Desktop\Best_Model_Parameters\LD1_C1\...csv
 # 3) 交互输入文件夹名、CSV 文件名、.isoviz 绝对路径
@@ -202,13 +201,13 @@ python ISOVIZ_INPUT\main_requirement.py
 
 ```powershell
 cd <CRIS 根目录>
-.\.venv\Scripts\python.exe -m pytest ISOVIZ_INPUT\tests_dev
+.\.venv\Scripts\python.exe -m pytest ISOVIZ_INPUT\tests_dev -q --tb=line --basetemp .test-tmp-isoviz
 ```
 
 开发依赖：
 
 ```powershell
-python ISOVIZ_INPUT\main_requirement.py --dev
+py -3.10 setup_cris.py install --project isoviz --dev
 ```
 
 测试使用 `tests_dev/fixtures/` 内的样本，不依赖你本机的 `input_content/`。

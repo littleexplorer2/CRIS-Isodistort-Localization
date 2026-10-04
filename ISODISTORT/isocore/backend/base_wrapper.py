@@ -308,8 +308,8 @@ class BaseWrapper:
             )
 
         full_cmd = (
-            f"export ISODATA={shlex.quote(self._isodata_path())}; "
-            f"cd {shlex.quote(self._stage_dir)}; "
+            f"export ISODATA={shlex.quote(self._isodata_path())} && "
+            f"cd {shlex.quote(self._stage_dir)} && "
             f"{shell_cmd}"
         )
         result = self._wsl(full_cmd, timeout=timeout)

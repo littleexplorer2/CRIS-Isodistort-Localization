@@ -42,15 +42,30 @@ class _AtomLayout:
     child_type_idx: list[int]
     # For each displayed atom image: source index in the child structure.
     image_source_idx: list[int]
+    # Exact physical parent-orbit identity to 1-based IsoVIZ type index.
+    # Empty only for the legacy, non-authoritative writer path.
+    orbit_type_idx: dict[str, int]
 
 
 def render_isodistort_isoviz(spec: Any) -> str:
     """Return official-style IsoVIZ text for ``spec``."""
-    from .isodistort_cif import _subgroup_sites
+    spec.assert_displacive_export_ready()
+    from .isodistort_cif import _validated_subgroup_sites
+
+    if getattr(spec, "strain_data", None) is not None:
+        from .distortion_formats import (  # noqa: PLC0415
+            resolve_strained_export_structure,
+        )
+
+        # IsoVIZ stores the parent cell, the reference child coordinates and
+        # the dynamic q_unit strain modes; it does not store a final child-cell
+        # record.  Still validate the shared reference/final B @ M @ P contract
+        # before emitting those reference-state fields.
+        resolve_strained_export_structure(spec)
 
     sg = spec.subgroup
     parent = spec.parent_structure
-    setting, child, subgroup_sites, _origin_shift = _subgroup_sites(
+    setting, child, subgroup_sites, _origin_shift = _validated_subgroup_sites(
         spec, spec.structure
     )
     parent_sg = int(spec.parent_sg or 0)
@@ -213,19 +228,58 @@ def _atom_blocks(
 ) -> tuple[list[str], _AtomLayout]:
     from .isodistort_cif import _in_orbit
 
-    types = _parent_type_list(spec, parent, child)
-    stem_to_idx = {stem: i for i, (stem, _el) in enumerate(types, start=1)}
+    authoritative_data = getattr(spec, "displacive_data", None)
+    if authoritative_data is None:
+        types = _parent_type_list(spec, parent, child)
+        stem_to_idx = {
+            stem: i for i, (stem, _el) in enumerate(types, start=1)
+        }
+        orbit_type_idx: dict[str, int] = {}
+    else:
+        ordered_types = authoritative_data.ordered_parent_orbit_types()
+        types = [
+            (parent_type.type_label, authoritative_data.parent_type_species(orbit_id))
+            for orbit_id, parent_type in ordered_types
+        ]
+        stem_to_idx = {stem: i for i, (stem, _el) in enumerate(types, start=1)}
+        orbit_type_idx = {
+            orbit_id: parent_type.type_index
+            for orbit_id, parent_type in ordered_types
+        }
     origin = np.asarray(getattr(spec.subgroup, "origin", None) or [0.0, 0.0, 0.0], dtype=float)
 
-    child_type_idx: list[int] = []
-    for site in child:
-        stem = _child_site_stem(site, spec, origin)
-        tidx = stem_to_idx.get(stem)
-        if tidx is None:
-            # Fall back: first type with matching element, else type 1
-            el = site.species_string
-            tidx = next((i for i, (_s, e) in enumerate(types, start=1) if e == el), 1)
-        child_type_idx.append(tidx)
+    if authoritative_data is None:
+        child_type_idx: list[int] = []
+        for site in child:
+            stem = _child_site_stem(site, spec, origin)
+            tidx = stem_to_idx.get(stem)
+            if tidx is None:
+                # Legacy inputs have no orbit contract. Preserve their prior
+                # element fallback rather than presenting it as authoritative.
+                el = site.species_string
+                tidx = next(
+                    (i for i, (_s, e) in enumerate(types, start=1) if e == el),
+                    1,
+                )
+            child_type_idx.append(tidx)
+    else:
+        if len(child) != len(authoritative_data.atom_ids):
+            raise ValueError(
+                "authoritative IsoVIZ child structure and atom identity order disagree"
+            )
+        type_by_atom_id = {
+            atom_id: parent_type.type_index
+            for _orbit_id, parent_type in authoritative_data.ordered_parent_orbit_types()
+            for atom_id in parent_type.child_atom_ids
+        }
+        try:
+            child_type_idx = [
+                type_by_atom_id[atom_id] for atom_id in authoritative_data.atom_ids
+            ]
+        except KeyError as exc:  # defensive: the contract validates full coverage
+            raise ValueError(
+                f"authoritative child atom {exc.args[0]!r} has no parent-orbit type"
+            ) from exc
 
     representatives: dict[int, list[int]] = {i: [] for i in range(1, len(types) + 1)}
     for site in subgroup_sites:
@@ -264,6 +318,7 @@ def _atom_blocks(
     layout = _AtomLayout(
         types=types, child_type_idx=child_type_idx,
         image_source_idx=[source for source, _type, _subtype, _coord, _inside in images],
+        orbit_type_idx=orbit_type_idx,
     )
     lines = [
         "#parentatom/label/element ",
@@ -315,19 +370,61 @@ def _mode_blocks(spec: Any, layout: _AtomLayout) -> list[str]:
     irrep = (sg.irrep_label or "IR").strip() or "IR"
     child = spec.structure
     n_c = _centering_multiplicity(sg.space_group_symbol or "")
-    lines = [
-        "!irreplist ",
-        f"  1 {irrep:<10s}",
+    strain = getattr(spec, "strain_data", None)
+    authoritative_rows = (
+        tuple(spec.displacive_data.modes())
+        if getattr(spec, "displacive_data", None) is not None
+        else ()
+    )
+    lines = ["!irreplist ", f"  1 {irrep:<10s}"]
+    irrep_numbers = {irrep: 1}
+    if strain is not None:
+        for mode in strain.result.modes:
+            strain_irrep = str(mode.irrep_label or "").strip()
+            if not strain_irrep:
+                raise ValueError(
+                    "export-ready strain mode is missing its canonical ISO irrep"
+                )
+            if strain_irrep not in irrep_numbers:
+                irrep_numbers[strain_irrep] = len(irrep_numbers) + 1
+                lines.append(
+                    f"  {irrep_numbers[strain_irrep]} {strain_irrep:<10s}"
+                )
+    for row in authoritative_rows:
+        mode_irrep = row.global_irrep_label
+        if mode_irrep not in irrep_numbers:
+            irrep_numbers[mode_irrep] = len(irrep_numbers) + 1
+            lines.append(f"  {irrep_numbers[mode_irrep]} {mode_irrep:<10s}")
+    lines.extend([
         "",
         "#strainmodenum/amp/maxamp/irrepnum/modelabel/modevector_for_each_mode ",
         "!strainmodelist ",
+    ])
+    if strain is not None:
+        for mode, label, amplitude in strain.items():
+            strain_irrep_number = irrep_numbers[str(mode.irrep_label)]
+            lines.append(
+                f"  {mode.index}  {amplitude:9.5f}  "
+                f"{float(strain.max_amplitude):8.5f}    "
+                f"{strain_irrep_number} {label} "
+            )
+            lines.append(
+                "  "
+                + "  ".join(
+                    f"{float(value):8.5f}"
+                    for value in np.asarray(mode.q_unit, dtype=float)
+                )
+                + " "
+            )
+    lines.extend([
         "",
         "#parentatom/dispmodenum/amp/maxamp/irrepnum/modelabel/(modevector_for_each_subatom)_for_each_mode ",
         "!displacivemodelist ",
-    ]
+    ])
     disp = spec.mode_displacements_sc or {}
     labels = spec.mode_labels or {}
     amps = spec.amplitudes or {}
+    authoritative_modes = {row.key: row for row in authoritative_rows}
     if not disp:
         lines.append("")
         return lines
@@ -344,20 +441,41 @@ def _mode_blocks(spec: Any, layout: _AtomLayout) -> list[str]:
             rows = min(n_child, mat.shape[0])
             padded[:rows] = mat[:rows]
             mat = padded
-        parentatom = _mode_parentatom(pretty, mat, layout, stem_to_idx)
-        type_rows = [source for source in layout.image_source_idx
-                     if layout.child_type_idx[source] == parentatom]
+        authoritative = authoritative_modes.get(key)
+        if authoritative is None:
+            parentatom = _mode_parentatom(pretty, mat, layout, stem_to_idx)
+            scaled, maxamp_hint = cart_normalized_mode_matrix(
+                mat, child.lattice.matrix, centering_mult=n_c
+            )
+        else:
+            scaled = authoritative.normalized_fractional_per_angstrom
+            maxamp_hint = authoritative.max_amplitude_angstrom
+            amp = authoritative.amplitude_as_angstrom
+            parentatom = _authoritative_mode_parentatom(authoritative, layout)
+        type_rows = [
+            source
+            for source in layout.image_source_idx
+            if layout.child_type_idx[source] == parentatom
+        ]
         if not type_rows:
+            if authoritative is not None:
+                raise ValueError(
+                    f"authoritative mode {key!r} has no IsoVIZ rows for "
+                    f"parent-atom type {parentatom}"
+                )
             type_rows = layout.image_source_idx
             parentatom = 1
-        scaled, maxamp_hint = cart_normalized_mode_matrix(
-            mat, child.lattice.matrix, centering_mult=n_c
+        mode_irrep_number = (
+            irrep_numbers[authoritative.global_irrep_label]
+            if authoritative is not None
+            else 1
         )
         vecs = scaled[type_rows]
         maxamp = float(maxamp_hint) if maxamp_hint > 1e-12 else 1.0
         short_label = compact_mode_label(_isoviz_mode_label(pretty, irrep))
         lines.append(
-            f"    {parentatom}    {n}  {amp:8.5f}  {maxamp:8.5f}    1 {short_label} "
+            f"    {parentatom}    {n}  {amp:8.5f}  {maxamp:8.5f}    "
+            f"{mode_irrep_number} {short_label} "
         )
         for vec in vecs:
             lines.append("  " + "  ".join(f"{float(v):8.5f}" for v in vec))
@@ -434,6 +552,79 @@ def _mode_parentatom(
         t = layout.child_type_idx[i] if i < len(layout.child_type_idx) else 1
         votes[t] = votes.get(t, 0.0) + float(norms[i])
     return max(votes, key=votes.get)  # type: ignore[arg-type]
+
+
+def _authoritative_mode_parentatom(
+    mode: Any,
+    layout: _AtomLayout,
+) -> int:
+    """Return the sole parent-atom type supported by a verified mode column.
+
+    IsoVIZ stores one vector block under one ``parentatom`` identifier.  A
+    verified column therefore cannot be routed from its display label or be
+    truncated to the largest type: its nonzero child rows must belong to
+    exactly one parent-atom type.
+    """
+    key = str(mode.key)
+    orbit_id = str(mode.parent_orbit_id).strip()
+    type_label = str(mode.parent_type_label).strip()
+    declared_type = int(mode.parent_type_index)
+    try:
+        expected_type = layout.orbit_type_idx[orbit_id]
+    except KeyError as exc:
+        raise ValueError(
+            f"authoritative mode {key!r} references parent orbit {orbit_id!r} "
+            "which is absent from the IsoVIZ type layout"
+        ) from exc
+    if declared_type != expected_type:
+        raise ValueError(
+            f"authoritative mode {key!r} declares parent-atom type "
+            f"{declared_type}, but orbit {orbit_id!r} maps to {expected_type}"
+        )
+    if expected_type < 1 or expected_type > len(layout.types):
+        raise ValueError(
+            f"authoritative mode {key!r} references invalid IsoVIZ "
+            f"parent-atom type {expected_type}"
+        )
+    layout_label = layout.types[expected_type - 1][0]
+    if type_label != layout_label:
+        raise ValueError(
+            f"authoritative mode {key!r} declares parent type label "
+            f"{type_label!r}, but the IsoVIZ layout uses {layout_label!r}"
+        )
+
+    rows = np.asarray(mode.normalized_fractional_per_angstrom, dtype=float)
+    expected = len(layout.child_type_idx)
+    if rows.shape != (expected, 3):
+        raise ValueError(
+            f"authoritative mode {key!r} has shape {rows.shape}; "
+            f"expected ({expected}, 3) in IsoVIZ child-atom order"
+        )
+    if not np.all(np.isfinite(rows)):
+        raise ValueError(f"authoritative mode {key!r} contains non-finite rows")
+
+    norms = np.linalg.norm(rows, axis=1)
+    scale = max(1.0, float(np.max(norms, initial=0.0)))
+    tolerance = max(1.0e-12, 256.0 * np.finfo(float).eps * scale)
+    active = np.flatnonzero(norms > tolerance)
+    if active.size == 0:
+        raise ValueError(
+            f"authoritative mode {key!r} has no nonzero child-atom row"
+        )
+    active_types = {layout.child_type_idx[int(index)] for index in active}
+    if len(active_types) != 1:
+        ordered = ", ".join(str(value) for value in sorted(active_types))
+        raise ValueError(
+            f"authoritative mode {key!r} spans multiple IsoVIZ "
+            f"parent-atom types ({ordered})"
+        )
+    parentatom = next(iter(active_types))
+    if parentatom != expected_type:
+        raise ValueError(
+            f"authoritative mode {key!r} has nonzero rows on parent-atom "
+            f"type {parentatom}, expected type {expected_type} for orbit {orbit_id!r}"
+        )
+    return parentatom
 
 
 def _isoviz_mode_label(pretty: str, irrep: str) -> str:

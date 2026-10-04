@@ -13,12 +13,14 @@ import hashlib
 import importlib.metadata
 import io
 import json
+import math
 import platform
 import re
 import sys
 import time
 import zipfile
 from collections import Counter, defaultdict
+from collections.abc import Iterator, Mapping
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from fractions import Fraction
@@ -27,8 +29,7 @@ from typing import Any
 
 import numpy as np
 import yaml
-from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
-from pymatgen.io.cif import CifParser
+from pymatgen.io.cif import CifFile, CifParser
 
 WORKSPACE = Path(__file__).resolve().parents[3]
 VALIDATOR_ROOT = WORKSPACE / "ISODISTORT_VALIDATE"
@@ -71,6 +72,19 @@ class CandidateHeader:
     basis: tuple[tuple[Fraction, Fraction, Fraction], ...]
     origin: tuple[Fraction, Fraction, Fraction]
     parametric_k: bool
+
+
+@dataclass(frozen=True)
+class CifSettingComparison:
+    """Precision-aware comparison of two CIFs in candidate-defined settings."""
+
+    equivalent: bool
+    conclusive: bool
+    details: dict[str, Any]
+
+
+class AmbiguousCandidateHeaderError(ValueError):
+    """The CIF declares more than one candidate setting transform."""
 
 
 @dataclass
@@ -141,30 +155,42 @@ def _parse_vectors(value: str, expected: int) -> tuple[tuple[Fraction, Fraction,
 
 
 def _candidate_line(text: str) -> str:
-    for line in text.splitlines():
-        if line.startswith("#") and "basis={" in line and ", origin=" in line:
-            return line.removeprefix("#").strip()
-    raise ValueError("CIF header has no candidate line containing basis and origin")
+    candidates = [
+        line.removeprefix("#").strip()
+        for line in text.splitlines()
+        if line.startswith("#") and "basis={" in line and ", origin=" in line
+    ]
+    if not candidates:
+        raise ValueError("CIF header has no candidate line containing basis and origin")
+    if len(candidates) != 1:
+        raise AmbiguousCandidateHeaderError(
+            f"CIF header has {len(candidates)} candidate basis/origin lines"
+        )
+    return candidates[0]
 
 
 def parse_candidate_header(path: Path) -> CandidateHeader:
     text = path.read_text(encoding="utf-8-sig", errors="strict")
     line = _candidate_line(text)
-    ir_match = _IR_RE.search(text)
-    if ir_match is None:
+    ir_matches = _IR_RE.findall(text)
+    if not ir_matches:
         raise ValueError("CIF header has no IR line")
-    basis_match = re.search(r"basis=\{(.*?)\},\s*origin=", line)
-    origin_match = re.search(r"origin=(\([^)]*\))", line)
-    if basis_match is None or origin_match is None:
+    if len(ir_matches) != 1:
+        raise AmbiguousCandidateHeaderError(
+            f"CIF header has {len(ir_matches)} IR declarations"
+        )
+    basis_matches = re.findall(r"basis=\{(.*?)\},\s*origin=", line)
+    origin_matches = re.findall(r"origin=(\([^)]*\))", line)
+    if len(basis_matches) != 1 or len(origin_matches) != 1:
         raise ValueError("candidate line has an invalid basis/origin")
-    basis = _parse_vectors(basis_match.group(1), 3)
-    origin = _parse_vectors(origin_match.group(1), 1)[0]
+    basis = _parse_vectors(basis_matches[0], 3)
+    origin = _parse_vectors(origin_matches[0], 1)[0]
     identity = re.sub(r",?\s*basis=\{.*?\}(?=,\s*origin=)", "", line)
     identity = re.sub(r"origin=\([^)]*\)", f"origin=({_canonical_origin(origin)})", identity)
     identity = " ".join(identity.split())
     return CandidateHeader(
-        ir=ir_match.group(1),
-        identity=f"{ir_match.group(1)} | {identity}",
+        ir=ir_matches[0],
+        identity=f"{ir_matches[0]} | {identity}",
         basis=basis,
         origin=origin,
         parametric_k=_PARAMETER_RE.search(text) is not None,
@@ -212,39 +238,1338 @@ def bases_generate_same_lattice(
     return all(value.denominator == 1 for row in transform for value in row) and abs(_determinant(transform)) == 1
 
 
-def _load_structure(path: Path):
-    structures = CifParser(str(path), occupancy_tolerance=100).parse_structures(primitive=False)
-    if len(structures) != 1:
-        raise ValueError(f"expected one structure, got {len(structures)}")
-    return structures[0]
-
-
-_MATCHER = StructureMatcher(
-    ltol=1e-5,
-    stol=2e-5,
-    angle_tol=1e-3,
-    # Equivalent conventional settings can have beta and 180-beta, or a
-    # different centered-cell representative.  Primitive reduction removes
-    # that presentation choice before the strict site-distance comparison.
-    primitive_cell=True,
-    scale=False,
-    attempt_supercell=False,
-    comparator=ElementComparator(),
+_CIF_NUMBER_RE = re.compile(
+    r"^\s*(?P<mantissa>[+-]?(?:\d+(?:\.\d*)?|\.\d+))"
+    r"(?:\(\d+\))?(?:[Ee](?P<exponent>[+-]?\d+))?\s*$"
+)
+_CELL_TAGS = (
+    "_cell_length_a",
+    "_cell_length_b",
+    "_cell_length_c",
+    "_cell_angle_alpha",
+    "_cell_angle_beta",
+    "_cell_angle_gamma",
+)
+_COORDINATE_TAGS = (
+    "_atom_site_fract_x",
+    "_atom_site_fract_y",
+    "_atom_site_fract_z",
+)
+_OCCUPANCY_TAG = "_atom_site_occupancy"
+_SPECIES_TAG = "_atom_site_type_symbol"
+_SPACE_GROUP_OPERATION_TAGS = (
+    "_space_group_symop_operation_xyz",
+    "_symmetry_equiv_pos_as_xyz",
+)
+_MAGNETIC_MOMENT_PREFIX = "_atom_site_moment"
+_GRAM_LABELS = ("a", "b", "c")
+_SPACE_GROUP_NUMBER_TAGS = (
+    "_symmetry_Int_Tables_number",
+    "_space_group_IT_number",
+)
+_SPACE_GROUP_SYMBOL_TAGS = (
+    "_symmetry_space_group_name_H-M",
+    "_space_group_name_H-M_alt",
 )
 
 
+@dataclass(frozen=True)
+class _CifPrecision:
+    cell_values: tuple[float, ...]
+    cell_quantums: tuple[float, ...]
+    coordinate_quantums: tuple[float, float, float]
+    occupancy_quantum: float
+
+
+@dataclass(frozen=True)
+class _AtomSiteRow:
+    """One unexpanded atom-site loop row with its serialized precision."""
+
+    species: str
+    coordinates: tuple[float, float, float]
+    coordinate_quantums: tuple[float, float, float]
+    occupancy: float
+    occupancy_quantum: float
+
+
+@dataclass(frozen=True)
+class _ExactSymmetryOperation:
+    """A CIF Seitz operation in exact fractional-coordinate arithmetic."""
+
+    rotation: tuple[tuple[Fraction, Fraction, Fraction], ...]
+    translation: tuple[Fraction, Fraction, Fraction]
+
+
+@dataclass(frozen=True)
+class _CifBlock(Mapping[str, Any]):
+    """Parsed scalar values plus the original CIF loop-column membership."""
+
+    data: dict[str, Any]
+    loops: tuple[frozenset[str], ...]
+
+    def __getitem__(self, key: str) -> Any:
+        return self.data[key]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self.data)
+
+    def __len__(self) -> int:
+        return len(self.data)
+
+
+def _cif_block(path: Path) -> _CifBlock:
+    blocks = CifFile.from_file(path).data
+    if len(blocks) != 1:
+        raise ValueError(f"expected one CIF data block, got {len(blocks)}")
+    parsed = next(iter(blocks.values()))
+    return _CifBlock(
+        data=parsed.data,
+        loops=tuple(frozenset(str(tag) for tag in loop) for loop in parsed.loops),
+    )
+
+
+def _cif_number_and_quantum(value: Any) -> tuple[float, float]:
+    """Return a CIF number and the resolution of its final printed digit."""
+    match = _CIF_NUMBER_RE.fullmatch(str(value))
+    if match is None:
+        raise ValueError(f"unsupported CIF numeric value: {value!r}")
+    mantissa = match.group("mantissa")
+    exponent = int(match.group("exponent") or 0)
+    decimal_places = len(mantissa.partition(".")[2]) if "." in mantissa else 0
+    number = float(f"{mantissa}e{exponent}")
+    return number, 10.0 ** (exponent - decimal_places)
+
+
+def _cif_number_fraction(value: Any) -> Fraction:
+    """Return the exact nominal decimal carried by a CIF numeric token."""
+    match = _CIF_NUMBER_RE.fullmatch(str(value))
+    if match is None:
+        raise ValueError(f"unsupported CIF numeric value: {value!r}")
+    result = Fraction(match.group("mantissa"))
+    exponent = int(match.group("exponent") or 0)
+    return result * (Fraction(10) ** exponent)
+
+
+def _tag_values(block: Mapping[str, Any], tag: str) -> list[Any]:
+    if tag not in block:
+        raise ValueError(f"CIF is missing required tag {tag}")
+    values = block[tag]
+    return values if isinstance(values, list) else [values]
+
+
+def _cif_precision(block: Mapping[str, Any]) -> _CifPrecision:
+    cell = [_cif_number_and_quantum(_tag_values(block, tag)[0]) for tag in _CELL_TAGS]
+    coordinate_quantums = tuple(
+        max(_cif_number_and_quantum(value)[1] for value in _tag_values(block, tag))
+        for tag in _COORDINATE_TAGS
+    )
+    occupancy_values = block.get(_OCCUPANCY_TAG)
+    if occupancy_values is None:
+        occupancy_quantum = 0.0
+    else:
+        if not isinstance(occupancy_values, list):
+            occupancy_values = [occupancy_values]
+        occupancy_quantum = max(
+            _cif_number_and_quantum(value)[1] for value in occupancy_values
+        )
+    return _CifPrecision(
+        cell_values=tuple(item[0] for item in cell),
+        cell_quantums=tuple(item[1] for item in cell),
+        coordinate_quantums=coordinate_quantums,
+        occupancy_quantum=occupancy_quantum,
+    )
+
+
+def _column_values(
+    block: Mapping[str, Any],
+    tag: str,
+    row_count: int,
+    *,
+    default: Any | None = None,
+) -> list[Any]:
+    """Return a strict atom-loop column without silently recycling values."""
+    if tag not in block:
+        if default is None:
+            raise ValueError(f"CIF is missing required atom-site tag {tag}")
+        return [default] * row_count
+    values = block[tag]
+    values = values if isinstance(values, list) else [values]
+    if len(values) != row_count:
+        raise ValueError(
+            f"CIF atom-site column {tag} has {len(values)} rows; expected {row_count}"
+        )
+    return values
+
+
+def _atom_site_rows(block: Mapping[str, Any]) -> tuple[_AtomSiteRow, ...]:
+    """Parse raw ASU rows, retaining every row's coordinate/occupancy precision."""
+    if isinstance(block, _CifBlock):
+        required_columns = {_SPECIES_TAG, *_COORDINATE_TAGS}
+        if _OCCUPANCY_TAG in block:
+            required_columns.add(_OCCUPANCY_TAG)
+        atom_loops = [
+            loop for loop in block.loops if _SPECIES_TAG in loop
+        ]
+        matching_loops = [
+            loop for loop in atom_loops if required_columns.issubset(loop)
+        ]
+        if len(matching_loops) != 1:
+            raise ValueError(
+                "CIF must contain exactly one atom-site loop holding species, "
+                "fractional coordinates, and occupancy"
+            )
+    species_values = _tag_values(block, _SPECIES_TAG)
+    row_count = len(species_values)
+    if row_count == 0:
+        raise ValueError("CIF atom-site loop is empty")
+    coordinate_columns = [
+        _column_values(block, tag, row_count) for tag in _COORDINATE_TAGS
+    ]
+    occupancy_values = _column_values(
+        block,
+        _OCCUPANCY_TAG,
+        row_count,
+        default="1",
+    )
+    rows: list[_AtomSiteRow] = []
+    nominal_site_occupancies: defaultdict[
+        tuple[Fraction, Fraction, Fraction], Fraction
+    ] = defaultdict(Fraction)
+    for index, raw_species in enumerate(species_values):
+        species = str(raw_species).strip().strip("'\"")
+        if not species or species in {".", "?"}:
+            raise ValueError(f"atom-site row {index + 1} has no concrete species")
+        coordinate_items = tuple(
+            _cif_number_and_quantum(column[index]) for column in coordinate_columns
+        )
+        occupancy, occupancy_quantum = _cif_number_and_quantum(
+            occupancy_values[index]
+        )
+        if not np.isfinite(occupancy) or not 0.0 <= occupancy <= 1.0:
+            raise ValueError(
+                f"atom-site row {index + 1} has invalid occupancy {occupancy!r}"
+            )
+        coordinates = tuple(float(item[0] % 1.0) for item in coordinate_items)
+        rows.append(
+            _AtomSiteRow(
+                species=species,
+                coordinates=coordinates,
+                coordinate_quantums=tuple(float(item[1]) for item in coordinate_items),
+                occupancy=float(occupancy),
+                occupancy_quantum=float(occupancy_quantum),
+            )
+        )
+        coordinate_key = tuple(
+            _cif_number_fraction(column[index]) % 1
+            for column in coordinate_columns
+        )
+        nominal_site_occupancies[coordinate_key] += _cif_number_fraction(
+            occupancy_values[index]
+        )
+    invalid_totals = {
+        key: value
+        for key, value in nominal_site_occupancies.items()
+        if value > 1
+    }
+    if invalid_totals:
+        preview = next(iter(invalid_totals.items()))
+        raise ValueError(
+            "atom-site rows at the same nominal coordinate exceed total occupancy 1: "
+            f"{preview[0]} -> {preview[1]}"
+        )
+    return tuple(rows)
+
+
+def _magnetic_moment_tags(block: Mapping[str, Any]) -> list[str]:
+    return sorted(
+        str(tag)
+        for tag in block
+        if str(tag).casefold().startswith(_MAGNETIC_MOMENT_PREFIX)
+    )
+
+
+def _parse_symmetry_component(
+    expression: str,
+) -> tuple[tuple[Fraction, Fraction, Fraction], Fraction]:
+    """Parse one CIF x/y/z affine expression without float roundoff."""
+    compact = (
+        expression.strip().strip("'\"").replace(" ", "").replace("*", "").casefold()
+    )
+    if not compact:
+        raise ValueError("empty symmetry-operation component")
+    normalized = compact if compact[0] in "+-" else f"+{compact}"
+    terms = re.findall(r"[+-][^+-]+", normalized)
+    if "".join(terms) != normalized:
+        raise ValueError(f"unsupported symmetry-operation component {expression!r}")
+    coefficients = [Fraction(0), Fraction(0), Fraction(0)]
+    translation = Fraction(0)
+    for term in terms:
+        variable_indices = [axis for axis, name in enumerate("xyz") if name in term]
+        if variable_indices:
+            if len(variable_indices) != 1 or sum(term.count(name) for name in "xyz") != 1:
+                raise ValueError(f"nonlinear symmetry-operation term {term!r}")
+            axis = variable_indices[0]
+            coefficient_text = term.replace("xyz"[axis], "")
+            if coefficient_text in {"+", ""}:
+                coefficient = Fraction(1)
+            elif coefficient_text == "-":
+                coefficient = Fraction(-1)
+            else:
+                coefficient = Fraction(coefficient_text)
+            coefficients[axis] += coefficient
+        else:
+            translation += Fraction(term)
+    return tuple(coefficients), translation
+
+
+def _space_group_operations(
+    block: Mapping[str, Any],
+) -> tuple[_ExactSymmetryOperation, ...]:
+    present_tags = [tag for tag in _SPACE_GROUP_OPERATION_TAGS if tag in block]
+    if not present_tags:
+        raise ValueError("CIF has no explicit space-group operation loop")
+    if len(present_tags) != 1:
+        raise ValueError(
+            "CIF has multiple alternative space-group operation declarations"
+        )
+    values = block[present_tags[0]]
+    raw_values = values if isinstance(values, list) else [values]
+    operations: list[_ExactSymmetryOperation] = []
+    for raw_value in raw_values:
+        components = [part.strip() for part in str(raw_value).strip("'\"").split(",")]
+        if len(components) != 3:
+            raise ValueError(f"invalid symmetry operation {raw_value!r}")
+        parsed = [_parse_symmetry_component(component) for component in components]
+        operations.append(
+            _ExactSymmetryOperation(
+                rotation=tuple(item[0] for item in parsed),
+                translation=tuple(item[1] for item in parsed),
+            )
+        )
+    if not operations:
+        raise ValueError("CIF space-group operation loop is empty")
+    return tuple(operations)
+
+
+def _first_tag_value(
+    block: Mapping[str, Any], tags: tuple[str, ...]
+) -> Any | None:
+    for tag in tags:
+        if tag in block:
+            value = block[tag]
+            return value[0] if isinstance(value, list) else value
+    return None
+
+
+def _declared_space_group(block: Mapping[str, Any]) -> dict[str, Any]:
+    number = _first_tag_value(block, _SPACE_GROUP_NUMBER_TAGS)
+    symbol = _first_tag_value(block, _SPACE_GROUP_SYMBOL_TAGS)
+    normalized_symbol = (
+        " ".join(str(symbol).strip("'\"").split()) if symbol is not None else None
+    )
+    numeric_number = None
+    if number is not None:
+        parsed_number = _cif_number_and_quantum(number)[0]
+        if not float(parsed_number).is_integer() or not 1 <= parsed_number <= 230:
+            raise ValueError(f"invalid declared space-group IT number {number!r}")
+        numeric_number = int(parsed_number)
+    return {"number": numeric_number, "symbol": normalized_symbol}
+
+
+def _normalized_space_group_symbol(symbol: Any) -> str | None:
+    if symbol is None:
+        return None
+    return re.sub(r"[\s_]", "", str(symbol)).casefold()
+
+
+def _compare_declared_space_groups(
+    local: dict[str, Any],
+    official: dict[str, Any],
+) -> tuple[bool, str, list[str]]:
+    """Compare declarations without treating H-M typography as physics."""
+    local_number = local.get("number")
+    official_number = official.get("number")
+    local_symbol = _normalized_space_group_symbol(local.get("symbol"))
+    official_symbol = _normalized_space_group_symbol(official.get("symbol"))
+    symbol_equal = (
+        local_symbol is not None
+        and official_symbol is not None
+        and local_symbol == official_symbol
+    )
+    diagnostics: list[str] = []
+    if local_number is not None and official_number is not None:
+        if local_number != official_number:
+            return False, "different-it-number", diagnostics
+        if not symbol_equal:
+            diagnostics.append("declared-symbol-differs-with-same-it-number")
+        return True, "same-it-number", diagnostics
+    if symbol_equal:
+        diagnostics.append("declared-it-number-missing")
+        return True, "same-normalized-symbol", diagnostics
+    diagnostics.append("declared-space-group-comparison-inconclusive")
+    return True, "inconclusive-without-comparable-it-numbers", diagnostics
+
+
+def _interval_product(*intervals: tuple[float, float]) -> tuple[float, float]:
+    values = [1.0]
+    for low, high in intervals:
+        values = [value * endpoint for value in values for endpoint in (low, high)]
+    return min(values), max(values)
+
+
+def _gram_intervals(
+    parameters: tuple[float, ...],
+    quantums: tuple[float, ...],
+) -> tuple[tuple[tuple[float, float], ...], ...]:
+    ranges = tuple(
+        (value - quantum / 2.0, value + quantum / 2.0)
+        for value, quantum in zip(parameters, quantums, strict=True)
+    )
+    lengths = ranges[:3]
+    angle_cosines: list[tuple[float, float]] = []
+    for low, high in ranges[3:]:
+        if not 0.0 < low <= high < 180.0:
+            raise ValueError(f"invalid CIF cell-angle interval [{low}, {high}]")
+        endpoints = (np.cos(np.deg2rad(low)), np.cos(np.deg2rad(high)))
+        angle_cosines.append((float(min(endpoints)), float(max(endpoints))))
+
+    gram: list[list[tuple[float, float] | None]] = [[None] * 3 for _ in range(3)]
+    for index in range(3):
+        gram[index][index] = _interval_product(lengths[index], lengths[index])
+    for first, second, angle_index in ((0, 1, 2), (0, 2, 1), (1, 2, 0)):
+        interval = _interval_product(
+            lengths[first],
+            lengths[second],
+            angle_cosines[angle_index],
+        )
+        gram[first][second] = interval
+        gram[second][first] = interval
+    return tuple(
+        tuple(item for item in row if item is not None)
+        for row in gram
+    )
+
+
+def _transform_gram_intervals(
+    gram: tuple[tuple[tuple[float, float], ...], ...],
+    transform: np.ndarray,
+) -> tuple[tuple[tuple[float, float], ...], ...]:
+    result: list[list[tuple[float, float]]] = []
+    for row in range(3):
+        output_row: list[tuple[float, float]] = []
+        for column in range(3):
+            low = 0.0
+            high = 0.0
+            terms: list[tuple[float, tuple[float, float]]] = [
+                (
+                    transform[row, index] * transform[column, index],
+                    gram[index][index],
+                )
+                for index in range(3)
+            ]
+            terms.extend(
+                (
+                    transform[row, first] * transform[column, second]
+                    + transform[row, second] * transform[column, first],
+                    gram[first][second],
+                )
+                for first, second in ((0, 1), (0, 2), (1, 2))
+            )
+            for coefficient, (source_low, source_high) in terms:
+                if coefficient >= 0:
+                    low += coefficient * source_low
+                    high += coefficient * source_high
+                else:
+                    low += coefficient * source_high
+                    high += coefficient * source_low
+            output_row.append((float(low), float(high)))
+        result.append(output_row)
+    return tuple(tuple(row) for row in result)
+
+
+def _gram_matrix(parameters: tuple[float, ...]) -> np.ndarray:
+    a, b, c, alpha, beta, gamma = parameters
+    cos_alpha, cos_beta, cos_gamma = np.cos(np.deg2rad((alpha, beta, gamma)))
+    return np.array(
+        (
+            (a * a, a * b * cos_gamma, a * c * cos_beta),
+            (a * b * cos_gamma, b * b, b * c * cos_alpha),
+            (a * c * cos_beta, b * c * cos_alpha, c * c),
+        ),
+        dtype=float,
+    )
+
+
+def _cell_parameters_from_gram(gram: np.ndarray) -> np.ndarray:
+    """Recover the conventional six cell parameters from a positive Gram matrix."""
+    symmetric = 0.5 * (np.asarray(gram, dtype=float) + np.asarray(gram, dtype=float).T)
+    eigenvalues = np.linalg.eigvalsh(symmetric)
+    if not np.all(np.isfinite(eigenvalues)) or float(np.min(eigenvalues)) <= 0.0:
+        raise ValueError("transformed Gram matrix is not positive definite")
+    a, b, c = (math.sqrt(float(symmetric[index, index])) for index in range(3))
+
+    def angle(value: float) -> float:
+        return math.degrees(math.acos(max(-1.0, min(1.0, value))))
+
+    return np.asarray(
+        (
+            a,
+            b,
+            c,
+            angle(float(symmetric[1, 2]) / (b * c)),
+            angle(float(symmetric[0, 2]) / (a * c)),
+            angle(float(symmetric[0, 1]) / (a * b)),
+        ),
+        dtype=float,
+    )
+
+
+def _joint_metric_witness(
+    local: _CifPrecision,
+    official: _CifPrecision,
+    transform: np.ndarray,
+) -> dict[str, Any]:
+    """Find a single pair of rounded cells satisfying G_l = U G_o U.T.
+
+    A concrete witness proves compatibility. Failure to find one is deliberately
+    not treated as proof of incompatibility; callers report it as inconclusive.
+    """
+    try:
+        from scipy.optimize import least_squares
+    except ImportError as exc:
+        return {
+            "found": False,
+            "method": "solver-unavailable",
+            "error": f"{type(exc).__module__}.{type(exc).__qualname__}: {exc}",
+        }
+
+    local_center = np.asarray(local.cell_values, dtype=float)
+    local_half = 0.5 * np.asarray(local.cell_quantums, dtype=float)
+    official_center = np.asarray(official.cell_values, dtype=float)
+    official_half = 0.5 * np.asarray(official.cell_quantums, dtype=float)
+    local_low = local_center - local_half
+    local_high = local_center + local_half
+    official_low = official_center - official_half
+    official_high = official_center + official_half
+    arithmetic_scale = np.maximum(1.0, np.abs(local_center))
+    arithmetic_slack = 256.0 * np.finfo(float).eps * arithmetic_scale
+
+    def derived_local(parameters: np.ndarray) -> np.ndarray:
+        gram = _gram_matrix(tuple(float(value) for value in parameters))
+        return _cell_parameters_from_gram(transform @ gram @ transform.T)
+
+    local_gram_intervals = _gram_intervals(
+        local.cell_values,
+        local.cell_quantums,
+    )
+    official_gram_intervals = _gram_intervals(
+        official.cell_values,
+        official.cell_quantums,
+    )
+
+    def witness_payload(
+        official_parameters: np.ndarray,
+        local_parameters: np.ndarray,
+    ) -> dict[str, Any]:
+        official_gram = _gram_matrix(
+            tuple(float(value) for value in official_parameters)
+        )
+        transformed_gram = transform @ official_gram @ transform.T
+        reconstructed_local_gram = _gram_matrix(
+            tuple(float(value) for value in local_parameters)
+        )
+        component_names: list[str] = []
+        official_components: list[float] = []
+        local_components: list[float] = []
+        official_inside: list[bool] = []
+        local_inside: list[bool] = []
+        for row in range(3):
+            for column in range(row, 3):
+                component_names.append(
+                    f"{_GRAM_LABELS[row]}{_GRAM_LABELS[column]}"
+                )
+                official_value = float(official_gram[row, column])
+                local_value = float(transformed_gram[row, column])
+                official_components.append(official_value)
+                local_components.append(local_value)
+                official_overlap, _ = _intervals_overlap(
+                    (official_value, official_value),
+                    official_gram_intervals[row][column],
+                )
+                local_overlap, _ = _intervals_overlap(
+                    (local_value, local_value),
+                    local_gram_intervals[row][column],
+                )
+                official_inside.append(official_overlap)
+                local_inside.append(local_overlap)
+        reconstruction_error = float(
+            np.max(np.abs(transformed_gram - reconstructed_local_gram))
+        )
+        scale = max(1.0, float(np.max(np.abs(transformed_gram))))
+        reconstruction_ok = reconstruction_error <= (
+            512.0 * np.finfo(float).eps * scale
+        )
+        return {
+            "gram_component_order": component_names,
+            "official_gram_components": official_components,
+            "local_gram_components": local_components,
+            "official_components_inside_printed_box_intervals": official_inside,
+            "local_components_inside_printed_box_intervals": local_inside,
+            "all_six_gram_components_jointly_validated": bool(
+                all(official_inside) and all(local_inside) and reconstruction_ok
+            ),
+            "local_gram_reconstruction_max_abs_error": reconstruction_error,
+        }
+
+    def accepted(
+        parameters: np.ndarray,
+    ) -> tuple[bool, np.ndarray, dict[str, Any]]:
+        derived = derived_local(parameters)
+        parameter_boxes_ok = bool(
+            np.all(parameters >= official_low - arithmetic_slack)
+            and np.all(parameters <= official_high + arithmetic_slack)
+            and np.all(derived >= local_low - arithmetic_slack)
+            and np.all(derived <= local_high + arithmetic_slack)
+        )
+        payload = witness_payload(parameters, derived)
+        return (
+            parameter_boxes_ok
+            and payload["all_six_gram_components_jointly_validated"],
+            derived,
+            payload,
+        )
+
+    accepted_nominal, nominal_local, nominal_payload = accepted(official_center)
+    if accepted_nominal:
+        return {
+            "found": True,
+            "method": "official-nominal",
+            "official_cell_parameters": official_center.tolist(),
+            "local_cell_parameters": nominal_local.tolist(),
+            "max_local_interval_excess": 0.0,
+            **nominal_payload,
+        }
+
+    scale = np.maximum(local_half, 64.0 * np.finfo(float).eps * arithmetic_scale)
+
+    def residual(parameters: np.ndarray) -> np.ndarray:
+        return (derived_local(parameters) - local_center) / scale
+
+    starts = [
+        official_center,
+        official_low,
+        official_high,
+    ]
+    best: tuple[float, np.ndarray, np.ndarray, Any] | None = None
+    for start in starts:
+        try:
+            result = least_squares(
+                residual,
+                np.clip(start, official_low, official_high),
+                bounds=(official_low, official_high),
+                xtol=1e-14,
+                ftol=1e-14,
+                gtol=1e-14,
+                max_nfev=4000,
+            )
+            candidate = np.asarray(result.x, dtype=float)
+            ok, derived, candidate_payload = accepted(candidate)
+            excess = np.maximum(local_low - derived, derived - local_high)
+            maximum_excess = float(np.max(np.maximum(excess, 0.0)))
+            if best is None or maximum_excess < best[0]:
+                best = (maximum_excess, candidate, derived, result)
+            if ok:
+                return {
+                    "found": True,
+                    "method": "bounded-least-squares-witness",
+                    "official_cell_parameters": candidate.tolist(),
+                    "local_cell_parameters": derived.tolist(),
+                    "max_local_interval_excess": maximum_excess,
+                    **candidate_payload,
+                    "optimizer": {
+                        "success": bool(result.success),
+                        "status": int(result.status),
+                        "cost": float(result.cost),
+                        "optimality": float(result.optimality),
+                        "nfev": int(result.nfev),
+                    },
+                }
+        except (FloatingPointError, ValueError):
+            continue
+    payload: dict[str, Any] = {
+        "found": False,
+        "method": "bounded-least-squares-no-witness",
+    }
+    if best is not None:
+        payload.update(
+            {
+                "best_official_cell_parameters": best[1].tolist(),
+                "best_derived_local_cell_parameters": best[2].tolist(),
+                "best_max_local_interval_excess": best[0],
+                "optimizer": {
+                    "success": bool(best[3].success),
+                    "status": int(best[3].status),
+                    "cost": float(best[3].cost),
+                    "optimality": float(best[3].optimality),
+                    "nfev": int(best[3].nfev),
+                },
+            }
+        )
+    return payload
+
+
+def _intervals_overlap(
+    first: tuple[float, float],
+    second: tuple[float, float],
+) -> tuple[bool, float]:
+    scale = max(1.0, *(abs(value) for value in first + second))
+    arithmetic_slack = 128.0 * np.finfo(float).eps * scale
+    gap = max(first[0], second[0]) - min(first[1], second[1])
+    return gap <= arithmetic_slack, max(0.0, float(gap))
+
+
+def _fraction_json(value: Fraction) -> int | str:
+    return value.numerator if value.denominator == 1 else str(value)
+
+
+def _fraction_matrix_json(
+    matrix: tuple[tuple[Fraction, ...], ...],
+) -> list[list[int | str]]:
+    return [[_fraction_json(value) for value in row] for row in matrix]
+
+
+def _float_matrix(matrix: tuple[tuple[Fraction, ...], ...]) -> np.ndarray:
+    return np.asarray([[float(value) for value in row] for row in matrix], dtype=float)
+
+
+def _vector_multiply(
+    vector: tuple[Fraction, ...],
+    matrix: tuple[tuple[Fraction, ...], ...],
+) -> tuple[Fraction, ...]:
+    return tuple(
+        sum(vector[index] * matrix[index][column] for index in range(3))
+        for column in range(3)
+    )
+
+
+def _transpose(
+    matrix: tuple[tuple[Fraction, ...], ...],
+) -> tuple[tuple[Fraction, ...], ...]:
+    return tuple(tuple(matrix[row][column] for row in range(3)) for column in range(3))
+
+
+def _matrix_vector(
+    matrix: tuple[tuple[Fraction, ...], ...],
+    vector: tuple[Fraction, ...],
+) -> tuple[Fraction, ...]:
+    return tuple(
+        sum(matrix[row][column] * vector[column] for column in range(3))
+        for row in range(3)
+    )
+
+
+def _vector_subtract(
+    first: tuple[Fraction, ...],
+    second: tuple[Fraction, ...],
+) -> tuple[Fraction, ...]:
+    return tuple(left - right for left, right in zip(first, second, strict=True))
+
+
+def _vector_add(
+    first: tuple[Fraction, ...],
+    second: tuple[Fraction, ...],
+) -> tuple[Fraction, ...]:
+    return tuple(left + right for left, right in zip(first, second, strict=True))
+
+
+def _operation_key(
+    operation: _ExactSymmetryOperation,
+) -> tuple[tuple[Fraction, ...], tuple[Fraction, ...]]:
+    return (
+        tuple(value for row in operation.rotation for value in row),
+        tuple(value % 1 for value in operation.translation),
+    )
+
+
+def _transform_operation_to_official(
+    operation: _ExactSymmetryOperation,
+    local_to_official: tuple[tuple[Fraction, ...], ...],
+    origin_shift: tuple[Fraction, ...],
+) -> _ExactSymmetryOperation:
+    """Conjugate a local-setting Seitz operation through x_o = x_l U + q."""
+    column_transform = _transpose(local_to_official)
+    inverse_column_transform = _inverse(column_transform)
+    rotation = _multiply(
+        _multiply(column_transform, operation.rotation),
+        inverse_column_transform,
+    )
+    translated = _matrix_vector(column_transform, operation.translation)
+    shifted_origin = _matrix_vector(rotation, origin_shift)
+    translation = _vector_add(
+        translated,
+        _vector_subtract(origin_shift, shifted_origin),
+    )
+    return _ExactSymmetryOperation(rotation=rotation, translation=translation)
+
+
+def _operation_json(
+    key: tuple[tuple[Fraction, ...], tuple[Fraction, ...]],
+) -> dict[str, Any]:
+    flat_rotation, translation = key
+    rotation = [
+        [_fraction_json(flat_rotation[3 * row + column]) for column in range(3)]
+        for row in range(3)
+    ]
+    return {
+        "rotation": rotation,
+        "translation_modulo_one": [_fraction_json(value) for value in translation],
+    }
+
+
+def _compare_space_group_operations(
+    local_block: Mapping[str, Any],
+    official_block: Mapping[str, Any],
+    local_to_official: tuple[tuple[Fraction, ...], ...],
+    origin_shift: tuple[Fraction, ...],
+) -> tuple[bool | None, tuple[_ExactSymmetryOperation, ...], dict[str, Any]]:
+    """Compare declared Seitz sets after the exact candidate setting change."""
+    try:
+        local_operations = _space_group_operations(local_block)
+        official_operations = _space_group_operations(official_block)
+    except (TypeError, ValueError, ZeroDivisionError) as exc:
+        return (
+            None,
+            (),
+            {
+                "status": "inconclusive",
+                "error": f"{type(exc).__module__}.{type(exc).__qualname__}: {exc}",
+            },
+        )
+    transformed_keys = {
+        _operation_key(
+            _transform_operation_to_official(
+                operation,
+                local_to_official,
+                origin_shift,
+            )
+        )
+        for operation in local_operations
+    }
+    official_keys = {_operation_key(operation) for operation in official_operations}
+    missing = sorted(official_keys - transformed_keys)
+    extra = sorted(transformed_keys - official_keys)
+    equivalent = not missing and not extra
+    return (
+        equivalent,
+        official_operations,
+        {
+            "status": "equivalent" if equivalent else "different",
+            "local_declared_operation_count": len(local_operations),
+            "official_declared_operation_count": len(official_operations),
+            "local_unique_operation_count": len(
+                {_operation_key(op) for op in local_operations}
+            ),
+            "official_unique_operation_count": len(official_keys),
+            "missing_operation_count": len(missing),
+            "extra_operation_count": len(extra),
+            "missing_operation_samples": [_operation_json(key) for key in missing[:8]],
+            "extra_operation_samples": [_operation_json(key) for key in extra[:8]],
+            "convention": "R_o=A R_l A^-1; t_o=A t_l+q-R_o q, A=U^T",
+        },
+    )
+
+
+def _perfect_matching(
+    candidates: list[list[tuple[float, int]]],
+) -> list[int] | None:
+    """Return a deterministic perfect bipartite matching, if one exists."""
+    for values in candidates:
+        values.sort(key=lambda item: (item[0], item[1]))
+    reference_to_local: dict[int, int] = {}
+
+    def assign(local_index: int, visited: set[int]) -> bool:
+        for _, reference_index in candidates[local_index]:
+            if reference_index in visited:
+                continue
+            visited.add(reference_index)
+            previous = reference_to_local.get(reference_index)
+            if previous is None or assign(previous, visited):
+                reference_to_local[reference_index] = local_index
+                return True
+        return False
+
+    order = sorted(range(len(candidates)), key=lambda index: (len(candidates[index]), index))
+    if any(not assign(local_index, set()) for local_index in order):
+        return None
+    local_to_reference = {
+        local_index: reference_index
+        for reference_index, local_index in reference_to_local.items()
+    }
+    return [local_to_reference[index] for index in range(len(candidates))]
+
+
+def _site_match_diagnostics(
+    local: tuple[_AtomSiteRow, ...],
+    official: tuple[_AtomSiteRow, ...],
+    transform: np.ndarray,
+    origin_shift: np.ndarray,
+    official_operations: tuple[_ExactSymmetryOperation, ...],
+) -> dict[str, Any]:
+    local_counts = Counter(row.species for row in local)
+    official_counts = Counter(row.species for row in official)
+    count_equal = len(local) == len(official)
+    species_counts_equal = local_counts == official_counts
+    coordinate_slack = 128.0 * np.finfo(float).eps * (
+        1.0 + np.sum(np.abs(transform), axis=0)
+    )
+    occupancy_slack = 128.0 * np.finfo(float).eps
+    coordinate_assignment: list[int] | None = None
+    joint_assignment: list[int] | None = None
+    maximum_by_component = np.zeros(3, dtype=float)
+    maximum_bound_by_component = np.zeros(3, dtype=float)
+    maximum_occupancy = 0.0
+    maximum_occupancy_bound = 0.0
+    coordinate_bound_ambiguous = False
+    edge_details: dict[tuple[int, int], dict[str, Any]] = {}
+
+    if count_equal and species_counts_equal:
+        coordinate_candidates: list[list[tuple[float, int]]] = [[] for _ in local]
+        joint_candidates: list[list[tuple[float, int]]] = [[] for _ in local]
+        for local_index, local_row in enumerate(local):
+            transformed = (
+                np.asarray(local_row.coordinates, dtype=float) @ transform
+                + origin_shift
+            ) % 1.0
+            local_half_bound = (
+                0.5
+                * np.asarray(local_row.coordinate_quantums, dtype=float)
+                @ np.abs(transform)
+            )
+            for official_index, official_row in enumerate(official):
+                if local_row.species != official_row.species:
+                    continue
+                best: dict[str, Any] | None = None
+                for operation_index, operation in enumerate(official_operations):
+                    rotation = _float_matrix(operation.rotation)
+                    translation = np.asarray(
+                        [float(value) for value in operation.translation], dtype=float
+                    )
+                    target = (
+                        rotation @ np.asarray(official_row.coordinates, dtype=float)
+                        + translation
+                    ) % 1.0
+                    official_half_bound = (
+                        np.abs(rotation)
+                        @ (0.5 * np.asarray(official_row.coordinate_quantums, dtype=float))
+                    )
+                    coordinate_bound = local_half_bound + official_half_bound
+                    if np.any(coordinate_bound >= 0.5):
+                        coordinate_bound_ambiguous = True
+                    delta = target - transformed
+                    delta -= np.round(delta)
+                    absolute = np.abs(delta)
+                    ratio_components = np.divide(
+                        absolute,
+                        coordinate_bound,
+                        out=np.full(3, np.inf),
+                        where=coordinate_bound > 0.0,
+                    )
+                    ratio_components[(coordinate_bound == 0.0) & (absolute == 0.0)] = 0.0
+                    ratio = float(np.max(ratio_components))
+                    if not np.all(absolute <= coordinate_bound + coordinate_slack):
+                        continue
+                    candidate = {
+                        "ratio": ratio,
+                        "operation_index": operation_index,
+                        "absolute": absolute,
+                        "coordinate_bound": coordinate_bound,
+                    }
+                    if best is None or (ratio, operation_index) < (
+                        best["ratio"],
+                        best["operation_index"],
+                    ):
+                        best = candidate
+                if best is None:
+                    continue
+                edge_details[(local_index, official_index)] = best
+                coordinate_candidates[local_index].append(
+                    (best["ratio"], official_index)
+                )
+                occupancy_difference = abs(
+                    local_row.occupancy - official_row.occupancy
+                )
+                occupancy_bound = 0.5 * (
+                    local_row.occupancy_quantum + official_row.occupancy_quantum
+                )
+                if occupancy_difference <= occupancy_bound + occupancy_slack:
+                    joint_candidates[local_index].append(
+                        (best["ratio"], official_index)
+                    )
+        coordinate_assignment = _perfect_matching(coordinate_candidates)
+        joint_assignment = _perfect_matching(joint_candidates)
+
+        assignment = joint_assignment or coordinate_assignment
+        if assignment is not None:
+            for local_index, official_index in enumerate(assignment):
+                edge = edge_details[(local_index, official_index)]
+                maximum_by_component = np.maximum(
+                    maximum_by_component, edge["absolute"]
+                )
+                maximum_bound_by_component = np.maximum(
+                    maximum_bound_by_component, edge["coordinate_bound"]
+                )
+                maximum_occupancy = max(
+                    maximum_occupancy,
+                    abs(
+                        local[local_index].occupancy
+                        - official[official_index].occupancy
+                    ),
+                )
+                maximum_occupancy_bound = max(
+                    maximum_occupancy_bound,
+                    0.5
+                    * (
+                        local[local_index].occupancy_quantum
+                        + official[official_index].occupancy_quantum
+                    ),
+                )
+
+    def composition(rows: tuple[_AtomSiteRow, ...]) -> dict[str, float]:
+        totals: defaultdict[str, float] = defaultdict(float)
+        for row in rows:
+            totals[row.species] += row.occupancy
+        return dict(sorted(totals.items()))
+
+    local_composition = composition(local)
+    official_composition = composition(official)
+
+    return {
+        "local_atom_count": len(local),
+        "official_atom_count": len(official),
+        "count_semantics": "raw atom-site loop rows before symmetry expansion",
+        "atom_count_equal": count_equal,
+        "composition_equal": local_composition == official_composition,
+        "local_composition": local_composition,
+        "official_composition": official_composition,
+        "local_species_counts": dict(sorted(local_counts.items())),
+        "official_species_counts": dict(sorted(official_counts.items())),
+        "species_counts_equal": species_counts_equal,
+        "coordinates_equal_at_output_precision": coordinate_assignment is not None,
+        "occupancies_equal_at_output_precision": joint_assignment is not None,
+        "coordinate_max_periodic_difference_by_component": maximum_by_component.tolist(),
+        "coordinate_max_bound_by_component": maximum_bound_by_component.tolist(),
+        "coordinate_bound_ambiguous_on_periodic_cell": coordinate_bound_ambiguous,
+        "occupancy_max_abs_difference": maximum_occupancy,
+        "occupancy_max_bound": maximum_occupancy_bound,
+        "coordinate_arithmetic_slack_by_component": coordinate_slack.tolist(),
+        "occupancy_arithmetic_slack": occupancy_slack,
+    }
+
+
+def compare_cif_alternate_settings(
+    local_path: Path,
+    official_path: Path,
+    *,
+    direct_details: dict[str, Any] | None = None,
+) -> CifSettingComparison:
+    """Compare candidate CIFs through their exact local-to-official setting map.
+
+    Printed cell, coordinate, and occupancy values are interpreted as rounded
+    values.  Their half-last-digit intervals are propagated through the exact
+    integer basis transform instead of being replaced by a global tolerance.
+    """
+    local_path = Path(local_path)
+    official_path = Path(official_path)
+    try:
+        local_header = parse_candidate_header(local_path)
+        official_header = parse_candidate_header(official_path)
+    except AmbiguousCandidateHeaderError as exc:
+        return CifSettingComparison(
+            equivalent=False,
+            conclusive=False,
+            details={
+                "transform": {
+                    "unique": False,
+                    "error": f"{type(exc).__module__}.{type(exc).__qualname__}: {exc}",
+                },
+                "issues": [],
+                "diagnostics": [],
+                "inconclusive_reasons": [
+                    "setting-transform-not-uniquely-declared"
+                ],
+            },
+        )
+    official_inverse = _inverse(official_header.basis)
+    exact_transform = _multiply(local_header.basis, official_inverse)
+    exact_origin_shift = _vector_multiply(
+        tuple(
+            local_header.origin[index] - official_header.origin[index]
+            for index in range(3)
+        ),
+        official_inverse,
+    )
+    determinant = _determinant(exact_transform)
+    integer_transform = all(
+        value.denominator == 1 for row in exact_transform for value in row
+    )
+    unimodular = integer_transform and abs(determinant) == 1
+    transform_details: dict[str, Any] = {
+        "local_to_official_matrix": _fraction_matrix_json(exact_transform),
+        "origin_shift_in_official_cell": [
+            _fraction_json(value) for value in exact_origin_shift
+        ],
+        "determinant": _fraction_json(determinant),
+        "integer": integer_transform,
+        "unimodular": unimodular,
+        "unique": True,
+        "coordinate_convention": "x_official = x_local @ U + q (mod 1)",
+    }
+    if not unimodular:
+        return CifSettingComparison(
+            equivalent=False,
+            conclusive=True,
+            details={
+                "transform": transform_details,
+                "issues": ["non-unimodular-basis-transform"],
+                "diagnostics": [],
+            },
+        )
+
+    local_block = _cif_block(local_path)
+    official_block = _cif_block(official_path)
+    local_precision = _cif_precision(local_block)
+    official_precision = _cif_precision(official_block)
+    local_rows = _atom_site_rows(local_block)
+    official_rows = _atom_site_rows(official_block)
+    transform = _float_matrix(exact_transform)
+    origin_shift = np.asarray([float(value) for value in exact_origin_shift])
+
+    local_gram_intervals = _gram_intervals(
+        local_precision.cell_values,
+        local_precision.cell_quantums,
+    )
+    official_gram_intervals = _gram_intervals(
+        official_precision.cell_values,
+        official_precision.cell_quantums,
+    )
+    transformed_official_intervals = _transform_gram_intervals(
+        official_gram_intervals,
+        transform,
+    )
+    metric_failures: list[dict[str, Any]] = []
+    for row in range(3):
+        for column in range(row, 3):
+            overlap, gap = _intervals_overlap(
+                local_gram_intervals[row][column],
+                transformed_official_intervals[row][column],
+            )
+            if not overlap:
+                metric_failures.append(
+                    {
+                        "component": f"{_GRAM_LABELS[row]}{_GRAM_LABELS[column]}",
+                        "local_interval": list(local_gram_intervals[row][column]),
+                        "transformed_official_interval": list(
+                            transformed_official_intervals[row][column]
+                        ),
+                        "gap": gap,
+                    }
+                )
+    local_gram = _gram_matrix(local_precision.cell_values)
+    official_gram = _gram_matrix(official_precision.cell_values)
+    transformed_official_gram = transform @ official_gram @ transform.T
+    metric_witness = (
+        {
+            "found": False,
+            "method": "component-interval-separation-proves-mismatch",
+        }
+        if metric_failures
+        else _joint_metric_witness(local_precision, official_precision, transform)
+    )
+
+    operation_equivalent, official_operations, operation_details = (
+        _compare_space_group_operations(
+            local_block,
+            official_block,
+            exact_transform,
+            exact_origin_shift,
+        )
+    )
+    if not official_operations:
+        official_operations = (
+            _ExactSymmetryOperation(
+                rotation=(
+                    (Fraction(1), Fraction(0), Fraction(0)),
+                    (Fraction(0), Fraction(1), Fraction(0)),
+                    (Fraction(0), Fraction(0), Fraction(1)),
+                ),
+                translation=(Fraction(0), Fraction(0), Fraction(0)),
+            ),
+        )
+    sites = _site_match_diagnostics(
+        local_rows,
+        official_rows,
+        transform,
+        origin_shift,
+        official_operations,
+    )
+    coordinate_bound_ambiguous = bool(
+        sites["coordinate_bound_ambiguous_on_periodic_cell"]
+    )
+    local_magnetic_tags = _magnetic_moment_tags(local_block)
+    official_magnetic_tags = _magnetic_moment_tags(official_block)
+
+    direct_error: str | None = None
+    if direct_details is None:
+        try:
+            direct_details = compare_cif(
+                local_path,
+                official_path,
+                ignore_atom_order=True,
+            ).details
+        except (AttributeError, TypeError, ValueError) as exc:
+            direct_error = f"{type(exc).__module__}.{type(exc).__qualname__}: {exc}"
+            direct_details = {}
+    local_declared = _declared_space_group(local_block)
+    official_declared = _declared_space_group(official_block)
+    declared_compatible, declared_status, declared_diagnostics = (
+        _compare_declared_space_groups(local_declared, official_declared)
+    )
+    inferred_equal = direct_details.get("inferred_space_group_equal")
+
+    issues: list[str] = []
+    if metric_failures:
+        issues.append("lattice-metric-outside-output-precision")
+    if not sites["atom_count_equal"]:
+        issues.append("atom-count-mismatch")
+    if not sites["species_counts_equal"]:
+        issues.append("species-count-mismatch")
+    if not sites["coordinates_equal_at_output_precision"]:
+        issues.append("coordinate-mismatch-outside-output-precision")
+    elif not sites["occupancies_equal_at_output_precision"]:
+        issues.append("occupancy-mismatch-outside-output-precision")
+    if not declared_compatible:
+        issues.append("declared-space-group-it-number-mismatch")
+    if operation_equivalent is False:
+        issues.append("declared-space-group-operation-mismatch")
+
+    diagnostics = list(declared_diagnostics)
+    if inferred_equal is False:
+        diagnostics.append("spglib-inferred-space-group-differs")
+    if direct_error is not None:
+        diagnostics.append("direct-comparator-diagnostic-unavailable")
+    if "declared space group does not match spglib inference" in direct_details.get(
+        "issues", []
+    ):
+        diagnostics.append("declared-space-group-differs-from-spglib-inference")
+    inconclusive_reasons: list[str] = []
+    if not metric_failures and not metric_witness["found"]:
+        inconclusive_reasons.append(
+            "lattice-output-precision-joint-feasibility-not-proven"
+        )
+    if coordinate_bound_ambiguous:
+        inconclusive_reasons.append("coordinate-output-precision-spans-periodic-cell")
+    if operation_equivalent is None:
+        inconclusive_reasons.append("declared-space-group-operation-equivalence-not-proven")
+    if local_magnetic_tags or official_magnetic_tags:
+        inconclusive_reasons.append("magnetic-moment-setting-transform-not-implemented")
+
+    def quantum_ranges(
+        rows: tuple[_AtomSiteRow, ...],
+    ) -> tuple[list[list[float]], list[float]]:
+        coordinate_ranges = [
+            [
+                min(row.coordinate_quantums[axis] for row in rows),
+                max(row.coordinate_quantums[axis] for row in rows),
+            ]
+            for axis in range(3)
+        ]
+        occupancy_range = [
+            min(row.occupancy_quantum for row in rows),
+            max(row.occupancy_quantum for row in rows),
+        ]
+        return coordinate_ranges, occupancy_range
+
+    local_coordinate_ranges, local_occupancy_range = quantum_ranges(local_rows)
+    official_coordinate_ranges, official_occupancy_range = quantum_ranges(official_rows)
+
+    def interval_payload(
+        matrix: tuple[tuple[tuple[float, float], ...], ...],
+    ) -> list[list[list[float]]]:
+        return [[list(interval) for interval in row] for row in matrix]
+
+    details = {
+        "transform": transform_details,
+        "precision": {
+            "local_cell_quantums": list(local_precision.cell_quantums),
+            "official_cell_quantums": list(official_precision.cell_quantums),
+            "local_coordinate_quantums": list(
+                local_precision.coordinate_quantums
+            ),
+            "official_coordinate_quantums": list(
+                official_precision.coordinate_quantums
+            ),
+            "local_coordinate_quantum_ranges_by_component": local_coordinate_ranges,
+            "official_coordinate_quantum_ranges_by_component": official_coordinate_ranges,
+            "coordinate_bound_by_official_component": sites[
+                "coordinate_max_bound_by_component"
+            ],
+            "coordinate_bound_ambiguous_on_periodic_cell": coordinate_bound_ambiguous,
+            "local_occupancy_quantum": local_precision.occupancy_quantum,
+            "official_occupancy_quantum": official_precision.occupancy_quantum,
+            "local_occupancy_quantum_range": local_occupancy_range,
+            "official_occupancy_quantum_range": official_occupancy_range,
+            "occupancy_bound": sites["occupancy_max_bound"],
+            "atom_site_precision_semantics": "per raw CIF atom-site row",
+        },
+        "lattice": {
+            "metric_equal_at_output_precision": (
+                not metric_failures and bool(metric_witness["found"])
+            ),
+            "nominal_max_abs_gram_difference": float(
+                np.max(np.abs(local_gram - transformed_official_gram))
+            ),
+            "local_gram_intervals": interval_payload(local_gram_intervals),
+            "transformed_official_gram_intervals": interval_payload(
+                transformed_official_intervals
+            ),
+            "failed_components": metric_failures,
+            "joint_feasibility_witness": metric_witness,
+        },
+        "sites": sites,
+        "space_group": {
+            "declared_compatible": declared_compatible,
+            "declared_comparison_status": declared_status,
+            "inferred_equal": inferred_equal,
+            "inference_is_diagnostic_only": True,
+            "local_declared": local_declared,
+            "official_declared": official_declared,
+            "local_inferred": direct_details.get("space_group", {}).get(
+                "local_inferred"
+            ),
+            "official_inferred": direct_details.get("space_group", {}).get(
+                "reference_inferred"
+            ),
+            "operation_equivalent_under_setting_transform": operation_equivalent,
+            "operation_comparison": operation_details,
+            "direct_comparator_error": direct_error,
+            "local_magnetic_moment_tags": local_magnetic_tags,
+            "official_magnetic_moment_tags": official_magnetic_tags,
+        },
+        "issues": issues,
+        "diagnostics": diagnostics,
+        "inconclusive_reasons": inconclusive_reasons,
+    }
+    conclusive = not inconclusive_reasons
+    return CifSettingComparison(
+        equivalent=not issues and not inconclusive_reasons,
+        conclusive=conclusive,
+        details=details,
+    )
+
+
 def _equivalent_structures(local: Path, official: Path) -> bool:
-    local_structure = _load_structure(local)
-    official_structure = _load_structure(official)
-    if local_structure.composition != official_structure.composition:
-        return False
-    # Six-decimal CIF lattice values accumulate into a larger absolute volume
-    # error for large supercells.  A 1e-6 relative gate remains tighter than
-    # the precision carried by those lattice fields without rejecting the same
-    # cell solely because the two writers rounded intermediate lengths.
-    if not np.isclose(local_structure.volume, official_structure.volume, rtol=1e-6, atol=1e-5):
-        return False
-    return bool(_MATCHER.fit(local_structure, official_structure))
+    """Compatibility wrapper for older saved-output audit callers."""
+    return compare_cif_alternate_settings(local, official).equivalent
 
 
 def _index_candidates(root: Path) -> tuple[dict[str, Path], list[tuple[str, list[Path]]]]:
@@ -487,7 +1812,11 @@ def audit_output_root(output_root: Path) -> AuditSummary:
                     direct = compare_cif(local_cif, official_cif, ignore_atom_order=True)
                     if direct.structure_equal:
                         summary.direct_cif_matches += 1
-                    elif same_lattice and _equivalent_structures(local_cif, official_cif):
+                    elif same_lattice and compare_cif_alternate_settings(
+                        local_cif,
+                        official_cif,
+                        direct_details=direct.details,
+                    ).equivalent:
                         summary.equivalent_setting_matches += 1
                     else:
                         _add_issue(
@@ -549,7 +1878,7 @@ def run_live_method3_smoke() -> list[dict[str, Any]]:
     project_root = WORKSPACE / "ISODISTORT"
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
-    from isocore.api import IsoDistort  # noqa: PLC0415
+    from isocore.api import IsoDistort
 
     cases = (
         {
@@ -1002,7 +2331,7 @@ def run_live_method12_audit(
     project_root = WORKSPACE / "ISODISTORT"
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
-    from isocore.api import IsoDistort  # noqa: PLC0415
+    from isocore.api import IsoDistort
 
     cases = (
         ("EuAl4 Parent.cif", "LD", ["1/6"]),

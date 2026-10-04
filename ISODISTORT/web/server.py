@@ -17,6 +17,8 @@ from __future__ import annotations
 import contextlib
 import json
 import re
+import shutil
+import subprocess
 import sys
 import threading
 import time
@@ -842,8 +844,24 @@ class IsoHandler(BaseHTTPRequestHandler):
             "mode_normfactors": {
                 k: float(result.mode_normfactors[k]) for k, _ in ranked
             },
-            "strain_voigt_engineering": dict(result.strain_voigt_engineering),
-            "strain_tensor": result.strain_tensor,
+            "strain_mode_amplitudes": dict(result.strain_mode_amplitudes),
+            "strain_modes": list(result.strain_modes),
+            "strain_raw_coordinate_sum_parent_basis": (
+                dict(result.strain_raw_coordinate_sum_parent_basis)
+                if result.strain_raw_coordinate_sum_parent_basis is not None
+                else None
+            ),
+            "strain_applied_engineering_q_parent_basis": dict(
+                result.strain_applied_engineering_q_parent_basis
+            ),
+            "strain_tensor_parent_basis": result.strain_tensor_parent_basis,
+            "strain_multiplier_parent_basis": result.strain_multiplier_parent_basis,
+            # Deprecated JSON aliases; both retain the same parent-basis
+            # semantics and never carry the discarded Cartesian contract.
+            "strain_voigt_engineering": dict(
+                result.strain_applied_engineering_q_parent_basis
+            ),
+            "strain_tensor": result.strain_tensor_parent_basis,
             "rms_residual": result.rms_residual,
             "max_abs_residual": result.max_abs_residual,
             "metadata": result.metadata,
@@ -938,8 +956,9 @@ class IsoHandler(BaseHTTPRequestHandler):
         查询参数：
             ``method``：1 / 2 / 3（不可多选；缺省 2）
             ``formats``：cif,isoviz,modes,topas（官网第 6 页对应选项）
-        ZIP 结构：每子群一个文件夹（Method 1 为完整 OPD 行；Method 2/3 为 ``IR OPD``），
-        内含所选格式文件；外层 ZIP 文件名为 ``isodistort_methodN.zip``（``wrapping=None``）。
+        ZIP 结构：Method 1 为 ``IR_OPD_SG<number>``，Method 2 为 ``IR_OPD``；
+        Method 3 使用稳定案例目录及 ``C<sequence>_SG<number>`` 候选目录。
+        每个候选目录内含所选格式文件；外层 ZIP 文件名为 ``isodistort_methodN.zip``。
         查询参数 ``indices``：逗号分隔的子群 index；若提供，只打包这些子群
         （网页在当前 Method 有筛选时传入命中行）。
         """
@@ -1017,7 +1036,7 @@ class IsoHandler(BaseHTTPRequestHandler):
                 subgroups=subs,
                 compute_missing_modes=compute_missing_modes,
                 wrapping=None,
-                use_opd_line_folders=(method == 1),
+                export_method=method,
                 number_of_independent_modulations=export_nmod,
             )
         except Exception as exc:  # noqa: BLE001 - web 边界：统一转为 JSON 错误
@@ -1051,8 +1070,40 @@ def _bind_server(host: str, preferred_port: int) -> ThreadingHTTPServer | None:
     return None
 
 
-def _open_browser(url: str) -> None:
-    """自动打开默认浏览器；失败时重试一次，并在控制台醒目输出网址。"""
+def _open_browser_from_windows_shell(url: str) -> bool:
+    """Ask Windows Shell to open *url* through a hidden PowerShell helper."""
+    if not sys.platform.startswith("win"):
+        return False
+    powershell = shutil.which("powershell.exe")
+    if not powershell:
+        return False
+    quoted_url = "'" + url.replace("'", "''") + "'"
+    try:
+        completed = subprocess.run(  # noqa: S603 - fixed Windows PowerShell executable
+            [
+                powershell,
+                "-NoProfile",
+                "-WindowStyle",
+                "Hidden",
+                "-Command",
+                f"Start-Process -FilePath {quoted_url}",
+            ],
+            check=False,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return completed.returncode == 0
+
+
+def _open_browser(url: str) -> bool:
+    """Request the default browser and report whether dispatch succeeded."""
+    if _open_browser_from_windows_shell(url):
+        print(f"Browser launch requested: {url}", flush=True)
+        return True
     opened = False
     for opener in (webbrowser.open, webbrowser.open_new):
         try:
@@ -1062,7 +1113,10 @@ def _open_browser(url: str) -> None:
         except Exception:  # noqa: BLE001, S112 - 浏览器异常不应影响服务运行，继续尝试
             continue
     if not opened:
-        print(f"\n无法自动打开浏览器，请手动访问: {url}")
+        print(f"\n无法自动打开浏览器，请手动访问: {url}", flush=True)
+        return False
+    print(f"Browser launch requested: {url}", flush=True)
+    return True
 
 
 def main() -> int:

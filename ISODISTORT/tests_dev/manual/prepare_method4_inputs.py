@@ -34,20 +34,18 @@ OUTPUT_ROOT = PACKAGE_ROOT / "output" / "validation" / "method4_inputs"
 MANIFEST_PATH = PACKAGE_ROOT / "docs" / "manifests" / "method4_download_manifest.json"
 
 READABLE_CASE_FOLDERS = {
-    "G01-zero": "G01 - gamma - zero",
-    "G02-positive-reordered": "G02 - gamma - positive - reordered",
-    "G03-negative-wrapped": "G03 - gamma - negative - wrapped",
-    "G04-two-mode": "G04 - gamma - two-mode",
-    "G05-origin-shift": "G05 - gamma - origin-shift",
-    "G06-near-bound-noise": "G06 - gamma - near-bound-noise",
-    "P01-zero-supercell": "P01 - parameter-k - zero-supercell",
-    "P02-positive-supercell": "P02 - parameter-k - positive-supercell",
-    "P03-mixed-reordered-wrapped": "P03 - parameter-k - mixed-reordered-wrapped",
-    "F01-species-mismatch": "F01 - expected-failure - species-mismatch",
-    # Keep the legacy archive folder stable: the official run inside it is
-    # authoritative evidence that this case is a homogeneous-strain success.
-    "F02-invalid-lattice": "F02 - expected-failure - invalid-lattice",
-    "F03-distance-threshold": "F03 - expected-failure - distance-threshold",
+    "G01-zero": "G01",
+    "G02-positive-reordered": "G02",
+    "G03-negative-wrapped": "G03",
+    "G04-two-mode": "G04",
+    "G05-origin-shift": "G05",
+    "G06-near-bound-noise": "G06",
+    "P01-zero-supercell": "P01",
+    "P02-positive-supercell": "P02",
+    "P03-mixed-reordered-wrapped": "P03",
+    "F01-species-mismatch": "F01",
+    "F02-invalid-lattice": "F02",
+    "F03-distance-threshold": "F03",
 }
 
 PARENTS = {
@@ -458,7 +456,7 @@ def main() -> int:
                 ),
             ],
             "F02-invalid-lattice": [
-                "legacy folder name retained so the completed official archive is not moved or redownloaded",
+                "short archive folder F02; the manifest retains the full case semantics",
                 (
                     "positive homogeneous-strain case: compare the applied six-component "
                     "IsoVIZ tensor, not displayed symmetry-mode amplitudes alone"

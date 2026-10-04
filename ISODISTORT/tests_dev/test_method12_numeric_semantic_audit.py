@@ -69,6 +69,98 @@ def test_global_sign_and_degenerate_rotation_are_semantically_equivalent() -> No
     assert result["max_principal_angle_degrees"] < 1.0e-5
 
 
+def test_exact_setting_rotation_origin_and_vector_map_are_semantically_equivalent() -> None:
+    official_lattice = np.diag([4.0, 5.0, 6.0])
+    matrix = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]], dtype=float)
+    inverse = np.linalg.inv(matrix)
+    shift = np.array([0.25, 0.5, 0.0])
+    official_atoms = [
+        numeric.Atom("La", np.array([0.1, 0.2, 0.3])),
+        numeric.Atom("O", np.array([0.6, 0.4, 0.8])),
+    ]
+    official_vector = np.array([[0.25, 0.0, 0.0], [0.0, 0.0, 0.0]])
+    label = "I4/mmm[1/2,0,1/2]N1+[La1:e:dsp]A1(a)"
+    official = numeric.ModeDataset(
+        official_atoms,
+        official_lattice,
+        {label: numeric.Mode(label, official_vector)},
+    )
+    # x_official = x_local @ U + q and d_official = d_local @ U.
+    local_atoms_in_official_order = [
+        numeric.Atom(atom.species, np.mod((atom.frac - shift) @ inverse, 1.0))
+        for atom in official_atoms
+    ]
+    local = numeric.ModeDataset(
+        list(reversed(local_atoms_in_official_order)),
+        matrix @ official_lattice,
+        {
+            label: numeric.Mode(
+                label,
+                np.asarray([[0.0, 0.0, 0.0], *(-official_vector @ inverse)[:1]]),
+            )
+        },
+    )
+    transform = numeric.DatasetSettingTransform(
+        matrix=tuple(tuple(numeric.Fraction(int(value)) for value in row) for row in matrix),
+        origin_shift=tuple(numeric.Fraction(str(value)) for value in shift),
+    )
+
+    result = numeric.compare_mode_datasets(
+        official,
+        local,
+        setting_transform=transform,
+    )
+
+    assert result["status"] == "pass"
+    assert result["max_species_periodic_mapping_error_angstrom"] < 1.0e-12
+    assert result["max_principal_angle_degrees"] < 1.0e-5
+    assert result["setting_transform"]["local_to_official_matrix"] == [
+        ["0", "1", "0"],
+        ["-1", "0", "0"],
+        ["0", "0", "1"],
+    ]
+
+
+def test_duplicate_column_is_not_hidden_by_unchanged_rank() -> None:
+    atoms = [numeric.Atom("La", np.array([0.0, 0.0, 0.0]))]
+    vector = np.array([[0.25, 0.0, 0.0]])
+    label = "I4/mmm[1/2,0,1/2]N1+[La1:e:dsp]A1(a)"
+    official = _dataset(atoms, {label: vector})
+    local = _dataset(
+        atoms,
+        {
+            label: vector,
+            f"{label}#duplicate2": vector,
+        },
+    )
+
+    result = numeric.compare_mode_datasets(official, local)
+
+    assert result["status"] == "fail"
+    assert result["overall_cartesian_subspace"]["official_rank"] == 1
+    assert result["overall_cartesian_subspace"]["local_rank"] == 1
+    assert result["group_multiplicity_mismatches"]
+
+
+def test_swapped_physical_orbits_fail_even_when_whole_space_is_unchanged() -> None:
+    atoms = [
+        numeric.Atom("La", np.array([0.0, 0.0, 0.0])),
+        numeric.Atom("La", np.array([0.0, 0.0, 0.25])),
+    ]
+    first = np.array([[0.25, 0.0, 0.0], [0.0, 0.0, 0.0]])
+    second = np.array([[0.0, 0.0, 0.0], [0.25, 0.0, 0.0]])
+    label1 = "I4/mmm[1/2,0,1/2]N1+[La1:e:dsp]A1(a)"
+    label2 = "I4/mmm[1/2,0,1/2]N1+[La2:e:dsp]A1(a)"
+    official = _dataset(atoms, {label1: first, label2: second})
+    local = _dataset(atoms, {label1: second, label2: first})
+
+    result = numeric.compare_mode_datasets(official, local)
+
+    assert result["status"] == "fail"
+    assert result["overall_cartesian_subspace"]["max_principal_angle_degrees"] < 1.0e-5
+    assert result["max_principal_angle_degrees"] == pytest.approx(90.0)
+
+
 def test_missing_mode_is_not_hidden_by_common_label_comparison() -> None:
     atoms = [numeric.Atom("Eu", np.array([0.0, 0.0, 0.0]))]
     x = np.array([[0.25, 0.0, 0.0]])
@@ -436,6 +528,18 @@ def test_live_directory_audit_preserves_explicit_provenance(
     monkeypatch.setattr(numeric, "parse_topas", lambda _path, _lattice: dataset)
     monkeypatch.setattr(numeric, "compare_mode_datasets", lambda *_args, **_kwargs: passed)
     monkeypatch.setattr(numeric, "compare_cif", lambda *_args, **_kwargs: passed)
+    monkeypatch.setattr(
+        numeric,
+        "setting_transform_from_cifs",
+        lambda *_args: numeric.DatasetSettingTransform(
+            matrix=(
+                (numeric.Fraction(1), numeric.Fraction(0), numeric.Fraction(0)),
+                (numeric.Fraction(0), numeric.Fraction(1), numeric.Fraction(0)),
+                (numeric.Fraction(0), numeric.Fraction(0), numeric.Fraction(1)),
+            ),
+            origin_shift=(numeric.Fraction(0),) * 3,
+        ),
+    )
     case = {
         "id": "LIVE",
         "coverage": ["live-current-source"],

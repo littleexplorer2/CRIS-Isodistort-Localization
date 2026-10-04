@@ -1,4 +1,5 @@
 """distortion 包 - 畸变业务层（项目核心）"""
+
 from .affine_embeddings import (
     AffineEmbedding,
     AffineOperation,
@@ -75,16 +76,47 @@ from .search_methods import (
     Method4Query,
     Method4Result,
 )
-from .strain import HomogeneousStrainResult, decompose_homogeneous_strain
+from .strain import (
+    HomogeneousStrainResult,
+    decompose_homogeneous_strain,
+)
+from .strain_modes import (
+    CHILD_LATTICE_ACTION,
+    COLUMN_LATTICE_ACTION,
+    ENGINEERING_VOIGT_METRIC,
+    ENGINEERING_VOIGT_ORDER,
+    METRIC_EQUATION,
+    PARENT_BASIS_COORDINATE_FRAME,
+    ROW_LATTICE_ACTION,
+    CanonicalStrainModeDefinition,
+    HomogeneousStrainMode,
+    HomogeneousStrainModeDiagnostics,
+    HomogeneousStrainModeResult,
+    apply_canonical_strain_basis,
+    canonical_strain_definitions_from_iso,
+    compute_homogeneous_strain_modes,
+    engineering_voigt_to_tensor,
+    parent_basis_metric_perturbation,
+    parent_basis_strain_action,
+    tensor_to_engineering_voigt,
+)
 from .superspace import ParametricModeResult, compute_parametric_modes
 
 __all__ = [
+    "CHILD_LATTICE_ACTION",
+    "COLUMN_LATTICE_ACTION",
     "DEFAULT_DISTORTION_TYPES",
     "DISTORTION_TYPES",
+    "ENGINEERING_VOIGT_METRIC",
+    "ENGINEERING_VOIGT_ORDER",
+    "METRIC_EQUATION",
+    "PARENT_BASIS_COORDINATE_FRAME",
+    "ROW_LATTICE_ACTION",
     "TYPE_ALIASES",
     "AffineEmbedding",
     "AffineOperation",
     "AffineQuotient",
+    "CanonicalStrainModeDefinition",
     "CoupledRouteCandidate",
     "CoupledRouteWitness",
     "DiagnosticCharacterRepresentationBundle",
@@ -98,6 +130,9 @@ __all__ = [
     "FixedSpaceFeasibility",
     "FixedSpaceFeasibilityAnalyzer",
     "FixedSpaceFeasibilitySummary",
+    "HomogeneousStrainMode",
+    "HomogeneousStrainModeDiagnostics",
+    "HomogeneousStrainModeResult",
     "HomogeneousStrainResult",
     "IsoSearchEngine",
     "Method1Query",
@@ -116,10 +151,13 @@ __all__ = [
     "RationalRepresentation",
     "affine_equivalence",
     "analyze_fixed_space",
+    "apply_canonical_strain_basis",
     "build_affine_quotient",
     "build_selected_character_representation",
     "build_selected_representation",
+    "canonical_strain_definitions_from_iso",
     "character_representation",
+    "compute_homogeneous_strain_modes",
     "compute_parametric_modes",
     "decompose_homogeneous_strain",
     "diagnose_embedding_feasibility",
@@ -127,6 +165,7 @@ __all__ = [
     "direct_sum_character_representations",
     "direct_sum_representations",
     "embedding_from_identity",
+    "engineering_voigt_to_tensor",
     "enumerate_lifted_point_subgroups",
     "enumerate_target_affine_embeddings",
     "fixed_space_basis",
@@ -136,6 +175,8 @@ __all__ = [
     "locate_embedding_subgroup",
     "normalize_distortion_types",
     "parent_affine_group",
+    "parent_basis_metric_perturbation",
+    "parent_basis_strain_action",
     "parent_frame_fingerprint",
     "pointwise_stabilizer",
     "polar_vector_representation",
@@ -148,4 +189,5 @@ __all__ = [
     "site_vector_representation",
     "stable_embedding_id",
     "symmetric_square_representation",
+    "tensor_to_engineering_voigt",
 ]

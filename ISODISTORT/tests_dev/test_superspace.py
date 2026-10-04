@@ -23,7 +23,6 @@ from isocore.distortion.superspace import (
     _is_self_conjugate_parent_k,
     _KCandidate,
     _linearly_independent_mode_items,
-    _mode_copy_component_indices,
     _parent_little_group_orbit,
     _project_invariant,
     _quadrature_supercell_shift,
@@ -179,15 +178,6 @@ def test_mode_rank_keeps_near_parallel_independent_and_drops_dependency():
     ]
     kept = _linearly_independent_mode_items(items, np.eye(3))
     assert [item[0] for item in kept] == ["a", "b"]
-
-
-def test_restricted_irrep_rank_labels_components_not_duplicate_copies():
-    """A rank-2 child subspace of a raw 4-D block is one ``a,b`` copy."""
-    assert _mode_copy_component_indices(2, 4, 0) == (0, 0)
-    assert _mode_copy_component_indices(2, 4, 1) == (0, 1)
-    assert [_mode_copy_component_indices(5, 2, i) for i in range(5)] == [
-        (0, 0), (0, 1), (1, 0), (1, 1), (2, 0),
-    ]
 
 
 def test_parent_little_group_orbit_completes_vector_irrep():

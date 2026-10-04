@@ -1,8 +1,9 @@
-"""Local ISODISTORT web UI.
+r"""Local ISODISTORT web UI.
 
-    python main_web.py
+    .\run_cris.ps1 ISODISTORT\main_web.py
 
-Same as ``python web\\server.py``. Port: config/settings.yaml ``runtime.web_port``
+Use the repository-root ``run_cris.ps1`` launcher for calculations on this
+Windows OneDrive checkout. Port: config/settings.yaml ``runtime.web_port``
 (the next free port is used if that one is taken).
 
 The Distortion panel downloads filtered result tables (Methods 1–4) and
@@ -18,6 +19,11 @@ from pathlib import Path
 _PROJECT_ROOT = Path(__file__).resolve().parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
+
+from runtime_launcher import require_cris_runner  # noqa: E402
+
+if __name__ == "__main__":
+    require_cris_runner(__file__)
 
 from web.server import main as web_main  # noqa: E402, I001
 

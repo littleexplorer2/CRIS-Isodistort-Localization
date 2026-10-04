@@ -8,11 +8,56 @@
 
 1. **(3+d) superspace 位移模式：已完成。**
 2. **ISODISTORT → GD 笔记本输入：已完成。**
-3. **Method 1/2/3 官网对照：当前双母相范围已完成；跨晶系扩展仍继续。** Method 1/2 的保存产物与最终源码 live 计算均覆盖 275/275 个官方候选，候选集合、模式数和完整性全部一致；代表性的标签/向量/归一化/四格式数值语义也已通过。Method 3 官网黄金集已完整核定：EuAl4 20/20、35 个 embedding、140/140 个核心文件、0 错误/警告；NdNiO2 20/20、42 个 embedding、168/168 个核心文件、0 错误，另有 12 条不影响内容身份的网页包层级提示。当前默认产品重算 40/40 查询、77/77 authoritative embedding：13 组逐字段一致、27 组经精确 Seitz/母群共轭证明 affine 等价、0 差异、0 错误。原先 16 条 coupled-only 已由 Stage A/B、精确稳定子交集见证和完整 fixed-space 模式链路接入。80/80 个等价 basis/centering 变形通过，但母相仍集中在四方体系，不能据此宣称完整科研级适用范围。
-4. **Method 4 分解对照与 debug：当前双母相矩阵已完成。** 本地与官网均为 24/24 个有效冻结输入；官网审计为 23 个完全通过、EuAl4 G05 auto-origin 1 个证据警告、0 个失败。F01 物种拒绝、F02 均匀应变成功和 F03 robust 距离阈值拒绝路径均已闭合。该结论只覆盖当前两种四方母相和已列能力，不外推为跨晶系科研级精度。
-5. **第三晶体 `4310_tetra.cif`：可用性预检完成，Method 3 coupled 门禁已解除，尚未开始四种 Method 的正式矩阵。** 当前解析器能从 FullProf 多数据块 CIF 的真实结构块读出 34 原子、约化式 La4Ni3O10 和 `I4/mmm (#139)`；可作为结构复杂度对照组。下一步可据独立冻结清单开始该晶体的 Method 1–4 验证，但双母相结果不得自动外推为它已通过。
+3. **Method 1/2/3 官网对照：前两种母相已完成，4310 Method 1 已完成。**
+   三种母相的 Method 1 官网静态下载门禁已核对 330/330 个候选和 1320/1320 个
+   核心文件。EuAl4/NdNiO2 的 Method 1/2 曾在签名 `e3347be0…5908` 下完成
+   275/275 个候选的 live 对照；该签名早于本轮母相 setting/物理轨道修复，只能作为
+   对应源码快照的证据。4310 已修复页头、物理 `orbit_id` 与逐物种允许轨道传递；
+   对应源码签名下，整体 `z+0.1` 原点平移输入仍得到 125 个候选，N1+ 4D1 的
+   192 个位移模式与官网一致。final7 已在签名
+   `0f8900bb5add71bc1de5e9d4c562142d8595539daf757dee074bf614c919a3b5` 下从头完成：
+   125 个官网与 live 候选一一配对，模式数、BUSH 覆盖和零振幅 CIF 语义均为
+   125/125，0 失败，结束时签名未变化。该结果闭合 4310 Method 1，但不证明每个数值
+   模式向量/归一化，也不能外推到任意晶体。
+   Method 3 官网黄金集和最近完成的签名报告仍为 40/40 查询、77/77 authoritative
+   embedding：13 组逐字段一致、27 组经精确 Seitz/母群共轭证明 affine 等价、
+   0 差异、0 错误。母相仍集中在四方体系，不能据此宣称完整科研级适用范围。
+4. **Method 4 分解对照与 debug：冻结双母相矩阵已完成。** 官网归档与清单签名对应的本地冻结快照均为 24/24 个有效输入；官网审计为 23 个完全通过、EuAl4 G05 auto-origin 1 个证据警告、0 个失败。F01 物种拒绝、F02 均匀应变成功和 F03 robust 距离阈值拒绝路径均已闭合。symmetry-adapted 应变模式现已接入 CIF、IsoVIZ、Complete modes 和 TOPAS 固定实际晶胞；当前源码已通过 EuAl4 F02 单例 WSL live，但尚未重跑 24/24 全量，也没有跨晶系证据。
+5. **第三晶体 `4310_tetra.cif`：Method 1 已完成，Method 2–4 待建立。**
+   当前解析器能从 FullProf 多数据块 CIF 的真实结构块读出 34 原子、约化式
+   La4Ni3O10 和 `I4/mmm (#139)`；页头、8 个独立物理 Wyckoff 轨道、逐物种允许
+   轨道和非标准 setting/origin 的完整母相规范化已经修复。Method 1 的 125 个官网
+   候选已完整归档；N1+ 4D1 的 192 个位移模式及整体 `z+0.1` 原点平移代表例在其
+   对应源码签名下通过，final7 又完成 125/125 全量 live。
+   Method 2–4 尚未建立 4310 的正式矩阵，前两种母相结果不得自动外推。
+6. **CIF 位移模式与 microscopic provenance：生产 core 与四 writer 已接通。**
+   core 现从精确 child Hall frame 构造稳定 atom ID、逐原子父子映射和物理轨道，并把
+   未混合 ISO microscopic 来源列、查询的 `(parent/child SG,B,q,primary IR/OPD)` 与
+   exact `VECTOR` 方向一起交给 `DisplaciveExportData`。稀疏官网点域只在公共域满秩、
+   唯一变基及完整 BUSH 域延拓全部可复核时使用；proof 绑定有序 reference/candidate
+   序列，合法 BUSH 基换序保持结果不变，重排或换绑后的 proof 会 fail-closed；直接来源与
+   延拓证据分开保存。下一步是把同一合同扩展到更多晶系及混合/部分占位。
 
 不要再把“参数 k 无模式”“部分特殊 k 模式不全”或“GD 输入尚未转换”列为未完成项。
+
+## 新会话续接执行顺序
+
+1. 以 `method1_4310_live_final7_20261004.json` 为 4310 Method 1 当前基线；只有源码、
+   输入或运行时联合签名变化时才重跑全量 125 项，不能用 `final6` 或旧 75/125 报告
+   覆盖它。新会话先读 `output/validation/CRIS_DEBUG_HANDOFF_20261004.md`、本计划与
+   验证报告，再检查 `git status`；当前工作树含大量未提交的在途修改，不得 reset。
+2. 先建立 4310 Method 2 正式矩阵：覆盖 Gamma、非 Gamma 特殊 k 和一条公度参数 k，
+   同时核对 `nmod=0` 与 `nmod>=1`、site-mode 身份、模式维数/归一化/子空间和四种
+   writer。每一层先做最小反例与不变量检查，再扩成完整官网差分。
+3. Method 2 闭合后生成 4310 Method 3 精确机器清单和查询上下文，覆盖 identity、
+   oriented-cell、special-supercell 与 parameter-k。清单冻结前不让用户下载；冻结后
+   按 `DOWNLOAD_CHECKLIST.md` 人工保存官网结果并先做完整性审计，再用于算法结论。
+4. 只从已核定的 Method 1/2/3 路径生成 4310 Method 4 daughter 矩阵，冻结 CIF、哈希、
+   basis/origin/matching 与候选身份；随后再让用户逐项上传和保存官网证据。先核对输入
+   签名，再比较幅值、`As/Ap/normfactor`、residual、原子匹配、应变与四类导出。
+5. 三个四方母相的 Method 1–4 路径闭合后，继续七晶系、P/A/B/C/I/F/R 点阵、一般/
+   特殊 Wyckoff、混合占位、性能和并发扩展验收；在这些证据完成前，不宣称对任意
+   晶体均已正确。
 
 ## 目标 1：完整的 (3+d) superspace 模式计算（已完成）
 
@@ -31,11 +76,11 @@
 
 转换结果必须包含笔记本实际读取的模式名称、归一化因子、振幅上界、displacive mode 表和可导入的 `*_alris_functions.py`。实验衍射表 `All Combined.csv` 不属于 ISODISTORT 产物。
 
-## 目标 3：Method 1/2/3 官网对照（已完成）
+## 目标 3：Method 1/2/3 官网对照（前两种母相已完成）
 
 对照输入 `webpage_info/`、`output_compare/`、`experiment_data/` 和 `isobyu/` 均只读。新的官网下载放入用户指定的新目录或现有对照目录的明确新批次中，不覆盖旧证据。
 
-### 3.1 Method 1（当前保存产物已复验）
+### 3.1 Method 1（EuAl4/NdNiO2 保存产物已复验）
 
 1. 每种母相按官网存档选择 strains + displacive 及相应物种。
 2. 对照整张结果表的 `Irrep`、`OPD`、`Dir`、`SG`、`basis`、`origin`、`s`、`i`、`k-active`；本地额外的 `idx` 不参与。
@@ -47,7 +92,7 @@
 1. EuAl4 覆盖 LD `(0,0,g)`、`g=1/6`；NdNiO2 覆盖 Y `(a,1/2,0)`、`a=1/3`；每个母相另含一个特殊 k。
 2. 参数 k 分别验证 nmod=0 和 nmod=1；nmod=2/3 与 nmod=1 等价，不重复冒充独立 q 测试。
 3. 至少对 EuAl4 LD1 C1 及 NdNiO2 一个参数 k 子群逐项比较模式标签、数量、归一化和四类导出。
-4. 最终源码签名 `e3347be0…5908` 下的四批 live 结果分别为 EuAl4 Method 1 `123/123`、Method 2 `22/22`、NdNiO2 Method 1 `82/82`、Method 2 `48/48`；missing、extra、duplicate 和 mode-count mismatch 全为 0。精确报告索引见 `BUGFIX_VALIDATION_REPORT.md`。
+4. 源码签名 `e3347be0…5908` 下的四批 live 结果分别为 EuAl4 Method 1 `123/123`、Method 2 `22/22`、NdNiO2 Method 1 `82/82`、Method 2 `48/48`；missing、extra、duplicate 和 mode-count mismatch 全为 0。该结果只证明所记录的源码快照；本轮母相 setting/物理轨道代码改变后，不再称为“当前最终源码”结果。精确报告索引见 `BUGFIX_VALIDATION_REPORT.md`。
 
 ### 3.3 Method 3（两种母相均 20/20 官网集合已核定，coupled 产品链路已接入）
 
@@ -57,11 +102,11 @@
 
 已实现的一参数公度路径不再猜测 `1/d`：它保留字符串 Fraction 的精确值，解析一变量仿射 k 坐标，在母相完整 reciprocal k-star 上求 `0 ≤ p < 1` 的所有 `T k(p) ∈ Z³` 解，并按母相中心化 direct primitive translations 定义的 reciprocal-lattice 等价关系排除特殊-k 端点重复。对同一物理 k-star 的不同参数代表元会在调用后端前去重；NdNiO2 `Y(a=1/3)` 与 `Y(a=2/3)` 不再生成两套不同原点的重复行。它仍只是单-IR、一参数线子集，不得写成完整 Method 3。
 
-下载目录已按 manifest 预建。官网结果直接放入 `output_compare/<母相 CIF>/官网/Method3/<可读案例目录>/`；重新生成的本地网页结果放入 `output_compare/<母相 CIF>/现有网页版交互/Method3/<可读案例目录>/`。两种母相各有 20 个案例目录；每个目录只保存该次查询的完整结果页与导出 ZIP，避免不同查询的同名候选相互覆盖。逐组输入和目录名见 `docs/DOWNLOAD_CHECKLIST.md`。
+下载目录已按 manifest 预建。官网结果直接放入 `output_compare/<母相 CIF>/官网/Method3/<短案例号>/`；重新生成的本地网页结果放入 `output_compare/<母相 CIF>/现有网页版交互/Method3/<短案例号>/`。两种母相各有 20 个案例目录；每个目录只保存该次查询的完整结果页与导出 ZIP，避免不同查询的同名候选相互覆盖。逐组输入和目录名见 `docs/DOWNLOAD_CHECKLIST.md`。
 
 2026-09-27 的通用只读审计器 `tests_dev/manual/audit_method3_downloads.py` 确认：EuAl4 20/20 个案例、35 个官方候选和 140/140 个核心文件均通过，0 错误/警告；NdNiO2 20/20、42 个候选和 168/168 个核心文件通过，0 错误、12 条 `noncanonical_*_page_location` 布局提示。审计器从页面内容核对查询上下文和完整候选表，并且只按 details 中完全一致的 `(SG,basis,origin,s,i)` 配对，所以这些提示不表示漏下载或内容冲突。机器报告分别为 `output/validation/method3_official_download_audit_eual4.json` 与 `method3_official_download_audit_ndnio2.json`。
 
-新增条款下的算法审计确认，官网第一阶段每一行是唯一 `(space-group type, supercell basis, supercell origin)`，并自动考虑合适取向与原点。历史 single-IR 产品曾得到 13 组逐字段完全一致、16 组精确仿射等价、11 组欠枚举；缺少的 16 个全部为 coupled-IR-only。当前实现从 Stage-A affine embedding 出发，在 `strain ⊕ displacive` 表示中用 Stage-B exact fixed-space 判据拒绝不可达项，再把枚举到的单-IR 稳定子提升到同一 `N_G(T_s)/T_s` 有限商，要求其精确交集等于目标嵌入；最后按母群仿射共轭保留一个 Method-3 首屏代表元。`tests_dev/manual/compare_method3_official_local.py --restart` 的当前源码结果为 40/40 authoritative 查询、13 组逐字段相同、27 组精确 affine 等价、0 差异、0 本地错误/跳过，逐组候选数均一致。机器报告为 `output/validation/method3_official_local_comparison.json`；任何后续源码变化都必须凭签名从头重跑，不能沿用旧结论。
+新增条款下的算法审计确认，官网第一阶段每一行是唯一 `(space-group type, supercell basis, supercell origin)`，并自动考虑合适取向与原点。历史 single-IR 产品曾得到 13 组逐字段完全一致、16 组精确仿射等价、11 组欠枚举；缺少的 16 个全部为 coupled-IR-only。当前实现从 Stage-A affine embedding 出发，在 `strain ⊕ displacive` 表示中用 Stage-B exact fixed-space 判据拒绝不可达项，再把枚举到的单-IR 稳定子提升到同一 `N_G(T_s)/T_s` 有限商，要求其精确交集等于目标嵌入；最后按母群仿射共轭保留一个 Method-3 首屏代表元。`tests_dev/manual/compare_method3_official_local.py --restart` 最近一份完成且带签名的结果为 40/40 authoritative 查询、13 组逐字段相同、27 组精确 affine 等价、0 差异、0 本地错误/跳过，逐组候选数均一致。机器报告为 `output/validation/method3_official_local_comparison.json`；任何后续源码变化都必须凭签名从头重跑，不能沿用旧结论。
 
 通用只读 route 审计器 `tests_dev/manual/audit_method3_embedding_routes.py` 对 40 组、77 条 authoritative embedding 执行 ISO `DISPLAY DIRECTION`：61 条 `single_ir_exact`、16 条 `coupled_ir_required`，0 条不确定、0 个错误/跳过。机器报告为 `output/validation/method3_embedding_route_audit.json`。项目所带 ISO 9.6.1 没有直接枚举 Method 3 首屏 affine embedding 的命令；`DISPLAY DIRECTION` 和 `DISPLAY ISOTROPY COUPLED` 都属于已知 embedding 之后的第二阶段探针，不能拿来代替第一阶段。`SHOW DOMAIN` 会把 SG12 的 3 个官网 embedding 错扩成 8 个畴，故已否决。
 
@@ -88,13 +133,12 @@
 - **EuAl4 Parent.cif / `M3-EU-17`**：Types=strain+displacive，SG `99 P4mm`，direct/Default，basis `diag(1,1,6)`；真实结果表和候选导出已通过审计，官网 1 个 embedding 与本地逐字段一致。
 - **NdNiO2 own.cif / `M3-ND-17`**：Types=strain+displacive，SG `47 Pmmm`，direct/Default，basis `{(-3,0,0),(0,0,1),(0,2,0)}`；官网 2 个 embedding 均已由结果表和精确候选身份核定，本地默认 single-IR 路径逐项覆盖。
 
-## 目标 4：Method 4 模式分解验证与 debug（本地与官网 24/24，官网 1 个证据 warning）
+## 目标 4：Method 4 模式分解验证与 debug（冻结快照与官网 24/24，官网 1 个证据 warning）
 
 ### 4.1 前置条件
 
 1. 目标 3 的 Method 1/2 保存产物已经复验，Method 3 官网黄金集也已完整归档并通过只读审计；本前置条件现已满足。
-2. 用户已于 2026-09-27 明确指示开始 Method 4；启动门禁已满足。
-3. 官网输入必须同时保存母相 CIF、女儿相 CIF、选中的 path/子群模式上下文、Method 4 结果页和下载的 txt/csv，避免只保存幅度表而无法复现归一化。
+2. 官网输入必须同时保存母相 CIF、女儿相 CIF、选中的 path/子群模式上下文、Method 4 结果页和下载的 txt/csv，避免只保存幅度表而无法复现归一化。
 
 ### 4.1.1 官网下载要求与时机
 
@@ -130,19 +174,33 @@ EuAl4 12 例已全部下载并通过当前数值审计。G01–G06、P01–P03 �
 
 完成标准：所有无噪声闭环在约定容差内恢复输入幅度，带噪声案例 residual 合理，错误输入稳定拒绝，网页/终端/API 和 txt/csv 一致，并完成两种母相的官网差分。修复记录与结果统一追加到 `BUGFIX_VALIDATION_REPORT.md`。
 
-当前状态：重冻结清单下本地和官网均为 24/24 个有效输入。官网合计 23 个完全通过、EuAl4 G05 auto-origin 1 个证据警告、0 个失败，综合报告为 `pass_with_warnings`。NdNiO2 F03 的正确 daughter SHA-256 为 `02b41e63…332e36`，填写截图确认 frozen basis、automatic origin、robust `dmax=0.1 Å` 和未选 manual mapping，官网按预期返回匹配失败。两母相 Method 4 当前门禁已关闭；科研级外推仍受晶系范围及下列未实现能力限制。
+当前状态：官网归档与清单签名对应的本地冻结快照均为 24/24 个有效输入。官网合计 23 个完全通过、EuAl4 G05 auto-origin 1 个证据警告、0 个失败，综合报告为 `pass_with_warnings`。NdNiO2 F03 的正确 daughter SHA-256 为 `02b41e63…332e36`，填写截图确认 frozen basis、automatic origin、robust `dmax=0.1 Å` 和未选 manual mapping，官网按预期返回匹配失败。两母相归档/冻结矩阵已闭合；当前源码 24/24 重跑、跨晶系及下列未实现能力仍是后续门槛。
 
-## 目标 5：第三晶体 `4310_tetra.cif` 四种 Method 对照（等待 Method 3 门禁）
+## 目标 5：第三晶体 `4310_tetra.cif` 四种 Method 对照（Method 1 已完成）
 
 ### 5.1 是否可用及门禁
 
-`experiment_data/4310_tetra.cif` 是 FullProf 输出的多数据块 CIF：首个 `data_global` 不含原子结构，真正结构在后续数据块。当前 `pymatgen` 解析会对空块给出警告，但能继续读取真实结构块；实测得到 34 原子、La4Ni3O10、`a=b=3.8516 Å`、`c=27.967 Å` 和 `I4/mmm (#139)`。文件没有显式 superspace CIF 标签，本身是三维母相；已完成的 `(3+d)` 模块解决的是后续参数-k 子群的模式计算与导出，不是这个 CIF 的基本载入问题。因此该文件现在**具备作为新 debug 母相的输入条件**，但尚未完成任一 Method 的端到端或官网验收。
+`experiment_data/4310_tetra.cif` 是 FullProf 输出的多数据块 CIF：首个 `data_global` 不含原子结构，真正结构在后续数据块。当前 `pymatgen` 解析会对空块给出警告，但能继续读取真实结构块；实测得到 34 原子、La4Ni3O10、`a=b=3.8516 Å`、`c=27.967 Å` 和 `I4/mmm (#139)`。文件没有显式 superspace CIF 标签，本身是三维母相；已完成的 `(3+d)` 模块解决的是后续参数-k 子群的模式计算与导出，不是这个 CIF 的基本载入问题。官网页头对应 8 个独立物理轨道，其中 5 个都属于 `4e`；本地现在以稳定物理 `orbit_id` 而非单独 Wyckoff 字母区分它们，并按所选物种把允许轨道传给 BUSH/smodes。
 
-硬门禁：EuAl4 与 NdNiO2 的 Method 1、2、3、4 必须全部结束 debug，所有计划内官网案例、失败路径、证据警告和机器报告均已闭合，才可为 4310 建立清单、运行后端、生成女儿相或下载官网数据。门禁前只允许只读解析和计划维护，不得把预检写成 Method 通过。
+三种晶体的 Method 1 官网和现有网页版保存侧门禁均已满足：两侧各 `330/330` 个候选、
+各 `1320/1320` 个核心文件完整且身份正确，所以无需再次下载，审查和 debug 已获有效
+证据支撑。4310 子集在两侧各为 125 个候选、500 个核心文件，N1+ 4D1 当前目录内容
+正确。此前疑似发生覆盖的具体旧目标目录已无足够证据还原，只能记为 `inconclusive`，
+不能猜测到某个子群名下。官网与旧本地产物的 175 项科学差异全部来自 4310，其中
+125 条为模式数差异、50 条为 CIF 语义差异；另有 108 条 BUSH 覆盖诊断。这些是修复前
+基线，不是下载错误，也不能继续冒充当前源码结论。final7 已以带源码与输入签名的
+125 候选 live 重算闭合 Method 1；后续按下列顺序推进 Method 2–4。
 
-### 5.2 门禁解除后的工作清单
+### 5.2 后续正式工作清单
 
-1. **Method 1**：冻结母相 SHA-256 和官方查询设置，核对完整候选集合、字段、多重度及 CIF/IsoVIZ/modes/TOPAS 四格式；对比同为 `I4/mmm` 但具有 8 个不等价位点、34 个常规胞原子的复杂度增量。
+1. **Method 1（已完成）**：下载完整性门禁已通过；当前修复了页头标准代表、稳定物理
+   `orbit_id`、逐物种允许轨道传递，以及 FINDSYM 要求换 basis/origin 时对完整母相
+   做一致规范化的根因。对应源码签名下，原始 4310 与整体 `z+0.1` 输入都返回
+   125 个候选，N1+ 4D1 均得到官网的 192 个位移模式。final7 已完成 125/125 live
+   身份、模式数、BUSH 覆盖和 CIF 语义对照，0 失败；C8、P5|4D1、P2|C1、X1-|C1
+   以及 C10/C12 的模式向量、标签和来源另有定向 live 证据。`final6` 在运行期间发生
+   源码漂移，只保留为 115/125 的根因诊断。final7 不独立证明 125 项中每个数值模式
+   向量/归一化，也不改变更多晶系仍待扩展的限制。
 2. **Method 2**：覆盖 Γ、非 Γ 特殊 k 与至少一条公度参数 k；核对 `nmod=0` 和 `nmod>=1` 的保留规则、site-mode 标签、维数、归一化、模式子空间及四格式导出。参数-k 是本晶体必须单列的 superspace 回归，不得只复用 EuAl4 的结论。
 3. **Method 3**：建立 identity、oriented-cell、special-supercell、parameter-k 的分层官方清单；逐项证明 `(SG,basis,origin,s,i)` 身份、精确等价子格和 single/coupled-IR route，不按同空间群移植现有答案。
 4. **Method 4**：从已核定的 Method 1/2/3 path 生成冻结女儿相，覆盖零、正/负单模式、正交双模式、参数-k、多模式/近上界、换像/重排/原点/噪声和明确失败输入；验证幅值、`As/Ap/normfactor`、residual、原子匹配与导出，再做完全相同输入的官网差分。
@@ -150,12 +208,20 @@ EuAl4 12 例已全部下载并通过当前数值审计。G01–G06、P01–P03 �
 
 ## 保留的产品限制
 
-- Method 4 已实现均匀应变张量分解和报告；symmetry-adapted 应变模式的生成、标签与导出仍未实现。
+- symmetry-adapted 应变模式已实现：CIF 写 max-component-one 的 `q_raw`，IsoVIZ 写单位 Frobenius 范数的 `q_unit`，Complete modes 同时写两者；TOPAS 按官网行为只写 `B M P` 的固定实际晶胞，不生成官网不存在的 strain 精修参数。该链路依赖 ISO rank-[12] 宏观基、目标 embedding invariant direction 和独立 metric fixed-space 整空间核验；证据不全即 fail-closed。当前源码只有 EuAl4 F02 单例 WSL live，24/24 全量重跑与跨晶系泛化仍待扩展验收。
+- CIF 位移模型与四 writer 的共享合同已接入生产 core：精确 emitted frame、稳定 atom ID、
+  父子映射、完整子群查询上下文和未混合 microscopic source-column provenance 会在 mapper、
+  公共 I/O 合同及 writer 边界重复核验。合同暂只接受单物种满占位点；混合/部分占位与更多
+  晶系仍待扩展验收。
 - Method 2 的 nmod=2/3 不增加第二、第三条独立 q。
 - Method 3 reciprocal 子格不支持。
 - Method 3 空间群查询默认启用精确 affine 阶段 A、fixed-space 阶段 B 和 coupled 稳定子交集见证；在当前双母相 40 组权威查询中已覆盖 77/77 embedding，并连接完整位移 fixed-space 模式。仍未覆盖 arbitrary/multi-parameter k、point-group-only affine 枚举、reciprocal 子格，以及唯一 primary coupled IR/OPD 分解；这些范围不能由当前通过结果外推。
 - rotational-only Types 目前借用 smodes 位移活性近似过滤，未实现独立的刚性转动/轴矢量模式生成。
-- polar-vector 位移标签已实现 Wyckoff representative/transporter 分类，但所有 site group 与轴矢量、磁、占位模式的通用 character-table decomposition 尚未完成；超出已验证范围的标签不能冒充官网完整 site-symmetry 分解。
+- polar-vector 位移标签使用 exact `DISPLAY DIRECTION` → primitive-integer
+  `VALUE DIRECTION VECTOR,...` → oriented microscopic 列的证据链。官网稀疏点域可在唯一、
+  满秩且数值稳定的 BUSH 域延拓后使用；纯数值 SMODES fallback 和证据不完整的列保持
+  `unresolved`。非 Γ 非零 transporter 在缺 component-to-star-arm 相位身份时仍明确拒绝；
+  轴矢量、磁、占位模式的同等级身份链尚未实现。
 
 ## 后续扩展验收（尚未实施）
 

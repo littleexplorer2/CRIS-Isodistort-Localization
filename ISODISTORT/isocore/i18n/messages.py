@@ -356,19 +356,22 @@ MESSAGES: dict[str, str] = {
     'dist.zipWait': (
         'Building ZIP… keep this tab open. Non-CIF formats re-run Method 2 per '
         'subgroup to fill modes (can take a while). Parametric k points (LD/DT, …) '
-        'use smodes/(3+d) complete modes (nmod). Strain modes are not written '
-        '(nstrain=0). Some special-k paths may omit Wyckoff sites or return an '
-        'empty BUSH table versus the website.'
+        'use smodes/(3+d) complete modes (nmod). When strain is selected, each '
+        'subgroup also resolves and validates its canonical ISO rank-[12] strain '
+        'basis. Some special-k paths may omit Wyckoff sites or return an empty '
+        'BUSH table versus the website.'
     ),
     'dist.zipParamNote': (
         'Note: one or more selected subgroups use a parametric k point. '
         'Displacement modes are filled with the local smodes/(3+d) complete-mode '
-        'engine (nmod). Strain modes remain unavailable locally.'
+        'engine (nmod); selected strain modes use the same validated canonical '
+        'rank-[12] export path as other subgroups.'
     ),
     'dist.paramFormatDefault': (
         'This Method includes a parametric k point. ZIP formats other than CIF '
         'now include smodes/(3+d) complete displacive modes (nmod=0 lock-in by '
-        'default). Strain modes are still not written.'
+        'default). Selected strain modes are included after canonical fixed-space '
+        'validation.'
     ),
     'dist.computeModesAsk': (
         'Fill modes for special-k subgroups (isoviz / modes / TOPAS)? '

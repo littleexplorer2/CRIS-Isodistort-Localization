@@ -1173,7 +1173,10 @@ def _audit_case(
     if local_case is None or local_case.get("status") != "pass":
         result["issues"].append("matching local validation case is absent or not passing")
     else:
-        local_strain = local_case.get("strain_voigt_engineering")
+        local_strain = local_case.get(
+            "strain_applied_engineering_q_parent_basis",
+            local_case.get("strain_voigt_engineering"),
+        )
         if official_applied_strain is None:
             pass
         elif not isinstance(local_strain, dict):
@@ -1181,7 +1184,11 @@ def _audit_case(
                 "local validation case lacks applied strain components"
             )
         else:
-            labels = ("xx", "yy", "zz", "2yz", "2xz", "2xy")
+            labels = (
+                ("11", "22", "33", "2*23", "2*13", "2*12")
+                if "11" in local_strain
+                else ("xx", "yy", "zz", "2yz", "2xz", "2xy")
+            )
             local_vector = np.asarray(
                 [float(local_strain[label]) for label in labels]
             )

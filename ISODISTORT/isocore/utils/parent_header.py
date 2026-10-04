@@ -12,13 +12,14 @@ Wyckoff multiplicity/letter still come from symmetry analysis of the loaded cell
 """
 from __future__ import annotations
 
+import re
 import shlex
 from collections.abc import Sequence
 from fractions import Fraction
 from pathlib import Path
 
 import numpy as np
-from pymatgen.core import Structure
+from pymatgen.core import Element, Structure
 
 # Special fractional values treated as fixed Wyckoff coordinates (IT tables).
 _SPECIAL_FRACTIONS: tuple[Fraction, ...] = (
@@ -62,22 +63,35 @@ def format_wyckoff_site(
     frac_coords: Sequence[float],
     *,
     label: str | None = None,
+    symmform: str | None = None,
+    parameters: dict[str, float] | None = None,
 ) -> str:
     """One official site token, e.g. ``Al2 4e (0,0,z), z= 0.38000``."""
-    coords = [float(x) for x in frac_coords]
-    parts: list[str] = []
-    free: list[tuple[str, float]] = []
-    for axis, value in zip(_AXIS_LETTERS, coords, strict=True):
-        if _near_special(value) is None:
-            parts.append(axis)
-            free.append((axis, value))
-        else:
-            parts.append(format_fixed_coord(value))
+    if symmform:
+        parts = [part.strip() for part in str(symmform).split(",")]
+        if len(parts) != 3:
+            raise ValueError(f"invalid Wyckoff symmetry form: {symmform!r}")
+        free = [
+            (axis, float((parameters or {})[axis]))
+            for axis in _AXIS_LETTERS
+            if axis in (parameters or {})
+        ]
+    else:
+        coords = [float(x) for x in frac_coords]
+        parts = []
+        free = []
+        for axis, value in zip(_AXIS_LETTERS, coords, strict=True):
+            if _near_special(value) is None:
+                parts.append(axis)
+                free.append((axis, value))
+            else:
+                parts.append(format_fixed_coord(value))
     name = (label or "").strip() or f"{species}{species_index}"
     body = f"{name} {int(multiplicity)}{letter} ({','.join(parts)})"
     if free:
-        # Official prints ``z= 0.38000`` (five decimals, one space after =).
-        extras = ", ".join(f"{ax}= {val:.5f}" for ax, val in free)
+        # Official uses a sign column: positive values have one leading blank
+        # (``z= 0.38000``), while negatives have none (``z=-0.13885``).
+        extras = ", ".join(f"{ax}={val: .5f}" for ax, val in free)
         body = f"{body}, {extras}"
     return body
 
@@ -89,11 +103,17 @@ def format_wyckoff_sites(
     """Format parent Wyckoff sites (fallback when no CIF path is available)."""
     species_count: dict[str, int] = {}
     lines: list[str] = []
-    for site in wyckoff_sites:
+    ordered_sites = sorted(
+        enumerate(wyckoff_sites),
+        key=lambda item: (int(item[1].get("display_order", item[0])), item[0]),
+    )
+    for _, site in ordered_sites:
         species = str(site["species"])
         species_count[species] = species_count.get(species, 0) + 1
         idx = int(site["representative_index"])
-        coords = structure[idx].frac_coords
+        coords = site.get("standard_representative_frac_coords")
+        if coords is None:
+            coords = structure[idx].frac_coords
         label = site.get("display_label")
         lines.append(format_wyckoff_site(
             species=species,
@@ -102,6 +122,8 @@ def format_wyckoff_sites(
             letter=str(site["wyckoff_letter"]),
             frac_coords=coords,
             label=str(label) if label else None,
+            symmform=site.get("standard_representative_symmform"),
+            parameters=site.get("standard_representative_parameters"),
         ))
     return lines
 
@@ -188,6 +210,41 @@ def _frac_dist(a: Sequence[float], b: Sequence[float]) -> float:
     return float(np.max(delta))
 
 
+def _element_symbol(value: object) -> str | None:
+    """Normalize CIF/site spellings such as ``ND``, ``Fe3+`` or ``O1``."""
+    match = re.match(r"[A-Za-z]+", str(value or "").strip())
+    if match is None:
+        return None
+    letters = match.group(0)
+    for width in (2, 1):
+        if len(letters) < width:
+            continue
+        candidate = letters[:width].capitalize()
+        try:
+            return Element(candidate).symbol
+        except ValueError:
+            continue
+    return None
+
+
+def _orbit_frac_dist(
+    frac: Sequence[float],
+    structure: Structure,
+    site: dict,
+) -> float | None:
+    """Minimum periodic distance to any atom in one physical Wyckoff orbit."""
+    indices = [int(value) for value in (site.get("equivalent_indices") or ())]
+    representative = int(site["representative_index"])
+    if representative not in indices:
+        indices.append(representative)
+    distances = [
+        _frac_dist(frac, structure[index].frac_coords)
+        for index in indices
+        if 0 <= index < len(structure)
+    ]
+    return min(distances) if distances else None
+
+
 def format_wyckoff_sites_from_cif(
     cif_path: str | Path,
     structure: Structure,
@@ -207,13 +264,19 @@ def format_wyckoff_sites_from_cif(
     matched_labels: list[tuple[int, str]] = []
     species_count: dict[str, int] = {}
     for atom in asu:
+        atom_species = _element_symbol(atom.get("type_symbol") or atom.get("label"))
+        if atom_species is None:
+            continue
         best_i = None
         best_d = 1e9
         for i, site in enumerate(wyckoff_sites):
             if i in used:
                 continue
-            idx = int(site["representative_index"])
-            d = _frac_dist(atom["frac"], structure[idx].frac_coords)
+            if _element_symbol(site.get("species")) != atom_species:
+                continue
+            d = _orbit_frac_dist(atom["frac"], structure, site)
+            if d is None:
+                continue
             if d < best_d:
                 best_d = d
                 best_i = i
@@ -225,13 +288,18 @@ def format_wyckoff_sites_from_cif(
         species_count[species] = species_count.get(species, 0) + 1
         display = (atom.get("label") or atom.get("type_symbol") or "").strip()
         matched_labels.append((best_i, display))
+        display_coords = site.get("standard_representative_frac_coords")
+        if display_coords is None:
+            display_coords = atom["frac"]
         lines.append(format_wyckoff_site(
             species=species,
             species_index=species_count[species],
             multiplicity=int(site["multiplicity"]),
             letter=str(site["wyckoff_letter"]),
-            frac_coords=atom["frac"],
+            frac_coords=display_coords,
             label=display or None,
+            symmform=site.get("standard_representative_symmform"),
+            parameters=site.get("standard_representative_parameters"),
         ))
     if len(lines) != len(wyckoff_sites):
         return None

@@ -4,11 +4,29 @@
 对应阶段一，步骤3：结构对称性校验
 实现方式：⚖️ 基于 pymatgen 的 SpacegroupAnalyzer 判定空间群与对称性
 """
+import hashlib
+import json
+
 import numpy as np
 from pymatgen.core import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from ..utils import get_config
+
+
+def _canonical_fractional_coordinate(value: float) -> float:
+    """Canonicalize one periodic coordinate for a content identity.
+
+    The orbit digest is quantized to ten decimal places.  Values within half
+    that resolution of either side of the unit-cell boundary must therefore
+    share the same zero representation; otherwise ``-epsilon`` and ``0`` can
+    name the same crystallographic orbit differently.
+    """
+    wrapped = float(value) % 1.0
+    if min(abs(wrapped), abs(1.0 - wrapped)) <= 5e-10:
+        return 0.0
+    rounded = round(wrapped, 10)
+    return 0.0 if rounded == 1.0 else rounded
 
 
 class SymmetryValidator:
@@ -100,12 +118,41 @@ class SymmetryValidator:
             # label 形如 "4a"
             multiplicity = int(label[:-1])
             letter = label[-1]
+            # A Wyckoff letter is only a position *type*.  A structure may
+            # contain several independent physical orbits with the same
+            # letter (4310_tetra.cif has five distinct 4e orbits).  Give each
+            # orbit a deterministic content identity so downstream mode
+            # mapping never collapses them merely because their letters agree.
+            orbit_payload = {
+                "space_group_number": int(sg_number),
+                "multiplicity": multiplicity,
+                "wyckoff_letter": letter,
+                "species": structure[indices[0]].species_string,
+                "equivalent_frac_coords": sorted(
+                    tuple(
+                        _canonical_fractional_coordinate(value)
+                        for value in structure[i].frac_coords
+                    )
+                    for i in indices
+                ),
+            }
+            orbit_digest = hashlib.sha256(
+                json.dumps(
+                    orbit_payload,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8")
+            ).hexdigest()
             wyckoff_sites.append({
                 "wyckoff_letter": letter,
                 "multiplicity": multiplicity,
                 "species": structure[indices[0]].species_string,
                 "representative_index": indices[0],
                 "equivalent_indices": indices,
+                "orbit_id": (
+                    f"sg{int(sg_number)}:{multiplicity}{letter}:"
+                    f"{structure[indices[0]].species_string}:{orbit_digest}"
+                ),
             })
 
         # 占位检查：同时覆盖混占与部分/超占位

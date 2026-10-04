@@ -2,17 +2,22 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
+from types import SimpleNamespace
 
 from pymatgen.core import Lattice, Structure
 
 from isocore.backend import KPointInfo
+from isocore.backend.base_wrapper import BaseWrapper
 from isocore.data.kpoints_official import official_kparams_to_iso
 from isocore.i18n import MESSAGES, t
+from isocore.structure import SymmetryValidator
 from isocore.utils import get_config
 from isocore.utils.parent_header import (
     format_fixed_coord,
     format_wyckoff_site,
     format_wyckoff_sites,
+    format_wyckoff_sites_from_cif,
 )
 
 # --- from test_config.py ---
@@ -27,6 +32,34 @@ def test_config_load():
     assert "ISODATA" in os.environ, "ISODATA 环境变量已设置"
     print("配置加载测试通过")
     print(f"   ISODATA = {os.environ['ISODATA']}")
+
+
+def test_binary_launch_requires_the_staging_directory(monkeypatch):
+    wrapper = object.__new__(BaseWrapper)
+    wrapper._stage_dir = "/home/test/.id/tmp"
+    monkeypatch.setattr(
+        wrapper,
+        "_stage_text",
+        lambda _prefix, _text: "/home/test/.id/tmp/iso_input.in",
+    )
+    monkeypatch.setattr(wrapper, "_wsl_bin_path", lambda _path: "/opt/isobyu/iso")
+    monkeypatch.setattr(wrapper, "_isodata_path", lambda: "/home/test/.id/data/")
+    commands: list[str] = []
+
+    def capture(command: str, timeout: float | None = None):
+        _ = timeout
+        commands.append(command)
+        return SimpleNamespace(returncode=0, stdout="ok", stderr="")
+
+    monkeypatch.setattr(wrapper, "_wsl", capture)
+
+    assert wrapper._run_program(Path("iso"), "QUIT\n", True) == "ok"
+    assert len(commands) == 1
+    assert (
+        "export ISODATA=/home/test/.id/data/ && "
+        "cd /home/test/.id/tmp && /opt/isobyu/iso"
+    ) in commands[0]
+    assert "; cd " not in commands[0]
 
 
 def test_crystallographic_tolerances_have_explicit_units_and_roles():
@@ -45,6 +78,17 @@ def test_crystallographic_tolerances_have_explicit_units_and_roles():
         cfg.affine_exact_cartesian_tolerance_angstrom
         < cfg.symmetry_cartesian_tolerance_angstrom
     )
+
+
+def test_orbit_identity_is_periodic_at_fractional_cell_boundary():
+    lattice = Lattice.cubic(4.0)
+    exact = Structure(lattice, ["He"], [[0.0, 0.25, 0.5]])
+    wrapped_noise = Structure(lattice, ["He"], [[-1e-12, 0.25, 0.5]])
+    validator = SymmetryValidator()
+
+    exact_id = validator.validate(exact)["wyckoff_sites"][0]["orbit_id"]
+    wrapped_id = validator.validate(wrapped_noise)["wyckoff_sites"][0]["orbit_id"]
+    assert exact_id == wrapped_id
 
 
 
@@ -143,13 +187,90 @@ def test_format_wyckoff_sites_eual4_like():
     ]
 
 
+def test_cif_label_matches_nonrepresentative_member_of_orbit(tmp_path):
+    structure = Structure(
+        Lattice.cubic(4.0),
+        ["H", "H"],
+        [[0.1, 0, 0], [0.9, 0, 0]],
+    )
+    sites = [{
+        "species": "H",
+        "multiplicity": 2,
+        "wyckoff_letter": "a",
+        "representative_index": 0,
+        "equivalent_indices": [0, 1],
+    }]
+    cif = tmp_path / "equivalent_member.cif"
+    cif.write_text(
+        """data_test
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+H_second H 0.9 0 0
+""",
+        encoding="utf-8",
+    )
+
+    lines = format_wyckoff_sites_from_cif(cif, structure, sites, tol=0.01)
+
+    assert lines is not None
+    assert lines[0].startswith("H_second 2a ")
+    assert sites[0]["display_label"] == "H_second"
+
+
+def test_cif_label_matching_checks_species_and_repeated_orbit_distance(tmp_path):
+    structure = Structure(
+        Lattice.cubic(4.0),
+        ["Na", "Na", "K"],
+        [[0.1, 0, 0], [0.2, 0, 0], [0.201, 0, 0]],
+    )
+    sites = [
+        {
+            "species": "Na", "multiplicity": 1, "wyckoff_letter": "e",
+            "representative_index": 0, "equivalent_indices": [0],
+        },
+        {
+            "species": "Na", "multiplicity": 1, "wyckoff_letter": "e",
+            "representative_index": 1, "equivalent_indices": [1],
+        },
+        {
+            "species": "K", "multiplicity": 1, "wyckoff_letter": "e",
+            "representative_index": 2, "equivalent_indices": [2],
+        },
+    ]
+    cif = tmp_path / "nearby_orbits.cif"
+    cif.write_text(
+        """data_test
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+NaB Na 0.2009 0 0
+K1 K 0.2010 0 0
+NaA Na 0.1000 0 0
+""",
+        encoding="utf-8",
+    )
+
+    lines = format_wyckoff_sites_from_cif(cif, structure, sites, tol=0.01)
+
+    assert lines is not None
+    assert [site["display_label"] for site in sites] == ["NaA", "NaB", "K1"]
+    assert [line.split()[0] for line in lines] == ["NaB", "K1", "NaA"]
+
+
 def test_parent_wyckoff_from_cif_ndnio2():
     """CIF atom_site labels/order drive the web header (not memorized EuAl4)."""
     from pathlib import Path
 
     from isocore.api import IsoDistort
 
-    cris = Path(__file__).resolve().parents[3]
+    cris = Path(__file__).resolve().parents[2]
     cif = cris / "experiment_data" / "NdNiO2 own.cif"
     if not cif.is_file():
         import pytest
@@ -167,6 +288,35 @@ def test_parent_wyckoff_from_cif_ndnio2():
     assert any(ln.startswith("NI 1a") for ln in lines)
 
 
+def test_parent_wyckoff_from_cif_4310_uses_standard_orbit_representatives():
+    """Body-centering-equivalent CIF rows must use FINDSYM standard points."""
+    from pathlib import Path
+
+    from isocore.api import IsoDistort
+
+    cris = Path(__file__).resolve().parents[2]
+    cif = cris / "experiment_data" / "4310_tetra.cif"
+    if not cif.is_file():
+        import pytest
+        pytest.skip("4310_tetra.cif not in experiment_data")
+
+    iso = IsoDistort()
+    iso.load_structure(cif)
+    sites = iso.symmetry_info["wyckoff_sites"]
+    assert len({site["orbit_id"] for site in sites}) == 8
+    assert len({site["orbit_id"] for site in sites if site["wyckoff_letter"] == "e"}) == 5
+    assert iso.parent_wyckoff_display() == [
+        "La1 4e (0,0,z), z= 0.43204",
+        "La2 4e (0,0,z), z= 0.30148",
+        "Ni1 2a (0,0,0)",
+        "Ni2 4e (0,0,z), z=-0.13885",
+        "O1 8g (0,1/2,z), z= 0.36070",
+        "O3 4c (0,1/2,0)",
+        "O4 4e (0,0,z), z=-0.21680",
+        "O2 4e (0,0,z), z=-0.06780",
+    ]
+
+
 def test_export_cif_uses_cif_wyckoff_lines_ndnio2():
     """Distortion CIF comments must reuse the same CIF-ordered parent header."""
     from pathlib import Path
@@ -175,7 +325,7 @@ def test_export_cif_uses_cif_wyckoff_lines_ndnio2():
     from isocore.backend import SubgroupInfo
     from isocore.io.distortion_formats import render_cif
 
-    cris = Path(__file__).resolve().parents[3]
+    cris = Path(__file__).resolve().parents[2]
     cif = cris / "experiment_data" / "NdNiO2 own.cif"
     if not cif.is_file():
         import pytest

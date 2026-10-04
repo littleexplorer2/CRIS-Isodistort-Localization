@@ -218,8 +218,16 @@ def _render_p1(structure: Structure, sg: SubgroupInfo) -> str:
 
 
 def _render(spec: Any, structure: Structure, *, force_p1: bool) -> str:
+    if getattr(spec, "strain_data", None) is not None:
+        # CIF and TOPAS must obtain the actual B @ M @ P lattice from the same
+        # export-contract helper.  It also preserves reference fractional
+        # coordinates for a pure homogeneous strain and verifies any explicit
+        # final CIF structure before accepting it.
+        from .distortion_formats import resolve_strained_export_structure  # noqa: PLC0415
+
+        structure = resolve_strained_export_structure(spec)
     sg = spec.subgroup
-    setting, shifted, sites, origin_shift = _subgroup_sites(
+    setting, shifted, sites, origin_shift = _validated_subgroup_sites(
         spec, structure, force_p1=force_p1
     )
     lines: list[str] = []
@@ -285,6 +293,32 @@ def _subgroup_sites(
     )
     sites = _asymmetric_sites(shifted, setting, spec, origin_shift)
     return setting, shifted, sites, origin_shift
+
+
+def _validated_subgroup_sites(
+    spec: Any,
+    structure: Structure,
+    *,
+    force_p1: bool = False,
+) -> tuple[_Setting, Structure, list[dict], np.ndarray]:
+    """Build writer sites and apply the shared exact displacive preflight."""
+
+    if getattr(spec, "displacive_data", None) is None:
+        return _subgroup_sites(spec, structure, force_p1=force_p1)
+
+    # The production displacive contract has already applied the exact
+    # parent-to-child origin and bound atoms, modes and Seitz operations to the
+    # target Hall frame.  ``_apply_origin_choice`` is the legacy normalization
+    # for a raw supercell; applying its subgroup-origin hint here would apply
+    # that origin a second time and detach atom rows from the validated model.
+    # Build directly in the recorded frame, then retain the strict operation,
+    # representative and zero-extra-shift checks below.
+    setting = _setting(spec.subgroup, force_p1=force_p1)
+    origin_shift = np.zeros(3, dtype=float)
+    sites = _asymmetric_sites(structure, setting, spec, origin_shift)
+    result = setting, structure, sites, origin_shift
+    _validate_displacive_writer_frame(spec, setting, sites, origin_shift)
+    return result
 
 
 def _setting(sg: SubgroupInfo, *, force_p1: bool) -> _Setting:
@@ -1254,7 +1288,8 @@ def _order_parameter_comment_lines(spec: Any) -> list[str]:
     amps = spec.amplitudes or {}
     disp = spec.mode_displacements_sc or {}
     sg = spec.subgroup
-    if not labels and not disp and not getattr(spec, "strain_mode_labels", None):
+    strain = getattr(spec, "strain_data", None)
+    if not labels and not disp and strain is None:
         # Still emit the OP head when we know the subgroup path (zero modes).
         if not (sg and sg.irrep_label):
             return []
@@ -1271,9 +1306,9 @@ def _order_parameter_comment_lines(spec: Any) -> list[str]:
             m = re.search(r"(\[[^\]]+\].*)$", pretty)
         token = m.group(1) if m else pretty
         lines.append(f"#     {token}:  {_f5(amp)}")
-    for lab in getattr(spec, "strain_mode_labels", None) or []:
-        amp = float((getattr(spec, "strain_amplitudes", None) or {}).get(lab, 0.0))
-        lines.append(f"#     {lab}:  {_f5(amp)}")
+    if strain is not None:
+        for _mode, label, amplitude in strain.items():
+            lines.append(f"#     {label}:  {_f5(amplitude)}")
     return lines
 
 
@@ -1409,7 +1444,11 @@ def _iso_mode_loops(spec: Any, sites: list[dict]) -> list[str]:
             amp = float(amps.get(key, 0.0))
             lines.append(f"   {i} {pretty}  {_f5(amp)}")
         lines.append("")
-    lines.extend(_coordinate_loops(sites))
+    data = getattr(spec, "displacive_data", None)
+    if data is None:
+        lines.extend(_coordinate_loops(sites))
+    else:
+        lines.extend(_validated_displacive_loops(data))
     lines.append("_iso_magneticmode_number    0")
     lines.append("")
     lines.append("")
@@ -1418,9 +1457,255 @@ def _iso_mode_loops(spec: Any, sites: list[dict]) -> list[str]:
     lines.append("")
     lines.append("_iso_occupancymode_number    0")
     lines.append("")
-    lines.append("_iso_strainmode_number    0")
+    strain = getattr(spec, "strain_data", None)
+    strain_count = len(strain.result.modes) if strain is not None else 0
+    lines.append(f"_iso_strainmode_number    {strain_count}")
+    lines.append("")
+    if strain is not None:
+        lines.append("loop_")
+        lines.append("_iso_strainmode_ID")
+        lines.append("_iso_strainmode_label")
+        lines.append("_iso_strainmode_value")
+        for mode, _label, amplitude in strain.items():
+            label = strain.full_label(mode, spec.parent_symbol)
+            lines.append(f"   {mode.index} {label}  {_f5(amplitude)}")
+        lines.append("")
+
+        lines.append("loop_")
+        lines.append("_iso_strainmodenorm_ID")
+        lines.append("_iso_strainmodenorm_value")
+        for mode, _label, _amplitude in strain.items():
+            lines.append(f"   {mode.index}  {_f5(float(mode.normfactor))}")
+        lines.append("")
+
+        lines.append("loop_")
+        lines.append("_iso_strain_ID")
+        lines.append("_iso_strain_label")
+        lines.append("_iso_strain_value")
+        for row, value in enumerate(
+            strain.cif_raw_component_values(), start=1
+        ):
+            lines.append(f"   {row} E_{row}  {_f5(float(value))}")
+        lines.append("")
+
+        lines.append("# matrix conversion: strains(parent) = matrix * modeamplitudes")
+        lines.append(
+            "# Parent-basis engineering rows: E11 E22 E33 2E23 2E13 2E12"
+        )
+        lines.append(
+            "# Matrix and _iso_strain_value use q_raw; applied M uses "
+            "q_unit=normfactor*q_raw"
+        )
+        lines.append("")
+        lines.append("loop_")
+        lines.append("_iso_strainmodematrix_row")
+        lines.append("_iso_strainmodematrix_col")
+        lines.append("_iso_strainmodematrix_value")
+        for mode, _label, _amplitude in strain.items():
+            for row, value in enumerate(np.asarray(mode.q_raw, dtype=float), start=1):
+                if abs(float(value)) <= 5.0e-12:
+                    continue
+                lines.append(f"    {row}    {mode.index}  {_f5(float(value))}")
+        lines.append("")
+    return lines
+
+
+def _validate_displacive_writer_frame(
+    spec: Any,
+    setting: _Setting,
+    sites: list[dict],
+    origin_shift: np.ndarray,
+) -> None:
+    """Prove that CIF labels and operations are the validated model frame."""
+
+    data = spec.displacive_data
+    model = data.model
+    shift = np.asarray(origin_shift, dtype=float)
+    shift -= np.round(shift)
+    if np.max(np.abs(shift)) > 1.0e-10:
+        raise ValueError(
+            "validated displacive CIF cannot apply an unrecorded writer origin shift"
+        )
+
+    unmatched = list(setting.symmetry_ops)
+    for exact in model.frame.operations:
+        exact_rotation = np.asarray(exact.rotation, dtype=float)
+        exact_translation = np.asarray(exact.translation, dtype=float)
+        match = next(
+            (
+                operation
+                for operation in unmatched
+                if np.allclose(
+                    np.asarray(operation.rotation_matrix, dtype=float),
+                    exact_rotation,
+                    rtol=0.0,
+                    atol=1.0e-10,
+                )
+                and np.allclose(
+                    np.mod(
+                        np.asarray(operation.translation_vector, dtype=float)
+                        - exact_translation
+                        + 0.5,
+                        1.0,
+                    )
+                    - 0.5,
+                    0.0,
+                    rtol=0.0,
+                    atol=1.0e-10,
+                )
+            ),
+            None,
+        )
+        if match is None:
+            raise ValueError(
+                "validated displacive model operations differ from the emitted CIF setting"
+            )
+        unmatched.remove(match)
+    if unmatched:
+        raise ValueError(
+            "validated displacive model operations differ from the emitted CIF setting"
+        )
+
+    owner_by_atom = {
+        atom_id: orbit.representative_atom_id
+        for orbit in model.orbits
+        for atom_id in orbit.member_atom_ids
+    }
+    orbit_by_representative = {
+        orbit.representative_atom_id: orbit for orbit in model.orbits
+    }
+    seen: set[str] = set()
+    for row in sites:
+        index = int(row["index"])
+        if index < 0 or index >= len(data.atom_ids):
+            raise ValueError("CIF representative index is outside the validated atom order")
+        atom_id = data.atom_ids[index]
+        representative = owner_by_atom.get(atom_id)
+        if representative is None:
+            raise ValueError("CIF representative is absent from the validated atom mapping")
+        if atom_id != representative:
+            raise ValueError(
+                "CIF asymmetric-site representative differs from the validated model representative"
+            )
+        if representative in seen:
+            raise ValueError(
+                "CIF asymmetric-site labels do not match the validated atom mapping"
+            )
+        # ``_asymmetric_sites`` assigns a provisional suffix after sorting by
+        # Wyckoff letter and coordinates.  That display order need not match
+        # the exact child-orbit order used by the displacive model (for
+        # example, two split orbits of the same parent site can be reversed by
+        # the coordinate sort).  Once the row index has been proven to be the
+        # exact model representative, the contract label is authoritative and
+        # must bind both the atom-site row and the coordinate/mode loops.
+        row["label"] = data.representative_label(representative)
+        seen.add(representative)
+        row["symmform"] = orbit_by_representative[representative].site.symmform
+    if seen != set(orbit_by_representative):
+        raise ValueError("CIF asymmetric sites do not cover every validated child orbit")
+
+
+def _validated_displacive_loops(data: Any) -> list[str]:
+    """Emit coordinate and mode-matrix loops from one validated exact model."""
+
+    model = data.model
+    rows = data.modes()
+    lines = [
+        "loop_",
+        "_iso_displacivemodenorm_ID",
+        "_iso_displacivemodenorm_value",
+    ]
+    for index, row in enumerate(rows, start=1):
+        lines.append(f"   {index}  {_f5(row.normfactor_per_angstrom)}")
+    lines.append("")
+
+    free_values = model.projection.matrix_array() @ np.asarray(
+        [
+            row.amplitude_as_angstrom * row.normfactor_per_angstrom
+            for row in rows
+        ],
+        dtype=float,
+    )
+    lines.extend(
+        [
+            "loop_",
+            "_iso_deltacoordinate_ID",
+            "_iso_deltacoordinate_label",
+            "_iso_deltacoordinate_value",
+        ]
+    )
+    for index, (free_row, value) in enumerate(
+        zip(model.projection.free_rows, free_values, strict=True), start=1
+    ):
+        label = (
+            f"{data.representative_label(free_row.representative_atom_id)}_"
+            f"d{'xyz'[free_row.axis]}"
+        )
+        lines.append(f"   {index} {label:<8s}  {_f5(float(value))}")
+    lines.append("")
+
+    lines.extend(["loop_", "_iso_coordinate_label", "_iso_coordinate_formula"])
+    for orbit in model.orbits:
+        site = orbit.site
+        label = data.representative_label(orbit.representative_atom_id)
+        parameter_labels = [f"{label}_{parameter.suffix}" for parameter in site.parameters]
+        for axis, axis_name in enumerate("xyz"):
+            base = _coordinate_fraction_text(site.representative_frac[axis])
+            formula = _coordinate_formula(
+                base, site.fixed_basis[axis], parameter_labels
+            )
+            lines.append(f'{label}_{axis_name:<22s} "{formula}"')
+    lines.append("")
+
+    lines.extend(
+        [
+            "loop_",
+            "_iso_displacivemodematrix_row",
+            "_iso_displacivemodematrix_col",
+            "_iso_displacivemodematrix_value",
+        ]
+    )
+    matrix = model.projection.matrix_array()
+    for row_index in range(matrix.shape[0]):
+        for column_index in range(matrix.shape[1]):
+            value = float(matrix[row_index, column_index])
+            if abs(value) <= 5.0e-12:
+                continue
+            lines.append(
+                f"   {row_index + 1}  {column_index + 1}  {_f5(value)}"
+            )
     lines.append("")
     return lines
+
+
+def _fraction_text(value: Fraction) -> str:
+    if value.denominator == 1:
+        return str(value.numerator)
+    return f"{value.numerator}/{value.denominator}"
+
+
+def _coordinate_fraction_text(value: Fraction) -> str:
+    value %= 1
+    return _fraction_text(value)
+
+
+def _coordinate_formula(
+    base: str,
+    coefficients: Sequence[Fraction],
+    parameters: Sequence[str],
+) -> str:
+    terms = [base]
+    for coefficient, parameter in zip(coefficients, parameters, strict=True):
+        if coefficient == 0:
+            continue
+        magnitude = abs(coefficient)
+        body = (
+            parameter
+            if magnitude == 1
+            else f"{_fraction_text(magnitude)}*{parameter}"
+        )
+        terms.append((" + " if coefficient > 0 else " - ") + body)
+    return "".join(terms)
 
 
 def _coordinate_loops(sites: list[dict]) -> list[str]:

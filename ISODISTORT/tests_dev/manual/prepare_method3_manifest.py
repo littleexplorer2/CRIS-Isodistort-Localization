@@ -47,7 +47,9 @@ def _case(
 ) -> dict[str, Any]:
     return {
         "id": case_id,
-        "readable_case_folder": f"{case_id} - SG{sg} - {expected_ir} {expected_opd}",
+        # Keep paths short on Windows.  The remaining fields retain the full
+        # SG/IR/OPD identity, so the stable case ID is sufficient here.
+        "readable_case_folder": case_id,
         "space_group_type": sg,
         "supercell_basis": basis,
         "direct_sublattice_centering": centering,

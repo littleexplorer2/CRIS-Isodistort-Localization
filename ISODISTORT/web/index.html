@@ -311,7 +311,10 @@ let subgroups = [];          // Method 2 subgroup rows
 let m1Items = [];
 let m3Items = [];
 let m4Items = [];
-let m4Meta = { rms: null, maxAbs: null, strain: null, strainTensor: null, metadata: null };
+let m4Meta = {
+  rms: null, maxAbs: null, strainApplied: null, strainRaw: null,
+  strainTensor: null, strainMultiplier: null, strainModes: [], metadata: null,
+};
 let modes = [];             // {irrep_label, opd_symbol, mode_type, wyckoff_sites, ...}
 let nsupValue = 1;
 let nmodValue = 0;
@@ -736,7 +739,10 @@ function clearComputedResults() {
   m3Items = [];
   m4Items = [];
   modes = [];
-  m4Meta = { rms: null, maxAbs: null, strain: null, strainTensor: null, metadata: null };
+  m4Meta = {
+    rms: null, maxAbs: null, strainApplied: null, strainRaw: null,
+    strainTensor: null, strainMultiplier: null, strainModes: [], metadata: null,
+  };
   tblState[1] = emptyTblState();
   tblState[2] = emptyTblState();
   tblState[3] = emptyTblState();
@@ -987,12 +993,14 @@ function renderResultTable(method) {
     const rms = Number(m4Meta.rms).toExponential(3);
     const maxAbs = Number(m4Meta.maxAbs).toExponential(3);
     html += `<div class="info">${esc(t("m4.residualSummary", rms, maxAbs))}</div>`;
-    if (m4Meta.strain) {
-      const strainText = ["xx", "yy", "zz", "2yz", "2xz", "2xy"]
-        .map((label) => `${label}=${Number(m4Meta.strain[label]).toPrecision(8)}`)
+    if (m4Meta.strainApplied) {
+      const order = (m4Meta.metadata || {}).strain_voigt_order ||
+        ["11", "22", "33", "2*23", "2*13", "2*12"];
+      const strainText = order
+        .map((label) => `${label}=${Number(m4Meta.strainApplied[label]).toPrecision(8)}`)
         .join(", ");
       const convention = (m4Meta.metadata || {}).strain_convention ||
-        "engineering Voigt order (xx,yy,zz,2yz,2xz,2xy)";
+        "parent-basis engineering q (E11,E22,E33,2E23,2E13,2E12)";
       html += `<div class="info">${esc(t("m4.strainSummary", convention, strainText))}</div>`;
     }
   }
@@ -1416,8 +1424,11 @@ async function runMethod4() {
   m4Meta = {
     rms: d.rms_residual,
     maxAbs: d.max_abs_residual,
-    strain: d.strain_voigt_engineering || null,
-    strainTensor: d.strain_tensor || null,
+    strainApplied: d.strain_applied_engineering_q_parent_basis || null,
+    strainRaw: d.strain_raw_coordinate_sum_parent_basis || null,
+    strainTensor: d.strain_tensor_parent_basis || null,
+    strainMultiplier: d.strain_multiplier_parent_basis || null,
+    strainModes: d.strain_modes || [],
     metadata: d.metadata || null,
   };
   tblState[4] = emptyTblState();

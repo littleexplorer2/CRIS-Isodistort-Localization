@@ -1,15 +1,15 @@
-"""Read amplitude CSV + subgroup .isoviz and launch IsoVIZ.
+r"""Read amplitude CSV + subgroup .isoviz and launch IsoVIZ.
 
 Usage (from the CRIS root, using CRIS/.venv):
 
-  python ISOVIZ_INPUT/main.py
+  .\.venv\Scripts\python.exe ISOVIZ_INPUT\main.py
 
 You will be asked for:
   1) a folder name under Desktop/Best_Model_Parameters
   2) a CSV file name inside that folder
   3) the absolute path of the crystal .isoviz file (quotes are stripped)
 
-  python ISOVIZ_INPUT/main.py --data path/to.csv --structure path/to.isoviz
+  .\.venv\Scripts\python.exe ISOVIZ_INPUT\main.py --data path/to.csv --structure path/to.isoviz
 """
 from __future__ import annotations
 

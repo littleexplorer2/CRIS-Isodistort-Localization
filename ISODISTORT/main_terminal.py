@@ -35,6 +35,7 @@ from isocore.utils.schoenflies import (
     hm_symbol,
     schoenflies_symbol,
 )
+from runtime_launcher import require_cris_runner
 
 DISTORTION_TYPE_MAP = {
     1: "displacive",
@@ -469,8 +470,12 @@ class IsoDistortConsoleApp:
         self.last_method4_meta: dict = {
             "rms": None,
             "max_abs": None,
-            "strain_voigt_engineering": {},
-            "strain_tensor": [],
+            "strain_mode_amplitudes": {},
+            "strain_modes": [],
+            "strain_raw_coordinate_sum_parent_basis": None,
+            "strain_applied_engineering_q_parent_basis": {},
+            "strain_tensor_parent_basis": [],
+            "strain_multiplier_parent_basis": [],
             "metadata": {},
         }
         self.nmod_value = 0
@@ -534,8 +539,12 @@ class IsoDistortConsoleApp:
         self.last_method4_meta = {
             "rms": None,
             "max_abs": None,
-            "strain_voigt_engineering": {},
-            "strain_tensor": [],
+            "strain_mode_amplitudes": {},
+            "strain_modes": [],
+            "strain_raw_coordinate_sum_parent_basis": None,
+            "strain_applied_engineering_q_parent_basis": {},
+            "strain_tensor_parent_basis": [],
+            "strain_multiplier_parent_basis": [],
             "metadata": {},
         }
         self.tbl = {
@@ -1182,8 +1191,22 @@ class IsoDistortConsoleApp:
         self.last_method4_meta = {
             "rms": result.rms_residual,
             "max_abs": result.max_abs_residual,
-            "strain_voigt_engineering": dict(result.strain_voigt_engineering),
-            "strain_tensor": [list(row) for row in result.strain_tensor],
+            "strain_mode_amplitudes": dict(result.strain_mode_amplitudes),
+            "strain_modes": list(result.strain_modes),
+            "strain_raw_coordinate_sum_parent_basis": (
+                dict(result.strain_raw_coordinate_sum_parent_basis)
+                if result.strain_raw_coordinate_sum_parent_basis is not None
+                else None
+            ),
+            "strain_applied_engineering_q_parent_basis": dict(
+                result.strain_applied_engineering_q_parent_basis
+            ),
+            "strain_tensor_parent_basis": [
+                list(row) for row in result.strain_tensor_parent_basis
+            ],
+            "strain_multiplier_parent_basis": [
+                list(row) for row in result.strain_multiplier_parent_basis
+            ],
             "metadata": dict(result.metadata),
         }
         self.tbl[4] = _empty_tbl(_method4_cols())
@@ -1195,7 +1218,9 @@ class IsoDistortConsoleApp:
         )
         strain_text = ", ".join(
             f"{label}={value:.8g}"
-            for label, value in result.strain_voigt_engineering.items()
+            for label, value in (
+                result.strain_applied_engineering_q_parent_basis.items()
+            )
         )
         print(t("m4.strainSummary", result.metadata["strain_convention"], strain_text))
         self._review_result_table(4, allow_idx=False)
@@ -1275,7 +1300,8 @@ class IsoDistortConsoleApp:
                     subgroups=subs,
                     compute_missing_modes=compute_missing_modes,
                     wrapping=None,
-                    use_opd_line_folders=(method == 1),
+                    export_method=method,
+                    number_of_independent_modulations=self.nmod_value,
                 )
                 out = Path(dest)
                 out.parent.mkdir(parents=True, exist_ok=True)
@@ -1287,7 +1313,8 @@ class IsoDistortConsoleApp:
                 formats=formats,
                 subgroups=subs,
                 compute_missing_modes=compute_missing_modes,
-                use_opd_line_folders=(method == 1),
+                export_method=method,
+                number_of_independent_modulations=self.nmod_value,
             )
         print(t("ui.export.done", n=len(paths), dest=dest))
         for path in paths[:20]:
@@ -1402,4 +1429,5 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
+    require_cris_runner(__file__)
     sys.exit(main())
