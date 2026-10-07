@@ -5,7 +5,7 @@
 - 本笔记本是只读对照：日常改代码请用同目录的 `GD_modified.ipynb`。
 - 标题虽写 “EuAl4 version Fit modes”，文件名里的 **LD1 / C1** 才是这次拟合的不可约表示与子群。
 
-环境与修改边界见同目录 [`agent.md`](agent.md)。CSV 自动导出只存在于 `GD_modified.ipynb`，**本笔记本不会写出桌面 CSV**。
+环境与修改边界见同目录 [`agent.md`](agent.md)。CSV 自动导出只存在于 `GD_modified.ipynb`，**本笔记本不会写出 Best_Model_Parameters CSV**。
 
 ---
 
@@ -35,7 +35,7 @@
 需要 **Python 3.12.x** 与 TensorFlow。在本 GD 目录：
 
 ```powershell
-cd <桌面>\GD（未同步git）
+cd <工作盘>\GD
 python main_requirement.py
 ```
 
@@ -64,8 +64,8 @@ data_path = D:\OneDrive\PhD\Projects\2511HXRD\Data Process\table\All Combined.cs
 本机若没有 `D:\OneDrive\...` 那份精修目录，用 CRIS `.venv` 从本地 ISODISTORT 生成一套**同样契约**的文件（不改 tianren 笔记本，也不覆盖 `D:\` 原件）：
 
 ```powershell
-cd <桌面>\GD（未同步git）
-C:\Users\devou\OneDrive\Desktop\CRIS\.venv\Scripts\python.exe isodistort_to_gd.py --irrep LD1 --opd C1 --k LD --k-params 1/6 --nmod 0
+cd <工作盘>\GD
+..\CRIS\.venv\Scripts\python.exe isodistort_to_gd.py --irrep LD1 --opd C1 --k LD --k-params 1/6 --nmod 0
 ```
 
 默认写出：
@@ -229,7 +229,7 @@ All Combined.csv          LD1_C1_* 模式文件
 `GD_modified.ipynb` 在「ANALYZE MODE AMPLITUDES」之后会调用 `save_best_model_parameters(...)`，写到：
 
 ```text
-<桌面>/Best_Model_Parameters/LD1_C1/LD1_C1_best_model_parameters.csv
+<工作盘>/Best_Model_Parameters/LD1_C1/LD1_C1_best_model_parameters.csv
 ```
 
 再交给 CRIS 的 `ISOVIZ_INPUT/main.py` 写入 `.isoviz`。

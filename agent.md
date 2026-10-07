@@ -2,7 +2,7 @@
 
 ## 0. 项目提示词（原文）
 
-> 本文件夹（桌面 `GD（未同步git）`）存放 EuAl4 畸变模式振幅的梯度下降拟合代码。`GD_modified.ipynb` 是可修改的工作副本；`LD1_C1_gradient_descent_tianren.ipynb` 是原始参考笔记本，**不允许修改**。`.venv/` 是本目录专用虚拟环境（Python 3.12 + TensorFlow），不要手改其中第三方包文件。实验衍射表、模式名、归一化因子、振幅上界等数据在笔记本里以外部路径读入，那些原始数据文件不允许改。`save_best_model_parameters.py` 负责把最佳模式振幅写成桌面 `Best_Model_Parameters/` 下的 CSV，允许修改。`main_requirement.py` 负责创建/复用 `.venv` 并安装依赖，允许修改。说明文档 `README.md`、本文件 `agent.md` 允许修改。
+> 本文件夹存放 EuAl4 畸变模式振幅的梯度下降拟合代码，通常与 `CRIS/` 和 `Best_Model_Parameters/` 保持同级。`GD_modified.ipynb` 是可修改的工作副本；`LD1_C1_gradient_descent_tianren.ipynb` 是原始参考笔记本，**不允许修改**。`.venv/` 是本目录专用虚拟环境（Python 3.12 + TensorFlow），不要手改其中第三方包文件。实验衍射表、模式名、归一化因子、振幅上界等数据在笔记本里以外部路径读入，那些原始数据文件不允许改。`save_best_model_parameters.py` 负责把最佳模式振幅写入同级或显式配置的 `Best_Model_Parameters/`，允许修改。`main_requirement.py` 负责创建/复用 `.venv` 并安装依赖，允许修改。说明文档 `README.md`、本文件 `agent.md` 允许修改。
 
 > 以上为项目提示词原文。以下章节在其基础上展开可执行的目录权限、思考方式、验证科目、实现约定与常见坑；冲突时以本提示词的边界（哪些文件不允许修改）为准。
 
@@ -14,7 +14,7 @@
 
 本目录用 **TensorFlow / Keras 梯度下降**，把实验衍射强度拟合到一组 ISODISTORT 位移模式振幅上。物理上：母相 EuAl4（四方，空间群 I4/mmm）沿 LD1 / C1 子群发生畸变；每个模式振幅改变原子坐标，进而改变结构因子与强度。机器学习上：HKL 是特征，归一化实验强度是标签，可学习权重是 `mode_num` 个模式振幅，损失是晶体学 R 因子。
 
-与 CRIS 的关系：拟合得到的 Best Model Parameters 由 `save_best_model_parameters.py` 写到桌面 CSV；CRIS 里的 `ISOVIZ_INPUT` 再把该 CSV 写入 `.isoviz` 并打开 IsoVIZ。本目录**不**实现 ISODISTORT 搜索或 CIF 导出。
+与 CRIS 的关系：拟合得到的 Best Model Parameters 由 `save_best_model_parameters.py` 写到共享 CSV 目录；CRIS 里的 `ISOVIZ_INPUT` 再把该 CSV 写入 `.isoviz` 并打开 IsoVIZ。两端都优先读取 `BEST_MODEL_PARAMETERS_DIR`，否则自动发现同级 `Best_Model_Parameters/`。本目录**不**实现 ISODISTORT 搜索或 CIF 导出。
 
 ### 1.1 目录与修改权限
 
@@ -22,7 +22,7 @@
 | --- | --- | --- |
 | `GD_modified.ipynb` | 可迭代的拟合工作副本（含自动导出 CSV） | **允许** |
 | `LD1_C1_gradient_descent_tianren.ipynb` | 原始参考笔记本 | **禁止** |
-| `save_best_model_parameters.py` | 把最佳振幅写成桌面 CSV | **允许** |
+| `save_best_model_parameters.py` | 把最佳振幅写入共享 CSV 目录 | **允许** |
 | `isodistort_to_gd.py` | 把本地 ISODISTORT Method 2 结果写成笔记本输入 | **允许** |
 | `generated/` | 转换器输出（不覆盖 `D:\` 原始精修文件） | **允许**（可整目录重生） |
 | `tests_dev/` | 转换器格式短测 | **允许** |
@@ -39,12 +39,12 @@
 2. 在本目录运行 `python main_requirement.py`（需要本机 Python 3.12.x）。
 3. 用 `GD/.venv/Scripts/python.exe` 作为 Jupyter 内核。
 4. **改代码时只打开 `GD_modified.ipynb`。** 要对照原始流程，只读 `LD1_C1_gradient_descent_tianren.ipynb`。要把本地生成的模式表接上工作副本，把第一个单元格的 `path` 指到 `generated\LD1_C1`（`sub_name` 仍拼 `{path}\{irrep}_{structure_type}`）。实验 CSV 仍须自备，转换器不生成 `All Combined.csv`。
-5. 按单元格顺序运行：配置 → 读数据 → 定义 `fun_tf` / `FunAsLayer` → 训练 → 打印最佳振幅。`GD_modified.ipynb` 会在分析振幅后自动写出桌面 CSV。
+5. 按单元格顺序运行：配置 → 读数据 → 定义 `fun_tf` / `FunAsLayer` → 训练 → 打印最佳振幅。`GD_modified.ipynb` 会在分析振幅后自动写出共享 CSV。
 
 ### 1.3 环境
 
 ```text
-GD（未同步git）/.venv
+GD/.venv
 ```
 
 本目录**不与** CRIS `.venv` 共用（GD 需要 Python 3.12 + TensorFlow）。一律用：
@@ -86,7 +86,7 @@ II. 每次修改完成后，用可重复的检查确认行为（导入、CSV 导
 
 I. 每次行为变化后，检查并按实际行为修改所有受影响的说明文件（`README.md`、本文件若流程/边界变化、CSV 导出约定）。
 
-II. 工作完成以后，整理或清理与项目代码无关的文件，包括本轮产生的临时截图、缓存、日志、测试写出的假 CSV。确需保留的验收产物必须放入约定目录（桌面 `Best_Model_Parameters/<irrep>_<structure_type>/`）并在交付说明中注明。
+II. 工作完成以后，整理或清理与项目代码无关的文件，包括本轮产生的临时截图、缓存、日志、测试写出的假 CSV。确需保留的验收产物必须放入约定共享目录（`Best_Model_Parameters/<irrep>_<structure_type>/`）并在交付说明中注明。
 
 III. 项目版本与历史变更由 Git 管理（若本目录之后纳入版本库）。仅在用户明确要求时 commit / push；不改 git config；不用破坏性 rebase。
 
@@ -121,7 +121,7 @@ cd <本 GD 目录>
 转换器格式短测（不需要 TensorFlow / WSL）：
 
 ```powershell
-C:\Users\devou\OneDrive\Desktop\CRIS\.venv\Scripts\python.exe -m pytest tests_dev -q --tb=line
+..\CRIS\.venv\Scripts\python.exe -m pytest tests_dev -q --tb=line
 ```
 
 可选：
@@ -134,11 +134,11 @@ C:\Users\devou\OneDrive\Desktop\CRIS\.venv\Scripts\python.exe -m pytest tests_de
 
 | 科目 | 检查意图 |
 | --- | --- |
-| 桌面根目录 | 自动创建 `Desktop/Best_Model_Parameters/`（OneDrive Desktop 优先） |
+| CSV 根目录 | `BEST_MODEL_PARAMETERS_DIR`，否则同级 `Best_Model_Parameters/`，最后兼容 Desktop |
 | 子文件夹 / 文件名 | `{irrep}_{structure_type}` / `{irrep}_{structure_type}_best_model_parameters.csv` |
 | 列 | `Mode, Mode Name, Best Model Parameter, Maximum Mode Amplitude, Normalized Amplitude` |
 | 行序 | `a1, a2, …, a10` 按整数序号，不是字符串字典序 |
-| 不污染用户数据 | 测试写出的假 CSV 用完删除，不要留在用户桌面当真结果 |
+| 不污染用户数据 | 测试写出的假 CSV 用完删除，不要留在共享目录当真结果 |
 
 #### B. 笔记本与拟合（仅当改 `GD_modified.ipynb` 的训练/前向时）
 
@@ -146,7 +146,7 @@ C:\Users\devou\OneDrive\Desktop\CRIS\.venv\Scripts\python.exe -m pytest tests_de
 2. 自上而下能执行到「定义 `fun_tf` / `FunAsLayer`」；缺 `D:\` 数据或 `LD1_C1_alris_functions` 时在交付说明里写明，不要改禁止修改的原始数据来让单元格变绿。
 3. **不要**把满 1000 epoch 当作默验收尾。用户要求复现拟合时，再跑训练循环，并核对：
    - 打印的 Best model parameters 条数 = `mode_num`
-   - CSV 已出现在桌面对应子文件夹（仅 `GD_modified.ipynb`）
+   - CSV 已出现在共享目录的对应子文件夹（仅 `GD_modified.ipynb`）
    - R 因子相对改前没有无解释地变差
 4. **禁止**改 `LD1_C1_gradient_descent_tianren.ipynb` 来验证；对照时只读。
 
@@ -164,12 +164,12 @@ CRIS `ISOVIZ_INPUT` 依赖本导出的列名与 `Mode=aN` 顺序。改导出后�
 
 - [ ] 未修改禁止文件（尤其 `LD1_C1_gradient_descent_tianren.ipynb`、外部实验数据、`.venv` 第三方树）
 - [ ] 相关短测 / pytest 已跑；失败已修复或说明为环境 skip（缺 TF、缺 D:\ 数据等）
-- [ ] 涉及导出时：桌面路径、文件名、列、排序与 README 一致；测试假文件已清理
+- [ ] 涉及导出时：共享目录路径、文件名、列、排序与 README 一致；测试假文件已清理
 - [ ] 行为变化已写入 README / 本文件（若流程变化）
 - [ ] 未引入「单次拟合数值硬编码」冒充通用正确性
 - [ ] 优化限制与真实 bug 已在说明中区分
 - [ ] 所有受影响的说明文件已更新
-- [ ] 已整理本轮非项目代码文件；保留的验收 CSV 位于约定桌面目录且已说明
+- [ ] 已整理本轮非项目代码文件；保留的验收 CSV 位于约定共享目录且已说明
 
 ---
 
@@ -186,7 +186,7 @@ CRIS `ISOVIZ_INPUT` 依赖本导出的列名与 `Mode=aN` 顺序。改导出后�
 
 ### 4.2 CSV 导出命名
 
-- 根：用户桌面 `Best_Model_Parameters/`（自动创建）。
+- 根：`BEST_MODEL_PARAMETERS_DIR`，否则同级 `Best_Model_Parameters/`；为旧布局保留 Desktop 回退。
 - 子文件夹：`{irrep}_{structure_type}`，非法字符压成 `_`。
 - 文件：`{irrep}_{structure_type}_best_model_parameters.csv`（同名覆盖为最新一次拟合）。
 - `Mode` 列为 `a1, a2, …`（与 IsoVIZ 顺序别名兼容）；写出前按模式整数序号排序。
@@ -210,7 +210,7 @@ CRIS `ISOVIZ_INPUT` 依赖本导出的列名与 `Mode=aN` 顺序。改导出后�
 4. **状态必须显式传递**：`best_pars_overall`、`mode_names`、`max_mode_amps`、`irrep`、`structure_type` 作为函数参数传入导出函数，不要在导出模块里读 Jupyter `globals()`。
 5. **小步闭环**：一次只解决一个可描述的问题；先能复现（短脚本或单元格），再改，再跑第 3 节科目。不要为通过单次拟合添加结构/IR 特例。
 6. **上下文恢复清单**：开始工作先读本文件、`README.md`、目标笔记本/模块；记录本轮不变量（只读文件、CSV 契约、验收命令）。上下文不足时重新读取事实。
-7. **完成前审计**：检查是否误改了 tianren 笔记本、是否把振幅写死、是否把测试 CSV 留在用户桌面；确认文档与代码一致。
+7. **完成前审计**：检查是否误改了 tianren 笔记本、是否把振幅写死、是否把测试 CSV 留在共享目录；确认文档与代码一致。
 
 ---
 
@@ -238,7 +238,7 @@ LD1_C1_gradient_descent_tianren.ipynb  只读原始笔记本（用法见 README.
 isodistort_to_gd.py                    ISODISTORT → 笔记本输入（用 CRIS .venv）
 generated/LD1_C1/                      转换器输出（txt + alris 源）
 LD1_C1_alris_functions.py              笔记本同目录导入的结构因子模块
-save_best_model_parameters.py          桌面 CSV 导出
+save_best_model_parameters.py          共享 CSV 导出
 main_requirement.py                    GD/.venv 与依赖
 README.md                              tianren 笔记本原理与用法
 ```

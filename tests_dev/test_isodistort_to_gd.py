@@ -4,13 +4,21 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-
 from isodistort_to_gd import (
     GdBundle,
     check_bundle,
+    default_cris_root,
     render_alris_functions,
     write_gd_bundle,
 )
+
+
+def test_default_cris_root_uses_environment_or_sibling(tmp_path, monkeypatch):
+    configured = tmp_path / "configured-cris"
+    monkeypatch.setenv("CRIS_ROOT", str(configured))
+    assert default_cris_root(tmp_path / "GD") == configured.resolve()
+    monkeypatch.delenv("CRIS_ROOT")
+    assert default_cris_root(tmp_path / "GD") == tmp_path / "CRIS"
 
 
 def _toy_bundle() -> GdBundle:

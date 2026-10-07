@@ -1,8 +1,8 @@
-"""Save gradient-descent mode parameters to Desktop/Best_Model_Parameters.
+"""Save gradient-descent mode parameters to ``Best_Model_Parameters``.
 
 Layout (created automatically if missing)::
 
-    <Desktop>/Best_Model_Parameters/
+    <workspace>/Best_Model_Parameters/
       <irrep>_<structure_type>/
         <irrep>_<structure_type>_best_model_parameters.csv
 
@@ -21,6 +21,8 @@ import numpy as np
 import pandas as pd
 
 DESKTOP_FOLDER_NAME = "Best_Model_Parameters"
+BEST_MODEL_ENV_VAR = "BEST_MODEL_PARAMETERS_DIR"
+GD_ROOT = Path(__file__).resolve().parent
 
 
 def user_desktop() -> Path:
@@ -41,8 +43,13 @@ def user_desktop() -> Path:
 
 
 def best_model_root() -> Path:
-    """``Desktop/Best_Model_Parameters``, created if it does not exist."""
-    root = user_desktop() / DESKTOP_FOLDER_NAME
+    """Return the configured, sibling, or historical Desktop output root."""
+    configured = os.environ.get(BEST_MODEL_ENV_VAR, "").strip()
+    if configured:
+        root = Path(configured).expanduser().resolve()
+    else:
+        sibling = GD_ROOT.parent / DESKTOP_FOLDER_NAME
+        root = sibling if sibling.is_dir() else user_desktop() / DESKTOP_FOLDER_NAME
     root.mkdir(parents=True, exist_ok=True)
     return root
 
@@ -82,7 +89,7 @@ def _to_1d(values: Any) -> np.ndarray:
     if hasattr(values, "numpy") and callable(getattr(values, "numpy", None)):
         try:
             values = values.numpy()
-        except Exception:
+        except (TypeError, ValueError, RuntimeError):
             pass
     return np.asarray(values, dtype=float).reshape(-1)
 
@@ -110,7 +117,7 @@ def save_best_model_parameters(
     ``best_parameters[i] / max_mode_amps[i]``.
 
     If ``output_path`` is omitted, the file is written to
-    ``Desktop/Best_Model_Parameters/<irrep>_<structure_type>/``.
+    ``Best_Model_Parameters/<irrep>_<structure_type>/``.
     """
     parameters = _to_1d(best_parameters)
     bounds = _to_1d(max_mode_amps)

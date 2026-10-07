@@ -12,9 +12,9 @@ Default output is ``generated/{irrep}_{opd}/`` in this folder.  Original
 OneDrive refinement files under ``D:\\OneDrive\\...`` are never overwritten.
 The tianren notebook is never modified.
 
-Run with the CRIS ``.venv`` (needs WSL iso/smodes), for example:
+Run with the sibling CRIS ``.venv`` (needs WSL iso/smodes), for example:
 
-    C:\\Users\\devou\\OneDrive\\Desktop\\CRIS\\.venv\\Scripts\\python.exe
+    ..\\CRIS\\.venv\\Scripts\\python.exe
     isodistort_to_gd.py --irrep LD1 --opd C1 --k LD --k-params 1/6
 """
 from __future__ import annotations
@@ -22,16 +22,28 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 import numpy as np
 
 GD_ROOT = Path(__file__).resolve().parent
-DEFAULT_CRIS = Path(r"C:\Users\devou\OneDrive\Desktop\CRIS")
+
+
+def default_cris_root(gd_root: Path = GD_ROOT) -> Path:
+    """Resolve CRIS from ``CRIS_ROOT`` or the sibling workspace layout."""
+    configured = os.environ.get("CRIS_ROOT", "").strip()
+    if configured:
+        return Path(configured).expanduser().resolve()
+    return gd_root.resolve().parent / "CRIS"
+
+
+DEFAULT_CRIS = default_cris_root()
 DEFAULT_CIF = DEFAULT_CRIS / "experiment_data" / "EuAl4 Parent.cif"
 
 
@@ -339,7 +351,7 @@ def _hkl_transform_from_basis(basis: Sequence[Sequence[float]] | None) -> np.nda
 
 def _parent_cell_count(basis: np.ndarray) -> int:
     det = abs(float(np.linalg.det(np.asarray(basis, dtype=float))))
-    n = int(round(det))
+    n = round(det)
     return max(n, 1)
 
 
