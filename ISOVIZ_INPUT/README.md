@@ -20,7 +20,7 @@ IsoVIZ 属于 [ISOTROPY Suite](https://iso.byu.edu/isotropy.php)。手动拖动�
 ISOVIZ_INPUT/
   agent.md                Agent 工作指南（修改边界、验收）
   README.md               本文件（使用说明）
-  config/settings.yaml    桌面 CSV 目录、input_content、IsoVIZ 查找规则
+  config/settings.yaml    CSV 目录、input_content、IsoVIZ 查找规则
   main.py                 读取输入并启动 IsoVIZ
   main_requirement.py     旧命令兼容转发；实际安装逻辑在根 setup_cris.py
   requirements.txt        运行时依赖（PyYAML）
@@ -33,15 +33,15 @@ ISOVIZ_INPUT/
     subgroup.isoviz/      官方子群 .isoviz 文件夹（目录名就是 subgroup.isoviz）
 ```
 
-日常振幅 CSV 由 GD 笔记本自动写到桌面：
+日常振幅 CSV 由同级 GD 笔记本自动写到共享目录：
 
 ```text
-<桌面>/Best_Model_Parameters/
+<CRIS 与 GD 的同级目录>/Best_Model_Parameters/
   <irrep>_<structure_type>/
     <irrep>_<structure_type>_best_model_parameters.csv
 ```
 
-例如 `Best_Model_Parameters/LD1_C1/LD1_C1_best_model_parameters.csv`。列出文件夹和 CSV 时按名字不区分大小写排序；CSV 行按模式序号 `a1, a2, …, a10` 排序。子群 `.isoviz` 在运行时用绝对路径提供。`input_content/` 仍会自动创建（历史兼容，gitignore），但默认不再从那里读振幅。
+例如 `Best_Model_Parameters/LD1_C1/LD1_C1_best_model_parameters.csv`。默认解析顺序是 `BEST_MODEL_PARAMETERS_DIR` 环境变量、CRIS 同级目录、历史 Desktop 位置；因此三个目录一起换盘时无需写死新盘符。列出文件夹和 CSV 时按名字不区分大小写排序；CSV 行按模式序号 `a1, a2, …, a10` 排序。子群 `.isoviz` 在运行时用绝对路径提供。`input_content/` 仍会自动创建（历史兼容，gitignore），但默认不再从那里读振幅。
 
 ---
 
@@ -49,14 +49,14 @@ ISOVIZ_INPUT/
 
 | 项目 | 默认 / 做法 | 你要做什么 |
 | --- | --- | --- |
-| **振幅 CSV** | 桌面 `Best_Model_Parameters/<irrep>_<structure_type>/`（目录名见 yaml） | GD 自动写出；运行 `main.py` 时输入该子文件夹名和 CSV 文件名 |
+| **振幅 CSV** | 同级 `Best_Model_Parameters/<irrep>_<structure_type>/`，或 `BEST_MODEL_PARAMETERS_DIR` | GD 自动写出；运行 `main.py` 时输入该子文件夹名和 CSV 文件名 |
 | **子群 `.isoviz`** | 运行时输入**绝对路径** | 可带英文或中文引号；也可用 `--structure` |
 | **IsoVIZ 可执行体** | `config/settings.yaml` → `isoviz` | **本机必配其一**：本目录或仓库根的 `ISOViz.lnk` / `.jar` / `.exe`，或环境变量 `ISOVIZ` / `ISOVIZ_JAR` |
 | **Java** | 系统 `PATH` 中的 `java` | 安装 JRE/JDK；用 `.jar` 启动时必需 |
 | **临时启动文件** | 系统临时目录（`tempfile`） | 程序自动写入再交给 IsoVIZ；**不要**也不需要配置本子项目的 `output/` |
 | **Python / venv** | 仓库根 `CRIS/.venv` | 与其它子项目共用 |
 
-**一般不必改：** 换机器时核对本目录 `config/settings.yaml`。只有桌面不在默认位置、或 IsoVIZ 不在查找目录里时才改 yaml / 环境变量。
+**一般不必改：** 换机器或换盘时保持 `CRIS`、`Best_Model_Parameters`、`GD` 同级即可。布局不同时设置 `BEST_MODEL_PARAMETERS_DIR`，或在 yaml 中填写其父目录；IsoVIZ 不在查找目录里时再使用启动器环境变量。
 
 Agent 约定见 [agent.md](agent.md)。跨项目总览见仓库根 [README.md](../README.md)。
 
@@ -85,7 +85,7 @@ py -3.10 setup_cris.py install --project isoviz
 1. 确认 Python 版本；
 2. 创建或复用 `CRIS/.venv`，并按版本约束安装依赖；
 3. 补齐仓库内历史兼容的 `input_content/` 目录；
-4. 检查 Java、IsoVIZ 启动器以及桌面 `Best_Model_Parameters` 中是否已有 CSV。缺少用户 CSV 记为 `WARN`，不会伪装成 GUI 已验证。
+4. 检查 Java、IsoVIZ 启动器以及解析到的 `Best_Model_Parameters` 中是否已有 CSV。缺少用户 CSV 记为 `WARN`，不会伪装成 GUI 已验证。
 
 只做只读诊断：
 
@@ -120,12 +120,12 @@ py -3.10 setup_cris.py install --project isoviz
 
 程序会：
 
-1. 列出桌面 `Best_Model_Parameters` 下的子文件夹，请**输入文件夹名**（或列表编号）
+1. 列出解析到的 `Best_Model_Parameters` 下的子文件夹，请**输入文件夹名**（或列表编号）
 2. 列出该文件夹中的 CSV，请**输入文件名**（可省略 `.csv`，或输入列表编号）
 3. 请输入晶体 `.isoviz` 的**绝对路径**。从资源管理器复制时可能带 `"..."` 或 `“...”`，程序会去掉引号
 
 ```text
-Folders in C:\Users\...\Desktop\Best_Model_Parameters:
+Folders in E:\Best_Model_Parameters:
   1. LD1_C1
 Best_Model_Parameters folder name: LD1_C1
 CSV files in ...\LD1_C1:
@@ -167,7 +167,7 @@ cd <CRIS 根目录>
 # 1) 准备环境（若尚未做过）
 py -3.10 setup_cris.py install --project isoviz
 
-# 2) 运行 GD 笔记本写出 Desktop\Best_Model_Parameters\LD1_C1\...csv
+# 2) 运行 GD 笔记本写出同级 Best_Model_Parameters\LD1_C1\...csv
 # 3) 交互输入文件夹名、CSV 文件名、.isoviz 绝对路径
 .\.venv\Scripts\python.exe ISOVIZ_INPUT\main.py
 
@@ -178,7 +178,7 @@ py -3.10 setup_cris.py install --project isoviz
 ### 建议你第一次这样试用
 
 1. 先运行 GD 笔记本的保存单元，确认
-   `Desktop\Best_Model_Parameters\LD1_C1\LD1_C1_best_model_parameters.csv`
+   `Best_Model_Parameters\LD1_C1\LD1_C1_best_model_parameters.csv`
    实际存在。只有 `LD1_C1` 空目录时，主程序无法继续。
 2. 使用与这份 CSV **同一个 IR/OPD/path** 导出的官方 `.isoviz`；不能把
    `LD1_C1` 振幅写进另一个子群文件后再据此判断结构是否正确。

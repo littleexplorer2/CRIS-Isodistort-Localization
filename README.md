@@ -70,12 +70,15 @@ wsl -e sh -c "echo CRIS_WSL_OK"
 
 ### 3. 放置不能由 pip 安装的程序
 
-ISOTROPY Suite 与 IsoVIZ 需要从 [ISOTROPY Suite 官网](https://iso.byu.edu/isotropy.php)人工获取，本仓库不会伪造、改写或自动下载这些第三方文件。
+当前源码与本项目分发包携带冻结的 Linux ISOTROPY 运行文件；安装器不会伪造、
+改写或联网更新这些第三方文件。IsoVIZ 仍需从
+[ISOTROPY Suite 官网](https://iso.byu.edu/isotropy.php)人工获取；若 doctor 报告
+ISOTROPY 文件缺失或不完整，也从该官网补齐。
 
-把 Linux 版 ISOTROPY 文件放到只读目录：
+核对 Linux 版 ISOTROPY 文件所在的只读目录：
 
 ```text
-ISODISTORT/isobyu/
+ISODISTORT/resources/isobyu/
   iso
   smodes
   findsym          （Wyckoff 标准代表与位点参数）
@@ -159,7 +162,7 @@ py -3.10 setup_cris.py download --wheelhouse C:\cris-wheels
 py -3.10 setup_cris.py install --wheelhouse C:\cris-wheels
 ```
 
-开发依赖两边都加 `--dev`。下载命令默认只接受与当前平台兼容的 wheel，从而避免离线机器临时编译失败；只有明确能够处理源码构建时才使用 `--allow-source`。该流程只下载 Python 包，ISOTROPY、IsoVIZ、Java、WSL 仍按上一节人工准备。
+开发依赖两边都加 `--dev`。下载命令默认只接受与当前平台兼容的 wheel，从而避免离线机器临时编译失败；只有明确能够处理源码构建时才使用 `--allow-source`。该流程只下载 Python 依赖，不更新随 CRIS 分发的 ISOTROPY 冻结副本；IsoVIZ、Java、WSL 仍按上一节人工准备。
 
 ## 5 分钟快速上手
 
@@ -170,7 +173,7 @@ cd <CRIS 根目录>
 .\run_cris.ps1
 ```
 
-不传参数时启动器默认运行 `ISODISTORT\main_web.py`。终端会打印实际 URL，通常为
+不传参数时启动器默认运行 `ISODISTORT\scripts\main_web.py`。终端会打印实际 URL，通常为
 `http://127.0.0.1:8000/`，并通过 Windows Shell 打开默认浏览器。浏览器中依次完成：
 
 1. 在 `Parent CIF` 选择母相文件并点 `Load`；
@@ -202,7 +205,7 @@ ISODISTORT_VALIDATE/compare/true/LD1_C1/subgroup.cif
 先确认 GD 已生成：
 
 ```text
-<桌面>/Best_Model_Parameters/<IR_OPD>/<IR_OPD>_best_model_parameters.csv
+<CRIS 同级目录>/Best_Model_Parameters/<IR_OPD>/<IR_OPD>_best_model_parameters.csv
 ```
 
 再运行：
@@ -234,11 +237,11 @@ ISODISTORT ──► 结果表 / CIF / .isoviz / modes / TOPAS
 
 | 子项目 | 配置事实来源 | 主要内容 |
 | --- | --- | --- |
-| ISODISTORT | [config/settings.yaml](ISODISTORT/config/settings.yaml) | ISOTROPY 路径、容差、端口、超时、输出目录 |
+| ISODISTORT | [resources/config/settings.yaml](ISODISTORT/resources/config/settings.yaml) | ISOTROPY 路径、容差、端口、超时、输出目录 |
 | ISODISTORT_VALIDATE | [config/settings.yaml](ISODISTORT_VALIDATE/config/settings.yaml) | 固定比较目录、默认容差、严格模式 |
 | ISOVIZ_INPUT | [config/settings.yaml](ISOVIZ_INPUT/config/settings.yaml) | CSV 根目录、启动器环境变量和查找顺序 |
 
-相对路径均按各配置文件所在的 `config/` 目录解析。不要把本机绝对路径写入源码；需要覆盖时优先改 yaml 或使用说明中列出的环境变量/命令参数。
+相对路径均按各配置文件所在的 `config/` 目录解析。不要把本机绝对路径写入源码；需要覆盖时优先改 yaml 或使用说明中列出的环境变量/命令参数。GD 与 ISOVIZ_INPUT 默认自动发现 CRIS 同级的 `Best_Model_Parameters/`；也可用 `BEST_MODEL_PARAMETERS_DIR` 指向该目录的绝对路径。GD 转换器用 `CRIS_ROOT` 覆盖同级 `CRIS/` 的自动发现。
 
 ## 数据安全与目录边界
 
@@ -247,10 +250,35 @@ ISODISTORT ──► 结果表 / CIF / .isoviz / modes / TOPAS
 - `experiment_data/`：实验母相和原始输入；
 - `webpage_info/`：官网交互与页面存档；
 - `output_compare/`：官网/本地对照证据；
-- `ISODISTORT/isobyu/`：第三方二进制和数据库；
-- 仓库内 `GD/`；桌面 `GD（未同步git）` 另有自己的规则。
+- `ISODISTORT/resources/isobyu/`：第三方二进制和数据库；
+- 与本仓库同级的 `GD/` 中，tianren 参考笔记本和外部实验数据保持只读；详细边界见其 `agent.md`。
 
 运行输出只写入各项目约定的 `output/`、`compare/`、系统临时目录或用户明确指定的位置。安装脚本不会修改上述只读数据。
+
+## 换盘迁移
+
+三个同级目录应保持同级关系；例如迁移到 E 盘后为：
+
+```text
+E:\CRIS
+E:\Best_Model_Parameters
+E:\GD
+```
+
+迁移前先关闭网页服务、Python、Jupyter、IsoVIZ 和占用虚拟环境的终端。`.venv/`、
+`__pycache__/`、pytest/ruff 缓存及构建目录都绑定旧位置或可重新生成，不随项目搬迁；
+源码、Git 元数据、只读输入、官网对照、`Best_Model_Parameters` 的真实 CSV、GD 的
+`generated/` 和两个笔记本必须保留。移动后在 `E:\CRIS` 重新执行：
+
+```powershell
+py -3.10 setup_cris.py install --project all --dev
+.\run_cris.ps1 setup_cris.py doctor --project all --dev
+```
+
+再在 `E:\GD` 执行 `py -3.12 main_requirement.py --dev` 重建独立 TensorFlow 环境。
+默认情况下两个项目会自动发现同级目录；若使用不同布局，再设置 `CRIS_ROOT` 与
+`BEST_MODEL_PARAMETERS_DIR`。编辑器工作区使用相对路径，根目录的 IsoVIZ/VESTA
+快捷方式指向外部程序，不因 CRIS 换盘而需要重建；若外部程序本身也移动，再更新快捷方式。
 
 ## 更新已有安装
 
@@ -271,9 +299,9 @@ py -3.10 setup_cris.py install
 | `py` 或 `python` 找不到 | 安装 Python 3.10+，安装时勾选加入 PATH，重新打开 PowerShell |
 | PowerShell 不允许 `Activate.ps1` | 不必激活；ISODISTORT 使用 `.\run_cris.ps1`，另两个子项目可直接使用 `.\.venv\Scripts\python.exe` |
 | WSL 检查失败 | 先手工运行 `wsl -e sh -c "echo ok"`；确认存在默认发行版且已完成首次初始化 |
-| 直接运行 `main_web.py` / `main_terminal.py` 提示不能调用 WSL | 从 CRIS 根目录运行 `.\run_cris.ps1`（网页）或 `.\run_cris.ps1 ISODISTORT\main_terminal.py`；本机需要由 OneDrive 外的基础 Python 建立首个进程，包仍来自实体 `.venv` |
+| 直接运行 `scripts/main_web.py` 提示不能调用 WSL | 从 CRIS 根目录运行 `.\run_cris.ps1`；本机需要由 OneDrive 外的基础 Python 建立首个进程，包仍来自实体 `.venv` |
 | 服务打印 URL 但浏览器没有出现 | 先确认使用 `.\run_cris.ps1`；成功分发时终端会打印 `Browser launch requested`，失败时会明确提示手动访问最终 URL |
-| 找不到 `iso` / `findsym` / `smodes` / `data_*.txt` | 重新核对 `ISODISTORT/isobyu/` 与 `ISODISTORT/config/settings.yaml` |
+| 找不到 `iso` / `findsym` / `smodes` / `data_*.txt` | 重新核对 `ISODISTORT/resources/isobyu/` 与 `ISODISTORT/resources/config/settings.yaml` |
 | Python 包缺失或版本不满足 | 重新运行 `py -3.10 setup_cris.py install`；不要手工逐个猜包名 |
 | 离线安装提示缺 wheel | 用相同平台和 Python 版本重新执行 `download`，并完整复制 wheelhouse |
 | VALIDATE 没有可比较文件 | 两侧 CIF 必须使用完全相同的相对路径和文件名 |

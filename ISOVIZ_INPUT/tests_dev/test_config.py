@@ -12,6 +12,7 @@ def test_settings_yaml_defines_input_paths() -> None:
     assert DATA_DIR.name == "data.csv"
     assert STRUCTURE_DIR.name == "subgroup.isoviz"
     assert cfg.best_model_folder_name == "Best_Model_Parameters"
+    assert cfg.best_model_env_var == "BEST_MODEL_PARAMETERS_DIR"
     assert cfg.best_model_parent is None
     assert "ISOVIZ" in cfg.isoviz_env_vars
     assert "ISOViz.lnk" in cfg.launcher_names

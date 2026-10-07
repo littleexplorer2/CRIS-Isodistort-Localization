@@ -261,7 +261,7 @@ cd <CRIS 根目录>
 审计器：
 
 ```powershell
-.\.venv\Scripts\python.exe ISODISTORT\tests_dev\manual\validate_method_outputs.py
+.\.venv\Scripts\python.exe ISODISTORT\tests\manual\validate_method_outputs.py
 ```
 
 该审计器会另外检查每个本地候选的 CIF、IsoVIZ、TOPAS 和 modes 核心文件，

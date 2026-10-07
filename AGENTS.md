@@ -5,16 +5,16 @@
 ## 边界
 
 - 永远只读：`experiment_data/`、`webpage_info/`、`output_compare/`、
-  `ISODISTORT/isobyu/`、仓库内 `GD/`。
-- 桌面 `GD（未同步git）` 服从其自身规则；禁止修改 tianren 参考笔记本及
+  `ISODISTORT/resources/isobyu/`、仓库内 `GD/`。
+- 与 CRIS 同级的 `GD/` 服从其自身规则；禁止修改 tianren 参考笔记本及
   `D:\OneDrive\...` 原始数据。
-- 可改主体：`ISODISTORT/`（除 `isobyu/`）、`ISODISTORT_VALIDATE/`、
+- 可改主体：`ISODISTORT/`（除 `resources/isobyu/`）、`ISODISTORT_VALIDATE/`、
   `ISOVIZ_INPUT/`。
 - 三个子项目共用根目录内的实体 `.venv`，除非用户明确要求，不重建环境。普通
   Python 命令使用 `.\.venv\Scripts\python.exe`；本机从 OneDrive 内的解释器调用
   WSL 会触发 `Wsl/E_ACCESSDENIED`，需要 WSL 的 ISODISTORT 命令改用根目录
-  `.\run_cris.ps1 <Python 参数>`，包括 `main_web.py`、`main_terminal.py` 和相关测试；
-  其依赖仍只从 `.venv` 加载。两个入口会拒绝已知必失败的直接 `.venv` 启动。
+  `.\run_cris.ps1 <Python 参数>`，包括网页入口与相关测试；其依赖仍只从 `.venv`
+  加载。项目仅使用该实体 `.venv`，不要另行创建环境。
 
 ## DSH 诊断会话
 
@@ -34,8 +34,13 @@
 
 - 根 `README.md`：跨项目总览。
 - 子项目 `README.md`：用户安装、使用、能力与限制。
-- `config/settings.yaml`：运行时默认值的事实来源。
-- `ISODISTORT/docs/DEVELOPMENT_PLAN.md`：唯一开发计划和待办。
+- `ISODISTORT/resources/config/settings.yaml`：运行时默认值的事实来源。
+- `ISODISTORT/`：源码分四部分——`backend/`（通用底层：wrappers / models / tables /
+  utils / api）、`features/`（input_cif、method1–4、export 六个功能包）、`frontend/`
+  （web 与 i18n）、共享部分（`resources/`、`docs/`、`tests/`、`scripts/`）；旧包名
+  `isocore`/`isodistort` 已移除。改某个功能只改对应部分，跨部分共用逻辑放入 `backend/`。
+- `ISODISTORT/docs/DEVELOPMENT_PLAN.md`：唯一开发计划和待办，固定包含两个常驻分区
+  “待修的程序漏洞”和“待执行的优化计划”；两个分区之外的既有内容保持原样，不做硬分类。
 - `ISODISTORT/docs/BUGFIX_VALIDATION_REPORT.md`：已修问题、验证结论、机器报告索引。
 - `ISODISTORT/docs/DOWNLOAD_CHECKLIST.md`：人工下载动作与目录。
 - `ISODISTORT/docs/MANUAL_VALIDATION.md`：长时/手工验证命令。

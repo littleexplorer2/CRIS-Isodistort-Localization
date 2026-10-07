@@ -62,6 +62,10 @@ class Config:
         return str(self._cfg["paths"].get("best_model_folder_name", "Best_Model_Parameters"))
 
     @property
+    def best_model_env_var(self) -> str:
+        return str(self._cfg["paths"].get("best_model_env_var", "BEST_MODEL_PARAMETERS_DIR"))
+
+    @property
     def best_model_parent(self) -> Path | None:
         raw = str(self._cfg["paths"].get("best_model_parent") or "").strip()
         if not raw:

@@ -180,8 +180,14 @@ def _decode_process_output(raw: bytes) -> str:
     if not raw:
         return ""
     if b"\x00" in raw:
-        return raw.decode("utf-16-le", errors="replace").strip("\x00\r\n ")
+        decoded = raw.decode("utf-16-le", errors="replace")
+        return decoded.replace("\r\r\n", "\n").replace("\r\n", "\n").strip("\x00\r\n ")
     return raw.decode("utf-8", errors="replace").strip()
+
+
+def _is_wsl_access_denied(text: str) -> bool:
+    compact = text.upper().replace("_", "")
+    return "WSL/" in compact and "EACCESSDENIED" in compact
 
 
 def _selected_projects(name: str) -> list[Project]:
@@ -217,7 +223,122 @@ def _verify_repository() -> None:
         raise SetupError(f"setup_cris.py must remain in the CRIS repository root; missing: {joined}")
 
 
-def _ensure_venv(*, recreate: bool) -> Path:
+_WSL_LAUNCH_PROBE = r"""
+import subprocess
+import sys
+
+result = subprocess.run(
+    ["wsl.exe", "-e", "sh", "-c", "true"],
+    capture_output=True,
+)
+raw = (result.stdout or b"") + (result.stderr or b"")
+if b"\x00" in raw:
+    text = raw.decode("utf-16-le", errors="replace")
+else:
+    text = raw.decode("utf-8", errors="replace")
+print(text.strip("\x00\r\n "))
+raise SystemExit(0 if result.returncode == 0 else 1)
+"""
+
+
+def _probe_wsl_from_python(python: Path) -> tuple[bool, str]:
+    result = _run(
+        [python, "-S", "-c", _WSL_LAUNCH_PROBE],
+        capture=True,
+        timeout=30,
+    )
+    return result.returncode == 0, result.stdout.strip()
+
+
+def _venv_base_executable(python: Path) -> Path | None:
+    config = python.parent.parent / "pyvenv.cfg"
+    try:
+        lines = config.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return None
+    for line in lines:
+        match = re.match(r"^executable\s*=\s*(.+)$", line.strip(), flags=re.IGNORECASE)
+        if match:
+            return Path(match.group(1).strip()).expanduser()
+    return None
+
+
+def _probe_venv_prefix(python: Path) -> Path | None:
+    result = _run(
+        [python, "-c", "import sys; print(sys.prefix)"],
+        capture=True,
+        timeout=30,
+    )
+    if result.returncode != 0 or not result.stdout.strip():
+        return None
+    return Path(result.stdout.strip()).resolve()
+
+
+def _ensure_windows_wsl_compatible_launcher(python: Path) -> None:
+    """Replace only the WSL-blocked Windows venv stub with a base-Python hard link.
+
+    Some OneDrive installations deny WSL children from CPython's small Windows
+    venv launcher even though the signed base interpreter works.  A hard link to
+    that exact base executable preserves ``sys.prefix``/site-packages through
+    ``pyvenv.cfg`` while keeping the environment physically inside the project.
+    The replacement is made only after an A/B capability probe proves this exact
+    failure mode.  The original launcher is retained for rollback.
+    """
+    if not _is_windows() or not shutil.which("wsl.exe"):
+        return
+    base_python = _venv_base_executable(python)
+    if base_python is None or not base_python.is_file():
+        return
+    try:
+        if os.path.samefile(python, base_python):
+            return
+    except OSError:
+        return
+
+    venv_ok, venv_detail = _probe_wsl_from_python(python)
+    if venv_ok or not _is_wsl_access_denied(venv_detail):
+        return
+    base_ok, base_detail = _probe_wsl_from_python(base_python)
+    if not base_ok:
+        print(
+            "[venv] WSL is unavailable from both the venv launcher and base Python; "
+            "leaving the launcher unchanged."
+        )
+        if base_detail:
+            print(f"[venv] Base Python WSL probe: {base_detail}")
+        return
+
+    candidate = python.with_name(f"python-cris-hardlink-{os.getpid()}.tmp.exe")
+    backup = python.with_name("python-venv-launcher.exe")
+    if candidate.exists():
+        candidate.unlink()
+    try:
+        os.link(base_python, candidate)
+        candidate_prefix = _probe_venv_prefix(candidate)
+        expected_prefix = python.parent.parent.resolve()
+        candidate_ok, candidate_detail = _probe_wsl_from_python(candidate)
+        if candidate_prefix != expected_prefix or not candidate_ok:
+            detail = candidate_detail or f"unexpected sys.prefix: {candidate_prefix}"
+            raise SetupError(f"Hard-link launcher validation failed: {detail}")
+        if not backup.exists():
+            shutil.copy2(python, backup)
+        os.replace(candidate, python)
+    except (OSError, SetupError) as exc:
+        print(
+            "[venv] The venv launcher cannot call WSL and the compatible hard-link "
+            f"repair was not applied: {exc}. Use .\\run_cris.ps1 as a fallback."
+        )
+        return
+    finally:
+        if candidate.exists():
+            candidate.unlink()
+    print(
+        "[venv] Replaced the WSL-blocked venv stub with a validated base-Python "
+        f"hard link; rollback copy: {backup}"
+    )
+
+
+def _ensure_venv(*, recreate: bool, require_wsl: bool = False) -> Path:
     python = _venv_python()
     if recreate and VENV_DIR.exists():
         resolved = VENV_DIR.resolve()
@@ -234,6 +355,8 @@ def _ensure_venv(*, recreate: bool) -> Path:
 
     if not python.is_file():
         raise SetupError(f"Virtualenv interpreter is missing: {python}")
+    if require_wsl:
+        _ensure_windows_wsl_compatible_launcher(python)
     probe = _run(
         [python, "-c", "import sys; print('.'.join(map(str, sys.version_info[:3])))"],
         capture=True,
@@ -282,7 +405,10 @@ def _install(args: argparse.Namespace) -> int:
     _verify_repository()
     projects = _selected_projects(args.project)
     requirement_files = _requirement_files(projects, dev=args.dev)
-    python = _ensure_venv(recreate=args.recreate)
+    python = _ensure_venv(
+        recreate=args.recreate,
+        require_wsl=any(project.key == "isodistort" for project in projects),
+    )
     _ensure_runtime_directories(projects)
 
     source_args: list[str] = []
@@ -346,10 +472,10 @@ def _post_install_doctor_command(
 ) -> list[str | Path]:
     """Build the doctor command used after dependency installation.
 
-    The physical Windows venv remains the pip installation target.  On this
-    OneDrive checkout its Python image cannot create WSL processes, so the
-    post-install diagnostic must use the same external-base launcher as normal
-    ISODISTORT runs.  Other platforms continue to execute the venv directly.
+    The physical Windows venv remains the pip installation target.  The runner
+    stays as a compatibility fallback for the post-install diagnostic even
+    though installation now repairs the specific OneDrive/WSL launcher issue.
+    Other platforms continue to execute the venv directly.
     """
     arguments: list[str | Path] = [str(Path(__file__).resolve()), "doctor", "--project", project]
     if dev:
@@ -645,7 +771,13 @@ def _check_wsl(report: DoctorReport) -> bool:
         "wsl",
         "fail",
         output or "WSL shell check failed",
-        "Set a working default Linux distribution and retry.",
+        (
+            "Run this doctor through .\\run_cris.ps1 setup_cris.py doctor "
+            "--project isodistort; the OneDrive .venv Python process is denied "
+            "WSL access and administrator rights do not fix that process-path restriction."
+            if _is_wsl_access_denied(output)
+            else "Set a working default Linux distribution and retry."
+        ),
     )
     return False
 
@@ -656,23 +788,23 @@ def _check_isodistort(report: DoctorReport, python: Path) -> None:
         report,
         python,
         project,
-        "from isocore import __version__; from isocore.api import IsoDistort; "
-        "from web.server import main; import main_terminal; print(__version__)",
+        "from backend import __version__; from backend.api import IsoDistort; "
+        "from frontend.web.server import main; print(__version__)",
     )
     payload, error = _probe_json(
         python,
-        "import json, os; from isocore.utils import get_config; c=get_config(); "
+        "import json, os; from backend.utils import get_config; c=get_config(); "
         "print(json.dumps({'iso': str(c.iso_bin), 'findsym': str(c.findsym_bin), "
         "'smodes': str(c.resolve_path(c._cfg['isobyu']['bin_dir']) / c._cfg['isobyu']['smodes_bin']), "
         "'data': os.environ.get('ISODATA', ''), "
-        "'output': str(c.resolve_path(c._cfg['runtime']['output_dir'])), "
-        "'temp': str(c.resolve_path(c._cfg['runtime']['temp_dir']))}))",
+        "'output': str(c.resolve_runtime_path(c._cfg['runtime']['output_dir'])), "
+        "'temp': str(c.resolve_runtime_path(c._cfg['runtime']['temp_dir']))}))",
         cwd=project.directory,
     )
     if not isinstance(payload, dict):
         report.add("isodistort", "configuration", "fail", error)
         return
-    report.add("isodistort", "configuration", "pass", str(project.directory / "config" / "settings.yaml"))
+    report.add("isodistort", "configuration", "pass", str(project.directory / "resources" / "config" / "settings.yaml"))
     wsl_ok = _check_wsl(report)
     missing_bins: list[str] = []
     for key in ("iso", "findsym", "smodes"):
@@ -685,7 +817,7 @@ def _check_isodistort(report: DoctorReport, python: Path) -> None:
             "isotropy-binaries",
             "fail",
             "missing " + ", ".join(missing_bins),
-            "Download the Linux ISOTROPY Suite manually and place iso/findsym/smodes in ISODISTORT/isobyu/.",
+            "Download the Linux ISOTROPY Suite manually and place iso/findsym/smodes in ISODISTORT/resources/isobyu/.",
         )
     else:
         report.add(
@@ -720,6 +852,8 @@ def _check_isodistort(report: DoctorReport, python: Path) -> None:
                     )
                 else:
                     report.add("isodistort", f"{key}-executable", "pass", str(payload[key]))
+        elif wsl_ok:
+            _check_native_executables(report, python, project.directory)
     data_dir = Path(str(payload["data"]))
     data_files = list(data_dir.glob("data_*.txt")) if data_dir.is_dir() else []
     if data_files:
@@ -737,6 +871,52 @@ def _check_isodistort(report: DoctorReport, python: Path) -> None:
         status = "pass" if path.is_dir() else "warn"
         fix = "Run setup_cris.py install --project isodistort." if status == "warn" else ""
         report.add("isodistort", f"{name}-directory", status, str(path), fix)
+
+
+def _check_native_executables(report: DoctorReport, python: Path, cwd: Path) -> None:
+    """Check the native execution path, including private wheel binary copies.
+
+    The check establishes execute permission, just like the WSL ``test -x``
+    check; it does not claim that a scientific calculation has been validated.
+    """
+    code = """
+import json
+import os
+from backend.utils import WrapperRunError, get_config
+from backend.wrappers.base_wrapper import BaseWrapper
+c = get_config()
+w = BaseWrapper()
+native_executables = {}
+for key in ('iso', 'findsym', 'smodes'):
+    source = c.resolve_path(c._cfg['isobyu']['bin_dir']) / c._cfg['isobyu'][key + '_bin']
+    try:
+        executable = w._wsl_bin_path(source)
+        native_executables[key] = {
+            'ready': os.access(executable, os.X_OK),
+            'staged': not os.path.samefile(source, executable),
+            'source': str(source),
+            'executable': executable,
+        }
+    except WrapperRunError as exc:
+        native_executables[key] = {'ready': False, 'error': str(exc)}
+print(json.dumps(native_executables))
+"""
+    payload, error = _probe_json(python, code, cwd=cwd)
+    for key in ("iso", "findsym", "smodes"):
+        check = payload.get(key) if isinstance(payload, dict) else None
+        if not isinstance(check, dict) or not check.get("ready"):
+            detail = str(check.get("error", "Native binary lacks execute permission")) if isinstance(check, dict) else error
+            report.add(
+                "isodistort", f"{key}-executable", "fail", detail,
+                "Check binary readability and permission to create executable private copies in /tmp.",
+            )
+        elif check.get("staged"):
+            report.add(
+                "isodistort", f"{key}-executable", "warn",
+                f"Private copy has execute permission; source remains unchanged: {check['source']}",
+            )
+        else:
+            report.add("isodistort", f"{key}-executable", "pass", str(check["executable"]))
 
 
 def _check_validate(report: DoctorReport, python: Path) -> None:

@@ -34,7 +34,7 @@ $env:PYTHONPATH = $pythonPathEntries -join [IO.Path]::PathSeparator
 $env:PATH = $venvScripts + [IO.Path]::PathSeparator + $env:PATH
 
 if ($args.Count -eq 0) {
-    $pythonArguments = @((Join-Path $crisRoot "ISODISTORT\main_web.py"))
+    $pythonArguments = @((Join-Path $crisRoot "ISODISTORT\scripts\main_web.py"))
 } else {
     $pythonArguments = @($args)
 }

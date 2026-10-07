@@ -9,7 +9,7 @@
   不搜索子群、不比较 CIF、不拟合振幅。
 - 唯一职责模块：CSV/amp 为 `amplitudes.py`，路径为 `paths.py`，启动器为
   `launcher.py`，配置为 `config_loader.py`，唯一入口 `main.py`。
-- 禁止修改或提交用户 CSV、实验衍射数据、原始 `.isoviz`、桌面 GD 参考笔记本；
+- 禁止修改或提交用户 CSV、实验衍射数据、原始 `.isoviz`、同级 GD 的参考笔记本；
   写入结果使用系统临时文件，`input_content/` 不作为产品输出。
 - IsoVIZ `amp` 使用 **Best Model Parameter**，不是 Normalized Amplitude。
 

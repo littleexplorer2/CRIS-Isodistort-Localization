@@ -11,10 +11,12 @@ paths:
   input_root: "../input_content"
   data_dirname: "data.csv"
   structure_dirname: "subgroup.isoviz"
-  # GD 写出的桌面子目录名
+  # GD 写出的共享目录名
   best_model_folder_name: "Best_Model_Parameters"
-  # 空字符串 = 自动探测当前用户 Desktop（优先 OneDrive\Desktop）
-  # 也可写成绝对路径，例如 "C:/Users/you/Desktop"
+  # 精确目录可由环境变量覆盖；用于三个同级目录迁移到其他磁盘。
+  best_model_env_var: "BEST_MODEL_PARAMETERS_DIR"
+  # 空字符串 = 依次查找环境变量、CRIS 同级目录、当前用户 Desktop。
+  # 非空值表示 Best_Model_Parameters 的父目录。
   best_model_parent: ""
 
 isoviz:

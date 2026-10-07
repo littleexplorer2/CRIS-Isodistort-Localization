@@ -1,8 +1,9 @@
 """Local input folders for ISOVIZ_INPUT.
 
-Amplitude CSVs come from the desktop ``Best_Model_Parameters`` tree written by
-the GD notebooks (folder name and optional parent path: ``config/settings.yaml``).
-Subgroup ``.isoviz`` files are supplied as an absolute path.
+Amplitude CSVs come from the ``Best_Model_Parameters`` tree written by the GD
+notebooks.  Its location is resolved from an environment override, a sibling
+of the CRIS checkout, or the historical Desktop location.  Subgroup
+``.isoviz`` files are supplied as an absolute path.
 """
 from __future__ import annotations
 
@@ -38,9 +39,16 @@ def user_desktop() -> Path:
 
 def best_model_root() -> Path:
     cfg = get_config()
+    env_name = cfg.best_model_env_var
+    configured = os.environ.get(env_name, "").strip() if env_name else ""
+    if configured:
+        return Path(configured).expanduser().resolve()
     parent = cfg.best_model_parent
     if parent is not None:
         return parent / cfg.best_model_folder_name
+    sibling = cfg.project_root.parent.parent / cfg.best_model_folder_name
+    if sibling.is_dir():
+        return sibling
     return user_desktop() / cfg.best_model_folder_name
 
 

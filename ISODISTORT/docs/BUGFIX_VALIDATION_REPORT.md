@@ -4,10 +4,159 @@
 
 ## 证据边界
 
-- `experiment_data/`、`webpage_info/`、`output_compare/`、`isobyu/` 始终只读；生产代码不读取官网下载目录来生成答案。
+- `experiment_data/`、`webpage_info/`、`output_compare/`、`resources/isobyu/` 始终只读；生产代码不读取官网下载目录来生成答案。
 - 官网输出用于差分验证，不作为硬编码表。实现依据空间群仿射作用、直接/倒易格对偶、k-star、小群/表示、Wyckoff 轨道和 fixed-space 等晶体学定义。
 - CIF/basis/origin 的字面差异只有在精确有理数、整数幺模变换和 Seitz 共轭给出 witness 后，才记为等价。
 - 每份长时报告都带源码、配置、输入、依赖和二进制指纹；签名改变后必须重算，旧报告不能证明当前源码。
+
+### 2026-10-07 重构修复后最终复验
+
+本轮已恢复迁移时遗失的校验模块和此前实现，修复路径、包边界、安装布局及计算核，
+未提交或推送。最终回归在真实 Windows/WSL/ISO 环境执行，不以 sandbox 下的访问失败
+冒充程序缺陷或通过结果。
+
+- **完整回归**：`1027 passed, 2 skipped, 0 failed`，0 collection error，
+  `1911 warnings`，用时 `1416.76s`。命令从 CRIS 根目录执行：
+  `.\run_cris.ps1 -m pytest ISODISTORT\tests -q --tb=line --basetemp ISODISTORT\output\validation\pytest-temp-20261007-final-v6 --junitxml ISODISTORT\output\validation\post_restructure_pytest_20261007_final_v6.xml`。
+  JUnit 记录 1029 项、0 errors/failures；两项 skip 是缺少官网/本地 X4− P3 对照 CIF，
+  以及 Windows 无法运行原生 POSIX shell 集成测试。原先的合成 CIF 缺失与官网 HTML
+  路径假 skip 已处理，并实际运行相关测试。告警包含 spglib API 弃用和 CIF 源数据提示，
+  未隐藏，也不视为全部输入数据已无瑕疵。
+- **冻结证据**：运行前后 139 个源码/测试/配置/入口文件 SHA-256 均为
+  `6dcf96ab945603838b4117c4c0400f5d141d1985dbfef51ee7ce9266d63e5354`；
+  30 个合成 CIF 的前后摘要均为
+  `17834254c5b8b7d5ce88626e06515a82861099fe2c0da9cc53348538aad54797`。
+  文档和输出不属于这个源码摘要。文件范围、算法、依赖、输入哈希、命令与 JUnit 摘要见
+  `output/validation/post_restructure_environment_20261007_final.json`。
+- **关联回归**：`ISODISTORT_VALIDATE/tests_dev` 19 passed，
+  `ISOVIZ_INPUT/tests_dev` 20 passed（静态检查，未打开或验收 GUI），根部署器测试
+  10 passed。对应 JUnit 为 `post_restructure_validate_20261007_final.xml`、
+  `post_restructure_isoviz_20261007_final.xml`、`post_restructure_setup_20261007_final_v4.xml`。
+  Ruff 全树与根部署器通过；tracked `git diff --check` 通过，另对 132 个未跟踪源码/配置
+  文件执行 CRLF-aware no-index 空白检查通过，未改写换行符。
+- **环境诊断**：最终 `setup_cris.py doctor --project all --dev --json` 为
+  24 pass、2 warn、0 fail；警告仅为对比目录缺 CIF 与幅度目录缺 CSV，GUI 未验证。
+  报告为 `output/validation/post_restructure_doctor_20261007.json`。
+  22 个官网运行资源与迁移前 Git blob 内容完全一致，见
+  `output/validation/post_restructure_readonly_resources_20261007.json`；黄金输入未改。
+- **安装包**：隔离构建的
+  `output/validation/wheel-20261007-final-v6/isodistort-0.4.0-py3-none-any.whl`，SHA-256
+  `ce8e9816e266f6dfc10161ebc927abf2096ab4d7053484a1dad518c9f0f568b7`。
+  92 个归档条目中，87 个源码/资源与冻结工作树逐字节相同，包含全部 22 个官网资源；
+  CRC、白名单和 console entrypoint 检查通过。独立解包可导入网页入口，运行目录在包外，
+  新坐标系门禁与极小波矢保留烟测通过。烟测借用共享 `.venv` 依赖，未执行完整 pip
+  安装或 sdist 构建，也不等于原生 Linux 全链验收。
+
+本节只证明已执行的有限回归及精确不变量。EuAl4 官网 OPD 的 123 对精确嵌入核验详见
+下文第 21 项；它不证明全部模式幅度、所有晶体或所有模式类型。重构前的 Method 1–4
+长时矩阵保留为下述历史源码快照；新源码的全矩阵、跨晶系及未支持来源合同仍按开发
+计划验收，不能用本轮单元/定向测试计数替代。
+
+### 2026-10-07 E 盘迁移准备复验
+
+- GD 的 CRIS 根改为 `CRIS_ROOT` 环境变量或同级 `CRIS/`；GD 与 ISOVIZ_INPUT 的振幅
+  目录改为 `BEST_MODEL_PARAMETERS_DIR`、同级 `Best_Model_Parameters/`、历史 Desktop
+  的有序回退。配置、生产者、消费者、单元测试与 README 已同步，不把 `E:` 写死进源码。
+- 迁移适配后的真实 Windows/WSL/ISO 全量回归为 `1027 passed, 2 skipped, 0 failed`，
+  `1911 warnings`，用时 `1303.83s`。JUnit 为
+  `output/validation/migration_e_drive_pytest_20261007.xml`，SHA-256 为
+  `94fd15554ef67ceae9fe4fa263bcd27a7172529bf93784b1ffdf80d45553c5e5`；1029 项、
+  0 errors/failures。两个 skip 的边界与上节相同。
+- 关联门禁：ISOVIZ_INPUT `22 passed`，GD 转换/CSV 路径测试 `7 passed`，
+  ISODISTORT_VALIDATE `19 passed`，根部署器 `10 passed`；变更文件的 Ruff 检查通过。
+  未安装 pytest 的 GD 独立 TensorFlow `.venv` 没有冒充已执行测试，GD 测试实际使用
+  CRIS `.venv` 中已声明的开发依赖。
+- `setup_cris.py doctor --project all --dev --json` 为 24 pass、2 warn、0 fail；两个
+  warning 仍是 compare 无成对 CIF 与共享振幅目录无 CSV，GUI 未验收。
+- 已删除可访问的 Python/pytest/ruff 缓存、构建/egg-info、错误落入 resources 的运行
+  产物及 pytest 临时树，共 2891 个文件、约 180 MiB。另有 54 个历史 pytest 目录的
+  Windows ACL 同时拒绝当前用户、takeown 与 WSL root；它们仍位于 `ISODISTORT/output/`
+  或其 `validation/` 子目录，不能宣称已清除。迁移前需由有权访问其创建者 SID 的账户或
+  提升的 Windows 管理员删除；黄金数据、官网资源、科学 JSON/XML 报告与用户 CSV 未动。
+
+### 2026-10-06 历史源码最终复验
+
+本节对应重构前记录的源码签名。2026-10-07 目录迁移、恢复与计算核修改后，以下长时
+官网/live 报告仍是历史快照，不能作为本轮最终源码已通过同一完整矩阵的证明。
+
+- **Method 1 / 4310**：`output/validation/method1_4310_current_audit_20261006.json`
+  为 schema 3，状态 `complete-passed`；报告 SHA-256 为
+  `be7bee90ea47a03bb0aac56debb455a882b0d5d198c593130bd6b11db2f9fa6b`，运行前后
+  源码/输入/运行时签名均为
+  `96ff44cd307432ae2d8ca672afed6ff7c9e7dedbfc39ee07cfd71fefeaf94d12`。
+  官网/live 候选身份、模式数、BUSH 覆盖和零振幅 CIF 语义均为 `125/125`，0 失败。
+  这证明该有限候选矩阵及报告所列判据，不独立证明每个数值模式向量、归一化或
+  primary IR/OPD 分解的唯一性，也不能外推到其他晶体。
+- **Method 2 / 两个参数-k代表例**：
+  `output/validation/method2_numeric_semantic_live_current.json` 为 schema 6，报告
+  SHA-256 为 `c4830c1895681f19031c6c41113ea5d4039e14e1af2dbad06fe05661edc65cfb`。
+  EuAl4 `LD1 C1, g=1/6, nmod=0` 与 NdNiO2 `Y1 C1, a=1/3, nmod=0` 均通过，
+  每例的 CIF、IsoVIZ、Complete modes 和 TOPAS 四种导出均为 pass，运行期间源码与
+  官网/母相证据稳定。`2/2` 只代表这两个 nmod=0 案例，不代表全部 Method 2 候选、
+  nmod=1、4310 或跨晶系矩阵。
+- **Method 3 / 双母相官网集合**：
+  `output/validation/method3_official_local_comparison_20261006_current.json` 为 schema 5，
+  报告 SHA-256 为
+  `796ae2f39235c6d61422cb9d02403da11e795a60815f6a0590ea02b45c6c45f7`；40/40 个
+  authoritative 查询得到 13 exact + 27 affine-equivalent，0 difference、0 error，
+  且运行前后 source signature 一致。审计器把 manifest 与每个官网案例先捕获为不可变
+  字节快照，签名与解析消费同一份内容；结束时重新签名，发生漂移就使报告与 checkpoint
+  失效，不能把中途变化的归档拼成一次通过。范围仍限于这两种四方母相的 40 个查询。
+- **Method 4 / 双母相冻结矩阵**：
+  `output/validation/method4_local_validation_20261006_current_v2.json` 为 schema 3，
+  当前源码本地闭环 `24/24` 通过，报告 SHA-256 为
+  `e19a005dd77bad4b12c7dcc2600889c8e89fe3a689d572c542e6f626a954bb5d`；
+  `output/validation/method4_official_audit_20261006_current_v2.json` 为 schema 5，
+  报告 SHA-256 为
+  `946dba00162ca813060153c4f38daf3131030ffe352525bcc439a2062c5f9519`，结果为
+  23 pass + EuAl4 G05 auto-origin 1 warning + 0 inconclusive/fail。warning 仍只表示缺少
+  basis HTML；该案例的其余身份和数值证据已通过。这个 `24/24` 只覆盖 EuAl4/NdNiO2
+  冻结案例，不构成 4310 或跨晶系验收。
+- **完整回归**：最终 `ISODISTORT/tests` 为 `884 passed, 2 skipped, 0 failed`，
+  `1343 warnings`，用时 `1263.04s`；命令经根 `run_cris.ps1`，并把 pytest 临时目录
+  显式放在 `ISODISTORT/output/validation/`，以允许 WSL 与本机 HTTP 合同测试正常运行。
+  全量后仅调整“部分成功 ZIP”的完成提示文案；最终 `test_web.py` 再全量复验为
+  `49 passed, 0 failed`、`288 warnings`，用时 `327.35s`。
+
+### 2026-10-06 Method 2 参数-k批量交付边界修复
+
+1. `compute_parametric_modes` 仍以 SMODES 构造数值 fixed-space，但 ISO microscopic
+   canonicalization 失败时，不再只写顶层 note；实际异常类别/文本及
+   `(parent SG, k, KVALUE, IR, direction selector)` 同时写入每一条仍未解析的
+   `ModeIdentity.reason`。API、网页与导出机器报告因此使用同一诊断来源。
+2. authoritative writer 门禁改为只核验该候选实际 emitted 的位移列。缓存中没有被该
+   writer 使用的模式不能再否决候选；实际写出的每列仍必须具有 verified
+   ISO microscopic identity 与完整 provenance，缺失源记录、列混合或数组不一致继续
+   fail-closed。
+3. Method 2 补算批次把 `UnresolvedModeIdentityError` 作为逐候选不可交付状态处理：已验证
+   候选继续发布，跳过候选及完整科学身份/原因写入根级
+   `export_candidate_status.json` 和 `export_candidate_status.txt`。ZIP 与磁盘都把成功候选
+   和报告先完整渲染，再做一次原子发布；其它模式计算或 writer 异常仍整批拒绝，未放宽
+   科学门禁。
+4. `search_method_2` 返回同一门禁的 `mode_identity_status`、`export_ready` 与失败明细；
+   网页在已计算候选为 unresolved 时显示具体警告并设 `selectable=false`。批量导出提供
+   当前候选、完成/成功/不可交付/失败数与剩余时间估计；取消只在候选边界生效，保留已
+   完成候选并记录未运行候选。
+5. 网页在 `_SESSION_LOCK` 内二次复核 revision、复制结构/候选/模式状态并创建带独立后端
+   的 export worker，随后在锁外执行长时计算；因此实时会话可继续使用，且修改不会混入
+   已启动批次。同一时刻仍只允许一个批量导出任务。
+6. 定向证据覆盖详细身份原因传播、只核验 emitted 列、未知身份逐候选跳过、ZIP/磁盘
+   部分成功报告、原子发布、候选边界取消、进度/ETA、真实快照隔离、HTTP 状态/取消接口
+   及长任务释放会话锁；末端界面会按最终状态显示 `ready/total`，不会把部分成功写成全部
+   完成。完整回归与最终 Web 复验计数见本节上方；本轮没有执行超过 50 分钟仍停在首个
+   候选的 NdNiO2 48 候选长时矩阵，因此不能把这些回归写成 48/48 科学验收，也不能据此
+   确认 BUG-005 的大型超胞秩/条件数假设。
+
+### 官网 HTML 改名与内容身份
+
+- 当前 Method 1/2/4 归档审计按 HTML 结构、页面角色和内容 SHA-256 识别页面，不把
+  basename 当作科学身份；在原候选目录内任意改名，只要后缀仍为不区分大小写的
+  `.html` 或 `.htm`，无需重新下载。
+- 每个要求的页面角色必须在规定目录内恰好匹配一页；0 页为 `missing_match`，多页为
+  `ambiguous_match`，两者都 fail-closed。把文件移到另一个候选目录会改变科学归属，
+  改成非 HTML 后缀会使文件不再进入清单，这两种操作不属于安全的“仅改文件名”。
+- 这套解析只用于只读验证证据。生产搜索、四格式生成和 ZIP 下载均从当前计算状态生成，
+  不读取 `webpage_info/` 或 `output_compare/` 归档来制造结果。
 
 ## 当前官网与保存输出
 
@@ -27,8 +176,9 @@
 - 只读静态门禁核对官网和现有网页版保存侧各 `330/330` 个候选、各 `1320/1320` 个核心文件；候选身份、目录归属、四格式内部身份、文件类型、非空性和重复身份检查均通过，当前无需重下。
 - 其中 4310 两侧各有 `125/125` 个候选、各 `500/500` 个核心文件。官网与本地旧产物之间的 175 项科学差异全部属于 4310：125 项模式数差异、50 项 CIF 语义差异；这是程序修复前的 debug 基线，不是漏下载、误下载或错放。
 - `N1+_4D1_SG2` 当前内容正确。由于被覆盖前的旧文件与操作记录未保留，无法从现有完整目录证明此前究竟覆盖到哪个子群位置；历史覆盖目标状态为 `inconclusive`，没有按名称猜测。
-- 这项静态结论只证明官网下载材料完整，不能代替 live 计算；当前 live 结论另由下述
-  final7 最终源码/输入/运行时签名报告提供。
+- 这项静态结论只证明官网下载材料完整，不能代替 live 计算；2026-10-06 live 结论由
+  `method1_4310_current_audit_20261006.json` 的 schema-3 稳定签名报告提供。final7
+  继续作为较早源码快照的历史证据保留。
 - 旧 4310 live 报告的 `75/125` 通过、`50/125` CIF 语义失败只描述当时源码；后续生成的 `method1_4310_live_postfix_cif_precision_reanalysis_20261003.json` 使用了错误的精度比较口径，已撤回并失效。两者都不得写成当前代码结果或验收证据。
 
 ### Method 3 官网下载
@@ -108,8 +258,9 @@
     `As→Ap` 或输出错误方向文本。模式 key、显示标签、global IR 与原子顺序只从已验证的
    `ModeIdentity + MicroscopicColumnProvenance` 派生，不能再由平行字符串或数组覆盖。
 5. 当前四格式共同合同只接受单物种满占位点；混合/部分占位在所有 writer 都能无损表达
-   前保持 fail-closed。批量模式计算或 writer 异常会按候选汇总；磁盘和 ZIP 都在发布前
-    完成全批次渲染。新/空根目录直接发布；已有非空根目录发布到内容寻址的
+   前保持 fail-closed。门禁只检查候选实际 emitted 的列；Method 2 identity 未解析候选
+   单独跳过并进入根级 JSON/TXT 状态报告，其它批量模式计算或 writer 异常仍按候选汇总后
+   整批拒绝。磁盘和 ZIP 都在发布前完成本次成功候选与报告的全量渲染。新/空根目录直接发布；已有非空根目录发布到内容寻址的
     `.isodistort-batch-v1-<digest>.ready` 目录，并写逐文件大小/SHA-256 manifest；文件锁与
     进程锁保证重叠批次只能整批成功或整批拒绝。成功的空模式表仍与失败区分。
     IsoVIZ 的 atom type 直接来自不可变物理轨道映射；空列、跨类型列或同元素轨道
@@ -121,10 +272,10 @@
 2. 规范模式来自 ISO rank-[12] 宏观表与目标 embedding 的 `DISPLAY DIRECTION`；程序再用实际嵌入点群和母胞 metric 独立计算 fixed space，并要求整空间维数与 span 一致。缺失或不一致的证据会中止候选导出，不退回坐标轴基或猜 `GM` 标签。
 3. CIF 写 max-component-one 的 `q_raw`，IsoVIZ 写 `q_unit=normfactor*q_raw`，Complete modes 同时写 `q_raw`、`q_unit`、`normfactor`、幅度和两种总和。TOPAS 与官网一致，不生成 strain-mode 精修参数，只写由应用应变得到的固定实际晶胞；参考子胞与 `B P` 不一致时明确失败。
 4. 定向应变测试覆盖固定空间、官方 F02 数值契约、三种模式导出与 TOPAS 固定晶胞，
-   共 89 passed、1 skipped。当前源码另以 WSL 完成 EuAl4 F02 单例 live：1/1 pass，
-   metric 重建相对残差约 `1.00e-15`，报告为
-   `output/validation/strain_audit_f02_end_to_end.json`。该单例不等于 current-source
-   24/24 全量重跑，也不提供跨晶系证据。
+   共 89 passed、1 skipped。较早的 EuAl4 F02 单例 WSL live 为 1/1 pass，metric 重建
+   相对残差约 `1.00e-15`，报告为 `output/validation/strain_audit_f02_end_to_end.json`；
+   当前源码随后已完成双母相冻结矩阵 24/24 全量本地重跑，见
+   `method4_local_validation_20261006_current_v2.json`。两者都不提供跨晶系证据。
 
 ### Method 3 精确 direct-lattice 与 coupled fixed-space 产品链路
 
@@ -145,7 +296,7 @@
 ### Method 4 本地分解 debug
 
 1. 原实现以“原子数是否变化”判断是否需要子群胞，导致 determinant=1 的旋转子群胞直接与母相设置比较；参数-k 又忽略已计算的完整 supercell mode vectors。现在始终以所选子群的零幅度 child cell 为参考，并优先使用经形状/有限值校验的 `mode_displacements_sc`。
-2. 原 `provided_origin_shift` 只写入 metadata、不参与匹配或 residual；现在会从女儿相分数坐标中显式扣除。网页与终端增加 matching、robust Å 阈值和已知原点输入，三者仍调用同一 `IsoDistort.search_method_4`。
+2. 原 `provided_origin_shift` 只写入 metadata、不参与匹配或 residual；现在会从女儿相分数坐标中显式扣除。网页增加 matching、robust Å 阈值和已知原点输入，网页与 API 仍调用同一 `IsoDistort.search_method_4`。
 3. 原子匹配从分数坐标贪心改为按物种的全局最小笛卡尔距离分配；robust 阈值明确为 Å。同原子数也必须通过晶格 metric 门禁，错误晶格不再被静默接受。
 4. 最小二乘在笛卡尔 Å 空间进行，RMS/max residual 明确以 Å 报告；模式基若秩亏则拒绝不唯一幅度，并在 metadata 记录秩、列数和条件数。
 5. 在当时的本地契约下，最终签名清单 24/24 固定案例通过，两个母相的“未准备模式”也稳定拒绝。EuAl4/ NdNiO2 无噪声最大 RMS 分别为 `4.99e-16 Å` / `4.62e-9 Å`；噪声案例为 `1.242e-4 Å` / `3.597e-5 Å`。物种、8% 晶格变化和 0.1 Å 超阈值输入均被本地拒绝；其中 8% 晶格变化后来由官网 F02 证明为均匀应变成功例，故这一项不再计作正确拒绝。
@@ -194,10 +345,10 @@
 ### 接口、并发与工具链
 
 1. Method 3 embedding 使用稳定内容 ID，不依赖 Python `id()` 或列表下标。
-2. 网页状态、搜索、选择和导出共用 `RLock` 与单调 revision；旧标签页的 stale mutation/export 会明确失败，上传暂存名使用 UUID。
+2. 网页实时状态、搜索、选择及导出快照创建共用 `RLock` 与单调 revision；旧标签页的 stale mutation/export 会明确失败。长时导出在独立快照上于锁外运行，并通过单任务锁、进度状态和候选边界取消协调；上传暂存名使用 UUID。
 3. Method 3 参数值、后端查询、有限商、点子群和 affine lift 均设有“超限即失败”的预算，不做静默截断。
 4. ISODISTORT_VALIDATE 按晶格度量、物种占位和可选原子顺序比较 CIF；ISOVIZ_INPUT 对路径、CSV、幅度和启动器进行显式校验。三个项目共用根 `.venv` 与各自 yaml 配置。
-5. 取证确认受保护 `isobyu/` 中的 ignored `iso.log` 来自一次旧的裸 WSL 探针：该命令
+5. 取证确认受保护 `resources/isobyu/` 中的 ignored `iso.log` 来自一次旧的裸 WSL 探针：该命令
    显式 `cd` 到二进制/数据目录后运行 `./iso`，时间和命令流与日志完全一致；生产包装器
    始终在 `~/.id/tmp` 运行并用独立 `ISODATA` 链接读取数据。包装器的 shell 链已由分号
    改为 `export ... && cd <stage> && <binary>`，使 stage 不可用时在启动二进制前失败，
@@ -205,7 +356,7 @@
 
 ### ZIP 子群目录短名与防覆盖
 
-1. 导出目录名统一由 `isocore/io/distortion_formats.py` 生成：Method 1 为 `<IR>_<OPD>_SG<number>`，Method 2 为 `<IR>_<OPD>`；保留 IR 的 `+`/`-` 和 `4D1` 等 OPD token，并替换 Windows 非法字符、控制字符和保留设备名。
+1. 导出目录名统一由 `features/export/distortion_formats.py` 生成：Method 1 为 `<IR>_<OPD>_SG<number>`，Method 2 为 `<IR>_<OPD>`；保留 IR 的 `+`/`-` 和 `4D1` 等 OPD token，并替换 Windows 非法字符、控制字符和保留设备名。
 2. Method 3 有外部 `stable_case_id` 时使用其安全化形式；否则从整批候选的完整身份生成与输入顺序无关的 `M3-<10位摘要>`，内部候选使用 `C<序号>_SG<number>`，不含 Eu/Nd 或样例硬编码。
 3. 短名碰撞按 Windows 大小写不敏感规则检测，确定性追加候选身份摘要或序号。磁盘导出遇到既有目录会选择新名字并以 `exist_ok=False` 建立，ZIP 也拒绝重复成员路径，因此不会静默覆盖；内部文件名仍为 `subgroup.cif`、`data.isoviz`、`Complete modes details.txt` 和 `topas.str`。
 4. 命名、安全字符、碰撞、Method 3 稳定案例号、ZIP/API 与目录防覆盖定向测试为 9 passed；网页 Method 参数透传测试为 1 passed。较宽的格式测试为 40 passed、1 skipped、1 deselected。
@@ -253,21 +404,156 @@
    实测 `spglib 2.7.0`、网页模块、WSL `/home/devoutwang` 与 `IsoDistort` 初始化均通过。
    安装器的 Windows 子进程环境固定
    启用 UTF-8，避免中文区域设置下 pip 以 GBK 解码 UTF-8 requirements 注释而失败。
+9. 2026-10-04 对同一桌面用户和同一 Ubuntu 做了三路重复探针：普通 PowerShell → WSL
+   `10/10` 成功，实体 `.venv\\Scripts\\python.exe` → WSL `0/10` 且均为
+   `Wsl/E_ACCESSDENIED`，`run_cris.ps1` → WSL `10/10` 成功。由此排除“WSL 服务随机
+   失效”和“需要管理员权限”，把根因收敛为 OneDrive 内 Python 进程映像的稳定访问限制。
+   同一 cwd 的补充 A/B 中，`.venv` 启动器加 `-S` 仍失败，外部基础 Python 加或不加
+   `-S` 均成功，进一步排除了 `-S` 和常规 site 初始化本身。
+   包装层现会分别解码 Linux UTF-8 输出和 `wsl.exe` 的 UTF-16LE 系统诊断，并在该错误
+   出现时给出唯一受支持的 runner 命令；doctor 也提供同一结论。受支持路径的完整
+   ISODISTORT doctor 为 15 PASS、0 WARN、0 FAIL，真实包装层得到
+   `/home/devoutwang/.id/tmp`；定向单测 9 passed，包装层与真实二进制集成套件为
+   38 passed、2 skipped，改动文件 Ruff 通过。localhost proxy 警告来自 Windows/Clash
+   自动代理与 WSL NAT，不影响本地 ISOTROPY 二进制执行。DSH 只读复核保存在
+   `output/validation/dsh_sessions/20261004-215458-wsl-access-review/`；它支持上述归因和
+   不自动提权/重启的结论，但其低完整性沙箱会拒绝所有 WSL distro launch，因此只作
+   证据审阅，不能替代普通用户上下文的 10/10 实测。
+10. 2026-10-05 恢复旧版 `scripts/main_web.py` 的直接启动契约，同时保留实体 `.venv`：进一步
+    A/B 发现，不是所有 OneDrive 内的 Python 映像都会失败；复制到该目录的基础 Python
+    仍为 `Wsl/E_ACCESSDENIED`，而基础 Python 的 NTFS 硬链接从同一目录调用 WSL 返回 0，
+    并保持 `.venv` 的 `sys.prefix`、site-packages 和 `IsoDistort()` 初始化正常。安装器现只在
+    “venv stub 失败且基础 Python 成功”这一可检验条件成立时，用经过 `sys.prefix` 与 WSL
+    双重验证的硬链接替换 stub，并保留 `python-venv-launcher.exe` 回退副本；无法证明该条件
+    时不修改环境，仍可使用 `run_cris.ps1`。修复后的直接 `.venv\Scripts\python.exe`
+    启动烟测中，根页面、`/api/state` 与 `/api/shutdown` 均返回 200，服务正常释放端口；
+    启动器/Web 定向回归 6 passed，随后用修复后的直接解释器运行安装器与全部 Web
+    测试为 50 passed，直接 doctor 为 15 PASS、0 WARN、0 FAIL，相关 Ruff 检查通过。
+    首轮完整回归另暴露提交 `483fe07` 删除 `resources/isobyu/smodes_sample.out` 后测试仍依赖该
+    只读目录的既有夹具归属问题；历史样本已迁到 `tests/fixtures/` 并加精确 ignore
+    例外，未回写 `resources/isobyu/`。最终完整回归为 677 passed、3 skipped、0 failed、1305
+    warnings，用时 1101.99 秒。该修复只改部署、入口与测试夹具归属，不改 `backend`
+    科学算法、导出或黄金数据。
+11. 2026-10-05 修复 Method 2 参数 k 候选的四格式生成与 ZIP 下载。根因是参数 k 的
+    SMODES 数值基虽然完整，但其模式身份按设计保持 `unresolved`，而四个 writer 共用的
+    发布门禁只接受经 ISO 微观列和来源绑定验证的模式，因此整批候选在渲染前统一被拒绝。
+    现从选定 embedding 的 exact `DISPLAY DIRECTION` 保留每个谐波的 KVALUE、k 坐标和
+    不变方向，再用同一 ISO 会话获取 `DISPLAY DISTORTION` 微观列；重复 irrep 依靠真实
+    查询表边界归属，中间无位移列的查询不会破坏顺序。只有逐轨道完整子空间、秩、来源
+    和身份全部匹配时才用 canonical ISO 基替换 SMODES 基；表边界缺失、重复 irrep 的空
+    结果无法唯一归属、列数或子空间不一致时仍保持 `unresolved` 并拒绝导出。
+    EuAl4 LD `g=1/6` 实际全批次验证覆盖 22/22 候选，生成 340496 字节 ZIP、22 个目录和
+    88 个非空文件，CIF/IsoVIZ/Complete modes/TOPAS 各 22 个，四类语义标记均 0 失败；
+    目标回归 147 passed，最终完整 `ISODISTORT/tests` 为 681 passed、2 skipped、
+    0 failed、1332 warnings，用时 1107.40 秒。DSH 只读诊断材料保存在
+    `output/validation/dsh_sessions/20261005-180108-method2-export-identity/`；会话在输出根因
+    证据后由 Codex 中断，结论已由上述真实 WSL/ISO 全量导出与回归独立复核。
+12. 2026-10-05 删除 ISODISTORT 终端版交互及其专用内容：移除 `main_terminal.py`、
+    `runtime_launcher.py`、终端专用测试、手工批处理 `terminal` 子命令、专用英语文案，
+    并同步安装 doctor、项目规则与用户/开发文档。网页、Python API、`run_cris.ps1`
+    兼容启动器及 `backend` 科学计算/四格式导出路径均保留。残留门禁确认两个入口文件
+    与旧字节码均不存在，`run_batch.py terminal` 以 argparse exit 2 拒绝且只列出
+    `cif30` / `external`。定向网页/API/安装器回归为 67 passed；doctor 为 15 PASS、
+    0 WARN、0 FAIL；最终完整 `ISODISTORT/tests` 为 675 passed、2 skipped、
+    0 failed、1332 warnings，用时 1222.64 秒。相对上一轮 681 passed 少 6 项，均为
+    被删除的终端专用用例，不是现存功能回归。DSH 只读诊断材料保存在
+    `output/validation/dsh_sessions/20261005-200608-remove-terminal-ui/`。
+13. 2026-10-07 修复四部分目录迁移后的路径与导入回归：`irreps_cdml` 从模块位置解析
+    `resources/isobyu/`，`core_api` 从模块位置解析 CRIS 仓库根，配置中的输出目录继续落在
+    `ISODISTORT/output/` 而不是 `resources/output/`。Method 1–4 包入口改为只导出各自拥有的
+    公共 API，并延迟加载具体实现，消除 Method 2/3 模块在全新进程中先导入时出现的循环
+    导入；调用方改从符号所属功能包导入，不再经 Method 1 反向重导出。另按 Git 中迁移前
+    的同一 README 内容和当前目录结构恢复被误删的连字符、命令参数、公式、URL 与 Markdown
+    语法，未凭空重写科学结论。新增架构回归 6 项通过，k 点/空间群表头回归 5 项通过，
+    定向运行时回归 6 项通过；221 项相关测试可完整收集，改动范围 Ruff 与
+    `git diff --check` 通过。这里没有宣称本轮全测试套件已恢复全绿；完整回归仍以本次最终
+    测试记录为准。
+14. 2026-10-07 补齐重构后 wheel/sdist 的非 Python 资源契约：`resources/` 增加包标记，
+    setuptools 只发现有 `__init__.py` 的常规包，并以显式 `package-data` 白名单收录
+    `frontend/web/index.html`、`static/`、`resources/config/*.yaml` 以及只读
+    `resources/isobyu/` 的运行文件/数据库；`*.log` 与 `resources/output/` 不会进入分发包。
+    新增回归既核对白名单的完整展开结果，也在临时 `site-packages` 中重建等价安装布局，
+    从该布局独立导入配置、CDML 表和网页服务并读取全部关键资源；另以 AST 防止重复定义。
+    实际 wheel 已通过 pip 的隔离构建（未修改实体 `.venv` 依赖），归档包含配置、网页与全部
+    冻结运行资源，未含 `.log` 或 `resources/output/`；独立解包后配置与网页可导入，ISO
+    路径解析到解包资源。提供 `isodistort-web` 命令，调用同一网页入口。sdist 本轮未构建。
+15. 2026-10-07 从本地 Codex 历史会话证据恢复迁移时丢失的
+    `tests/manual/official_html_resolver.py` 与 `method4_provenance.py`，并恢复此前已经完成的
+    Method 1–4 校验器实现；随后按新目录结构修正源签名、配置相对路径与测试 fixture。
+    不再把缺失内容归因于“测试比实现新”。numeric semantics 校验保留 numpy/非有限值
+    JSON、TOPAS 别名链、完整模式来源证明、源码/输入/上下文签名及结束复签；中途中断的
+    `pending_final_signature` checkpoint 拒绝复用，帮助文本与手工文档同步说明重启要求。
+    全部测试可收集，原 3 个 collection error 已消失。
+16. 2026-10-07 补强周期与调制计算：分数坐标边界按周期等价归并，CIF 空间群元数据与首个
+    实际可解析结构块绑定，坐标表达式解析要求完整消费；SMODES 子胞映射中有未覆盖原子
+    时整列拒绝，不把缺失映射伪装成零位移。谐波阶数在母相原胞平移基上求解精确有理
+    同余并以广义 CRT 合并；四分之一相位由有限平移商的 Bézout 构造，字符阶数不超过 2
+    时不生成独立 quadrature，波矢文本格式不设晶体学分母上限。正反例包含 13/30 谐波、
+    1/49 波矢、1/400 长周期、I 心倒格矢等价及真实零位移原子。新增波矢 Γ 判断与已有
+    星臂相位函数使用不同名称，保留既有 fail-closed 星臂证据门禁。
+17. 2026-10-07 修复安装布局的写入与执行：运行目录由配置层唯一解析；源码默认仍为项目
+    `output/`，wheel 默认落入用户状态目录，支持绝对 `ISODISTORT_RUNTIME_ROOT` 覆盖与
+    YAML 显式绝对路径。Linux 每个 wrapper 使用私有短暂存目录；非可执行原文件仅复制
+    并对副本设置权限，doctor 使用同一路径准备并区分直接/暂存/失败。只读运行资源未变。
+    Windows 上已覆盖复制、缓存失效、失败与 WSL 路径兼容；真实 POSIX shell 集成测试
+    在本 Windows 环境跳过，不能据此宣称完整原生 Linux 科学计算验收。
+18. 2026-10-07 修复 BUG-006 的静默 cosine fallback：三条母胞单实列路径共用
+    `_lift_real_column`，精确相位原语下沉至 `backend/utils/lattice.py` 并由 superspace
+    复用；非自共轭字符缺少成对实列/复列来源时拒绝，自共轭模式验证真实母相平移格、
+    中心化位点的位移协变性与子胞周期性。Method 4 相同原子数路径也执行同一验证。
+    完整子胞列保持可用，无法解释的 `opd_direction` 不再静默忽略。15 项新增回归覆盖
+    q=1/4、中心化半 k、精确 sign-only、原点协变与同原子数 API 路径；相关四组测试为
+    101 passed、3 skipped。成对实列/复列及一般 k-star/OPD 来源合同仍是待完善能力。
+    最终复核另补 6 个浮点边界反例：`±1e-13`、`1±1e-13` 与 `0.5±1e-13`。
+    波矢恢复若会把明确非零的十进制值舍入为整数/半整数，则保留该十进制有理数；
+    波矢格式化与相位计算使用同一原语，避免误认 Γ 点或自共轭字符。普通 `1/3` 的
+    有理数恢复保留，晶格矩阵的既有近似合同不变。四组定向复核为 90 passed、1 skipped。
+    后续复核再修复显式 Γ/等价倒格矢提前绕过中心化位点协变检查，以及 `k=None` 在
+    缩胞时丢失不周期位移场的问题。未声明 k 的列只要求在请求子胞平移下为 +1 字符，
+    不强制视为整个母相 Γ；显式 k 则必须证明母相原始平移字符。新增 27 项回归后，
+    fallback 与 distortion 两组为 102 passed、3 skipped。
+19. 2026-10-07 修复通用分数基矢构胞的平移格与守恒合同：原胞平移格的精确 coset
+    重建及 spglib 有理数恢复下沉到 `backend/utils/lattice.py`；Method 1 仿射群和
+    `features/input_cif/coordinate_transform.py` 复用同一算法，不按 HM 字母猜上传坐标系。
+    构胞首先验证有限、非奇异基矢，分数基矢须满足 `B @ inverse(P)` 为整数矩阵，
+    并在结果边界验证原子数、物种/占位与 `abs(det(B))` 体积比一致。整数路径不再
+    `allclose` 后直接截断。非母相平移的 P 半轴反例拒绝，I/F 原胞与合法分数超胞保留。
+20. 2026-10-07 补齐 FINDSYM 运行失败时的坐标系门禁：正常载入链会将 A 心非标准输入
+    和 FCC 原胞整体转换到 ISO 标准惯用胞；但明确 `status=unavailable` 的失败分支
+    保留原坐标供诊断，不能继续消费标准 k/B。共享会话门禁在 Method 1/3 搜索、
+    Method 2、路径选择、共享模式计算和子群导出的后端调用/状态修改/发布之前拒绝，
+    包括跳过模式计算的 CIF-only 路径。收尾最小反例使用正交单 Ni 原子、非标准原点：
+    FINDSYM 失败后旧 CIF-only ZIP 路径按标准 P-1 操作展开，读回由 1 原子变成 2 原子；
+    门禁在构胞、规格收集和公开导出入口复用同一判据，要求修复环境后重新载入。
+    不按材料或 A/C 字母特判。缺失该元数据的旧私有 fixture 不因此获得 setting 认证。
+21. 2026-10-07 修复官网回归的假 skip 与字面基矢误判：EuAl4 Method 1 OPD 页面改由
+    不可变 HTML 清单的内容、POST form 和完整母相/作用域上下文唯一定位，不按文件名
+    猜身份。123 个完整 IR/OPD/方向/SG/HM/s/i/k-active 身份一一对应；其中 90 行字面
+    相同，33 对为不同 conventional basis。逐对精确 GL(3,Z)、完整 Seitz 群相等以及
+    体积/群指数不变量全部通过，严格禁止用 parent conjugacy 合并不同 orientation/domain。
+    见证保存于 `output/validation/post_restructure_eual4_opd_witness_20261007.json`；
+    测试不读取这份实测报告或硬编码 123/33/代表基。另执行既有 `make_cifs_30.py`，
+    生成并读回核验 30 个合成空间群样本，原来缺这些输入而跳过的 3 个测试实际通过。
+    合成样本不是实验黄金数据，也不表示 30 种晶体的 Method 1–4 全链验收。
 
 ## 当前验证矩阵
+
+以下官网/live 项目保留其对应源码快照的证据；除明确标为本轮重构后复验的项目外，
+不得将“当前”字样理解为 2026-10-07 新源码已经重新跑完同一长时矩阵。
 
 - 三种母相 Method 1 官网与现有网页版保存产物静态门禁：PASS，两侧各 330/330 候选、各 1320/1320 核心文件；175 项科学差异全部是 4310 旧程序的 125 项模式数差异和 50 项 CIF 语义差异，不是下载错误。4310 N1+ 4D1 当前内容正确，历史覆盖目标为 `inconclusive`。
 - EuAl4/NdNiO2 Method 1/2 保存产物：PASS，275/275 候选，1100/1100 核心文件。
 - EuAl4/NdNiO2 Method 1/2 live 快照：签名 `e3347be0…5908` 下 PASS，275/275 候选与模式数一致，0 missing/extra/duplicate/mismatch；本轮代码改变后不再称为当前源码结论。
-- 4310 Method 1 全量 live：final7 签名为
-  `0f8900bb5add71bc1de5e9d4c562142d8595539daf757dee074bf614c919a3b5`，运行结束时签名未变化；
+- 4310 Method 1 2026-10-06 快照全量 live：schema-3 报告签名为
+  `96ff44cd307432ae2d8ca672afed6ff7c9e7dedbfc39ee07cfd71fefeaf94d12`，运行结束时签名未变化；
   125/125 候选身份配对、模式数、BUSH 覆盖和零振幅 CIF 语义全部通过，0 失败。页头、
   8 个物理轨道、逐物种轨道作用域、完整母相 setting 规范化，以及原始/整体 `z+0.1`
-  输入的 N1+ 4D1 `192/192` 另有定向回归。
+  输入的 N1+ 4D1 `192/192` 另有定向回归。报告 SHA-256 为
+  `be7bee90ea47a03bb0aac56debb455a882b0d5d198c593130bd6b11db2f9fa6b`。
 - 4310 Method 1 C10/C12 定向 live：报告 schema 为 `method1-4310-c10-c12-live-v2`，
   运行前后源码签名均为
   `ff79ff5e5201c4219379366ecda9d9abc867f9bffcbc20e61e5f7bcdc0bb2cf8`，其中
-  `isocore/**/*.py` 摘要为
+  `backend/**/*.py` 摘要为
   `e3c1e1f38863df1c94e245517539c7e9437d9cd53256b357de119ceeb1d32528`。
   N1+ C10 SG15 与 N1+ C12 SG2 各有 96/96 个 raw、verified identity、direct provenance、
   mapped 和 public-contract 模式；各含 48 个 verified domain extension、48 个 unique
@@ -289,26 +575,44 @@
   快照。批量 writer 异常、IsoVIZ 轨道错配、错误 query context、模式/方向篡改和非满占位点
   均 fail-closed；磁盘/ZIP 发布前全批次渲染，非空目标采用内容寻址 ready 目录和 manifest。
   非零 strain + displacive 四 writer 组合已通过定向回归。
-- symmetry-adapted 应变：`q_raw/q_unit/normfactor`、CIF/IsoVIZ/Complete modes 共用契约及 TOPAS 固定实际晶胞定向测试 89 passed、1 skipped；当前源码 EuAl4 F02 单例 WSL live 为 1/1 pass。24/24 全量重跑与跨晶系扩展仍为 `pending`。
+- symmetry-adapted 应变：`q_raw/q_unit/normfactor`、CIF/IsoVIZ/Complete modes 共用契约及 TOPAS 固定实际晶胞定向测试 89 passed、1 skipped；当前源码双母相冻结矩阵本地 24/24 通过。跨晶系扩展仍为 `pending`。
 - Method 1/2 已记录的签名数值语义抽检：3/3 案例通过；Complete modes、IsoVIZ、TOPAS、CIF 共 12/12 类导出通过。模式数分别为 Eu LD1 `48/48`、Nd Y1 `24/24`、Eu X4− `5/5`，且标签 family、笛卡尔子空间、normfactor、As/Ap/dmax 全部满足声明的判据。
+- Method 2 2026-10-06 快照参数-k数值语义：schema-6 live 报告中的 EuAl4 LD1 C1 与
+  NdNiO2 Y1 C1 两个 nmod=0 案例均通过，四种导出各 `2/2` pass；报告 SHA-256 为
+  `c4830c1895681f19031c6c41113ea5d4039e14e1af2dbad06fe05661edc65cfb`。该结果不外推到
+  全部 Method 2 候选、nmod=1、4310 或跨晶系。
+- Method 2 参数 k 四格式批量发布的较早签名批次：EuAl4 LD `g=1/6` 22/22 候选成功，ZIP 内
+  88/88 文件非空，CIF/IsoVIZ/Complete modes/TOPAS 各 22 个且语义标记 0 失败；LD1 与
+  重复 LD5 谐波均使用 exact KVALUE 的 ISO microscopic identity/provenance，歧义分区仍
+  fail-closed。该证据只证明当时签名的批次与代码路径；2026-10-06 的最终数值结论仅为上项
+  schema-6 两个 nmod=0 代表例，不外推为所有候选、母相和晶系的官网一致性。
 - Method 3 官网下载：PASS，40/40 查询，77/77 embedding，308/308 核心文件。
 - Method 3 route：61 single-IR + 16 coupled-only，0 不确定。
-- Method 3 默认产品比较：13 exact + 27 affine-equivalent + 0 differences；77/77 embedding 匹配，逐组候选数一致，0 错误/跳过。
+- Method 3 2026-10-06 默认产品比较：schema-5 报告为 13 exact + 27 affine-equivalent +
+  0 differences；77/77 embedding 匹配，逐组候选数一致，0 错误/跳过，source signature
+  稳定；报告 SHA-256 为
+  `796ae2f39235c6d61422cb9d02403da11e795a60815f6a0590ea02b45c6c45f7`。
 - Method 3 Stage A：40/40，77/77 官网 embedding 覆盖。
 - Method 3 Stage B：77/77 官网 embedding 可达；3/3 新轨道不可达。
 - Method 3 等价 basis/centering 变形：PASS，40 个案例、80/80 个变体，0 missing/extra。
-- Method 4 本地闭环：重冻结清单 24/24 通过；官网 24/24 个案例均使用正确冻结输入，审计为 23 个完全通过、EuAl4 G05 auto-origin 1 个证据警告、0 个失败，综合状态 `pass_with_warnings`。F01 物种拒绝、F02 均匀应变成功与 F03 robust 距离阈值拒绝路径均通过。
-- 网页/终端对齐：Method 3 均显示并导出 `route_resolution` 与完整 known routes；Method 4 均显示 `As/Ap/raw/normfactor`、residual 与六分量均匀应变，终端原点输入采用与网页相同的空分量补零语义。终端 ZIP 和目录导出均与网页一样显式传递当前 nmod，不再由可变会话状态隐式决定参数 k 模式。网页女儿相上传文件在每次 Method 4 成功或失败后删除，当前母相上传文件在替换或服务退出时删除。
-- 实体 `.venv` 迁移后的启动链：Windows 网页启动改由隐藏的 PowerShell helper 调用 Windows Shell；在首选端口被独占时，受支持入口 `.\run_cris.ps1 ISODISTORT\main_web.py` 实测自动打开 `http://127.0.0.1:8001/`，服务收到根页面、静态资源、初始化 API 和持续心跳，`/api/state` 返回 200。直接 `.venv\Scripts\python.exe` 的限制会沿普通子进程和 ShellExecute 进程链保留，不能在 Python 内自愈；网页与终端入口因此在启动服务/交互前 fail-closed，并打印唯一正确的 `run_cris.ps1` 命令。
+- Method 4 2026-10-06 快照本地闭环：24/24 通过，schema-3 报告 SHA-256 为
+  `e19a005dd77bad4b12c7dcc2600889c8e89fe3a689d572c542e6f626a954bb5d`；官网 24 个案例
+  均使用正确冻结输入，schema-5 审计为 23 个完全通过、EuAl4 G05 auto-origin 1 个
+  证据警告、0 个 inconclusive/fail，报告 SHA-256 为
+  `946dba00162ca813060153c4f38daf3131030ffe352525bcc439a2062c5f9519`。F01 物种拒绝、
+  F02 均匀应变成功与 F03 robust 距离阈值拒绝路径均通过。
+- 网页/API 对齐：Method 3 均提供 `route_resolution` 与完整 known routes；Method 4 均提供 `As/Ap/raw/normfactor`、residual 与六分量均匀应变。网页 ZIP 显式传递当前 nmod，不再由可变会话状态隐式决定参数 k 模式。网页女儿相上传文件在每次 Method 4 成功或失败后删除，当前母相上传文件在替换或服务退出时删除。
+- 实体 `.venv` 迁移后的旧启动链证据仍成立：标准 venv stub 以及它启动的普通子进程和
+  ShellExecute 进程链无法在 Python 内自愈；`run_cris.ps1` 曾是唯一受支持入口。该结论现
+  被上文 2026-10-05 的“安装阶段硬链接修复”收窄：修复后的直接
+  `.venv\Scripts\python.exe ISODISTORT\scripts\main_web.py` 已完成根页面、初始化 API 和停止 API
+  烟测；`run_cris.ps1` 保留为无法建立硬链接时的兼容入口。
 - 此前生产源码快照的全量回归：654 passed、3 skipped、0 failed，用时 1003.51 秒；
   全套在真实 WSL/ISO 可用的非 sandbox 环境执行，skip 为可选能力门禁。该回归覆盖
   microscopic 查询上下文/完整域延拓、生产 CIF 位移合同、四 writer、批量原子发布及既有
   功能，但早于本轮 proof 绑定加固，不能冒充当前最终源码全量结果。
-- 当前源码的目标回归为 160 passed、1 skipped；完整 `ISODISTORT/tests_dev` 为
-  669 passed、3 skipped、0 failed、1305 warnings，用时 1108.93 秒。WSL/ISO 用例在普通
-  用户上下文中实际执行；此前 630 passed、32 skipped、10 个 `Wsl/E_ACCESSDENIED`
-  失败只保留为旧环境诊断，已被本次结果取代。`setup_cris.py` 与 proof 绑定、二进制
-  启动链等改动文件的 Ruff 检查通过。
+- 2026-10-06 完整 `ISODISTORT/tests` 为 `884 passed, 2 skipped, 0 failed`；此前
+  669/675/681 等完整回归计数同样只代表对应历史源码快照，不代表重构后当前源码。
 - DSH 只读诊断会话
   `output/validation/dsh_sessions/20261004-122244-method1-identity-review-stdin/` 保存完整 prompt、
   metadata、stdout/stderr；Session ID 为 `session-d129b86d-2b15-43da-9b12-dd5a133966e1`。
@@ -316,9 +620,16 @@
   复核后排除，邻近的 proof 重绑定缺口由 Codex 独立复现、修复并以上述目标回归验证。
 - ISODISTORT_VALIDATE：19 passed。
 - ISOVIZ_INPUT：20 passed。
-- 统一部署器：6 passed；三项目 0.4.0 wheel 均构建成功；本轮全项目 `doctor --dev` 为 24 pass、2 个缺少用户输入的 warn、0 fail。
+- 统一部署器本轮回归：10 passed；ISODISTORT 0.4.0 wheel 已重新构建并独立解包烟测，
+  另两个项目的 wheel 为历史构建证据。本轮全项目 `doctor --dev` 为 24 pass、
+  2 个缺少用户输入的 warn、0 fail。
 
-关键机器报告为 `method3_embedding_route_audit.json`、`method3_official_local_comparison.json`、
+2026-10-06 源码快照的机器报告为 `method1_4310_current_audit_20261006.json`、
+`method2_numeric_semantic_live_current.json`、
+`method3_official_local_comparison_20261006_current.json`、
+`method4_local_validation_20261006_current_v2.json` 和
+`method4_official_audit_20261006_current_v2.json`。历史关键报告包括
+`method3_embedding_route_audit.json`、`method3_official_local_comparison.json`、
 `method3_basis_metamorphic_audit.json`、`method3_stage_a_diagnostic_audit.json`、
 `method3_stage_b_feasibility_audit.json`、`method4_local_validation.json`、
 `method4_official_audit.json`、`strain_audit_f02_end_to_end.json`、`live_method12_report.json`、
@@ -343,12 +654,12 @@
   原始矩阵未跨层保存，因此 reference/canonical condition、公共域残差和 transport phase
   只能核对构造期摘要。若将来需要抵抗能同步伪造全部字段的外部不可信输入，必须额外保存
   可重放 transcript/矩阵或使用签名。
-- 4310 Method 1 已有官网静态全集、对应源码签名的定向根因回归和 final7 125/125
+- 4310 Method 1 已有官网静态全集、对应历史源码签名的定向根因回归和 schema-3 125/125
   候选全量 live；Method 2–4 尚无该母相正式矩阵。
 - 官网 Method 1–3 的默认子群导出为 `As=0`，因此这些路径的非零振幅数值归一化主要由公式、单元测试和本地生成验证；Method 4 已有非零官网对照，nmod=1 尚无单独归档的官网四格式非零参考对。
 - 本轮已识别 Java 与 IsoVIZ 启动器，但按自动验证边界没有启动 GUI；20 个静态测试只能
   证明 `.isoviz` 生成、路径和启动参数逻辑，不能证明窗口实际打开或 IsoVIZ 正确认出数据。
-- Method 4 官网 EuAl4 与 NdNiO2 的 G01–G06、P01–P03、F01–F03 已验证零保持、正负幅值、原子重排/周期换像、完整 Γ/参数-k 等价多维模式基、双模式、显式/自动原点、参数-k origin phase、超胞零/非零分解、P1 噪声分配、应用均匀应变张量和拒绝路径。EuAl4 G05 auto-origin 仍仅缺 basis HTML；清晰填写截图、accepted result identity、完整导出和显式-origin 数值对照已足以维持 `pass_with_warnings`。symmetry-adapted strain 的生成、标签和 CIF/IsoVIZ/Complete modes 导出以及 TOPAS 固定实际晶胞现已实现；当前源码只完成 EuAl4 F02 单例 WSL live，尚未重跑 24/24。官网按子群算子自动枚举全部允许原点、occupancy/magnetic/rotational 分解仍未验收。
+- Method 4 官网 EuAl4 与 NdNiO2 的 G01–G06、P01–P03、F01–F03 已验证零保持、正负幅值、原子重排/周期换像、完整 Γ/参数-k 等价多维模式基、双模式、显式/自动原点、参数-k origin phase、超胞零/非零分解、P1 噪声分配、应用均匀应变张量和拒绝路径。EuAl4 G05 auto-origin 仍仅缺 basis HTML；清晰填写截图、accepted result identity、完整导出和显式-origin 数值对照已足以维持 `pass_with_warnings`。symmetry-adapted strain 的生成、标签和 CIF/IsoVIZ/Complete modes 导出以及 TOPAS 固定实际晶胞现已实现，当前源码已重跑双母相 24/24；官网按子群算子自动枚举全部允许原点、4310/跨晶系矩阵以及 occupancy/magnetic/rotational 分解仍未验收。
 
 ## 主要科学依据
 
@@ -358,5 +669,9 @@
 - Stokes & Campbell, *Acta Cryst.* A73 (2017), Appendix B, DOI `10.1107/S2053273316017629`
 - Hatch & Stokes, *Phys. Rev. B* 65 (2002), DOI `10.1103/PhysRevB.65.014113`
 - Stokes, van Orden & Campbell, *J. Appl. Cryst.* 49 (2016), DOI `10.1107/S160057671601311X`
+- Wagner & Schönleber, *Acta Cryst.* B65 (2009), [superspace introduction](https://journals.iucr.org/b/issues/2009/03/00/bk5084/index.html)：有理调制、公度周期、cosine/sine 分量及相位约定。
+- [IUCr CIF specifications](https://www.iucr.org/resources/cif/spec)：data block、loop 与结构数据的语法边界。
+- [International Tables, Vol. C, §1.1](https://it.iucr.org/Cb/ch1o1v0001/)：原/惯用胞、中心化平移与倒格矢的定义及体积关系。
+- [IUCr Superstructure definition](https://dictionary.iucr.org/Superstructure)：子胞平移群必须为母相平移群的子群。
 
 这些文献定义算法与不变量；官网结果只用于检验实现是否复现同一科学语义。

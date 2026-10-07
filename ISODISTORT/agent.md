@@ -23,9 +23,36 @@
 ## 实现边界
 
 - 官网黄金集只能读和审计；新输出写到约定的本地结果/验证目录。
-- 网页、终端和 Python API 只能共用 `isocore` 计算与导出逻辑，交互壳不得
-  复制算法。英语交互文案统一由 `isocore/i18n/messages.py` 提供。
-- 运行时默认值先写 `config/settings.yaml`，代码通过 `get_config()` 读取。
+- 网页和 Python API 只能共用 `backend/` 与 `features/` 的计算与导出逻辑，网页交互壳
+  不得复制算法。英语网页文案统一由 `frontend/i18n/messages.py` 提供。
+- 运行时默认值先写 `resources/config/settings.yaml`，代码通过 `get_config()` 读取。
+
+## 四部分结构与职责
+
+本项目源码按四个部分组织；修改某一功能时应只改对应部分，跨部分共用的底层进入 `backend/`：
+
+1. `backend/` —— 通用底层计算与共用设施（所有 Method 通用）：
+   - `backend/wrappers/`：iso / findsym / smodes 二进制封装、WSL 进程与暂存、ISO 缓存；
+   - `backend/models/`：模式与来源领域模型；
+   - `backend/tables/`：CDML / Kovalev / 官网 k 点与空间群查表；
+   - `backend/utils/`：精确有理数晶格与群论工具、文本解析、OPD 文本、母相页头、
+     配置加载、异常、自检；
+   - `backend/api/`：`IsoDistort` 会话 API 入口。
+2. `features/` —— 按程序功能划分的中端包，每个包只含该功能的实现：
+   - `features/input_cif/`：CIF 解析、坐标变换、对称性校验；
+   - `features/method1/`：Method 1 搜索与共用畸变引擎（affine embedding、相路径、
+     畴、occupational、`search_methods`）；
+   - `features/method2/`：Method 2 的 (3+d)/公度锁定模式计算（`superspace`）与母相→
+     子胞模式映射（`distortion_mapper`）；
+   - `features/method3/`：Inverse Landau/COPL 可行性与 coupled 见证（`inverse_landau*`、
+     `coupled_routes`）；
+   - `features/method4/`：分解、均匀应变与生成回代（`strain*`、`distortion_engine`）；
+   - `features/export/`：四种下载格式 writer 与 CIF 位移/来源共享合同。
+3. `frontend/` —— 网页支撑：`frontend/web/`（HTTP 服务、`index.html`、`static/`）与
+   `frontend/i18n/`（英文文案）。
+4. 其他全局共享/非代码：`resources/config/`、`resources/isobyu/`、`docs/`、`output/`、
+   `tests/`、`scripts/`，以及留在根目录的 `.gitignore`、`pyproject.toml`、
+   `requirements*.txt`、`README.md`、`agent.md`。
 
 ## 科研与验收
 
@@ -48,13 +75,17 @@
 
 ## 架构与验收
 
-- 唯一职责：后端包装在 `isocore/backend/`，搜索与模式在
-  `isocore/distortion/`，会话 API 在 `isocore/api/`，导出在 `isocore/io/`。
+- 唯一职责：通用底层与二进制封装在 `backend/`，各 Method 的搜索与模式在
+  `features/method1…4/`，会话 API 在 `backend/api/`，导出在 `features/export/`，
+  网页在 `frontend/web/`。新增共用算法一律下沉 `backend/`，不得在 `features/` 之间
+  交叉复制。
+- `features/` 各包只允许通过 `backend/` 与彼此公开的模块接口协作；包间导入使用绝对
+  路径（`from features.method2.superspace import …`），同包内才用相对导入。
 - 状态必须显式传递；候选身份不能只靠目录名、列表下标或对象 `id()`；对照与
   导出须使用各 Method 适用的完整科学身份和查询上下文。并发变更须遵守
   session lock/revision，不复用不兼容的模式缓存。
 - 默认比较科学语义，不要求整文件逐字节相同。CIF 应可被 VESTA 解析，
   `.isoviz` 应满足 IsoVIZ 结构；未安装 GUI 时只能报告静态验证。
-- 修改算法/导出后至少运行相关 pytest；交付前运行完整
-  `.\.venv\Scripts\python.exe -m pytest ISODISTORT\tests_dev -q --tb=line`。
+- 修改算法/导出后至少运行相关 pytest；交付前从 CRIS 根目录运行完整
+  `.\run_cris.ps1 -m pytest ISODISTORT\tests -q --tb=line`。
   官网差分与长时命令以 `docs/MANUAL_VALIDATION.md` 为准。

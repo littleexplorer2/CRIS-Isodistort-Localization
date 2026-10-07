@@ -1,14 +1,47 @@
 from __future__ import annotations
 
-from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from isoviz_input.paths import (
+    best_model_root,
     resolve_best_model_csv,
     resolve_isoviz_path,
     strip_user_path,
 )
+
+
+def test_best_model_root_prefers_environment_override(tmp_path, monkeypatch):
+    target = tmp_path / "amplitudes"
+    monkeypatch.setenv("BEST_MODEL_PARAMETERS_DIR", str(target))
+    monkeypatch.setattr(
+        "isoviz_input.paths.get_config",
+        lambda: SimpleNamespace(
+            best_model_env_var="BEST_MODEL_PARAMETERS_DIR",
+            best_model_parent=None,
+            best_model_folder_name="Best_Model_Parameters",
+            project_root=tmp_path / "CRIS" / "ISOVIZ_INPUT",
+        ),
+    )
+    assert best_model_root() == target.resolve()
+
+
+def test_best_model_root_uses_sibling_checkout_layout(tmp_path, monkeypatch):
+    project_root = tmp_path / "CRIS" / "ISOVIZ_INPUT"
+    sibling = tmp_path / "Best_Model_Parameters"
+    sibling.mkdir()
+    monkeypatch.delenv("BEST_MODEL_PARAMETERS_DIR", raising=False)
+    monkeypatch.setattr(
+        "isoviz_input.paths.get_config",
+        lambda: SimpleNamespace(
+            best_model_env_var="BEST_MODEL_PARAMETERS_DIR",
+            best_model_parent=None,
+            best_model_folder_name="Best_Model_Parameters",
+            project_root=project_root,
+        ),
+    )
+    assert best_model_root() == sibling
 
 
 def test_strip_user_path_ascii_and_curly_quotes():

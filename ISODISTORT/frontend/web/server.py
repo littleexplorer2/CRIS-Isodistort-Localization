@@ -1,0 +1,1387 @@
+"""
+ISODISTORT local web UI (frontend/web/server.py)
+
+Start a local HTTP server and open the browser:
+    python scripts/main_web.py
+    python frontend/web/server.py
+
+Port defaults to 8000 (config runtime.web_port). If that port is taken the
+server tries the next ports automatically.
+
+The page is English only. It shares backend.api.IsoDistort with the Python API.
+"""
+
+from __future__ import annotations
+
+import contextlib
+import copy
+import json
+import re
+import shutil
+import subprocess
+import sys
+import threading
+import time
+import urllib.parse
+import uuid
+import webbrowser
+from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
+from pathlib import Path
+
+import numpy as np
+
+# 确保能导入 backend/features/frontend（server.py 位于 ISODISTORT/frontend/web/）
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
+from backend.api import IsoDistort  # noqa: E402
+from backend.utils import get_config  # noqa: E402
+from backend.utils.schoenflies import hm_symbol, schoenflies_symbol  # noqa: E402
+from features.export import parse_export_formats, parse_export_method  # noqa: E402
+from features.method1 import DISTORTION_TYPES  # noqa: E402
+from frontend.i18n import MESSAGES  # noqa: E402
+
+WEB_DIR = Path(__file__).resolve().parent
+
+_COUPLED_METHOD2_UNSUPPORTED = (
+    "Method 2 with more than one superposed IR component is not implemented "
+    "locally. Choose one component or use the official ISODISTORT website; "
+    "independent single-IR subgroup tables cannot be combined."
+)
+
+
+def _require_single_method2_component(data: dict) -> None:
+    """Reject coupled Method 2 requests before any candidate state is changed.
+
+    ``nsup`` counts submitted IR components, not distinct k-point labels.  In
+    particular, two components at the same k point are still a coupled request
+    and must not be collapsed or implemented as a union of two single-IR
+    inventories.
+    """
+
+    counts: dict[str, int] = {}
+    if "nsup" in data:
+        raw_nsup = data["nsup"]
+        if type(raw_nsup) is not int:
+            raise ValueError("nsup must be a JSON integer")
+        nsup = raw_nsup
+        if nsup < 1:
+            raise ValueError("nsup must be a positive integer")
+        counts["nsup"] = nsup
+
+    for key in ("components", "kpoints"):
+        if key not in data or data[key] is None:
+            continue
+        values = data[key]
+        if not isinstance(values, list):
+            raise ValueError(f"{key} must be a list of Method 2 components")
+        if not values:
+            raise ValueError(f"{key} must contain at least one Method 2 component")
+        counts[key] = len(values)
+
+    if any(count > 1 for count in counts.values()):
+        raise ValueError(_COUPLED_METHOD2_UNSUPPORTED)
+    if len(set(counts.values())) > 1:
+        rendered = ", ".join(f"{key}={value}" for key, value in counts.items())
+        raise ValueError(f"inconsistent Method 2 component counts: {rendered}")
+
+
+class WebSession:
+    """网页会话：持有唯一 IsoDistort 实例（单用户本地工具）。
+
+    IsoDistort 构造较慢（底层 BaseWrapper 在 Windows 下会初始化 WSL 短路径
+    暂存目录与 ISODATA 符号链接，约 3-4 秒），采用懒初始化：首次访问
+    ``iso`` 属性时才创建，避免拖慢模块导入（否则 main_web.py 启动会阻塞数秒）。
+    """
+
+    def __init__(self) -> None:
+        self._iso = None
+        self.parent_upload_path: Path | None = None
+        # Monotonic context version used to reject writes from an older tab.
+        # It protects the shared single-user session without pretending that
+        # each browser tab owns an independent IsoDistort instance.
+        self.revision = 0
+        # 官网默认（见 webpage_info 第 2 页 HTML）：includestrain 勾选，
+        # Displacive 行的各物种复选框逐个勾选（Eu/Al，等价于全部物种），
+        # Occupational/Magnetic/Rotational 整行不勾选
+        self.distortion_types: list[str] = ["strain", "displacive"]
+        # 各畸变类型的作用域物种（官网 all/none/Eu/Al 复选框），"*"=全部
+        self.distortion_scope: dict[str, list[str]] = {
+            "displacive": ["*"],
+            "occupational": [],
+            "strain": [],
+            "magnetic": [],
+            "rotational": [],
+        }
+        self.method1: list = []
+        self.method2 = None
+        self.method3: list = []
+        # Method 2 k 点枚举得到的子群（Download all 只导出这份列表，不扫 output_dir）
+        self.method2_subgroups: list = []
+
+    @property
+    def iso(self):
+        if self._iso is None:
+            self._iso = IsoDistort()
+        return self._iso
+
+    def replace_parent_upload(self, path: str | Path) -> None:
+        previous = self.parent_upload_path
+        self.parent_upload_path = Path(path)
+        if previous is not None and previous != self.parent_upload_path:
+            _discard_upload(previous)
+
+    def cleanup_uploads(self) -> None:
+        if self.parent_upload_path is not None:
+            _discard_upload(self.parent_upload_path)
+            self.parent_upload_path = None
+
+
+_SESSION = WebSession()
+# IsoDistort owns mutable structure, candidate and mode state.  Serialize live
+# session reads/mutations and export snapshot creation so concurrent requests
+# cannot observe a half-updated pool.  Long export work runs on that independent
+# snapshot after this lock is released.  A monotonic revision rejects stale
+# writes from another tab; tabs still share one live session.
+_SESSION_LOCK = threading.RLock()
+_EXPORT_JOB_LOCK = threading.Lock()
+_EXPORT_PROGRESS_LOCK = threading.Lock()
+_EXPORT_CANCEL = threading.Event()
+
+
+def _initial_export_progress() -> dict:
+    return {
+        "active": False,
+        "phase": "idle",
+        "total": 0,
+        "completed": 0,
+        "successful": 0,
+        "ineligible": 0,
+        "failed": 0,
+        "estimated_remaining_seconds": None,
+        "cancellation_requested": False,
+    }
+
+
+_EXPORT_PROGRESS: dict = _initial_export_progress()
+
+
+def _export_progress_snapshot() -> dict:
+    with _EXPORT_PROGRESS_LOCK:
+        return dict(_EXPORT_PROGRESS)
+
+
+def _update_export_progress(**values) -> None:
+    with _EXPORT_PROGRESS_LOCK:
+        _EXPORT_PROGRESS.update(values)
+
+
+def _reset_export_progress(**values) -> None:
+    """Start a clean export status record without stale job-specific fields."""
+    with _EXPORT_PROGRESS_LOCK:
+        _EXPORT_PROGRESS.clear()
+        _EXPORT_PROGRESS.update(_initial_export_progress())
+        _EXPORT_PROGRESS.update(values)
+
+
+class StaleContextError(RuntimeError):
+    """A browser mutation was based on an older shared-session snapshot."""
+
+
+def _assert_current_revision(value) -> None:
+    """Validate an optional client revision while ``_SESSION_LOCK`` is held."""
+    if value is None or value == "":
+        return  # Backward compatibility for API clients predating revisions.
+    try:
+        expected = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("revision must be an integer") from exc
+    if expected != _SESSION.revision:
+        raise StaleContextError(
+            "Stale context: this tab used revision "
+            f"{expected}, but the current session is revision {_SESSION.revision}. "
+            "Its cached results were discarded; retry from the current state."
+        )
+
+# 230 个空间群（序号 + HM 符号 + Schoenflies 符号），供 Method 1/3 下拉使用
+_SPACE_GROUPS = [
+    {
+        "number": i,
+        "symbol": hm_symbol(i),
+        "schoenflies": schoenflies_symbol(i),
+    }
+    for i in range(1, 231)
+]
+
+
+def _space_groups() -> list[dict]:
+    return _SPACE_GROUPS
+
+
+# ------------------------------------------------------------
+# 生命周期管理：最后一个网页标签关闭 -> 自动停止服务并释放端口
+# - 每个页面实例用独立 client_id 周期性发送心跳（/api/ping）
+# - 页面关闭时发送 /api/client/close 信标；最后一个 client 离开后，
+#   短暂宽限以容纳刷新页面，随后关闭服务
+# - /api/shutdown 仍用于“Stop local server”按钮；心跳超时是浏览器崩溃、
+#   信标丢失时的兜底路径
+# ------------------------------------------------------------
+_PAGE_CLOSE_GRACE = 1.5
+_WATCHDOG_POLL_SECONDS = 0.25
+
+
+class _Lifecycle:
+    """页面生命周期状态（模块级单例，守护线程与请求处理器共享）。"""
+
+    def __init__(self) -> None:
+        self.lock = threading.Lock()
+        self.page_seen = False          # 页面是否至少打开过一次（未打开则服务常驻）
+        self.page_heartbeat = 0.0       # 最近一次心跳/页面请求时间
+        self.shutdown_requested = False
+        self.in_flight = 0              # 进行中的长请求（ZIP 导出等）；>0 时不因心跳超时停服
+        self.clients: dict[str, float] = {}  # 活跃标签页 client_id -> 最近心跳
+        self.last_page_closed = 0.0     # 最后一个标签显式关闭的时间；0 表示仍有页面
+
+
+_LIFE = _Lifecycle()
+
+
+def _reset_lifecycle() -> None:
+    """重置单进程生命周期状态（正式启动及测试隔离共用）。"""
+    with _LIFE.lock:
+        _LIFE.page_seen = False
+        _LIFE.page_heartbeat = 0.0
+        _LIFE.shutdown_requested = False
+        _LIFE.in_flight = 0
+        _LIFE.clients.clear()
+        _LIFE.last_page_closed = 0.0
+
+
+def _touch_heartbeat(client_id: str | None = None) -> None:
+    """刷新服务活动；带 client_id 的 ping 同时登记一个活跃标签页。"""
+    now = time.time()
+    with _LIFE.lock:
+        _LIFE.page_heartbeat = now
+        if client_id:
+            _LIFE.page_seen = True
+            _LIFE.clients[client_id] = now
+            _LIFE.last_page_closed = 0.0
+
+
+def _mark_page_seen() -> None:
+    with _LIFE.lock:
+        _LIFE.page_seen = True
+
+
+def _request_shutdown() -> None:
+    """请求关闭服务（由 /api/shutdown 触发，稍后由守护线程执行）。"""
+    with _LIFE.lock:
+        _LIFE.shutdown_requested = True
+
+
+def _mark_page_closed(client_id: str | None) -> int:
+    """注销一个标签页；返回仍活跃的页面数。重复信标是幂等的。"""
+    with _LIFE.lock:
+        if client_id:
+            _LIFE.clients.pop(client_id, None)
+        else:
+            # 兼容没有 client_id 的旧页面：只有无法区分标签时才视为全部关闭。
+            _LIFE.clients.clear()
+        if not _LIFE.clients:
+            _LIFE.last_page_closed = time.time()
+        return len(_LIFE.clients)
+
+
+def _begin_long_request() -> None:
+    """ZIP 等长请求：刷新心跳并阻止看门狗在计算期间误杀服务。"""
+    with _LIFE.lock:
+        _LIFE.in_flight += 1
+        _LIFE.page_heartbeat = time.time()
+
+
+def _end_long_request() -> None:
+    with _LIFE.lock:
+        _LIFE.in_flight = max(0, _LIFE.in_flight - 1)
+        _LIFE.page_heartbeat = time.time()
+
+
+def _watchdog(
+    server: HTTPServer,
+    idle_timeout: float,
+    close_grace: float = _PAGE_CLOSE_GRACE,
+    poll_interval: float = _WATCHDOG_POLL_SECONDS,
+) -> None:
+    """最后页面关闭后停服；心跳超时负责兜底浏览器异常退出。"""
+    while True:
+        time.sleep(poll_interval)
+        with _LIFE.lock:
+            busy = _LIFE.in_flight > 0
+            if busy:
+                _LIFE.page_heartbeat = time.time()
+            explicitly_closed = (
+                _LIFE.page_seen
+                and not busy
+                and not _LIFE.clients
+                and _LIFE.last_page_closed > 0
+                and (time.time() - _LIFE.last_page_closed >= close_grace)
+            )
+            stale = (
+                _LIFE.page_seen
+                and not busy
+                and (time.time() - _LIFE.page_heartbeat > idle_timeout)
+            )
+            stop = _LIFE.shutdown_requested or explicitly_closed or stale
+        if stop:
+            with contextlib.suppress(Exception):  # 关闭失败不影响退出
+                server.shutdown()
+            return
+
+
+def _state_summary() -> dict:
+    """返回当前会话状态摘要（供前端展示）。"""
+    iso = _SESSION.iso
+    modes = list(iso.mode_displacements.keys()) + list(iso.mode_occupancies.keys())
+    summary = {
+        "revision": _SESSION.revision,
+        "language": None,
+        "structure": None,
+        "subgroups": len(iso.subgroups),
+        "modes": modes,
+        "distorted_atoms": len(iso.distorted_structure) if iso.distorted_structure else None,
+        "distortion_types": _SESSION.distortion_types,
+        "distortion_scope": _SESSION.distortion_scope,
+        "species": iso.species(),
+    }
+    if iso.structure is not None:
+        lattice = iso.structure.lattice
+        summary["structure"] = {
+            "space_group_number": iso.symmetry_info["space_group_number"],
+            "space_group_symbol": iso.symmetry_info["space_group_symbol"],
+            "space_group_schoenflies": schoenflies_symbol(
+                iso.symmetry_info["space_group_number"]
+            ),
+            "atoms": len(iso.structure),
+            "preferences": iso.space_group_preferences(),
+            "lattice": {
+                "a": round(float(lattice.a), 5),
+                "b": round(float(lattice.b), 5),
+                "c": round(float(lattice.c), 5),
+                "alpha": round(float(lattice.alpha), 5),
+                "beta": round(float(lattice.beta), 5),
+                "gamma": round(float(lattice.gamma), 5),
+            },
+            "wyckoff": [
+                {
+                    "letter": s["wyckoff_letter"],
+                    "multiplicity": s["multiplicity"],
+                    "species": s["species"],
+                    "coordinates": [
+                        round(float(x), 6)
+                        for x in iso.structure[s["representative_index"]].frac_coords
+                    ],
+                }
+                for s in iso.symmetry_info["wyckoff_sites"]
+            ],
+            "wyckoff_display": iso.parent_wyckoff_display(),
+        }
+    return summary
+
+
+def _subgroup_rows(subgroups) -> list[dict]:
+    """把 SubgroupInfo 列表序列化为前端友好的 dict 列表。"""
+    rows = []
+    for sg in subgroups:
+        identity_status = str(
+            getattr(sg, "_mode_identity_status", "not_checked") or "not_checked"
+        )
+        identity_failures = tuple(
+            getattr(sg, "_mode_identity_failures", ()) or ()
+        )
+        rows.append({
+            "index": sg.index,
+            "space_group_number": sg.space_group_number,
+            "space_group_symbol": sg.space_group_symbol,
+            "subgroup_index": sg.subgroup_index,
+            "size": sg.size,
+            "is_maximal": sg.is_maximal,
+            "opd_symbol": sg.opd_symbol,
+            "k_point_label": sg.k_point_label,
+            "irrep_label": sg.irrep_label,
+            "basis_vectors": sg.basis_vectors,
+            "origin": sg.origin,
+            "k_parameters": list(sg.k_parameters or []),
+            "mode_identity_status": identity_status,
+            "mode_identity_warning": "; ".join(
+                str(getattr(failure, "reason", "") or "")
+                for failure in identity_failures
+                if str(getattr(failure, "reason", "") or "")
+            ),
+            "selectable": identity_status != "unresolved",
+        })
+    return rows
+
+
+def _method1_rows(items) -> list[dict]:
+    rows = []
+    for item in items:
+        sg = item.subgroup
+        fields = sg.official_fields()
+        rows.append({
+            "index": sg.index,
+            "space_group_number": sg.space_group_number,
+            "space_group_symbol": sg.space_group_symbol,
+            "crystal_system": item.crystal_system,
+            "is_maximal": item.is_maximal,
+            "k_point_label": sg.k_point_label,
+            "irrep_label": fields["irrep"],
+            "opd_symbol": fields["opd"],
+            "opd_dir_raw": fields["dir"],
+            "size": fields["s"],
+            "subgroup_index": fields["i"],
+            "basis": fields["basis"],
+            "origin": fields["origin"],
+            "k_active": fields["k_active"],
+            "opd_line": sg.opd_line(),
+            "k_parameters": list(sg.k_parameters or []),
+        })
+    return rows
+
+
+def _method3_rows(items) -> list[dict]:
+    """把 Method 3 的 Method3ResultItem 序列化为前端友好的 dict 列表。
+
+    官网首屏的科学身份是 SG/basis/origin/s/i embedding，而不是某一个
+    来源 IR/OPD。兼容代表 route 仍随行返回供当前模式计算使用，但界面把
+    所有已知 route 单独标成诊断信息，不能拿它当候选身份。
+    """
+    rows = []
+    for item in items:
+        sg = item.subgroup
+        fields = sg.official_fields()
+        routes = item.routes if item.routes is not None else [sg]
+        known_routes = [
+            {
+                "k_point_label": route.k_point_label,
+                "irrep_label": route.irrep_label,
+                "opd_symbol": route.opd_symbol,
+                "k_parameters": list(route.k_parameters or []),
+            }
+            for route in routes
+        ]
+        rows.append({
+            "index": sg.index,
+            "space_group_number": sg.space_group_number,
+            "space_group_symbol": sg.space_group_symbol,
+            "subgroup_index": sg.subgroup_index,
+            "size": sg.size,
+            "is_maximal": sg.is_maximal,
+            "opd_symbol": sg.opd_symbol,
+            "k_point_label": sg.k_point_label,
+            "irrep_label": sg.irrep_label,
+            "point_group": item.point_group,
+            "basis_vectors": sg.basis_vectors,
+            "origin": sg.origin,
+            "basis_display": fields["basis"],
+            "origin_display": fields["origin"],
+            "k_parameters": list(sg.k_parameters or []),
+            "known_routes": known_routes,
+            "known_route_count": len(known_routes),
+            "route_resolution": getattr(item, "route_resolution", "known_single_ir"),
+            "selectable": bool(known_routes) or getattr(
+                item, "route_resolution", ""
+            ) == "exact_fixed_space",
+        })
+    return rows
+
+
+def _write_upload(filename: str, content: str) -> str:
+    """把上传的 CIF 内容写入临时目录，返回文件路径。"""
+    safe = re.sub(r"[^A-Za-z0-9_.-]", "_", Path(filename).name) or "upload.cif"
+    cfg = get_config()
+    upload_dir = cfg.temp_dir / "web_uploads"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    path = upload_dir / f"{uuid.uuid4().hex}-{safe}"
+    path.write_text(content, encoding="utf-8")
+    return str(path)
+
+
+def _discard_upload(path: str | Path) -> None:
+    """Remove one generated upload and its directory when it becomes empty."""
+    upload_path = Path(path)
+    with contextlib.suppress(FileNotFoundError):
+        upload_path.unlink()
+    with contextlib.suppress(FileNotFoundError, OSError):
+        upload_path.parent.rmdir()
+
+
+class IsoHandler(BaseHTTPRequestHandler):
+    """HTTP 请求处理器：JSON API + 静态页面。"""
+
+    # ------------------------------------------------------------
+    # 基础
+    # ------------------------------------------------------------
+
+    def log_message(self, fmt, *args):  # 精简日志
+        sys.stdout.write("[web] " + fmt % args + "\n")
+
+    def _send_json(self, data: dict, status: int = 200) -> None:
+        body = json.dumps(data, ensure_ascii=False, default=str).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _read_json(self) -> dict:
+        length = int(self.headers.get("Content-Length", 0))
+        if length <= 0:
+            return {}
+        raw = self.rfile.read(length)
+        return json.loads(raw.decode("utf-8"))
+
+    def _run(self, fn, *, revision=None, mutate: bool = False) -> None:
+        """Run one API action atomically, with optional stale-context protection."""
+        try:
+            with _SESSION_LOCK:
+                _assert_current_revision(revision)
+                result = fn()
+                if result is None:
+                    result = {}
+                if mutate:
+                    _SESSION.revision += 1
+                    # Endpoint helpers may have made an earlier snapshot.  A
+                    # mutation response must carry the post-commit revision.
+                    result["state"] = _state_summary()
+            result.setdefault("ok", True)
+            self._send_json(result)
+        except StaleContextError as exc:
+            with _SESSION_LOCK:
+                state = _state_summary()
+            self._send_json({
+                "ok": False,
+                "stale_context": True,
+                "error": str(exc),
+                "state": state,
+            }, status=409)
+        except Exception as exc:  # noqa: BLE001 - web 边界：统一转为 JSON 错误
+            self._send_json({"ok": False, "error": str(exc)}, status=200)
+
+    # ------------------------------------------------------------
+    # 路由
+    # ------------------------------------------------------------
+
+    def do_GET(self) -> None:
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+
+        if path in ("/", "/index.html"):
+            _mark_page_seen()
+            _touch_heartbeat()
+            self._serve_index()
+        elif path.startswith("/static/"):
+            _touch_heartbeat()
+            self._serve_static(path)
+        elif path == "/api/ping":
+            # 每个标签页独立续租；最后一个标签关闭才会触发快速停服。
+            qs = urllib.parse.parse_qs(parsed.query)
+            client_id = (qs.get("client_id") or [""])[0].strip() or None
+            _touch_heartbeat(client_id)
+            with _LIFE.lock:
+                active_clients = len(_LIFE.clients)
+            self._send_json({"ok": True, "active_clients": active_clients})
+        elif path == "/api/state":
+            _touch_heartbeat()
+            # Build one coherent snapshot while other ThreadingHTTPServer
+            # handlers may be loading a CIF or replacing candidate pools.
+            with _SESSION_LOCK:
+                state = _state_summary()
+            self._send_json({"ok": True, "state": state})
+        elif path == "/api/export_status":
+            _touch_heartbeat()
+            self._send_json({"ok": True, "export": _export_progress_snapshot()})
+        elif path == "/api/i18n":
+            _touch_heartbeat()
+            self._send_json({
+                "ok": True,
+                "messages": MESSAGES,
+            })
+        elif path == "/api/kpoints":
+            _touch_heartbeat()
+            self._run(lambda: {
+                "kpoints": [
+                    {"label": kp.label, "coordinates": kp.coordinates,
+                     "parameters": kp.parameters, "is_special": kp.is_special,
+                     "kovalev": kp.kovalev}
+                    for kp in _SESSION.iso.list_k_points()
+                ],
+            })
+        elif path == "/api/space_groups":
+            # 230 个空间群的 序号+HM 符号（Method 3 下拉，对齐官网表单）
+            _touch_heartbeat()
+            self._send_json({"ok": True, "space_groups": _space_groups()})
+        elif path == "/api/irreps":
+            qs = urllib.parse.parse_qs(parsed.query)
+            k = (qs.get("k") or [""])[0]
+            params = (qs.get("params") or [""])[0].split(",") if qs.get("params") else None
+            self._run(lambda: {
+                "irreps": [
+                    {"label": ir.label, "dimension": ir.dimension, "active": ir.active}
+                    for ir in _SESSION.iso.list_irreps(k, params)
+                ],
+            })
+        elif path == "/api/method1_options":
+            # Method 1 下拉数据（对齐官网：可达子群空间群 + Conventional/Primitive lattice）
+            _touch_heartbeat()
+            self._run(lambda: {"options": _SESSION.iso.method1_options()})
+        elif path == "/api/isotropy_cache":
+            _touch_heartbeat()
+            self._run(self._api_isotropy_cache_list)
+        elif path == "/api/download":
+            with _SESSION_LOCK:
+                self._serve_download(parsed.query)
+        elif path == "/api/download_all":
+            # 一键下载全部输出文件（打包为 ZIP）
+            _touch_heartbeat()
+            _begin_long_request()
+            try:
+                self._serve_download_all()
+            finally:
+                _end_long_request()
+        else:
+            self._send_json({"ok": False, "error": f"Unknown path: {path}"}, 404)
+
+    def do_POST(self) -> None:
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+        data = self._read_json()
+
+        if path == "/api/shutdown":
+            # 网页关闭/用户点击“停止服务”：先应答，再由守护线程关闭服务释放端口
+            _request_shutdown()
+            self._send_json({"ok": True, "shutdown": True})
+            return
+        if path == "/api/export_cancel":
+            progress = _export_progress_snapshot()
+            if progress.get("active"):
+                _EXPORT_CANCEL.set()
+                _update_export_progress(
+                    phase="cancellation_requested",
+                    cancellation_requested=True,
+                )
+            self._send_json({
+                "ok": True,
+                "cancellation_requested": bool(progress.get("active")),
+            })
+            return
+        if path == "/api/client/close":
+            qs = urllib.parse.parse_qs(parsed.query)
+            client_id = (qs.get("client_id") or [""])[0].strip() or None
+            active_clients = _mark_page_closed(client_id)
+            self._send_json({
+                "ok": True,
+                "closing": active_clients == 0,
+                "active_clients": active_clients,
+            })
+            return
+        _touch_heartbeat()
+
+        if path == "/api/load_cif":
+            # Loading a parent explicitly replaces the shared context, even
+            # when another tab has advanced it since this tab's last snapshot.
+            self._run(lambda: self._api_load_cif(data), mutate=True)
+        elif path == "/api/set_types":
+            self._run(
+                lambda: self._api_set_types(data),
+                revision=data.get("revision"), mutate=True,
+            )
+        elif path == "/api/method1":
+            self._run(
+                lambda: self._api_method1(data),
+                revision=data.get("revision"), mutate=True,
+            )
+        elif path == "/api/subgroups":
+            self._run(
+                lambda: self._api_subgroups(data),
+                revision=data.get("revision"), mutate=True,
+            )
+        elif path == "/api/method2":
+            self._run(
+                lambda: self._api_method2(data),
+                revision=data.get("revision"), mutate=True,
+            )
+        elif path == "/api/method3":
+            self._run(
+                lambda: self._api_method3(data),
+                revision=data.get("revision"), mutate=True,
+            )
+        elif path == "/api/method4":
+            self._run(
+                lambda: self._api_method4(data),
+                revision=data.get("revision"), mutate=True,
+            )
+        elif path == "/api/isotropy_cache/delete":
+            self._run(lambda: self._api_isotropy_cache_delete(data))
+        else:
+            self._send_json({"ok": False, "error": f"Unknown path: {path}"}, 404)
+
+    # ------------------------------------------------------------
+    # API 实现
+    # ------------------------------------------------------------
+
+    def _api_load_cif(self, data: dict) -> dict:
+        content = data.get("content", "")
+        filename = data.get("filename", "upload.cif")
+        if not content.strip():
+            raise ValueError("CIF 内容为空 / CIF content is empty")
+        path = _write_upload(filename, content)
+        try:
+            _SESSION.iso.load_structure(path)
+        except Exception:
+            _discard_upload(path)
+            raise
+        _SESSION.replace_parent_upload(path)
+        _SESSION.iso.set_distortion_scope(_SESSION.distortion_scope)
+        _SESSION.iso.set_distortion_types(_SESSION.distortion_types)
+        _SESSION.method1, _SESSION.method2, _SESSION.method3 = [], None, []
+        _SESSION.method2_subgroups = []
+        return {}
+
+    def _api_set_types(self, data: dict) -> dict:
+        types = data.get("types", ["strain"])
+        valid = set(DISTORTION_TYPES)
+        _SESSION.distortion_types = [t for t in types if t in valid] or ["strain"]
+        scope = data.get("scope")
+        if scope is not None:
+            _SESSION.distortion_scope = {
+                tp: (["*"] if (v == "*" or v == "all") else
+                     (v if isinstance(v, list) else []))
+                for tp, v in scope.items() if tp in valid
+            }
+            # 同步到底层 IsoDistort（模式计算按作用域过滤）
+            _SESSION.iso.set_distortion_scope(_SESSION.distortion_scope)
+        _SESSION.iso.set_distortion_types(_SESSION.distortion_types)
+        # Every result below the Types panel depends on these selections.
+        # Clear both the web-owned tables and all derived engine state so a
+        # later click cannot reuse a path computed under the previous scope.
+        _SESSION.method1, _SESSION.method2, _SESSION.method3 = [], None, []
+        _SESSION.method2_subgroups = []
+        _SESSION.iso.set_subgroup_candidates([])
+        _SESSION.iso.clear_selected_modes()
+        return {}
+
+    def _api_method1(self, data: dict) -> dict:
+        lattice = data.get("lattice")
+        if lattice is not None:
+            lattice = _SESSION.iso.lattice_in_conventional_frame(
+                lattice, data.get("frame", "conventional")
+            )
+        result = _SESSION.iso.search_method_1(
+            distortion_types=data.get("distortion_types", _SESSION.distortion_types),
+            crystal_system=data.get("crystal_system") or None,
+            subgroup_space_group=data.get("subgroup_space_group") or None,
+            lattice=lattice,
+            lattice_kind=data.get("lattice_kind", "conventional"),
+            maximal_subgroup_only=bool(data.get("maximal_subgroup_only", False)),
+        )
+        _SESSION.method1 = result
+        return {"candidates": _method1_rows(result)}
+
+    def _api_subgroups(self, data: dict) -> dict:
+        # 对齐官网 Method 2 的单组分量：枚举指定 k 点
+        # （+ 参数）下全部 IR 的子群。多组分量需要 coupled-IR
+        # 稳定子的交集枚举，不能拼接各自的单-IR 子群表。
+        # 注意：_SESSION 是模块级单例（WebSession），BaseHTTPRequestHandler
+        # 实例上并不存在该属性，误写 self._SESSION 会抛
+        # "'IsoHandler' object has no attribute '_SESSION'"。
+        _require_single_method2_component(data)
+        gen = bool(data.get("generate", False))
+        groups = data.get("kpoints")
+        if groups:
+            group = groups[0]
+            subs = _SESSION.iso.list_subgroups_at_kpoint(
+                group["k"],
+                k_parameters=group.get("params"),
+                generate_if_missing=gen,
+            )
+            _SESSION.iso.set_subgroup_candidates(subs)
+            _SESSION.method2_subgroups = list(subs)
+            return {"subgroups": _subgroup_rows(subs)}
+        # 兼容旧版单 k 点（可带 ir 参数）路径
+        if data.get("ir"):
+            subs = _SESSION.iso.list_subgroups_at(
+                data["k"], data["ir"],
+                k_parameters=data.get("params"),
+                opd_symbol=data.get("opd"),
+                generate_if_missing=gen,
+            )
+        else:
+            subs = _SESSION.iso.list_subgroups_at_kpoint(
+                data["k"],
+                k_parameters=data.get("params"),
+                generate_if_missing=gen,
+            )
+        _SESSION.iso.set_subgroup_candidates(subs)
+        _SESSION.method2_subgroups = list(subs)
+        return {"subgroups": _subgroup_rows(subs)}
+
+    def _api_method2(self, data: dict) -> dict:
+        _require_single_method2_component(data)
+        idx = data.get("subgroup_idx")
+        if idx is None:
+            raise ValueError("subgroup_idx 缺失 / subgroup_idx missing")
+        idx = int(idx)
+        iso = _SESSION.iso
+        # 按结果表来源显式传入候选池。不同 Method 的 index 会重复，
+        # 因此不能再通过覆盖 iso.subgroups 来隐式切换上下文。
+        source = data.get("source")
+        if source == "method1":
+            if not _SESSION.method1:
+                raise ValueError("Method 1 candidate table is not available")
+            candidates = [item.subgroup for item in _SESSION.method1]
+        elif source == "method3":
+            if not _SESSION.method3:
+                raise ValueError("Method 3 candidate table is not available")
+            selected_item = next(
+                (
+                    item
+                    for item in _SESSION.method3
+                    if int(item.subgroup.index) == idx
+                ),
+                None,
+            )
+            if (
+                selected_item is not None
+                and selected_item.routes == []
+                and getattr(selected_item, "route_resolution", "")
+                != "exact_fixed_space"
+            ):
+                raise ValueError(
+                    "This affine embedding has no resolved single-IR or coupled-IR "
+                    "second-stage route; mode calculation is not implemented for it"
+                )
+            candidates = [item.subgroup for item in _SESSION.method3]
+        elif source == "subgroups":
+            if not _SESSION.method2_subgroups:
+                raise ValueError("Method 2 subgroup table is not available")
+            candidates = list(_SESSION.method2_subgroups)
+        elif source in (None, ""):
+            # Backward compatibility for older clients that did not send source.
+            candidates = list(_SESSION.method2_subgroups) or None
+        else:
+            raise ValueError(f"Unknown Method 2 candidate source: {source}")
+        iso.set_distortion_scope(_SESSION.distortion_scope)
+        iso.set_distortion_types(_SESSION.distortion_types)
+        nmod = data.get("nmod", data.get("number_of_independent_modulations", 0))
+        try:
+            nmod = int(nmod or 0)
+        except (TypeError, ValueError):
+            nmod = 0
+        result = iso.search_method_2(
+            subgroup_idx=idx,
+            distortion_type=data.get("distortion_type", _SESSION.distortion_types),
+            number_of_independent_modulations=nmod,
+            number_of_superposed_irreps=int(data.get("nsup", 1) or 1),
+            candidates=candidates,
+        )
+        _SESSION.method2 = result
+        modes = []
+        for m in result.modes:
+            key = str(getattr(m, "amplitude_key", "") or m.irrep_label)
+            pretty = iso._mode_label_overrides.get(key, "")
+            identity = getattr(m, "mode_identity", None)
+            modes.append({
+                "irrep_label": key,
+                "pretty_label": pretty or m.irrep_label,
+                "opd_symbol": m.opd_symbol,
+                "mode_type": m.mode_type,
+                "wyckoff_sites": sorted({b.wyckoff_letter for b in m.bush_modes}),
+                "n_representatives": len(m.bush_modes),
+                "site_irrep": getattr(m, "site_irrep", "") or "",
+                "k_coords": getattr(m, "k_coords_label", "") or "",
+                "identity_status": getattr(identity, "status", "unresolved"),
+                "identity_reason": getattr(identity, "reason", "") or "",
+            })
+        for label, entry in iso.mode_occupancies.items():
+            om = entry["mode"]
+            modes.append({
+                "irrep_label": label,
+                "opd_symbol": om.irrep_label or "",
+                "mode_type": "occupational",
+                "wyckoff_sites": [om.wyckoff_letter],
+                "n_representatives": int(np.count_nonzero(om.pattern)),
+                "validated": entry["validated"],
+                "note": entry["note"],
+            })
+        metadata = getattr(result, "metadata", None) or {}
+        identity_failures = list(metadata.get("mode_identity_failures") or [])
+        return {
+            "modes": modes,
+            "export_ready": bool(metadata.get("export_ready", True)),
+            "mode_identity_status": metadata.get(
+                "mode_identity_status", "not_applicable"
+            ),
+            "mode_identity_failures": identity_failures,
+            "export_warning": (
+                "This candidate has a numerical mode basis, but its ISO microscopic "
+                "identity is unresolved and authoritative subgroup files cannot be "
+                "exported. "
+                + "; ".join(
+                    str(failure.get("reason") or "identity unresolved")
+                    for failure in identity_failures
+                )
+                if identity_failures
+                else ""
+            ),
+        }
+
+    def _api_method3(self, data: dict) -> dict:
+        result = _SESSION.iso.search_method_3(
+            distortion_types=data.get("distortion_types", _SESSION.distortion_types),
+            point_group=data.get("point_group") or None,
+            space_group_type=data.get("space_group_type") or None,
+            supercell_basis=data.get("supercell_basis"),
+            direct_sublattice_centering=data.get("direct_sublattice_centering") or None,
+            lattice_type=data.get("lattice_type", "direct"),
+            generate_if_missing=bool(data.get("generate", False)),
+        )
+        _SESSION.method3 = result
+        return {"candidates": _method3_rows(result)}
+
+    def _api_method4(self, data: dict) -> dict:
+        content = data.get("content", "")
+        if not content.strip():
+            raise ValueError("Daughter CIF 内容为空 / daughter CIF content is empty")
+        path = _write_upload(data.get("filename", "daughter.cif"), content)
+        try:
+            result = _SESSION.iso.search_method_4(
+                distorted_cif_path=path,
+                atom_matching_method=data.get("atom_matching_method", "nearest-site"),
+                robust_distance_threshold=float(data.get("robust_distance_threshold", 0.25)),
+                provided_origin_shift=data.get("provided_origin_shift"),
+            )
+        finally:
+            _discard_upload(path)
+        ranked = sorted(result.amplitudes.items(), key=lambda kv: abs(kv[1]), reverse=True)
+        return {
+            "amplitudes": {k: float(v) for k, v in ranked},
+            "parent_cell_amplitudes": {
+                k: float(result.parent_cell_amplitudes[k]) for k, _ in ranked
+            },
+            "raw_coefficients": {
+                k: float(result.raw_coefficients[k]) for k, _ in ranked
+            },
+            "mode_normfactors": {
+                k: float(result.mode_normfactors[k]) for k, _ in ranked
+            },
+            "strain_mode_amplitudes": dict(result.strain_mode_amplitudes),
+            "strain_modes": list(result.strain_modes),
+            "strain_raw_coordinate_sum_parent_basis": (
+                dict(result.strain_raw_coordinate_sum_parent_basis)
+                if result.strain_raw_coordinate_sum_parent_basis is not None
+                else None
+            ),
+            "strain_applied_engineering_q_parent_basis": dict(
+                result.strain_applied_engineering_q_parent_basis
+            ),
+            "strain_tensor_parent_basis": result.strain_tensor_parent_basis,
+            "strain_multiplier_parent_basis": result.strain_multiplier_parent_basis,
+            # Deprecated JSON aliases; both retain the same parent-basis
+            # semantics and never carry the discarded Cartesian contract.
+            "strain_voigt_engineering": dict(
+                result.strain_applied_engineering_q_parent_basis
+            ),
+            "strain_tensor": result.strain_tensor_parent_basis,
+            "rms_residual": result.rms_residual,
+            "max_abs_residual": result.max_abs_residual,
+            "metadata": result.metadata,
+        }
+
+    def _api_isotropy_cache_list(self) -> dict:
+        entries = _SESSION.iso.list_isotropy_cache()
+        return {
+            "entries": [e.to_dict() for e in entries],
+            "count": len(entries),
+        }
+
+    def _api_isotropy_cache_delete(self, data: dict) -> dict:
+        names = data.get("names") or []
+        if not isinstance(names, list):
+            raise ValueError("names must be a list of cache file names")
+        result = _SESSION.iso.delete_isotropy_cache([str(n) for n in names])
+        remaining = self._api_isotropy_cache_list()
+        return {**result, **remaining}
+
+    # ------------------------------------------------------------
+    # 静态文件 / 下载
+    # ------------------------------------------------------------
+
+    def _serve_index(self) -> None:
+        index = WEB_DIR / "index.html"
+        body = index.read_bytes() if index.exists() else b"<h1>index.html missing</h1>"
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _serve_static(self, path: str) -> None:
+        """提供 frontend/web/static/ 下的静态资源。"""
+        rel = path[len("/static/"):]
+        static_root = (WEB_DIR / "static").resolve()
+        file_path = (static_root / rel).resolve()
+        if not file_path.is_relative_to(static_root):
+            self._send_json({"ok": False, "error": "invalid path"}, 403)
+            return
+        if not file_path.is_file():
+            self._send_json({"ok": False, "error": "not found"}, 404)
+            return
+        mime = "image/jpeg" if file_path.suffix.lower() in (".jpg", ".jpeg") else \
+            "text/css" if file_path.suffix.lower() == ".css" else \
+            "application/octet-stream"
+        body = file_path.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", f"{mime}; charset=utf-8" if "text/" in mime else mime)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _serve_download(self, query: str) -> None:
+        qs = urllib.parse.parse_qs(query)
+        fname = (qs.get("file") or [""])[0]
+        cfg = get_config()
+        path = (cfg.output_dir / fname).resolve()
+        # 只允许输出目录内的文件
+        output_root = cfg.output_dir.resolve()
+        if not path.is_relative_to(output_root):
+            self._send_json({"ok": False, "error": "invalid file"}, 403)
+            return
+        if not path.is_file():
+            self._send_json({"ok": False, "error": "file not found"}, 404)
+            return
+        body = path.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/octet-stream")
+        self.send_header("Content-Disposition", f'attachment; filename="{path.name}"')
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _subgroups_for_method(self, method: int) -> list:
+        """取出所选 Method 当次计算得到的子群列表（不含其它 Method）。"""
+        if method == 1:
+            return [item.subgroup for item in _SESSION.method1]
+        if method == 3:
+            return [item.subgroup for item in _SESSION.method3]
+        subs = list(_SESSION.method2_subgroups)
+        if not subs and _SESSION.method2 is not None:
+            subs = [_SESSION.method2.subgroup]
+        return subs
+
+    def _serve_download_all(self) -> None:
+        """按用户所选的**一个** Method 的子群打包导出（不扫描 output_dir）。
+
+        查询参数：
+            ``method``：1 / 2 / 3（不可多选；缺省 2）
+            ``formats``：cif,isoviz,modes,topas（官网第 6 页对应选项）
+            ``nsup``：Method 2 叠加 IR 组分数；当前必须为 1
+        ZIP 结构：Method 1 为 ``IR_OPD_SG<number>``，Method 2 为 ``IR_OPD``；
+        Method 3 使用稳定案例目录及 ``C<sequence>_SG<number>`` 候选目录。
+        每个候选目录内含所选格式文件；外层 ZIP 文件名为 ``isodistort_methodN.zip``。
+        查询参数 ``indices``：逗号分隔的子群 index；若提供，只打包这些子群
+        （网页在当前 Method 有筛选时传入命中行）。
+        """
+        parsed = urllib.parse.urlparse(self.path)
+        qs = urllib.parse.parse_qs(parsed.query)
+        requested_revision = (qs.get("revision") or [None])[0]
+        try:
+            with _SESSION_LOCK:
+                _assert_current_revision(requested_revision)
+        except StaleContextError as exc:
+            self._send_json({
+                "ok": False,
+                "stale_context": True,
+                "error": str(exc),
+                "state": _state_summary(),
+            }, status=409)
+            return
+        except ValueError as exc:
+            self._send_json({"ok": False, "error": str(exc)}, status=400)
+            return
+        method_vals = qs.get("method") or ["2"]
+        try:
+            if len(method_vals) > 1:
+                raise ValueError(
+                    "只能选择一个 Method 导出，不能多选 / select exactly one Method"
+                )
+            method = parse_export_method(method_vals[0])
+            fmts = parse_export_formats(
+                (qs.get("formats") or ["cif,isoviz,modes,topas"])[0]
+            )
+        except ValueError as exc:
+            self._send_json({"ok": False, "error": str(exc)}, 400)
+            return
+        if method == 2:
+            nsup_values = qs.get("nsup") or ["1"]
+            try:
+                if len(nsup_values) != 1:
+                    raise ValueError("nsup must be provided at most once")
+                nsup_text = nsup_values[0]
+                if re.fullmatch(r"[1-9]\d*", nsup_text) is None:
+                    raise ValueError("nsup query parameter must be a positive integer")
+                _require_single_method2_component({"nsup": int(nsup_text)})
+            except ValueError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, 400)
+                return
+        indices_raw = (qs.get("indices") or [""])[0].strip()
+        want: set[int] | None = None
+        if indices_raw:
+            try:
+                want = {int(x.strip()) for x in indices_raw.split(",") if x.strip()}
+            except ValueError:
+                self._send_json(
+                    {"ok": False, "error": "indices must be comma-separated integers"},
+                    400,
+                )
+                return
+        try:
+            with _SESSION_LOCK:
+                # The revision is checked again at the actual snapshot point;
+                # parsing a long query must not create a stale export window.
+                _assert_current_revision(requested_revision)
+                live_iso = _SESSION.iso
+                if live_iso.structure is None:
+                    self._send_json(
+                        {
+                            "ok": False,
+                            "error": "请先加载母相 CIF / load a parent CIF first",
+                        },
+                        404,
+                    )
+                    return
+                subs = self._subgroups_for_method(method)
+                if want is not None:
+                    subs = [sg for sg in subs if sg.index in want]
+                if not subs:
+                    self._send_json({
+                        "ok": False,
+                        "error": (
+                            f"没有可导出的 Method {method} 子群；请先完成该 Method 的计算"
+                            f" / no Method {method} subgroups; run that Method first"
+                        ),
+                    }, 404)
+                    return
+                snapshot = getattr(live_iso, "snapshot_for_export", None)
+                iso = snapshot() if callable(snapshot) else live_iso
+                subs = copy.deepcopy(subs)
+        except StaleContextError as exc:
+            with _SESSION_LOCK:
+                state = _state_summary()
+            self._send_json({
+                "ok": False,
+                "stale_context": True,
+                "error": str(exc),
+                "state": state,
+            }, status=409)
+            return
+        # 勾选了 isoviz / modes / topas 时，对子群补跑 Method 2 以填充模式
+        # （长计算由网页 busy 进度条提示）。参数 k 走 smodes/(3+d) 完整模式。
+        need_modes = any(fmt != "cif" for fmt in fmts)
+        compute_q = (qs.get("compute_modes") or ["1"])[0].strip().lower()
+        # 默认开启；显式 compute_modes=0 可跳过（仅结构骨架，速度快）
+        want_compute = compute_q not in ("0", "false", "no")
+        compute_missing_modes = need_modes and want_compute
+        nmod_raw = (qs.get("nmod") or ["0"])[0].strip()
+        try:
+            export_nmod = int(nmod_raw or 0)
+        except ValueError:
+            export_nmod = 0
+        if not _EXPORT_JOB_LOCK.acquire(blocking=False):
+            self._send_json({
+                "ok": False,
+                "error": "Another subgroup export is already running",
+                "export": _export_progress_snapshot(),
+            }, 409)
+            return
+        _EXPORT_CANCEL.clear()
+        _reset_export_progress(
+            active=True,
+            phase="starting",
+            method=method,
+            total=len(subs),
+            completed=0,
+            successful=0,
+            ineligible=0,
+            failed=0,
+            estimated_remaining_seconds=None,
+            cancellation_requested=False,
+        )
+
+        def progress_callback(update: dict) -> None:
+            _update_export_progress(active=True, **update)
+
+        try:
+            body = iso.export_subgroups_zip(
+                formats=fmts,
+                subgroups=subs,
+                compute_missing_modes=compute_missing_modes,
+                wrapping=None,
+                export_method=method,
+                number_of_independent_modulations=export_nmod,
+                progress_callback=progress_callback,
+                cancel_check=_EXPORT_CANCEL.is_set,
+            )
+        except Exception as exc:  # noqa: BLE001 - web 边界：统一转为 JSON 错误
+            _update_export_progress(
+                active=False,
+                phase="failed",
+                error=str(exc),
+            )
+            self._send_json({"ok": False, "error": str(exc)}, 500)
+            return
+        finally:
+            _EXPORT_JOB_LOCK.release()
+        # A late click after the final candidate cannot cancel work that has
+        # already completed.  Only the collector's boundary event proves that
+        # candidates were actually left out of the published archive.
+        final_phase = (
+            "cancelled"
+            if _export_progress_snapshot().get("phase") == "cancelled"
+            else "complete"
+        )
+        _update_export_progress(
+            active=False,
+            phase=final_phase,
+            estimated_remaining_seconds=0.0,
+        )
+        self.send_response(200)
+        self.send_header("Content-Type", "application/zip")
+        self.send_header(
+            "Content-Disposition",
+            f'attachment; filename="isodistort_method{method}.zip"',
+        )
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+
+def _bind_server(host: str, preferred_port: int) -> ThreadingHTTPServer | None:
+    """按“配置端口 → 顺延端口 → 系统空闲端口(0)”的顺序尝试绑定，保证成功。
+
+    使用 ThreadingHTTPServer：在线生成子群数据库等长耗时请求会阻塞较久，
+    单线程 HTTPServer 会同时阻塞心跳，导致看门狗误判“页面关闭”并停服；
+    多线程版本可让心跳/状态请求在长请求期间继续正常响应。
+    """
+    candidates = list(range(preferred_port, preferred_port + 21))
+    candidates.append(0)  # 交给系统分配空闲端口，兜底保证可启动
+    for port in candidates:
+        try:
+            return ThreadingHTTPServer((host, port), IsoHandler)
+        except OSError:
+            continue
+    return None
+
+
+def _open_browser_from_windows_shell(url: str) -> bool:
+    """Ask Windows Shell to open *url* through a hidden PowerShell helper."""
+    if not sys.platform.startswith("win"):
+        return False
+    powershell = shutil.which("powershell.exe")
+    if not powershell:
+        return False
+    quoted_url = "'" + url.replace("'", "''") + "'"
+    try:
+        completed = subprocess.run(  # noqa: S603 - fixed Windows PowerShell executable
+            [
+                powershell,
+                "-NoProfile",
+                "-WindowStyle",
+                "Hidden",
+                "-Command",
+                f"Start-Process -FilePath {quoted_url}",
+            ],
+            check=False,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return completed.returncode == 0
+
+
+def _open_browser(url: str) -> bool:
+    """Request the default browser and report whether dispatch succeeded."""
+    if _open_browser_from_windows_shell(url):
+        print(f"Browser launch requested: {url}", flush=True)
+        return True
+    opened = False
+    for opener in (webbrowser.open, webbrowser.open_new):
+        try:
+            if opener(url):
+                opened = True
+                break
+        except Exception:  # noqa: BLE001, S112 - 浏览器异常不应影响服务运行，继续尝试
+            continue
+    if not opened:
+        print(f"\n无法自动打开浏览器，请手动访问: {url}", flush=True)
+        return False
+    print(f"Browser launch requested: {url}", flush=True)
+    return True
+
+
+def main() -> int:
+    cfg = get_config()
+    host = "127.0.0.1"
+    _reset_lifecycle()
+    _EXPORT_CANCEL.clear()
+    _reset_export_progress()
+
+    server = _bind_server(host, cfg.web_port)
+    if server is None:
+        print(f"无法绑定端口（{cfg.web_port} 及顺延端口均被占用），请检查网络环境。")
+        return 1
+    port = server.server_address[1]
+
+    url = f"http://{host}:{port}/"
+    # flush=True：即使输出被重定向/记录，网址也立即可见
+    print("=" * 60, flush=True)
+    print("ISODISTORT Local Web Console", flush=True)
+    print(f"  URL: {url}", flush=True)
+    idle = cfg.web_idle_timeout
+    print(
+        "  Auto-stop: exits shortly after the last tab closes "
+        f"({idle}s heartbeat fallback)",
+        flush=True,
+    )
+    print("  Press Ctrl+C to stop", flush=True)
+    print("=" * 60, flush=True)
+
+    # 延迟自动打开浏览器（等待服务就绪）；无论成败都会在控制台给出网址
+    threading.Timer(1.0, _open_browser, args=[url]).start()
+
+    # 守护线程：网页关闭/心跳停止后自动停服并释放端口
+    watchdog = threading.Thread(
+        target=_watchdog, args=(server, float(idle)), daemon=True,
+        name="isodistort-web-watchdog",
+    )
+    watchdog.start()
+
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n服务已停止 / Server stopped.")
+    finally:
+        server.server_close()
+        with _SESSION_LOCK:
+            _SESSION.cleanup_uploads()
+    print("已退出并释放端口 / Exited, port released.", flush=True)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

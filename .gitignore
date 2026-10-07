@@ -1,22 +1,92 @@
-# environment
+# Python environments
 /.venv/
+
+# Editor and workspace settings
 /.vscode/
 /CRIS.code-workspace
 
-# logs (repo-wide caches if invoked from the root)
-*.log
-/.pytest_cache/
-/.ruff_cache/
-/.test-tmp*/
+# Python bytecode and interpreter caches
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
 
-# data (read-only archives, not subproject source)
+# Test, coverage, type-checking, and lint caches
+/.pytest_cache/
+**/.pytest_cache/
+/.ruff_cache/
+**/.ruff_cache/
+/.mypy_cache/
+**/.mypy_cache/
+/.cache/
+**/.cache/
+cache/
+**/cache/
+*.cache
+.hypothesis/
+.tox/
+.nox/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+pytest-of-*/
+**/pytest-of-*/
+test-results/
+*.cover
+
+# Build and packaging artifacts
+/build/
+**/build/
+/dist/
+**/dist/
+*.egg-info/
+**/*.egg-info/
+pip-wheel-metadata/
+*.whl
+*.tar.gz
+
+# Temporary files and editor/OS artifacts
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local runtime output and staging directories
+/tmp/
+**/tmp/
+/.test-tmp*/
+**/.test-tmp*/
+/ISODISTORT/output/
+/ISODISTORT/tests/cifs_30/
+/ISODISTORT/tests/cifs_external/
+/ISOVIZ_INPUT/input_content/
+
+# Logs and diagnostic traces
+*.log
+*.out
+!/ISODISTORT/tests/fixtures/smodes_sample.out
+*.err
+*.trace
+*.pid
+*.seed
+
+# Data (read-only archives, not subproject source)
 /experiment_data/
 /webpage_info/
 /output_compare/
 
-# shortcuts kept at the repo root for convenience
+# Shortcuts kept at the repo root for convenience
 ISOViz.lnk
 VESTA.lnk
 
-# not part of this git remote
+# Not part of this git remote
 /GD/

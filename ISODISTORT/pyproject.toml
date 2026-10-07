@@ -10,19 +10,43 @@ authors = [{ name = "CRIS" }]
 requires-python = ">=3.10"
 dynamic = ["dependencies"]
 
+[project.scripts]
+isodistort-web = "frontend.web.server:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "ruff>=0.6.0",
+    "tomli>=2.0; python_version < '3.11'",
 ]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
 
+[tool.setuptools]
+# Keep the wheel manifest explicit.  In particular, runtime logs or files
+# accidentally written below resources/ must never become package data.
+include-package-data = false
+
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["isodistort*", "isocore*"]
+include = ["backend*", "features*", "frontend*", "resources"]
+namespaces = false
+
+[tool.setuptools.package-data]
+"frontend.web" = ["index.html", "static/*"]
+resources = [
+    "config/*.yaml",
+    "isobyu/*.dat",
+    "isobyu/*.in",
+    "isobyu/*.txt",
+    "isobyu/comsubs",
+    "isobyu/findsym",
+    "isobyu/findsym_cifinput",
+    "isobyu/iso",
+    "isobyu/smodes",
+]
 
 [tool.ruff]
 target-version = "py310"
@@ -33,15 +57,15 @@ select = ["E", "F", "W", "I", "UP", "B", "S", "BLE", "RUF", "PL"]
 # 中文代码库：全角标点在中文文案中是刻意用法，不做歧义告警；
 # PLR*（重构建议，如魔法数字/参数过多）对本项目过于教条，忽略
 ignore = ["RUF001", "RUF002", "RUF003", "PLR"]
-# 说明：BLE001 盲捕异常在 CLI 边界（main_terminal.py）与少数兼容场景按需放行（带 noqa）
+# 说明：BLE001 盲捕异常仅在少数兼容边界按需放行（带 noqa）
 
 [tool.ruff.lint.per-file-ignores]
-# 测试文件使用 assert 断言属正常用法（开发者端 tests_dev/ 目录）
-"**/tests_dev/*.py" = ["S101", "PLC0415"]
+# 测试文件使用 assert 断言属正常用法（开发者端 tests/ 目录）
+"**/tests/*.py" = ["S101", "PLC0415"]
 
 [tool.ruff.lint.isort]
-# 本仓库包名（isocore/isodistort/web）为 first-party，保证导入排序一致
-known-first-party = ["isocore", "isodistort", "web"]
+# 本仓库包名（backend/features/frontend）为 first-party，保证导入排序一致
+known-first-party = ["backend", "features", "frontend", "resources"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests_dev"]
+testpaths = ["tests"]
