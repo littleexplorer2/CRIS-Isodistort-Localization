@@ -639,6 +639,36 @@
 `method1_4310_vector_c10_c12_extension_final_20261004/summary.json`；全部位于
 `output/validation/` 且不提交 Git。长时命令见 [MANUAL_VALIDATION.md](MANUAL_VALIDATION.md)。
 
+## 2026-10-08 E 盘迁移恢复与环境隔离
+
+- 三个同级目录已恢复为 `E:\CRIS`、`E:\GD` 和
+  `E:\Best_Model_Parameters`；原桌面目录不存在。CRIS/GD 均以 Python 3.12.5
+  重建实体 `.venv` 并隔离重放迁移前 freeze，两个环境的 `pip check` 均通过；GD 从自身
+  环境导入 TensorFlow 2.21.0。全项目 doctor 为 24 pass、2 warn、0 fail；两项 warning
+  分别是用户尚未提供 compare CIF 和 Best_Model_Parameters 下尚无振幅 CSV，不是迁移失败。
+- 恢复时实际复现了跨环境污染：同一 PowerShell 进程调用 `run_cris.ps1` 后，原实现会遗留
+  CRIS 的 `PYTHONPATH`、`VIRTUAL_ENV` 和 `PATH`，使 GD 安装器误把 CRIS 包判为已安装，
+  初次恢复的 GD 环境因此出现 22 项依赖破损且 TensorFlow 缺 `typing_extensions`。
+  `run_cris.ps1` 现用 `try/finally` 恢复调用者环境；GD `main_requirement.py` 启动子进程前
+  删除 `PYTHONHOME`、`PYTHONPATH`、`VIRTUAL_ENV` 和 `__PYVENV_LAUNCHER__`。Windows
+  启动器动态回归及 GD 子进程回归均覆盖该根因。
+- GD 转换器仍引用重构前已删除的 `isocore.api` 与 `isocore.io`。现改为从
+  `backend.api` 和 `features.export.distortion_formats` 载入唯一生产实现，并以模块装载回归
+  固定该契约。实际重生成 EuAl4 LD1 C1 成功：母相/子相空间群为 139/99，48 个唯一模式、
+  60 个原子，生成和安装的 `LD1_C1_alris_functions.py` SHA-256 相同，零振幅 TensorFlow
+  坐标为有限的 `(60, 3)` 数组。48 个正振幅界限满足
+  `bound × dmax = 1 Å`，最大绝对残差 `1.46e-7`；metadata 的 CIF 为
+  `E:\CRIS\experiment_data\EuAl4 Parent.cif`，并已纠正 `maxamp` 语义说明。该结果只验证
+  当前 EuAl4 LD1 C1 生成合同和数值不变量，不外推为全部材料、晶系或完整训练已验证。
+- 排除 `.git`、`.venv`、历史迁移记录和测试输出后，对三个 E 盘工作区扫描旧桌面三根路径
+  为零命中；受保护实验数据、`resources/isobyu`、天仁原始 notebook 和外部
+  `D:\OneDrive\...` 科学数据均未修改。
+- 迁移后完整回归：`ISODISTORT/tests` 为 `1027 passed, 2 skipped, 0 failed`
+  （1269.52 秒）；根部署器 11 passed；ISOVIZ_INPUT 22 passed；
+  ISODISTORT_VALIDATE 19 passed；GD tests 在 GD 环境和 CRIS 环境各 9 passed；GD
+  TensorFlow 运行时烟测通过。完整套件的 2 项 skip 为既有可选能力门禁；第三方弃用和 CIF
+  宽容解析 warning 保留为 warning，未计作额外科学证据。
+
 ## 仍保留的限制与证据缺口
 
 - Method 3 空间群查询已连接 coupled embedding、逐物种 displacive Stage-B 表示与完整 fixed-space 位移模式；只选择部分物种时不会把相对共同位移误删为全晶体刚体平移。但不声明稳定子交集见证中的某一组 IR 是唯一 primary COPL 分解；arbitrary/multi-parameter k、point-group-only affine 枚举，以及 rotational/occupational/magnetic 的同等级 Stage-B 表示仍未实现。

@@ -24,22 +24,42 @@ if (-not (Test-Path -LiteralPath $basePython -PathType Leaf)) {
     throw "The base Python recorded by the CRIS environment is missing: $basePython"
 }
 
-# On this OneDrive installation, a Python executable whose image is inside the
-# CRIS directory receives Wsl/E_ACCESSDENIED. Start the recorded base Python
-# outside OneDrive, while loading every third-party package from CRIS/.venv.
-$env:VIRTUAL_ENV = $venvRoot
-$env:PYTHONNOUSERSITE = "1"
-$pythonPathEntries = @($sitePackages, (Join-Path $crisRoot "ISODISTORT"))
-$env:PYTHONPATH = $pythonPathEntries -join [IO.Path]::PathSeparator
-$env:PATH = $venvScripts + [IO.Path]::PathSeparator + $env:PATH
-
 if ($args.Count -eq 0) {
     $pythonArguments = @((Join-Path $crisRoot "ISODISTORT\scripts\main_web.py"))
 } else {
     $pythonArguments = @($args)
 }
 
-# -S prevents the external base installation from adding its global
-# site-packages. PYTHONPATH above supplies the physical CRIS environment.
-& $basePython -S @pythonArguments
-exit $LASTEXITCODE
+$environmentNames = @("VIRTUAL_ENV", "PYTHONNOUSERSITE", "PYTHONPATH", "PATH")
+$originalEnvironment = @{}
+foreach ($name in $environmentNames) {
+    $originalEnvironment[$name] = [Environment]::GetEnvironmentVariable($name, "Process")
+}
+
+$pythonExitCode = 1
+try {
+    # On OneDrive installations, a Python executable whose image is inside the
+    # CRIS directory can receive Wsl/E_ACCESSDENIED. Start the recorded base
+    # Python outside the repository while loading packages from CRIS/.venv.
+    $env:VIRTUAL_ENV = $venvRoot
+    $env:PYTHONNOUSERSITE = "1"
+    $pythonPathEntries = @($sitePackages, (Join-Path $crisRoot "ISODISTORT"))
+    $env:PYTHONPATH = $pythonPathEntries -join [IO.Path]::PathSeparator
+    $env:PATH = $venvScripts + [IO.Path]::PathSeparator + $env:PATH
+
+    # -S prevents the external base installation from adding its global
+    # site-packages. PYTHONPATH above supplies the physical CRIS environment.
+    & $basePython -S @pythonArguments
+    $pythonExitCode = $LASTEXITCODE
+}
+finally {
+    foreach ($name in $environmentNames) {
+        [Environment]::SetEnvironmentVariable(
+            $name,
+            $originalEnvironment[$name],
+            "Process"
+        )
+    }
+}
+
+exit $pythonExitCode

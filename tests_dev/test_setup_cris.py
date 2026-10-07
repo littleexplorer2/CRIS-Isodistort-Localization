@@ -1,7 +1,13 @@
 from __future__ import annotations
 
+import json
+import os
 import re
+import shutil
+import subprocess
 from pathlib import Path
+
+import pytest
 
 import setup_cris
 
@@ -130,6 +136,53 @@ def test_post_install_doctor_uses_wsl_safe_launcher_on_windows(monkeypatch) -> N
         "all",
         "--dev",
     ]
+
+
+@pytest.mark.skipif(os.name != "nt", reason="PowerShell launcher is Windows-only")
+def test_run_cris_restores_caller_environment() -> None:
+    powershell = shutil.which("powershell.exe")
+    assert powershell is not None
+    launcher = str(setup_cris.ROOT / "run_cris.ps1").replace("'", "''")
+    probe = f"""
+$env:VIRTUAL_ENV = 'outer-venv'
+$env:PYTHONNOUSERSITE = 'outer-no-user-site'
+$env:PYTHONPATH = 'outer-python-path'
+$beforePath = $env:PATH
+& '{launcher}' -c "print('child-ok')"
+$childExit = $LASTEXITCODE
+[ordered]@{{
+    child_exit = $childExit
+    virtual_env = $env:VIRTUAL_ENV
+    python_no_user_site = $env:PYTHONNOUSERSITE
+    python_path = $env:PYTHONPATH
+    path_unchanged = ($env:PATH -ceq $beforePath)
+}} | ConvertTo-Json -Compress
+"""
+
+    completed = subprocess.run(
+        [
+            powershell,
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+            probe,
+        ],
+        cwd=setup_cris.ROOT,
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+    lines = [line for line in completed.stdout.splitlines() if line.strip()]
+    assert "child-ok" in lines
+    payload = json.loads(lines[-1])
+    assert payload == {
+        "child_exit": 0,
+        "virtual_env": "outer-venv",
+        "python_no_user_site": "outer-no-user-site",
+        "python_path": "outer-python-path",
+        "path_unchanged": True,
+    }
 
 
 def test_wsl_stream_decoder_handles_utf8_and_utf16le_separately() -> None:
