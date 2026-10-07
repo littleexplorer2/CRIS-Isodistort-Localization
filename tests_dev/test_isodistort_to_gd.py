@@ -1,11 +1,16 @@
 """Format checks for isodistort_to_gd writers (no WSL / TensorFlow)."""
 from __future__ import annotations
 
+import json
+import sys
+import types
 from pathlib import Path
 
 import numpy as np
+
 from isodistort_to_gd import (
     GdBundle,
+    _load_isodistort_components,
     check_bundle,
     default_cris_root,
     render_alris_functions,
@@ -19,6 +24,37 @@ def test_default_cris_root_uses_environment_or_sibling(tmp_path, monkeypatch):
     assert default_cris_root(tmp_path / "GD") == configured.resolve()
     monkeypatch.delenv("CRIS_ROOT")
     assert default_cris_root(tmp_path / "GD") == tmp_path / "CRIS"
+
+
+def test_runtime_loader_uses_restructured_cris_modules(tmp_path, monkeypatch):
+    (tmp_path / "CRIS" / "ISODISTORT").mkdir(parents=True)
+    iso_distort = object()
+
+    def normalize_modes(*_args, **_kwargs):
+        return None
+
+    modules = {
+        "backend": types.ModuleType("backend"),
+        "backend.api": types.ModuleType("backend.api"),
+        "features": types.ModuleType("features"),
+        "features.export": types.ModuleType("features.export"),
+        "features.export.distortion_formats": types.ModuleType(
+            "features.export.distortion_formats"
+        ),
+    }
+    modules["backend.api"].IsoDistort = iso_distort
+    modules[
+        "features.export.distortion_formats"
+    ].cart_normalized_mode_matrix = normalize_modes
+    for name, module in modules.items():
+        monkeypatch.setitem(sys.modules, name, module)
+
+    loaded_iso_distort, loaded_normalizer = _load_isodistort_components(
+        tmp_path / "CRIS"
+    )
+
+    assert loaded_iso_distort is iso_distort
+    assert loaded_normalizer is normalize_modes
 
 
 def _toy_bundle() -> GdBundle:
@@ -86,6 +122,11 @@ def test_generated_ld1_c1_matches_notebook_contract_if_present():
     assert len(bounds) == len(names)
     assert len(rows) == len(names)
     assert rows[0].split()[1] == names[0]
+    metadata = json.loads((root / "metadata.json").read_text(encoding="utf-8"))
+    assert metadata["maxamp_convention"] == (
+        "inverse maximum Cartesian displacement at As=1; "
+        "bound times dmax equals 1 Angstrom"
+    )
     alris = (root / "LD1_C1_alris_functions.py").read_text(encoding="utf-8")
     assert f"N_MODES = {len(names)}" in alris
     assert "def atom_position_list" in alris

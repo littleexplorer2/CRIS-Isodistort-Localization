@@ -46,6 +46,9 @@ Jupyter 内核选：
 ```
 
 不要用 CRIS 仓库的 `.venv`（一般没有可用的 TensorFlow 3.12 环境）。
+`main_requirement.py` 会清除父进程传入的 `PYTHONHOME`、`PYTHONPATH`、
+`VIRTUAL_ENV` 和 `__PYVENV_LAUNCHER__` 后再探测或安装依赖，避免把 CRIS 或其它环境的包
+误判为 GD 已安装。
 
 ### 2.2 本机文件（笔记本写死的路径）
 
@@ -87,7 +90,7 @@ LD1_C1_alris_functions.py          # 与笔记本同目录，供 import
 | --- | --- |
 | `LD1_C1_mario_mode_names.txt` | 统计 `mode_num`（非空行数） |
 | `LD1_C1_norm_factors.txt` | 振幅进入结构因子前的缩放 `norm_factors` |
-| `LD1_C1_max_bound_vectors.txt` | 每个振幅的绝对上界，Keras `clip_by_value` 用 |
+| `LD1_C1_max_bound_vectors.txt` | 每个振幅的绝对上界；界限乘以单位振幅时的最大笛卡尔位移等于 1 Å，供 Keras `clip_by_value` 使用 |
 | `LD1_C1_displacive_modes.txt` | 空白分隔、无表头；第 2 列是模式全名 |
 | `All Combined.csv` | 实验点，至少含列 `h, k, l, intensity_exp` |
 

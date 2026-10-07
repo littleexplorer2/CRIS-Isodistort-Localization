@@ -1,5 +1,5 @@
 {
-  "cif": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS\\experiment_data\\EuAl4 Parent.cif",
+  "cif": "E:\\CRIS\\experiment_data\\EuAl4 Parent.cif",
   "k_label": "LD",
   "k_params": [
     "1/6"
@@ -36,6 +36,6 @@
   "n_modes": 48,
   "n_atoms": 60,
   "parent_cells_in_supercell": 6,
-  "maxamp_convention": "sqrt(N_parent_cells) after primitive Cartesian RMS = 1",
+  "maxamp_convention": "inverse maximum Cartesian displacement at As=1; bound times dmax equals 1 Angstrom",
   "norm_factors": "1 (mode vectors already cart-normalized)"
 }

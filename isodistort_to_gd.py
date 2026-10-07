@@ -330,13 +330,21 @@ def check_bundle(bundle: GdBundle) -> list[str]:
 # ISODISTORT session → GdBundle
 # ---------------------------------------------------------------------------
 
-def _ensure_isocore(cris_root: Path) -> None:
+def _ensure_isodistort_source(cris_root: Path) -> None:
     iso_dir = cris_root / "ISODISTORT"
     if not iso_dir.is_dir():
         raise FileNotFoundError(f"ISODISTORT not found at {iso_dir}")
     text = str(iso_dir)
     if text not in sys.path:
         sys.path.insert(0, text)
+
+
+def _load_isodistort_components(cris_root: Path):
+    _ensure_isodistort_source(cris_root)
+    from backend.api import IsoDistort
+    from features.export.distortion_formats import cart_normalized_mode_matrix
+
+    return IsoDistort, cart_normalized_mode_matrix
 
 
 def _hkl_transform_from_basis(basis: Sequence[Sequence[float]] | None) -> np.ndarray:
@@ -366,9 +374,7 @@ def compute_gd_bundle(
     cris_root: Path,
     language: str = "en",
 ) -> GdBundle:
-    _ensure_isocore(cris_root)
-    from isocore.api import IsoDistort
-    from isocore.io.distortion_formats import cart_normalized_mode_matrix
+    IsoDistort, cart_normalized_mode_matrix = _load_isodistort_components(cris_root)
 
     cif = Path(cif)
     if not cif.is_file():
@@ -465,7 +471,10 @@ def compute_gd_bundle(
         "n_modes": len(names),
         "n_atoms": len(species),
         "parent_cells_in_supercell": n_cells,
-        "maxamp_convention": "sqrt(N_parent_cells) after primitive Cartesian RMS = 1",
+        "maxamp_convention": (
+            "inverse maximum Cartesian displacement at As=1; "
+            "bound times dmax equals 1 Angstrom"
+        ),
         "norm_factors": "1 (mode vectors already cart-normalized)",
     }
     return GdBundle(

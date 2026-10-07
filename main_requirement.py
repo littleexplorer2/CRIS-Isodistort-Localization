@@ -25,13 +25,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
-
 
 # 只用 major.minor 匹配，避免把补丁号（3.12.5）当作启动器版本标签。
 TARGET_PYTHON_SERIES = (3, 12)
@@ -42,10 +42,19 @@ REQUIREMENTS_RUNTIME_NAMES = ("requirements.txt", "requirement.txt")
 REQUIREMENTS_DEV_NAMES = ("requirements-dev.txt", "requirement-dev.txt")
 
 
+def _subprocess_environment() -> dict[str, str]:
+    """Return an environment that cannot import from another Python runtime."""
+    env = os.environ.copy()
+    for name in ("PYTHONHOME", "PYTHONPATH", "VIRTUAL_ENV", "__PYVENV_LAUNCHER__"):
+        env.pop(name, None)
+    return env
+
+
 def _run(cmd: list[str], *, check: bool = True) -> subprocess.CompletedProcess:
     return subprocess.run(
         cmd,
         check=check,
+        env=_subprocess_environment(),
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
