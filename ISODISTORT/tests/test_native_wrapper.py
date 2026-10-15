@@ -122,6 +122,31 @@ def test_native_binary_copy_failure_has_actionable_error(tmp_path, monkeypatch) 
     assert not list(Path(wrapper._stage_dir).iterdir())
 
 
+def test_generated_isodata_uses_private_disposable_copy(tmp_path) -> None:
+    source = tmp_path / "reference-isodata"
+    source.mkdir()
+    reference = source / "data_isotropy.txt"
+    reference.write_text("reference\n", encoding="utf-8")
+    runtime = tmp_path / "runtime"
+    runtime.mkdir()
+    wrapper = object.__new__(BaseWrapper)
+    wrapper._mode = "native"
+    wrapper._runtime_isodata = None
+    wrapper.cfg = SimpleNamespace(
+        temp_dir=runtime,
+        _cfg={"isobyu": {"data_dir": str(source)}},
+        resolve_path=Path,
+    )
+
+    wrapper._ensure_writable_isodata()
+
+    private = Path(wrapper._isodata_path())
+    assert private != source
+    assert (private / reference.name).read_text(encoding="utf-8") == "reference\n"
+    (private / reference.name).write_text("generated\n", encoding="utf-8")
+    assert reference.read_text(encoding="utf-8") == "reference\n"
+
+
 @pytest.mark.skipif(os.name != "posix", reason="requires native POSIX shell execution")
 def test_native_run_executes_private_copy_with_isodata_and_stdin(tmp_path) -> None:
     source = tmp_path / "iso"

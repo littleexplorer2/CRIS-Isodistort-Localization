@@ -31,8 +31,10 @@ def direction_coefficient_matrix(
     Rows are printed order-parameter components and columns are the free
     symbols in deterministic case-sensitive lexical order.  Both ISO's
     ``(a,0;0,b)`` display form and its ``VECTOR,A,0,0,B`` input form are
-    accepted.  Constants, decimals, nonlinear terms, and mixed-case aliases
-    fail closed.
+    accepted.  Finite decimal coefficients are interpreted exactly as their
+    printed lexical fractions (``0.577`` is ``577/1000``); this preserves ISO
+    output without guessing a nearby algebraic or rational value.  Non-zero
+    constants, nonlinear terms, and mixed-case aliases fail closed.
     """
 
     compact = re.sub(r"\s+", "", str(value))
@@ -46,11 +48,12 @@ def direction_coefficient_matrix(
     parsed: list[dict[str, Fraction]] = []
     variables: set[str] = set()
     spellings: dict[str, set[str]] = {}
+    number = r"(?:\d+(?:\.\d+)?|\.\d+)(?:/\d+)?"
     term_re = re.compile(
         r"(?P<sign>[+-]?)"
-        r"(?:(?P<coefficient>\d+(?:/\d+)?)?\*?"
+        rf"(?:(?P<coefficient>{number})?\*?"
         r"(?P<variable>[A-Za-z])"
-        r"(?:/(?P<divisor>\d+))?|(?P<constant>\d+(?:/\d+)?))"
+        rf"(?:/(?P<divisor>\d+))?|(?P<constant>{number}))"
     )
     for expression in components:
         if expression == "0":

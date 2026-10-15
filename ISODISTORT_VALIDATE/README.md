@@ -256,6 +256,10 @@ cd <CRIS 根目录>
 .\.venv\Scripts\python.exe -m pytest ISODISTORT_VALIDATE\tests_dev -q --tb=line --basetemp .test-tmp-validate
 ```
 
+开发依赖包含 `setuptools` 与 `wheel`。打包回归会在测试临时目录构建 wheel，
+离开源码目录后验证 `isodistort-validate` 入口、配置加载以及合成 CIF 的单对/批量调用，
+并检查输入未改变；缺少构建依赖时该项明确跳过。这不代表真实参考 CIF 已重新验收。
+
 若要对仓库 `output_compare/` 中 Method 1/2/3 保存结果按候选身份批量配对，
 并把经精确整幺模变换证明等价的 basis 统一到官网设置后比较，使用上游只读
 审计器：
@@ -276,9 +280,25 @@ ISODISTORT_VALIDATE/
   agent.md                Agent 工作指南（修改边界、验收）
   README.md               本文件（使用说明）
   config/settings.yaml    比较目录与默认容差
-  main.py                 唯一启动入口（交互菜单 / compare / batch）
+  main.py                 薄启动器：调用 frontend/cli 公共入口
   main_requirement.py     旧安装命令兼容转发；实现位于根 setup_cris.py
-  isodistort_validate/    计算核心（比较算法、配置加载、固定路径）
+  isodistort_validate/
+    backend/              底层：可复用算法、数据契约和文件支持
+      config/             yaml 配置与路径基准
+      paths/              固定目录、相对路径配对和路径诊断
+      cif/                只读 CIF 解析、文本读取与 SHA-256
+      comparison/         原子匹配、晶格、占据率、磁矩和空间群比较
+      results/            ComparisonResult 结果契约
+    application/          应用层：组合底层能力完成比较用例
+      single/             单对 CIF 比较与参考哈希校验
+      batch/              批量配对、manifest 和结果汇总
+      workspace/          前端使用的配置、配对状态和默认文件选择
+    frontend/
+      cli/                参数解析、交互菜单、文本/JSON 输出
+    compare_cif.py        旧导入兼容转发
+    batch_compare.py      旧导入兼容转发
+    compare_paths.py      旧路径模块兼容别名
+    config_loader.py      旧配置模块兼容别名
   compare/                本地比对目录（gitignore，不入库）
     true/                 官网标准答案 CIF（批量比较前须改名以匹配 item/）
     item/                 待验证 CIF
@@ -287,3 +307,11 @@ ISODISTORT_VALIDATE/
   pyproject.toml
   tests_dev/              pytest
 ```
+
+调用方向为 `frontend → application → backend`；同层模块通过各目录的
+`__init__.py` 公共入口协作。配置、数据、测试仍在原目录，固定比较路径和命令行
+参数保持不变。安装包也提供 `isodistort-validate` 命令，调用同一 CLI 入口。
+`setup.py` 从唯一配置源 `config/settings.yaml` 自动生成安装包内的配置资源，
+不另维护源配置副本；安装包的默认 `compare/` 位于安装目录中，与包目录同级。
+日常 CRIS 工作流仍使用源码入口及本子项目的 `compare/`。
+后续开发的模块职责与依赖门禁见 [agent.md](agent.md)。

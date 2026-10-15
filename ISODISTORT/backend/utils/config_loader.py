@@ -17,7 +17,7 @@ def _is_source_checkout() -> bool:
     """Identify source distributions by build and launch files absent from wheels."""
     return (
         (PROJECT_ROOT / "pyproject.toml").is_file()
-        and (PROJECT_ROOT / "scripts" / "main_web.py").is_file()
+        and (PROJECT_ROOT / "main_web.py").is_file()
     )
 
 

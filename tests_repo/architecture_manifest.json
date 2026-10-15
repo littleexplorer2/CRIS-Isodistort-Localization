@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "projects": [
+    {
+      "root": "ISODISTORT",
+      "namespace": "",
+      "legacy_scientific_interfaces": [
+        "backend.export.isodistort_cif._hall_for_number",
+        "backend.method1.search_methods._k_compatible_with_supercell",
+        "backend.method1.search_methods._param_value_candidates",
+        "backend.method1.search_methods._sg_to_crystal_system",
+        "backend.method1.search_methods._validated_single_irrep_count",
+        "backend.method2.superspace._periodic_species_bijection",
+        "backend.utils.opd_format._centering_letter",
+        "backend.wrappers.iso_wrapper._component_label"
+      ],
+      "public_submodules": {
+        "backend.wrappers": ["base_wrapper", "findsym_wrapper", "iso_wrapper", "isotropy_cache", "smodes_wrapper"],
+        "backend.models": ["iso_mode_models"],
+        "backend.tables": ["irreps_cdml", "kpoints_official", "spacegroup_meta"],
+        "backend.utils": ["config_loader", "exceptions", "lattice", "opd_format", "parent_header", "schoenflies", "self_check", "text_parser"],
+        "backend.input_cif": ["cif_io", "coordinate_transform", "symmetry_validator"],
+        "backend.method1": ["affine_embeddings", "domain_generator", "occupational_modes", "phase_path", "search_methods"],
+        "backend.method2": ["distortion_mapper", "superspace"],
+        "backend.method3": ["coupled_routes", "inverse_landau", "inverse_landau_adapter"],
+        "backend.method4": ["distortion_engine", "strain", "strain_modes"],
+        "backend.export": ["cif_displacive_model", "displacive_export", "distortion_formats", "isodistort_cif", "isodistort_isoviz", "result_serializer", "structure_exporter"]
+      },
+      "modules": {
+        "backend": ["wrappers", "models", "tables", "utils", "messages", "input_cif", "method1", "method2", "method3", "method4", "export"],
+        "application": ["session", "workflows"],
+        "frontend": ["web"]
+      },
+      "compatibility": ["backend/api", "features", "frontend/i18n"]
+    },
+    {
+      "root": "ISODISTORT_VALIDATE/isodistort_validate",
+      "namespace": "isodistort_validate",
+      "modules": {
+        "backend": ["config", "paths", "cif", "comparison", "results"],
+        "application": ["single", "batch", "workspace"],
+        "frontend": ["cli"]
+      },
+      "compatibility": ["batch_compare.py", "compare_cif.py", "compare_paths.py", "config_loader.py"]
+    },
+    {
+      "root": "ISOVIZ_INPUT/isoviz_input",
+      "namespace": "isoviz_input",
+      "modules": {
+        "backend": ["amplitudes", "inputs", "validation", "paths", "launcher", "config_loader"],
+        "application": ["pipeline", "input_selection", "environment"],
+        "frontend": ["cli", "gui", "entrypoint"]
+      },
+      "compatibility": ["amplitudes.py", "validation.py", "paths.py", "launcher.py", "config_loader.py"]
+    }
+  ]
+}

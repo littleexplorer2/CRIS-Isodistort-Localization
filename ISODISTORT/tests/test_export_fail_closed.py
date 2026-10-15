@@ -16,7 +16,7 @@ import pytest
 from pymatgen.core import Lattice, Structure
 
 import backend.api.core_api as core_api_module
-from backend.api.core_api import (
+from application.session.core_api import (
     ExportBatchPlan,
     ExportCandidateFailure,
     ExportPreparationError,
@@ -25,7 +25,7 @@ from backend.api.core_api import (
     UnresolvedModeIdentityError,
 )
 from backend.wrappers import SubgroupInfo
-from features.export.isodistort_isoviz import (
+from backend.export.isodistort_isoviz import (
     _AtomLayout,
     _authoritative_mode_parentatom,
 )
@@ -156,6 +156,7 @@ def test_collection_can_skip_only_unresolved_identity_candidates() -> None:
     ready = _candidate(0, "GM1+")
     unresolved = _candidate(1, "GM2+")
     iso = _bare_export_session()
+    events: list[dict] = []
 
     def mode_search(subgroup_idx, *, candidates, **_kwargs):
         candidate = candidates[0]
@@ -191,6 +192,7 @@ def test_collection_can_skip_only_unresolved_identity_candidates() -> None:
         ["modes"],
         True,
         allow_unresolved_identities=True,
+        progress_callback=events.append,
     )
 
     assert isinstance(plan, ExportBatchPlan)
@@ -198,6 +200,14 @@ def test_collection_can_skip_only_unresolved_identity_candidates() -> None:
     assert [failure.candidate_index for failure in plan.skipped] == [1]
     assert "iso_microscopic_block_missing" in plan.skipped[0].message
     assert "parent_SG=139" in plan.skipped[0].message
+    completed = [
+        event for event in events if event.get("phase") == "candidate_complete"
+    ]
+    assert completed[-1]["candidate_status"] == "ineligible"
+    assert completed[-1]["candidate_error_type"] == "UnresolvedModeIdentityError"
+    assert "iso_microscopic_block_missing" in completed[-1][
+        "candidate_error_message"
+    ]
 
 
 def test_collection_cancels_at_candidate_boundary_and_keeps_completed_spec() -> None:
@@ -247,6 +257,9 @@ def test_collection_cancels_at_candidate_boundary_and_keeps_completed_spec() -> 
     )
     assert completed["completed"] == 1
     assert completed["estimated_remaining_seconds"] >= 0
+    assert completed["candidate_status"] == "ready"
+    assert completed["candidate_error_type"] is None
+    assert completed["candidate_error_message"] is None
 
 
 def test_collection_uses_singleton_candidate_pools_for_duplicate_local_indices() -> None:
@@ -598,8 +611,25 @@ def test_zip_uses_each_prerendered_candidate_payload_once(
         assert zipped.namelist() == [
             "candidate-0/result.txt",
             "candidate-1/result.txt",
+            "export_candidate_status.json",
+            "export_candidate_status.txt",
         ]
         assert zipped.read("candidate-1/result.txt") == b"candidate-1"
+        report = json.loads(zipped.read("export_candidate_status.json"))
+        assert report == {
+            "schema": "isodistort.export-candidate-status.v1",
+            "method": 2,
+            "requested_candidate_count": 2,
+            "successful_candidate_count": 2,
+            "ineligible_candidate_count": 0,
+            "unresolved_identity_candidate_count": 0,
+            "cancelled_candidate_count": 0,
+            "status": "success",
+            "failures": [],
+        }
+        assert "requested=2 successful=2 ineligible=0" in zipped.read(
+            "export_candidate_status.txt"
+        ).decode("utf-8")
 
 
 def test_method2_zip_keeps_ready_candidate_and_embeds_skipped_identity_report(
@@ -1053,7 +1083,7 @@ def test_publish_lock_serializes_independent_processes(tmp_path) -> None:
 from pathlib import Path
 import sys
 import time
-from backend.api.core_api import _export_publish_lock
+from application.session.core_api import _export_publish_lock
 
 root = Path(sys.argv[1])
 entered = Path(sys.argv[2])

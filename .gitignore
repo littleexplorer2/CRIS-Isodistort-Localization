@@ -84,9 +84,9 @@ desktop.ini
 /webpage_info/
 /output_compare/
 
-# Shortcuts kept at the repo root for convenience
-ISOViz.lnk
-VESTA.lnk
+# Machine-local GUI launchers
+/local_tools/launchers/*
+!/local_tools/launchers/.gitkeep
 
 # Not part of this git remote
 /GD/

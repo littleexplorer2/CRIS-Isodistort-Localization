@@ -12,9 +12,9 @@ from pymatgen.core import Lattice, Structure
 
 from backend.utils.lattice import identity_matrix, rational_matrix
 from backend.wrappers import SubgroupInfo
-from features.method1.affine_embeddings import AffineEmbedding, AffineOperation
-from features.method1.search_methods import Method3ResultItem
-from features.method3.coupled_routes import CoupledRouteWitness
+from backend.method1.affine_embeddings import AffineEmbedding, AffineOperation
+from backend.method1.search_methods import Method3ResultItem
+from backend.method3.coupled_routes import CoupledRouteWitness
 from tests.manual import compare_method3_official_local as comparison_module
 from tests.manual.audit_method3_downloads import parse_subgroup_identity
 from tests.manual.compare_method3_official_local import (
@@ -938,7 +938,7 @@ def test_run_signature_invalidates_for_core_and_iso_runtime_inputs(
         encoding="utf-8",
     )
     source_paths = [
-        package_root / "backend" / "api" / "core_api.py",
+        package_root / "application" / "session" / "core_api.py",
         package_root / "backend" / "distortion" / "search_methods.py",
         package_root / "backend" / "distortion" / "superspace.py",
         package_root / "backend" / "backend" / "iso_wrapper.py",

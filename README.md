@@ -29,6 +29,16 @@ CRIS 是一套本地晶体学工作流。它把三个原本需要分别操作的
 
 三个子项目共用仓库根目录内的实体 `.venv`。仓库级版本只由 [`VERSION`](VERSION) 定义；三个 Python 包与文档在发布时保持同一版本。本机的 OneDrive 安全限制会阻止该目录内的 Python 子进程启动 WSL，因此需要 WSL 的命令统一由根目录 `run_cris.ps1` 启动；第三方 Python 包仍全部从 `.venv` 加载。
 
+仓库根目录只保留跨项目入口和元数据。根部署器测试集中在 `tests_repo/`；本机
+IsoVIZ、VESTA 等 GUI 启动器集中在 `local_tools/launchers/`，其中实际快捷方式、JAR
+和可执行文件均由 `.gitignore` 排除，不进入版本库。三个子项目自己的测试目录不受影响。
+
+三个子项目统一采用 `frontend → application → backend` 三层调用：前端负责网页、命令行或
+GUI 交互，应用层协调会话与处理流程，底层提供科学算法和文件/运行设施；每个模块有独立
+目录和 Python 包入口。完整结构及后续修改规则见 [AGENTS.md](AGENTS.md)，自动门禁清单见
+[architecture_manifest.json](tests_repo/architecture_manifest.json)。原启动命令继续可用；
+ISODISTORT 的新 Python API 入口为 `application.session`，旧导入保留兼容转发。
+
 ## 第一次安装（Windows）
 
 ### 1. 获取代码
@@ -90,7 +100,8 @@ Windows 下不要放 Windows 版 `iso.exe`；本项目通过 WSL 运行 Linux EL
 
 IsoVIZ 任选一种配置方式：
 
-- 把 `ISOViz.lnk`、`ISOViz.jar` 或受支持的 `.exe` 放到仓库根目录；
+- 把 `ISOViz.lnk`、`ISOViz.jar` 或受支持的 `.exe` 放到
+  `local_tools/launchers/`；
 - 设置环境变量 `ISOVIZ` 或 `ISOVIZ_JAR` 为完整路径；
 - 详细查找顺序见 [ISOVIZ_INPUT/config/settings.yaml](ISOVIZ_INPUT/config/settings.yaml)。
 
@@ -173,7 +184,7 @@ cd <CRIS 根目录>
 .\run_cris.ps1
 ```
 
-不传参数时启动器默认运行 `ISODISTORT\scripts\main_web.py`。终端会打印实际 URL，通常为
+不传参数时启动器默认运行 `ISODISTORT\main_web.py`。终端会打印实际 URL，通常为
 `http://127.0.0.1:8000/`，并通过 Windows Shell 打开默认浏览器。浏览器中依次完成：
 
 1. 在 `Parent CIF` 选择母相文件并点 `Load`；
@@ -214,7 +225,10 @@ ISODISTORT_VALIDATE/compare/true/LD1_C1/subgroup.cif
 .\.venv\Scripts\python.exe ISOVIZ_INPUT\main.py
 ```
 
-按提示选择 CSV 并粘贴对应 `.isoviz` 的绝对路径。程序读取 `Best Model Parameter`，只修改系统临时副本中的 `amp`，不会覆盖 CSV 或原始 `.isoviz`。详见 [ISOVIZ_INPUT 使用说明](ISOVIZ_INPUT/README.md)。
+桌面界面中，振幅 CSV 和对应 `.isoviz` 都可以选择文件或直接粘贴完整内容。先查看
+匹配与静态校验报告，再请求启动 IsoVIZ。程序读取 `Best Model Parameter`，只修改系统
+临时副本中的 `amp`，不会覆盖 CSV 或原始 `.isoviz`。详见
+[ISOVIZ_INPUT 使用说明](ISOVIZ_INPUT/README.md)。
 
 ## 典型跨项目流程
 
@@ -277,8 +291,9 @@ py -3.10 setup_cris.py install --project all --dev
 
 再在 `E:\GD` 执行 `py -3.12 main_requirement.py --dev` 重建独立 TensorFlow 环境。
 默认情况下两个项目会自动发现同级目录；若使用不同布局，再设置 `CRIS_ROOT` 与
-`BEST_MODEL_PARAMETERS_DIR`。编辑器工作区使用相对路径，根目录的 IsoVIZ/VESTA
-快捷方式指向外部程序，不因 CRIS 换盘而需要重建；若外部程序本身也移动，再更新快捷方式。
+`BEST_MODEL_PARAMETERS_DIR`。编辑器工作区使用相对路径，`local_tools/launchers/` 中的
+IsoVIZ/VESTA 快捷方式指向外部程序，不因 CRIS 换盘而需要重建；若外部程序本身也移动，
+再更新快捷方式。
 
 ## 更新已有安装
 
@@ -292,6 +307,12 @@ py -3.10 setup_cris.py install
 
 `pip install -r` 会重新解析版本约束；已经满足的包不会重复安装。只有虚拟环境损坏或切换 Python 主/次版本时才加 `--recreate`。
 
+仓库级部署与编排测试位于 `tests_repo/`：
+
+```powershell
+.\run_cris.ps1 -m pytest tests_repo -q --tb=line
+```
+
 ## 常见问题
 
 | 现象 | 处理 |
@@ -299,7 +320,7 @@ py -3.10 setup_cris.py install
 | `py` 或 `python` 找不到 | 安装 Python 3.10+，安装时勾选加入 PATH，重新打开 PowerShell |
 | PowerShell 不允许 `Activate.ps1` | 不必激活；ISODISTORT 使用 `.\run_cris.ps1`，另两个子项目可直接使用 `.\.venv\Scripts\python.exe` |
 | WSL 检查失败 | 先手工运行 `wsl -e sh -c "echo ok"`；确认存在默认发行版且已完成首次初始化 |
-| 直接运行 `scripts/main_web.py` 提示不能调用 WSL | 从 CRIS 根目录运行 `.\run_cris.ps1`；本机需要由 OneDrive 外的基础 Python 建立首个进程，包仍来自实体 `.venv` |
+| 直接运行 `ISODISTORT/main_web.py` 提示不能调用 WSL | 从 CRIS 根目录运行 `.\run_cris.ps1`；本机需要由 OneDrive 外的基础 Python 建立首个进程，包仍来自实体 `.venv` |
 | 服务打印 URL 但浏览器没有出现 | 先确认使用 `.\run_cris.ps1`；成功分发时终端会打印 `Browser launch requested`，失败时会明确提示手动访问最终 URL |
 | 找不到 `iso` / `findsym` / `smodes` / `data_*.txt` | 重新核对 `ISODISTORT/resources/isobyu/` 与 `ISODISTORT/resources/config/settings.yaml` |
 | Python 包缺失或版本不满足 | 重新运行 `py -3.10 setup_cris.py install`；不要手工逐个猜包名 |

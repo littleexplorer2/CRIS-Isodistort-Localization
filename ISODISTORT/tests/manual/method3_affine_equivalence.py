@@ -46,7 +46,7 @@ from backend.utils.lattice import (
     same_lattice,
     transpose,
 )
-from features.export.isodistort_cif import _hall_for_number
+from backend.export.isodistort_cif import _hall_for_number
 
 RationalVector = tuple[Fraction, Fraction, Fraction]
 

@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 from pymatgen.core import Lattice, Structure
 
-from backend.api import IsoDistort
+from application.session import IsoDistort
 from backend.models.iso_mode_models import (
     MicroscopicColumnProvenance,
     MicroscopicVectorBlock,
@@ -26,9 +26,9 @@ from backend.models.iso_mode_models import (
 from backend.utils import get_config
 from backend.utils.lattice import centering_primitive_matrix
 from backend.wrappers.iso_wrapper import BushMode, DistortionMode, SubgroupInfo
-from features.export.distortion_formats import render_cif
-from features.input_cif import build_supercell
-from features.method2.distortion_mapper import (
+from backend.export.distortion_formats import render_cif
+from backend.input_cif import build_supercell
+from backend.method2.distortion_mapper import (
     DistortionMapper,
     _has_exact_unit_phase,
     _make_exact_translation_lattice,

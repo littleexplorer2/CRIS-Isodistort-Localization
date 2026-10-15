@@ -5,14 +5,19 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "isoviz-input"
 version = "0.4.0"
-description = "Read amplitude CSV, write amp into subgroup .isoviz, and launch IsoVIZ."
+description = "Desktop and CLI pipeline for validated amplitude input into IsoVIZ."
 readme = "README.md"
 requires-python = ">=3.10"
 dynamic = ["dependencies"]
 
+[project.scripts]
+isoviz-input = "isoviz_input.frontend.entrypoint:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
+    "setuptools>=61.0",
+    "wheel",
 ]
 
 [tool.setuptools.dynamic]
@@ -32,7 +37,7 @@ ignore = ["RUF001", "RUF002", "RUF003", "PLR"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/tests_dev/*.py" = ["S101"]
-"main.py" = ["E402"]
+"main.py" = ["E402", "PLC0415"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests_dev"]

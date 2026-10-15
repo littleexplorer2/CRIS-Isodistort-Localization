@@ -38,17 +38,17 @@ if str(PACKAGE_ROOT) not in sys.path:
 
 from backend.utils import get_config  # noqa: E402
 from backend.utils.lattice import same_lattice  # noqa: E402
-from features.input_cif import read_cif  # noqa: E402
-from features.method1.affine_embeddings import (  # noqa: E402
+from backend.input_cif import read_cif  # noqa: E402
+from backend.method1.affine_embeddings import (  # noqa: E402
     build_affine_quotient,
     embedding_from_identity,
     locate_embedding_subgroup,
     parent_affine_group,
 )
-from features.method3.inverse_landau import (  # noqa: E402
+from backend.method3.inverse_landau import (  # noqa: E402
     FixedSpaceFeasibilityAnalyzer,
 )
-from features.method3.inverse_landau_adapter import (  # noqa: E402
+from backend.method3.inverse_landau_adapter import (  # noqa: E402
     build_selected_character_representation,
     stable_embedding_id,
 )
@@ -198,22 +198,22 @@ def _signature_state(
         ("source:stage-b-audit", tool_path),
         (
             "source:affine-embeddings",
-            package_root / "features" / "method1" / "affine_embeddings.py",
+            package_root / "backend" / "method1" / "affine_embeddings.py",
         ),
         (
             "source:inverse-landau",
-            package_root / "features" / "method3" / "inverse_landau.py",
+            package_root / "backend" / "method3" / "inverse_landau.py",
         ),
         (
             "source:inverse-landau-adapter",
-            package_root / "features" / "method3" / "inverse_landau_adapter.py",
+            package_root / "backend" / "method3" / "inverse_landau_adapter.py",
         ),
         ("source:lattice", package_root / "backend" / "utils" / "lattice.py"),
         (
             "source:config-loader",
             package_root / "backend" / "utils" / "config_loader.py",
         ),
-        ("source:cif-reader", package_root / "features" / "input_cif" / "cif_io.py"),
+        ("source:cif-reader", package_root / "backend" / "input_cif" / "cif_io.py"),
         ("config", package_root / "resources" / "config" / "settings.yaml"),
         *[(f"parent-cif:{name}", input_root / name) for name in parent_names],
     ]

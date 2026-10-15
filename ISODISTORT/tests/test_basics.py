@@ -8,7 +8,7 @@ from types import SimpleNamespace
 import pytest
 from pymatgen.core import Lattice, Structure
 
-from backend.api import IsoDistort
+from application.session import IsoDistort
 from backend.tables.kpoints_official import official_kparams_to_iso
 from backend.utils import IsodistortError, WrapperRunError, get_config
 from backend.utils.parent_header import (
@@ -23,7 +23,7 @@ from backend.wrappers.base_wrapper import (
     _decode_process_output,
     _is_wsl_access_denied,
 )
-from features.input_cif import SymmetryValidator
+from backend.input_cif import SymmetryValidator
 from frontend.i18n import MESSAGES, t
 
 # --- from test_config.py ---
@@ -374,7 +374,7 @@ def test_parent_wyckoff_from_cif_ndnio2():
     """CIF atom_site labels/order drive the web header (not memorized EuAl4)."""
     from pathlib import Path
 
-    from backend.api import IsoDistort
+    from application.session import IsoDistort
 
     cris = Path(__file__).resolve().parents[2]
     cif = cris / "experiment_data" / "NdNiO2 own.cif"
@@ -398,7 +398,7 @@ def test_parent_wyckoff_from_cif_4310_uses_standard_orbit_representatives():
     """Body-centering-equivalent CIF rows must use FINDSYM standard points."""
     from pathlib import Path
 
-    from backend.api import IsoDistort
+    from application.session import IsoDistort
 
     cris = Path(__file__).resolve().parents[2]
     cif = cris / "experiment_data" / "4310_tetra.cif"
@@ -427,9 +427,9 @@ def test_export_cif_uses_cif_wyckoff_lines_ndnio2():
     """Distortion CIF comments must reuse the same CIF-ordered parent header."""
     from pathlib import Path
 
-    from backend.api import IsoDistort
+    from application.session import IsoDistort
     from backend.wrappers import SubgroupInfo
-    from features.export.distortion_formats import render_cif
+    from backend.export.distortion_formats import render_cif
 
     cris = Path(__file__).resolve().parents[2]
     cif = cris / "experiment_data" / "NdNiO2 own.cif"

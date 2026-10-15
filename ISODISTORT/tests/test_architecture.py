@@ -17,19 +17,28 @@ except ModuleNotFoundError:  # pragma: no cover - Python 3.10 compatibility
 
 import pytest
 
-from backend.api import core_api
+from application.session import core_api
 from backend.tables import irreps_cdml
 from backend.utils.config_loader import CONFIG_PATH, PROJECT_ROOT, get_config
 
 CRIS_ROOT = Path(__file__).resolve().parents[2]
 ISODISTORT_ROOT = Path(__file__).resolve().parents[1]
 PYPROJECT_PATH = ISODISTORT_ROOT / "pyproject.toml"
+ROOT_PLACED_FILES = {
+    ".gitignore",
+    "README.md",
+    "agent.md",
+    "main_web.py",
+    "pyproject.toml",
+    "requirements-dev.txt",
+    "requirements.txt",
+}
 
 
 def test_production_modules_do_not_silently_overwrite_top_level_definitions():
     """A duplicate helper definition can reverse an existing scientific API."""
     duplicates = []
-    for package in ("backend", "features", "frontend"):
+    for package in ("backend", "application", "features", "frontend"):
         for path in (ISODISTORT_ROOT / package).rglob("*.py"):
             tree = ast.parse(path.read_text(encoding="utf-8-sig"))
             counts = Counter(
@@ -106,6 +115,16 @@ def test_reorganized_resource_roots_resolve_to_existing_project_paths() -> None:
     assert (core_api._CRIS_ROOT / "webpage_info").is_dir()
 
 
+def test_root_placed_files_stay_in_the_project_root() -> None:
+    """Location-first project files must not drift into functional packages."""
+    missing = sorted(
+        filename for filename in ROOT_PLACED_FILES
+        if not (ISODISTORT_ROOT / filename).is_file()
+    )
+    assert not missing, missing
+    assert not (ISODISTORT_ROOT / "scripts" / "main_web.py").exists()
+
+
 def test_output_paths_remain_outside_read_only_resources() -> None:
     cfg = get_config()
     assert cfg.resolve_path(cfg._cfg["runtime"]["output_dir"]) == (
@@ -119,9 +138,9 @@ def test_output_paths_remain_outside_read_only_resources() -> None:
 @pytest.mark.parametrize(
     "module",
     [
-        "features.method2.superspace",
-        "features.method3.coupled_routes",
-        "features.method3.inverse_landau_adapter",
+        "backend.method2.superspace",
+        "backend.method3.coupled_routes",
+        "backend.method3.inverse_landau_adapter",
     ],
 )
 def test_cross_feature_modules_import_first_in_a_clean_interpreter(module: str) -> None:
@@ -140,19 +159,32 @@ def test_cross_feature_modules_import_first_in_a_clean_interpreter(module: str) 
 
 
 def test_method1_public_api_does_not_reexport_other_feature_packages() -> None:
-    import features.method1 as method1
-    from features.method2 import DistortionMapper, ParametricModeResult
-    from features.method3 import CoupledRouteWitness, FiniteGroup
-    from features.method4 import DistortionEngine, HomogeneousStrainMode
+    import backend.method1 as method1
+    from backend.method2 import DistortionMapper, ParametricModeResult
+    from backend.method3 import CoupledRouteWitness, FiniteGroup
+    from backend.method4 import DistortionEngine, HomogeneousStrainMode
 
     assert "DistortionMapper" not in method1.__all__
     assert "DistortionEngine" not in method1.__all__
-    assert DistortionMapper.__module__ == "features.method2.distortion_mapper"
-    assert ParametricModeResult.__module__ == "features.method2.superspace"
-    assert CoupledRouteWitness.__module__ == "features.method3.coupled_routes"
-    assert FiniteGroup.__module__ == "features.method3.inverse_landau"
-    assert DistortionEngine.__module__ == "features.method4.distortion_engine"
-    assert HomogeneousStrainMode.__module__ == "features.method4.strain_modes"
+    assert DistortionMapper.__module__ == "backend.method2.distortion_mapper"
+    assert ParametricModeResult.__module__ == "backend.method2.superspace"
+    assert CoupledRouteWitness.__module__ == "backend.method3.coupled_routes"
+    assert FiniteGroup.__module__ == "backend.method3.inverse_landau"
+    assert DistortionEngine.__module__ == "backend.method4.distortion_engine"
+    assert HomogeneousStrainMode.__module__ == "backend.method4.strain_modes"
+
+
+def test_legacy_gd_imports_share_the_canonical_objects_and_module_state() -> None:
+    import application.session
+    import backend.api
+    from application.session import core_api
+    from backend.api import core_api as legacy_core_api
+    from backend.export.distortion_formats import cart_normalized_mode_matrix
+    from features.export.distortion_formats import cart_normalized_mode_matrix as legacy_matrix
+
+    assert backend.api is application.session
+    assert legacy_core_api is core_api
+    assert legacy_matrix is cart_normalized_mode_matrix
 
 
 def test_setuptools_package_data_contract_is_complete_and_explicit() -> None:
@@ -190,7 +222,7 @@ def test_equivalent_installed_layout_resolves_packaged_runtime_assets(tmp_path: 
     package_data = pyproject["tool"]["setuptools"]["package-data"]
     site_packages = tmp_path / "site-packages"
 
-    for package_name in ("backend", "features", "frontend", "resources"):
+    for package_name in ("backend", "application", "features", "frontend", "resources"):
         source_root = ISODISTORT_ROOT / package_name
         for source in source_root.rglob("*.py"):
             destination = site_packages / source.relative_to(ISODISTORT_ROOT)

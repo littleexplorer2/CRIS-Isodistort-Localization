@@ -1,6 +1,6 @@
 from types import SimpleNamespace
 
-from isoviz_input import launcher
+from isoviz_input.backend.launcher import runtime as launcher
 
 
 def test_open_isoviz_jar_passes_target_to_java(tmp_path, monkeypatch):

@@ -788,7 +788,7 @@ def _check_isodistort(report: DoctorReport, python: Path) -> None:
         report,
         python,
         project,
-        "from backend import __version__; from backend.api import IsoDistort; "
+        "from backend import __version__; from application.session import IsoDistort; "
         "from frontend.web.server import main; print(__version__)",
     )
     payload, error = _probe_json(
@@ -929,7 +929,7 @@ def _check_validate(report: DoctorReport, python: Path) -> None:
     )
     payload, error = _probe_json(
         python,
-        "import json; from isodistort_validate.config_loader import get_config; c=get_config(); "
+        "import json; from isodistort_validate.backend.config import get_config; c=get_config(); "
         "print(json.dumps({'root': str(c.compare_root), 'item': str(c.item_dir), "
         "'true': str(c.true_dir)}))",
         cwd=project.directory,
@@ -964,12 +964,12 @@ def _check_isoviz(report: DoctorReport, python: Path) -> None:
         report,
         python,
         project,
-        "from isoviz_input import __version__, apply_amplitudes, read_amplitude_csv; print(__version__)",
+        "from isoviz_input import __version__, prepare_isoviz, parse_amplitude_csv; print(__version__)",
     )
     payload, error = _probe_json(
         python,
-        "import json; from isoviz_input.launcher import find_isoviz_launcher; "
-        "from isoviz_input.paths import best_model_root; launcher=find_isoviz_launcher(); "
+        "import json; from isoviz_input.backend.launcher import find_isoviz_launcher; "
+        "from isoviz_input.backend.paths import best_model_root; launcher=find_isoviz_launcher(); "
         "print(json.dumps({'launcher': str(launcher) if launcher else '', "
         "'best_model_root': str(best_model_root())}))",
         cwd=project.directory,
@@ -988,7 +988,8 @@ def _check_isoviz(report: DoctorReport, python: Path) -> None:
             "launcher",
             "fail",
             "no configured .lnk, .exe, or .jar was found",
-            "Place ISOViz.lnk in the CRIS root, or set ISOVIZ/ISOVIZ_JAR.",
+            "Place ISOViz.lnk in CRIS/local_tools/launchers, or set "
+            "ISOVIZ/ISOVIZ_JAR.",
         )
 
     java = shutil.which("java") or shutil.which("javaw")
@@ -1019,7 +1020,7 @@ def _check_isoviz(report: DoctorReport, python: Path) -> None:
             "amplitude-input",
             "warn",
             f"no CSV files under {best_model}; GUI recognition was not tested",
-            "Run the GD notebook save step or pass --data to ISOVIZ_INPUT/main.py.",
+            "Run the GD export, then upload/paste the CSV in ISOVIZ_INPUT or pass --data in CLI mode.",
         )
 
 

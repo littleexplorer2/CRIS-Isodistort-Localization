@@ -6,7 +6,7 @@ import pytest
 import spglib
 
 from backend.utils.lattice import identity_matrix
-from features.method1.affine_embeddings import (
+from backend.method1.affine_embeddings import (
     AffineEmbedding,
     ParentAffineGroup,
     _hall_database_operations,

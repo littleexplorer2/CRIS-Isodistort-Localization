@@ -28,7 +28,7 @@ PACKAGE_ROOT = WORKSPACE / "ISODISTORT"
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
-from backend.api import IsoDistort  # noqa: E402
+from application.session import IsoDistort  # noqa: E402
 
 OUTPUT_ROOT = PACKAGE_ROOT / "output" / "validation" / "method4_inputs"
 MANIFEST_PATH = PACKAGE_ROOT / "docs" / "manifests" / "method4_download_manifest.json"
@@ -91,14 +91,14 @@ def _signature() -> str:
     digest = hashlib.sha256()
     for path in [
         Path(__file__),
-        PACKAGE_ROOT / "backend" / "api" / "core_api.py",
+        PACKAGE_ROOT / "application" / "session" / "core_api.py",
         PACKAGE_ROOT / "backend" / "wrappers" / "iso_wrapper.py",
-        PACKAGE_ROOT / "features" / "method4" / "distortion_engine.py",
-        PACKAGE_ROOT / "features" / "method2" / "distortion_mapper.py",
-        PACKAGE_ROOT / "features" / "method1" / "search_methods.py",
-        PACKAGE_ROOT / "features" / "method4" / "strain.py",
-        PACKAGE_ROOT / "features" / "method2" / "superspace.py",
-        PACKAGE_ROOT / "features" / "input_cif" / "cif_io.py",
+        PACKAGE_ROOT / "backend" / "method4" / "distortion_engine.py",
+        PACKAGE_ROOT / "backend" / "method2" / "distortion_mapper.py",
+        PACKAGE_ROOT / "backend" / "method1" / "search_methods.py",
+        PACKAGE_ROOT / "backend" / "method4" / "strain.py",
+        PACKAGE_ROOT / "backend" / "method2" / "superspace.py",
+        PACKAGE_ROOT / "backend" / "input_cif" / "cif_io.py",
         WORKSPACE / "experiment_data" / "EuAl4 Parent.cif",
         WORKSPACE / "experiment_data" / "NdNiO2 own.cif",
     ]:

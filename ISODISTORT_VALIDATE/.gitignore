@@ -21,6 +21,7 @@ dist/
 .coverage
 htmlcov/
 .pytest-tmp/
+.test-tmp/
 pytest-cache-files-*/
 
 # ---------- 运行输出 / 比对产物 ----------

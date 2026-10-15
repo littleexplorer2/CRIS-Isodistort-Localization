@@ -9,15 +9,15 @@ import numpy as np
 import pytest
 from pymatgen.core import Lattice, Structure
 
-from backend.api import IsoDistort
+from application.session import IsoDistort
 from backend.utils.lattice import (
     centering_primitive_matrix,
     rational_vector,
     real_translation_character_sign,
     wavevector_translation_phases,
 )
-from features.input_cif import build_supercell
-from features.method4 import DistortionEngine
+from backend.input_cif import build_supercell
+from backend.method4 import DistortionEngine
 
 
 def _parent(centered=False, origin=(0.0, 0.0, 0.0)):

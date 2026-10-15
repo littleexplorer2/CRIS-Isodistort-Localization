@@ -44,6 +44,10 @@ class WrapperRunError(WrapperError):
         super().__init__(f"{binary} 执行失败 (exit code {returncode}): {stderr}")
 
 
+class MissingSubgroupDatabaseError(WrapperRunError):
+    """ISO needs an on-demand parametric-k subgroup table."""
+
+
 class WrapperTimeoutError(WrapperError):
     """二进制程序运行超时"""
 

@@ -12,7 +12,7 @@ import pytest
 import spglib
 from pymatgen.core import Lattice, Structure
 
-from backend.api import IsoDistort, UnresolvedModeIdentityError
+from application.session import IsoDistort, UnresolvedModeIdentityError
 from backend.models.iso_mode_models import (
     MicroscopicColumnProvenance,
     MicroscopicVectorBlock,
@@ -22,22 +22,22 @@ from backend.models.iso_mode_models import (
 from backend.utils import get_config
 from backend.utils.lattice import as_fraction, inverse, multiply, rational_matrix, transpose
 from backend.wrappers import BushMode, DistortionMode, SubgroupInfo
-from features.export.cif_displacive_model import ExactSeitzOperation
-from features.export.distortion_formats import (
+from backend.export.cif_displacive_model import ExactSeitzOperation
+from backend.export.distortion_formats import (
     SubgroupExportSpec,
     render_cif,
     render_complete_modes,
     render_isoviz,
     render_topas,
 )
-from features.export.isodistort_cif import _hall_for_number
-from features.method1 import (
+from backend.export.isodistort_cif import _hall_for_number
+from backend.method1 import (
     embedding_from_identity,
     parent_affine_group,
 )
-from features.method1.affine_embeddings import AffineOperation
-from features.method2 import DistortionMapper
-from features.method4 import DistortionEngine
+from backend.method1.affine_embeddings import AffineOperation
+from backend.method2 import DistortionMapper
+from backend.method4 import DistortionEngine
 
 
 def _matrix_vector(matrix, vector):

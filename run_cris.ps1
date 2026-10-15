@@ -25,7 +25,7 @@ if (-not (Test-Path -LiteralPath $basePython -PathType Leaf)) {
 }
 
 if ($args.Count -eq 0) {
-    $pythonArguments = @((Join-Path $crisRoot "ISODISTORT\scripts\main_web.py"))
+    $pythonArguments = @((Join-Path $crisRoot "ISODISTORT\main_web.py"))
 } else {
     $pythonArguments = @($args)
 }

@@ -20,6 +20,7 @@ from backend.models.iso_mode_models import (
     microscopic_atom_order_id,
 )
 from backend.utils.exceptions import OutputParseError
+from backend.utils.text_parser import parse_domain_table
 from backend.wrappers.iso_wrapper import (
     BushMode,
     DistortionMode,
@@ -29,7 +30,7 @@ from backend.wrappers.iso_wrapper import (
     microscopic_extension_digest,
 )
 from backend.wrappers.smodes_wrapper import SmodesAtom, SmodesModeBlock
-from features.export.cif_displacive_model import (
+from backend.export.cif_displacive_model import (
     ChildAtom,
     DisplaciveModelError,
     ExactSeitzOperation,
@@ -37,12 +38,12 @@ from features.export.cif_displacive_model import (
     RawModeColumn,
     project_modes_to_free_rows,
 )
-from features.method2.distortion_mapper import (
+from backend.method2.distortion_mapper import (
     DistortionMapper,
     MappedMicroscopicColumn,
     verify_mapped_microscopic_columns,
 )
-from features.method2.superspace import (
+from backend.method2.superspace import (
     _extend_microscopic_modes_to_reference_domain,
     _select_verified_microscopic_modes,
     _symbolic_subspace_proof,
@@ -155,6 +156,9 @@ def _one_column_microscopic_table(irrep: str, vector: str) -> str:
 
 def test_parametric_microscopic_tables_preserve_repeated_irrep_boundaries():
     wrapper = object.__new__(IsoWrapper)
+    wrapper._direction_transport_for_invariant = lambda _parent, _invariant: (
+        SimpleNamespace(symbol="P1", domain_number=1)
+    )
     wrapper._run_session = lambda _commands: (
         _one_column_microscopic_table("LD5", "1,0,0")
         + _one_column_microscopic_table("LD5", "0,1,0")
@@ -176,10 +180,20 @@ def test_parametric_microscopic_tables_preserve_repeated_irrep_boundaries():
         ),
     ]
 
-    queries, _commands = IsoWrapper._parametric_microscopic_query_results(
+    queries, commands = IsoWrapper._parametric_microscopic_query_results(
         wrapper, 139, subgroup, invariants, ["a"]
     )
 
+    assert commands.count("VALUE DIRECTION VECTOR,A,0,0,0") == 1
+    assert commands.count("VALUE DIRECTION VECTOR,A,0") == 1
+    assert commands.count("VALUE DIRECTION VECTOR,0,A,0,0") == 1
+    assert commands.count("VALUE DOMAIN 1") == 3
+    assert [query.transport_direction for query in queries] == [
+        "VECTOR,A,0,0,0",
+        "VECTOR,A,0",
+        "VECTOR,0,A,0,0",
+    ]
+    assert [query.transport_domain_number for query in queries] == [1, 1, 1]
     assert [len(query.blocks) for query in queries] == [1, 0, 1]
     assert queries[0].blocks[0].direction_symbol == "VECTOR,A,0,0,0"
     assert queries[2].blocks[0].direction_symbol == "VECTOR,0,A,0,0"
@@ -193,6 +207,9 @@ def test_parametric_microscopic_tables_preserve_repeated_irrep_boundaries():
 
 def test_parametric_microscopic_tables_reject_ambiguous_empty_repeated_irrep():
     wrapper = object.__new__(IsoWrapper)
+    wrapper._direction_transport_for_invariant = lambda _parent, _invariant: (
+        SimpleNamespace(symbol="P1", domain_number=1)
+    )
     wrapper._run_session = lambda _commands: _one_column_microscopic_table(
         "LD5", "1,0,0"
     )
@@ -239,6 +256,10 @@ def test_parametric_primary_direction_requires_independent_subspace_match():
 
 def _exact_fixed_space_wrapper() -> IsoWrapper:
     wrapper = object.__new__(IsoWrapper)
+    wrapper._direction_transport_for_invariant = lambda *_args: SimpleNamespace(
+        symbol="P1",
+        domain_number=1,
+    )
     wrapper.list_invariant_directions = lambda *_args, **_kwargs: [
         InvariantDirection(
             "GM1+", "(a,b,c)", 1, "P1", 1,
@@ -388,6 +409,10 @@ def test_exact_fixed_space_compute_canonicalizes_non_gamma_folded_space():
             k_coordinates=("1/2", "0", "0"),
         ),
     ]
+    wrapper._direction_transport_for_invariant = lambda *_args: SimpleNamespace(
+        symbol="P1",
+        domain_number=1,
+    )
     wrapper._run_session = lambda _commands: (
         "********Irrep (ML) Wyckoff Irrep Point Projected Vectors\n"
         "GM1+ a A (0,0,0) (1,0,0) (0,1,0) (0,0,1)\n"
@@ -709,7 +734,7 @@ def test_exact_invariant_vector_resolves_one_cached_direction_symbol():
     assert wrapper._direction_symbol_for_invariant(62, invariant) == "P3"
     assert calls == [(62, "X", "X1+")]
 
-    wrapper._direction_symbol_cache = {}
+    wrapper._direction_transport_cache = {}
     wrapper.list_subgroups = lambda *_args: [
         SimpleNamespace(
             opd_dir_raw="(a,a)", opd_symbol="P3",
@@ -720,8 +745,186 @@ def test_exact_invariant_vector_resolves_one_cached_direction_symbol():
             space_group_number=1, size=1,
         ),
     ]
-    with pytest.raises(ValueError, match="one ISO OPD token"):
+    with pytest.raises(ValueError, match="one ISO OPD/domain"):
         wrapper._direction_symbol_for_invariant(62, invariant)
+
+
+def test_exact_invariant_vector_resolves_noncanonical_named_domain():
+    wrapper = object.__new__(IsoWrapper)
+    row = SimpleNamespace(
+        opd_dir_raw="(a,0;0,0)",
+        opd_symbol="P1",
+        space_group_number=47,
+        size=3,
+    )
+    wrapper.list_subgroups = lambda *_args, **_kwargs: [row]
+    wrapper.get_domains = lambda *_args, **_kwargs: [
+        SimpleNamespace(domain_number=2, opd_dir_raw="(0,0;a,0)"),
+        SimpleNamespace(
+            domain_number=4,
+            opd_dir_raw="(0,0;-0.500a,0.866a)",
+        ),
+    ]
+    invariant = InvariantDirection(
+        "DT1",
+        "(0,0,a,-1.732a)",
+        47,
+        "Pmmm",
+        3,
+        k_parameters=("1/3",),
+        k_coordinates=("0", "1/3", "0"),
+    )
+
+    transport = wrapper._direction_transport_for_invariant(123, invariant)
+
+    assert transport.symbol == "P1"
+    assert transport.domain_number == 4
+    assert transport.direction_raw == "(0,0;-0.500a,0.866a)"
+
+
+def test_microscopic_transport_uses_only_legacy_safe_exact_vectors_directly():
+    wrapper = object.__new__(IsoWrapper)
+    wrapper._direction_transport_for_invariant = lambda *_args: (_ for _ in ()).throw(
+        AssertionError("safe exact VECTOR must not require isotropy-subgroup lookup")
+    )
+    invariant = InvariantDirection(
+        "SM1",
+        "(a,0,a,0)",
+        123,
+        "P4/mmm",
+        1,
+        k_parameters=("1/6",),
+        k_coordinates=("1/6", "1/6", "0"),
+    )
+
+    transport = wrapper._microscopic_direction_transport(123, invariant)
+
+    assert transport.symbol == "VECTOR,A,0,A,0"
+    assert transport.domain_number == 1
+    assert transport.direction_raw == "(a,0,a,0)"
+
+
+def test_microscopic_transport_falls_back_for_scaled_exact_vector():
+    wrapper = object.__new__(IsoWrapper)
+    fallback = SimpleNamespace(
+        symbol="P2",
+        domain_number=1,
+        direction_raw="(a,0.577a;0,0)",
+    )
+    wrapper._direction_transport_for_invariant = lambda *_args: fallback
+    invariant = InvariantDirection(
+        "Y1",
+        "(a,0.577a;0,0)",
+        51,
+        "Pmma",
+        3,
+        k_parameters=("1/3",),
+        k_coordinates=("0", "1/3", "0"),
+    )
+
+    transport = wrapper._microscopic_direction_transport(123, invariant)
+
+    assert IsoWrapper._direction_vector_selector(invariant.direction_raw) == (
+        "VECTOR,1000A,577A,0,0"
+    )
+    assert transport is fallback
+
+
+def test_microscopic_transport_reuses_exact_selected_primary_opd():
+    wrapper = object.__new__(IsoWrapper)
+    wrapper._direction_transport_for_invariant = lambda *_args: (_ for _ in ()).throw(
+        AssertionError("the selected primary OPD is already exact evidence")
+    )
+    subgroup = SubgroupInfo(
+        index=3,
+        space_group_number=127,
+        opd_symbol="P4",
+        opd_dir_raw="(a,0.577a;0,1.155a)",
+        irrep_label="Y1",
+        parent_sg=123,
+        size=36,
+        k_parameters=["1/3"],
+    )
+    invariant = InvariantDirection(
+        "Y1",
+        "(a,0.577a,0,1.155a)",
+        127,
+        "P4/mbm",
+        36,
+        k_parameters=("1/3",),
+        k_coordinates=("1/3", "1/2", "0"),
+    )
+
+    transport = wrapper._microscopic_direction_transport(
+        123, invariant, subgroup
+    )
+
+    assert transport.symbol == "P4"
+    assert transport.domain_number == 1
+    assert transport.direction_raw == "(a,0.577a;0,1.155a)"
+
+
+def test_parametric_microscopic_query_selects_resolved_domain():
+    wrapper = object.__new__(IsoWrapper)
+    wrapper._direction_transport_for_invariant = lambda *_args: SimpleNamespace(
+        symbol="P1",
+        domain_number=4,
+    )
+    wrapper._run_session = lambda commands: (
+        "********Irrep (ML) Domain Wyckoff Irrep Point Projected Vectors\n"
+        "DT1 4 a A (0,0,0) (0,1,0)\n"
+    )
+    subgroup = _subgroup(irrep="Y1")
+    invariant = InvariantDirection(
+        "DT1",
+        "(0,0,a,-1.732a)",
+        47,
+        "Pmmm",
+        3,
+        k_parameters=("1/3",),
+        k_coordinates=("0", "1/3", "0"),
+    )
+
+    queries, commands = IsoWrapper._parametric_microscopic_query_results(
+        wrapper,
+        123,
+        subgroup,
+        [invariant],
+        ["a"],
+    )
+
+    assert "VALUE DIRECTION P1" in commands
+    assert "VALUE DOMAIN 4" in commands
+    assert queries[0].transport_direction == "P1"
+    assert queries[0].transport_domain_number == 4
+    assert queries[0].blocks[0].column_count == 1
+    assert queries[0].blocks[0].direction_symbol == "VECTOR,0,0,250A,-433A"
+
+
+def test_domain_parser_retains_multiarm_direction_and_all_components():
+    rows = parse_domain_table(
+        """
+        4 (C2b|-1,0,0) 47 Pmmm 6 P1 (0,0;-0.500a,0.866a) (0,1,0),(0,0,-1),(-3,0,0) (-1,0,0)
+        """
+    )
+
+    assert rows[0]["opd_dir_raw"] == "(0,0;-0.500a,0.866a)"
+    assert rows[0]["opd_vector"] == [0.0, 0.0, -0.5, 0.866]
+
+
+def test_direction_comparison_accepts_identical_decimal_iso_tokens_only():
+    assert IsoWrapper._direction_subspaces_same_component_order(
+        "(a,0.577a,0,0)",
+        "(a,0.577a;0,0)",
+    )
+    assert not IsoWrapper._direction_subspaces_same_component_order(
+        "(a,0.577a,0,0)",
+        "(a,0.578a;0,0)",
+    )
+    assert not IsoWrapper._direction_subspaces_same_component_order(
+        "(0,a)",
+        "(a;0)",
+    )
 
 
 def test_exact_direction_vector_serializer_preserves_component_order():
@@ -736,6 +939,11 @@ def test_exact_direction_vector_serializer_preserves_component_order():
     )
     assert IsoWrapper._direction_vector_selector("(3*a,a)") == "VECTOR,3A,A"
     assert IsoWrapper._direction_vector_selector("(a/2,a/3)") == "VECTOR,3A,2A"
+    assert IsoWrapper._direction_vector_selector("(0.5*a,0)") == "VECTOR,A,0"
+    assert (
+        IsoWrapper._direction_vector_selector("(a,0.577a;0,0)")
+        == "VECTOR,1000A,577A,0,0"
+    )
 
 
 @pytest.mark.parametrize(
@@ -744,7 +952,6 @@ def test_exact_direction_vector_serializer_preserves_component_order():
         "(0,0)",
         "(a*a,0)",
         "(sqrt(2)*a,0)",
-        "(0.5*a,0)",
         "(a+1,0)",
         "(a+b,2*a+2*b)",
         "(a+A,0)",
@@ -758,6 +965,7 @@ def test_exact_direction_vector_serializer_rejects_unrepresentable_forms(value):
 
 def test_primary_direction_symbol_rejects_permuted_star_arm():
     wrapper = object.__new__(IsoWrapper)
+    wrapper.get_domains = lambda *_args, **_kwargs: []
     wrapper.list_subgroups = lambda *_args: [
         SimpleNamespace(
             opd_dir_raw="(a;a)", opd_symbol="P1",
@@ -775,12 +983,13 @@ def test_primary_direction_symbol_rejects_permuted_star_arm():
 
     invariant = InvariantDirection("X2+", "(0,a)", 64, "Cmce", 2)
 
-    with pytest.raises(ValueError, match=r"tokens=\[\]"):
+    with pytest.raises(ValueError, match=r"transports=\[\]"):
         wrapper._direction_symbol_for_invariant(139, invariant)
 
 
 def test_direction_symbol_rejects_wrong_isotropy_identity_and_ambiguity():
     wrapper = object.__new__(IsoWrapper)
+    wrapper.get_domains = lambda *_args, **_kwargs: []
     invariant = InvariantDirection("X2+", "(0,a)", 64, "Cmce", 2)
     wrapper.list_subgroups = lambda *_args: [
         SimpleNamespace(
@@ -788,10 +997,10 @@ def test_direction_symbol_rejects_wrong_isotropy_identity_and_ambiguity():
             space_group_number=65, size=2,
         )
     ]
-    with pytest.raises(ValueError, match=r"tokens=\[\]"):
+    with pytest.raises(ValueError, match=r"transports=\[\]"):
         wrapper._direction_symbol_for_invariant(139, invariant)
 
-    wrapper._direction_symbol_cache = {}
+    wrapper._direction_transport_cache = {}
     wrapper.list_subgroups = lambda *_args: [
         SimpleNamespace(
             opd_dir_raw="(0;b)", opd_symbol="P3",
@@ -802,7 +1011,7 @@ def test_direction_symbol_rejects_wrong_isotropy_identity_and_ambiguity():
             space_group_number=64, size=2,
         ),
     ]
-    with pytest.raises(ValueError, match="one ISO OPD token"):
+    with pytest.raises(ValueError, match="one ISO OPD/domain"):
         wrapper._direction_symbol_for_invariant(139, invariant)
 
 

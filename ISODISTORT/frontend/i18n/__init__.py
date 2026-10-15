@@ -1,27 +1,10 @@
-"""English UI strings for the web page and API console output.
+"""Compatibility exports; new callers use :mod:`backend.messages`."""
+from backend import messages as _implementation
 
-``t(key, *args, **kwargs)`` looks up ``MESSAGES`` and formats placeholders.
-"""
+__all__ = _implementation.__all__
 
-from __future__ import annotations
+def __getattr__(name):
+    return getattr(_implementation, name)
 
-from .messages import MESSAGES
-
-__all__ = [
-    "MESSAGES",
-    "t",
-]
-
-
-def t(key: str, *args, **kwargs) -> str:
-    """Return the English string for ``key``, formatted with ``args`` / ``kwargs``.
-
-    Unknown keys are returned unchanged. Format errors fall back to the raw template.
-    """
-    template = MESSAGES.get(key, key)
-    try:
-        if args or kwargs:
-            return template.format(*args, **kwargs)
-        return template
-    except (KeyError, IndexError, ValueError):
-        return template
+def __dir__():
+    return sorted(set(globals()) | set(dir(_implementation)))

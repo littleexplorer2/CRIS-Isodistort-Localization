@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from isoviz_input.paths import (
+from isoviz_input.backend.paths import (
     best_model_root,
     resolve_best_model_csv,
     resolve_isoviz_path,
@@ -16,7 +16,7 @@ def test_best_model_root_prefers_environment_override(tmp_path, monkeypatch):
     target = tmp_path / "amplitudes"
     monkeypatch.setenv("BEST_MODEL_PARAMETERS_DIR", str(target))
     monkeypatch.setattr(
-        "isoviz_input.paths.get_config",
+        "isoviz_input.backend.paths.resolver.get_config",
         lambda: SimpleNamespace(
             best_model_env_var="BEST_MODEL_PARAMETERS_DIR",
             best_model_parent=None,
@@ -33,7 +33,7 @@ def test_best_model_root_uses_sibling_checkout_layout(tmp_path, monkeypatch):
     sibling.mkdir()
     monkeypatch.delenv("BEST_MODEL_PARAMETERS_DIR", raising=False)
     monkeypatch.setattr(
-        "isoviz_input.paths.get_config",
+        "isoviz_input.backend.paths.resolver.get_config",
         lambda: SimpleNamespace(
             best_model_env_var="BEST_MODEL_PARAMETERS_DIR",
             best_model_parent=None,

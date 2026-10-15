@@ -1,18 +1,7 @@
-"""backend.api - 对外会话 API 入口（IsoDistort 及其公开异常）。"""
-from .core_api import (
-    ExportCancelledError,
-    ExportCandidateFailure,
-    ExportPreparationError,
-    IsoDistort,
-    ModeIdentityFailure,
-    UnresolvedModeIdentityError,
-)
+"""Compatibility module alias; new callers use :mod:`application.session`."""
+import sys
 
-__all__ = [
-    "ExportCancelledError",
-    "ExportCandidateFailure",
-    "ExportPreparationError",
-    "IsoDistort",
-    "ModeIdentityFailure",
-    "UnresolvedModeIdentityError",
-]
+from application import session as _implementation
+
+sys.modules[__name__ + ".core_api"] = _implementation.core_api
+sys.modules[__name__] = _implementation

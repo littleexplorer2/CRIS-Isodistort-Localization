@@ -27,7 +27,7 @@ PACKAGE_ROOT = WORKSPACE / "ISODISTORT"
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
-from backend.api import IsoDistort  # noqa: E402
+from application.session import IsoDistort  # noqa: E402
 from backend.utils.lattice import (  # noqa: E402
     centering_primitive_matrix,
     multiply,
@@ -55,9 +55,9 @@ def _source_signature(manifest: dict[str, Any], manifest_path: Path) -> str:
     paths = [
         Path(__file__),
         manifest_path,
-        PACKAGE_ROOT / "backend" / "api" / "core_api.py",
-        PACKAGE_ROOT / "features" / "method1" / "affine_embeddings.py",
-        PACKAGE_ROOT / "features" / "method1" / "search_methods.py",
+        PACKAGE_ROOT / "application" / "session" / "core_api.py",
+        PACKAGE_ROOT / "backend" / "method1" / "affine_embeddings.py",
+        PACKAGE_ROOT / "backend" / "method1" / "search_methods.py",
         PACKAGE_ROOT / "backend" / "utils" / "lattice.py",
         PACKAGE_ROOT / "backend" / "utils" / "opd_format.py",
     ]

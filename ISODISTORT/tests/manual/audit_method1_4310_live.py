@@ -32,10 +32,10 @@ for entry in (PROJECT_ROOT, MANUAL_ROOT, VALIDATOR_ROOT):
 
 import official_html_resolver  # noqa: E402
 import validate_method_outputs as validator  # noqa: E402
-from isodistort_validate.compare_cif import compare_cif  # noqa: E402
+from isodistort_validate.application.single import compare_cif  # noqa: E402
 
-from backend.api import IsoDistort  # noqa: E402
-from features.export.distortion_formats import (  # noqa: E402
+from application.session import IsoDistort  # noqa: E402
+from backend.export.distortion_formats import (  # noqa: E402
     render_cif,
     unique_folder_name,
 )
@@ -339,6 +339,16 @@ def _frozen_preflight_summary(records: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _validator_source_paths() -> dict[str, Path]:
+    """Sign the comparison implementation, including its delegated algorithms."""
+    package_root = VALIDATOR_ROOT / "isodistort_validate"
+    return {
+        f"cif-validator:{path.relative_to(package_root).as_posix()}": path
+        for layer in ("backend", "application")
+        for path in sorted((package_root / layer).rglob("*.py"))
+    }
+
+
 def _signature_state(
     *,
     captured_html_inventory: official_html_resolver.OfficialHtmlInventory
@@ -348,13 +358,10 @@ def _signature_state(
         ("audit-script", Path(__file__).resolve()),
         ("saved-output-validator", MANUAL_ROOT / "validate_method_outputs.py"),
         ("official-html-resolver", MANUAL_ROOT / "official_html_resolver.py"),
-        (
-            "cif-semantic-validator",
-            VALIDATOR_ROOT / "isodistort_validate" / "compare_cif.py",
-        ),
         ("parent", PARENT),
         ("config", PROJECT_ROOT / "resources" / "config" / "settings.yaml"),
     ]
+    paths.extend(_validator_source_paths().items())
     paths.extend(
         (
             f"source:{path.relative_to(PROJECT_ROOT).as_posix()}",
@@ -362,7 +369,7 @@ def _signature_state(
         )
         for source_root in (
             PROJECT_ROOT / "backend",
-            PROJECT_ROOT / "features",
+            PROJECT_ROOT / "application",
         )
         for path in sorted(
             source_root.rglob("*.py"),
@@ -671,9 +678,7 @@ def _reanalyze_saved_cifs(source_report: Path, output_report: Path) -> dict[str,
     code_paths = {
         "audit_script": Path(__file__).resolve(),
         "precision_validator": (MANUAL_ROOT / "validate_method_outputs.py").resolve(),
-        "direct_validator": (
-            VALIDATOR_ROOT / "isodistort_validate" / "compare_cif.py"
-        ).resolve(),
+        **_validator_source_paths(),
     }
     code_hashes_before = {name: _sha256(path) for name, path in code_paths.items()}
     raw_records = source.get("records")

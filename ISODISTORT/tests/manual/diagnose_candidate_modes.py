@@ -20,9 +20,9 @@ WORKSPACE = PROJECT.parent
 if str(PROJECT) not in sys.path:
     sys.path.insert(0, str(PROJECT))
 
-from backend.api import IsoDistort  # noqa: E402
-from features.input_cif import build_supercell  # noqa: E402
-from features.method2.superspace import (  # noqa: E402
+from application.session import IsoDistort  # noqa: E402
+from backend.input_cif import build_supercell  # noqa: E402
+from backend.method2.superspace import (  # noqa: E402
     _child_origin_candidates,
     _displacement_actions,
     _map_smodes_block_to_supercell,

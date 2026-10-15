@@ -21,9 +21,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from backend.api import IsoDistort  # noqa: E402
-from features.input_cif import build_supercell  # noqa: E402
-from features.method2.superspace import (  # noqa: E402
+from application.session import IsoDistort  # noqa: E402
+from backend.input_cif import build_supercell  # noqa: E402
+from backend.method2.superspace import (  # noqa: E402
     _collect_smodes_blocks,
     _is_self_conjugate_parent_k,
     _map_smodes_block_to_supercell,
@@ -165,7 +165,7 @@ def diagnose(args: argparse.Namespace) -> dict:
     signed_paths = [
         Path(__file__).resolve(),
         args.cif.resolve(),
-        PROJECT_ROOT / "features" / "method2" / "superspace.py",
+        PROJECT_ROOT / "backend" / "method2" / "superspace.py",
         PROJECT_ROOT / "backend" / "wrappers" / "smodes_wrapper.py",
     ]
     signed_files = [

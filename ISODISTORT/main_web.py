@@ -1,6 +1,6 @@
 """Local ISODISTORT web UI.
 
-    python scripts/main_web.py
+    python main_web.py
 
 Direct execution starts the server, opens the browser, and supports the same
 WSL-backed calculations as the repository launcher. ``setup_cris.py`` repairs
@@ -15,9 +15,8 @@ Complete modes details / TOPAS.STR. It does not scan output/. See README.md.
 import sys
 from pathlib import Path
 
-# 允许直接以脚本方式运行（python scripts/main_web.py）
-# 先注入项目根目录，再导入网页服务（有意放在函数外但 sys.path 之后）
-_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+# 允许从任意工作目录直接运行 ISODISTORT 根目录入口。
+_PROJECT_ROOT = Path(__file__).resolve().parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 

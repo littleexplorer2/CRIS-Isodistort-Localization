@@ -17,9 +17,9 @@ from backend.wrappers.smodes_wrapper import (
     SmodesModeBlock,
     parse_smodes_mode_blocks,
 )
-from features.export.isodistort_isoviz import _isoviz_mode_label
-from features.method1.search_methods import _k_compatible_with_supercell
-from features.method2.superspace import (
+from backend.export.isodistort_isoviz import _isoviz_mode_label
+from backend.method1.search_methods import _k_compatible_with_supercell
+from backend.method2.superspace import (
     ParametricModeResult,
     _child_origin_candidates,
     _collect_smodes_blocks,

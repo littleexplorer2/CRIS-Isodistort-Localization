@@ -13,7 +13,7 @@ from backend.models.iso_mode_models import (
     ModeIdentity,
     microscopic_atom_order_id,
 )
-from features.export.cif_displacive_model import (
+from backend.export.cif_displacive_model import (
     ChildAtom,
     DisplaciveModelError,
     ExactChildFrame,

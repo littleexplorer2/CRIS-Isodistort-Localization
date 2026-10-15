@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import io
+import json
 import re
 import zipfile
 from fractions import Fraction
@@ -12,7 +13,7 @@ import numpy as np
 import pytest
 from pymatgen.core import Lattice, Structure
 
-from backend.api.core_api import IsoDistort
+from application.session.core_api import IsoDistort
 from backend.utils import OutputParseError, format_opd_line, parse_subgroup_table
 from backend.utils.opd_format import (
     active_k_star_coordinates,
@@ -22,7 +23,7 @@ from backend.utils.opd_format import (
     resolve_active_k_star_coordinates,
 )
 from backend.wrappers import FindsymResult, FindsymWrapper, SubgroupInfo
-from features.export.distortion_formats import (
+from backend.export.distortion_formats import (
     FORMAT_CIF,
     FORMAT_ISOVIZ,
     FORMAT_MODES,
@@ -576,7 +577,7 @@ def test_subgroup_label_and_filenames():
 
 
 def test_safe_name_cleans_windows_characters_without_losing_irrep_signs():
-    from features.export.distortion_formats import safe_name
+    from backend.export.distortion_formats import safe_name
 
     assert safe_name("N1+/<bad>: 4D1*") == "N1+_bad_4D1"
     assert safe_name("N1- 4D1") == "N1-_4D1"
@@ -774,12 +775,17 @@ def test_method3_api_zip_uses_generated_case_and_short_candidate_folders():
     )
     with zipfile.ZipFile(io.BytesIO(raw)) as zf:
         names = zf.namelist()
+        case = method3_case_folder([first, second])
+        status = json.loads(zf.read(f"{case}/export_candidate_status.json"))
 
-    case = method3_case_folder([first, second])
     assert names == [
         f"{case}/C01_SG139/subgroup.cif",
         f"{case}/C02_SG2/subgroup.cif",
+        f"{case}/export_candidate_status.json",
+        f"{case}/export_candidate_status.txt",
     ]
+    assert status["status"] == "success"
+    assert status["successful_candidate_count"] == status["requested_candidate_count"] == 2
 
 
 def test_directory_export_never_overwrites_an_existing_short_folder(tmp_path):
@@ -793,6 +799,7 @@ def test_directory_export_never_overwrites_an_existing_short_folder(tmp_path):
         subgroups=[subgroup],
         export_method=1,
     )
+    first_content = first[0].read_bytes()
     second = iso.export_subgroups(
         tmp_path,
         formats=[FORMAT_CIF],
@@ -800,11 +807,16 @@ def test_directory_export_never_overwrites_an_existing_short_folder(tmp_path):
         export_method=1,
     )
 
-    assert first == [tmp_path / "N1+_4D1_SG2" / "subgroup.cif"]
+    assert first == [
+        tmp_path / "N1+_4D1_SG2" / "subgroup.cif",
+        tmp_path / "export_candidate_status.json",
+        tmp_path / "export_candidate_status.txt",
+    ]
     assert second[0].parent.name == (
         f"N1+_4D1_SG2_{subgroup_identity_digest(subgroup)}"
     )
-    assert first[0].read_bytes() == second[0].read_bytes()
+    assert first[0].read_bytes() == second[0].read_bytes() == first_content
+    assert json.loads(first[1].read_text(encoding="utf-8"))["status"] == "success"
 
 
 def test_directory_writer_render_failure_leaves_no_destination(
@@ -824,7 +836,7 @@ def test_directory_writer_render_failure_leaves_no_destination(
         return b"first format"
 
     monkeypatch.setattr(
-        "features.export.distortion_formats.render_format",
+        "backend.export.distortion_formats.render_format",
         fail_on_second_format,
     )
 
@@ -1062,7 +1074,7 @@ def test_subgroup_cif_origin_preserves_atom_count(tmp_path):
     """The subgroup's origin must make its symmetry operations valid."""
     from pymatgen.io.cif import CifParser
 
-    from features.input_cif import read_cif
+    from backend.input_cif import read_cif
 
     parent = read_cif(_REPO / "experiment_data" / "EuAl4 Parent.cif")
     subgroup = SubgroupInfo(
@@ -1088,9 +1100,9 @@ def test_subgroup_cif_origin_preserves_atom_count(tmp_path):
 def test_explicit_valid_origin_outweighs_asymmetric_site_count():
     """NdNiO2 A1+ P1 uses origin zero even though z=1/4 has fewer ASU rows."""
     from backend.utils.parent_header import parent_wyckoff_display
-    from features.export.isodistort_cif import _apply_origin_choice, _setting
-    from features.input_cif import SymmetryValidator, read_cif
-    from features.input_cif.coordinate_transform import build_supercell
+    from backend.export.isodistort_cif import _apply_origin_choice, _setting
+    from backend.input_cif import SymmetryValidator, read_cif
+    from backend.input_cif.coordinate_transform import build_supercell
 
     path = _REPO / "experiment_data" / "NdNiO2 own.cif"
     parent = read_cif(path)
@@ -1203,7 +1215,7 @@ def test_isoviz_subtypes_follow_target_subgroup_orbits():
 def test_exports_preserve_parent_cif_atom_labels_and_order():
     """The NdNiO2 source spells its sites O / ND / NI in that order."""
     from backend.utils.parent_header import parent_wyckoff_display
-    from features.input_cif import SymmetryValidator, read_cif
+    from backend.input_cif import SymmetryValidator, read_cif
 
     path = _REPO / "experiment_data" / "NdNiO2 own.cif"
     parent = read_cif(path)
@@ -1268,8 +1280,8 @@ def test_parent_header_fractional_distance_is_integer_image_invariant():
 
 def test_pmmm_wyckoff_letters_use_target_orbits_and_fixed_abc_setting():
     """Accidental parent symmetry must not relabel Pmmm sites after an axis swap."""
-    from features.input_cif import read_cif
-    from features.input_cif.coordinate_transform import build_supercell
+    from backend.input_cif import read_cif
+    from backend.input_cif.coordinate_transform import build_supercell
 
     parent = read_cif(_REPO / "experiment_data" / "NdNiO2 own.cif")
     basis = [[-3, 0, 0], [0, 0, 1], [0, 2, 0]]

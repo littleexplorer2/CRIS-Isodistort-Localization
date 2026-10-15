@@ -14,7 +14,7 @@ from backend.models.iso_mode_models import (
     MacroscopicTensorBlock,
     SymbolicTensorComponent,
 )
-from features.method4.strain_modes import (
+from backend.method4.strain_modes import (
     ENGINEERING_VOIGT_METRIC,
     apply_canonical_strain_basis,
     canonical_strain_definitions_from_iso,

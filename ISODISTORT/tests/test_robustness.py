@@ -12,12 +12,12 @@ from data_dir import experiment_data_dir
 from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from backend.api import IsoDistort
+from application.session import IsoDistort
 from backend.wrappers import BushMode, DistortionMode, SubgroupInfo
-from features.export import StructureExporter
-from features.input_cif import read_cif
-from features.method1 import OccupationalModeGenerator
-from features.method4 import DistortionEngine
+from backend.export import StructureExporter
+from backend.input_cif import read_cif
+from backend.method1 import OccupationalModeGenerator
+from backend.method4 import DistortionEngine
 
 DATA_DIR = experiment_data_dir()
 CIFS_DIR = Path(__file__).resolve().parent / "cifs_30"

@@ -4,7 +4,7 @@ from fractions import Fraction
 
 import pytest
 
-from features.method3.inverse_landau import (
+from backend.method3.inverse_landau import (
     FiniteGroup,
     FixedSpaceFeasibilityAnalyzer,
     RationalRepresentation,

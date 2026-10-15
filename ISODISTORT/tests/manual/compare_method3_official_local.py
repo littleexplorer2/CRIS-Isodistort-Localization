@@ -53,10 +53,10 @@ PACKAGE_ROOT = WORKSPACE / "ISODISTORT"
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
-from backend.api import IsoDistort  # noqa: E402
+from application.session import IsoDistort  # noqa: E402
 from backend.wrappers import SubgroupInfo  # noqa: E402
-from features.method1.affine_embeddings import AffineEmbedding  # noqa: E402
-from features.method3.coupled_routes import CoupledRouteWitness  # noqa: E402
+from backend.method1.affine_embeddings import AffineEmbedding  # noqa: E402
+from backend.method3.coupled_routes import CoupledRouteWitness  # noqa: E402
 
 try:  # Package import in pytest; direct import when this file is executed.
     from .audit_method3_downloads import (
@@ -1014,7 +1014,7 @@ def _run_signature(
                 path
                 for source_root in (
                     PACKAGE_ROOT / "backend",
-                    PACKAGE_ROOT / "features",
+                    PACKAGE_ROOT / "application",
                 )
                 for path in source_root.rglob("*.py")
             ),

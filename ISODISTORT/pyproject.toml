@@ -18,6 +18,8 @@ dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "ruff>=0.6.0",
+    "setuptools>=61.0",
+    "wheel",
     "tomli>=2.0; python_version < '3.11'",
 ]
 
@@ -31,7 +33,7 @@ include-package-data = false
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["backend*", "features*", "frontend*", "resources"]
+include = ["backend*", "application*", "features*", "frontend*", "resources"]
 namespaces = false
 
 [tool.setuptools.package-data]
@@ -65,7 +67,7 @@ ignore = ["RUF001", "RUF002", "RUF003", "PLR"]
 
 [tool.ruff.lint.isort]
 # 本仓库包名（backend/features/frontend）为 first-party，保证导入排序一致
-known-first-party = ["backend", "features", "frontend", "resources"]
+known-first-party = ["backend", "application", "features", "frontend", "resources"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

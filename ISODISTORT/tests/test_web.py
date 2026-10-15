@@ -24,12 +24,13 @@ sys.path.insert(0, str(_PROJECT_ROOT))
 
 from data_dir import experiment_data_dir  # noqa: E402
 
-from backend.api import IsoDistort  # noqa: E402
+from application.session import IsoDistort  # noqa: E402
+from application.workflows import service as workflow_service  # noqa: E402
+from backend.method1 import Method3ResultItem  # noqa: E402
 from backend.utils.opd_format import _centering_letter  # noqa: E402
 from backend.utils.schoenflies import hm_symbol, schoenflies_symbol  # noqa: E402
 from backend.utils.text_parser import parse_basis_token  # noqa: E402
 from backend.wrappers import SubgroupInfo  # noqa: E402
-from features.method1 import Method3ResultItem  # noqa: E402
 from frontend.web import server as web_server  # noqa: E402
 
 DATA_DIR = experiment_data_dir()
@@ -112,14 +113,14 @@ def server():
 def _restore_session():
     """每个测试后重置共享网页会话，避免接口测试相互污染。"""
     web_server._reset_lifecycle()
-    web_server._EXPORT_CANCEL.clear()
-    web_server._reset_export_progress()
+    workflow_service._EXPORT_CANCEL.clear()
+    workflow_service._reset_export_progress()
     yield
-    web_server._SESSION.cleanup_uploads()
-    web_server._SESSION = web_server.WebSession()
+    workflow_service._SESSION.cleanup_uploads()
+    workflow_service._SESSION = workflow_service.WebSession()
     web_server._reset_lifecycle()
-    web_server._EXPORT_CANCEL.clear()
-    web_server._reset_export_progress()
+    workflow_service._EXPORT_CANCEL.clear()
+    workflow_service._reset_export_progress()
 
 
 def _get(port: int, path: str) -> dict:
@@ -311,7 +312,7 @@ def test_direct_web_entry_calls_web_main(monkeypatch):
     monkeypatch.setattr(web_server, "main", lambda: calls.append(True) or 23)
 
     with pytest.raises(SystemExit) as excinfo:
-        runpy.run_path(str(_PROJECT_ROOT / "scripts" / "main_web.py"), run_name="__main__")
+        runpy.run_path(str(_PROJECT_ROOT / "main_web.py"), run_name="__main__")
 
     assert excinfo.value.code == 23
     assert calls == [True]
@@ -321,10 +322,10 @@ def test_state_endpoint_builds_snapshot_under_session_lock(server, monkeypatch):
     observed = []
 
     def _guarded_summary():
-        observed.append(web_server._SESSION_LOCK._is_owned())
+        observed.append(workflow_service._SESSION_LOCK._is_owned())
         return {"structure": None, "distortion_types": []}
 
-    monkeypatch.setattr(web_server, "_state_summary", _guarded_summary)
+    monkeypatch.setattr(workflow_service, "_state_summary", _guarded_summary)
     data = _get(server.port, "/api/state")
     assert data["ok"] is True
     assert observed == [True]
@@ -355,7 +356,7 @@ def test_subgroup_row_marks_known_unresolved_mode_identity_unselectable():
         ],
     )
 
-    [row] = web_server._subgroup_rows([subgroup])
+    [row] = workflow_service._subgroup_rows([subgroup])
 
     assert row["selectable"] is False
     assert row["mode_identity_status"] == "unresolved"
@@ -364,7 +365,7 @@ def test_subgroup_row_marks_known_unresolved_mode_identity_unselectable():
 
 
 def test_export_status_and_cancel_endpoints_share_job_state(server):
-    web_server._reset_export_progress(
+    workflow_service._reset_export_progress(
         active=True,
         phase="candidate",
         total=48,
@@ -380,7 +381,7 @@ def test_export_status_and_cancel_endpoints_share_job_state(server):
 
     cancelled = _post(server.port, "/api/export_cancel")
     assert cancelled == {"ok": True, "cancellation_requested": True}
-    assert web_server._EXPORT_CANCEL.is_set()
+    assert workflow_service._EXPORT_CANCEL.is_set()
     assert _get(server.port, "/api/export_status")["export"]["phase"] == (
         "cancellation_requested"
     )
@@ -417,9 +418,9 @@ def test_method2_coupled_subgroup_requests_fail_closed_without_union(
 
     previous = [object()]
     guard = GuardIso()
-    web_server._SESSION._iso = guard
-    web_server._SESSION.method2_subgroups = previous
-    revision = web_server._SESSION.revision
+    workflow_service._SESSION._iso = guard
+    workflow_service._SESSION.method2_subgroups = previous
+    revision = workflow_service._SESSION.revision
 
     result = _post(
         server.port,
@@ -431,8 +432,8 @@ def test_method2_coupled_subgroup_requests_fail_closed_without_union(
     assert "more than one superposed IR component" in result["error"]
     assert "cannot be combined" in result["error"]
     assert calls == []
-    assert web_server._SESSION.method2_subgroups == previous
-    assert web_server._SESSION.revision == revision
+    assert workflow_service._SESSION.method2_subgroups == previous
+    assert workflow_service._SESSION.revision == revision
 
 
 def test_method2_coupled_mode_request_fails_before_using_single_ir_candidate(
@@ -446,9 +447,9 @@ def test_method2_coupled_mode_request_fails_before_using_single_ir_candidate(
             raise AssertionError("coupled request reached the single-IR calculation")
 
     guard = GuardIso()
-    web_server._SESSION._iso = guard
-    web_server._SESSION.method2_subgroups = [SimpleNamespace(index=0)]
-    revision = web_server._SESSION.revision
+    workflow_service._SESSION._iso = guard
+    workflow_service._SESSION.method2_subgroups = [SimpleNamespace(index=0)]
+    revision = workflow_service._SESSION.revision
 
     result = _post(
         server.port,
@@ -464,7 +465,7 @@ def test_method2_coupled_mode_request_fails_before_using_single_ir_candidate(
     assert result["ok"] is False
     assert "more than one superposed IR component" in result["error"]
     assert calls == []
-    assert web_server._SESSION.revision == revision
+    assert workflow_service._SESSION.revision == revision
 
 
 @pytest.mark.parametrize(
@@ -482,8 +483,8 @@ def test_method2_nsup_requires_a_json_integer_before_enumeration(
             calls.append((args, kwargs))
             return []
 
-    web_server._SESSION._iso = GuardIso()
-    revision = web_server._SESSION.revision
+    workflow_service._SESSION._iso = GuardIso()
+    revision = workflow_service._SESSION.revision
     result = _post(
         server.port,
         "/api/subgroups",
@@ -497,7 +498,7 @@ def test_method2_nsup_requires_a_json_integer_before_enumeration(
     assert result["ok"] is False
     assert result["error"] == "nsup must be a JSON integer"
     assert calls == []
-    assert web_server._SESSION.revision == revision
+    assert workflow_service._SESSION.revision == revision
 
 
 def test_method3_rows_keep_numbers_and_add_official_fraction_display():
@@ -521,7 +522,7 @@ def test_method3_rows_keep_numbers_and_add_official_fraction_display():
         routes=[subgroup],
     )
 
-    row = web_server._method3_rows([item])[0]
+    row = workflow_service._method3_rows([item])[0]
     assert row["basis_vectors"] == [[0, 0.5, 1], [-1, 0, 0], [0, -0.25, 0]]
     assert row["origin"] == [0.5, -0.25, 0]
     assert row["basis_display"] == "{(0,1/2,1),(-1,0,0),(0,-1/4,0)}"
@@ -547,7 +548,7 @@ def test_method3_affine_only_row_is_not_selectable_or_fake_route():
         route_resolution="affine_only_unresolved_coupled_route",
     )
 
-    row = web_server._method3_rows([item])[0]
+    row = workflow_service._method3_rows([item])[0]
     assert row["known_routes"] == []
     assert row["known_route_count"] == 0
     assert row["route_resolution"] == "affine_only_unresolved_coupled_route"
@@ -570,7 +571,7 @@ def test_method3_exact_fixed_space_row_is_selectable_without_fake_single_ir_rout
         route_resolution="exact_fixed_space",
     )
 
-    web_row = web_server._method3_rows([item])[0]
+    web_row = workflow_service._method3_rows([item])[0]
     assert web_row["known_routes"] == []
     assert web_row["route_resolution"] == "exact_fixed_space"
     assert web_row["selectable"] is True
@@ -614,11 +615,10 @@ def test_method4_api_removes_daughter_upload(tmp_path, monkeypatch):
         metadata={"strain_convention": "test convention"},
     )
     stub = SimpleNamespace(search_method_4=lambda **_kwargs: result)
-    web_server._SESSION._iso = stub
-    monkeypatch.setattr(web_server, "_write_upload", lambda *_args: str(uploaded))
+    workflow_service._SESSION._iso = stub
+    monkeypatch.setattr(workflow_service, "_write_upload", lambda *_args: str(uploaded))
 
-    handler = object.__new__(web_server.IsoHandler)
-    payload = handler._api_method4({"content": "data_test", "filename": "daughter.cif"})
+    payload = workflow_service._api_method4({"content": "data_test", "filename": "daughter.cif"})
 
     assert payload["strain_applied_engineering_q_parent_basis"]["11"] == pytest.approx(0.1)
     assert payload["strain_raw_coordinate_sum_parent_basis"]["11"] == pytest.approx(0.1)
@@ -640,12 +640,11 @@ def test_method4_api_removes_daughter_upload_after_failure(tmp_path, monkeypatch
     def _fail(**_kwargs):
         raise ValueError("matching failed")
 
-    web_server._SESSION._iso = SimpleNamespace(search_method_4=_fail)
-    monkeypatch.setattr(web_server, "_write_upload", lambda *_args: str(uploaded))
+    workflow_service._SESSION._iso = SimpleNamespace(search_method_4=_fail)
+    monkeypatch.setattr(workflow_service, "_write_upload", lambda *_args: str(uploaded))
 
-    handler = object.__new__(web_server.IsoHandler)
     with pytest.raises(ValueError, match="matching failed"):
-        handler._api_method4({"content": "data_bad", "filename": "bad.cif"})
+        workflow_service._api_method4({"content": "data_bad", "filename": "bad.cif"})
     assert not uploaded.exists()
 
 
@@ -656,7 +655,7 @@ def test_web_session_replaces_and_cleans_parent_upload(tmp_path):
     second = upload_dir / "second.cif"
     first.write_text("first", encoding="utf-8")
     second.write_text("second", encoding="utf-8")
-    session = web_server.WebSession()
+    session = workflow_service.WebSession()
 
     session.replace_parent_upload(first)
     assert first.exists()
@@ -727,8 +726,8 @@ def test_set_types_with_scope(server):
 
 def test_stale_tab_mutation_and_download_are_rejected_with_http_409(server):
     stub = _SessionIsoStub()
-    web_server._SESSION._iso = stub
-    web_server._SESSION.revision = 7
+    workflow_service._SESSION._iso = stub
+    workflow_service._SESSION.revision = 7
 
     req = urllib.request.Request(
         f"http://127.0.0.1:{server.port}/api/set_types",
@@ -743,7 +742,7 @@ def test_stale_tab_mutation_and_download_are_rejected_with_http_409(server):
     assert payload["state"]["revision"] == 7
     assert "Stale context" in payload["error"]
     assert stub.types is None
-    assert web_server._SESSION.revision == 7
+    assert workflow_service._SESSION.revision == 7
 
     url = (
         f"http://127.0.0.1:{server.port}/api/download_all"
@@ -759,12 +758,12 @@ def test_stale_tab_mutation_and_download_are_rejected_with_http_409(server):
 
 def test_set_types_bumps_revision_and_invalidates_all_derived_state(server):
     stub = _SessionIsoStub()
-    web_server._SESSION._iso = stub
-    web_server._SESSION.revision = 3
-    web_server._SESSION.method1 = [object()]
-    web_server._SESSION.method2 = object()
-    web_server._SESSION.method3 = [object()]
-    web_server._SESSION.method2_subgroups = [object()]
+    workflow_service._SESSION._iso = stub
+    workflow_service._SESSION.revision = 3
+    workflow_service._SESSION.method1 = [object()]
+    workflow_service._SESSION.method2 = object()
+    workflow_service._SESSION.method3 = [object()]
+    workflow_service._SESSION.method2_subgroups = [object()]
 
     data = _post(server.port, "/api/set_types", {
         "revision": 3,
@@ -774,11 +773,11 @@ def test_set_types_bumps_revision_and_invalidates_all_derived_state(server):
 
     assert data["ok"] is True
     assert data["state"]["revision"] == 4
-    assert web_server._SESSION.revision == 4
-    assert web_server._SESSION.method1 == []
-    assert web_server._SESSION.method2 is None
-    assert web_server._SESSION.method3 == []
-    assert web_server._SESSION.method2_subgroups == []
+    assert workflow_service._SESSION.revision == 4
+    assert workflow_service._SESSION.method1 == []
+    assert workflow_service._SESSION.method2 is None
+    assert workflow_service._SESSION.method3 == []
+    assert workflow_service._SESSION.method2_subgroups == []
     assert stub.subgroups == []
     assert stub.mode_displacements == {}
     assert stub.mode_occupancies == {}
@@ -932,8 +931,8 @@ def test_download_all_rejects_coupled_method2_before_exporting_old_pool(server):
             raise AssertionError("coupled request exported the old single-IR pool")
 
     subgroup = SimpleNamespace(index=0)
-    web_server._SESSION._iso = ExportIsoStub()
-    web_server._SESSION.method2_subgroups = [subgroup]
+    workflow_service._SESSION._iso = ExportIsoStub()
+    workflow_service._SESSION.method2_subgroups = [subgroup]
 
     url = (
         f"http://127.0.0.1:{server.port}/api/download_all"
@@ -947,7 +946,7 @@ def test_download_all_rejects_coupled_method2_before_exporting_old_pool(server):
     assert payload["ok"] is False
     assert "more than one superposed IR component" in payload["error"]
     assert calls == []
-    assert web_server._SESSION.method2_subgroups == [subgroup]
+    assert workflow_service._SESSION.method2_subgroups == [subgroup]
 
 
 def test_download_all_rejects_multiple_methods(server):
@@ -976,8 +975,8 @@ def test_download_all_passes_nmod_without_mutating_cached_mode_context(server):
 
     stub = ExportIsoStub()
     subgroup = SimpleNamespace(index=0)
-    web_server._SESSION._iso = stub
-    web_server._SESSION.method1 = [SimpleNamespace(subgroup=subgroup)]
+    workflow_service._SESSION._iso = stub
+    workflow_service._SESSION.method1 = [SimpleNamespace(subgroup=subgroup)]
 
     url = (
         f"http://127.0.0.1:{server.port}/api/download_all"
@@ -997,19 +996,19 @@ def test_download_all_snapshots_under_lock_and_exports_after_releasing_it(server
 
     class ExportWorker:
         def export_subgroups_zip(self, **_kwargs):
-            observed["export_locked"] = web_server._SESSION_LOCK._is_owned()
+            observed["export_locked"] = workflow_service._SESSION_LOCK._is_owned()
             return b"test-zip"
 
     class LiveIso:
         structure = object()
 
         def snapshot_for_export(self):
-            observed["snapshot_locked"] = web_server._SESSION_LOCK._is_owned()
+            observed["snapshot_locked"] = workflow_service._SESSION_LOCK._is_owned()
             return ExportWorker()
 
     subgroup = SimpleNamespace(index=0)
-    web_server._SESSION._iso = LiveIso()
-    web_server._SESSION.method1 = [SimpleNamespace(subgroup=subgroup)]
+    workflow_service._SESSION._iso = LiveIso()
+    workflow_service._SESSION.method1 = [SimpleNamespace(subgroup=subgroup)]
 
     with urllib.request.urlopen(
         f"http://127.0.0.1:{server.port}/api/download_all"
@@ -1133,7 +1132,7 @@ def test_method1_options_endpoint(server):
 
     # Full selector verification: order, displayed representative, covered
     # OPD rows, and the lattice represented by each option.
-    iso = web_server._SESSION.iso
+    iso = workflow_service._SESSION.iso
     for local_key, official_name in (
         ("conventional_lattices", "isolattice"),
         ("primitive_lattices", "isoplattice"),
@@ -1317,7 +1316,7 @@ def test_api_vs_web_method2_and_generation(server):
     if web_modes:
         web_sg = None
         # 通过引擎直接生成同一模式（网页后端复用同一 IsoDistort 会话）
-        web_iso = web_server._SESSION.iso
+        web_iso = workflow_service._SESSION.iso
         try:
             web_dist = web_iso.generate_distortion(irrep_label=label,
                                                    amplitude=0.1)

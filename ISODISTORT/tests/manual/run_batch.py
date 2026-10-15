@@ -25,10 +25,11 @@ sys.path.insert(0, str(_TESTS_DEV))
 
 from data_dir import experiment_data_dir  # noqa: E402
 
-from backend.api import IsoDistort  # noqa: E402
+from application.session import IsoDistort  # noqa: E402
 from backend.utils import run_self_checks  # noqa: E402
-from features.input_cif import read_cif  # noqa: E402
+from backend.input_cif import read_cif  # noqa: E402
 from frontend.web import server as web_server  # noqa: E402
+from application.workflows import service as workflow_service  # noqa: E402
 
 # ========== cif30 ==========
 CIFS_DIR = _TESTS_DEV / "cifs_30"
@@ -509,7 +510,7 @@ def cmd_external() -> int:
 
         if port is not None:
             try:
-                web_server._SESSION = web_server.WebSession()
+                workflow_service._SESSION = workflow_service.WebSession()
                 rec["web"] = _web_http_check(name, path, sgs, port)
             except Exception as exc:  # noqa: BLE001
                 rec["web"] = {"error": f"{type(exc).__name__}: {exc}",

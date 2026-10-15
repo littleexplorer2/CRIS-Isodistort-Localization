@@ -8,8 +8,8 @@ import numpy as np
 import pytest
 from pymatgen.core import Lattice
 
-from features.method4.strain import decompose_homogeneous_strain
-from features.method4.strain_modes import engineering_voigt_to_tensor
+from backend.method4.strain import decompose_homogeneous_strain
+from backend.method4.strain_modes import engineering_voigt_to_tensor
 
 _REPO = Path(__file__).resolve().parents[2]
 _F02 = _REPO / "output_compare" / "EuAl4 Parent.cif" / "官网" / "Method4" / "F02"

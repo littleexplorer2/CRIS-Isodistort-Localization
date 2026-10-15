@@ -23,10 +23,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from isoviz_input.amplitudes import apply_amplitudes, read_amplitude_csv  # noqa: E402
-from isoviz_input.launcher import find_isoviz_launcher, open_isoviz  # noqa: E402
-from isoviz_input.paths import resolve_isoviz_path, strip_user_path  # noqa: E402
-from isoviz_input.validation import validate_patched_text  # noqa: E402
+from isoviz_input.application.pipeline import (  # noqa: E402
+    PipelineRequest,
+    dispatch_to_isoviz,
+    prepare_isoviz,
+)
+from isoviz_input.application.input_selection import load_text_document  # noqa: E402
+from isoviz_input.application.environment import find_isoviz_launcher  # noqa: E402
+from isoviz_input.application.input_selection import resolve_isoviz_path, resolve_data_path  # noqa: E402
 
 
 def _answer(prompt: str) -> bool:
@@ -46,25 +50,32 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    data_path = Path(strip_user_path(args.data)).expanduser().resolve()
+    data_path = resolve_data_path(args.data)
     structure_path = resolve_isoviz_path(args.structure)
     if not data_path.is_file():
         parser.error(f"CSV not found: {data_path}")
 
-    original = structure_path.read_text(encoding="utf-8", errors="replace")
-    patched, patch_report = apply_amplitudes(original, read_amplitude_csv(data_path))
-    static = validate_patched_text(original, patched, patch_report)
-
     evidence_dir = Path(tempfile.mkdtemp(prefix="isoviz_gui_validation_"))
-    launch_path = evidence_dir / f"{structure_path.stem}_patched.isoviz"
+    prepared = prepare_isoviz(
+        PipelineRequest(
+            amplitudes=load_text_document(data_path, expected_suffix=".csv"),
+            structure=load_text_document(
+                structure_path,
+                expected_suffix=".isoviz",
+                errors="replace",
+            ),
+        ),
+        output_dir=evidence_dir,
+    )
+    static = prepared.validation
+    launch_path = prepared.output_path
     report_path = evidence_dir / "validation_report.json"
-    launch_path.write_text(patched, encoding="utf-8", newline="\n")
     launcher = find_isoviz_launcher()
     report = {
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "data_path": str(data_path),
         "source_structure_path": str(structure_path),
-        "prepared_structure_path": str(launch_path),
+        "prepared_structure_path": str(launch_path) if launch_path else None,
         "configured_launcher": str(launcher) if launcher else None,
         "static_validation": static,
         "gui_validation": {
@@ -90,7 +101,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.launch and static["status"] != "fail":
         try:
-            open_isoviz(launch_path, launcher=launcher)
+            dispatch_to_isoviz(prepared, launcher=launcher)
             report["gui_validation"]["dispatch_succeeded"] = True
             opened = _answer("Did an IsoVIZ window open with the prepared file")
             report["gui_validation"]["window_opened"] = "user_confirmed" if opened else "user_rejected"

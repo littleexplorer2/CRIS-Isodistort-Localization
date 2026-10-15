@@ -48,9 +48,9 @@ from backend.wrappers.iso_wrapper import (
     IsoWrapper,
     SubgroupInfo,
 )
-from features.input_cif import read_cif
-from features.input_cif.symmetry_validator import SymmetryValidator
-from features.method2.superspace import (
+from backend.input_cif import read_cif
+from backend.input_cif.symmetry_validator import SymmetryValidator
+from backend.method2.superspace import (
     ParametricModeResult,
     _common_point_rows,
     _display_site_label,

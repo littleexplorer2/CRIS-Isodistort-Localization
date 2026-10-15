@@ -88,7 +88,7 @@ def test_stage_a_signature_covers_sources_config_parents_runtime_and_tolerances(
         tool_path: "stage-a-v1",
         package_root / "resources" / "config" / "settings.yaml": "config-v1",
         package_root / "backend" / "utils" / "lattice.py": "lattice-v1",
-        package_root / "features" / "input_cif" / "cif_io.py": "cif-reader-v1",
+        package_root / "backend" / "input_cif" / "cif_io.py": "cif-reader-v1",
         package_root
         / "tests"
         / "manual"
@@ -138,7 +138,7 @@ def test_stage_a_signature_covers_sources_config_parents_runtime_and_tolerances(
     mutations = [
         (package_root / "resources" / "config" / "settings.yaml", "config-v2"),
         (package_root / "backend" / "utils" / "lattice.py", "lattice-v2"),
-        (package_root / "features" / "input_cif" / "cif_io.py", "cif-reader-v2"),
+        (package_root / "backend" / "input_cif" / "cif_io.py", "cif-reader-v2"),
         (input_root / "Eu parent.cif", "eu-v2"),
         (input_root / "Nd parent.cif", "nd-v2"),
     ]

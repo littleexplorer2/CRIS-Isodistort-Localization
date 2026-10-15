@@ -12,7 +12,7 @@ from pymatgen.io.vasp import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 import backend.api.core_api as core_api_module
-from backend.api import IsoDistort
+from application.session import IsoDistort
 from backend.utils.lattice import (
     centering_primitive_matrix,
     determinant,
@@ -21,8 +21,8 @@ from backend.utils.lattice import (
     to_float_rows,
     translation_lattice_from_cosets,
 )
-from features.export import StructureExporter
-from features.input_cif import (
+from backend.export import StructureExporter
+from backend.input_cif import (
     SymmetryValidator,
     build_supercell,
     coordinates_are_equal,

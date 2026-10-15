@@ -23,36 +23,34 @@
 ## 实现边界
 
 - 官网黄金集只能读和审计；新输出写到约定的本地结果/验证目录。
-- 网页和 Python API 只能共用 `backend/` 与 `features/` 的计算与导出逻辑，网页交互壳
-  不得复制算法。英语网页文案统一由 `frontend/i18n/messages.py` 提供。
+- 网页和 Python API 共用 `application/session/` 的计算与导出协调，交互工作流统一由
+  `application/workflows/` 提供；网页只处理传输、呈现和浏览器生命周期。
+  共享英文文案统一由 `backend/messages/` 提供，前端通过应用层取得。
 - 运行时默认值先写 `resources/config/settings.yaml`，代码通过 `get_config()` 读取。
 
-## 四部分结构与职责
+## 三层模块职责
 
-本项目源码按四个部分组织；修改某一功能时应只改对应部分，跨部分共用的底层进入 `backend/`：
+依赖方向、目录清单、兼容入口与架构门禁以根 `AGENTS.md` 和
+`tests_repo/architecture_manifest.json` 为准。本子项目职责细分如下：
 
-1. `backend/` —— 通用底层计算与共用设施（所有 Method 通用）：
-   - `backend/wrappers/`：iso / findsym / smodes 二进制封装、WSL 进程与暂存、ISO 缓存；
-   - `backend/models/`：模式与来源领域模型；
-   - `backend/tables/`：CDML / Kovalev / 官网 k 点与空间群查表；
-   - `backend/utils/`：精确有理数晶格与群论工具、文本解析、OPD 文本、母相页头、
-     配置加载、异常、自检；
-   - `backend/api/`：`IsoDistort` 会话 API 入口。
-2. `features/` —— 按程序功能划分的中端包，每个包只含该功能的实现：
-   - `features/input_cif/`：CIF 解析、坐标变换、对称性校验；
-   - `features/method1/`：Method 1 搜索与共用畸变引擎（affine embedding、相路径、
-     畴、occupational、`search_methods`）；
-   - `features/method2/`：Method 2 的 (3+d)/公度锁定模式计算（`superspace`）与母相→
-     子胞模式映射（`distortion_mapper`）；
-   - `features/method3/`：Inverse Landau/COPL 可行性与 coupled 见证（`inverse_landau*`、
-     `coupled_routes`）；
-   - `features/method4/`：分解、均匀应变与生成回代（`strain*`、`distortion_engine`）；
-   - `features/export/`：四种下载格式 writer 与 CIF 位移/来源共享合同。
-3. `frontend/` —— 网页支撑：`frontend/web/`（HTTP 服务、`index.html`、`static/`）与
-   `frontend/i18n/`（英文文案）。
-4. 其他全局共享/非代码：`resources/config/`、`resources/isobyu/`、`docs/`、`output/`、
-   `tests/`、`scripts/`，以及留在根目录的 `.gitignore`、`pyproject.toml`、
-   `requirements*.txt`、`README.md`、`agent.md`。
+- `backend/wrappers/`：iso/findsym/smodes 调用、WSL 暂存与 ISO 缓存；
+  `models/`：模式及来源领域模型；`tables/`：CDML、Kovalev、k 点与空间群表；
+  `utils/`：精确晶格、解析、配置、异常、自检；`messages/`：共享英文消息。
+- `backend/input_cif/`：CIF 读取、坐标变换与对称性验证；
+  `method1/`：搜索引擎、affine embedding、相路径、畴与 occupational；
+  `method2/`：superspace 与母相到子胞映射；`method3/`：Inverse Landau/COPL 与
+  coupled 见证；`method4/`：模式分解、应变和生成回代；`export/`：格式合同与 writer。
+- `application/session/`：唯一 `IsoDistort` 会话 API、计算调用与批量发布协调；
+  `application/workflows/`：交互动作、会话 revision/锁、上传和导出任务的状态/错误合同。
+- `frontend/web/`：HTTP、JSON 与文件响应、静态页面、浏览器启动及标签页生命周期。
+
+模块内的实现文件属于该模块；包 `__init__.py` 和现有明确导出的科学子模块共同构成
+调用入口。跨 Method 算法复用现有底层模块；不能让底层通过兼容 API 回调应用层。
+
+另设“根目录保留文件”这一位置优先类别：不论文件在语义上属于入口、配置、依赖、文档
+还是规则，都固定直接放在 `ISODISTORT/`，不得按功能移入上述目录。当前成员为
+`.gitignore`、`agent.md`、`main_web.py`、`pyproject.toml`、`README.md`、
+`requirements-dev.txt`、`requirements.txt`。
 
 ## 科研与验收
 
@@ -75,12 +73,10 @@
 
 ## 架构与验收
 
-- 唯一职责：通用底层与二进制封装在 `backend/`，各 Method 的搜索与模式在
-  `features/method1…4/`，会话 API 在 `backend/api/`，导出在 `features/export/`，
-  网页在 `frontend/web/`。新增共用算法一律下沉 `backend/`，不得在 `features/` 之间
-  交叉复制。
-- `features/` 各包只允许通过 `backend/` 与彼此公开的模块接口协作；包间导入使用绝对
-  路径（`from features.method2.superspace import …`），同包内才用相对导入。
+- 科学算法只在 `backend/` 相应模块实现；会话与用例只在 `application/` 实现。
+  新调用方使用规范入口，不经旧 `backend.api` 或 `features` 转发。
+- 跨模块使用绝对导入，同模块内部可相对导入；模块目录及入口变更须同步
+  `tests/manual/` 的源码指纹，不能让报告只签名兼容壳而遗漏实际实现。
 - 状态必须显式传递；候选身份不能只靠目录名、列表下标或对象 `id()`；对照与
   导出须使用各 Method 适用的完整科学身份和查询上下文。并发变更须遵守
   session lock/revision，不复用不兼容的模式缓存。

@@ -2,8 +2,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from isoviz_input.amplitudes import apply_amplitudes, patch_isoviz_file, read_amplitude_csv
-from isoviz_input.paths import ensure_input_content
+import main as isoviz_main
+from isoviz_input.backend.amplitudes import (
+    ModeAmplitude,
+    apply_amplitudes,
+    patch_isoviz_file,
+    read_amplitude_csv,
+)
+from isoviz_input.backend.paths import ensure_input_content
+from isoviz_input.frontend import gui
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
@@ -32,8 +39,6 @@ def test_apply_by_mode_name():
 
 def test_apply_by_alias_when_names_missing():
     text = (FIXTURES / "sample.isoviz").read_text(encoding="utf-8")
-    from isoviz_input.amplitudes import ModeAmplitude
-
     modes = [
         ModeAmplitude(name="", amplitude=0.01, alias="a1"),
         ModeAmplitude(name="", amplitude=0.02, alias="a2"),
@@ -61,11 +66,11 @@ def test_patch_isoviz_file(tmp_path):
 
 
 def test_ensure_input_content_creates_named_folders(tmp_path, monkeypatch):
-    monkeypatch.setattr("isoviz_input.paths.ISOVIZ_ROOT", tmp_path)
-    monkeypatch.setattr("isoviz_input.paths.INPUT_ROOT", tmp_path / "input_content")
-    monkeypatch.setattr("isoviz_input.paths.DATA_DIR", tmp_path / "input_content" / "data.csv")
+    monkeypatch.setattr("isoviz_input.backend.paths.resolver.ISOVIZ_ROOT", tmp_path)
+    monkeypatch.setattr("isoviz_input.backend.paths.resolver.INPUT_ROOT", tmp_path / "input_content")
+    monkeypatch.setattr("isoviz_input.backend.paths.resolver.DATA_DIR", tmp_path / "input_content" / "data.csv")
     monkeypatch.setattr(
-        "isoviz_input.paths.STRUCTURE_DIR",
+        "isoviz_input.backend.paths.resolver.STRUCTURE_DIR",
         tmp_path / "input_content" / "subgroup.isoviz",
     )
     data_dir, structure_dir = ensure_input_content()
@@ -77,8 +82,6 @@ def test_ensure_input_content_creates_named_folders(tmp_path, monkeypatch):
 
 def test_gd_style_names_match_isoviz_labels():
     text = (FIXTURES / "sample.isoviz").read_text(encoding="utf-8")
-    from isoviz_input.amplitudes import ModeAmplitude
-
     modes = [
         ModeAmplitude(
             name="I4/mmm[0,0,1/6]LD1(a,b)[Eu0:a:dsp]A2u(a)",
@@ -101,8 +104,6 @@ def test_gd_style_names_match_isoviz_labels():
 
 def test_displacive_alias_fallback_skips_strain():
     text = (FIXTURES / "sample.isoviz").read_text(encoding="utf-8")
-    from isoviz_input.amplitudes import ModeAmplitude
-
     modes = [
         ModeAmplitude(name="unmatched-name-a", amplitude=0.11, alias="a1"),
         ModeAmplitude(name="unmatched-name-b", amplitude=0.22, alias="a2"),
@@ -114,24 +115,9 @@ def test_displacive_alias_fallback_skips_strain():
     assert report.unmatched_isoviz == ["GM1+strain_1(a)"]
 
 
-def test_main_uses_quoted_structure_without_launching(monkeypatch):
-    import main as isoviz_main
+def test_main_defaults_to_gui(monkeypatch):
+    calls: list[bool] = []
+    monkeypatch.setattr(gui, "run_gui", lambda: calls.append(True) or 0)
 
-    launched: dict[str, str] = {}
-
-    def fake_open(path, launcher=None):
-        launched["text"] = Path(path).read_text(encoding="utf-8")
-
-    monkeypatch.setattr(isoviz_main, "open_isoviz", fake_open)
-    monkeypatch.setattr(isoviz_main, "find_isoviz_launcher", lambda: None)
-    rc = isoviz_main.main(
-        [
-            "--data",
-            str(FIXTURES / "sample.csv"),
-            "--structure",
-            f'"{FIXTURES / "sample.isoviz"}"',
-        ]
-    )
-    assert rc == 0
-    assert "0.12345" in launched["text"]
-    assert "0.50000" in launched["text"]
+    assert isoviz_main.main([]) == 0
+    assert calls == [True]

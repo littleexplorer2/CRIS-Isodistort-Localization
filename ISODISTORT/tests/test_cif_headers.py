@@ -4,7 +4,7 @@ from __future__ import annotations
 from backend.tables.irreps_cdml import lookup_irrep_kovalev
 from backend.tables.kpoints_official import format_k_point_display
 from backend.wrappers import SubgroupInfo
-from features.export.isodistort_cif import (
+from backend.export.isodistort_cif import (
     _HM_FULL_1992,
     _irrep_kovalev_tag,
     _k_point_comment,

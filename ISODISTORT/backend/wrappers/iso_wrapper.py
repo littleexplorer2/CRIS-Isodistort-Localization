@@ -49,6 +49,7 @@ from backend.models.iso_mode_models import (
 )
 from backend.tables.kpoints_official import official_special_k_coords
 from backend.utils import (
+    MissingSubgroupDatabaseError,
     OutputParseError,
     WrapperRunError,
     WrapperTimeoutError,
@@ -83,11 +84,22 @@ from .base_wrapper import BaseWrapper
 
 
 @dataclass(frozen=True)
+class _InvariantDirectionTransport:
+    """One ISO direction/domain command transport for an exact direction."""
+
+    symbol: str
+    domain_number: int
+    direction_raw: str
+
+
+@dataclass(frozen=True)
 class _MicroscopicResolvedQuery:
     """One exact DISPLAY DISTORTION request and its returned source blocks."""
 
     invariant: InvariantDirection
     direction_selector: str
+    transport_direction: str
+    transport_domain_number: int
     blocks: tuple[MicroscopicVectorBlock, ...]
 
 # ================================================================
@@ -226,6 +238,7 @@ class DomainInfo:
     space_group_symbol: str = ""
     subgroup_index: int = 0          # 母相中的子群指数（= 畴总数）
     opd_symbol: str = ""
+    opd_dir_raw: str = ""            # 完整星臂方向，如 (0,0;-0.5a,0.866a)
     opd_vector: list[float] = field(default_factory=list)
     basis_vectors: list[list[float]] = field(default_factory=list)
     origin: list[float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
@@ -765,7 +778,10 @@ class IsoWrapper(BaseWrapper):
     def __init__(self) -> None:
         super().__init__()
         self.binary = self.cfg.iso_bin
-        self._direction_symbol_cache: dict[tuple[int, str, str], str] = {}
+        self._direction_transport_cache: dict[
+            tuple[int, str, str, int, int, tuple[str, ...]],
+            _InvariantDirectionTransport,
+        ] = {}
 
     # ================================================================
     # 通用命令流构造
@@ -983,6 +999,14 @@ class IsoWrapper(BaseWrapper):
     ) -> bool:
         """Compare direction spaces while preserving the canonical IR axes."""
 
+        # ISO prints the same direction with commas in ``DISPLAY DIRECTION``
+        # and semicolons in subgroup tables.  It may also print measured
+        # decimal coefficients (for example ``0.577a``), which the exact
+        # symbolic parser deliberately rejects.  Identical normalized source
+        # tokens are still direct evidence of the same ordered direction and
+        # need no inferred rationalization of those decimals.
+        if cls._direction_components(left) == cls._direction_components(right):
+            return True
         try:
             return cls._direction_subspace_projector(
                 cls._direction_coefficient_matrix(left)
@@ -1005,26 +1029,28 @@ class IsoWrapper(BaseWrapper):
             tuple(invariant.k_parameters),
         )
 
-    def _direction_symbol_for_invariant(
+    def _direction_transport_for_invariant(
         self,
         parent_sg: int,
         invariant: InvariantDirection,
-    ) -> str:
-        """Resolve an exact-embedding direction vector to ISO's OPD token.
+    ) -> _InvariantDirectionTransport:
+        """Resolve an exact direction to one named ISO OPD and domain.
 
         This is a primary-candidate consistency gate. ``DISPLAY DIRECTION``
         supplies the exact embedding-fixed vector and the isotropy table names
-        its selected OPD.  Their spaces must agree in the canonical component
-        order; symmetry-equivalent component permutations are distinct domains
-        and are deliberately rejected here.  Microscopic queries themselves
-        use the exact ``VECTOR,...`` selector and need no secondary OPD token.
+        its canonical OPDs. Their spaces must agree in the canonical component
+        order. If the invariant is a non-canonical domain, ``SHOW DOMAIN`` must
+        identify exactly one matching named-OPD/domain pair. Legacy ISO 9.6.1
+        can abort on multi-arm ``VECTOR`` forms, so the named pair is only the
+        command transport; the exact ``VECTOR`` selector remains the scientific
+        identity and rank contract.
         """
 
         label = str(invariant.irrep_label).strip()
-        cache = getattr(self, "_direction_symbol_cache", None)
+        cache = getattr(self, "_direction_transport_cache", None)
         if cache is None:
             cache = {}
-            self._direction_symbol_cache = cache
+            self._direction_transport_cache = cache
         key = self._direction_resolution_key(parent_sg, invariant)
         if key in cache:
             return cache[key]
@@ -1049,23 +1075,119 @@ class IsoWrapper(BaseWrapper):
             == int(invariant.subgroup_number)
             and int(getattr(row, "size", 0)) == int(invariant.size)
         ]
-        symbols = {
-            str(row.opd_symbol).strip()
+        canonical = {
+            _InvariantDirectionTransport(
+                symbol=str(row.opd_symbol).strip(),
+                domain_number=1,
+                direction_raw=str(row.opd_dir_raw).strip(),
+            )
             for row in matching_rows
             if str(row.opd_symbol).strip()
             and self._direction_subspaces_same_component_order(
                 invariant.direction_raw, row.opd_dir_raw
             )
         }
-        if len(symbols) != 1:
+        candidates = canonical
+        if not candidates:
+            candidates = {
+                _InvariantDirectionTransport(
+                    symbol=str(row.opd_symbol).strip(),
+                    domain_number=int(domain.domain_number),
+                    direction_raw=str(domain.opd_dir_raw).strip(),
+                )
+                for row in matching_rows
+                if str(row.opd_symbol).strip()
+                for domain in self.get_domains(
+                    int(parent_sg),
+                    row,
+                    tuple(invariant.k_parameters),
+                )
+                if str(domain.opd_dir_raw).strip()
+                and self._direction_subspaces_same_component_order(
+                    invariant.direction_raw,
+                    domain.opd_dir_raw,
+                )
+            }
+        if len(candidates) != 1:
             raise ValueError(
-                "exact invariant direction does not resolve to one ISO OPD token: "
+                "exact invariant direction does not resolve to one ISO OPD/domain: "
                 f"irrep={label}, direction={invariant.direction_raw}, "
-                f"tokens={sorted(symbols)}"
+                f"transports={sorted(f'{candidate.symbol}@{candidate.domain_number}' for candidate in candidates)}"
             )
-        symbol = next(iter(symbols))
-        cache[key] = symbol
-        return symbol
+        transport = next(iter(candidates))
+        cache[key] = transport
+        return transport
+
+    def _direction_symbol_for_invariant(
+        self,
+        parent_sg: int,
+        invariant: InvariantDirection,
+    ) -> str:
+        """Return the named OPD token after exact OPD/domain resolution."""
+
+        return self._direction_transport_for_invariant(parent_sg, invariant).symbol
+
+    @staticmethod
+    def _legacy_iso_vector_transport_is_safe(selector: str) -> bool:
+        """Whether ISO 9.6.1 safely accepts this exact ``VECTOR`` spelling.
+
+        Real ISO sessions accept component-wise zero/unit parameter selectors
+        (including multi-arm vectors) but abort on some integer-scaled forms
+        such as ``VECTOR,1000A,577A,0,0``.  Keep the direct path deliberately
+        conservative: every component must be zero or one signed, unscaled
+        free parameter.  More general exact directions use the independently
+        resolved named-OPD/domain transport instead.
+        """
+
+        compact = re.sub(r"\s+", "", str(selector)).upper()
+        if not compact.startswith("VECTOR,"):
+            return False
+        components = compact.removeprefix("VECTOR,").split(",")
+        return bool(components) and all(
+            component == "0" or re.fullmatch(r"[+-]?[A-Z]", component)
+            for component in components
+        )
+
+    def _microscopic_direction_transport(
+        self,
+        parent_sg: int,
+        invariant: InvariantDirection,
+        subgroup: SubgroupInfo | None = None,
+    ) -> _InvariantDirectionTransport:
+        """Choose a lossless command transport compatible with legacy ISO.
+
+        Prefer the exact selector when it uses only the empirically supported
+        zero/unit component grammar.  Otherwise resolve a named OPD/domain.
+        Domain 1 is explicit even for ``VECTOR`` because ISO's domain state is
+        sticky across both irrep and direction changes.
+        """
+
+        selector = self._direction_vector_selector(invariant.direction_raw)
+        if self._legacy_iso_vector_transport_is_safe(selector):
+            return _InvariantDirectionTransport(
+                symbol=selector,
+                domain_number=1,
+                direction_raw=str(invariant.direction_raw).strip(),
+            )
+        if (
+            subgroup is not None
+            and str(invariant.irrep_label).strip()
+            == str(subgroup.irrep_label or "").strip()
+            and int(invariant.subgroup_number)
+            == int(subgroup.space_group_number or 0)
+            and int(invariant.size) == int(subgroup.size or 0)
+            and str(subgroup.opd_symbol or "").strip()
+            and self._direction_subspaces_same_component_order(
+                invariant.direction_raw,
+                subgroup.opd_dir_raw,
+            )
+        ):
+            return _InvariantDirectionTransport(
+                symbol=str(subgroup.opd_symbol).strip(),
+                domain_number=1,
+                direction_raw=str(subgroup.opd_dir_raw).strip(),
+            )
+        return self._direction_transport_for_invariant(parent_sg, invariant)
 
     @classmethod
     def _direction_vector_selector(cls, value: str) -> str:
@@ -1073,9 +1195,10 @@ class IsoWrapper(BaseWrapper):
 
         ``DISPLAY DIRECTION`` uses parentheses and either commas or semicolons;
         ``VALUE DIRECTION`` accepts the same component expressions after the
-        ``VECTOR`` keyword.  Parsing first rejects constants, nonlinear terms,
-        functions, decimals, and other syntax that cannot be round-tripped as
-        an exact rational homogeneous linear form.
+        ``VECTOR`` keyword.  Finite decimal coefficients from ISO are retained
+        as exact lexical fractions before column normalization.  Parsing still
+        rejects constants, nonlinear terms, functions, and other syntax that
+        cannot be round-tripped as a homogeneous linear form.
         """
 
         raw_variables = re.findall(r"[A-Za-z]", str(value))
@@ -1452,20 +1575,33 @@ class IsoWrapper(BaseWrapper):
             "SHOW MICROSCOPIC VECTOR",
         ]
         selectors: list[str] = []
+        transport_directions: list[str] = []
+        transport_domain_numbers: list[int] = []
         for invariant in invariants:
             irrep = str(invariant.irrep_label).strip()
             stem_match = re.match(r"^(?:m)?([A-Z]+)", irrep)
             if stem_match is None:
                 raise ValueError(f"cannot resolve the k-point label for {irrep}")
             selector = self._direction_vector_selector(invariant.direction_raw)
+            transport = self._microscopic_direction_transport(
+                parent_sg,
+                invariant,
+                subgroup,
+            )
             selectors.append(selector)
+            transport_directions.append(transport.symbol)
+            transport_domain_numbers.append(transport.domain_number)
             commands.extend((
                 f"VALUE KPOINT {stem_match.group(1)}",
                 f"VALUE IRREP {irrep}",
             ))
             if invariant.k_parameters:
                 commands.append(self._kvalue_command(invariant.k_parameters))
-            commands.append(f"VALUE DIRECTION {selector}")
+            commands.append(f"VALUE DIRECTION {transport.symbol}")
+            # VALUE DOMAIN is sticky across IR changes in ISO 9.6.1. Always
+            # send it, including domain 1, so one non-canonical invariant does
+            # not leak its domain into every later query in this session.
+            commands.append(f"VALUE DOMAIN {transport.domain_number}")
             commands.extend(self._embedding_commands(subgroup))
             commands.append("VALUE WYCKOFF " + " ".join(letters))
             commands.append("DISPLAY DISTORTION")
@@ -1576,12 +1712,31 @@ class IsoWrapper(BaseWrapper):
             )
 
         resolved: list[_MicroscopicResolvedQuery] = []
-        for invariant, selector, query_blocks in zip(
-            invariants, selectors, assigned, strict=True,
+        for (
+            invariant,
+            selector,
+            transport_direction,
+            transport_domain_number,
+            query_blocks,
+        ) in zip(
+            invariants,
+            selectors,
+            transport_directions,
+            transport_domain_numbers,
+            assigned,
+            strict=True,
         ):
             expected_rank = self._direction_selector_rank(selector)
             if any(
                 block.global_irrep != invariant.irrep_label
+                or (
+                    bool(str(block.direction_symbol or "").strip())
+                    and str(block.direction_symbol).strip()
+                    not in {
+                        transport_direction,
+                        str(transport_domain_number),
+                    }
+                )
                 or (
                     expected_rank is not None
                     and block.column_count != expected_rank
@@ -1596,10 +1751,16 @@ class IsoWrapper(BaseWrapper):
             resolved.append(_MicroscopicResolvedQuery(
                 invariant=invariant,
                 direction_selector=selector,
+                transport_direction=transport_direction,
+                transport_domain_number=transport_domain_number,
                 blocks=tuple(
                     replace(
                         block,
-                        direction_symbol=block.direction_symbol or selector,
+                        # ISO prints the named transport token (P1/P2/...) in
+                        # this column. Provenance must retain the independently
+                        # derived exact VECTOR selector instead; the transport
+                        # token/domain are recorded separately above.
+                        direction_symbol=selector,
                     )
                     for block in query_blocks
                 ),
@@ -1658,12 +1819,14 @@ class IsoWrapper(BaseWrapper):
             f"k={','.join(query.invariant.k_coordinates)} "
             f"raw={query.invariant.direction_raw} "
             f"selector={query.direction_selector} "
+            f"transport={query.transport_direction} "
+            f"domain={query.transport_domain_number} "
             f"normalized={self._normalized_direction_vector(query.invariant.direction_raw)}\n"
             for index, query in enumerate(queries)
         )
         query_digest = hashlib.sha256(
             (
-                "iso-microscopic-query-v9\n"
+                "iso-microscopic-query-v12\n"
                 + f"SUBGROUP CONTEXT {source_subgroup_context_kind}\n"
                 + f"PRIMARY DIRECTION SELECTOR {primary_direction_selector}\n"
                 + direction_evidence
@@ -1929,6 +2092,8 @@ class IsoWrapper(BaseWrapper):
             _MicroscopicResolvedQuery(
                 invariant=invariant,
                 direction_selector=direction_symbols[invariant.irrep_label],
+                transport_direction=direction_symbols[invariant.irrep_label],
+                transport_domain_number=1,
                 blocks=tuple(
                     block for block in blocks
                     if block.global_irrep == invariant.irrep_label
@@ -2173,6 +2338,11 @@ class IsoWrapper(BaseWrapper):
             OutputParseError: 解析失败
             WrapperRunError: 需要在线生成子群数据库等无法自动完成的情况
         """
+        if generate_if_missing:
+            # ISO persists generated parametric-k tables in ISODATA. Switch
+            # to a disposable runtime copy before it can write anything; the
+            # packaged/reference resources remain byte-for-byte read-only.
+            self._ensure_writable_isodata()
         commands = [
             f"VALUE PARENT {parent_sg}",
             f"VALUE KPOINT {k_point}",
@@ -2231,7 +2401,7 @@ class IsoWrapper(BaseWrapper):
                         f"生成后仍无子群表（iso 可能无法本地生成，或生成耗时超限）。iso 输出末尾：\n"
                         f"{summary}",
                     )
-                raise WrapperRunError(
+                raise MissingSubgroupDatabaseError(
                     "iso", 1,
                     f"k 点 {k_point} 的子群数据库在本地不存在，需要在线生成"
                     f"（官网对应 “Generate isotropy subgroups”，可能耗时数分钟到数小时）。"

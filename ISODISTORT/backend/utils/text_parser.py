@@ -169,7 +169,7 @@ def parse_vector_token(token: str, letter_value: float = 1.0) -> list[float]:
     系数支持整数、分数与小数（如 0.577a → 0.577×letter_value）。
     """
     token = token.strip()
-    inner = token.strip("()").strip()
+    inner = token.strip("()").strip().replace(";", ",")
     if not inner:
         return []
     out = []
@@ -412,6 +412,7 @@ def parse_domain_table(text: str) -> list[dict[str, Any]]:
             "space_group_symbol": m.group("symbol"),
             "subgroup_index": index,
             "opd_symbol": dir_symbol,
+            "opd_dir_raw": m.group("dirvec"),
             "opd_vector": dirvec,
             "basis_vectors": parse_basis_token(m.group("basis")),
             "origin": parse_coords_token(m.group("origin")),

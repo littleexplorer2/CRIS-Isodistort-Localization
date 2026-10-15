@@ -13,7 +13,7 @@ from data_dir import experiment_data_dir
 from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from backend.api import IsoDistort
+from application.session import IsoDistort
 from backend.models.iso_mode_models import ModeIdentity
 from backend.utils.self_check import (
     check_linearity,
@@ -23,15 +23,15 @@ from backend.utils.self_check import (
     check_zero_amplitude,
 )
 from backend.wrappers import BushMode, DistortionMode, SubgroupInfo
-from features.input_cif import build_supercell
-from features.method1 import OccupationalModeGenerator
-from features.method1.phase_path import (
+from backend.input_cif import build_supercell
+from backend.method1 import OccupationalModeGenerator
+from backend.method1.phase_path import (
     DEFAULT_DISTORTION_TYPES,
     normalize_distortion_types,
 )
-from features.method1.search_methods import IsoSearchEngine, Method4Query
-from features.method2 import DistortionMapper
-from features.method4 import DistortionEngine
+from backend.method1.search_methods import IsoSearchEngine, Method4Query
+from backend.method2 import DistortionMapper
+from backend.method4 import DistortionEngine
 
 CIFS_DIR = Path(__file__).resolve().parent / "cifs_30"
 DATA_DIR = experiment_data_dir()

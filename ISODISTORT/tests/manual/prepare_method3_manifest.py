@@ -24,7 +24,7 @@ PACKAGE_ROOT = WORKSPACE / "ISODISTORT"
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
-from backend.api import IsoDistort  # noqa: E402
+from application.session import IsoDistort  # noqa: E402
 
 OUTPUT_DIR = PACKAGE_ROOT / "output" / "validation"
 MANIFEST_PATH = PACKAGE_ROOT / "docs" / "manifests" / "method3_download_manifest.json"
@@ -148,8 +148,8 @@ def _signature() -> str:
     digest = hashlib.sha256()
     for path in [
         Path(__file__),
-        PACKAGE_ROOT / "backend" / "api" / "core_api.py",
-        PACKAGE_ROOT / "features" / "method1" / "search_methods.py",
+        PACKAGE_ROOT / "application" / "session" / "core_api.py",
+        PACKAGE_ROOT / "backend" / "method1" / "search_methods.py",
         PACKAGE_ROOT / "backend" / "wrappers" / "iso_wrapper.py",
         WORKSPACE / "experiment_data" / "EuAl4 Parent.cif",
         WORKSPACE / "experiment_data" / "NdNiO2 own.cif",

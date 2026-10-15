@@ -2,9 +2,9 @@
 
 __version__ = "0.4.0"
 
-from .batch_compare import run_batch
-from .compare_cif import ComparisonResult, compare_cif
-from .compare_paths import (
+from .application.batch import run_batch
+from .application.single import ComparisonResult, compare_cif
+from .application.workspace import (
     BATCH_PAIRING_HINT,
     COMPARE_ROOT,
     DEFAULT_PATTERN,
@@ -12,12 +12,13 @@ from .compare_paths import (
     ITEM_DIR,
     TRUE_DIR,
     VALIDATE_ROOT,
+    Config,
     ensure_compare_dirs,
+    get_config,
     pairing_status,
     resolve_pair,
     warn_unpaired_filenames,
 )
-from .config_loader import Config, get_config
 
 __all__ = [
     "BATCH_PAIRING_HINT",

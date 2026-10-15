@@ -196,7 +196,7 @@ def _file_record(label: str, path: Path, workspace: Path) -> dict[str, Any]:
 
 def _production_python_inputs(package_root: Path) -> list[tuple[str, Path]]:
     inputs: list[tuple[str, Path]] = []
-    for source_root in ("backend", "features"):
+    for source_root in ("backend", "application"):
         root = package_root / source_root
         inputs.extend(
             (f"production:{path.relative_to(package_root).as_posix()}", path)

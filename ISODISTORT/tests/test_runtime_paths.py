@@ -30,8 +30,7 @@ def layout(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
 
 def _mark_source_tree(package_root: Path) -> None:
     (package_root / "pyproject.toml").touch()
-    (package_root / "scripts").mkdir()
-    (package_root / "scripts" / "main_web.py").touch()
+    (package_root / "main_web.py").touch()
 
 
 def test_source_checkout_keeps_project_output_default(layout) -> None:

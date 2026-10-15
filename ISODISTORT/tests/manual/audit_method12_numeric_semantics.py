@@ -119,10 +119,10 @@ CORE_FILENAMES = (
 
 PRODUCTION_SIGNATURE_FILES = (
     PROJECT_ROOT / "resources" / "config" / "settings.yaml",
-    PROJECT_ROOT / "backend" / "api" / "core_api.py",
-    PROJECT_ROOT / "features" / "method2" / "superspace.py",
-    PROJECT_ROOT / "features" / "export" / "distortion_formats.py",
-    PROJECT_ROOT / "features" / "export" / "isodistort_isoviz.py",
+    PROJECT_ROOT / "application" / "session" / "core_api.py",
+    PROJECT_ROOT / "backend" / "method2" / "superspace.py",
+    PROJECT_ROOT / "backend" / "export" / "distortion_formats.py",
+    PROJECT_ROOT / "backend" / "export" / "isodistort_isoviz.py",
     PROJECT_ROOT / "tests" / "manual" / "validate_method_outputs.py",
     PROJECT_ROOT / "tests" / "manual" / "official_html_resolver.py",
 )
@@ -2195,7 +2195,7 @@ def _live_signature_state(
         *PRODUCTION_SIGNATURE_FILES,
         PROJECT_ROOT / "pyproject.toml",
         *(PROJECT_ROOT / "backend").rglob("*.py"),
-        *(PROJECT_ROOT / "features").rglob("*.py"),
+        *(PROJECT_ROOT / "application").rglob("*.py"),
         *(PROJECT_ROOT / "frontend").rglob("*.py"),
         *(path for path in (PROJECT_ROOT / "resources" / "isobyu").rglob("*") if path.is_file()),
     ]
@@ -2436,7 +2436,7 @@ def _generate_live_case(
     try:
         if str(PROJECT_ROOT) not in sys.path:
             sys.path.insert(0, str(PROJECT_ROOT))
-        from backend.api import IsoDistort
+        from application.session import IsoDistort
 
         selector = case["selector"]
         api = IsoDistort(language="en")

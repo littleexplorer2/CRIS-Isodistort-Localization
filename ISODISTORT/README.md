@@ -127,7 +127,7 @@ py -3.10 setup_cris.py install --project isodistort --dev
 成功后可像旧版本一样直接启动网页：
 
 ```powershell
-.\.venv\Scripts\python.exe ISODISTORT\scripts\main_web.py
+.\.venv\Scripts\python.exe ISODISTORT\main_web.py
 ```
 
 这个入口会启动本地服务、自动打开浏览器，并可直接执行 Method 计算。安装器若检测到
@@ -140,13 +140,13 @@ OneDrive/WSL 的特定启动器限制，会自动保留原 stub 并安装经过 
 ### 2.5 安装后至少应看到
 
 - 根目录 `setup_cris.py`、`VERSION` 与 `.venv/`；
-- `ISODISTORT/scripts/main_web.py`；
+- `ISODISTORT/main_web.py`；
 - `ISODISTORT/resources/config/settings.yaml`；
 - `ISODISTORT/frontend/web/index.html`；
 - `ISODISTORT/resources/isobyu/iso`、`findsym`、`smodes` 以及若干 `data_*.txt`。
 
 wheel 安装布局提供 `isodistort-web` 命令，直接调用同一网页入口；Python API 从
-`backend.api` 导入。源码安装仍按上述 `scripts/main_web.py` 或 `run_cris.ps1` 启动。
+`application.session` 导入。源码安装仍按上述 `main_web.py` 或 `run_cris.ps1` 启动。
 wheel 不包含 CRIS 根部署器、实验数据、官网归档或 manual 审计脚本。
 
 ---
@@ -157,10 +157,10 @@ wheel 不包含 CRIS 根部署器、实验数据、官网归档或 manual 审计
 
 ```powershell
 cd <CRIS 根目录>
-.\.venv\Scripts\python.exe ISODISTORT\scripts\main_web.py
+.\.venv\Scripts\python.exe ISODISTORT\main_web.py
 ```
 
-也可在已激活的虚拟环境中执行 `python ISODISTORT\scripts\main_web.py`。默认打开
+也可在已激活的虚拟环境中执行 `python ISODISTORT\main_web.py`。默认打开
 `http://127.0.0.1:8000/`。端口见 `resources/config/settings.yaml` 的 `runtime.web_port`；被占用时
 会自动顺延约 20 个端口，再不行则让系统分配。控制台会打印最终 URL；Windows Shell
 已收到打开请求时还会打印 `Browser launch requested`，所有打开方式都失败时则明确
@@ -238,10 +238,10 @@ Method 2 勾选生成缺失子群库时，`iso` 把可复用的 `i*.iso` 写在 
 | **API 输出目录** | `runtime.output_dir` → `../../output` | Python API 与兼容下载端点的默认文件目录；网页 Distortion ZIP 走浏览器下载，不依赖此项 |
 | **WSL / ISODATA** | 自动（`~/.id/data` → `isobyu`） | Windows 下封装会建短路径 `~/.id` 与 ISODATA 符号链接。一般**不必**在系统里手改 `ISODATA`；只需保证 `wsl` 可用 |
 | **网页端口** | `runtime.web_port: 8000` | 端口冲突时改 YAML（非文件路径） |
-| **抽检用 IsoVIZ** | 仓库根 `ISOViz.lnk` 或 `ISOVIZ`/`ISOVIZ_JAR` | 打开导出的 `data.isoviz`；安装与查找方式见 [ISOVIZ_INPUT/README.md](../ISOVIZ_INPUT/README.md) |
-| **抽检用 VESTA** | 可选根目录 `VESTA.lnk` | 手工打开 `subgroup.cif`；程序不读取该路径做计算（下载与作用见下） |
+| **抽检用 IsoVIZ** | `local_tools/launchers/ISOViz.lnk` 或 `ISOVIZ`/`ISOVIZ_JAR` | 打开导出的 `data.isoviz`；安装与查找方式见 [ISOVIZ_INPUT/README.md](../ISOVIZ_INPUT/README.md) |
+| **抽检用 VESTA** | 可选 `local_tools/launchers/VESTA.lnk` | 手工打开 `subgroup.cif`；程序不读取该路径做计算（下载与作用见下） |
 
-**不需要用户改路径的部分：** `backend/`、`features/`、`frontend/` 源码内的导入、WSL 侧自动 staging、网页 ZIP 内存打包。
+**不需要用户改路径的部分：** `backend/`、`application/`、`frontend/` 源码内的导入、WSL 侧自动 staging、网页 ZIP 内存打包。
 
 #### VESTA（打开 CIF）
 
@@ -251,7 +251,8 @@ Method 2 勾选生成缺失子群库时，`iso` 把可复用的 `i*.iso` 写在 
 - 验收时确认「CIF 能用 VESTA 正常打开」（见本目录 `agent.md` / 下文已知限制）。
 
 下载：[VESTA 下载页](https://jp-minerals.org/vesta/en/download.html)（64 位 Windows 选 `VESTA-win64.zip`，解压后运行其中的 `VESTA.exe`）。  
-可选：在 **CRIS 仓库根目录** 放快捷方式 `VESTA.lnk` 指向该 `VESTA.exe`（已 gitignore）。计算与导出走 Python/`iso`，**不调用** VESTA。
+可选：在 **`CRIS/local_tools/launchers/`** 放快捷方式 `VESTA.lnk` 指向该
+`VESTA.exe`（已 gitignore）。计算与导出走 Python/`iso`，**不调用** VESTA。
 
 #### IsoVIZ（打开 `.isoviz`）
 
@@ -290,7 +291,7 @@ NdNiO2 等其它 CIF 会显示该文件自己的空间群、晶胞与 `_atom_sit
 | **Default space-group preferences** | 本地固定的国际标准取位约定（见文末 Preferences 表，只读） |
 | **Wyckoff 行** | 来自 CIF 不对称位点：标签（或 type_symbol）、多重度+字母、坐标；自由坐标写成 `z= 0.38000` |
 
-实验示例（只读）：`experiment_data/EuAl4 Parent.cif`、`experiment_data/NdNiO2 own.cif`。官网页面对照见 `webpage_info/<母相名>/`（序号 1–6、2.5、3.5、a.）。Method 2 的 k 点随母相而变（EuAl4：`LD … g=1/6`；NdNiO2：`Y … a=1/3`），验证批次见 [开发计划 §3.2](docs/DEVELOPMENT_PLAN.md#32-method-2当前保存产物已复验)。
+实验示例（只读）：`experiment_data/EuAl4 Parent.cif`、`experiment_data/NdNiO2 own.cif`。官网页面对照见 `webpage_info/<母相名>/`（序号 1–6、2.5、3.5、a.）。Method 2 的 k 点随母相而变（EuAl4：`LD … g=1/6`；NdNiO2：`Y … a=1/3`），当前验证批次见 [统一冻结清单](docs/manifests/local_web_output_refresh_manifest.json)。
 
 ---
 
@@ -478,7 +479,7 @@ M3-a1b2c3d4e5/                   # Method 3：自动生成的稳定案例目录�
 在已安装依赖、且 `PYTHONPATH` 含 `ISODISTORT/`（或从该目录运行）时：
 
 ```python
-from backend.api import IsoDistort
+from application.session import IsoDistort
 
 iso = IsoDistort()
 iso.load_structure(r"C:\path\to\parent.cif")
@@ -504,7 +505,11 @@ iso.export_subgroups(
 )
 ```
 
-源码按四个部分组织：`backend/`（通用底层）、`features/`（按功能划分的中端）、`frontend/`（网页支撑）、`resources/` 等共享文件。Python 侧只有这一套包名，公开导入路径是 `from backend.api import IsoDistort`；历史上并存的 `isocore` / `isodistort` 兼容命名空间已随结构重构移除，不再提供别名。`features/` 内部跨包导入使用绝对路径，同包内才用相对导入。
+源码分为底层 `backend/`、应用层 `application/`、前端 `frontend/`，各模块独立成包。
+Python API 使用 `from application.session import IsoDistort`，网页通过应用工作流调用同一会话。
+旧 `backend.api`、`features.*` 导入仍作兼容转发，方便外部 GD 等调用方继续运行；
+新增代码使用规范入口。`isocore` / `isodistort` 旧命名空间不恢复。
+完整模块职责和后续维护约束见 [agent.md](agent.md) 与根 [AGENTS.md](../AGENTS.md)。
 
 当程序同时保留多个 Method 的结果表时，必须把候选池显式传给 `search_method_2(..., candidates=...)`，并把导出池显式传给 `export_subgroups(..., subgroups=...)`。各 Method 的显示索引都会从 0 开始，不能把索引当成跨表唯一 ID，也不要从界面层直接改 `iso.subgroups`、`mode_displacements` 或私有 `iso._iso`。单一路径脚本仍可省略 `candidates`，沿用最近一次 API 产生的默认候选池。
 
@@ -530,7 +535,7 @@ iso.export_subgroups(
 11. **界面仅英语**。
 12. **导出验收（见本目录 `agent.md`）**：网页委托 `IsoDistort.export_subgroups_zip` / `_collect_export_specs` 完成导出。ZIP 内每子群文件夹含 `subgroup.cif` / `data.isoviz` / `topas.str` / `Complete modes details.txt`。
     - **modes `.txt`**：完整写入本地计算结果即可，**不要求**与官网 HTML 逐字节一致。  
-    - **CIF / isoviz / TOPAS**：内容与格式尽量靠官网；`.cif` 须能用 **[VESTA](https://jp-minerals.org/vesta/en/)**（[下载](https://jp-minerals.org/vesta/en/download.html)）打开，`.isoviz` 须能用 **ISOViz**（ISOTROPY IsoVIZ）打开。根目录可放 `VESTA.lnk` / `ISOViz.lnk` 便于抽检。  
+    - **CIF / isoviz / TOPAS**：内容与格式尽量靠官网；`.cif` 须能用 **[VESTA](https://jp-minerals.org/vesta/en/)**（[下载](https://jp-minerals.org/vesta/en/download.html)）打开，`.isoviz` 须能用 **ISOViz**（ISOTROPY IsoVIZ）打开。`local_tools/launchers/` 可放 `VESTA.lnk` / `ISOViz.lnk` 便于抽检。
     - TOPAS / IsoVIZ 位移向量按**原胞笛卡尔 Σ‖Δr‖²=1** 归一化（惯用胞求和除以 centering 重数）。官网 `As` 的物理最大位移为 `dmax=|As|·normfactor·max_i‖u_i B‖`，因此滑条/TOPAS 对称界为 `maxamp=1/dmax(As=1)`；不能按点阵类型硬编码 `√2`/`2`。
     - CIF、TOPAS 和 ISOVIZ 共用目标子群的原点与位点轨道；不能再用零振幅母相的对称性合并子群位点。ISOVIZ 会按原始 CIF 位点顺序写类型和子位点，并为边界周期像写对应模式向量。其他允许的表示差异包括 symop 顺序、周期像及子位点排序、basis 点群等价代表元。CIF、ISOVIZ 和 Complete modes 的应变模式标签、顺序、`q_raw`、`q_unit`、`normfactor` 和幅度由同一契约生成；TOPAS 只写固定实际晶胞，不包含 strain-mode 参数。VALIDATE 默认语义比较，`--strict` 仅排版调试。
 13. **位点模式标号采用 fail-closed**：程序先用目标 embedding 的精确
@@ -618,7 +623,7 @@ Method 1–4 的开发阶段、后续顺序和完成标准维护在
 | 手动修改了官网下载 HTML 的文件名 | 在原候选目录内可任意修改 basename，无需重下，但必须保留 `.html` 或 `.htm` 后缀。验证器按页面内容结构/角色和 SHA-256 识别；所需角色为 0 页或多页都会拒绝。跨候选目录移动或改成非 HTML 后缀不属于安全改名 |
 | 模式数少于官网 / `nstrain=0` | 先核对候选完整 identity、Types 与 nmod。未勾选 strain 时 `nstrain=0` 是预期；已勾选时必须取得并核验 ISO rank-[12] canonical basis，否则导出应明确报错。若位移模式数仍少，运行对应的 current-source live 审计并按 bug 处理 |
 | Method 1 候选 basis 与官网不同 | 不按短目录名判定；运行统一审计器，以 CIF 候选身份配对并用精确整幺模变换证明同一子格，再归一为官网表示比较 |
-| 端口被占用 | 改 `web_port` 或关掉旧的 `scripts/main_web.py` |
+| 端口被占用 | 改 `web_port` 或关掉旧的 `main_web.py` |
 | PowerShell 窗口打印 URL 但没有打开浏览器 | 无论使用直接入口还是 `.\run_cris.ps1`，若没有 `Browser launch requested`，按窗口提示手动打开最终 URL |
 | PowerShell 中 `wsl` 正常，但 Python 报 `Wsl/E_ACCESSDENIED` | 这是标准 venv stub 在本机 OneDrive 路径中的进程限制，不是缺少管理员权限。重新运行 `py -3.10 setup_cris.py install --project isodistort` 让安装器做 A/B 探针和硬链接修复；若它明确报告无法修复，再用 `.\run_cris.ps1 <原 Python 参数>` |
 | 每次 WSL 启动都提示 localhost proxy 未镜像 | Clash 的 `127.0.0.1` 代理与 WSL NAT 的提示不等于计算失败；本地 ISOTROPY 二进制不需要联网。只有 WSL 内确需联网时才配置 mirrored networking 或可从 WSL 访问的 Windows 地址 |
@@ -632,29 +637,26 @@ Method 1–4 的开发阶段、后续顺序和完成标准维护在
 
 ```text
 ISODISTORT/
-├── agent.md                开发规则、修改边界、四部分职责、验收规程
-├── README.md            本文件（用户使用说明）
-├── pyproject.toml          pytest / ruff / 打包配置（留在根目录）
-├── .gitignore              忽略规则（留在根目录）
-├── requirements*.txt       依赖清单（留在根目录）
-├── backend/                ① 通用底层：所有 Method 共用的计算与设施
-│   ├── wrappers/           iso / findsym / smodes 二进制封装、WSL 暂存、ISO 缓存
-│   ├── models/             模式与来源领域模型
-│   ├── tables/             CDML / Kovalev / 官网 k 点与空间群查表
-│   ├── utils/              精确有理数晶格与群论工具、文本解析、配置、异常、自检
-│   └── api/                IsoDistort 会话 API 入口
-├── features/               ② 中端：按功能划分，每包只含该功能实现
-│   ├── input_cif/          CIF 解析、坐标变换、对称性校验
-│   ├── method1/            Method 1 搜索与共用畸变引擎
-│   ├── method2/            Method 2 参数 k 模式计算与母相→子胞映射
-│   ├── method3/            Inverse Landau/COPL 与 coupled 见证
-│   ├── method4/            分解、均匀应变与生成回代
-│   └── export/             四种下载格式 writer + CIF 位移/来源共享合同
-├── frontend/               ③ 网页支撑
-│   ├── web/                server.py + index.html + static/
-│   └── i18n/               网页英文文案
-├── scripts/                入口脚本：main_web.py（网页）、main_requirement.py（安装转发）
-├── tests/                  ④ 其他：pytest 测试 + manual/ 手工与长时脚本 + fixtures/
+├── .gitignore              根目录保留文件：忽略规则
+├── agent.md                根目录保留文件：开发规则、修改边界与验收规程
+├── main_web.py             根目录保留文件：源码网页启动入口
+├── pyproject.toml          根目录保留文件：pytest / ruff / 打包配置
+├── README.md               根目录保留文件：本使用说明
+├── requirements-dev.txt    根目录保留文件：开发依赖清单
+├── requirements.txt        根目录保留文件：运行依赖清单
+├── backend/                底层：科学算法、模型、格式读写与运行设施
+│   ├── wrappers/ models/ tables/ utils/ messages/
+│   ├── input_cif/ method1/ method2/ method3/ method4/ export/
+│   └── api/                旧会话导入兼容入口
+├── application/            应用层
+│   ├── session/            IsoDistort 会话、计算与发布协调
+│   └── workflows/          交互用例、上传、revision 和导出进度
+├── frontend/               前端
+│   ├── web/                HTTP、页面/静态资源、浏览器生命周期
+│   └── i18n/               旧文案导入兼容入口
+├── features/               旧功能导入兼容入口，无算法实现
+├── scripts/                辅助脚本：main_requirement.py（安装兼容转发）
+├── tests/                  pytest 测试 + manual/ 手工与长时脚本 + fixtures/
 ├── resources/
 │   ├── config/settings.yaml  运行时默认值
 │   └── isobyu/             【只读】ISOTROPY 套件二进制与数据库

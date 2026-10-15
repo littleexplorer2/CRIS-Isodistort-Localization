@@ -7,7 +7,7 @@ from data_dir import experiment_data_dir
 from pymatgen.core import Structure
 
 from backend.utils.lattice import identity_matrix, multiply, rational_matrix
-from features.method1.affine_embeddings import (
+from backend.method1.affine_embeddings import (
     AffineEmbedding,
     AffineOperation,
     ParentAffineGroup,
@@ -15,8 +15,8 @@ from features.method1.affine_embeddings import (
     locate_embedding_subgroup,
     parent_affine_group,
 )
-from features.method3.inverse_landau import FixedSpaceFeasibilityAnalyzer
-from features.method3.inverse_landau_adapter import (
+from backend.method3.inverse_landau import FixedSpaceFeasibilityAnalyzer
+from backend.method3.inverse_landau_adapter import (
     build_selected_character_representation,
     build_selected_representation,
     diagnose_embedding_feasibility,

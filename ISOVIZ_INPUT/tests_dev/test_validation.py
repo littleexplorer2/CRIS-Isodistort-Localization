@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from isoviz_input.amplitudes import apply_amplitudes, read_amplitude_csv
-from isoviz_input.validation import section_scalar, validate_patched_text
+from isoviz_input.backend.amplitudes import apply_amplitudes, read_amplitude_csv
+from isoviz_input.backend.validation import section_scalar, validate_patched_text
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

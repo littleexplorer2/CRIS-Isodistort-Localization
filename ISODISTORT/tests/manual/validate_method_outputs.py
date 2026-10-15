@@ -50,7 +50,7 @@ VALIDATOR_ROOT = WORKSPACE / "ISODISTORT_VALIDATE"
 if str(VALIDATOR_ROOT) not in sys.path:
     sys.path.insert(0, str(VALIDATOR_ROOT))
 
-from isodistort_validate.compare_cif import compare_cif  # noqa: E402
+from isodistort_validate.application.single import compare_cif  # noqa: E402
 
 DEFAULT_OUTPUT_ROOT = WORKSPACE / "output_compare"
 OFFICIAL_DIR = "官网"
@@ -2185,7 +2185,7 @@ def run_live_method3_smoke() -> list[dict[str, Any]]:
     project_root = WORKSPACE / "ISODISTORT"
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
-    from backend.api import IsoDistort
+    from application.session import IsoDistort
 
     cases = (
         {
@@ -2511,7 +2511,7 @@ def _live12_signature_state(
         (f"source:{path.relative_to(package_root).as_posix()}", path)
         for source_root in (
             package_root / "backend",
-            package_root / "features",
+            package_root / "application",
         )
         for path in sorted(
             source_root.rglob("*.py"),
@@ -2784,7 +2784,7 @@ def run_live_method12_audit(
     project_root = WORKSPACE / "ISODISTORT"
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
-    from backend.api import IsoDistort
+    from application.session import IsoDistort
 
     cases = (
         ("EuAl4 Parent.cif", "LD", ["1/6"]),

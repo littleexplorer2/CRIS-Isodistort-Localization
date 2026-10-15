@@ -18,11 +18,11 @@ import pytest
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.cif import CifParser
 
-from backend.api import IsoDistort, core_api
+from application.session import IsoDistort, core_api
 from backend.utils import IsodistortError, get_config
 from backend.wrappers import SubgroupInfo
-from features.input_cif import SymmetryValidator
-from features.method2 import superspace
+from backend.input_cif import SymmetryValidator
+from backend.method2 import superspace
 
 
 def _diagnostic_api(parent=None):

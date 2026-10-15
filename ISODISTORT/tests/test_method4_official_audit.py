@@ -614,8 +614,8 @@ def test_method4_provenance_covers_code_config_runtime_backend_and_inputs(
     files = {
         "tests/manual/validate_method4_local.py": "validator-v1",
         "tests/manual/prepare_method4_inputs.py": "preparer-v1",
-        "backend/api/core_api.py": "core-v1",
-        "features/method4/strain_modes.py": "strain-modes-v1",
+        "application/session/core_api.py": "core-v1",
+        "backend/method4/strain_modes.py": "strain-modes-v1",
         "pyproject.toml": "[project]\nname='fixture'\n",
         "requirements.txt": "numpy\nscipy\n",
         "runtime/iso": "iso-v1",
@@ -675,8 +675,8 @@ def test_method4_provenance_covers_code_config_runtime_backend_and_inputs(
     assert {
         "runtime-config",
         "input-manifest",
-        "production:backend/api/core_api.py",
-        "production:features/method4/strain_modes.py",
+        "production:application/session/core_api.py",
+        "production:backend/method4/strain_modes.py",
         "backend:iso-binary",
         "backend:findsym-binary",
         "backend:smodes-binary",
@@ -691,7 +691,7 @@ def test_method4_provenance_covers_code_config_runtime_backend_and_inputs(
     }
 
     signatures = [state["signature"]]
-    mutation_path = package_root / "features" / "method4" / "strain_modes.py"
+    mutation_path = package_root / "backend" / "method4" / "strain_modes.py"
     mutation_path.write_text("strain-modes-v2", encoding="utf-8")
     signatures.append(signature_state()["signature"])
     config_path.write_text(config_path.read_text(encoding="utf-8") + "\n", encoding="utf-8")

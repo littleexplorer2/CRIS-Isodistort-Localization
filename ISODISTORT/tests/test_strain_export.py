@@ -11,7 +11,7 @@ from pymatgen.core import Lattice, Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from backend.api.core_api import IsoDistort
+from application.session.core_api import IsoDistort
 from backend.models.iso_mode_models import (
     InvariantDirection,
     MacroscopicTensorBasis,
@@ -20,7 +20,7 @@ from backend.models.iso_mode_models import (
 )
 from backend.utils import get_config
 from backend.wrappers import SubgroupInfo
-from features.export.distortion_formats import (
+from backend.export.distortion_formats import (
     StrainExportData,
     SubgroupExportSpec,
     render_cif,
@@ -29,8 +29,8 @@ from features.export.distortion_formats import (
     render_topas,
     resolve_strained_export_structure,
 )
-from features.input_cif import read_cif
-from features.method4.strain_modes import (
+from backend.input_cif import read_cif
+from backend.method4.strain_modes import (
     CanonicalStrainModeDefinition,
     apply_canonical_strain_basis,
     compute_homogeneous_strain_modes,

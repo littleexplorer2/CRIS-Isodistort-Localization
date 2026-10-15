@@ -1,64 +1,81 @@
 # ISOVIZ_INPUT 0.4.0
 
-把振幅表（CSV）里的数值写进官方 IsoVIZ 的子群结构文件（`.isoviz`），并**自动启动** Java 版 IsoVIZ，查看畸变后的晶体结构。本子项目**不使用** `output/`：读完输入文件和参数后直接打开 IsoVIZ，而不是把结果写成仓库里的产物文件。
+ISOVIZ_INPUT 是位于 GD 振幅结果与外部 IsoVIZ 软件之间的**本地输入适配器**。用户在桌面界面中上传文件或粘贴文本；程序识别振幅表与官方子群 `.isoviz`，只修改临时副本中的模式 `amp`，通过静态门禁后再请求 IsoVIZ 打开。
 
-你不需要先懂晶体学。可以把它理解成：
+它不搜索子群、不比较 CIF、不拟合振幅，也不把“进程已分发”表述为“IsoVIZ 已正确识别数据”。写入值来自 CSV 的 **Best Model Parameter**，不是 Normalized Amplitude。
 
-1. 你已经有一份「每个原子模式该拧到多少」的表格（CSV，常见列名 **Best Model Parameter**）。  
-2. 你已经有一份对应子群的 `.isoviz`（里面有各个模式的进度条字段 `amp`）。  
-3. 本工具按模式名字（或顺序别名）把 CSV 里的数写进 `amp`，再启动 IsoVIZ。
-
-IsoVIZ 属于 [ISOTROPY Suite](https://iso.byu.edu/isotropy.php)。手动拖动每个模式进度条既慢又容易出错；本子项目用 Python 自动填写。
-
-本项目与仓库根目录的 `CRIS/.venv` 共用一份 Python 虚拟环境。说明与配置都在本目录：[`README.md`](README.md)、[`agent.md`](agent.md)、[`config/settings.yaml`](config/settings.yaml)。子项目之间的关系见仓库根目录 [README.md](../README.md)。若要先核对 ISODISTORT 导出的 CIF 是否与官网一致，见 [ISODISTORT_VALIDATE/README.md](../ISODISTORT_VALIDATE/README.md)。
-
----
-
-## 目录结构
+## 程序结构与职责
 
 ```text
 ISOVIZ_INPUT/
-  agent.md                Agent 工作指南（修改边界、验收）
-  README.md               本文件（使用说明）
-  config/settings.yaml    CSV 目录、input_content、IsoVIZ 查找规则
-  main.py                 读取输入并启动 IsoVIZ
-  main_requirement.py     旧命令兼容转发；实际安装逻辑在根 setup_cris.py
-  requirements.txt        运行时依赖（PyYAML）
-  requirements-dev.txt    开发依赖（pytest）
-  pyproject.toml
-  isoviz_input/           包：配置加载、CSV 解析、写 .isoviz、启动 IsoVIZ
-  tests_dev/              开发测试（用 tests_dev/fixtures/，不依赖你本机样本）
-  input_content/          本地输入（gitignore，不入库）
-    data.csv/             振幅 CSV 文件夹（目录名就是 data.csv）
-    subgroup.isoviz/      官方子群 .isoviz 文件夹（目录名就是 subgroup.isoviz）
+  main.py                       唯一运行入口；默认 GUI，--cli 为命令行
+  main_requirement.py           统一安装器的兼容入口
+  .gitignore                    本地输入、缓存和历史 output 排除规则
+  config/settings.yaml          路径和 IsoVIZ 启动器查找规则
+  isoviz_input/
+    frontend/                   前端：仅调用应用层公开接口
+      gui/                      上传、粘贴、报告和用户动作
+      cli/                      脚本化/兼容命令行适配
+      entrypoint/               GUI / CLI 统一入口选择
+    application/                应用层：用例编排及输入/环境查询
+      pipeline/                 唯一用例管线与启动门禁
+      input_selection/          文件/文本选择及输入路径查询接口
+      environment/              IsoVIZ 启动器可用性查询
+    backend/                    底层：独立能力模块
+      inputs/                   文件/粘贴文本统一为 TextDocument
+      amplitudes/               CSV 识别、标签匹配和 amp 写入
+      validation/               身份、非振幅内容和写入值不变量
+      launcher/                 .lnk/.exe/.jar/文件关联启动适配
+      paths/                    Best_Model_Parameters 与用户路径解析
+      config_loader/            settings.yaml 读取
+    amplitudes.py 等             旧导入路径的薄兼容层；不保存第二套算法
+  tests_dev/                    自动测试与显式手工 GUI 验收器
 ```
 
-日常振幅 CSV 由同级 GD 笔记本自动写到共享目录：
+每个职责目录通过 `__init__.py` 暴露公开接口，实现保存在目录内独立文件中。
+前端只调用应用层，应用层调用底层；底层不能反向依赖。包根旧接口只转发，不保存第二套实现。
+
+主要处理管线：
+
+```text
+GUI / CLI
+   │  PipelineRequest(TextDocument, TextDocument)
+   ▼
+application.pipeline
+   ├─► backend.amplitudes  ─► 匹配报告 + patched text
+   ├─► backend.validation  ─► pass / pass_with_warnings / fail
+   ├─► 系统临时 .isoviz（fail 时不生成可启动文件）
+   └─► backend.launcher    ─► 外部 IsoVIZ 进程分发
+```
+
+`application.input_selection` 统一前端文件/文本选择，`application.environment` 提供启动器查询；
+因此上传与粘贴共享同一解析器，GUI 与 CLI 共享同一管线；任何新输入方式都不能绕过静态验证或直接调用启动器。
+
+日常 CSV 通常来自同级目录：
 
 ```text
 <CRIS 与 GD 的同级目录>/Best_Model_Parameters/
-  <irrep>_<structure_type>/
-    <irrep>_<structure_type>_best_model_parameters.csv
+  <irrep>_<structure_type>/<irrep>_<structure_type>_best_model_parameters.csv
 ```
 
-例如 `Best_Model_Parameters/LD1_C1/LD1_C1_best_model_parameters.csv`。默认解析顺序是 `BEST_MODEL_PARAMETERS_DIR` 环境变量、CRIS 同级目录、历史 Desktop 位置；因此三个目录一起换盘时无需写死新盘符。列出文件夹和 CSV 时按名字不区分大小写排序；CSV 行按模式序号 `a1, a2, …, a10` 排序。子群 `.isoviz` 在运行时用绝对路径提供。`input_content/` 仍会自动创建（历史兼容，gitignore），但默认不再从那里读振幅。
-
----
+默认 GUI 启动器统一放在仓库根 `local_tools/launchers/`，实际快捷方式、JAR 和 EXE 由根 `.gitignore` 排除。源 CSV、源 `.isoviz` 和同级 `Best_Model_Parameters` 都不会被本程序改写。
 
 ## 用户需要配置 / 放置的路径
 
-| 项目 | 默认 / 做法 | 你要做什么 |
+| 项目 | 默认 / 做法 | 用户动作 |
 | --- | --- | --- |
-| **振幅 CSV** | 同级 `Best_Model_Parameters/<irrep>_<structure_type>/`，或 `BEST_MODEL_PARAMETERS_DIR` | GD 自动写出；运行 `main.py` 时输入该子文件夹名和 CSV 文件名 |
-| **子群 `.isoviz`** | 运行时输入**绝对路径** | 可带英文或中文引号；也可用 `--structure` |
-| **IsoVIZ 可执行体** | `config/settings.yaml` → `isoviz` | **本机必配其一**：本目录或仓库根的 `ISOViz.lnk` / `.jar` / `.exe`，或环境变量 `ISOVIZ` / `ISOVIZ_JAR` |
-| **Java** | 系统 `PATH` 中的 `java` | 安装 JRE/JDK；用 `.jar` 启动时必需 |
-| **临时启动文件** | 系统临时目录（`tempfile`） | 程序自动写入再交给 IsoVIZ；**不要**也不需要配置本子项目的 `output/` |
-| **Python / venv** | 仓库根 `CRIS/.venv` | 与其它子项目共用 |
+| 振幅 CSV | GUI 选择文件或粘贴完整 CSV；文件对话框优先打开同级 `Best_Model_Parameters` | 使用 GD 导出的 Best Model Parameter |
+| 子群 `.isoviz` | GUI 选择文件或粘贴完整文本 | 使用与 CSV 相同 IR / OPD / path 的官方文件 |
+| IsoVIZ | `config/settings.yaml` 的 `isoviz` 段 | 放到 `local_tools/launchers/`，或设置 `ISOVIZ` / `ISOVIZ_JAR` |
+| Java | 系统 `PATH` | 仅从 `.jar` 启动时必需 |
+| 临时文件 | 系统临时目录 | 自动生成；不需要仓库 `output/` |
 
-**一般不必改：** 换机器或换盘时保持 `CRIS`、`Best_Model_Parameters`、`GD` 同级即可。布局不同时设置 `BEST_MODEL_PARAMETERS_DIR`，或在 yaml 中填写其父目录；IsoVIZ 不在查找目录里时再使用启动器环境变量。
+项目与仓库根目录的 `.venv` 共用 Python 环境。更换目录布局时可设置 `BEST_MODEL_PARAMETERS_DIR`；运行时默认值以 [config/settings.yaml](config/settings.yaml) 为准。
 
-Agent 约定见 [agent.md](agent.md)。跨项目总览见仓库根 [README.md](../README.md)。
+源码运行入口仍为 `main.py`；安装 wheel 后可执行 `isoviz-input`，两者调用相同前端入口。
+构建过程从 `config/settings.yaml` 自动生成包内配置资源，源码中只维护这一份配置。
+独立安装包不包含本机启动器，使用 `ISOVIZ` / `ISOVIZ_JAR` 指定启动器，
+使用 `BEST_MODEL_PARAMETERS_DIR` 指定外部振幅目录。
 
 ---
 
@@ -101,8 +118,8 @@ py -3.10 setup_cris.py install --project isoviz
 
 | 方式 | 说明 |
 | --- | --- |
-| 快捷方式 | 把快捷方式放到 **ISOVIZ_INPUT/** 或仓库**根目录**，命名为 `ISOViz.lnk`（或 `IsoVIZ.lnk` / `ISOVIZ.lnk`）。根目录快捷方式已在根 `.gitignore` 中；查找顺序见 `config/settings.yaml` |
-| 可执行文件 / JAR | 上述查找目录中放置 `IsoViz.exe` / `ISOViz.exe`，或 `IsoViz.jar` / `ISOViz.jar` / `isoviz.jar` |
+| 快捷方式 | 把快捷方式放到仓库根的 **`local_tools/launchers/`**，命名为 `ISOViz.lnk`（或 `IsoVIZ.lnk` / `ISOVIZ.lnk`）。目录内容已在根 `.gitignore` 中排除；查找顺序见 `config/settings.yaml` |
+| 可执行文件 / JAR | 在 `local_tools/launchers/` 中放置 `IsoViz.exe` / `ISOViz.exe`，或 `IsoViz.jar` / `ISOViz.jar` / `isoviz.jar` |
 | 环境变量 | 设置 `ISOVIZ` 或 `ISOVIZ_JAR` 指向 `.exe` / `.jar` 的完整路径 |
 | Windows 文件关联 | 若 `.isoviz` 已关联到 IsoVIZ，脚本也可直接 `startfile` 打开 |
 
@@ -110,41 +127,51 @@ py -3.10 setup_cris.py install --project isoviz
 
 ---
 
-## 使用：`main.py`
+## 使用：桌面界面（默认）
 
-从 CRIS 根目录（推荐交互方式）：
+从 CRIS 根目录运行：
 
 ```powershell
 .\.venv\Scripts\python.exe ISOVIZ_INPUT\main.py
 ```
 
-程序会：
+界面左右各有一个输入区：
 
-1. 列出解析到的 `Best_Model_Parameters` 下的子文件夹，请**输入文件夹名**（或列表编号）
-2. 列出该文件夹中的 CSV，请**输入文件名**（可省略 `.csv`，或输入列表编号）
-3. 请输入晶体 `.isoviz` 的**绝对路径**。从资源管理器复制时可能带 `"..."` 或 `“...”`，程序会去掉引号
+1. 在“振幅 CSV”中点击“选择文件…”上传 CSV，或把完整 CSV 文本复制后点“粘贴剪贴板”。
+2. 在“子群 `.isoviz`”中用同样方式上传或粘贴官方结构内容。
+3. 先点“检查并生成临时文件”。报告会列出匹配模式、未使用 CSV 行、保留原值的 IsoVIZ 模式和静态校验状态。
+4. 状态不是 `fail` 时，再点“生成并启动 IsoVIZ”。
+5. 在 IsoVIZ 中人工核对 parent/child、模式标签和 `amp`。界面显示“已请求启动”只证明进程分发，不证明窗口已打开或数据已识别。
 
-```text
-Folders in E:\Best_Model_Parameters:
-  1. LD1_C1
-Best_Model_Parameters folder name: LD1_C1
-CSV files in ...\LD1_C1:
-  1. LD1_C1_best_model_parameters.csv
-CSV file name: LD1_C1_best_model_parameters.csv
-Absolute path of the crystal .isoviz file: "D:\data\LD1_C1.isoviz"
+输入框内容是本次运行的实际输入：选择文件后仍可手动修订，管线会处理修订后的文本。每次准备生成新的系统临时副本；源文件不变。
+
+## 使用：命令行兼容方式
+
+脚本化调用显式加 `--cli`：
+
+```powershell
+# 生成、校验并启动
+.\.venv\Scripts\python.exe ISOVIZ_INPUT\main.py --cli `
+  --data "E:\Best_Model_Parameters\LD1_C1\LD1_C1_best_model_parameters.csv" `
+  --structure "D:\data\LD1_C1.isoviz"
+
+# 只准备临时文件，不启动外部软件
+.\.venv\Scripts\python.exe ISOVIZ_INPUT\main.py --cli `
+  --data "E:\Best_Model_Parameters\LD1_C1\LD1_C1_best_model_parameters.csv" `
+  --structure "D:\data\LD1_C1.isoviz" `
+  --prepare-only
 ```
 
-两个输入齐了之后，程序把 CSV 振幅写入该 `.isoviz` 的 `amp`，再通过 CRIS 根目录的 IsoVIZ 快捷方式/JAR/EXE 打开填好的临时文件。成功时打印匹配到的模式数、CSV 未用名字、以及保持原振幅的 IsoVIZ 模式。
+为兼容原有脚本，直接传 `--data` / `--structure` 也会进入 CLI。没有文件参数但指定 `--cli` 时，才使用原来的文件夹/文件名终端询问流程。
 
-### 参数一览
-
-| 参数 | 是否必填 | 含义 |
-| --- | --- | --- |
-| （无参数） | 默认 | 询问文件夹名、CSV 文件名、`.isoviz` 绝对路径 |
-| `--folder` | 可选 | `Best_Model_Parameters` 下的子文件夹名 |
-| `--csv-name` | 可选 | 该文件夹中的 CSV 文件名 |
-| `--data` | 可选 | 振幅 CSV 的完整路径（跳过文件夹/文件名询问） |
-| `--structure` | 可选 | `.isoviz` 路径；可带引号 |
+| 参数 | 含义 |
+| --- | --- |
+| `--gui` | 显式启动桌面界面 |
+| `--cli` | 使用命令行适配器 |
+| `--folder` + `--csv-name` | 从 `Best_Model_Parameters` 定位 CSV；必须成对提供 |
+| `--data` | 振幅 CSV 完整路径 |
+| `--structure` | `.isoviz` 完整路径 |
+| `--prepare-only` | 只做解析、静态校验和临时文件生成 |
 
 ### CSV 需要什么列
 
@@ -159,40 +186,22 @@ CSV **必须有表头**。识别列名时不区分大小写。常用（与梯度
 
 模式名里可能含逗号；推荐用带引号的 CSV（例如 pandas 默认写出格式）。未匹配到的 IsoVIZ 模式保持原振幅。
 
-### 完整示例
-
-```powershell
-cd <CRIS 根目录>
-
-# 1) 准备环境（若尚未做过）
-py -3.10 setup_cris.py install --project isoviz
-
-# 2) 运行 GD 笔记本写出同级 Best_Model_Parameters\LD1_C1\...csv
-# 3) 交互输入文件夹名、CSV 文件名、.isoviz 绝对路径
-.\.venv\Scripts\python.exe ISOVIZ_INPUT\main.py
-
-# 或非交互：
-# .\.venv\Scripts\python.exe ISOVIZ_INPUT\main.py --folder LD1_C1 --csv-name LD1_C1_best_model_parameters.csv --structure "D:\data\LD1_C1.isoviz"
-```
-
 ### 建议你第一次这样试用
 
 1. 先运行 GD 笔记本的保存单元，确认
    `Best_Model_Parameters\LD1_C1\LD1_C1_best_model_parameters.csv`
-   实际存在。只有 `LD1_C1` 空目录时，主程序无法继续。
+   实际存在。
 2. 使用与这份 CSV **同一个 IR/OPD/path** 导出的官方 `.isoviz`；不能把
    `LD1_C1` 振幅写进另一个子群文件后再据此判断结构是否正确。
-3. 从 CRIS 根目录运行 `.\.venv\Scripts\python.exe ISOVIZ_INPUT\main.py`，依次输入
-   `LD1_C1`、CSV 文件名和 `.isoviz` 的绝对路径。
-4. 先看终端报告：`[matched]` 应大于 0；`[csv leftover]` 表示 CSV 中有模式未写入；
-   `isoviz modes without CSV values` 表示这些滑条保留原值。这两类不一定都是错误，
-   但在判定结构前必须逐项解释。
-5. IsoVIZ 打开后，核对母相/子群、模式总数和标签，并抽查终端列出的 `amp`；
+3. 启动 GUI，分别上传两个文件；也可打开文件后复制完整文本粘贴。
+4. 先看界面报告：匹配数必须大于 0；“CSV 中未使用的模式”和“保留原振幅的
+   IsoVIZ 模式”不一定都是错误，但在判定结构前必须逐项解释。
+5. IsoVIZ 打开后，核对母相/子群、模式总数和标签，并抽查界面报告列出的 `amp`；
    然后观察结构是否随这些振幅变化。`Best Model Parameter` 是写入值，
    `Normalized Amplitude` 不是。
 
 如果默认查找位置没有 IsoVIZ 启动器，仅有 Java 还不够；请把 `ISOViz.lnk`
-放到 CRIS 根目录或 `ISOVIZ_INPUT/`，或者设置 `ISOVIZ` / `ISOVIZ_JAR`。源
+放到 CRIS 根目录的 `local_tools/launchers/`，或者设置 `ISOVIZ` / `ISOVIZ_JAR`。源
 `.isoviz` 和 CSV 都不会被修改；被打开的是系统临时目录中的副本。
 
 ---
@@ -211,12 +220,15 @@ py -3.10 setup_cris.py install --project isoviz --dev
 ```
 
 测试使用 `tests_dev/fixtures/` 内的样本，不依赖你本机的 `input_content/`。
+入口回归会验证真实 CLI 的 `--prepare-only` 流程、源输入保持、临时 wheel 构建与
+离开源码目录后的安装包入口；构建依赖 `setuptools` 和 `wheel` 已列入开发依赖。
+这些检查不启动外部 IsoVIZ，也不证明 GUI 已识别结构。
 
 ### GUI 打开与数据识别验收
 
-普通 pytest 现在自动覆盖三层：CSV/标签匹配与 `amp` 写入、补丁后模式身份和结构
-元数据保持、JAR/EXE/Windows 快捷方式是否把临时 `.isoviz` 作为明确参数传给
-IsoVIZ。这些测试不弹出窗口。
+普通 pytest 自动覆盖四层：上传与粘贴输入的统一读取、CSV/标签匹配与 `amp` 写入、
+补丁后模式身份及非振幅内容保持、JAR/EXE/Windows 快捷方式是否把临时 `.isoviz`
+作为明确参数传给 IsoVIZ。零匹配会阻止启动。这些测试不弹出窗口。
 
 此前的测试只把启动函数替换成 mock，并检查它收到的文本，**不能证明窗口真的打开，
 也不能证明 Java IsoVIZ 已识别结构和模式**。现在新增了显式手工验收器：
@@ -250,7 +262,7 @@ IsoVIZ。这些测试不弹出窗口。
 | 现象 | 处理 |
 | --- | --- |
 | 提示找不到 Java | 安装 JRE/JDK，并把 `java` 加入 PATH |
-| 提示找不到 IsoVIZ | 在根目录放 `ISOViz.lnk`，或设置 `ISOVIZ` / `ISOVIZ_JAR`，或关联 `.isoviz` 扩展名 |
+| 提示找不到 IsoVIZ | 在 `local_tools/launchers/` 放 `ISOViz.lnk`，或设置 `ISOVIZ` / `ISOVIZ_JAR`，或关联 `.isoviz` 扩展名 |
 | `[matched] 0 mode(s)` | 核对 CSV 的 Mode Name 是否与 `.isoviz` 标签一致；或改用 `Mode=a1,a2,…` 按文件顺序 |
 | 改完 CSV 再跑仍像旧的 | 确认 IsoVIZ 打开的是本次启动生成的临时文件，而不是原始输入 `.isoviz` |
 

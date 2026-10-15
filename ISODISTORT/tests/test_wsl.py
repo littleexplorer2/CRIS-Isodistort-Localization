@@ -17,9 +17,9 @@ from pymatgen.core import Structure
 from pymatgen.io.cif import CifWriter
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from backend.api import IsoDistort
+from application.session import IsoDistort
 from backend.wrappers import FindsymWrapper, IsoWrapper, SubgroupInfo
-from features.input_cif import read_cif
+from backend.input_cif import read_cif
 
 MATCHER = StructureMatcher(ltol=1e-5, stol=1e-3, angle_tol=0.001)
 COORD_TOL = 1e-5
@@ -338,7 +338,7 @@ def test_method1_eual4_matches_official_opd_html():
     from manual.official_html_resolver import scan_official_html
 
     from backend.utils.lattice import determinant, inverse, multiply
-    from features.method1.affine_embeddings import (
+    from backend.method1.affine_embeddings import (
         affine_equivalence,
         embedding_from_identity,
         parent_affine_group,

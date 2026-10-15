@@ -43,8 +43,8 @@ if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
 from backend.utils import get_config  # noqa: E402
-from features.input_cif import read_cif  # noqa: E402
-from features.method1.search_methods import (  # noqa: E402
+from backend.input_cif import read_cif  # noqa: E402
+from backend.method1.search_methods import (  # noqa: E402
     IsoSearchEngine,
     Method3Query,
 )
@@ -208,11 +208,11 @@ def _signature_inputs(
         ),
         (
             "source:search-methods",
-            package_root / "features" / "method1" / "search_methods.py",
+            package_root / "backend" / "method1" / "search_methods.py",
         ),
         (
             "source:affine-embeddings",
-            package_root / "features" / "method1" / "affine_embeddings.py",
+            package_root / "backend" / "method1" / "affine_embeddings.py",
         ),
         ("source:lattice", package_root / "backend" / "utils" / "lattice.py"),
         (
@@ -221,15 +221,15 @@ def _signature_inputs(
         ),
         (
             "source:cif-reader",
-            package_root / "features" / "input_cif" / "cif_io.py",
+            package_root / "backend" / "input_cif" / "cif_io.py",
         ),
         (
             "source:structure-api",
-            package_root / "features" / "input_cif" / "__init__.py",
+            package_root / "backend" / "input_cif" / "__init__.py",
         ),
         (
             "source:hall-setting-map",
-            package_root / "features" / "export" / "isodistort_cif.py",
+            package_root / "backend" / "export" / "isodistort_cif.py",
         ),
         ("config", package_root / "resources" / "config" / "settings.yaml"),
     ]

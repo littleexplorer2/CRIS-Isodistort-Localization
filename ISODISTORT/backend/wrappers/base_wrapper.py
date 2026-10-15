@@ -63,7 +63,7 @@ def _wsl_access_denied_hint() -> str:
         "本机从 OneDrive 内的 .venv\\Scripts\\python.exe 启动时会稳定触发该限制；"
         "这不是缺少管理员权限，也不应通过反复重启 WSL 处理。请在 CRIS 根目录使用 "
         ".\\run_cris.ps1 <原 Python 参数>，例如 "
-        ".\\run_cris.ps1 ISODISTORT\\scripts\\main_web.py。"
+        ".\\run_cris.ps1 ISODISTORT\\main_web.py。"
     )
 
 
@@ -91,6 +91,7 @@ class BaseWrapper:
     def __init__(self) -> None:
         self.cfg = get_config()
         self._mode = self._detect_mode()
+        self._runtime_isodata = None
         self._wsl_home: str = ""
         self._stage_dir: str = ""
         self._isodata_link: str = ""
@@ -259,13 +260,16 @@ class BaseWrapper:
         )
         _ = result  # 清理失败不影响主流程
 
-    def _wsl_link_isodata(self) -> None:
+    def _wsl_link_isodata(self, data_dir_win: str | None = None) -> None:
         """在 WSL 侧创建到 isobyu 数据目录的短符号链接（幂等）。
 
         isobyu 数据目录在 Windows 侧的绝对路径通常很深，而二进制要求
         ISODATA 为短路径，因此统一通过符号链接暴露。
         """
-        data_dir_win = str(self.cfg.resolve_path(self.cfg._cfg["isobyu"]["data_dir"]))
+        if data_dir_win is None:
+            data_dir_win = str(
+                self.cfg.resolve_path(self.cfg._cfg["isobyu"]["data_dir"])
+            )
         data_dir_wsl = self._win_to_wsl(data_dir_win)
         cmd = (
             f"ln -sfn {shlex.quote(data_dir_wsl)} {shlex.quote(self._isodata_link)}"
@@ -273,6 +277,47 @@ class BaseWrapper:
         result = self._wsl(cmd)
         if result.returncode != 0:
             raise WrapperRunError("wsl", result.returncode, result.stderr)
+
+    def _ensure_writable_isodata(self) -> None:
+        """Switch this wrapper to a private disposable ISODATA copy.
+
+        ISO appends on-demand parametric-k subgroup tables to its data
+        directory. Packaged/reference ``resources/isobyu`` is read-only, so
+        generation must never point there. The private copy lives under the
+        configured runtime temp root and is owned by ``TemporaryDirectory``;
+        it is removed at normal interpreter shutdown and is never a committed
+        scientific result or answer database.
+        """
+
+        if getattr(self, "_runtime_isodata", None) is not None:
+            return
+        source = Path(
+            self.cfg.resolve_path(self.cfg._cfg["isobyu"]["data_dir"])
+        ).resolve()
+        if not source.is_dir():
+            raise WrapperRunError(
+                "iso",
+                1,
+                f"Cannot prepare private ISODATA: source is not a directory: {source}",
+            )
+        runtime_root = Path(self.cfg.temp_dir)
+        runtime_root.mkdir(parents=True, exist_ok=True)
+        holder = None
+        try:
+            holder = tempfile.TemporaryDirectory(
+                prefix="isodata-", dir=str(runtime_root)
+            )
+            destination = Path(holder.name)
+            shutil.copytree(source, destination, dirs_exist_ok=True)
+            if self._mode == "wsl":
+                self._wsl_link_isodata(str(destination))
+            self._runtime_isodata = holder
+        except OSError as exc:
+            if holder is not None:
+                holder.cleanup()
+            raise WrapperRunError(
+                "iso", 1, f"Cannot prepare private writable ISODATA: {exc}"
+            ) from exc
 
     # ================================================================
     # 路径转换与暂存
@@ -409,6 +454,11 @@ class BaseWrapper:
 
     def _isodata_path(self) -> str:
         """返回供二进制使用的 ISODATA 路径（必须以 / 结尾）。"""
+        runtime_isodata = getattr(self, "_runtime_isodata", None)
+        if runtime_isodata is not None:
+            if self._mode == "wsl":
+                return self._isodata_link + "/"
+            return str(Path(runtime_isodata.name)) + os.sep
         if self._mode == "wsl":
             return self._isodata_link + "/"
         data_dir_win = str(self.cfg.resolve_path(self.cfg._cfg["isobyu"]["data_dir"]))

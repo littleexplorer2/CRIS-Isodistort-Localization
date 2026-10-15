@@ -4,13 +4,13 @@ import pytest
 
 from backend.utils.lattice import identity_matrix, rational_matrix
 from backend.wrappers import SubgroupInfo
-from features.method1.affine_embeddings import (
+from backend.method1.affine_embeddings import (
     AffineEmbedding,
     AffineOperation,
     ParentAffineGroup,
     build_affine_quotient,
 )
-from features.method3.coupled_routes import (
+from backend.method3.coupled_routes import (
     CoupledRouteCandidate,
     lift_embedding_subgroup,
     resolve_coupled_route_witness,

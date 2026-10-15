@@ -12,8 +12,8 @@ import pytest
 from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-from backend.api import IsoDistort
-from backend.api import core_api as core_api_module
+from application.session import IsoDistort
+from application.session import core_api as core_api_module
 from backend.models.iso_mode_models import ModeIdentity
 from backend.utils.config_loader import Config
 from backend.utils.lattice import (
@@ -33,7 +33,7 @@ from backend.wrappers import (
     KPointInfo,
     SubgroupInfo,
 )
-from features.method1 import (
+from backend.method1 import (
     AffineEmbedding,
     AffineOperation,
     IsoSearchEngine,
@@ -50,9 +50,9 @@ from features.method1 import (
     enumerate_target_affine_embeddings,
     parent_affine_group,
 )
-from features.method1 import affine_embeddings as affine_embeddings_module
-from features.method1 import search_methods as search_methods_module
-from features.method1.search_methods import (
+from backend.method1 import affine_embeddings as affine_embeddings_module
+from backend.method1 import search_methods as search_methods_module
+from backend.method1.search_methods import (
     _basis_is_same_lattice,
     _basis_is_sublattice_of,
     _commensurate_line_parameters,
@@ -70,7 +70,7 @@ from features.method1.search_methods import (
     _subgroup_primitive_lattice,
     _validate_centering,
 )
-from features.method2 import superspace as superspace_module
+from backend.method2 import superspace as superspace_module
 
 
 def _i4mmm_parent() -> Structure:

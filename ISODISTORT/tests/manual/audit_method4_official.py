@@ -29,7 +29,7 @@ PACKAGE_ROOT = WORKSPACE / "ISODISTORT"
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
-from features.input_cif.cif_io import read_cif  # noqa: E402
+from backend.input_cif.cif_io import read_cif  # noqa: E402
 from tests.manual.method4_provenance import (  # noqa: E402
     PROVENANCE_KIND,
     PROVENANCE_SCHEMA,
