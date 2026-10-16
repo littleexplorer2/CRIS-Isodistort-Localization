@@ -211,6 +211,10 @@ def _signature_inputs(
             package_root / "backend" / "method1" / "search_methods.py",
         ),
         (
+            "source:method4-decomposition",
+            package_root / "backend" / "method4" / "decomposition.py",
+        ),
+        (
             "source:affine-embeddings",
             package_root / "backend" / "method1" / "affine_embeddings.py",
         ),

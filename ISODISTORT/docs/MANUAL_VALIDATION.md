@@ -6,6 +6,26 @@
 
 ## 运行前
 
+### Agent 的统一测试与只读比较入口
+
+以下命令从 **CRIS 根目录**执行，其余章节按各自说明切换目录：
+
+```powershell
+.\run_cris.ps1 -m pytest ISODISTORT/tests -q --tb=line
+.\run_cris.ps1 -m pytest tests_repo -q --tb=line
+.\run_cris.ps1 -m tests.validation compare --local "local.cif" --reference "reference.cif" --json
+.\run_cris.ps1 -m tests.validation batch --local-dir "local" --reference-dir "reference" --json
+```
+
+单对输入可改用默认目录下的相对路径；批量以相同相对路径配对。
+共同参数：`--lattice-tol`、`--coord-tol`、`--scalar-tol`、`--ignore-atom-order`、
+`--strict`、`--json`。单对支持 `--reference-sha256`；批量支持 `--pattern` 与
+`--hash-manifest`（相对路径到参考 SHA-256 的 JSON 映射）。未显式传目录时读取
+`tests/validation/config/settings.yaml`。模式分解、超胞生成或修改参数必须在比较前
+独立完成；参考答案只能进入只读比较环节。没有实际比较用例必须报告未验证。
+
+### 长时科学审计
+
 命令从 `CRIS/ISODISTORT/` 执行，经 `..\run_cris.ps1` 使用实体 .venv。
 先核对冻结输入与运行签名；给 report、checkpoint、dest-root 选择新的批次目录。
 以下历史日期是路径示例，不得覆盖原有证据。API 审计不能替代本轮真实浏览器下载。

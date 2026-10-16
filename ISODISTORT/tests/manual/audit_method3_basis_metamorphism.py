@@ -58,6 +58,7 @@ def _source_signature(manifest: dict[str, Any], manifest_path: Path) -> str:
         PACKAGE_ROOT / "application" / "session" / "core_api.py",
         PACKAGE_ROOT / "backend" / "method1" / "affine_embeddings.py",
         PACKAGE_ROOT / "backend" / "method1" / "search_methods.py",
+        PACKAGE_ROOT / "backend" / "method4" / "decomposition.py",
         PACKAGE_ROOT / "backend" / "utils" / "lattice.py",
         PACKAGE_ROOT / "backend" / "utils" / "opd_format.py",
     ]
@@ -160,7 +161,7 @@ def main() -> int:
     case_count = 0
     variant_count = 0
     for parent in manifest["parents"]:
-        iso = IsoDistort(language="en")
+        iso = IsoDistort()
         parent_path = WORKSPACE / "experiment_data" / parent["parent_cif"]
         with contextlib.redirect_stdout(io.StringIO()):
             iso.load_structure(parent_path)

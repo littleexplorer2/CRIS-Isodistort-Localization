@@ -27,8 +27,9 @@ from backend.utils.lattice import (
     real_translation_character_sign,
     wavevector_translation_phases,
 )
-from backend.input_cif import build_supercell, wrap_to_unit_cell
+from backend.input_cif import build_supercell, map_supercell_sites, wrap_to_unit_cell
 from backend.method1.affine_embeddings import parent_affine_group
+from backend.method1 import require_supported_physical_types
 from backend.method2.distortion_mapper import DistortionMapper
 
 SupercellSpec = Sequence[int] | Sequence[Sequence[float]] | None
@@ -123,22 +124,23 @@ class DistortionEngine:
                        k_vector: Sequence[float] | None = None,
                        ) -> Structure:
         """
-        组合生成畸变结构：可同时施加原子位移与占据率（occupational）调制。
+        组合生成位移畸变结构；旧占据率参数仅为兼容保留，非空时拒绝。
 
         Args:
             parent_structure: 母相结构
             supercell: 超胞规格（子群基矢 3x3 矩阵或 [a,b,c]）
             parent_displacements: (N_parent, 3) 位移向量（母相分数坐标单位），
                 每个超胞副本按对应母相原子施加；None 表示无位移
-            occupancy_patterns: [(pattern, amplitude), ...]，pattern 为
-                长度 = 超胞原子数的 ±1 数组（+1 类保持全占据，-1 类占据率
-                1-amplitude）；None 表示无占据率调制
+            occupancy_patterns: 旧接口参数，非空时抛出 NotImplementedError；
+                不再用二分模式或幅度夹取改写母相成分。
             k_vector: 母相倒格分数坐标；仅支持 Γ/自共轭实平移字符，
                 缺少完整复列/成对实列的一般非 Γ 模式明确报错。
 
         Returns:
-            Structure: 畸变后的结构（占据率调制时位点为部分占据）
+            Structure: 畸变后的结构，保留母相原有物种和占位
         """
+        if occupancy_patterns:
+            require_supported_physical_types(["occupational"])
         if parent_displacements is not None \
                 and parent_displacements.shape[0] != len(parent_structure):
             raise ValueError(
@@ -156,62 +158,9 @@ class DistortionEngine:
             )
             coords = wrap_to_unit_cell(coords)
 
-        def _elem_symbol(spec) -> str:
-            """位点成分 -> 元素符号（兼容 Element / Composition / str）。"""
-            if isinstance(spec, str):
-                return spec
-            if hasattr(spec, "symbol") and not hasattr(spec, "elements"):
-                return str(spec.symbol)  # Element
-            els = spec.elements  # Composition
-            return str(els[0].symbol) if len(els) == 1 else str(spec)
-
         species = [site.species for site in sc]
-        if occupancy_patterns:
-            n_sc = len(sc)
-            for pattern, amp in occupancy_patterns:
-                if len(pattern) != n_sc:
-                    raise ValueError(
-                        f"占据率模式长度 {len(pattern)} 与超胞原子数 {n_sc} 不一致"
-                    )
-                amp_capped = min(max(float(amp), 0.0), 1.0)
-                new_species = []
-                for j, site_species in enumerate(species):
-                    sym = _elem_symbol(site_species)
-                    # 占据率语义：+1 类全占据（1.0）；-1 类占据率 = 1 - amplitude；
-                    # pattern == 0 的位点未被该模式调制，应保持全占据，不可降低。
-                    if pattern[j] < 0:
-                        occ = max(1.0 - amp_capped, 0.01)
-                        if occ >= 0.999:
-                            new_species.append(sym)
-                        else:
-                            new_species.append({sym: occ})
-                    else:
-                        new_species.append(sym)
-                species = new_species
-
         return Structure(sc.lattice, species, coords, coords_are_cartesian=False)
 
-    @staticmethod
-    def _map_parent_indices(parent: Structure, sc: Structure,
-                            supercell) -> np.ndarray:
-        """把超胞原子映射回母相原子索引（几何最近邻 + 同物种，鲁棒于排序）。"""
-        basis = _as_basis_matrix(supercell)
-        n, m = len(parent), len(sc)
-        pc = np.asarray(parent.frac_coords, dtype=float)
-        pj = np.asarray(sc.frac_coords, dtype=float) @ basis
-        idx = np.zeros(m, dtype=int)
-        for j in range(m):
-            best_dist, best_i = float("inf"), -1
-            for i in range(n):
-                if sc[j].species_string != parent[i].species_string:
-                    continue
-                d = pj[j] - pc[i]
-                d -= np.round(d)
-                dist = float(np.linalg.norm(d))
-                if dist < best_dist:
-                    best_dist, best_i = dist, i
-            idx[j] = best_i
-        return idx
 
     @staticmethod
     def _real_parent_wavevector(
@@ -305,14 +254,9 @@ class DistortionEngine:
         if displacement.shape != (len(parent), 3) or not np.all(np.isfinite(displacement)):
             raise ValueError("parent-cell displacement column must be finite with shape (N, 3)")
         k = self._real_parent_wavevector(parent, basis, displacement, k_vector)
-        indices = self._map_parent_indices(parent, child, basis)
-        if np.any(indices < 0):
-            raise ValueError("child atoms cannot be mapped to the parent-cell column")
+        indices, translations = map_supercell_sites(parent, child, basis)
         lifted = displacement[indices] @ np.linalg.inv(basis)
         if k is not None:
-            parent_frac = np.asarray(child.frac_coords, dtype=float) @ basis
-            parent_coords = np.asarray(parent.frac_coords, dtype=float)
-            translations = np.round(parent_frac - parent_coords[indices]).astype(int)
             for row, translation in enumerate(translations):
                 lifted[row] *= real_translation_character_sign(k, translation)
         return lifted

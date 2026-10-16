@@ -20,6 +20,7 @@ from backend.utils.lattice import (
     as_fraction,
     centering_primitive_matrix,
     identity_matrix,
+    is_sublattice,
     inverse,
     multiply,
     rational_matrix,
@@ -54,10 +55,8 @@ from backend.method1 import affine_embeddings as affine_embeddings_module
 from backend.method1 import search_methods as search_methods_module
 from backend.method1.search_methods import (
     _basis_is_same_lattice,
-    _basis_is_sublattice_of,
     _commensurate_line_parameters,
     _eval_simple_k_component,
-    _integer_basis_matrix,
     _k_compatible_with_supercell,
     _kvec_from_template,
     _line_kpoint_template,
@@ -692,15 +691,15 @@ def test_sublattice_check_general_matrix():
     ident = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
     doubled = [[2, 0, 0], [0, 2, 0], [0, 0, 2]]
     fmmm = [[1, 1, 0], [-1, 1, 0], [0, 0, 1]]
-    assert _basis_is_sublattice_of(doubled, doubled) is True
-    assert _basis_is_sublattice_of(ident, ident) is True
+    assert is_sublattice(rational_matrix(doubled), rational_matrix(doubled)) is True
+    assert is_sublattice(rational_matrix(ident), rational_matrix(ident)) is True
     # 倍格是单位格的子格；单位格不是倍格的子格
-    assert _basis_is_sublattice_of(doubled, ident) is True
-    assert _basis_is_sublattice_of(ident, doubled) is False
+    assert is_sublattice(rational_matrix(doubled), rational_matrix(ident)) is True
+    assert is_sublattice(rational_matrix(ident), rational_matrix(doubled)) is False
     # Fmmm 型非对角超胞（L_fmmm = {x+y 为偶数}）：倍格(全偶坐标)是其子格
-    assert _basis_is_sublattice_of(fmmm, fmmm) is True
-    assert _basis_is_sublattice_of(doubled, fmmm) is True
-    assert _basis_is_sublattice_of(fmmm, doubled) is False
+    assert is_sublattice(rational_matrix(fmmm), rational_matrix(fmmm)) is True
+    assert is_sublattice(rational_matrix(doubled), rational_matrix(fmmm)) is True
+    assert is_sublattice(rational_matrix(fmmm), rational_matrix(doubled)) is False
 
 
 def test_method1_selector_matches_one_lattice_class():
@@ -716,8 +715,8 @@ def test_sublattice_check_parent_point_group_orbit():
     # 右乘点群旋转：把 (2,1,1) 型子格转到 (1,2,1) 型（一般非 GL 等价）
     r = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]], dtype=float)
     b = (np.asarray(s, dtype=float) @ r.T).tolist()
-    assert _basis_is_sublattice_of(b, s) is False
-    assert _basis_is_sublattice_of(b, s, parent_rotations=[r]) is True
+    assert is_sublattice(rational_matrix(b), rational_matrix(s)) is False
+    assert is_sublattice(rational_matrix(b), rational_matrix(np.asarray(s) @ r.T)) is True
 
 
 @dataclass
@@ -1181,7 +1180,7 @@ def test_method_3_identity_basis_is_exact_not_containment():
 
 def test_method_3_commensurate_ld_inference_helpers():
     """(0,0,6) includes every [0,1) lock-in, not only reciprocal divisors."""
-    M = _integer_basis_matrix([[1, 0, 0], [0, 1, 0], [0, 0, 6]])
+    M = np.diag([1, 1, 6])
     assert M is not None
     cands = _param_value_candidates(M)
     assert set(cands) == {
@@ -1888,71 +1887,17 @@ def test_method_2_rejects_affine_only_method3_diagnostic_row() -> None:
         )
 
 
-def test_method_3_route_filter_uses_existing_magnetic_and_occupational_semantics(
-    monkeypatch,
-) -> None:
+@pytest.mark.parametrize("kind", ["magnetic", "occupational", "rotational"])
+def test_method_3_route_filter_rejects_unproved_physical_models(kind) -> None:
     class _NoSmodes:
         def active_irreps(self, *args, **kwargs):
-            raise AssertionError("smodes must not run for magnetic/occupational-only filters")
+            raise AssertionError("displacement activity cannot certify this model")
 
-    class _OccupationalGenerator:
-        def generate(self, structure, wyckoff_sites, subgroup, species_scope):
-            assert species_scope == {"Eu"}
-            return (
-                [SimpleNamespace(validated=True)]
-                if subgroup.irrep_label == "Xocc" else []
-            )
-
-    monkeypatch.setattr(
-        core_api_module, "OccupationalModeGenerator", _OccupationalGenerator
-    )
     api = _method3_filter_api(_NoSmodes())
-    magnetic = _method3_route("mLD1")
-    occupational = _method3_route("Xocc", origin=[0.5, 0, 0])
-    ordinary = _method3_route("LD1", origin=[0, 0.5, 0])
-    items = [
-        Method3ResultItem(magnetic, "4mm", magnetic.basis_vectors, [magnetic]),
-        Method3ResultItem(
-            occupational, "4mm", occupational.basis_vectors, [occupational]
-        ),
-        Method3ResultItem(ordinary, "4mm", ordinary.basis_vectors, [ordinary]),
-    ]
-
-    magnetic_only = api._filter_method3_routes_by_types(items, ["magnetic"])
-    assert [item.subgroup.irrep_label for item in magnetic_only] == ["mLD1"]
-
-    items = [
-        Method3ResultItem(magnetic, "4mm", magnetic.basis_vectors, [magnetic]),
-        Method3ResultItem(
-            occupational, "4mm", occupational.basis_vectors, [occupational]
-        ),
-        Method3ResultItem(ordinary, "4mm", ordinary.basis_vectors, [ordinary]),
-    ]
-    occupational_only = api._filter_method3_routes_by_types(items, ["occupational"])
-    assert [item.subgroup.irrep_label for item in occupational_only] == ["Xocc"]
-
-
-def test_method_3_route_filter_rejects_unvalidated_occupational_guess(
-    monkeypatch,
-) -> None:
-    class _NoSmodes:
-        def active_irreps(self, *args, **kwargs):
-            raise AssertionError("smodes must not run for occupational-only filters")
-
-    class _UnvalidatedOccupationalGenerator:
-        def generate(self, structure, wyckoff_sites, subgroup, species_scope):
-            return [SimpleNamespace(validated=False)]
-
-    monkeypatch.setattr(
-        core_api_module,
-        "OccupationalModeGenerator",
-        _UnvalidatedOccupationalGenerator,
-    )
-    api = _method3_filter_api(_NoSmodes())
-    route = _method3_route("Xocc")
+    route = _method3_route("mLD1" if kind == "magnetic" else "LD1")
     item = Method3ResultItem(route, "4mm", route.basis_vectors, [route])
-
-    assert api._filter_method3_routes_by_types([item], ["occupational"]) == []
+    with pytest.raises(NotImplementedError, match=kind):
+        api._filter_method3_routes_by_types([item], [kind])
 
 
 def test_method_1_strain_filter_uses_symmetric_tensor_fixed_space() -> None:

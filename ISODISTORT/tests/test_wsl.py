@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import io
+import json
 import re
 import shutil
 import subprocess
@@ -70,7 +71,7 @@ def _srtio3_parent(tmp_path: Path) -> tuple[IsoDistort, Structure]:
     cif = tmp_path / "srtio3.cif"
     CifWriter(parent).write_file(str(cif))
 
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -251,7 +252,7 @@ def test_im3m_h4_minus_zone_boundary_phase(tmp_path):
 
     cif = tmp_path / "im3m.cif"
     CifWriter(parent).write_file(str(cif))
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -304,7 +305,7 @@ def test_official_ld1_reference_structure(tmp_path):
     parent_cif = DATA_DIR / "EuAl4 Parent.cif"
     if not parent_cif.exists():
         pytest.skip("EuAl4 母相 CIF 不存在")
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -413,7 +414,7 @@ def test_method1_eual4_matches_official_opd_html():
         assert len(values) == 1, f"missing or ambiguous official context field {name!r}"
         return values[0].strip()
 
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -549,7 +550,7 @@ def test_method1_eual4_matches_official_opd_html():
 
 def test_eual4_rootless_wyckoff_secondary_modes_are_completed():
     """BUSH root modes and child-fixed rootless-orbit modes form one basis."""
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -578,7 +579,7 @@ def test_eual4_rootless_wyckoff_secondary_modes_are_completed():
 
 
 def test_ndnio2_rootless_oxygen_secondary_modes_are_completed():
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -622,7 +623,7 @@ def test_4310_n1plus_4d1_complete_modes_cover_the_child_cell():
     expected = len(re.findall(r"(?m)^\s*\d+\s+\d+\s+[-+0-9.Ee]+\s+", mode_block))
     assert expected > 0
 
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -668,7 +669,7 @@ def test_shifted_4310_parent_is_canonicalized_before_method1_and_modes():
         frac_coords=True,
         to_unit_cell=True,
     )
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -712,7 +713,7 @@ def test_primitive_centered_parent_is_canonicalized_as_a_complete_cell():
     ).get_primitive_standard_structure()
     assert len(primitive) == 2
 
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     standardized = iso.set_structure(primitive)
 
     assert iso.symmetry_info["space_group_number"] == 225
@@ -828,7 +829,7 @@ def test_eual4_ld1_c1_parametric_complete_modes():
     cif = DATA_DIR / "EuAl4 Parent.cif"
     if not cif.is_file():
         pytest.skip("EuAl4 Parent.cif is not available")
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_types(["strain", "displacive"])
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
@@ -890,6 +891,8 @@ def test_eual4_ld1_c1_parametric_complete_modes():
             "LD1_C1/data.isoviz",
             "LD1_C1/Complete modes details.txt",
             "LD1_C1/topas.str",
+            "export_candidate_status.json",
+            "export_candidate_status.txt",
         ]
         assert all(archive.getinfo(name).file_size > 0 for name in names)
         assert b"_iso_displacivemode_ID" in archive.read(names[0])
@@ -897,3 +900,15 @@ def test_eual4_ld1_c1_parametric_complete_modes():
         assert b"Displacive mode definitions" in archive.read(names[2])
         topas = archive.read(names[3]).lower()
         assert b"site " in topas and b"prm " in topas
+        status = json.loads(archive.read("export_candidate_status.json"))
+        assert status["schema"] == "isodistort.export-candidate-status.v1"
+        assert status["method"] == 2
+        assert status["status"] == "success"
+        assert status["requested_candidate_count"] == status["successful_candidate_count"] == 1
+        assert status["ineligible_candidate_count"] == 0
+        assert status["unresolved_identity_candidate_count"] == 0
+        assert status["cancelled_candidate_count"] == 0
+        assert status["failures"] == []
+        assert b"requested=1 successful=1 ineligible=0" in archive.read(
+            "export_candidate_status.txt"
+        )

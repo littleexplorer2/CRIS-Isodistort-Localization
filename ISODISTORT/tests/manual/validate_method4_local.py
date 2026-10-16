@@ -714,7 +714,7 @@ def main() -> int:
     for parent_name, parent_row in manifest["parents"].items():
         if args.parent and parent_name != args.parent:
             continue
-        iso = IsoDistort(language="en")
+        iso = IsoDistort()
         parent_path = WORKSPACE / parent_row["parent_cif"]
         with contextlib.redirect_stdout(io.StringIO()):
             iso.load_structure(parent_path)
@@ -841,7 +841,7 @@ def main() -> int:
                         inconclusive += int(status == "inconclusive")
                 parent_report["cases"][case_id] = case_report
 
-        unprepared = IsoDistort(language="en")
+        unprepared = IsoDistort()
         with contextlib.redirect_stdout(io.StringIO()):
             unprepared.load_structure(parent_path)
         if not selected_rows:

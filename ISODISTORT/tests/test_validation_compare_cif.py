@@ -1,0 +1,239 @@
+import json
+from pathlib import Path
+
+import pytest
+from pymatgen.core import Lattice, Structure
+
+from tests.validation.application.single import compare_cif
+from tests.validation.frontend.cli.compare import main
+from tests.validation.backend.paths.service import (
+    format_unpaired_warning,
+    pairing_status,
+    resolve_pair,
+)
+
+
+def _write_structure(path: Path, shift: float = 0.0) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    structure = Structure(
+        Lattice.cubic(3.5),
+        ["Si", "Si"],
+        [[0, 0, 0], [0.25 + shift, 0.25, 0.25]],
+    )
+    structure.to(filename=str(path), fmt="cif")
+
+
+def test_identical_cif_passes(tmp_path: Path) -> None:
+    first = tmp_path / "first.cif"
+    second = tmp_path / "second.cif"
+    _write_structure(first)
+    second.write_bytes(first.read_bytes())
+
+    result = compare_cif(first, second)
+
+    assert result.byte_exact
+    assert result.text_exact
+    assert result.structure_equal
+    assert result.passed
+
+
+def test_format_difference_can_still_have_same_structure(tmp_path: Path) -> None:
+    first = tmp_path / "first.cif"
+    second = tmp_path / "second.cif"
+    _write_structure(first)
+    second.write_text("\n" + first.read_text(encoding="utf-8"), encoding="utf-8")
+
+    result = compare_cif(first, second)
+
+    assert not result.byte_exact
+    assert result.structure_equal
+    assert result.passed
+
+
+def test_ignore_order_compares_expanded_occupancies_not_asu_label_rows(
+    tmp_path: Path,
+) -> None:
+    """ASU metadata lists must not be indexed by expanded-structure indices."""
+    header = """data_ordered
+_cell_length_a 4.1
+_cell_length_b 5.2
+_cell_length_c 6.3
+_cell_angle_alpha 81
+_cell_angle_beta 93
+_cell_angle_gamma 104
+_symmetry_space_group_name_H-M 'P -1'
+_symmetry_Int_Tables_number 2
+loop_
+_space_group_symop_operation_xyz
+'x,y,z'
+'-x,-y,-z'
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+"""
+    local = tmp_path / "local.cif"
+    reference = tmp_path / "reference.cif"
+    local.write_text(
+        header + "Si_local Si 0.10 0.20 0.30 1\nO_local O 0.27 0.36 0.41 1\n",
+        encoding="utf-8",
+    )
+    reference.write_text(
+        header + "O_ref O 0.27 0.36 0.41 1\nSi_ref Si 0.10 0.20 0.30 1\n",
+        encoding="utf-8",
+    )
+
+    result = compare_cif(local, reference, ignore_atom_order=True)
+
+    assert result.structure_equal
+    assert result.details["local_atom_count"] == 4  # two P-1 ASU rows expand to four
+    assert result.details["occupancies_equal"] is True
+    assert result.details["labels_equal"] is None
+    assert "occupancies differ beyond scalar tolerance" not in result.details["issues"]
+    assert "atom labels differ" not in result.details["issues"]
+
+
+def test_ignore_order_uses_complete_bipartite_matching(tmp_path: Path) -> None:
+    """A flexible site must be reassigned so a constrained site can match."""
+    local = tmp_path / "local.cif"
+    reference = tmp_path / "reference.cif"
+    Structure(
+        Lattice.cubic(3.5),
+        ["C", "C"],
+        [[0.10, 0.0, 0.0], [0.85, 0.0, 0.0]],
+    ).to(filename=str(local), fmt="cif")
+    Structure(
+        Lattice.cubic(3.5),
+        ["C", "C"],
+        [[0.00, 0.0, 0.0], [0.30, 0.0, 0.0]],
+    ).to(filename=str(reference), fmt="cif")
+
+    result = compare_cif(
+        local,
+        reference,
+        coordinate_tolerance=0.21,
+        ignore_atom_order=True,
+    )
+
+    assert result.details["coordinates_equal"] is True
+
+
+def test_strict_mode_can_still_detect_format_difference(tmp_path: Path) -> None:
+    first = tmp_path / "first.cif"
+    second = tmp_path / "second.cif"
+    _write_structure(first)
+    second.write_text("\n" + first.read_text(encoding="utf-8"), encoding="utf-8")
+
+    result = compare_cif(first, second)
+
+    assert result.structure_equal
+    assert not result.byte_exact
+
+
+def test_reference_hash_is_part_of_the_pass_condition(tmp_path: Path) -> None:
+    first = tmp_path / "first.cif"
+    _write_structure(first)
+
+    result = compare_cif(first, first, reference_sha256="0" * 64)
+
+    assert result.structure_equal
+    assert result.reference_hash_valid is False
+    assert not result.passed
+
+
+def test_coordinate_difference_fails(tmp_path: Path) -> None:
+    first = tmp_path / "first.cif"
+    second = tmp_path / "second.cif"
+    _write_structure(first)
+    _write_structure(second, shift=0.01)
+
+    result = compare_cif(first, second)
+
+    assert not result.structure_equal
+    assert "fractional coordinates differ beyond tolerance" in result.details["issues"]
+
+
+def test_missing_file_is_reported(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError):
+        compare_cif(tmp_path / "missing.cif", tmp_path / "other.cif")
+
+
+def test_resolve_pair_rejects_absolute_and_parent_paths() -> None:
+    with pytest.raises(ValueError):
+        resolve_pair(r"C:\absolute\file.cif")
+    with pytest.raises(ValueError):
+        resolve_pair("../secret.cif")
+
+
+def test_pairing_missing_directories_does_not_write_inputs(tmp_path: Path, monkeypatch) -> None:
+    compare = tmp_path / "compare"
+    monkeypatch.setattr("tests.validation.backend.paths.service.COMPARE_ROOT", compare)
+    monkeypatch.setattr("tests.validation.backend.paths.service.ITEM_DIR", compare / "item")
+    monkeypatch.setattr("tests.validation.backend.paths.service.TRUE_DIR", compare / "true")
+    assert pairing_status() == ([], [], [])
+    assert resolve_pair("a.cif") == (compare / "item" / "a.cif", compare / "true" / "a.cif")
+    assert not compare.exists()
+
+
+def test_cli_compares_fixed_compare_dirs(tmp_path: Path, monkeypatch, capsys) -> None:
+    item = tmp_path / "item"
+    true = tmp_path / "true"
+    _write_structure(item / "pair.cif")
+    _write_structure(true / "pair.cif")
+    monkeypatch.setattr("tests.validation.backend.paths.service.ITEM_DIR", item)
+    monkeypatch.setattr("tests.validation.backend.paths.service.TRUE_DIR", true)
+
+    assert main(["pair.cif", "--json"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["passed"] is True
+
+
+def test_cli_auto_picks_single_pair(tmp_path: Path, monkeypatch, capsys) -> None:
+    item = tmp_path / "item"
+    true = tmp_path / "true"
+    _write_structure(item / "only.cif")
+    _write_structure(true / "only.cif")
+    monkeypatch.setattr("tests.validation.backend.paths.service.ITEM_DIR", item)
+    monkeypatch.setattr("tests.validation.backend.paths.service.TRUE_DIR", true)
+
+    assert main(["--json"]) == 0
+    assert "only.cif" in capsys.readouterr().out
+
+
+def test_pairing_status_lists_unmatched_filenames(tmp_path: Path, monkeypatch) -> None:
+    item = tmp_path / "item"
+    true = tmp_path / "true"
+    _write_structure(item / "X4- P3 CIF.cif")
+    _write_structure(true / "subgroup.cif")
+    monkeypatch.setattr("tests.validation.backend.paths.service.ITEM_DIR", item)
+    monkeypatch.setattr("tests.validation.backend.paths.service.TRUE_DIR", true)
+
+    paired, item_only, true_only = pairing_status()
+    assert paired == []
+    assert item_only == ["X4- P3 CIF.cif"]
+    assert true_only == ["subgroup.cif"]
+    text = format_unpaired_warning(item_only, true_only)
+    assert text is not None
+    assert "不要修改参考原件" in text
+    assert "X4- P3 CIF.cif" in text
+    assert "subgroup.cif" in text
+
+
+def test_cli_warns_immediately_when_filenames_do_not_pair(
+    tmp_path: Path, monkeypatch, capsys
+) -> None:
+    item = tmp_path / "item"
+    true = tmp_path / "true"
+    _write_structure(item / "X4- P3 CIF.cif")
+    _write_structure(true / "subgroup.cif")
+    monkeypatch.setattr("tests.validation.backend.paths.service.ITEM_DIR", item)
+    monkeypatch.setattr("tests.validation.backend.paths.service.TRUE_DIR", true)
+
+    assert main(["--json"]) == 2
+    err = capsys.readouterr().err
+    assert "发现文件名对不上" in err
+    assert "X4- P3 CIF.cif" in err
+    assert "subgroup.cif" in err

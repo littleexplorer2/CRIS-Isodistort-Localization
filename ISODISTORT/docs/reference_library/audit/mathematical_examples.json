@@ -1,0 +1,21 @@
+{
+  "scope": "Illustrations of manuscript contracts only; not a general proof or production-code validation.",
+  "exact_stabilizers": {
+    "group_order": 8,
+    "subgroups_enumerated": 10,
+    "representations": 2,
+    "witnesses_checked": 11
+  },
+  "oblique_nearest_image": {
+    "rounding_distance": 0.932288581931582,
+    "better_candidate_distance": 0.08462860036654275,
+    "global_distance_with_proved_bound": 0.05968249324550708
+  },
+  "spd_noncommuting_metric": {
+    "recovered_multiplier_error": 5.293435557890769e-16,
+    "metric_residual": 1.9743561501005244e-15
+  },
+  "right_action_order": "Exact noncommuting counterexample checked with rational matrices.",
+  "subspace_not_column_identity": "Equal projectors and different coordinates verified.",
+  "status": "passed_for_listed_examples"
+}

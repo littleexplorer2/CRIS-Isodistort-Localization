@@ -1,0 +1,1159 @@
+{
+  "schema": "cris-theory-library/v1",
+  "as_of": "2026-10-15",
+  "metadata_policy": "Bibliographic authority: original paper/publisher; search platforms are discovery only. sources.json is the editable catalogue; references.bib and notes/ANNOTATED_SOURCES.md are generated. Review status is not software verification.",
+  "sources": [
+    {
+      "id": "Campbell2006",
+      "title": "ISODISPLACE: a web-based tool for exploring structural distortions",
+      "topic": "core",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/2006%20Campbell.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Campbell2006.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1107/s0021889806014075",
+      "authors": [
+        "Branton J. Campbell",
+        "Harold T. Stokes",
+        "David E. Tanner",
+        "Dorian M. Hatch"
+      ],
+      "journal": "Journal of Applied Crystallography",
+      "volume": "39",
+      "pages": "607-614",
+      "year": 2006,
+      "annotation": {
+        "supports": "给出畸变空间、irrep 基、序参量及交互生成/分解的核心框架。",
+        "limits": "论文描述 2006 年 ISODISPLACE；其当时尚未实现的功能不能用于限定当前版本。",
+        "reviewed_material": "正文 2.1–2.4、4.9；抽查理论与限制"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s0021889806014075"
+    },
+    {
+      "id": "Stokes1991",
+      "title": "Group-theoretical methods for obtaining distortions in crystals: Applications to vibrational modes and phase transitions",
+      "topic": "projection",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/1991%20Stokes%20b.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Stokes1991.pdf",
+      "review_status": "bibliography_verified_scanned_pdf",
+      "doi": "10.1103/physrevb.43.11010",
+      "authors": [
+        "Harold T. Stokes",
+        "Dorian M. Hatch",
+        "James D. Wells"
+      ],
+      "journal": "Physical Review B",
+      "volume": "43",
+      "pages": "11010-11018",
+      "year": 1991,
+      "annotation": {
+        "supports": "模式投影、振动与相变分析的原始方法论文。",
+        "limits": "本地为扫描 PDF，未逐页审核全部推导；本文另提供投影证明。",
+        "reviewed_material": "书目与摘要；扫描件已保存"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1103/physrevb.43.11010"
+    },
+    {
+      "id": "Hatch1985",
+      "title": "Practical algorithm for identifying subgroups of space groups",
+      "topic": "settings",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/1985%20Hatch%20a.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Hatch1985.pdf",
+      "review_status": "bibliography_verified_scanned_pdf",
+      "doi": "10.1103/physrevb.31.2908",
+      "authors": [
+        "Dorian M. Hatch",
+        "Harold T. Stokes"
+      ],
+      "journal": "Physical Review B",
+      "volume": "31",
+      "pages": "2908-2912",
+      "year": 1985,
+      "annotation": {
+        "supports": "空间群子群识别及 setting 相关算法的原始来源。",
+        "limits": "扫描件未全文 OCR；不据此认证本地所有仿射嵌入。",
+        "reviewed_material": "书目与摘要；扫描件已保存"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1103/physrevb.31.2908"
+    },
+    {
+      "id": "Stokes1985",
+      "title": "Equivalence among isotropy subgroups of space groups",
+      "topic": "equivalence",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/1985%20Stokes%20b.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Stokes1985.pdf",
+      "review_status": "bibliography_verified_scanned_pdf",
+      "authors": [
+        "Harold T. Stokes",
+        "Dorian M. Hatch"
+      ],
+      "year": 1985,
+      "journal": "Physical Review B",
+      "volume": "31",
+      "pages": "7462-7464",
+      "doi": "10.1103/PhysRevB.31.7462",
+      "annotation": {
+        "supports": "各向同性子群等价关系的原始论文。",
+        "limits": "共轭与晶体学换基等价的作用域须分别声明；扫描件尚未全文核验。",
+        "reviewed_material": "书目与摘要；扫描件已保存"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1103/PhysRevB.31.7462"
+    },
+    {
+      "id": "Hatch2002",
+      "title": "Complete listing of order parameters for a crystalline phase transition: A solution to the generalized inverse Landau problem",
+      "topic": "inverse_landau",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/2002%20Hatch%20a.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Hatch2002.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1103/physrevb.65.014113",
+      "authors": [
+        "Dorian M. Hatch",
+        "Harold T. Stokes"
+      ],
+      "journal": "Physical Review B",
+      "volume": "65",
+      "pages": "014113",
+      "year": 2002,
+      "online_year": 2001,
+      "annotation": {
+        "supports": "逆 Landau 问题、主/次级序参量及目标子群的完整组合。",
+        "limits": "完备性有输入假设；固定空间非零不自动等于精确稳定子。",
+        "reviewed_material": "摘要、一般算法与完备性论述"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1103/physrevb.65.014113"
+    },
+    {
+      "id": "COPL2002",
+      "title": "COPL: program for obtaining a complete list of order parameters for a group-subgroup crystalline phase transition",
+      "topic": "inverse_landau",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/2002%20Hatch%20b.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/COPL2002.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1107/s002188980200506x",
+      "authors": [
+        "Harold T. Stokes",
+        "Dorian M. Hatch"
+      ],
+      "journal": "Journal of Applied Crystallography",
+      "volume": "35",
+      "pages": "379-379",
+      "year": 2002,
+      "annotation": {
+        "supports": "COPL 将逆 Landau 方法组织为程序接口。",
+        "limits": "程序短文不能替代算法正文；作者顺序采用原文 Stokes、Hatch。",
+        "reviewed_material": "短文与出版元数据"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s002188980200506x"
+    },
+    {
+      "id": "Coupled1991",
+      "title": "Coupled order parameters in the Landau theory of phase transitions in solids",
+      "topic": "coupling",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/1991%20Stokes%20a.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Coupled1991.pdf",
+      "review_status": "bibliography_verified_scanned_pdf",
+      "doi": "10.1080/01411599108205192",
+      "authors": [
+        "H. T. Stokes",
+        "D. M. Hatch"
+      ],
+      "journal": "Phase Transitions",
+      "volume": "34",
+      "pages": "53-67",
+      "year": 1991,
+      "annotation": {
+        "supports": "多序参量耦合与 Landau 相变的群论背景。",
+        "limits": "对称允许不决定自由能系数；扫描件未全文核验。",
+        "reviewed_material": "书目与摘要；扫描件已保存"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1080/01411599108205192"
+    },
+    {
+      "id": "Stokes2016",
+      "title": "ISOSUBGROUP: an internet tool for generating isotropy subgroups of crystallographic space groups",
+      "topic": "subgroups",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/2016%20Stokes.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Stokes2016.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1107/s160057671601311x",
+      "authors": [
+        "Harold T. Stokes",
+        "Seth van Orden",
+        "Branton J. Campbell"
+      ],
+      "journal": "Journal of Applied Crystallography",
+      "volume": "49",
+      "pages": "1849-1853",
+      "year": 2016,
+      "annotation": {
+        "supports": "ISOSUBGROUP 的公度各向同性子群生成及输入范围。",
+        "limits": "相对选定搜索域的枚举不等于无界超胞的穷尽。",
+        "reviewed_material": "摘要、程序能力与方法段"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s160057671601311x"
+    },
+    {
+      "id": "Stokes2017",
+      "title": "A general algorithm for generating isotropy subgroups in superspace",
+      "topic": "superspace",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/2017%20Stokes.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Stokes2017.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "authors": [
+        "Harold T. Stokes",
+        "Branton J. Campbell"
+      ],
+      "year": 2017,
+      "online_year": 2016,
+      "journal": "Acta Crystallographica Section A: Foundations and Advances",
+      "volume": "73",
+      "pages": "4-13",
+      "doi": "10.1107/S2053273316017629",
+      "annotation": {
+        "supports": "一般 (3+d) 超空间各向同性子群构造及宏观序参量。",
+        "limits": "引言明确将非公度微观基函数投影留待后续；不能作为所有列约定的唯一依据。",
+        "reviewed_material": "引言、构造思路；印刷页 4–5"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/S2053273316017629"
+    },
+    {
+      "id": "Stokes2013",
+      "title": "Tabulation of irreducible representations of the crystallographic space groups and their superspace extensions",
+      "topic": "representations",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/2013%20Stokes.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Stokes2013.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1107/s0108767313007538",
+      "authors": [
+        "Harold T. Stokes",
+        "Branton J. Campbell",
+        "Ryan Cordes"
+      ],
+      "journal": "Acta Crystallographica Section A Foundations of Crystallography",
+      "volume": "69",
+      "pages": "388-395",
+      "year": 2013,
+      "annotation": {
+        "supports": "230 空间群和超空间扩展的 irrep 矩阵、平移/相位分解。",
+        "limits": "表格基选择是输入合同，标签相同不保证另一实现的基相同。",
+        "reviewed_material": "摘要、T/P 与 Q/Ps 分解说明"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s0108767313007538"
+    },
+    {
+      "id": "Stokes2011",
+      "title": "Generation of (3 + d)-dimensional superspace groups for describing the symmetry of modulated crystalline structures",
+      "topic": "superspace",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/2011%20Stokes.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Stokes2011.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1107/s0108767310042297",
+      "authors": [
+        "Harold T. Stokes",
+        "Branton J. Campbell",
+        "Sander van Smaalen"
+      ],
+      "journal": "Acta Crystallographica Section A Foundations of Crystallography",
+      "volume": "67",
+      "pages": "45-55",
+      "year": 2011,
+      "annotation": {
+        "supports": "(3+d) 超空间群生成与调制对称。",
+        "limits": "不独立认证本地微观谐波列排序。",
+        "reviewed_material": "摘要及生成问题定义"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s0108767310042297"
+    },
+    {
+      "id": "Smaalen2013",
+      "title": "Equivalence of superspace groups",
+      "topic": "superspace",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/2013%20van%20Smaalen.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Smaalen2013.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1107/s0108767312041657",
+      "authors": [
+        "Sander van Smaalen",
+        "Branton J. Campbell",
+        "Harold T. Stokes"
+      ],
+      "journal": "Acta Crystallographica Section A Foundations of Crystallography",
+      "volume": "69",
+      "pages": "75-90",
+      "year": 2013,
+      "annotation": {
+        "supports": "超空间群等价、标准化与不同描述之间的关系。",
+        "limits": "波矢基、内部原点和 setting 都参与等价判定。",
+        "reviewed_material": "摘要与等价问题定义"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s0108767312041657"
+    },
+    {
+      "id": "Stokes2007",
+      "title": "Order parameters for phase transitions to structures with one-dimensional incommensurate modulations",
+      "topic": "superspace",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/2007%20Stokes.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Stokes2007.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1107/s0108767307024890",
+      "authors": [
+        "Harold T. Stokes",
+        "Branton J. Campbell",
+        "Dorian M. Hatch"
+      ],
+      "journal": "Acta Crystallographica Section A Foundations of Crystallography",
+      "volume": "63",
+      "pages": "365-373",
+      "year": 2007,
+      "annotation": {
+        "supports": "一维非公度调制的序参量、超空间与群论框架。",
+        "limits": "主要对应 d=1；不能代替任意 d 的全部分类。",
+        "reviewed_material": "摘要与序参量定义"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s0108767307024890"
+    },
+    {
+      "id": "Findsym2005",
+      "title": "FINDSYM: program for identifying the space-group symmetry of a crystal",
+      "topic": "symmetry_detection",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/2005%20Stokes.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Findsym2005.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1107/s0021889804031528",
+      "authors": [
+        "Harold T. Stokes",
+        "Dorian M. Hatch"
+      ],
+      "journal": "Journal of Applied Crystallography",
+      "volume": "38",
+      "pages": "237-238",
+      "year": 2005,
+      "annotation": {
+        "supports": "从晶胞和坐标识别空间群的 FINDSYM 程序来源。",
+        "limits": "实际噪声、容差和退化匹配须另验；不是原始输入唯一对称性的证明。",
+        "reviewed_material": "短文与程序合同"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s0021889804031528"
+    },
+    {
+      "id": "Invariants2003",
+      "title": "INVARIANTS: program for obtaining a list of invariant polynomials of the order-parameter components associated with irreducible representations of a space group",
+      "topic": "invariants",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/2003%20Hatch%20a.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Invariants2003.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1107/s0021889803005946",
+      "authors": [
+        "Dorian M. Hatch",
+        "Harold T. Stokes"
+      ],
+      "journal": "Journal of Applied Crystallography",
+      "volume": "36",
+      "pages": "951-952",
+      "year": 2003,
+      "annotation": {
+        "supports": "序参量不变多项式的生成。",
+        "limits": "固定次数基与整个不变量环的生成元不同。",
+        "reviewed_material": "短文及定义"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s0021889803005946"
+    },
+    {
+      "id": "Kerman2012",
+      "title": "The superstructure determination of displacive distortions via symmetry-mode analysis",
+      "topic": "decomposition",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/2012%20Kerman.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Kerman2012.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1107/s0108767311046241",
+      "authors": [
+        "Sean Kerman",
+        "Branton J. Campbell",
+        "Kiran K. Satyavarapu",
+        "Harold T. Stokes",
+        "Francesca Perselli",
+        "John S. O. Evans"
+      ],
+      "journal": "Acta Crystallographica Section A Foundations of Crystallography",
+      "volume": "68",
+      "pages": "222-234",
+      "year": 2012,
+      "annotation": {
+        "supports": "模式分析辅助确定位移超结构与精修参数化。",
+        "limits": "应用案例不能证明所有晶体或所有噪声下都可唯一反演。",
+        "reviewed_material": "摘要与方法概述"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s0108767311046241"
+    },
+    {
+      "id": "Refinement2007",
+      "title": "Rietveld refinement of structural distortion-mode amplitudes",
+      "topic": "refinement",
+      "type": "author_technical_article",
+      "url": "https://iso.byu.edu/2007%20Campbell.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Refinement2007.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "authors": [
+        "Branton J. Campbell",
+        "John S. O. Evans",
+        "Francesca Perselli",
+        "Harold T. Stokes"
+      ],
+      "year": 2007,
+      "journal": "IUCr Computing Commission Newsletter",
+      "volume": "8",
+      "pages": "81-95",
+      "annotation": {
+        "supports": "ISODISPLACE 模式与 TOPAS Rietveld 精修参数之间的接口。",
+        "limits": "技术通讯而非期刊同行评审论文；案例只作流程说明。",
+        "reviewed_material": "标题、摘要及参数化说明"
+      },
+      "accessed": "2026-10-15",
+      "authority": "author_material"
+    },
+    {
+      "id": "Muller2014",
+      "title": "A symmetry-mode description of rigid-body rotations in crystalline solids: a case study of Mg(H2O)6RbBr3",
+      "topic": "rotations",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/2014%20Muller.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Muller2014.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1107/s1600576713034560",
+      "authors": [
+        "Melanie Müller",
+        "Robert E. Dinnebier",
+        "Ann-Christin Dippel",
+        "Harold T. Stokes",
+        "Branton J. Campbell"
+      ],
+      "journal": "Journal of Applied Crystallography",
+      "volume": "47",
+      "pages": "532-538",
+      "year": 2014,
+      "annotation": {
+        "supports": "晶体刚体转动的对称模式参数化。",
+        "limits": "线性转动变量、有限旋转和共享原子相容性必须区分。",
+        "reviewed_material": "摘要与转动模型"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s1600576713034560"
+    },
+    {
+      "id": "Howard1998",
+      "title": "Group-theoretical analysis of octahedral tilting in perovskites",
+      "topic": "rotations",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/1998%20Howard.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Howard1998.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "authors": [
+        "Christopher J. Howard",
+        "Harold T. Stokes"
+      ],
+      "year": 1998,
+      "journal": "Acta Crystallographica Section B",
+      "volume": "54",
+      "pages": "782-789",
+      "doi": "10.1107/S0108768198004200",
+      "metadata_evidence": "Author PDF title page; IUCr volume 54 part 6 contents https://journals.iucr.org/b/issues/1998/06/00/",
+      "annotation": {
+        "supports": "用 M/R 点序参量分类简单钙钛矿八面体倾转。",
+        "limits": "仅覆盖文中限定的简单倾转；须与 2002 勘误一起使用。",
+        "reviewed_material": "作者全文第 3 节与结论"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/S0108768198004200"
+    },
+    {
+      "id": "HowardErratum2002",
+      "title": "Group-theoretical analysis of octahedral tilting in perovskites. Erratum",
+      "topic": "erratum",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/1998%20Howard%20erratum.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/HowardErratum2002.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "authors": [
+        "Christopher J. Howard",
+        "Harold T. Stokes"
+      ],
+      "year": 2002,
+      "journal": "Acta Crystallographica Section B",
+      "volume": "58",
+      "pages": "565",
+      "doi": "10.1107/S010876810200890X",
+      "metadata_evidence": "IUCr https://journals.iucr.org/b/issues/2002/03/02/ta9003/",
+      "annotation": {
+        "supports": "更正原论文子群关系图中遗漏的 I4/mcm 到 C2/c 连线。",
+        "limits": "勘误仅修正指定关系，不是新的一般分类算法。",
+        "reviewed_material": "勘误全文"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/S010876810200890X"
+    },
+    {
+      "id": "StokesTheory2006",
+      "title": "Introduction to Isotropy Subgroups and Displacive Phase Transitions",
+      "topic": "tutorial",
+      "type": "author_tutorial",
+      "url": "https://iso.byu.edu/2006%20Stokes.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/StokesTheory2006.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "authors": [
+        "Harold T. Stokes",
+        "Dorian M. Hatch"
+      ],
+      "year": 2006,
+      "annotation": {
+        "supports": "作者以物理图像介绍空间群、表示、位移与各向同性子群。",
+        "limits": "作者教学讲义，无同行评审标记；用于概念解释。",
+        "reviewed_material": "标题页与理论部分"
+      },
+      "accessed": "2026-10-15",
+      "authority": "author_material"
+    },
+    {
+      "id": "Frozen1995",
+      "title": "Using symmetry in frozen phonon calculations",
+      "topic": "phonon_boundary",
+      "type": "peer_reviewed",
+      "url": "https://iso.byu.edu/1995%20Stokes.pdf",
+      "authority_url": "https://iso.byu.edu/references.php",
+      "local_file": "pdf/Frozen1995.pdf",
+      "review_status": "bibliography_verified_scanned_pdf",
+      "doi": "10.1080/00150199508221841",
+      "authors": [
+        "Harold T. Stokes"
+      ],
+      "journal": "Ferroelectrics",
+      "volume": "164",
+      "pages": "183-188",
+      "year": 1995,
+      "annotation": {
+        "supports": "对称性在 frozen-phonon 计算中的用法。",
+        "limits": "对称模式没有自动包含力常数、质量或声子频率；扫描件未全文核验。",
+        "reviewed_material": "书目与摘要；扫描件已保存"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1080/00150199508221841"
+    },
+    {
+      "id": "PerezMato2010",
+      "title": "Mode crystallography of distorted structures",
+      "url": "https://test1.cryst.ehu.eus/html/resources/bcs_workshop2022/Mode%20crystallography%20of%20distorted%20structures.pdf",
+      "doi": "10.1107/s0108767310016247",
+      "type": "peer_reviewed",
+      "topic": "decomposition",
+      "local_file": "pdf/PerezMato2010.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "authors": [
+        "J. M. Perez-Mato",
+        "D. Orobengoa",
+        "M. I. Aroyo"
+      ],
+      "journal": "Acta Crystallographica Section A Foundations of Crystallography",
+      "volume": "66",
+      "pages": "558-590",
+      "year": 2010,
+      "primary_text_url": "https://journals.iucr.org/a/issues/2010/05/00/sh5107/index.html",
+      "annotation": {
+        "supports": "独立团队的模式晶体学综述，交叉支持模式分解、幅度和结构关系。",
+        "limits": "本地 PDF 获取失败；通过 Exa 核验了出版社正文节选，非全部 33 页。",
+        "reviewed_material": "出版社正文节选"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s0108767310016247"
+    },
+    {
+      "id": "Magnetic2012",
+      "title": "Magnetic superspace groups and symmetry constraints in incommensurate magnetic phases",
+      "url": "https://jana.fzu.cz/workshops/wmag2.pdf",
+      "doi": "10.1088/0953-8984/24/16/163201",
+      "type": "peer_reviewed",
+      "topic": "magnetic",
+      "local_file": "pdf/Magnetic2012.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "authors": [
+        "J M Perez-Mato",
+        "J L Ribeiro",
+        "V Petricek",
+        "M I Aroyo"
+      ],
+      "journal": "Journal of Physics: Condensed Matter",
+      "volume": "24",
+      "pages": "163201",
+      "year": 2012,
+      "annotation": {
+        "supports": "磁超空间群、时间反演及非公度磁结构的对称约束。",
+        "limits": "磁轴矢量、磁散射与普通标量散射不可混用。",
+        "reviewed_material": "摘要及磁调制约束段"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1088/0953-8984/24/16/163201"
+    },
+    {
+      "id": "Higham1986",
+      "title": "Computing the Polar Decomposition—with Applications",
+      "url": "https://eprints.maths.manchester.ac.uk/694/1/high86p.pdf",
+      "doi": "10.1137/0907079",
+      "type": "peer_reviewed",
+      "topic": "numerics",
+      "local_file": "pdf/Higham1986.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "authors": [
+        "Nicholas J. Higham"
+      ],
+      "journal": "SIAM Journal on Scientific and Statistical Computing",
+      "volume": "7",
+      "pages": "1160-1174",
+      "year": 1986,
+      "annotation": {
+        "supports": "极分解和正定矩阵函数的数值背景。",
+        "limits": "不指定 ISODISTORT 的有限应变规范；本文另证明所用 SPD 方程。",
+        "reviewed_material": "摘要与极分解定义"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1137/0907079"
+    },
+    {
+      "id": "Spglib2024",
+      "title": "Spglib: a software library for crystal symmetry search",
+      "url": "https://arxiv.org/pdf/1808.01590",
+      "doi": "10.1080/27660400.2024.2384822",
+      "type": "author_manuscript",
+      "topic": "symmetry_detection",
+      "local_file": "pdf/Spglib2024.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "authors": [
+        "Atsushi Togo",
+        "Kohei Shinohara",
+        "Isao Tanaka"
+      ],
+      "journal": "Science and Technology of Advanced Materials: Methods",
+      "volume": "4",
+      "pages": "2384822",
+      "year": 2024,
+      "copy_note": "Local PDF is the arXiv manuscript; bibliography identifies the 2024 journal article.",
+      "annotation": {
+        "supports": "独立晶体对称搜索算法及数值流程。",
+        "limits": "独立实现交叉来源，不是 ISODISTORT 二进制的认证。",
+        "reviewed_material": "摘要与对称搜索定义"
+      },
+      "accessed": "2026-10-15",
+      "authority": "author_material",
+      "doi_url": "https://doi.org/10.1080/27660400.2024.2384822"
+    },
+    {
+      "id": "CampbellTutorial2022",
+      "title": "ISODISTORT Tutorial Exercises",
+      "url": "https://physics.byu.edu/faculty/campbell/docs/tutorials-prahaworkshop2022/instructions.pdf",
+      "doi": null,
+      "type": "author_tutorial",
+      "topic": "tutorial",
+      "local_file": "pdf/CampbellTutorial2022.pdf",
+      "review_status": "selected_primary_passages_checked",
+      "authors": [
+        "Branton J. Campbell"
+      ],
+      "year": 2022,
+      "annotation": {
+        "supports": "作者的官方 ISODISTORT 操作练习与能力入口。",
+        "limits": "教程用于操作和输入/输出合同；不替代方法论文。",
+        "reviewed_material": "教程与任务说明"
+      },
+      "accessed": "2026-10-15",
+      "authority": "author_material"
+    },
+    {
+      "id": "IUCrMetric",
+      "title": "Metric Tensor and Symmetry Operations in Crystallography",
+      "url": "https://www.iucr.org/sites/default/files/2026-03/pamphlet10.pdf",
+      "doi": null,
+      "type": "iucr_tutorial",
+      "topic": "metric",
+      "local_file": "pdf/IUCrMetric.pdf",
+      "review_status": "link_only_unavailable",
+      "annotation": {
+        "supports": "IUCr 晶格度量教学资料入口。",
+        "limits": "下载遭 403；仅登记补充阅读，不据此声称已读公式。",
+        "reviewed_material": "链接发现，未获得正文"
+      },
+      "accessed": "2026-10-15",
+      "authority": "iucr_standard_or_education",
+      "corporate_author": "International Union of Crystallography"
+    },
+    {
+      "id": "OfficialHelp",
+      "title": "ISODISTORT Help",
+      "url": "https://iso.byu.edu/isodistorthelp.php",
+      "type": "official_documentation",
+      "topic": "capabilities",
+      "local_file": "snapshots/OfficialHelp.html",
+      "review_status": "selected_primary_passages_checked",
+      "annotation": {
+        "supports": "本次能力清单、四种 Method、物理类型、幅度及文件合同的官方范围来源。",
+        "limits": "与版本史存在 ESD/旧应变描述差异；功能说明不是算法完备性证明。",
+        "reviewed_material": "四种 Method、Complete modes、Normalization、输出说明"
+      },
+      "accessed": "2026-10-15",
+      "authority": "official_project_documentation",
+      "corporate_author": "ISOTROPY Software Suite"
+    },
+    {
+      "id": "OfficialHome",
+      "title": "ISODISTORT",
+      "url": "https://iso.byu.edu/isodistort.php",
+      "type": "official_documentation",
+      "topic": "capabilities",
+      "local_file": "snapshots/OfficialHome.html",
+      "review_status": "selected_primary_passages_checked",
+      "annotation": {
+        "supports": "ISODISTORT 当前网页版本与官方引用入口。",
+        "limits": "主页不是全部算法说明。",
+        "reviewed_material": "主页快照"
+      },
+      "accessed": "2026-10-15",
+      "authority": "official_project_documentation",
+      "corporate_author": "ISOTROPY Software Suite"
+    },
+    {
+      "id": "OfficialVersions",
+      "title": "ISODISTORT versions",
+      "url": "https://iso.byu.edu/isodistortversions.php",
+      "type": "official_documentation",
+      "topic": "versions",
+      "local_file": "snapshots/OfficialVersions.html",
+      "review_status": "selected_primary_passages_checked",
+      "annotation": {
+        "supports": "版本特定行为变化，尤其 ESD 与应变规范。",
+        "limits": "需与对应输出版本绑定；不能把旧条目当作当前行为。",
+        "reviewed_material": "5.5、5.6 与后续变更记录"
+      },
+      "accessed": "2026-10-15",
+      "authority": "official_project_documentation",
+      "corporate_author": "ISOTROPY Software Suite"
+    },
+    {
+      "id": "SuiteReferences",
+      "title": "References and Resources for the ISOTROPY Software Suite",
+      "url": "https://iso.byu.edu/references.php",
+      "type": "official_bibliography",
+      "topic": "bibliography",
+      "local_file": "snapshots/SuiteReferences.html",
+      "review_status": "selected_primary_passages_checked",
+      "annotation": {
+        "supports": "作者维护的 ISOTROPY 方法论文及 PDF 目录。",
+        "limits": "目录个别作者顺序需用实际论文复核。",
+        "reviewed_material": "完整目录及 PDF 链接"
+      },
+      "accessed": "2026-10-15",
+      "authority": "official_project_documentation",
+      "corporate_author": "ISOTROPY Software Suite"
+    },
+    {
+      "id": "IsotropyManual",
+      "title": "ISOTROPY User Manual",
+      "url": "https://iso.byu.edu/isotropy_doc.php",
+      "type": "official_documentation",
+      "topic": "backend",
+      "local_file": "snapshots/IsotropyManual.html",
+      "review_status": "selected_primary_passages_checked",
+      "annotation": {
+        "supports": "ISOTROPY 命令、输入输出及群论对象说明。",
+        "limits": "CLI 合同不能自动等同网页全部默认值。",
+        "reviewed_material": "相关命令及定义"
+      },
+      "accessed": "2026-10-15",
+      "authority": "official_project_documentation",
+      "corporate_author": "ISOTROPY Software Suite"
+    },
+    {
+      "id": "SmodesManual",
+      "title": "SMODES",
+      "url": "https://iso.byu.edu/smodes.php",
+      "type": "official_documentation",
+      "topic": "projection",
+      "local_file": "snapshots/SmodesManual.html",
+      "review_status": "selected_primary_passages_checked",
+      "annotation": {
+        "supports": "SMODES 官方入口与引用关系。",
+        "limits": "主页内容很短；未声称取得完整声子算法手册。",
+        "reviewed_material": "主页"
+      },
+      "accessed": "2026-10-15",
+      "authority": "official_project_documentation",
+      "corporate_author": "ISOTROPY Software Suite"
+    },
+    {
+      "id": "IsoIr",
+      "title": "ISO-IR",
+      "url": "https://iso.byu.edu/irtables.php",
+      "type": "official_database",
+      "topic": "representations",
+      "local_file": "snapshots/IsoIr.html",
+      "review_status": "selected_primary_passages_checked",
+      "annotation": {
+        "supports": "官方不可约表示表的版本、复/实表示和超空间入口。",
+        "limits": "未逐项验证全部表数据与示例 Fortran；本任务不下载或改动受保护数据库。",
+        "reviewed_material": "2011 Version 页面与表说明"
+      },
+      "accessed": "2026-10-15",
+      "authority": "official_project_documentation",
+      "corporate_author": "ISOTROPY Software Suite"
+    },
+    {
+      "id": "IsoKov",
+      "title": "ISO-KOV",
+      "url": "https://iso.byu.edu/isokov.php",
+      "type": "official_database",
+      "topic": "labels",
+      "local_file": "snapshots/IsoKov.html",
+      "review_status": "selected_primary_passages_checked",
+      "annotation": {
+        "supports": "Kovalev 表及表示约定的官方入口。",
+        "limits": "需核对与 ISO-IR 的基变换，不只对应标签。",
+        "reviewed_material": "主页"
+      },
+      "accessed": "2026-10-15",
+      "authority": "official_project_documentation",
+      "corporate_author": "ISOTROPY Software Suite"
+    },
+    {
+      "id": "IsoMag",
+      "title": "ISO-MAG",
+      "url": "https://iso.byu.edu/magneticspacegroups.php",
+      "type": "official_database",
+      "topic": "magnetic",
+      "local_file": "snapshots/IsoMag.html",
+      "review_status": "selected_primary_passages_checked",
+      "annotation": {
+        "supports": "磁空间群 BNS/OG 两种 setting 的官方表入口。",
+        "limits": "本次未逐条审核磁群数据。",
+        "reviewed_material": "版本及表说明"
+      },
+      "accessed": "2026-10-15",
+      "authority": "official_project_documentation",
+      "corporate_author": "ISOTROPY Software Suite"
+    },
+    {
+      "id": "CifSpec",
+      "title": "CIF syntax specification",
+      "url": "https://www.iucr.org/resources/cif/spec",
+      "type": "iucr_standard",
+      "topic": "formats",
+      "local_file": "snapshots/CifSpec.html",
+      "review_status": "selected_primary_passages_checked",
+      "annotation": {
+        "supports": "IUCr CIF 语法规范。",
+        "limits": "语法合法不等于结构语义正确；正文通过 Exa 而非本地直接下载核验。",
+        "reviewed_material": "官方正文节选"
+      },
+      "accessed": "2026-10-15",
+      "authority": "iucr_standard_or_education",
+      "corporate_author": "International Union of Crystallography"
+    },
+    {
+      "id": "CifCore",
+      "title": "Core CIF dictionary",
+      "url": "https://www.iucr.org/resources/cif/dictionaries/cif_core",
+      "type": "iucr_standard",
+      "topic": "formats",
+      "local_file": "snapshots/CifCore.html",
+      "review_status": "metadata_or_search_excerpt",
+      "annotation": {
+        "supports": "核心 CIF 字典与结构字段的权威入口。",
+        "limits": "未逐项校验所有字典条目；官网专属 iso 标签不能自动当作标准字段。",
+        "reviewed_material": "字典入口"
+      },
+      "accessed": "2026-10-15",
+      "authority": "iucr_standard_or_education",
+      "corporate_author": "International Union of Crystallography"
+    },
+    {
+      "id": "CifMag",
+      "title": "Magnetic CIF dictionary",
+      "url": "https://www.iucr.org/resources/cif/dictionaries/browse/cif_mag",
+      "type": "iucr_standard",
+      "topic": "magnetic",
+      "local_file": "snapshots/CifMag.html",
+      "review_status": "metadata_or_search_excerpt",
+      "annotation": {
+        "supports": "磁 CIF 字典及磁量、磁对称的字段定义入口。",
+        "limits": "字典版本与本地消费器支持程度须另核验。",
+        "reviewed_material": "官方检索内容与入口"
+      },
+      "accessed": "2026-10-15",
+      "authority": "iucr_standard_or_education",
+      "corporate_author": "International Union of Crystallography"
+    },
+    {
+      "id": "CifMs",
+      "title": "Modulated and composite structures dictionary",
+      "url": "https://www.iucr.org/__data/iucr/cifdic_html/1/cif_ms.dic/index.html",
+      "type": "iucr_standard",
+      "topic": "superspace",
+      "local_file": "snapshots/CifMs.html",
+      "review_status": "metadata_or_search_excerpt",
+      "annotation": {
+        "supports": "调制/复合结构 CIF 字典入口。",
+        "limits": "版本及每个调制字段的实现兼容仍需实测。",
+        "reviewed_material": "官方检索内容与入口"
+      },
+      "accessed": "2026-10-15",
+      "authority": "iucr_standard_or_education",
+      "corporate_author": "International Union of Crystallography"
+    },
+    {
+      "id": "ITA",
+      "title": "International Tables for Crystallography Volume A",
+      "url": "https://it.iucr.org/Ab/",
+      "type": "authoritative_book",
+      "topic": "space_groups",
+      "local_file": "snapshots/ITA.html",
+      "review_status": "publisher_landing_only",
+      "annotation": {
+        "supports": "空间群、晶体对称与标准 setting 的权威卷册。",
+        "limits": "仅核实出版入口，未取得全书；不编造章节页码。",
+        "reviewed_material": "出版入口"
+      },
+      "accessed": "2026-10-15",
+      "authority": "authoritative_publisher_entry",
+      "corporate_author": "International Union of Crystallography"
+    },
+    {
+      "id": "ITA1",
+      "title": "International Tables for Crystallography Volume A1",
+      "url": "https://it.iucr.org/A1/",
+      "type": "authoritative_book",
+      "topic": "subgroups",
+      "local_file": "snapshots/ITA1.html",
+      "review_status": "publisher_landing_only",
+      "annotation": {
+        "supports": "空间群之间的对称关系和子群的权威卷册。",
+        "limits": "仅核实出版入口，未取得全书。",
+        "reviewed_material": "出版入口"
+      },
+      "accessed": "2026-10-15",
+      "authority": "authoritative_publisher_entry",
+      "corporate_author": "International Union of Crystallography"
+    },
+    {
+      "id": "ITD",
+      "title": "International Tables for Crystallography Volume D",
+      "url": "https://it.iucr.org/Db/",
+      "type": "authoritative_book",
+      "topic": "tensors",
+      "local_file": "snapshots/ITD.html",
+      "review_status": "publisher_landing_only",
+      "annotation": {
+        "supports": "物理性质的对称性与张量约束的权威卷册。",
+        "limits": "仅核实出版入口，未取得全书。",
+        "reviewed_material": "出版入口"
+      },
+      "accessed": "2026-10-15",
+      "authority": "authoritative_publisher_entry",
+      "corporate_author": "International Union of Crystallography"
+    },
+    {
+      "id": "ReciprocalIUCr",
+      "title": "The reciprocal lattice",
+      "url": "https://www.iucr.org/education/pamphlets/4/full-text",
+      "type": "iucr_tutorial",
+      "topic": "lattice",
+      "local_file": "snapshots/ReciprocalIUCr.html",
+      "review_status": "metadata_or_search_excerpt",
+      "annotation": {
+        "supports": "IUCr 倒易格教学入口。",
+        "limits": "仅作辅助阅读；本地未下载完整正文。",
+        "reviewed_material": "官方入口"
+      },
+      "accessed": "2026-10-15",
+      "authority": "iucr_standard_or_education",
+      "corporate_author": "International Union of Crystallography"
+    },
+    {
+      "id": "BCSKvectors",
+      "title": "Brillouin-zone databases: k-vector definitions",
+      "url": "https://www.cryst.ehu.eus/cryst/help/definitions_kvec.html",
+      "type": "official_documentation",
+      "topic": "kstar",
+      "local_file": "snapshots/BCSKvectors.html",
+      "review_status": "metadata_or_search_excerpt",
+      "annotation": {
+        "supports": "Bilbao 的 k-vector 定义与 Brillouin 区数据库说明。",
+        "limits": "直接访问证书失败；不绕过证书校验。",
+        "reviewed_material": "官方搜索内容"
+      },
+      "accessed": "2026-10-15",
+      "authority": "official_project_documentation",
+      "corporate_author": "Bilbao Crystallographic Server"
+    },
+    {
+      "id": "Amplimodes2009",
+      "title": "AMPLIMODES: symmetry-mode analysis on the Bilbao Crystallographic Server",
+      "url": "https://journals.iucr.org/paper?S0021889809028064=",
+      "type": "peer_reviewed",
+      "topic": "decomposition",
+      "local_file": "snapshots/Amplimodes2009.html",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1107/s0021889809028064",
+      "authors": [
+        "Danel Orobengoa",
+        "Cesar Capillas",
+        "Mois I. Aroyo",
+        "J. Manuel Perez-Mato"
+      ],
+      "journal": "Journal of Applied Crystallography",
+      "volume": "42",
+      "pages": "820-833",
+      "year": 2009,
+      "annotation": {
+        "supports": "独立的对称模式分析实现及母子结构、模式幅度定义。",
+        "limits": "两实现约定未必逐列相同；正文只取得部分内容。",
+        "reviewed_material": "出版社正文节选"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s0021889809028064"
+    },
+    {
+      "id": "Wagner2009",
+      "title": "A non-mathematical introduction to the superspace description of modulated structures",
+      "url": "https://doi.org/10.1107/S0108768109015614",
+      "type": "peer_reviewed_tutorial",
+      "topic": "superspace",
+      "local_file": "snapshots/Wagner2009.html",
+      "review_status": "selected_primary_passages_checked",
+      "doi": "10.1107/s0108768109015614",
+      "authors": [
+        "Trixie Wagner",
+        "Andreas Schönleber"
+      ],
+      "journal": "Acta Crystallographica Section B Structural Science",
+      "volume": "65",
+      "pages": "249-268",
+      "year": 2009,
+      "annotation": {
+        "supports": "以实例解释调制晶体与超空间描述的同行评审教程。",
+        "limits": "实际出版年份为 2009；旧检索路径和年份已纠正。",
+        "reviewed_material": "出版社正文摘要、引言、1.1 节；通过 Exa 获取"
+      },
+      "accessed": "2026-10-15",
+      "authority": "primary_research",
+      "doi_url": "https://doi.org/10.1107/s0108768109015614",
+      "primary_text_url": "https://journals.iucr.org/b/issues/2009/03/00/bk5084/index.html"
+    },
+    {
+      "id": "ITCGeometry",
+      "title": "International Tables for Crystallography, Volume C, Chapter 1.1: Summary of general formulae",
+      "url": "https://it.iucr.org/Cb/ch1o1v0001/",
+      "local_file": "snapshots/ITCGeometry.html",
+      "type": "authoritative_book_chapter",
+      "topic": "lattice",
+      "authority": "iucr_standard_or_education",
+      "accessed": "2026-10-15",
+      "review_status": "selected_primary_passages_checked",
+      "annotation": {
+        "supports": "原胞、中心化惯用胞、直接与倒易格的定义和体积关系。",
+        "limits": "公开正文的部分公式在文本抓取中缺失；公式由本论文自足推导，不声称看到未显示的公式。",
+        "reviewed_material": "官方正文，经 Exa 核验"
+      },
+      "authors": [
+        "E. Koch"
+      ]
+    },
+    {
+      "id": "SuperstructureIUCr",
+      "title": "Superstructure: Online Dictionary of Crystallography",
+      "url": "https://dictionary.iucr.org/Superstructure",
+      "local_file": "snapshots/SuperstructureIUCr.html",
+      "type": "iucr_definition",
+      "topic": "lattice",
+      "authority": "iucr_standard_or_education",
+      "accessed": "2026-10-15",
+      "review_status": "selected_primary_passages_checked",
+      "annotation": {
+        "supports": "子结构与母结构之间的平移子群包含关系及术语边界。",
+        "limits": "该词条还限定化学不同原子的轨道分裂；不能把其完整定义机械推广到全部位移畸变。",
+        "reviewed_material": "官方正文，经 Exa 核验"
+      },
+      "corporate_author": "International Union of Crystallography"
+    }
+  ]
+}

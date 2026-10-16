@@ -1,0 +1,44 @@
+{
+  "schema": "cris-reference-search/v1",
+  "date": "2026-10-15",
+  "platforms": {
+    "Exa": {
+      "effective_search_calls": 15,
+      "requested_result_slots": 79,
+      "count_meaning": "Requested result slots, including duplicates and irrelevant hits; not unique papers or full text reads.",
+      "early_query_record": "The first 12 calls are summarized by theme; this is not a verbatim query transcript.",
+      "themes": [
+        "ISODISTORT authors and core methods",
+        "(3+d) superspace and isotropy groups",
+        "generalized inverse Landau and COPL",
+        "mode normalization and primitive cells",
+        "independent AMPLIMODES/mode crystallography",
+        "magnetic superspace and axial vectors",
+        "finite strain and metric conventions",
+        "CIF, msCIF and magCIF dictionaries",
+        "polar decomposition numerical analysis",
+        "International Tables and author tutorials"
+      ],
+      "last_queries": [
+        "Harold Stokes Branton Campbell incommensurate distortion modes projection operators microscopic basis functions ISODISTORT superspace irreducible representations",
+        "Howard Stokes 1998 Group-Theoretical Analysis of Octahedral Tilting in Perovskites 2002 erratum DOI",
+        "\"Group-Theoretical Analysis\" \"1998\" \"10.1107\" \"4200\""
+      ],
+      "primary_content_fetches": "Official help/reference/tables; IUCr Mode crystallography, AMPLIMODES, CIF specification, geometry chapter and Wagner2009; accessible content sometimes truncated."
+    },
+    "Consensus": {
+      "status": "used",
+      "workflow": "Search followed by fetch for core paper, mode review, AMPLIMODES, superspace 2017 and inverse Landau; index dates checked against original journal issue.",
+      "authority": "Discovery and cross-check only; no platform synthesis is used as proof."
+    },
+    "Undermind": {
+      "status": "used",
+      "workspace_id": "6e0ffa68-f3e1-4717-a1f9-619d5b1dd3b2",
+      "workflow": "Semantic paper retrieval for core/superspace, author search, detailed DOI metadata for 15 papers; reference display requested once.",
+      "access_events": "Two initial workspace failures, later recovered. Additional optional detail lookup failed after main metadata succeeded.",
+      "authority": "Bibliographic search only; no external reasoning or PDF-reading agents were delegated."
+    }
+  },
+  "source_selection": "Prefer original authors/publishers, IUCr standards and independent peer-reviewed algorithms. Reject unrelated fuzzy matches; retain unavailable authoritative links with explicit status.",
+  "raw_excerpt_policy": "Locally acquired primary texts are in ignored snapshots/ and pdf/. Catalogue, quotations-free annotations, decisions, source hashes and proofs are persistent."
+}

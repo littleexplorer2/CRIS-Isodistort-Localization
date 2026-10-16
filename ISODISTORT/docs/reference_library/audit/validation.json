@@ -1,0 +1,33 @@
+{
+  "checked_at": "2026-10-16T16:30:38.307071+00:00",
+  "status": "passed_document_integrity_checks",
+  "source_records": 50,
+  "cited_records": 41,
+  "capability_topics": 26,
+  "downloaded_primary_files": 35,
+  "reference_pdfs": 26,
+  "scanned_pdfs_not_fully_text_reviewed": [
+    "Stokes1991",
+    "Hatch1985",
+    "Stokes1985",
+    "Coupled1991",
+    "Frozen1995"
+  ],
+  "compiled_documents": [
+    {
+      "file": "latex/unsupported_algorithm_proofs.pdf",
+      "pages": 11,
+      "sha256": "7e96931546aafdb58604a76e869dadaa7cc7a3da06d0d141457256713e968450",
+      "text_characters": 16949,
+      "citations_resolved": true
+    },
+    {
+      "file": "latex/isodistort_theoretical_foundations.pdf",
+      "pages": 14,
+      "sha256": "593577a1b1d4b615aa220781272f0caaa11a762320c8fdffa14f6daa12bfb5a0",
+      "text_characters": 24826,
+      "citations_resolved": true
+    }
+  ],
+  "meaning": "Checks document integrity, hashes, citations and selected examples; NOT full scientific-engine validation or formal verification. Visual review is recorded separately in DELIVERY_REVIEW.md."
+}

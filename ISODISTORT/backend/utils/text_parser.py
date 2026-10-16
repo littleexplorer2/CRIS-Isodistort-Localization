@@ -19,6 +19,58 @@ from fractions import Fraction
 from typing import Any
 
 
+_RATIONAL_LITERAL = r"(?:\d+(?:/\d+)?|(?:\d+\.\d*|\.\d+))"
+
+
+def k_coordinate_parameters(coordinates) -> list[str]:
+    """Distinct independent variable names, not coordinate expressions."""
+    return sorted({name for component in coordinates
+                   for name in re.findall(r"[A-Za-z][A-Za-z0-9_]*", str(component))})
+
+
+def parse_affine_coordinate(component: str, parameter_names) -> tuple[tuple[Fraction, ...], Fraction] | None:
+    """Parse a rational affine coordinate, rejecting products and unknown names."""
+    names = tuple(str(name).strip() for name in parameter_names)
+    if len(set(names)) != len(names) or any(
+        not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", name) for name in names
+    ):
+        return None
+    text = re.sub(r"\s+", "", str(component))
+    if not text:
+        return None
+    signed = text if text[0] in "+-" else f"+{text}"
+    terms = re.findall(r"[+-][^+-]+", signed)
+    if not terms or "".join(terms) != signed:
+        return None
+    coefficients = [Fraction(0) for _ in names]
+    offset = Fraction(0)
+    constant_term = re.compile(_RATIONAL_LITERAL)
+    parameter_terms = [re.compile(
+        rf"(?:(?P<coefficient>{_RATIONAL_LITERAL})\*?)?{re.escape(name)}"
+    ) for name in names]
+    for term in terms:
+        sign = -1 if term[0] == "-" else 1
+        body = term[1:]
+        if constant_term.fullmatch(body):
+            offset += sign * Fraction(body)
+            continue
+        for index, pattern in enumerate(parameter_terms):
+            match = pattern.fullmatch(body)
+            if match:
+                raw = match.group("coefficient")
+                coefficients[index] += sign * (Fraction(raw) if raw else 1)
+                break
+        else:
+            return None
+    return tuple(coefficients), offset
+
+
+def parse_affine_k_component(component: str, param_name: str) -> tuple[Fraction, Fraction] | None:
+    """One-variable view of the shared exact affine-coordinate parser."""
+    result = parse_affine_coordinate(component, (param_name,))
+    return None if result is None else (result[0][0], result[1])
+
+
 def extract_section(text: str, start_marker: str, end_marker: str | None = None) -> str:
     """
     从文本中提取两个标记之间的内容段
@@ -258,7 +310,7 @@ def parse_kpoint_table(text: str) -> list[dict[str, Any]]:
         # 严格校验：恰好 3 个坐标分量，且每个分量符合 k 矢量格式
         if len(coords) != 3 or not all(_KOORD_COMPONENT_RE.match(c) for c in coords):
             continue
-        parameters = sorted({c for c in coords if re.search(r"[a-zA-Z]", c)})
+        parameters = k_coordinate_parameters(coords)
         kpoints.append({
             "label": label,
             "coordinates": coords,

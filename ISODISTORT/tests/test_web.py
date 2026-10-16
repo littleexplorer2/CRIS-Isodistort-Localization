@@ -666,8 +666,8 @@ def test_web_session_replaces_and_cleans_parent_upload(tmp_path):
     assert not second.exists()
 
 
-def test_i18n_endpoint(server):
-    data = _get(server.port, "/api/i18n")
+def test_messages_endpoint(server):
+    data = _get(server.port, "/api/messages")
     assert data["ok"]
     assert "language" not in data
     assert "terms" not in data
@@ -683,6 +683,12 @@ def test_i18n_endpoint(server):
     assert "Building ZIP" in data["messages"]["dist.zipWait"]
     assert "Elapsed" in data["messages"]["st.elapsed"]
     assert "Local engine is running" in data["messages"]["st.busyHint"]
+
+
+def test_retired_translation_endpoint_is_not_served(server):
+    with pytest.raises(urllib.error.HTTPError) as failure:
+        _get(server.port, "/api/i18n")
+    assert failure.value.code == 404
 
 
 def test_parent_header_schoenflies():
@@ -1130,8 +1136,8 @@ def test_method1_options_endpoint(server):
         f"{sg['number']} {sg['symbol']} {sg['schoenflies']}" for sg in opts["space_groups"]
     ] == [" ".join(sg["label"].split()) for sg in official_sg]
 
-    # Full selector verification: order, displayed representative, covered
-    # OPD rows, and the lattice represented by each option.
+    # Compare independently calculated lattice classes and candidate counts;
+    # archived display representatives never feed back into production.
     iso = workflow_service._SESSION.iso
     for local_key, official_name in (
         ("conventional_lattices", "isolattice"),
@@ -1145,14 +1151,16 @@ def test_method1_options_endpoint(server):
         ]
         for got, expected in zip(local, archived, strict=True):
             expected_basis = parse_basis_token(expected["label"])
-            assert got["label"] == expected["label"]
-            assert got["basis"] == expected_basis
+            # A computed GL(3,Z)/point-group representative need not equal
+            # the archived display basis; its own label must describe it.
+            assert np.allclose(parse_basis_token(got["label"]), got["basis"],
+                               rtol=0.0, atol=1e-12)
             assert iso._same_lattice_orbit(got["basis"], expected_basis), (
                 got["label"], expected["label"]
             )
 
     # Every option must select precisely the number of live rows recorded by
-    # the official form, including classes whose display basis was aligned.
+    # the official form, with independently computed display representatives.
     live_subgroups = iso._method1_filtered_subgroups()
     for key in ("conventional_lattices", "primitive_lattices"):
         for option in opts[key]:
@@ -1202,7 +1210,7 @@ def test_api_vs_web_method1_options(server):
         pytest.skip("EuAl4 母相不存在")
 
     # API 路径
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -1236,7 +1244,7 @@ def test_api_vs_web_method1_candidates(server):
     if not cif.exists():
         pytest.skip("无可用母相 CIF")
 
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -1276,7 +1284,7 @@ def test_api_vs_web_method2_and_generation(server):
     if not cif.exists():
         pytest.skip("无可用母相 CIF")
 
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -1336,7 +1344,7 @@ def test_api_vs_web_state_structure(server):
     if not cif.exists():
         pytest.skip("EuAl4 母相不存在")
 
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],

@@ -6,6 +6,7 @@
 from .cif_io import read_cif, read_cif_space_group_number, read_structure
 from .coordinate_transform import (
     build_supercell,
+    map_supercell_sites,
     coordinates_are_equal,
     wrap_to_unit_cell,
 )
@@ -14,6 +15,7 @@ from .symmetry_validator import SymmetryValidator
 __all__ = [
     "SymmetryValidator",
     "build_supercell",
+    "map_supercell_sites",
     "coordinates_are_equal",
     "read_cif",
     "read_cif_space_group_number",

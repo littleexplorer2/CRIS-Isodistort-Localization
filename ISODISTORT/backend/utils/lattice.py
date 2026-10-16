@@ -301,6 +301,18 @@ def centering_primitive_matrix(letter: str) -> RationalMatrix:
     return tables[key]
 
 
+def centering_multiplicity(letter: str) -> int:
+    """Conventional/primitive cell index, exactly 1 / |det(P)|.
+
+    P contains primitive row generators in conventional coordinates; the
+    volume ratio is its determinant, independent of the Cartesian metric.
+    """
+    index = 1 / abs(determinant(centering_primitive_matrix(letter)))
+    if index.denominator != 1:
+        raise ValueError("centering matrix does not define an integral cell index")
+    return int(index)
+
+
 def to_float_rows(matrix: RationalMatrix) -> list[list[float]]:
     return [[float(value) for value in row] for row in matrix]
 

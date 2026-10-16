@@ -28,6 +28,8 @@ from typing import TypeAlias
 import numpy as np
 from pymatgen.core import Lattice, Structure
 
+from backend.method1.phase_path import TYPE_ALIASES, UNSUPPORTED_PHYSICAL_TYPES
+
 from backend.utils.config_loader import get_config
 from backend.utils.lattice import (
     RationalMatrix,
@@ -65,19 +67,9 @@ from backend.method3.inverse_landau import (
 
 RationalVector: TypeAlias = tuple[Fraction, Fraction, Fraction]
 
-_TYPE_ALIASES = {"displacement": "displacive", "order": "occupational"}
+_TYPE_ALIASES = TYPE_ALIASES
 _SUPPORTED_TYPES = frozenset({"strain", "displacive"})
-_UNSUPPORTED_REASONS = {
-    "occupational": (
-        "composition-constrained occupational subspaces are not implemented"
-    ),
-    "rotational": (
-        "rigid-unit axial-vector coordinates and their site constraints are not implemented"
-    ),
-    "magnetic": (
-        "axial time-odd and anti-unitary magnetic representations are not implemented"
-    ),
-}
+_UNSUPPORTED_REASONS = UNSUPPORTED_PHYSICAL_TYPES
 
 
 @dataclass(frozen=True)

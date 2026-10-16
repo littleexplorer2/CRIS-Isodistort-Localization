@@ -91,10 +91,8 @@ def test_unavailable_setting_blocks_all_mode_entries_before_calls_or_mutation(mo
     api._generated_structure_cache_key = ("existing",)
     parametric = Mock(name="Parametric", side_effect=AssertionError("must not calculate modes"))
     special = Mock(name="Special", side_effect=AssertionError("must not calculate modes"))
-    occupational = Mock(name="Occupational", side_effect=AssertionError("must not create generator"))
     monkeypatch.setattr(superspace, "compute_parametric_modes", parametric)
     monkeypatch.setattr(superspace, "compute_special_modes_with_rootless_supplement", special)
-    monkeypatch.setattr(core_api, "OccupationalModeGenerator", occupational)
     before = dict(vars(api))
     before_metadata = copy.deepcopy(api.symmetry_info)
 
@@ -106,7 +104,7 @@ def test_unavailable_setting_blocks_all_mode_entries_before_calls_or_mutation(mo
         assert vars(api)[key] is value
     assert api.symmetry_info == before_metadata
     for backend in (api._iso, api._smodes, api._search, api._dist_mapper,
-                    parametric, special, occupational):
+                    parametric, special):
         assert backend.mock_calls == []
 
 
@@ -122,17 +120,19 @@ def test_verified_status_is_not_blocked_by_private_entry_guard(monkeypatch, stat
     parametric = Mock(return_value=superspace.ParametricModeResult(
         modes=[], supercell_displacements={}, labels={}, nmod=0,
     ))
-    generator = SimpleNamespace(generate=Mock(return_value=[]))
-    factory = Mock(return_value=generator)
     monkeypatch.setattr(superspace, "compute_parametric_modes", parametric)
-    monkeypatch.setattr(core_api, "OccupationalModeGenerator", factory)
-    assert _invoke_mode_entry(api, entry) == []
     if entry == "calc":
+        assert _invoke_mode_entry(api, entry) == []
         assert parametric.call_count == 1
         assert api._iso.list_k_points.call_count == 1
     else:
-        assert factory.call_count == 1
-        assert generator.generate.call_count == 1
+        # A verified setting cannot supply a missing scalar representation.
+        before = dict(vars(api))
+        with pytest.raises(NotImplementedError, match="occupational"):
+            _invoke_mode_entry(api, entry)
+        assert set(vars(api)) == set(before)
+        assert all(vars(api)[key] is value for key, value in before.items())
+        assert parametric.mock_calls == []
 
 
 @pytest.mark.parametrize("status", ["available", "canonicalized"])

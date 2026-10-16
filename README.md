@@ -19,24 +19,23 @@ CRIS 是一套本地晶体学工作流。它把三个原本需要分别操作的
 > [BUGFIX_VALIDATION_REPORT.md](ISODISTORT/docs/BUGFIX_VALIDATION_REPORT.md)，
 > 当前工作顺序见 [DEVELOPMENT_PLAN.md](ISODISTORT/docs/DEVELOPMENT_PLAN.md)。
 
-## 三个子项目
+## 两个运行项目与集成测试
 
 | 子项目 | 用途 | 输入 | 输出 / 动作 |
 | --- | --- | --- | --- |
 | [ISODISTORT](ISODISTORT/README.md) | 本地子群搜索、Method 4 模式分解 | 母相 CIF；Method 4 还需女儿相 CIF | 结果表、CIF、`.isoviz`、modes、TOPAS ZIP |
-| [ISODISTORT_VALIDATE](ISODISTORT_VALIDATE/README.md) | 比较本地与官网 CIF | `compare/item/` 与 `compare/true/` 中同相对路径的 CIF | PASS/FAIL、差异说明、可选 JSON |
 | [ISOVIZ_INPUT](ISOVIZ_INPUT/README.md) | 把 GD 振幅写入 `.isoviz` | `Best_Model_Parameters` CSV + 对应 `.isoviz` | 系统临时副本，并可启动 IsoVIZ |
 
-三个子项目共用仓库根目录内的实体 `.venv`。仓库级版本只由 [`VERSION`](VERSION) 定义；三个 Python 包与文档在发布时保持同一版本。本机的 OneDrive 安全限制会阻止该目录内的 Python 子进程启动 WSL，因此需要 WSL 的命令统一由根目录 `run_cris.ps1` 启动；第三方 Python 包仍全部从 `.venv` 加载。
+两个运行项目共用仓库根目录内的实体 `.venv`。仓库级版本只由 [`VERSION`](VERSION) 定义；两个 Python 包与文档在发布时保持同一版本。本机的 OneDrive 安全限制会阻止该目录内的 Python 子进程启动 WSL，因此需要 WSL 的命令统一由根目录 `run_cris.ps1` 启动；第三方 Python 包仍全部从 `.venv` 加载。
 
 仓库根目录只保留跨项目入口和元数据。根部署器测试集中在 `tests_repo/`；本机
 IsoVIZ、VESTA 等 GUI 启动器集中在 `local_tools/launchers/`，其中实际快捷方式、JAR
-和可执行文件均由 `.gitignore` 排除，不进入版本库。三个子项目自己的测试目录不受影响。
+和可执行文件均由 `.gitignore` 排除，不进入版本库。ISODISTORT 的科学回归与比较测试统一从 `ISODISTORT/tests/` 执行。
 
-三个子项目统一采用 `frontend → application → backend` 三层调用：前端负责网页、命令行或
+两个运行项目统一采用 `frontend → application → backend` 三层调用：前端负责网页、命令行或
 GUI 交互，应用层协调会话与处理流程，底层提供科学算法和文件/运行设施；每个模块有独立
 目录和 Python 包入口。完整结构及后续修改规则见 [AGENTS.md](AGENTS.md)，自动门禁清单见
-[architecture_manifest.json](tests_repo/architecture_manifest.json)。原启动命令继续可用；
+[architecture_manifest.json](tests_repo/architecture_manifest.json)。两个运行项目的启动入口保持不变，验证统一使用 `-m tests.validation`；
 ISODISTORT 的新 Python API 入口为 `application.session`，旧导入保留兼容转发。
 
 ## 第一次安装（Windows）
@@ -51,12 +50,12 @@ cd CRIS
 ```
 
 也可以从 GitHub 下载 ZIP 并解压；以下命令均假定当前目录是包含
-`setup_cris.py`、`ISODISTORT/`、`ISODISTORT_VALIDATE/` 和 `ISOVIZ_INPUT/`
+`setup_cris.py`、`ISODISTORT/` 和 `ISOVIZ_INPUT/`
 的 CRIS 根目录。
 
 ### 2. 安装系统组件
 
-完整使用三个子项目需要：
+完整使用两个运行项目需要：
 
 | 组件 | 最低要求 | 哪个项目需要 |
 | --- | --- | --- |
@@ -65,7 +64,7 @@ cd CRIS
 | Linux 版 ISOTROPY Suite | `iso`、`findsym`、`smodes`、完整 `data_*.txt` | ISODISTORT |
 | Java + IsoVIZ | `java -version` 可执行，且能定位 `.lnk` / `.jar` / `.exe` | ISOVIZ_INPUT |
 
-只使用 `ISODISTORT_VALIDATE` 时不需要 WSL、ISOTROPY、Java 或 IsoVIZ。
+只读取已冻结 CIF 进行比较时，不需要调用 WSL、ISOTROPY、Java 或 IsoVIZ；比较器属于 ISODISTORT 的测试支持包。
 
 先在 PowerShell 检查 Python 与 WSL：
 
@@ -129,14 +128,13 @@ py -3.10 setup_cris.py install --dev
 
 # 只安装一个子项目及其运行目录
 py -3.10 setup_cris.py install --project isodistort
-py -3.10 setup_cris.py install --project validate
 py -3.10 setup_cris.py install --project isoviz
 
 # 仅在 .venv 已损坏或 Python 大版本改变时使用
 py -3.10 setup_cris.py install --recreate
 ```
 
-旧的三个 `main_requirement.py` 仍可调用，但只作为兼容转发；新说明和新部署统一使用根目录 `setup_cris.py`。
+两个运行项目的 `main_requirement.py` 仍可调用，但只作为兼容转发；新说明和新部署统一使用根目录 `setup_cris.py`。
 
 ### 5. 运行部署诊断
 
@@ -150,14 +148,13 @@ py -3.10 setup_cris.py install --recreate
 
 ```powershell
 .\run_cris.ps1 setup_cris.py doctor --project isodistort
-.\.venv\Scripts\python.exe setup_cris.py doctor --project validate
 .\.venv\Scripts\python.exe setup_cris.py doctor --project isoviz
 ```
 
 `run_cris.ps1` 从 `.venv/pyvenv.cfg` 读取基础 Python 路径，并把
 `.venv/Lib/site-packages` 置于导入路径最前。它不会另建环境或从系统环境取代项目依赖。
 
-自动化环境可加 `--json`。有 `FAIL` 时退出码为 1；只有 `PASS/WARN` 时为 0。`compare/` 尚无成对 CIF、`Best_Model_Parameters/` 尚无 CSV 会记为 `WARN`，表示程序已部署但还没有用户输入，不等同于计算失败。
+自动化环境可加 `--json`。有 `FAIL` 时退出码为 1；只有 `PASS/WARN` 时为 0。`Best_Model_Parameters/` 尚无 CSV 会记为 `WARN`，表示程序已部署但还没有用户输入，不等同于计算失败。
 
 ## 离线安装 Python 依赖
 
@@ -194,22 +191,22 @@ cd <CRIS 根目录>
 
 完整字段、四种 Method、配置和限制见 [ISODISTORT 使用说明](ISODISTORT/README.md)。
 
-### 比较一对 CIF
+### 使用集成测试比较一对 CIF
 
-把两边文件放成相同相对路径：
+比较器已并入 ISODISTORT 测试，不再单独安装。可使用下列默认目录，或通过 `--local` / `--reference` 显式指定已有文件；参考原件保持只读：
 
 ```text
-ISODISTORT_VALIDATE/compare/item/LD1_C1/subgroup.cif
-ISODISTORT_VALIDATE/compare/true/LD1_C1/subgroup.cif
+ISODISTORT/output/validation/compare/item/LD1_C1/subgroup.cif
+ISODISTORT/output/validation/compare/true/LD1_C1/subgroup.cif
 ```
 
 运行：
 
 ```powershell
-.\.venv\Scripts\python.exe ISODISTORT_VALIDATE\main.py compare "LD1_C1/subgroup.cif"
+.\run_cris.ps1 -m tests.validation compare "LD1_C1/subgroup.cif"
 ```
 
-默认比较晶格、周期分数坐标、物种、占据率、磁矩和空间群语义；字节排版不同不会单独导致失败。详见 [ISODISTORT_VALIDATE 使用说明](ISODISTORT_VALIDATE/README.md)。
+默认比较晶格、周期分数坐标、物种、占据率、磁矩和空间群语义；字节排版不同不会单独导致失败。详见 [集成验证说明](ISODISTORT/README.md#集成验证与测试)。
 
 ### 把振幅写入 IsoVIZ
 
@@ -238,21 +235,21 @@ ISODISTORT_VALIDATE/compare/true/LD1_C1/subgroup.cif
    ▼
 ISODISTORT ──► 结果表 / CIF / .isoviz / modes / TOPAS
    │                         │
-   │                         ├──► ISODISTORT_VALIDATE（与官网 CIF 做语义比较）
+   │                         ├──► ISODISTORT/tests/validation（只读语义比较）
    │                         │
    │                         └──► ISOVIZ_INPUT（GD CSV 振幅 → IsoVIZ 临时副本）
    │
    └── Method 4：母相 + 女儿相 CIF → 模式幅度与 residual
 ```
 
-这些步骤可以独立使用。验证工具不生成结构，IsoVIZ 输入工具不搜索子群，三个项目不会复制彼此的核心算法。
+这些步骤可以独立使用。验证工具不生成结构，IsoVIZ 输入工具不搜索子群，运行项目与测试支持包共用各自职责内的唯一实现。
 
 ## 配置与本机路径
 
 | 子项目 | 配置事实来源 | 主要内容 |
 | --- | --- | --- |
 | ISODISTORT | [resources/config/settings.yaml](ISODISTORT/resources/config/settings.yaml) | ISOTROPY 路径、容差、端口、超时、输出目录 |
-| ISODISTORT_VALIDATE | [config/settings.yaml](ISODISTORT_VALIDATE/config/settings.yaml) | 固定比较目录、默认容差、严格模式 |
+| ISODISTORT 集成验证 | [settings.yaml](ISODISTORT/tests/validation/config/settings.yaml) | 固定比较目录、默认容差、严格模式 |
 | ISOVIZ_INPUT | [config/settings.yaml](ISOVIZ_INPUT/config/settings.yaml) | CSV 根目录、启动器环境变量和查找顺序 |
 
 相对路径均按各配置文件所在的 `config/` 目录解析。不要把本机绝对路径写入源码；需要覆盖时优先改 yaml 或使用说明中列出的环境变量/命令参数。GD 与 ISOVIZ_INPUT 默认自动发现 CRIS 同级的 `Best_Model_Parameters/`；也可用 `BEST_MODEL_PARAMETERS_DIR` 指向该目录的绝对路径。GD 转换器用 `CRIS_ROOT` 覆盖同级 `CRIS/` 的自动发现。
@@ -333,10 +330,11 @@ py -3.10 setup_cris.py install
 
 - 新用户安装、跨项目关系和部署诊断：本文件；
 - ISODISTORT 使用、能力和限制：[ISODISTORT/README.md](ISODISTORT/README.md)；
-- CIF 比较使用说明：[ISODISTORT_VALIDATE/README.md](ISODISTORT_VALIDATE/README.md)；
+- CIF 比较使用说明：[ISODISTORT 集成验证](ISODISTORT/README.md#集成验证与测试)；
 - CSV → IsoVIZ 使用说明：[ISOVIZ_INPUT/README.md](ISOVIZ_INPUT/README.md)；
 - 开发计划：[DEVELOPMENT_PLAN.md](ISODISTORT/docs/DEVELOPMENT_PLAN.md)；
 - 已完成修复与验证证据：[BUGFIX_VALIDATION_REPORT.md](ISODISTORT/docs/BUGFIX_VALIDATION_REPORT.md)；
+- 晶体学理论、注释书目与两份 LaTeX 证明：[理论参考资料库](ISODISTORT/docs/reference_library/README.md)；
 - 官网下载操作：[DOWNLOAD_CHECKLIST.md](ISODISTORT/docs/DOWNLOAD_CHECKLIST.md)；
 - 手工和长时验证命令：[MANUAL_VALIDATION.md](ISODISTORT/docs/MANUAL_VALIDATION.md)。
 

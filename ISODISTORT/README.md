@@ -8,6 +8,9 @@
 等定义逐步推导，并以 Stokes、Campbell、Hatch 等人的 ISOTROPY/ISODISTORT 论文、
 官方帮助和晶体学不变量交叉核验；官网文件用于验证结果，不作为按样例拼公式的来源。
 
+论文、标准、来源审核及两份带引用的 LaTeX 论证集中在
+[理论参考资料库](docs/reference_library/README.md)；能力映射区分数学合同与尚未验证的实现条件。
+
 你不需要先懂晶体学术语。用白话理解工作流即可：
 
 1. 准备一份**母相**晶体结构文件（CIF）：描述「还没畸变」时的对称性与原子位置。  
@@ -291,7 +294,7 @@ NdNiO2 等其它 CIF 会显示该文件自己的空间群、晶胞与 `_atom_sit
 | **Default space-group preferences** | 本地固定的国际标准取位约定（见文末 Preferences 表，只读） |
 | **Wyckoff 行** | 来自 CIF 不对称位点：标签（或 type_symbol）、多重度+字母、坐标；自由坐标写成 `z= 0.38000` |
 
-实验示例（只读）：`experiment_data/EuAl4 Parent.cif`、`experiment_data/NdNiO2 own.cif`。官网页面对照见 `webpage_info/<母相名>/`（序号 1–6、2.5、3.5、a.）。Method 2 的 k 点随母相而变（EuAl4：`LD … g=1/6`；NdNiO2：`Y … a=1/3`），当前验证批次见 [统一冻结清单](docs/manifests/local_web_output_refresh_manifest.json)。
+实验示例（只读）：`experiment_data/EuAl4 Parent.cif`、`experiment_data/NdNiO2 own.cif`。官网页面对照见 `webpage_info/<母相名>/`（序号 1–6、2.5、3.5、a.）。Method 2 的 k 点随母相而变（EuAl4：`LD … g=1/6`；NdNiO2：`Y … a=1/3`）。当前阶段是官网三母相有限全量输出下载，范围与目录见 [下载清单](docs/DOWNLOAD_CHECKLIST.md)，作废范围见 [重置记录](docs/manifests/validation_reset_20261016.json)（旧的统一冻结清单已置为 `superseded`）。
 
 ---
 
@@ -333,7 +336,7 @@ NdNiO2 等其它 CIF 会显示该文件自己的空间群、晶胞与 `_atom_sit
 | --- | --- |
 | **"Crystal system(s):"** | 多选晶系（triclinic / monoclinic / orthorhombic / tetragonal / trigonal / hexagonal / cubic）；逻辑 OR；全不选 = 不过滤 |
 | **"Space-group symmetry:"** | 可达子群空间群下拉；空 = 不过滤。选项随母相与 Types 变化 |
-| **"Conventional lattice:"** / **"Primitive lattice:"** | 互斥过滤格点类（选一个会清空另一个），选中后只保留该类候选。按母相点群轨道与 GL(3,Z) 等价关系分组；Primitive 使用子群原胞格。对带心母相用子群对称性 + spglib 标准胞归约消除任意 unimodular basis 漂移。若已存官网 Search 页与加载的 CIF 完全匹配，且所有选项的候选数和格点类均验证一致，使用存档里的显示基矢；其他结构使用实时计算的代表元。分类与搜索结果始终实时计算，不按母相/IR 硬编码官网快照。 |
+| **"Conventional lattice:"** / **"Primitive lattice:"** | 互斥过滤格点类（选一个会清空另一个），选中后只保留该类候选。按母相点群轨道与 GL(3,Z) 等价关系分组；Primitive 使用子群原胞格。对带心母相用子群对称性 + spglib 标准胞归约消除任意 unimodular basis 漂移。分类与显示代表元均实时计算，不读取官网存档或按母相识别答案；与官网可以使用不同的 GL(3,Z)/点群等价代表基矢。 |
 | **"Maximal subgroups only"** | 只保留极大子群 |
 | **"OK"** | 开始枚举；首次可能数秒到数十秒 |
 
@@ -507,8 +510,9 @@ iso.export_subgroups(
 
 源码分为底层 `backend/`、应用层 `application/`、前端 `frontend/`，各模块独立成包。
 Python API 使用 `from application.session import IsoDistort`，网页通过应用工作流调用同一会话。
-旧 `backend.api`、`features.*` 导入仍作兼容转发，方便外部 GD 等调用方继续运行；
-新增代码使用规范入口。`isocore` / `isodistort` 旧命名空间不恢复。
+所有调用方使用规范入口；GD 的模式矩阵接口为
+`backend.export.distortion_formats.cart_normalized_mode_matrix`。旧架构包不提供转发。
+界面固定使用英文，`IsoDistort()` 不接受语言参数；`/api/messages` 返回共享英文文案。
 完整模块职责和后续维护约束见 [agent.md](agent.md) 与根 [AGENTS.md](../AGENTS.md)。
 
 当程序同时保留多个 Method 的结果表时，必须把候选池显式传给 `search_method_2(..., candidates=...)`，并把导出池显式传给 `export_subgroups(..., subgroups=...)`。各 Method 的显示索引都会从 0 开始，不能把索引当成跨表唯一 ID，也不要从界面层直接改 `iso.subgroups`、`mode_displacements` 或私有 `iso._iso`。单一路径脚本仍可省略 `candidates`，沿用最近一次 API 产生的默认候选池。
@@ -527,9 +531,9 @@ Python API 使用 `from application.session import IsoDistort`，网页通过应
 4. **nmod / (3+d) superspace**：本地可编辑 nmod（0–3）。0 = 公度锁定，保留全部折叠 k。n≥1 = 只保留 Method 2 所选那一个 q 的谐波，再加上 Γ；1、2、3 不会增加第二条独立调制。标签格式对齐官网 `Parent[k]IR(opd)[Site:letter:dsp]siteIR(comp)`。IsoVIZ 对非 Γ 的 k 保留 `[kx,ky,kz]IR[...]` 前缀。二维 IR 的第二个实分量用母相平移（含心平移）做相位正交；旋转星臂分别保存展示坐标与实际相位坐标，自共轭特殊 k 的简并基由含平移的母相 little group 补齐。折叠商按母相中心化倒格矢计算（I 心整数奇偶余类不会误合并），搜索范围跟着子群基矢走，不限于 5 个母相单胞。最终模式空间在笛卡尔坐标中用修正 Gram–Schmidt 求精确数值秩，不再用固定点积阈值误删或重复计数。
 5. **Method 3**：reciprocal-sublattice 输入不支持。空间群 direct 查询已接入 closed affine lifts、`strain ⊕ displacive` exact fixed-space 可达性、single-IR 稳定子精确交集见证和完整 fixed-space 位移模式，因此当前双母相 40 组/77 条权威 embedding 无欠枚举。搜索单-IR 稳定子的 k 域仍限于特殊 k 与一参数公度线；任意/多参数 k、point-group-only affine 枚举，以及 rotational/occupational/magnetic 的同等级 Stage-B 表示尚未完成。`exact_fixed_space` 行不声明某一组 IR 是唯一 primary COPL 分解，但可计算目标子群的完整折叠-k位移模式；不会用 `SHOW DOMAIN` 畴数或样例硬编码填满。
 6. **Method 4**：只有勾选 strain 且会话中保留精确目标子群 embedding 时，才报告官网顺序的 symmetry-adapted strain mode 幅度；低层 API 未提供 canonical basis 时会把模式状态标为 unresolved，同时仍可报告由 metric 解出的应用 `q`。一般非自共轭 k 必须使用已证明的完整子胞位移列；只有一个母胞实列时明确拒绝，不能由 cosine 猜测 sine/OPD。显式 Γ/自共轭实列均须验证母相平移字符、中心化位点协变性与子胞周期性；未声明 k 不强制为 Γ，但位移场仍须在请求子胞中周期。occupancy / magnetic / rotational 分解尚未验收。当前实测结果以 [验证报告](docs/BUGFIX_VALIDATION_REPORT.md) 为准。
-7. **magnetic**：带 `m` 前缀的 IR 默认不进入流程。
-8. **occupational**：本地为 ±1 占据近似，校验失败会标明。
-9. **rotational-only Types**：当前用 smodes 的位移活性作为 rotational route 的近似筛选，尚无独立的刚性转动/轴矢量模式生成器；不应把 rotational-only 结果称为与官网严格等价。
+7. **magnetic**：尚未实现时间奇轴矢量/磁群模式，正式计算明确拒绝；IR 名称前缀不能证明物理活性。
+8. **occupational**：尚未实现带成分约束的标量站点模式，正式计算明确拒绝；旧 ±1 二分与占据率夹取已移除，不会改写母相占位。
+9. **rotational**：尚未实现刚性单元与轴矢量模式，正式计算明确拒绝，不再以位移模式替代。以上三类与 strain/displacive 混合请求也会明确拒绝，避免静默只计算部分类型。
 10. **官网内置在线结构查看、Distortion Generate / Domains**：不属于当前本地
     网页逆向范围；使用导出的 CIF / IsoVIZ 与外部 VESTA / IsoVIZ 查看结构。
 11. **界面仅英语**。
@@ -646,15 +650,12 @@ ISODISTORT/
 ├── requirements.txt        根目录保留文件：运行依赖清单
 ├── backend/                底层：科学算法、模型、格式读写与运行设施
 │   ├── wrappers/ models/ tables/ utils/ messages/
-│   ├── input_cif/ method1/ method2/ method3/ method4/ export/
-│   └── api/                旧会话导入兼容入口
+│   └── input_cif/ method1/ method2/ method3/ method4/ export/
 ├── application/            应用层
 │   ├── session/            IsoDistort 会话、计算与发布协调
 │   └── workflows/          交互用例、上传、revision 和导出进度
 ├── frontend/               前端
-│   ├── web/                HTTP、页面/静态资源、浏览器生命周期
-│   └── i18n/               旧文案导入兼容入口
-├── features/               旧功能导入兼容入口，无算法实现
+│   └── web/                HTTP、页面/静态资源、浏览器生命周期
 ├── scripts/                辅助脚本：main_requirement.py（安装兼容转发）
 ├── tests/                  pytest 测试 + manual/ 手工与长时脚本 + fixtures/
 ├── resources/
@@ -667,3 +668,42 @@ ISODISTORT/
 官网概念帮助：[isodistorthelp.php](https://iso.byu.edu/isodistorthelp.php)。
 
 把 Method 2 完整模式写成 GD 笔记本输入：在与 CRIS 同级的 `GD/` 用 **CRIS `.venv`** 跑 `isodistort_to_gd.py`（默认 EuAl4 LD1 C1）。转换器默认发现同级 `CRIS/`，非同级布局可设置 `CRIS_ROOT`。产物在 GD 的 `generated/`，并安装 `LD1_C1_alris_functions.py`；不要覆盖 `D:\OneDrive\...` 原始精修文件，也不要改 tianren 参考笔记本。详情见 GD 的 `README.md`。
+
+理论与实现的具体反例、修复及尚未认证条件见 [代码理论审查](docs/reference_library/audit/THEORY_CODE_AUDIT.md)。
+波矢参数换算使用精确仿射方程并核对三个坐标；不相容或非唯一的转换会报错。
+CIF 中无法确认的 Wyckoff 字母写为未知值 `?`，不由重数猜测；工具 GUI 对这些情况的接受性尚须另行验收。
+正式位移计算使用完整子胞列。旧 `map_modes_to_atoms` 仅作 identity-cell 适配；缺少 BUSH
+代表行会报错，不再均匀复制或最近邻补位。有微观来源的调用须传入对应 `subgroup_context`。
+
+## 集成验证与测试
+
+验证能力统一属于本项目的 `tests/`。
+`tests/validation/` 是 pytest 与手工审计共用的只读 CIF 比较器，包含单对比较、批量配对、
+参考 SHA-256 核查及 JSON 报告。生产模块不得导入这个测试支持包，比较器也不生成结构。
+
+从 CRIS 根目录执行：
+
+```powershell
+.\run_cris.ps1 -m pytest ISODISTORT/tests -q --tb=line
+.\run_cris.ps1 -m tests.validation compare --local "本地输出.cif" --reference "参考原件.cif" --json
+.\run_cris.ps1 -m tests.validation batch --local-dir "本地输出目录" --reference-dir "参考目录" --json
+```
+
+单对比较也可提供相对路径，批量比较可省略两个目录；默认目录由
+`tests/validation/config/settings.yaml` 指定，位于 `output/validation/compare/{item,true}`。
+批量按相同相对路径配对。工具不会创建、移动、重命名或修改输入。
+完整参数与长时审计命令见 [MANUAL_VALIDATION.md](docs/MANUAL_VALIDATION.md)。
+
+默认比较既有晶胞设置下的晶格、周期分数坐标、物种、占据率、磁矩及空间群语义。
+`--ignore-atom-order` 使用完整二分匹配；改变 setting/origin 的等价性由
+`tests/manual/validate_method_outputs.py` 的精确仿射审计负责，不能仅凭此比较器的失败
+就认定两个任意设置的晶体不等价。`--strict` 额外要求字节一致，不能绕过哈希检查。
+退出码 0 表示实际执行的比较通过，1 表示存在差异，2 表示输入/解析错误或空批次。
+
+计算必须先按独立输入运行并冻结输出，然后才进行参考比较。单例匹配、合成测试通过
+和空目录均不能证明整套科学算法正确。验证参数不回传生产计算。
+
+生产调用保持 `frontend/web → application/workflows → application/session → backend`。
+Method 4 分解的唯一实现是 `backend/method4/decomposition.py`；旧搜索 API 共享同一
+实现以保持兼容。所有心化矩阵/指数使用 `backend/utils/lattice.py`，生成与超空间的
+超胞站点匹配共同调用 `backend/input_cif.map_supercell_sites`。

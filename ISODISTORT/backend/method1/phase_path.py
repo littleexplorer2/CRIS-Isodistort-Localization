@@ -31,6 +31,24 @@ TYPE_ALIASES = {
 # 各物种复选框逐个勾选，即 strain + displacive；见 webpage_info 第 2 页 HTML）
 DEFAULT_DISTORTION_TYPES = ["strain", "displacive"]
 
+# A type name is not evidence that its physical representation is implemented.
+# Keep parsing distinct from computation so saved requests remain readable.
+UNSUPPORTED_PHYSICAL_TYPES = {
+    "occupational": "composition-constrained scalar site modes are not implemented",
+    "rotational": "rigid-unit axial-vector modes and constraints are not implemented",
+    "magnetic": "time-odd axial-vector and magnetic-group modes are not implemented",
+}
+
+
+def require_supported_physical_types(types) -> None:
+    """Reject unproved physical models instead of substituting displacement."""
+    unsupported = [name for name in normalize_distortion_types(types)
+                   if name in UNSUPPORTED_PHYSICAL_TYPES]
+    if unsupported:
+        raise NotImplementedError("; ".join(
+            f"{name}: {UNSUPPORTED_PHYSICAL_TYPES[name]}" for name in unsupported
+        ))
+
 
 def normalize_distortion_types(distortion_types=None) -> list[str]:
     """

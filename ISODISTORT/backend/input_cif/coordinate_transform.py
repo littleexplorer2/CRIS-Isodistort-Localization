@@ -31,6 +31,48 @@ def wrap_to_unit_cell(coords: np.ndarray) -> np.ndarray:
     return coords % 1.0
 
 
+def map_supercell_sites(parent: Structure, child: Structure, basis,
+                        *, tolerance: float | None = None) -> tuple[np.ndarray, np.ndarray]:
+    """Map undistorted child sites to parent sites and integer translations.
+
+    Row convention: x_parent = x_child @ B. For equal species/occupancy,
+    minimize ||(x_parent - x_i - n) @ A|| over n in Z^3 using the parent
+    lattice metric. The tolerance is Cartesian angstrom, not a fractional
+    Euclidean norm. Missing or ambiguous images cannot define mode phases.
+    """
+    matrix = np.asarray(basis, dtype=float)
+    if matrix.shape == (3,):
+        matrix = np.diag(matrix)
+    if matrix.shape != (3, 3) or not np.all(np.isfinite(matrix)) or np.linalg.det(matrix) == 0:
+        raise ValueError("site mapping requires a finite nonsingular 3x3 basis")
+    limit = get_config().symmetry_cartesian_tolerance_angstrom if tolerance is None else float(tolerance)
+    if not np.isfinite(limit) or limit < 0:
+        raise ValueError("site mapping tolerance must be finite and non-negative")
+    indices = []
+    translations = []
+    for site in child:
+        coordinate = np.asarray(site.frac_coords, dtype=float) @ matrix
+        if not np.all(np.isfinite(coordinate)):
+            raise ValueError("site mapping coordinates must be finite")
+        candidates = []
+        # Enumerate all nearby periodic images, not only one nearest image:
+        # even a unique site index may have two admissible translations and
+        # hence two different Bloch phases in a short/skew lattice.
+        for fractional, distance, index, _image in parent.lattice.get_points_in_sphere(
+            parent.frac_coords, coordinate @ parent.lattice.matrix, limit,
+        ):
+            index = int(index)
+            if distance <= limit and site.species == parent[index].species:
+                image = np.rint(fractional - parent[index].frac_coords).astype(int)
+                candidates.append((index, image))
+        if len(candidates) != 1:
+            raise ValueError(f"child site has {len(candidates)} compatible parent sites within {limit} angstrom")
+        index, image = candidates[0]
+        indices.append(index)
+        translations.append(image)
+    return np.asarray(indices, dtype=int), np.asarray(translations, dtype=int).reshape((-1, 3))
+
+
 def build_supercell(structure: Structure,
                     scaling_matrix: list | np.ndarray) -> Structure:
     """

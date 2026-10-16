@@ -288,11 +288,11 @@
 
 <script>
 "use strict";
-/* ================= English UI strings (loaded from /api/i18n) ================= */
+/* ================= English UI strings (loaded from /api/messages) ================= */
 let MSG = {};
 
-async function loadI18n() {
-  const r = await fetch("/api/i18n");
+async function loadMessages() {
+  const r = await fetch("/api/messages");
   const data = await r.json();
   MSG = data.messages || {};
 }
@@ -301,7 +301,6 @@ function t(key) {
   const args = Array.prototype.slice.call(arguments, 1);
   return s.replace(/\{(\d+)\}/g, (m, i) => (args[Number(i)] !== undefined ? args[Number(i)] : m));
 }
-function term(en) { return en; }
 
 /* ================= 会话状态 ================= */
 let STATE = null;
@@ -584,8 +583,8 @@ function renderTypes() {
     const spAll = active && sp.includes("*");
     const noneChecked = active && !spAll && !sp.length;
     let row = `<tr><td valign="top">${esc(typeLabel(tp))}: </td><td>`
-      + `${esc(term("all"))}<input type="checkbox" data-tp="${tp}" data-role="all">`
-      + `${esc(term("none"))}<input type="checkbox" data-tp="${tp}" data-role="none" ${noneChecked ? "checked" : ""}>`;
+      + `${esc("all")}<input type="checkbox" data-tp="${tp}" data-role="all">`
+      + `${esc("none")}<input type="checkbox" data-tp="${tp}" data-role="none" ${noneChecked ? "checked" : ""}>`;
     for (const spc of species) {
       const on = active && (spAll || sp.includes(spc));
       row += `${esc(spc)}<input type="checkbox" data-tp="${tp}" data-species="${esc(spc)}" ${on ? "checked" : ""}>`;
@@ -862,7 +861,7 @@ function methodColumns(method) {
       text: (it) => String(it.origin_display || ""),
       cell: (it) => esc(it.origin_display || ""),
       sortVal: (it) => String(it.origin_display || ""), exportHeader: "origin" },
-    { key: "pg", header: term("point group"), sortable: true, filterable: true,
+    { key: "pg", header: "point group", sortable: true, filterable: true,
       text: (it) => String(it.point_group || ""), cell: (it) => esc(it.point_group || ""),
       sortVal: (it) => String(it.point_group || ""), exportHeader: "point_group" },
     { key: "s", header: "s", sortable: true, filterable: true,
@@ -1344,7 +1343,7 @@ async function computeModes(idx, source) {
     if (m.mode_type === "occupational") {
       cell += ` <span class="muted-hint">(occ${m.validated ? "" : " · " + t("occ.note")})</span>`;
     } else {
-      cell += ` <span class="muted-hint">(${esc(term(m.mode_type))})</span>`;
+      cell += ` <span class="muted-hint">(${esc(m.mode_type)})</span>`;
     }
     return [cell, esc(m.opd_symbol), m.wyckoff_sites.join(","), m.n_representatives];
   });
@@ -1358,13 +1357,13 @@ async function computeModes(idx, source) {
       + ` · ${t("hK")}=${esc(sg.k_point_label)} · ${t("hIrrep")}=${esc(sg.irrep_label)}`
       + ` · OPD=${esc(sg.opd_symbol)} · s=${sg.size} · i=${sg.subgroup_index}`
       + (sg.is_maximal ? " · maximal" : "")
-      + `<br>${term("supercell")}: ${esc(basis)} · origin=${esc(origin)}</div>`;
+      + `<br>${"supercell"}: ${esc(basis)} · origin=${esc(origin)}</div>`;
   }
   const deliveryWarning = d.export_ready === false
     ? `<div class="alert alert-warning">${esc(d.export_warning || "Mode identity unresolved; authoritative export is unavailable for this candidate.")}</div>`
     : "";
   out.innerHTML = header + deliveryWarning
-    + table([t("hIrrep"), "OPD", term("Wyckoff position"), t("hNrep")], rows);
+    + table([t("hIrrep"), "OPD", "Wyckoff position", t("hNrep")], rows);
   await refreshStatus();
 }
 
@@ -1721,7 +1720,7 @@ function renderAll() {
   document.getElementById("prefsMonoCell").textContent = t("prefs.monoCell");
   document.getElementById("prefsOrthoAxes").textContent = t("prefs.orthoAxes");
   document.getElementById("prefsTrigAxes").textContent = t("prefs.trigAxes");
-  document.getElementById("prefsTrigValue").textContent = term("hexagonal");
+  document.getElementById("prefsTrigValue").textContent = "hexagonal";
   document.getElementById("prefsOrigin").textContent = t("prefs.origin");
   document.getElementById("prefsSsg").textContent = t("prefs.ssg");
   document.getElementById("prefsFixedNote").textContent = t("prefs.fixedNote");
@@ -1734,12 +1733,12 @@ function renderAll() {
 }
 function renderSysBox() {
   document.getElementById("m1SysBox").innerHTML = CRYSTAL_SYSTEMS.map(cs =>
-    `<label><input type="checkbox" value="${cs}"> ${esc(term(cs))}</label>`
+    `<label><input type="checkbox" value="${cs}"> ${esc(cs)}</label>`
   ).join("");
 }
 function renderPgSelect() {
   document.getElementById("m3Pg").innerHTML = `<option value="">${esc(t("l.noChoice"))}</option>` + POINT_GROUPS.map(pg =>
-    `<option value="${pg[0]}">${esc(term(pg[3]))}: ${pg[1]} ${pg[2]}</option>`
+    `<option value="${pg[0]}">${esc(pg[3])}: ${pg[1]} ${pg[2]}</option>`
   ).join("");
 }
 
@@ -1806,7 +1805,7 @@ function startHeartbeat() {
     }
   });
   startHeartbeat();
-  await loadI18n();
+  await loadMessages();
   renderAll();
   await refreshSpaceGroups();
   await refreshKpoints();

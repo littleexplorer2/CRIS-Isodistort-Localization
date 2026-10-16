@@ -18,10 +18,11 @@ KVALUE ``1/12``）。
 """
 from __future__ import annotations
 
-import re
 from collections.abc import Sequence
 from fractions import Fraction
 from typing import TYPE_CHECKING
+
+from backend.utils.text_parser import k_coordinate_parameters, parse_affine_coordinate
 
 if TYPE_CHECKING:
     from backend.wrappers import KPointInfo
@@ -72,81 +73,68 @@ KPOINT_OFFICIAL: dict[int, dict[str, tuple[str, list[str], list[str]]]] = {
 }
 
 
-def _param_coeff_in_component(component: str, param_name: str) -> Fraction | None:
-    """官网坐标分量中对某参数名的线性系数（如 ``g``→1，``2a`` 对 ``a``→2）。"""
-    comp = component.strip()
-    if not re.search(r"[a-z]", comp):
-        return None
-    if comp == param_name:
-        return Fraction(1)
-    m = re.fullmatch(rf"(-?\d+){re.escape(param_name)}", comp)
-    if m:
-        return Fraction(int(m.group(1)))
-    if param_name in comp:
-        return Fraction(1)
-    return None
-
-
-def _iso_kvalue_scale(iso_component: str, iso_param_token: str) -> Fraction | None:
-    """iso 坐标分量对 KVALUE 所设参数的线性系数（``2a`` + token ``2a`` → 2）。"""
-    token = iso_param_token.strip()
-    m = re.match(r"^(-?\d+)([a-z])", token)
-    if m:
-        return Fraction(abs(int(m.group(1))))
-    if re.match(r"^[a-z]", token):
-        if iso_component.strip() == token:
-            return Fraction(1)
-        letter = token[0]
-        cm = re.fullmatch(rf"(-?\d+){re.escape(letter)}", iso_component.strip())
-        if cm:
-            return Fraction(abs(int(cm.group(1))))
-        return Fraction(1)
-    return None
-
-
 def official_kparams_to_iso(parent_sg: int,
                             k_label: str,
                             official_values: Sequence[str],
                             iso_kp: KPointInfo) -> list[str]:
-    """把官网 UI 输入的 k 点参数值换算为 iso ``VALUE KVALUE`` 所需数值。
+    """Solve affine coordinate equations in exact arithmetic.
 
-    典型：I4/mmm #139 的 LD 点官网 ``(0,0,g)``、``g=1/6`` → iso 坐标
-    ``(0,0,2a)``、KVALUE ``1/12``（使倒格矢坐标仍为 ``1/6``）。
-
-    未收录覆盖表或无法推断换算时原样返回（兼容直接传入 iso 值的脚本）。
+    Unlisted settings use the displayed ISO parameters directly. A listed
+    convention must match all three reciprocal coordinates; an unproved
+    conversion raises instead of silently passing through unrelated values.
     """
     if not official_values:
         return []
     override = KPOINT_OFFICIAL.get(parent_sg, {}).get(k_label.strip())
     if override is None:
         return [str(v).strip() for v in official_values]
-    _kovalev, official_coords, official_param_names = override
-    if len(official_values) != len(official_param_names):
-        return [str(v).strip() for v in official_values]
-    iso_params = list(iso_kp.parameters or [])
+    _kovalev, official_coords, official_names = override
     iso_coords = list(iso_kp.coordinates or [])
-    if not iso_params:
-        return [str(v).strip() for v in official_values]
+    iso_names = k_coordinate_parameters(iso_coords)
+    if len(official_values) != len(official_names) or len(iso_names) != len(official_names):
+        raise ValueError("k-parameter count does not match the declared coordinate convention")
+    if len(iso_coords) != 3 or len(set(iso_names)) != len(iso_names):
+        raise ValueError("ISO k coordinates require three components and distinct parameters")
 
-    converted: list[str] = []
-    for i, (name, raw_val) in enumerate(
-            zip(official_param_names, official_values, strict=False)):
-        off_val = Fraction(str(raw_val).strip())
-        off_idx = next(
-            (j for j, c in enumerate(official_coords)
-             if _param_coeff_in_component(c, name) is not None),
-            None,
-        )
-        if off_idx is None or off_idx >= len(iso_coords):
-            converted.append(str(raw_val).strip())
-            continue
-        off_scale = _param_coeff_in_component(official_coords[off_idx], name)
-        iso_param = iso_params[i] if i < len(iso_params) else iso_params[-1]
-        iso_scale = _iso_kvalue_scale(iso_coords[off_idx], iso_param)
-        if off_scale is None or iso_scale is None or iso_scale == 0:
-            converted.append(str(raw_val).strip())
-        else:
-            converted.append(str(off_val * off_scale / iso_scale))
+    targets = [_substitute_k_component(c, official_names, official_values)
+               for c in official_coords]
+    rows = []
+    for expression, target in zip(iso_coords, targets, strict=True):
+        parsed = parse_affine_coordinate(expression, iso_names)
+        if parsed is None:
+            raise ValueError("Unsupported symbolic k-coordinate conversion")
+        coefficients, offset = parsed
+        rows.append([*coefficients, Fraction(target) - offset])
+    # Exact elimination solves A p = k_requested - b, including coupled
+    # parameters. Each row operation is invertible; check all residual rows
+    # and full column rank before accepting the unique coordinate solution.
+    pivot_rows = []
+    for column in range(len(iso_names)):
+        pivot = next((i for i in range(len(pivot_rows), len(rows)) if rows[i][column]), None)
+        if pivot is None:
+            raise ValueError("Non-unique affine k-coordinate parameter conversion")
+        row_index = len(pivot_rows)
+        rows[row_index], rows[pivot] = rows[pivot], rows[row_index]
+        divisor = rows[row_index][column]
+        rows[row_index] = [value / divisor for value in rows[row_index]]
+        for i in range(len(rows)):
+            if i == row_index:
+                continue
+            factor = rows[i][column]
+            rows[i] = [left - factor * right
+                       for left, right in zip(rows[i], rows[row_index], strict=True)]
+        pivot_rows.append(row_index)
+    if any(not any(row[:-1]) and row[-1] for row in rows):
+        raise ValueError("Inconsistent affine k-coordinate parameter conversion")
+    converted = [str(rows[i][-1]) for i in pivot_rows]
+    expected = [_substitute_k_component(c, official_names, official_values) for c in official_coords]
+    obtained = [_substitute_k_component(c, iso_names, converted) for c in iso_coords]
+    try:
+        agrees = [Fraction(c) for c in expected] == [Fraction(c) for c in obtained]
+    except (ValueError, ZeroDivisionError) as exc:
+        raise ValueError("Unresolved symbolic k-coordinate conversion") from exc
+    if not agrees:
+        raise ValueError("Converted k parameters do not preserve the reciprocal vector")
     return converted
 
 
@@ -178,22 +166,21 @@ def _substitute_k_component(
     param_names: Sequence[str],
     param_values: Sequence[str],
 ) -> str:
-    """Replace ``g`` / ``2a`` tokens using website parameter values."""
+    """Evaluate a rational affine component without discarding its offset.
+
+    Unbound or unsupported symbolic expressions stay symbolic; callers that
+    require numerical coordinates must reject them explicitly.
+    """
     text = str(component).strip()
-    if not re.search(r"[a-z]", text):
+    parsed = parse_affine_coordinate(text, param_names)
+    if parsed is None:
         return text
-    for name, raw in zip(param_names, param_values, strict=False):
-        if not name or raw == "":
-            continue
-        try:
-            val = Fraction(str(raw).strip())
-        except (ValueError, ZeroDivisionError):
-            continue
-        scale = _param_coeff_in_component(text, name)
-        if scale is None:
-            continue
-        return str(val * scale)
-    return text
+    coefficients, offset = parsed
+    if len(param_values) != len(coefficients):
+        return text
+    return str(offset + sum((coefficient * Fraction(str(value).strip())
+                             for coefficient, value in zip(coefficients, param_values, strict=True)),
+                            Fraction(0)))
 
 
 def format_k_point_display(

@@ -25,14 +25,14 @@ import numpy as np
 WORKSPACE = Path(__file__).resolve().parents[3]
 PROJECT_ROOT = WORKSPACE / "ISODISTORT"
 MANUAL_ROOT = PROJECT_ROOT / "tests" / "manual"
-VALIDATOR_ROOT = WORKSPACE / "ISODISTORT_VALIDATE"
-for entry in (PROJECT_ROOT, MANUAL_ROOT, VALIDATOR_ROOT):
+VALIDATOR_ROOT = PROJECT_ROOT / "tests" / "validation"
+for entry in (PROJECT_ROOT, MANUAL_ROOT):
     if str(entry) not in sys.path:
         sys.path.insert(0, str(entry))
 
 import official_html_resolver  # noqa: E402
 import validate_method_outputs as validator  # noqa: E402
-from isodistort_validate.application.single import compare_cif  # noqa: E402
+from tests.validation.application.single import compare_cif  # noqa: E402
 
 from application.session import IsoDistort  # noqa: E402
 from backend.export.distortion_formats import (  # noqa: E402
@@ -341,7 +341,7 @@ def _frozen_preflight_summary(records: list[dict[str, Any]]) -> dict[str, Any]:
 
 def _validator_source_paths() -> dict[str, Path]:
     """Sign the comparison implementation, including its delegated algorithms."""
-    package_root = VALIDATOR_ROOT / "isodistort_validate"
+    package_root = VALIDATOR_ROOT
     return {
         f"cif-validator:{path.relative_to(package_root).as_posix()}": path
         for layer in ("backend", "application")
@@ -1322,7 +1322,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"REPORT {report_path}", flush=True)
         return 1
 
-    api = IsoDistort(language="en")
+    api = IsoDistort()
     api.set_distortion_scope(
         {
             "displacive": ["*"],

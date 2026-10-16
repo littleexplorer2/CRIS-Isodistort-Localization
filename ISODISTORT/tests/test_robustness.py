@@ -16,7 +16,6 @@ from application.session import IsoDistort
 from backend.wrappers import BushMode, DistortionMode, SubgroupInfo
 from backend.export import StructureExporter
 from backend.input_cif import read_cif
-from backend.method1 import OccupationalModeGenerator
 from backend.method4 import DistortionEngine
 
 DATA_DIR = experiment_data_dir()
@@ -63,28 +62,14 @@ def test_corrupt_cif_raises_clear_error(tmp_path):
         read_cif(str(bad))
 
 
-def test_occupancy_amplitude_clamped():
-    """occupational 幅度 >1 会被夹取，不产生非法占据率。"""
-    parent = Structure(Lattice.tetragonal(4.0, 8.0),
-                       ["Al", "Al"], [[0.25, 0.25, 0.25], [0.75, 0.75, 0.75]])
-    wyckoff = [
-        {"wyckoff_letter": "b", "multiplicity": 1, "species": "Al",
-         "representative_index": 0, "equivalent_indices": [0, 1]},
-    ]
-    subgroup = SubgroupInfo(index=0, space_group_number=2,
-                            space_group_symbol="P-1",
-                            basis_vectors=[[2, 0, 0], [0, 1, 0], [0, 0, 1]],
-                            k_point_label="X", irrep_label="X1+")
-    gen = OccupationalModeGenerator(tolerance=1e-4)
-    modes = gen.generate(parent, wyckoff, subgroup, {"Al"})
-    if modes:
-        sc = DistortionEngine().generate_modes(
-            parent, modes[0].basis_vectors,
-            occupancy_patterns=[(modes[0].pattern, 5.0)],
+def test_occupancy_is_not_silently_clamped():
+    """A missing scalar mode model cannot be repaired by clipping amplitudes."""
+    parent = Structure(Lattice.cubic(4), [{"Al": 0.6}], [[0, 0, 0]])
+    with pytest.raises(NotImplementedError, match="occupational"):
+        DistortionEngine().generate_modes(
+            parent, occupancy_patterns=[(np.array([-1.0]), 5.0)],
         )
-        for site in sc:
-            for amt in site.species.values():
-                assert 0.0 < amt <= 1.0 + 1e-6
+    assert parent[0].species["Al"] == 0.6
 
 
 # --- from test_robustness_extended.py ---
@@ -113,7 +98,7 @@ def test_negative_amplitude_at_api_level(tmp_path):
     cif = CIFS_DIR / "sg001.cif"
     if not cif.exists():
         pytest.skip("测试 CIF 不存在")
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -240,7 +225,7 @@ def test_method1_options_repeatable(tmp_path):
         cif = DATA_DIR / "EuAl4 Parent.cif"
     if not cif.exists():
         pytest.skip("无可用母相 CIF")
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -579,12 +564,12 @@ def test_export_recomputes_every_candidate_for_requested_nmod_and_restores_state
 def test_removed_compatibility_namespace_stays_removed():
     """The retired ``isodistort`` alias package must not come back.
 
-    The project now exposes exactly four parts (``backend`` / ``features`` /
-    ``frontend`` / shared resources).  A resurrected alias package would load a
+    The project exposes three layers (``backend`` / ``application`` /
+    ``frontend``) and shared resources.  A resurrected alias package would load a
     second copy of the data classes and break identity comparisons.
     """
     canonical = importlib.import_module("backend.wrappers.iso_wrapper")
     assert canonical.SubgroupInfo is SubgroupInfo
-    for retired in ("isodistort", "isocore", "web"):
+    for retired in ("isodistort", "isocore", "web", "features", "backend.api", "frontend.i18n"):
         with pytest.raises(ModuleNotFoundError):
             importlib.import_module(retired)

@@ -1,0 +1,464 @@
+[
+  {
+    "id": "Campbell2006",
+    "title": "ISODISPLACE: a web-based tool for exploring structural distortions",
+    "topic": "core",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/2006%20Campbell.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Campbell2006.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2006%20Campbell.pdf",
+      "bytes": 268721,
+      "sha256": "8a1d3e295055da79a2d243167d6b735fd2a743fa9ce12023040e1c0cbed889f4",
+      "retrieved_at": "2026-10-15T13:15:10.629486+00:00"
+    },
+    "doi_candidates": [
+      "10.1107/S0021889806014075"
+    ],
+    "opening_text": "                                                                                                                electronic reprint\nJournal of\nApplied\nCrystallography\nISSN 0021-8898\nEditor: Gernot Kostorz\n\n\n\n\nISODISPLACE: a web-based tool for exploring structural distortions\nBranton J. Campbell, Harold T. Stokes, David E. Tanner and Dorian M. Hatch\n\n\n\n\nCopyright © International Union of Crystallography\n\nAuthor(s) of this paper may load this reprint on their own web site provided that this cover page is retained. Republication of this article or its\nstorage in electronic databases or the like is not permitted without prior permission in writing from the IUCr.\n\n\n\n\nJ. Appl. Cryst. (2006). 39, 607–614                                                                        Branton J. Campbell et "
+  },
+  {
+    "id": "Stokes1991",
+    "title": "Group-theoretical methods for obtaining distortions in crystals: Applications to vibrational modes and phase transitions",
+    "topic": "projection",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/1991%20Stokes%20b.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Stokes1991.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/1991%20Stokes%20b.pdf",
+      "bytes": 1445766,
+      "sha256": "0fb6d091567c9afbb081a3ee95ef575986a0d489f3d6c816af689b7c5e519a1b",
+      "retrieved_at": "2026-10-15T13:15:11.961997+00:00"
+    },
+    "doi_candidates": [],
+    "opening_text": "\f\f\f\f\f\f\f\f\f"
+  },
+  {
+    "id": "Hatch1985",
+    "title": "Practical algorithm for identifying subgroups of space groups",
+    "topic": "settings",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/1985%20Hatch%20a.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Hatch1985.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/1985%20Hatch%20a.pdf",
+      "bytes": 987029,
+      "sha256": "8a23d716851d5984e825709a54f6118c40959c7f3d5684d73b3044d73de1c2a5",
+      "retrieved_at": "2026-10-15T13:15:07.366099+00:00"
+    },
+    "doi_candidates": [],
+    "opening_text": "\f\f\f\f\f"
+  },
+  {
+    "id": "Stokes1985",
+    "title": "Equivalence among isotropy subgroups of space groups",
+    "topic": "equivalence",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/1985%20Stokes%20b.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Stokes1985.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/1985%20Stokes%20b.pdf",
+      "bytes": 335264,
+      "sha256": "213c90308d8137e6c5fdf87dfd3c20d093b869389af48c478ba59190f1f821af",
+      "retrieved_at": "2026-10-15T13:15:06.956610+00:00"
+    },
+    "doi_candidates": [],
+    "opening_text": "\f\f\f"
+  },
+  {
+    "id": "Hatch2002",
+    "title": "Complete listing of order parameters for a crystalline phase transition: A solution to the generalized inverse Landau problem",
+    "topic": "inverse_landau",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/2002%20Hatch%20a.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Hatch2002.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2002%20Hatch%20a.pdf",
+      "bytes": 57494,
+      "sha256": "ecfb1f7dc39f4eb987defa844f7f466b3f138d7f0531e473b584662ae6c01c14",
+      "retrieved_at": "2026-10-15T13:15:05.972113+00:00"
+    },
+    "doi_candidates": [
+      "10.1103/PhysRevB.65.014113"
+    ],
+    "opening_text": "                                             PHYSICAL REVIEW B, VOLUME 65, 014113\n\n                  Complete listing of order parameters for a crystalline phase transition:\n                         A solution to the generalized inverse Landau problem\n                                                Dorian M. Hatch and Harold T. Stokes\n                         Department of Physics and Astronomy, Brigham Young University, Provo, Utah 84602\n                                      共Received 24 August 2001; published 12 December 2001兲\n                 For a given group-subgroup transition, the complete set of order parameters, primary and secondary, de-\n              scribe the distortions that accompany this transition. The task of obtaining all order-parametric distortions for\n              a "
+  },
+  {
+    "id": "COPL2002",
+    "title": "COPL: program for obtaining a complete list of order parameters for a group-subgroup crystalline phase transition",
+    "topic": "inverse_landau",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/2002%20Hatch%20b.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/COPL2002.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2002%20Hatch%20b.pdf",
+      "bytes": 111785,
+      "sha256": "1478855d8697824bc8eb82cbe455514fa2d86d7be24decfe34b8c747e642e83c",
+      "retrieved_at": "2026-10-15T13:15:08.250506+00:00"
+    },
+    "doi_candidates": [],
+    "opening_text": "                                                                                                    computer program abstracts\nJournal of\nApplied\n                                                    computer program      abstracts\n                                                                  (iv) For each IR, determine if there exists a nonzero solution g to the\n                                                                  simultaneous equations D `g = g for every ` 2 L. If so, then this IR\nCrystallography                                     This category provides a rapid      participates in the phase transition, and the vector g is the direction of\n                                                    means of communicating up-to-datethe associated OP. Note that the matrices D are "
+  },
+  {
+    "id": "Coupled1991",
+    "title": "Coupled order parameters in the Landau theory of phase transitions in solids",
+    "topic": "coupling",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/1991%20Stokes%20a.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Coupled1991.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/1991%20Stokes%20a.pdf",
+      "bytes": 724619,
+      "sha256": "72f8d382147ca614a49ea45309fe796be701af1846cd5f92d62ee266a2e9183f",
+      "retrieved_at": "2026-10-15T13:15:11.461935+00:00"
+    },
+    "doi_candidates": [],
+    "opening_text": "\f\f\f\f\f\f\f\f\f\f\f\f\f\f\f\f"
+  },
+  {
+    "id": "Stokes2016",
+    "title": "ISOSUBGROUP: an internet tool for generating isotropy subgroups of crystallographic space groups",
+    "topic": "subgroups",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/2016%20Stokes.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Stokes2016.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2016%20Stokes.pdf",
+      "bytes": 1770764,
+      "sha256": "2925c04755da3e6b2291ac6033e25cc6552e3f23c23d1b0df9786dcc16dcaad3",
+      "retrieved_at": "2026-10-15T13:15:11.987564+00:00"
+    },
+    "doi_candidates": [
+      "10.1107/S160057671601311X"
+    ],
+    "opening_text": "                                                                                                                   computer programs\n\n                                                ISOSUBGROUP: an internet tool for generating\n                                                isotropy subgroups of crystallographic space groups\nISSN 1600-5767\n                                                Harold T. Stokes,* Seth van Orden and Branton J. Campbell\n\n                                                Department of Physics and Astronomy, Brigham Young University, Provo, Utah 84602, USA. *Correspondence e-mail:\n                                                stokesh@byu.edu\n\nReceived 1 June 2016\nAccepted 14 August 2016                         ISOSUBGROUP, the newest member of the ISOTROPY Software Su"
+  },
+  {
+    "id": "Stokes2017",
+    "title": "A general algorithm for generating isotropy subgroups in superspace",
+    "topic": "superspace",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/2017%20Stokes.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Stokes2017.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2017%20Stokes.pdf",
+      "bytes": 401740,
+      "sha256": "ac8d721da462ca2b5835ebc0b82362761255f710fc18fedefa65168fd6598335",
+      "retrieved_at": "2026-10-15T13:15:11.014454+00:00"
+    },
+    "doi_candidates": [
+      "10.1107/S2053273316017629"
+    ],
+    "opening_text": "                                                                                                  electronic reprint\n\n\n\nISSN: 2053-2733\njournals.iucr.org/a\n\n\n\n\nA general algorithm for generating isotropy subgroups in\nsuperspace\n\nHarold T. Stokes and Branton J. Campbell\n\n\nActa Cryst. (2017). A73, 4–13\n\n\n\n\n              IUCr Journals\n              CRYSTALLOGRAPHY JOURNALS ONLINE\nCopyright \u0002\n          c International Union of Crystallography\nAuthor(s) of this paper may load this reprint on their own web site or institutional repository provided that\nthis cover page is retained. Republication of this article or its storage in electronic databases other than as\nspecified above is not permitted without prior permission in writing from the IUCr.\nFor further information see http://journals.iucr.or"
+  },
+  {
+    "id": "Stokes2013",
+    "title": "Tabulation of irreducible representations of the crystallographic space groups and their superspace extensions",
+    "topic": "representations",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/2013%20Stokes.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Stokes2013.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2013%20Stokes.pdf",
+      "bytes": 234964,
+      "sha256": "388b48b3ab1803ee07d88a9345d29b75da6a1c106e1ca4d842a1ce8de6fb7c26",
+      "retrieved_at": "2026-10-15T13:15:15.440587+00:00"
+    },
+    "doi_candidates": [
+      "10.1107/S0108767313007538"
+    ],
+    "opening_text": "                                                                                                                electronic reprint\n   Acta Crystallographica Section A\n   Foundations of\n   Crystallography\n   ISSN 0108-7673\n\n\n\n\nTabulation of irreducible representations of the\ncrystallographic space groups and their superspace extensions\n\nHarold T. Stokes, Branton J. Campbell and Ryan Cordes\n\n\nActa Cryst. (2013). A69, 388–395\n\n\n\n\nCopyright \u0002\n          c International Union of Crystallography\nAuthor(s) of this paper may load this reprint on their own web site or institutional repository provided that\nthis cover page is retained. Republication of this article or its storage in electronic databases other than as\nspecified above is not permitted without prior permission in writing from the IUCr.\n"
+  },
+  {
+    "id": "Stokes2011",
+    "title": "Generation of (3+d)-dimensional superspace groups for describing the symmetry of modulated crystalline structures",
+    "topic": "superspace",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/2011%20Stokes.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Stokes2011.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2011%20Stokes.pdf",
+      "bytes": 156941,
+      "sha256": "21c9e70e99dc93f6e3313d98192c53e52ce57178f537150544d9a35abd92134a",
+      "retrieved_at": "2026-10-15T13:15:13.491548+00:00"
+    },
+    "doi_candidates": [
+      "10.1107/S0108767310042297"
+    ],
+    "opening_text": "                                                                                                                   research papers\nActa Crystallographica Section A\nFoundations of\n                                                Generation of (3 + d)-dimensional superspace\nCrystallography                                 groups for describing the symmetry of modulated\nISSN 0108-7673\n                                                crystalline structures\nReceived 14 July 2010\nAccepted 18 October 2010                        Harold T. Stokes,a* Branton J. Campbella and Sander van Smaalenb\n\n                                                a\n                                                 Department of Physics and Astronomy, Brigham Young University, Provo, Utah 84602, USA, and\n                    "
+  },
+  {
+    "id": "Smaalen2013",
+    "title": "Equivalence of superspace groups",
+    "topic": "superspace",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/2013%20van%20Smaalen.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Smaalen2013.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2013%20van%20Smaalen.pdf",
+      "bytes": 612396,
+      "sha256": "bdad8c5bac5053e7e7bff680e17b4a56f9843af4bc441bd7118221934ad2a46a",
+      "retrieved_at": "2026-10-15T13:15:15.728602+00:00"
+    },
+    "doi_candidates": [
+      "10.1107/S0108767312041657"
+    ],
+    "opening_text": "                                                                                                           electronic reprint\nActa Crystallographica Section A\nFoundations of\nCrystallography\nISSN 0108-7673\nEditor: W. Steurer\n\n\n\n\nEquivalence of superspace groups\n\nSander van Smaalen, Branton J. Campbell and Harold T. Stokes\n\n\nActa Cryst. (2013). A69, 75–90\n\n\n\n\nCopyright \u0002\n          c International Union of Crystallography\nAuthor(s) of this paper may load this reprint on their own web site or institutional repository provided that\nthis cover page is retained. Republication of this article or its storage in electronic databases other than as\nspecified above is not permitted without prior permission in writing from the IUCr.\nFor further information see http://journals.iucr.org/services/authorrig"
+  },
+  {
+    "id": "Stokes2007",
+    "title": "Order parameters for phase transitions to structures with one-dimensional incommensurate modulations",
+    "topic": "superspace",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/2007%20Stokes.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Stokes2007.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2007%20Stokes.pdf",
+      "bytes": 156856,
+      "sha256": "691d70c6d8f93dc9597feed9f8d70cc5c21551da1fb89b6c7af6c1cc3b89f9c8",
+      "retrieved_at": "2026-10-15T13:15:15.459793+00:00"
+    },
+    "doi_candidates": [
+      "10.1107/S0108767307024890"
+    ],
+    "opening_text": "                                                                                                                electronic reprint\nActa Crystallographica Section A\nFoundations of\nCrystallography\nISSN 0108-7673\nEditor: D. Schwarzenbach\n\n\n\n\nOrder parameters for phase transitions to structures with\none-dimensional incommensurate modulations\nHarold T. Stokes, Branton J. Campbell and Dorian M. Hatch\n\n\n\n\nCopyright © International Union of Crystallography\n\nAuthor(s) of this paper may load this reprint on their own web site provided that this cover page is retained. Republication of this article or its\nstorage in electronic databases or the like is not permitted without prior permission in writing from the IUCr.\n\n\n\n\nActa Cryst. (2007). A63, 365–373                                Harold T. Stokes e"
+  },
+  {
+    "id": "Findsym2005",
+    "title": "FINDSYM: program for identifying the space-group symmetry of a crystal",
+    "topic": "symmetry_detection",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/2005%20Stokes.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Findsym2005.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2005%20Stokes.pdf",
+      "bytes": 100992,
+      "sha256": "fc06c84f1f5557c3829af64d4d029c23c4075fb58c367e7ed06dec0a1f7f980f",
+      "retrieved_at": "2026-10-15T13:15:15.177980+00:00"
+    },
+    "doi_candidates": [
+      "10.1107/S0021889804031528"
+    ],
+    "opening_text": "                                                                                                         computer program abstracts\nJournal of\nApplied\n                                                  computer program abstracts\nCrystallography                                   This category provides a rapid means of communicating up-to-date information concerning both new programs or systems\n                                                  and significant updates to existing ones. Submissions should follow the standard format given in J. Appl. Cryst. (1985). 18,\nISSN 0021-8898\n                                                  189–190, also available from Crystallography Journals Online at http://journals.iucr.org/j/services/authorservices.html.\n\n\n\n\nFINDSYM: program for identifying the    "
+  },
+  {
+    "id": "Invariants2003",
+    "title": "INVARIANTS: program for obtaining a list of invariant polynomials of the order-parameter components associated with irreducible representations of a space group",
+    "topic": "invariants",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/2003%20Hatch%20a.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Invariants2003.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2003%20Hatch%20a.pdf",
+      "bytes": 120046,
+      "sha256": "798d63cb4f8b7de171487a17e5f03419ea736085cafc06a249035a0f4d16dd2a",
+      "retrieved_at": "2026-10-15T13:15:16.163172+00:00"
+    },
+    "doi_candidates": [],
+    "opening_text": "                                                                                                            computer program abstracts\nJournal of\nApplied\n                                                     computer program abstracts\nCrystallography                                      This category provides a rapid means of communicating up-to-date information concerning both new programs or systems\n                                                     and significant updates to existing ones. Submissions should follow the standard format given in J. Appl. Cryst. (1985). 18,\nISSN 0021-8898\n                                                     189±190, also available from Crystallography Journals Online at http://journals.iucr.org/j/services/authorservices.html.\n\n\n\n\nINVARIANTS: program for o"
+  },
+  {
+    "id": "Kerman2012",
+    "title": "The superstructure determination of displacive distortions via symmetry-mode analysis",
+    "topic": "decomposition",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/2012%20Kerman.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Kerman2012.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2012%20Kerman.pdf",
+      "bytes": 1661124,
+      "sha256": "5f9f3bc7fba2f6eb7b2d5c64264d51a5fc6394ed8e240a4918414abdef7106ab",
+      "retrieved_at": "2026-10-15T13:15:20.538818+00:00"
+    },
+    "doi_candidates": [
+      "10.1107/S0108767311046241"
+    ],
+    "opening_text": "research papers\nActa Crystallographica Section A\nFoundations of\n                                                The superstructure determination of displacive\nCrystallography                                 distortions via symmetry-mode analysis\nISSN 0108-7673\n\n                                                Sean Kerman,a Branton J. Campbell,a* Kiran K. Satyavarapu,a Harold T. Stokes,a\nReceived 29 July 2011                           Francesca Persellib and John S. O. Evansb*\nAccepted 2 November 2011\n\n                                                a\n                                                 Brigham Young University, Department of Physics and Astronomy, Provo, Utah 84602, USA, and\n                                                b\n                                                 Unive"
+  },
+  {
+    "id": "Refinement2007",
+    "title": "Rietveld refinement of structural distortion-mode amplitudes",
+    "topic": "refinement",
+    "type": "commission_tutorial",
+    "url": "https://iso.byu.edu/2007%20Campbell.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Refinement2007.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2007%20Campbell.pdf",
+      "bytes": 1691578,
+      "sha256": "d07783f2eb7758c5d30ca8b20ed1cfea7a7dceffeb85f0156e5b4c659c226ac7",
+      "retrieved_at": "2026-10-15T13:15:28.459871+00:00"
+    },
+    "doi_candidates": [],
+    "opening_text": "         Rietveld refinement of structural distortion-mode amplitudes\nBranton J. Campbella, John S. O. Evansb, Francesca Persellib and Harold T. Stokesa\na\n  Brigham Young University, Department of Physics & Astronomy, Provo, Utah 84602, USA. bThe\nUniversity of Durham, Department of Chemistry, South Road, Durham, DH1 3LE, UK. Email:\nbranton_campbell@byu.edu, john.evans@durham.ac.uk, stokesh@byu.edu ;\nWWW ISODISPLACE: http://stokes.byu.edu/isodisplace.html ;\nWWW TOPAS: http://www.dur.ac.uk/john.evans/topas_academic/topas_main.htm\n\nAbstract\nFor any crystal structure that can be viewed as a low-symmetry distortion of some higher-symmetry\nparent structure, one can represent the details of the distorted structure with a list of distortion-mode\namplitudes rather than the traditional list of xyz a"
+  },
+  {
+    "id": "Muller2014",
+    "title": "A symmetry-mode description of rigid-body rotations in crystalline solids: a case study of Mg(H2O)6RbBr3",
+    "topic": "rotations",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/2014%20Muller.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Muller2014.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2014%20Muller.pdf",
+      "bytes": 779997,
+      "sha256": "67437c77df84e3b1af9d4d8760ab25730a5f956219e08aef869c3c47018a1367",
+      "retrieved_at": "2026-10-15T13:15:24.126594+00:00"
+    },
+    "doi_candidates": [
+      "10.1107/S1600576713034560"
+    ],
+    "opening_text": "research papers\nJournal of\nApplied\n                                                A symmetry-mode description of rigid-body\nCrystallography                                 rotations in crystalline solids: a case study of\nISSN 1600-5767\n                                                Mg(H2O)6RbBr3\nReceived 15 October 2013\nAccepted 24 December 2013                       Melanie Müller,a,b Robert E. Dinnebier,a Ann-Christin Dippel,c Harold T. Stokesd\n                                                and Branton J. Campbelld*\n\n                                                a\n                                                 Max Planck Institute for Solid State Research, Heisenbergstrasse 1, Stuttgart 70569, Germany,\n                                                b\n                            "
+  },
+  {
+    "id": "Howard1998",
+    "title": "Group-theoretical analysis of octahedral tilting in perovskites",
+    "topic": "rotations",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/1998%20Howard.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Howard1998.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/1998%20Howard.pdf",
+      "bytes": 246752,
+      "sha256": "1d4bef149c4b2704b0f86749d4ae8f1f306fbb00f7b3008410ca2f5473d96107",
+      "retrieved_at": "2026-10-15T13:15:21.085858+00:00"
+    },
+    "doi_candidates": [],
+    "opening_text": "782\n\nActa Cryst. (1998). B54, 782±789\n\n                     Group-Theoretical Analysis of Octahedral Tilting in Perovskites\n\n                                     Christopher J. Howarda* and Harold T. Stokesb\n a\n     Australian Nuclear Science and Technology Organisation, Private Mail Bag 1, Menai NSW 2234, Australia, and\n         b\n          Department of Physics and Astronomy, Brigham Young University, Provo, Utah 84602-4675, USA.\n                                             E-mail: cjh@ansto.gov.au\n                                           (Received 9 January 1998; accepted 18 March 1998 )\n\n\n                            Abstract                                 Glazer (1972), who developed a description of the\n                                                                     different "
+  },
+  {
+    "id": "HowardErratum2002",
+    "title": "Group-theoretical analysis of octahedral tilting in perovskites. Erratum",
+    "topic": "erratum",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/1998%20Howard%20erratum.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/HowardErratum2002.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/1998%20Howard%20erratum.pdf",
+      "bytes": 111222,
+      "sha256": "d26bb0044934bea0701dda0ec541abab8bc7fe2b77e045f31c46f596afaa47a6",
+      "retrieved_at": "2026-10-15T13:15:19.808068+00:00"
+    },
+    "doi_candidates": [],
+    "opening_text": "                                                                                                                       addenda and errata\n\nCoupling of the lactone-ring conforma-                                             Group-Theoretical Analysis of Octahe-\ntion with crystal symmetry in 6-hydroxy-                                           dral Tilting in Perovskites. Erratum\n4,4,5,7,8-pentamethyl-3,4-dihydrocou-\n                                                                                   Christopher J. Howarda* and Harold T. Stokesb\nmarin. Erratum\n                                                                                   a\n                                                                                    Australian Nuclear Science and Technology Organisation, Private Mail "
+  },
+  {
+    "id": "StokesTheory2006",
+    "title": "Introduction to Isotropy Subgroups and Displacive Phase Transitions",
+    "topic": "tutorial",
+    "type": "author_tutorial",
+    "url": "https://iso.byu.edu/2006%20Stokes.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/StokesTheory2006.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/2006%20Stokes.pdf",
+      "bytes": 103557,
+      "sha256": "2e66e1f42d4fbb758e2518a0562d1f8543e735aff15cb72f3840c32c2bd71956",
+      "retrieved_at": "2026-10-15T13:15:22.781778+00:00"
+    },
+    "doi_candidates": [],
+    "opening_text": "                                Introduction to\n               Isotropy Subgroups and Displacive Phase Transitions\n                          Harold T. Stokes and Dorian M. Hatch\n                          Brigham Young University, Provo, Utah\n                                       April 2006\n\n\nThis is an introduction to the concepts of isotropy subgroups and how they are applied\nto the description of displacive phase transitions. We try to use a physically intuitive\napproach here. We begin with atomic displacements in a crystal, then show how the\napplication of symmetry leads to the concepts of irreducible representations and finally\nisotropy subgroups. This paper is divided into two parts, theory and examples. They\nshould be read in parallel. The theoretical principles explained in part 1 "
+  },
+  {
+    "id": "Frozen1995",
+    "title": "Using symmetry in frozen phonon calculations",
+    "topic": "phonon_boundary",
+    "type": "peer_reviewed",
+    "url": "https://iso.byu.edu/1995%20Stokes.pdf",
+    "authority_url": "https://iso.byu.edu/references.php",
+    "local_file": "pdf/Frozen1995.pdf",
+    "review_status": "pending_full_text",
+    "download": {
+      "status": "downloaded",
+      "http_status": 200,
+      "final_url": "https://iso.byu.edu/1995%20Stokes.pdf",
+      "bytes": 300235,
+      "sha256": "b8bc5c4e13d9c8b183b43da59b91ef5d740cec78f6e9603e63a01e2e59064f61",
+      "retrieved_at": "2026-10-15T13:15:25.660985+00:00"
+    },
+    "doi_candidates": [],
+    "opening_text": "\f\f\f\f\f\f"
+  }
+]

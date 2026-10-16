@@ -634,7 +634,7 @@ def test_live_4310_secondary_e_modes_export_for_p_and_x_primary_routes():
     if not parent_path.is_file():
         pytest.skip("4310 parent input unavailable")
 
-    api = IsoDistort(language="en")
+    api = IsoDistort()
     api.set_distortion_scope({
         "displacive": ["*"],
         "occupational": [],

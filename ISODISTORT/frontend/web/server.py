@@ -206,7 +206,7 @@ class IsoHandler(BaseHTTPRequestHandler):
         elif path == "/api/export_status":
             _touch_heartbeat()
             self._send_json({"ok": True, "export": workflows.export_progress_snapshot()})
-        elif path == "/api/i18n":
+        elif path == "/api/messages":
             _touch_heartbeat()
             self._send_json({
                 "ok": True,

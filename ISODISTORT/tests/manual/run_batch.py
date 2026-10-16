@@ -56,7 +56,7 @@ def _sg_of(structure) -> int:
 
 def _validate_parent(name: str, path: Path, expected_sg: int | None) -> dict:
     rec: dict = {"name": name, "path": str(path), "expected_sg": expected_sg}
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -211,7 +211,7 @@ def _official_ld1_comparison() -> dict:
     模式计算为参数 k 点的已知限制。
     """
     rec: dict = {"name": "EuAl4_LD1_official_ref"}
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -368,7 +368,7 @@ def _sg_of(structure) -> int:
 
 def _official_paths_check(path: Path) -> list[dict]:
     """官网示例路径对照：SrTiO₃ 的三条已知子群路径。"""
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],

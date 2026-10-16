@@ -4,6 +4,59 @@
 下载动作见 [DOWNLOAD_CHECKLIST.md](DOWNLOAD_CHECKLIST.md)。
 已完成 debug、下载、迁移和修改历史的完整原文见 [可恢复归档](history/README.md)。
 
+## 集成验证与管线合同检查（2026-10-16）
+
+验证公共入口为 `tests.validation`；生产模块不导入测试支持包。入口、默认配置、
+源码签名、部署器和架构清单已按当前目录统一。原 CIF 比较器 AST 与迁移前相同；
+Method 4 的两个数据合同及五个计算方法与迁移前快照 AST 相同，这只证明移动未改写
+相应算法，不代表对全部科学输入的认证。公共兼容入口继续调用同一实现。
+
+本轮涉及科学语义的共享合同如下：
+
+- 心化矩阵采用精确有理数；惯用胞中原胞个数为 `1 / abs(det(P))`，原胞/惯用胞
+  体积比与该指数的乘积为一。验证覆盖 P/A/B/C/I/F/R 的独立晶格重数；不引入
+  材料相关比例或振幅拟合。
+- 超胞采用行约定 `x_parent = x_child @ B`；物种和占据保持一致，位点及整数平移
+  必须在给定笛卡尔误差球中唯一。容差单位为 Å，默认值来自配置
+  `symmetry_cartesian_tolerance_angstrom`。重排和扩胞坐标守恒为正例；缺失站点、
+  斜晶格和同站点多个周期像为反例。该合同仅适用于未畸变对应，不代替畸变结构匹配。
+- 数学依据为资料库补充证明 `sec:shared-mapping`，对应 C02/C03；Method 4 归属
+  与 C15 的来源链同步。这里未改变动力学或能量模型，能量守恒不是这次重构的验收项。
+- 比较容差沿用测试 YAML 的晶格、周期分数坐标和标量三个域；非有限或负容差拒绝。
+  语义、声明的参考哈希与严格字节条件逐项成立才通过；空批次不表示成功。
+  比较器只读取冻结文件，验证参数不回传生产计算。
+
+原始证据位于 `output/validation/pipeline_cleanup/`（不提交）：
+`final-source-evidence.json` 保存源码/配置/依赖指纹和 AST 核对；`repo-final.xml`
+记录仓库门禁及实际 wheel 检查 34 passed；目录清理后的 `directory-removal.xml`
+记录门禁、集成比较和受影响配对测试 75 passed、1 skipped（缺少外部 CIF 配对）。
+完整科学回归于 2026-10-17 完成：**1132 passed、3 skipped、0 failed**，耗时
+20 分 18 秒，见同目录 `full-final.xml` 与 `full-final.log`。三个跳过项分别缺少
+X4- P3 外部配对文件、需要原生 POSIX shell、缺少 EuAl4 LD1 `g=1/6` 本地子群数据库。
+运行期间的目录清理只改动测试支持和路径引用，生产三层指纹未变；对应最终版本已由
+上述 75 passed、1 skipped 的补充复测覆盖。源码指纹、Ruff F821/F401 和
+`git diff --check` 终检通过。
+
+资料完整性及引用检查通过，两篇 LaTeX 编译成功；新增证明页面的渲染检查范围见
+资料库 `audit/DELIVERY_REVIEW.md`。未运行官网全量差分或人工 GUI 验收，既有科学
+缺口仍保留；静态去重与调用扫描不构成对所有动态路径不存在死代码的形式化证明。
+
+## 理论与代码一致性审查（2026-10-15）
+
+本轮按文献和两份证明检查实际调用链，详细反例、推导、修复和限制统一见
+[理论审查报告](reference_library/audit/THEORY_CODE_AUDIT.md)。
+[实现清单](reference_library/audit/implementation_audit.json) 保存逐能力状态与最终检查数字；
+原始日志、JUnit、k 参数回代及源码指纹在
+`output/validation/theory_design_audit_20261015/`（相对于 ISODISTORT）。
+
+已移除官网存档回填、占据率排序二分/夹取、以位移代替转动和按重数猜 Wyckoff 字母；
+修复行基矢点群作用、精确晶格判定、分数显示和含常数/负号/耦合的波矢换算。
+Wyckoff 标签增加实际 Hall/原点门禁，标准表种子经独立交叉检查；旧母胞映射的均匀
+复制与最近邻补位已替换为既有完整子胞映射的覆盖性检查。
+最小二乘仍用于有来源且满秩的固定模式基分解，它不是材料答案拟合。
+未实现物理模型明确拒绝；未对全部二进制、表数据、晶体、官网版本或 GUI 作认证。
+此前三层重构的测试数字只适用于其当时源码，不代替本轮结果。
+
 ## 三层重构验证（2026-10-15）
 
 三个子项目统一为 `frontend → application → backend`，模块目录与维护约束以根
@@ -20,8 +73,8 @@
   `full-final-pytest.log`。
   三个跳过项分别缺少 X4- P3 官网/本地配对文件、需要原生 POSIX shell，以及缺少
   EuAl4 LD1 `g=1/6` 本地子群数据库；本轮不生成可能耗时数小时的子群数据库。
-- 仓库级门禁与实际 ISODISTORT wheel：32 passed；ISODISTORT_VALIDATE：29 passed；
-  ISOVIZ_INPUT：40 passed。两个小工具均包含隔离源码后的实际 wheel/CLI 检查；GUI 未启动。
+- 仓库级门禁与实际 ISODISTORT wheel：32 passed；当时的比较工具：29 passed；
+  ISOVIZ_INPUT：40 passed。当时的两个小工具均包含隔离源码后的实际 wheel/CLI 检查；GUI 未启动。
 - 三个 wheel 均检查规范入口和资源；两个小工具的 YAML 由唯一源配置在构建时打包，
   自定义配置与包内配置分别保持正确的相对路径基准。旧入口的可变状态兼容有回归覆盖。
 - 部署诊断：24 pass、2 warn、0 fail；两个 warn 分别为缺少成对比较 CIF 与振幅 CSV，
@@ -63,15 +116,10 @@
 
 ## 主要科学依据
 
-- [ISODISTORT Method 3 help](https://iso.byu.edu/isodistorthelp.php)
-- [ISOTROPY user documentation](https://iso.byu.edu/isotropy_doc.php)
-- Campbell, Stokes, Tanner & Hatch, *J. Appl. Cryst.* 39 (2006), [DOI 10.1107/S0021889806014075](https://doi.org/10.1107/S0021889806014075)
-- Stokes & Campbell, *Acta Cryst.* A73 (2017), Appendix B, DOI `10.1107/S2053273316017629`
-- Hatch & Stokes, *Phys. Rev. B* 65 (2002), DOI `10.1103/PhysRevB.65.014113`
-- Stokes, van Orden & Campbell, *J. Appl. Cryst.* 49 (2016), DOI `10.1107/S160057671601311X`
-- Wagner & Schönleber, *Acta Cryst.* B65 (2009), [superspace introduction](https://journals.iucr.org/b/issues/2009/03/00/bk5084/index.html)：有理调制、公度周期、cosine/sine 分量及相位约定。
-- [IUCr CIF specifications](https://www.iucr.org/resources/cif/spec)：data block、loop 与结构数据的语法边界。
-- [International Tables, Vol. C, §1.1](https://it.iucr.org/Cb/ch1o1v0001/)：原/惯用胞、中心化平移与倒格矢的定义及体积关系。
-- [IUCr Superstructure definition](https://dictionary.iucr.org/Superstructure)：子胞平移群必须为母相平移群的子群。
+统一入口为[理论参考资料库](reference_library/README.md)，其中维护作者论文、独立方法、
+IUCr 标准与教程、来源审核、能力映射及两份带引用的 LaTeX 论证。
+书目元数据只在 `reference_library/sources.json` 维护；当前编译与资料完整性检查见
+`reference_library/audit/validation.json`，数学/实现的适用边界见
+`reference_library/audit/QUALITY_REVIEW.md`。资料整理未重跑本报告中的科学或 GUI 批次。
 
 这些文献定义算法与不变量；官网结果只用于检验实现是否复现同一科学语义。

@@ -11,7 +11,7 @@ from pymatgen.io.cif import CifWriter
 from pymatgen.io.vasp import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-import backend.api.core_api as core_api_module
+import application.session.core_api as core_api_module
 from application.session import IsoDistort
 from backend.utils.lattice import (
     centering_primitive_matrix,
@@ -331,7 +331,7 @@ def test_api_load_structure_poscar(tmp_path):
     cif_path = tmp_path / "fe.cif"
     CifWriter(base).write_file(str(cif_path))
 
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],
@@ -339,7 +339,7 @@ def test_api_load_structure_poscar(tmp_path):
     iso.load_structure(poscar_path)
     sg_poscar = iso.symmetry_info["space_group_number"]
 
-    iso2 = IsoDistort(language="en")
+    iso2 = IsoDistort()
     iso2.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],

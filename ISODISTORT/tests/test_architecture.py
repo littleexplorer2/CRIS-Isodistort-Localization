@@ -17,7 +17,6 @@ except ModuleNotFoundError:  # pragma: no cover - Python 3.10 compatibility
 
 import pytest
 
-from application.session import core_api
 from backend.tables import irreps_cdml
 from backend.utils.config_loader import CONFIG_PATH, PROJECT_ROOT, get_config
 
@@ -38,7 +37,7 @@ ROOT_PLACED_FILES = {
 def test_production_modules_do_not_silently_overwrite_top_level_definitions():
     """A duplicate helper definition can reverse an existing scientific API."""
     duplicates = []
-    for package in ("backend", "application", "features", "frontend"):
+    for package in ("backend", "application", "frontend"):
         for path in (ISODISTORT_ROOT / package).rglob("*.py"):
             tree = ast.parse(path.read_text(encoding="utf-8-sig"))
             counts = Counter(
@@ -110,9 +109,8 @@ def test_reorganized_resource_roots_resolve_to_existing_project_paths() -> None:
         ISODISTORT_ROOT / "resources" / "isobyu" / "data_irreps.txt"
     )
     assert irreps_cdml._ISO_DATA.is_file()
-    assert core_api._CRIS_ROOT == CRIS_ROOT
-    assert (core_api._CRIS_ROOT / "experiment_data").is_dir()
-    assert (core_api._CRIS_ROOT / "webpage_info").is_dir()
+    # Golden inputs and website archives are independent test evidence,
+    # not application runtime resources.
 
 
 def test_root_placed_files_stay_in_the_project_root() -> None:
@@ -174,17 +172,15 @@ def test_method1_public_api_does_not_reexport_other_feature_packages() -> None:
     assert HomogeneousStrainMode.__module__ == "backend.method4.strain_modes"
 
 
-def test_legacy_gd_imports_share_the_canonical_objects_and_module_state() -> None:
-    import application.session
-    import backend.api
-    from application.session import core_api
-    from backend.api import core_api as legacy_core_api
+def test_canonical_modules_have_no_retired_architecture_packages():
+    import inspect
+    from application.session import IsoDistort
     from backend.export.distortion_formats import cart_normalized_mode_matrix
-    from features.export.distortion_formats import cart_normalized_mode_matrix as legacy_matrix
 
-    assert backend.api is application.session
-    assert legacy_core_api is core_api
-    assert legacy_matrix is cart_normalized_mode_matrix
+    assert "language" not in inspect.signature(IsoDistort).parameters
+    assert callable(cart_normalized_mode_matrix)
+    for relative in ("features", "backend/api", "frontend/i18n"):
+        assert not (ISODISTORT_ROOT / relative).exists()
 
 
 def test_setuptools_package_data_contract_is_complete_and_explicit() -> None:
@@ -222,7 +218,7 @@ def test_equivalent_installed_layout_resolves_packaged_runtime_assets(tmp_path: 
     package_data = pyproject["tool"]["setuptools"]["package-data"]
     site_packages = tmp_path / "site-packages"
 
-    for package_name in ("backend", "application", "features", "frontend", "resources"):
+    for package_name in ("backend", "application", "frontend", "resources"):
         source_root = ISODISTORT_ROOT / package_name
         for source in source_root.rglob("*.py"):
             destination = site_packages / source.relative_to(ISODISTORT_ROOT)

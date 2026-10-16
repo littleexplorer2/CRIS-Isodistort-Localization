@@ -1315,8 +1315,10 @@ def test_method1_x4_p3_cif_matches_official_setting(tmp_path):
     from pymatgen.core import Lattice
     from pymatgen.io.cif import CifParser
 
-    official = _REPO / "ISODISTORT_VALIDATE" / "compare" / "true" / "X4- P3 CIF.cif"
-    local_sc = _REPO / "ISODISTORT_VALIDATE" / "compare" / "item" / "X4- P3 CIF.cif"
+    from tests.validation.backend.paths import ITEM_DIR, TRUE_DIR
+
+    official = TRUE_DIR / "X4- P3 CIF.cif"
+    local_sc = ITEM_DIR / "X4- P3 CIF.cif"
     if not official.is_file() or not local_sc.is_file():
         pytest.skip("official/local X4- P3 CIF not present")
     sc = CifParser(str(local_sc), occupancy_tolerance=100).parse_structures(primitive=False)[0]

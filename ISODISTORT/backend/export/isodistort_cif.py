@@ -124,16 +124,17 @@ _HM_FULL_1992 = {
     142: "I 41/a 2/c 2/d (origin choice 2)",
 }
 
-# ITA origin-choice-2 representatives for Cmma (#67). 8n is (x, 1/4, z).
+# Cmma (#67), Hall 316, International conventional setting. Source: ISOTROPY
+# 9.6.1, VALUE PARENT 67 / SHOW WYCKOFF VECTOR / DISPLAY PARENT. g is (0,1/4,z).
+# These are standard classification data, not material-specific reference results.
 _WYCKOFF_67 = (
     ("a", 4, np.array([0.25, 0.0, 0.0])),
     ("b", 4, np.array([0.25, 0.0, 0.5])),
-    ("c", 4, np.array([0.0, 0.25, 0.0])),
-    ("d", 4, np.array([0.0, 0.0, 0.25])),
+    ("c", 4, np.array([0.0, 0.0, 0.0])),
+    ("d", 4, np.array([0.0, 0.0, 0.5])),
     ("e", 4, np.array([0.25, 0.25, 0.0])),
-    ("f", 4, np.array([0.0, 0.25, 0.5])),
+    ("f", 4, np.array([0.25, 0.25, 0.5])),
     ("g", 4, np.array([0.0, 0.25, 0.25])),
-    ("h", 4, np.array([0.25, 0.25, 0.5])),
 )
 
 # I4/mmm (#139) special positions used by EuAl4-type parents.
@@ -641,11 +642,6 @@ def _count_unique(coords: np.ndarray, species: Sequence[str], ops, tol: float = 
     return n_unique
 
 
-def _special_score(coords: np.ndarray) -> np.ndarray:
-    """Legacy helper: 0 / 1/4 / 1/2 / 3/4 specials (prefer half_special for ranking)."""
-    targets = np.array([0.0, 0.25, 0.5, 0.75])
-    dist = np.min(np.abs(coords[..., None] - targets), axis=-1)
-    return (dist < 1e-4).astype(float)
 
 
 def _half_special_score(coords: np.ndarray) -> np.ndarray:
@@ -705,12 +701,11 @@ def _asymmetric_sites(
     for i in unique_idx:
         frac = _canonical_frac(structure[i].frac_coords, ops, keep_near=structure[i].frac_coords)
         mult = _orbit_size(frac, ops)
-        if has_table:
-            letter = _wyckoff_letter(setting.int_number, frac, mult, ops)
-        elif spglib_letters and i < len(spglib_letters) and spglib_letters[i]:
+        letter = _wyckoff_letter(setting.int_number, frac, mult, ops) if has_table else "?"
+        if letter == "?" and spglib_letters and i < len(spglib_letters):
             letter = spglib_letters[i]
-        else:
-            letter = _wyckoff_letter(setting.int_number, frac, mult, ops)
+        if letter == "?" and setting.int_number == 1:
+            letter = "a"
         frac = _snap_wyckoff_rep(setting.int_number, frac, letter, mult, ops)
         stem = _site_stem(structure[i], frac, spec, origin_shift)
         sites.append(
@@ -750,8 +745,11 @@ def _spglib_wyckoff_letters(
     A zero-amplitude subgroup structure can still have the symmetry of its
     parent.  In that case a direct spglib call reports the parent group's
     Wyckoff letters.  Giving every *target-subgroup orbit* a distinct temporary
-    atom type prevents spglib from merging those orbits through accidental
-    higher symmetry, while retaining every operation of the target subgroup.
+    atom type prevents merging different orbits while retaining the target
+    subgroup. It need not remove all accidental higher symmetry, so the group
+    number is checked. Letters also require the requested Hall setting and an
+    unchanged basis/origin: x_standard = P x_input + p. Otherwise enrichment
+    returns unknown instead of attaching standardized labels to input coordinates.
     """
     if sg_number <= 1 or len(structure) == 0:
         return None
@@ -777,8 +775,12 @@ def _spglib_wyckoff_letters(
     )
     try:
         cfg = get_config()
+        hall_number, _ = _hall_for_number(sg_number)
+        if hall_number <= 0:
+            return None
         ds = get_symmetry_dataset(
             cell,
+            hall_number=hall_number,
             symprec=cfg.symmetry_cartesian_tolerance_angstrom,
             angle_tolerance=cfg.symmetry_angle_tolerance_degrees,
         )
@@ -787,7 +789,15 @@ def _spglib_wyckoff_letters(
     if ds is None:
         return None
     number = int(getattr(ds, "number", 0) or 0)
-    if number and number != int(sg_number):
+    if number != int(sg_number) or int(getattr(ds, "hall_number", 0)) != hall_number:
+        return None
+    # Dimensionless roundoff allowance for a discrete setting identity, not a
+    # structural/symmetry detection tolerance. Never permit relative tolerance.
+    transform = np.asarray(ds.transformation_matrix, dtype=float)
+    shift = np.asarray(ds.origin_shift, dtype=float)
+    if not np.allclose(transform, np.eye(3), atol=1e-8, rtol=0):
+        return None
+    if not np.allclose(shift - np.rint(shift), 0, atol=1e-8, rtol=0):
         return None
     wyckoffs = getattr(ds, "wyckoffs", None)
     if not wyckoffs or len(wyckoffs) != len(structure):
@@ -902,7 +912,7 @@ def _wyckoff_letter(sg_number: int, frac: np.ndarray, multiplicity: int, ops) ->
         if (
             (abs(x) < 1e-4 and abs(y - 0.5) < 1e-4)
             or (abs(x - 0.5) < 1e-4 and abs(y) < 1e-4)
-        ):
+        ) and _in_orbit(frac, np.array([0.0, 0.5, 0.25]), ops):
             return "d"
     if sg_number == 71 and multiplicity == 4:
         x, y, _z = (float(c) for c in frac)
@@ -965,13 +975,12 @@ def _wyckoff_letter(sg_number: int, frac: np.ndarray, multiplicity: int, ops) ->
         ):
             return letter
     if sg_number == 67:
-        if multiplicity == 8:
+        if multiplicity == 8 and abs(float(frac[1]) % 0.5 - 0.25) < 1e-4:
             return "n"
         if multiplicity == 16:
             return "o"
-    letters = "abcdefghijklmnopqrstuvwxyz"
-    idx = min(max(multiplicity.bit_length() + 2, 0), len(letters) - 1)
-    return letters[idx]
+    # Multiplicity is not a Wyckoff identity. CIF ? explicitly means unknown.
+    return "a" if sg_number == 1 and multiplicity == 1 else "?"
 
 
 def _site_matches_wyckoff(

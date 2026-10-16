@@ -22,6 +22,7 @@ def test_manual_signature_targets_exist_in_the_three_layer_layout() -> None:
         PROJECT_ROOT / "backend" / "method3" / "inverse_landau.py",
         PROJECT_ROOT / "backend" / "method3" / "inverse_landau_adapter.py",
         PROJECT_ROOT / "backend" / "method4" / "distortion_engine.py",
+        PROJECT_ROOT / "backend" / "method4" / "decomposition.py",
         PROJECT_ROOT / "backend" / "method4" / "strain.py",
         PROJECT_ROOT / "backend" / "export" / "isodistort_cif.py",
         MANUAL_ROOT / "official_html_resolver.py",

@@ -1,4 +1,4 @@
-"""Basics: config, i18n, parent header, official k-params."""
+"""Basics: config, English messages, parent header, official k-params."""
 from __future__ import annotations
 
 import os
@@ -24,7 +24,7 @@ from backend.wrappers.base_wrapper import (
     _is_wsl_access_denied,
 )
 from backend.input_cif import SymmetryValidator
-from frontend.i18n import MESSAGES, t
+from backend.messages import MESSAGES, t
 
 # --- from test_config.py ---
 
@@ -191,7 +191,7 @@ def test_orbit_identity_is_periodic_at_fractional_cell_boundary():
 
 
 
-# --- from test_i18n.py ---
+# --- English message formatting ---
 
 def test_messages_are_flat_english():
     assert isinstance(MESSAGES, dict)

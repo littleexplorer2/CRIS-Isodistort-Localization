@@ -44,7 +44,7 @@ def _sha256(path: Path) -> str:
 
 
 def diagnose(args: argparse.Namespace) -> dict:
-    api = IsoDistort(language="en")
+    api = IsoDistort()
     api.load_structure(args.cif.resolve())
     pool = api.list_subgroups_at_kpoint(
         args.k_point,

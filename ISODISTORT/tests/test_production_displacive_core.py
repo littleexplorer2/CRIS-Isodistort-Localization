@@ -263,6 +263,7 @@ def test_writer_identity_gate_checks_only_columns_emitted_for_candidate():
         api.structure,
         api.symmetry_info["wyckoff_sites"],
         api.distortion_modes,
+        subgroup_context=subgroup,
     )
     api._dist_engine = DistortionEngine(api._dist_mapper)
     lifted_by_key = api._lifted_mode_displacements(subgroup)

@@ -60,7 +60,6 @@ from backend.method2.superspace import (
     _proven_real_transport_phase,
     _replace_rootless_supplement_basis,
     _select_verified_microscopic_modes,
-    _site_irrep_for_disp,
     validate_symbolic_mode_subspaces,
 )
 
@@ -1024,9 +1023,6 @@ def test_missing_or_duplicate_physical_orbit_metadata_fails_closed():
     assert unresolved[0].mode_identity.reason == "physical_orbit_metadata_unavailable"
 
 
-def test_legacy_single_vector_site_irrep_entry_is_explicitly_unresolved():
-    assert _site_irrep_for_disp("C2v", np.asarray([0.0, 0.0, 1.0])) == ""
-    assert _site_irrep_for_disp("D2h", np.asarray([1.0, 0.0, 0.0])) == ""
 
 
 def _wsl_available() -> bool:

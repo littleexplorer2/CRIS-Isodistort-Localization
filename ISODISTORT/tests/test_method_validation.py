@@ -10,7 +10,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-import backend.api
+import application.session
 import tests.manual.audit_method1_4310_live as method1_4310_module
 import tests.manual.validate_method_outputs as validation_module
 from tests.manual.audit_method1_4310_live import (
@@ -1261,7 +1261,7 @@ def test_live12_checkpoint_marks_interruption_and_safely_reuses_identity_counts(
             self.mode_displacements = [object()]
 
     monkeypatch.setattr(validation_module, "WORKSPACE", workspace)
-    monkeypatch.setattr(backend.api, "IsoDistort", FakeIsoDistort)
+    monkeypatch.setattr(application.session, "IsoDistort", FakeIsoDistort)
     checkpoint_path = workspace / "output" / "validation" / "checkpoint.json"
     report_path = workspace / "output" / "validation" / "report.json"
 
@@ -1348,7 +1348,7 @@ def test_live12_end_source_drift_invalidates_all_checkpoint_results(
 
     monkeypatch.setattr(_Live12Subgroup, "basis_scale", 1)
     monkeypatch.setattr(validation_module, "WORKSPACE", workspace)
-    monkeypatch.setattr(backend.api, "IsoDistort", DriftIsoDistort)
+    monkeypatch.setattr(application.session, "IsoDistort", DriftIsoDistort)
     checkpoint_path = workspace / "output" / "validation" / "checkpoint.json"
     report_path = workspace / "output" / "validation" / "report.json"
 

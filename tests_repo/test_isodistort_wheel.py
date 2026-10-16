@@ -13,14 +13,14 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1] / "ISODISTORT"
 
 
-def test_isodistort_wheel_contains_canonical_layers_and_legacy_adapters(tmp_path):
+def test_isodistort_wheel_contains_only_canonical_layers(tmp_path):
     pytest.importorskip("setuptools", reason="Wheel build requires setuptools and wheel")
     pytest.importorskip("wheel", reason="Wheel build requires setuptools and wheel")
     source = tmp_path / "source"
     source.mkdir()
     for name in ("pyproject.toml", "README.md", "requirements.txt"):
         shutil.copyfile(ROOT / name, source / name)
-    for name in ("backend", "application", "frontend", "features", "resources"):
+    for name in ("backend", "application", "frontend", "resources"):
         shutil.copytree(ROOT / name, source / name, ignore=shutil.ignore_patterns("__pycache__", "*.log"))
     wheels = tmp_path / "wheels"
     wheels.mkdir()
@@ -39,25 +39,22 @@ from pathlib import Path
 installed = Path(sys.argv[1])
 sys.path[:0] = [str(installed), *sys.argv[2:]]
 import application.session
-import backend.api
-from backend.api import core_api as legacy
 from application.session import core_api
 from backend.export.distortion_formats import cart_normalized_mode_matrix
-from features.export.distortion_formats import cart_normalized_mode_matrix as old_matrix
 from backend.utils.config_loader import CONFIG_PATH, get_config
 from frontend.web.server import WEB_DIR
 from application import workflows
-assert backend.api is application.session
-assert legacy is core_api
-assert old_matrix is cart_normalized_mode_matrix
 assert Path(core_api.__file__).is_relative_to(installed)
+assert callable(cart_normalized_mode_matrix)
+for retired in ('features', 'frontend/i18n', 'backend/api', 'tests'):
+    assert not (installed / retired).exists()
 assert CONFIG_PATH == installed / 'resources/config/settings.yaml'
 assert get_config().iso_bin.is_file()
 assert (WEB_DIR / 'index.html').is_file()
 assert (WEB_DIR / 'static/bootstrap.css').is_file()
 assert workflows.messages()['load.done']
 assert list(installed.glob('*.dist-info/entry_points.txt'))
-print('installed canonical layers, legacy identity and runtime resources verified')
+print('installed canonical layers and runtime resources verified; retired packages absent')
 """
     dependencies = [path for path in sys.path if Path(path).name == "site-packages"]
     env = os.environ.copy()

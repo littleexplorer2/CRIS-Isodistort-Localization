@@ -96,6 +96,7 @@ def _signature() -> str:
         PACKAGE_ROOT / "backend" / "method4" / "distortion_engine.py",
         PACKAGE_ROOT / "backend" / "method2" / "distortion_mapper.py",
         PACKAGE_ROOT / "backend" / "method1" / "search_methods.py",
+        PACKAGE_ROOT / "backend" / "method4" / "decomposition.py",
         PACKAGE_ROOT / "backend" / "method4" / "strain.py",
         PACKAGE_ROOT / "backend" / "method2" / "superspace.py",
         PACKAGE_ROOT / "backend" / "input_cif" / "cif_io.py",

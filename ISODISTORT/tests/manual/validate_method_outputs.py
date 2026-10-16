@@ -46,11 +46,11 @@ except ImportError:  # pragma: no cover - direct script execution
     )
 
 WORKSPACE = Path(__file__).resolve().parents[3]
-VALIDATOR_ROOT = WORKSPACE / "ISODISTORT_VALIDATE"
-if str(VALIDATOR_ROOT) not in sys.path:
-    sys.path.insert(0, str(VALIDATOR_ROOT))
+PROJECT_ROOT = WORKSPACE / "ISODISTORT"
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from isodistort_validate.application.single import compare_cif  # noqa: E402
+from tests.validation.application.single import compare_cif  # noqa: E402
 
 DEFAULT_OUTPUT_ROOT = WORKSPACE / "output_compare"
 OFFICIAL_DIR = "官网"

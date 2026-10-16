@@ -150,6 +150,7 @@ def _signature() -> str:
         Path(__file__),
         PACKAGE_ROOT / "application" / "session" / "core_api.py",
         PACKAGE_ROOT / "backend" / "method1" / "search_methods.py",
+        PACKAGE_ROOT / "backend" / "method4" / "decomposition.py",
         PACKAGE_ROOT / "backend" / "wrappers" / "iso_wrapper.py",
         WORKSPACE / "experiment_data" / "EuAl4 Parent.cif",
         WORKSPACE / "experiment_data" / "NdNiO2 own.cif",

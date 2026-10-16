@@ -194,14 +194,6 @@ def _centering_letter(space_group_number: int) -> str:
     return (symbol[:1] or "P").upper()
 
 
-def _integer_delta(k1: np.ndarray, k2: np.ndarray) -> tuple[int, int, int] | None:
-    delta = np.asarray(k1, dtype=float) - np.asarray(k2, dtype=float)
-    rounded = np.rint(delta)
-    if not np.allclose(delta, rounded, atol=1e-6):
-        return None
-    return int(rounded[0]), int(rounded[1]), int(rounded[2])
-
-
 def _g_allowed(h: int, k: int, ell: int, centering: str) -> bool:
     letter = str(centering or "").strip()[:1].upper()
     if not letter:
@@ -224,70 +216,6 @@ def _g_allowed(h: int, k: int, ell: int, centering: str) -> bool:
         # (1/3,2/3,2/3) therefore require 2h+k+l = 0 (mod 3).
         return (2 * h + k + ell) % 3 == 0
     raise ValueError(f"unsupported reciprocal-lattice centering {centering!r}")
-
-
-def _k_score(k: np.ndarray) -> tuple:
-    """Lower is better: stay in [0,1] inclusive, avoid negatives, then smaller |k|."""
-    out_of_unit = int(sum(1 for x in k if x < -1e-8 or x > 1.0 + 1e-8))
-    negative = int(sum(1 for x in k if x < -1e-8))
-    abs_sum = float(np.sum(np.abs(k)))
-    return (out_of_unit, negative, abs_sum)
-
-
-def _canonical_k(k: np.ndarray, centering: str, max_g: int = 2) -> np.ndarray:
-    """Pick a unit-cell representative of k modulo the Bravais reciprocal lattice.
-
-    Used for rotated star arms only. The listed special-k seed (CDML / iso
-    DISPLAY KPOINT, e.g. M = (1,1,1) for I4/mmm) is kept as given: reducing it
-    by an allowed G would map M onto (0,0,1), which the website never prints.
-    """
-    best = np.asarray(k, dtype=float)
-    best_score = _k_score(best)
-    for h in range(-max_g, max_g + 1):
-        for ki in range(-max_g, max_g + 1):
-            for ell in range(-max_g, max_g + 1):
-                if not _g_allowed(h, ki, ell, centering):
-                    continue
-                cand = np.asarray(k, dtype=float) + np.array([h, ki, ell], dtype=float)
-                score = _k_score(cand)
-                if score < best_score:
-                    best = cand
-                    best_score = score
-    return best
-
-
-def _zero_one_flips(k: np.ndarray) -> list[np.ndarray]:
-    """0↔1 partners on axes that sit on the unit-cell boundary."""
-    out: list[np.ndarray] = []
-    for i in range(3):
-        if abs(float(k[i])) < 1e-8:
-            kp = np.asarray(k, dtype=float).copy()
-            kp[i] = 1.0
-            out.append(kp)
-        elif abs(float(k[i]) - 1.0) < 1e-8:
-            kp = np.asarray(k, dtype=float).copy()
-            kp[i] = 0.0
-            out.append(kp)
-    return out
-
-
-def _k_equivalent(k1: np.ndarray, k2: np.ndarray, centering: str) -> bool:
-    """Two conventional k vectors are the same modulo the Bravais reciprocal lattice."""
-    delta = _integer_delta(k1, k2)
-    if delta is None:
-        return False
-    h, k, ell = delta
-    return _g_allowed(h, k, ell, centering)
-
-
-def _k_to_array(coords: Sequence[str | float]) -> np.ndarray:
-    out = []
-    for c in coords:
-        if isinstance(c, str):
-            out.append(float(Fraction(c.strip())))
-        else:
-            out.append(float(c))
-    return np.asarray(out, dtype=float)
 
 
 def _k_to_fractions(

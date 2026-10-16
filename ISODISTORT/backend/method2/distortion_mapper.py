@@ -301,159 +301,38 @@ class DistortionMapper:
     负责将 iso 计算出的抽象模式基矢，转化为每个原子的实际位移向量。
     """
 
-    def __init__(self) -> None:
-        self._prim_matrix: np.ndarray | None = None
-        self._conv_matrix: np.ndarray | None = None
 
     def map_modes_to_atoms(self, structure: Structure,
                            wyckoff_sites: list[dict],
-                           modes: list[DistortionMode]) -> dict:
+                           modes: list[DistortionMode], *,
+                           subgroup_context: SubgroupInfo | None = None) -> dict:
+        """Compatibility adapter for complete BUSH columns on the parent cell.
+
+        The requested cell is explicitly the identity cell. Use the child-cell
+        API for general k/subgroups. Missing representatives, conflicting arrows
+        and incomplete provenance follow that API's strict checks; a single row
+        does not authorize uniform copying, nearest-site filling or orbit mixing.
         """
-        将畸变模式映射到结构中每个原子
-
-        Args:
-            structure: 母相晶体结构
-            wyckoff_sites: 结构的 Wyckoff 位置分组信息（来自 SymmetryValidator）
-            modes: iso 计算出的畸变模式列表（含 bush_modes）
-
-        Returns:
-            dict: 每个模式对应的原子位移向量
-                {
-                    "irrep_label": {
-                        "mode": DistortionMode,
-                        "displacements": np.ndarray (N_atoms x 3),
-                    }
-                }
-        """
-        n_atoms = len(structure)
-        self._lattice_setup(structure)
-
-        # 按 (字母, 物种) 分组：同一字母可能被多个物种共用（如 Fe/O 同在 k）
-        groups: list[tuple[str, list[int], dict]] = []
-        for site_info in wyckoff_sites:
-            groups.append((site_info["wyckoff_letter"],
-                           list(site_info["equivalent_indices"]),
-                           site_info))
-
-        result: dict[str, dict] = {}
+        mapped = self.map_bush_modes_to_supercell(
+            structure, wyckoff_sites, modes, np.eye(3).tolist(),
+            subgroup_context=subgroup_context,
+        )
+        result = {}
         for mode in modes:
-            # 按位点字母分组 BUSH 行；多位点时拆成独立幅度键（对齐官网
-            # 每个 [Site:letter:dsp]… 各算一个 displacive mode）。
-            by_letter: dict[str, list[BushMode]] = {}
-            for bush in mode.bush_modes:
-                by_letter.setdefault(bush.wyckoff_letter, []).append(bush)
-
-            letter_disps: dict[str, np.ndarray] = {}
-            target_orbit = str(getattr(mode, "wyckoff_orbit_id", "") or "")
-            for letter, indices, site_info in groups:
-                if target_orbit and str(site_info.get("orbit_id") or "") != target_orbit:
-                    continue
-                bushes = by_letter.get(letter, [])
-                if not bushes or not indices:
-                    continue
-                displacements = np.zeros((n_atoms, 3))
-
-                # 解析每个代表点（含自由参数 -> 结构真实坐标）。
-                # 列在 wrapper 层已拆分；如果再收到多列数据，说明上游
-                # 违反模式身份约定，必须显式报错而不是静默相加。
-                reps: list[tuple[np.ndarray, np.ndarray]] = []
-                for bush in bushes:
-                    if not bush.displacements:
-                        continue
-                    if len(bush.displacements) != 1:
-                        raise ValueError(
-                            "DISPLAY BUSH displacement columns must be split "
-                            "into independent DistortionMode objects before mapping"
-                        )
-                    point = self._resolve_rep_point(
-                        bush, structure, indices, site_info=site_info,
-                    )
-                    vec = np.asarray(bush.displacements[0], dtype=float)
-                    reps.append((point, vec))
-                if not reps:
-                    continue
-
-                # 只保留能“模格点”匹配到本组原子的代表（同一字母不同物种时，
-                # 彼此的符号点取位约定可能不同，无法匹配的物种保持不动，
-                # 避免错误回退破坏对称性）
-                matched_reps = [
-                    (p, v) for p, v in reps
-                    if any(self._lattice_equiv(
-                        np.asarray(structure[i].frac_coords), p) for i in indices)
-                ]
-                if not matched_reps:
-                    continue  # 本组原子保持不动
-                if len(matched_reps) == 1:
-                    # 均匀模式：同一位移作用于该位点的全部等效原子
-                    disp = matched_reps[0][1]
-                    for idx in indices:
-                        displacements[idx] = disp
-                else:
-                    # 多代表：优先按“周期等价”（模整数平移）把代表点分配给
-                    # 原子。非 Γ k 点模式中，BUSH 会为带心副本给出相位反号的
-                    # 独立代表（如 Im-3m H4-：`(0,0,0)→(1,0,1)` 与
-                    # `(-1/2,1/2,1/2)→(-1,0,-1)`），这两个代表相差原始格点
-                    # 平移、互为“模格点等价”，若按旧逻辑“首个代表胜出”会把
-                    # 全部原子分给同一代表、丢失 k 点相位（畸变退化为刚性平移）。
-                    # 代表点与原子分数坐标 mod 1 重合时即视为同一原子，直接
-                    # 采用该代表的位移；无法周期匹配时回退“模母相格点等价”
-                    # （子轨道/带心副本同位移，Γ 点均匀语义），最后退周期最近邻。
-                    for idx in indices:
-                        coord = np.asarray(structure[idx].frac_coords)
-                        assigned = False
-                        for point, disp in matched_reps:
-                            if self._periodic_equiv(coord, point):
-                                displacements[idx] = disp
-                                assigned = True
-                                break
-                        if not assigned:
-                            for point, disp in matched_reps:
-                                if self._lattice_equiv(coord, point):
-                                    displacements[idx] = disp
-                                    assigned = True
-                                    break
-                        if not assigned:
-                            # 回退：周期最近邻（仅本组代表内）
-                            best_disp = matched_reps[0][1]
-                            best_dist = float("inf")
-                            for point, disp in matched_reps:
-                                d = self._periodic_distance(coord, point)
-                                if d < best_dist:
-                                    best_dist = d
-                                    best_disp = disp
-                            displacements[idx] = best_disp
-
-                max_norm = float(np.max(np.linalg.norm(displacements, axis=1)))
-                if max_norm > 1e-12:
-                    letter_disps[letter] = displacements / max_norm
-
-            if not letter_disps:
-                continue
-            unique = str(getattr(mode, "amplitude_key", "") or "")
-            if unique:
-                letter, displacements = next(iter(letter_disps.items()))
-                result[unique] = {
-                    "mode": mode,
-                    "displacements": displacements,
-                    "wyckoff_letter": letter,
+            key = str(mode.amplitude_key or mode.irrep_label)
+            if key in result:
+                raise ValueError("BUSH modes require unique amplitude keys")
+            letter = mode.wyckoff_site or ""
+            if not letter:
+                nonzero_letters = {
+                    bush.wyckoff_letter for bush in mode.bush_modes
+                    if any(np.any(np.asarray(vector, dtype=float))
+                           for vector in bush.displacements)
                 }
-                continue
-            if len(letter_disps) == 1:
-                letter, displacements = next(iter(letter_disps.items()))
-                result[mode.irrep_label] = {
-                    "mode": mode,
-                    "displacements": displacements,
-                    "wyckoff_letter": letter,
-                }
-            else:
-                for letter, displacements in letter_disps.items():
-                    key = f"{mode.irrep_label}__{letter}"
-                    result[key] = {
-                        "mode": mode,
-                        "displacements": displacements,
-                        "wyckoff_letter": letter,
-                    }
-
+                if len(nonzero_letters) == 1:
+                    letter = next(iter(nonzero_letters))
+            result[key] = {"mode": mode, "displacements": mapped[key],
+                           "wyckoff_letter": letter}
         return result
 
     def map_bush_modes_to_supercell(
@@ -1008,16 +887,6 @@ class DistortionMapper:
     # 代表点解析 / 格点等价
     # ----------------------------------------------------------------
 
-    def _lattice_setup(self, structure: Structure) -> None:
-        """缓存母相惯用格矩阵与原胞格矩阵（模格点等价判定用）。
-
-        用 structure.get_primitive_structure()（纯胞约化，与母相格点同一格）
-        而非 get_primitive_standard_structure()（可能给出旋转后的不同格点，
-        实测对 R3m 等带心结构会把带心平移判成非格点）。
-        """
-        prim = structure.get_primitive_structure()
-        self._prim_matrix = np.asarray(prim.lattice.matrix, dtype=float)
-        self._conv_matrix = np.asarray(structure.lattice.matrix, dtype=float)
 
     def _resolve_rep_point(
         self,
@@ -1164,37 +1033,6 @@ class DistortionMapper:
             [DistortionMapper._eval_token(t, letters) for t in tokens],
             dtype=float,
         )
-
-    def _lattice_equiv(self, a: np.ndarray, b: np.ndarray,
-                       atol: float = 1e-3) -> bool:
-        """两个分数坐标是否相差一个母相格点（a - b ∈ L）。"""
-        delta_cart = (a - b) @ self._conv_matrix
-        n = delta_cart @ np.linalg.inv(self._prim_matrix)
-        return bool(np.allclose(n, np.round(n), atol=atol))
-
-    @staticmethod
-    def _periodic_equiv(a: np.ndarray, b: np.ndarray,
-                        atol: float = 1e-3) -> bool:
-        """两个分数坐标是否周期等价（相差整数平移，mod 1 相等）。
-
-        用于把 BUSH 代表点匹配到具体原子：代表点与原子分数坐标在 [0,1) 内
-        重合即视为同一原子（如带心副本相位反号代表 `(-1/2,1/2,1/2)` 与
-        体心原子 `(1/2,1/2,1/2)` mod 1 相等）。
-        """
-        delta = a - b
-        return bool(np.allclose(delta - np.round(delta), 0.0, atol=atol))
-
-    def _periodic_distance(self, a: np.ndarray, b: np.ndarray) -> float:
-        """Return the shortest periodic distance in the direct-lattice metric.
-
-        Fractional Euclidean distance has no crystallographic meaning unless
-        the basis is orthonormal.  ``get_distance_and_image`` minimizes over
-        lattice translations using the actual parent lattice, including skew
-        and anisotropic cells.
-        """
-        if self._conv_matrix is None:
-            raise RuntimeError("parent lattice is not initialized")
-        return float(Lattice(self._conv_matrix).get_distance_and_image(a, b)[0])
 
 
 def _has_letter(token: str) -> bool:

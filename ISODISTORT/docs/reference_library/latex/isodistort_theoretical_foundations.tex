@@ -1,0 +1,486 @@
+\input{preamble}
+\title{ISODISTORT 计算能力的理论基础：\\空间群、序参量、模式分解与可验证性}
+\author{CRIS 项目理论资料整理}
+\date{2026年10月15日}
+\begin{document}
+\maketitle
+\begin{abstract}
+本文以官方帮助列明的功能和原始方法论文为边界，建立 ISODISTORT 计算能力的统一数学框架。
+讨论结构对称性、Wyckoff 轨道、k-star 与物理不可约表示、各向同性子群、
+四种搜索/分解方法、位移/占位/磁/转动/应变、超空间、等价畴、子群树、
+结构生成、衍射和模式文件交换。对可在本文内封闭证明的核心合同给出推导；
+对依赖已发表分类算法、表格或具体软件约定的环节列出文献前提与审查条件。
+特别区分对称允许、能量稳定和实现正确，避免把一份理论说明误用为整个网站的形式化认证。
+\end{abstract}
+\noindent\textbf{关键词：}ISODISTORT；ISOTROPY；晶体学；表示论；各向同性子群；超空间；理论验证。
+\par\scope
+\clearpage
+{\small\tableofcontents}
+\clearpage
+
+\section{范围、方法与文献来源}\label{sec:scope}
+ISODISTORT 是 ISOTROPY 算法的交互界面；其起始方法论文是
+Campbell、Stokes、Tanner 与 Hatch 的 ISODISPLACE 论文
+\citep{Campbell2006}。这里“全部计算能力”指本次保存的官方帮助快照
+\citep{OfficialHelp} 中列出的数学能力，而不指未知未来版本或所有 ISOTROPY 兄弟程序。
+本地 CRIS 的产品范围更小：当前网页提供 Method 1--4 及相应导出，
+官网的内置可视化、Generate、Domains、完整子群树等不能因本文收录理论而视为本地已实现。
+
+本文采用原始论文、作者官方文档和 IUCr 标准；独立交叉来源包括
+AMPLIMODES 与模式晶体学综述\citep{Amplimodes2009,PerezMato2010}、
+磁超空间综述\citep{Magnetic2012}和 spglib 方法论文\citep{Spglib2024}。
+International Tables A、A1、D 的出版入口用于规定权威参考范围
+\citep{ITA,ITA1,ITD}；本次未获得全部章节正文，不伪造其页码或声称逐页核验。
+检索平台只用于发现，最终引用以论文或官方页面为准。
+所有下载具有 URL、获取时间、字节数与 SHA-256；扫描件和仅有摘要的来源分别标记。
+
+\paragraph{证明对象。}
+本文证明数学映射、判定条件和不变量；文献中的算法完备性只在其原始假设下使用。
+不同软件可能使用不同表示基、原点、行列约定和归一化。
+因此“来自同一理论”不能推出“逐列输出相同”，更不能推出每个数值分支无误。
+本地实现特有的补充证明和未认证项另见
+\href{unsupported_algorithm_proofs.pdf}{《数学与晶体学补充论证》}。
+
+\section{坐标、晶格与仿射群}\label{sec:affine}
+取直接基 $A=(a_1,a_2,a_3)$，$r=Ax$；度量 $G=A^\T A>0$。
+倒易基使用 $A^{-\T}$，在 Fourier 相位中显式保留 $2\pi$。
+行基约定 $P=A^\T$ 必须在接口处转置，不能只改文字说明。
+
+\begin{proposition}[仿射复合与换基]\label{prop:affine}
+$\{R|t\}\{S|u\}=\{RS|Ru+t\}$。
+若 $x=Bx'+p$，则同一操作在新坐标中为
+\[
+ R'=B^{-1}RB,\qquad t'=B^{-1}(Rp+t-p).
+\]
+度量变为 $G'=B^\T GB$，倒易分数坐标变为 $k'=B^\T k$。
+\end{proposition}
+\begin{proof}
+逐次代入 $x\mapsto Sx+u\mapsto R(Sx+u)+t$ 得复合律。
+再代入 $x=Bx'+p$ 并左乘 $B^{-1}$ 得 $R',t'$。
+由 $\norm{ABx'}^2=x'^\T B^\T GBx'$ 得度量，
+由 $k^\T Bx'=(B^\T k)^\T x'$ 得倒易坐标。
+\end{proof}
+这是所有 basis/origin 处理的基本合同\citep{Hatch1985,ITA}。
+正交旋转条件是 $R^\T GR=G$，一般不是 $R^\T R=\I$。
+标准 setting、Hall 标识和原点选择的数据库对照不能用空间群号相同代替。
+
+\begin{proposition}[超胞指数与中心化]
+对原胞基上的整数非奇异 $S$，
+$[\,\Z^3:S\Z^3\,]=|\det S|$。
+若使用中心化惯用胞，则必须先换到原胞再求指数。
+\end{proposition}
+\begin{proof}
+整数伴随矩阵恒等式保证 $(\det S)\Z^3\subseteq S\Z^3$，故商群有限，记阶为 $N$。
+$N$ 个整数余类代表各加上 $[0,1)^3$，给出体积为 $N$ 的子格基本域；
+$S[0,1)^3$ 则给出体积为 $|\det S|$ 的基本域。
+同一格的两个有界基本域由平移交集分割互相重组，体积相同，故 $N=|\det S|$。
+惯用胞不生成全部平移格，故只用惯用胞整数三元组会遗漏中心化平移。
+\end{proof}
+计算原子重数、倒易格、畴数和 $A_s/A_p$ 时，这个区别具有实际影响。
+原胞、中心化惯用胞和倒易格的定义亦见 International Tables C 的公式章节
+\citep{ITCGeometry}。
+
+\section{结构对称性、Wyckoff 轨道与输入识别}\label{sec:symmetry}
+设每个原胞内的原子为带物种、占位等标签的有限集合。
+精确对称操作必须保持度量，并使各物理标签按指定张量类型变换。
+对占位/物种不变的结构，条件为存在双射 $\pi$ 及整数 $n_j$，
+\[
+ Rx_j+t=x_{\pi(j)}+n_j.
+\]
+\begin{proposition}[理想输入下的有限对称搜索]
+在固定原胞基中，对 $R\in GL(3,\Z)$ 要求 $R^\T GR=G$，
+可能的 $R$ 有限。每个 $R$ 的平移候选模 $\Z^3$ 可从一个选定原子到相容原子的映射产生。
+完整检查所有候选双射即可得到精确空间群操作模平移格的集合。
+\end{proposition}
+\begin{proof}
+$R$ 的第 $j$ 列 $r_j$ 满足
+$\lambda_{\min}(G)\norm{r_j}^2\leq r_j^\T Gr_j=G_{jj}$，
+所以各列在有限整数盒内。
+对固定原子 $x_0$，任一有效 $t$ 必须等于 $x_i-Rx_0$ 模整数；
+相容 $i$ 有限。检验全部原子是充要条件。
+\end{proof}
+FINDSYM 与 spglib 提供实际识别算法\citep{Findsym2005,Spglib2024}。
+上述证明针对精确数据，不是对带噪结构唯一空间群的证明。
+容差可能改变对称群；解析失败、部分占位以及原子匹配并列必须明确处理。
+
+\begin{theorem}[轨道与局部对称]
+有限商群作用下，位置 $x$ 的轨道大小等于 $|G|/|G_x|$，
+其中 $G_x$ 是位置稳定子。限制到子群 $H$ 后，母轨道拆成互不相交的 $H$ 轨道。
+\end{theorem}
+\begin{proof}
+映射 $gG_x\mapsto gx$ 良定义且双射，给出轨道大小。
+$H$ 的“可达”关系为等价关系，故将母轨道分割成子轨道。
+\end{proof}
+这解释 Wyckoff 分裂与独立原子参数数目的变化。
+不同标签体系中相同字母未必表示同一位置，必须比较实际 setting 和轨道。
+
+\section{波矢、k-star、小群与实物理表示}\label{sec:k}
+对母平移 $n$，Bloch 模式的特征标为
+$\chi_k(n)=e^{2\pi i k^\T n}$。
+两个 $k$ 等价当且仅当其差属于实际倒易格。
+\begin{proposition}[倒易作用与小群]
+若主动旋转的分数矩阵为 $R$，则波矢变为 $R^{-\T}k$。
+小群由满足 $R^{-\T}k\equiv k$ 的操作组成，k-star 是该作用的轨道。
+\end{proposition}
+\begin{proof}
+旋转后的标量波在 $x$ 取值为
+$e^{2\pi i k^\T R^{-1}x}=e^{2\pi i(R^{-\T}k)^\T x}$。
+小群是该余类的稳定子，轨道--稳定子关系给出 star 的 arm 数。
+\end{proof}
+非对称形的小群还含分数平移，其相位不可从点群矩阵中删除。
+任意 irrep 表必须与该基、原点及 Fourier 符号匹配；
+ISO-IR 与 ISO-KOV 是表示及标签关系的官方入口
+\citep{Stokes2013,IsoIr,IsoKov}。
+
+\begin{proposition}[复表示的实化]
+若物理场实值，则 Fourier 系数满足 $u_{-k}=\overline{u_k}$。
+对复矩阵 $D=X+iY$，其在实坐标 $(\Re u,\Im u)$ 上的作用为
+$\left(\begin{smallmatrix}X&-Y\\Y&X\end{smallmatrix}\right)$，
+并保持表示乘法。
+\end{proposition}
+\begin{proof}
+展开 $Du=(X+iY)(a+ib)$，实部为 $Xa-Yb$，虚部为 $Ya+Xb$；
+复矩阵乘法与该块矩阵乘法逐项相同。
+\end{proof}
+该实化不一定在实数域不可约；应进一步区分实型、复型和四元数型，
+不能把所有复表一律当作独立的双倍物理自由度。
+$k\equiv-k$ 的自共轭情形还可能使 sine 模式消失。
+磁静态序参量在这里是经典实张量，不把它与量子态的反幺正自旋表示混同。
+
+\section{五类物理变量的表示与模式投影}\label{sec:physical}
+每个母原子轨道上的物理变量都形成表示空间。
+若 $g$ 将站点 $j$ 送至 $\pi_g(j)$，笛卡尔旋转为 $Q_g=AR_gA^{-1}$，
+则占位标量按置换变换，位移按 $Q_g$ 变换。
+轴矢量按 $\det(Q_g)Q_g$ 变换。
+磁矩还乘时间反演符号 $\theta_g=\pm1$，转动轴矢量则为时间偶。
+
+\begin{proposition}[极矢量与轴矢量区别]
+对正交 $Q$，$(Qa)\times(Qb)=\det(Q)Q(a\times b)$。
+因此磁矩和转动与位移在反演下具有不同变换律。
+\end{proposition}
+\begin{proof}
+对任意 $c$，左式与 $Qc$ 的点积等于有向体积
+$\det(Q)\det[a,b,c]$；右式与 $Qc$ 的点积相同。
+由于 $Q$ 可逆、$c$ 任意，两个向量相等。
+\end{proof}
+含时间反演的灰群和磁群需采用相应表示与标准 setting
+\citep{Magnetic2012,IsoMag}；本地菜单出现“magnetic”不意味着全部磁超空间输入已验收。
+
+\begin{theorem}[对称内积与完全可约性]
+有限群实/复表示可装备不变正定内积；
+任一不变子空间的正交补仍不变。
+\end{theorem}
+\begin{proof}
+从任一 $W_0>0$ 构造
+$W=\sum_{g\in G}D(g)^*W_0D(g)>0$，右乘重排给 $D(h)^*WD(h)=W$。
+若 $v\perp U$ 且 $U$ 不变，则
+$\langle D(h)v,u\rangle=\langle v,D(h)^{-1}u\rangle=0$。
+逐次取不可约子空间及正交补便得直和分解。
+\end{proof}
+
+\begin{theorem}[不可约分量投影]\label{thm:irproj}
+设 $D$ 为有限群的酉表示，$\alpha$ 为维数 $d_\alpha$ 的复不可约表示。
+\[
+ P_\alpha=\frac{d_\alpha}{|G|}
+ \sum_{g\in G}\overline{\chi_\alpha(g)}\,D(g)
+\]
+是对应等型分量的投影，且重数为
+$m_\alpha=|G|^{-1}\sum_g\overline{\chi_\alpha(g)}\chi_D(g)$。
+\end{theorem}
+\begin{proof}
+先证明 Schur 正交性：对任意矩阵 $X$，平均
+$|G|^{-1}\sum_g D_\beta(g)X D_\alpha(g)^{-1}$ 是 intertwiner。
+不同不可约表示间它为零；相同表示间由 Schur 引理等于
+$\tr(X)\I/d_\alpha$。Schur 引理本身由非零 intertwiner 的核、像不变，
+及复数域中取一个特征值后考察 $T-\lambda\I$ 的核推出。
+令 $X$ 依次取矩阵单位，获得矩阵元正交性及字符正交性。
+在完全可约分解上逐块应用，$P_\alpha$ 在 $\alpha$ 块为单位，
+在其余块为零；取迹即得重数式。
+\end{proof}
+在实表示中应先正确复化/实化，不用复字符公式错误计算物理维数。
+投影每个站点局部试探矢量，再去除线性相关项，可构造整体模式；
+其原始算法见 \citet{Stokes1991}。
+重复 irrep 实例中的基可以继续正交旋转，模式标签不是纯由空间群号决定的。
+
+\paragraph{占位与应变的附加约束。}
+占位概率须满足 $0\leq o_j\leq1$，固定组分还要求加权总占位守恒。
+模式线性空间本身不保证这些不等式。
+笛卡尔小应变是对称二阶张量，作用为 $E\mapsto QEQ^\T$，
+空间维数为六。纯平移在均匀应变上恒等，故仅靠应变不能破坏平移对称。
+
+\paragraph{刚体转动的线性/有限区别。}
+无穷小位移 $\delta r=\omega\times(r-r_0)$ 描述切空间。
+有限转动应为 $r'=r_0+\exp([\omega]_\times)(r-r_0)$；
+反对称矩阵的指数正交，所以每个刚体内部长度保持。
+但相邻刚体共享原子的相容条件仍须同时满足；
+线性零模不必积分为有限的无应变机构。
+转动模式的实际参数化见 \citet{Muller2014,Howard1998,HowardErratum2002}。
+这种区别也防止把 ISODISTORT 的转动变量与 ISOTILT 的全部刚性网络算法混为一谈。
+
+\section{序参量、各向同性子群及等价性}\label{sec:isotropy}
+给定表示 $D$ 与序参量 $\eta$，各向同性子群定义为
+$G_\eta=\{g:D(g)\eta=\eta\}$。
+\begin{proposition}
+$G_\eta$ 是子群；若 $\eta'=D(a)\eta$，
+则 $G_{\eta'}=aG_\eta a^{-1}$。
+\end{proposition}
+\begin{proof}
+单位元固定 $\eta$；若 $g,h$ 固定 $\eta$，
+则 $gh$ 和 $g^{-1}$ 也固定。再由
+$D(g)D(a)\eta=D(a)\eta\iff D(a^{-1}ga)\eta=\eta$ 得共轭关系。
+\end{proof}
+等价性必须说明允许的共轭/基变换群；
+不同嵌入可能有同一空间群类型而不是同一畸变。
+原始等价分类见 \citet{Stokes1985}。
+
+\begin{theorem}[有限表示下的完整但低效的枚举]
+给定有限 $G$ 的完整乘法表与表示，可枚举其所有子集，
+保留子群，对每个 $H$ 求 $\Fix(H)$ 并应用精确稳定子判据，
+再按所声明的等价关系去重，从而得到全部非零各向同性类型。
+\end{theorem}
+\begin{proof}
+$G$ 有有限子集；子群条件可有限检查。任意非零 $\eta$ 的稳定子必在枚举中，
+并通过固定空间与精确性检查，故无遗漏。
+通过检查的每个 $H$ 由补充文档的见证定理实现，故无伪候选。
+最后精确等价关系只合并同类，保留所有类别。
+\end{proof}
+这证明能力的数学可实现性，不声称是网站采用的高效实现。
+实际算法通过平移、点群、生成元和 OPD 分层缩小搜索
+\citep{Stokes2016,Stokes2017}。查表的完备性仍依赖表项本身被独立核验。
+
+\section{四种方法的输入、输出与正确性条件}\label{sec:methods}
+\subsection{Method 1：特殊 k 点上的单 irrep 搜索}
+官方合同是选定特殊 k 集及单个 irrep 产生的各向同性子群，
+并施加晶系、群类型、子格及最大子群等过滤\citep{OfficialHelp}。
+数学路径是：有限特殊 k 表 $\to$ 物理可实现 irrep $\to$
+OPD/子群 $\to$ 精确过滤。
+若每一步候选集合完整、过滤等价关系正确，则集合交运算保证相对这一输入域的完备性。
+特殊 k 列表不是整个连续 Brillouin 区；单 irrep 也不能代替耦合 irrep。
+父点群旋转下等价子格须按实际平移格判等，不能仅比较三个显示向量。
+
+\subsection{Method 2：指定 k 与 irrep、允许耦合和调制}
+选择 k、irrep 和 OPD 后，计算其稳定子，再在各物理变量空间中求该子群的固定空间。
+耦合空间必须用直和表示；子群为各分量稳定子的交。
+单靠 irrep 名称相同不能认证相位原点和列身份。
+公度情形可下降到有限平移商群；非公度情形需第 \ref{sec:ssg} 节的超空间理论。
+任意 OPD 的数值采样只可发现某些稳定子，不证明所有特殊方向已找到。
+文献算法及官方文档均区分预计算表与按需生成
+\citep{Stokes2016,Stokes2017,OfficialHelp}。
+
+\subsection{Method 3：指定点群/空间群类型与超胞的逆问题}
+先固定子平移格 $L'$。若其不是母群正规子格，
+不能直接把 $G/L'$ 当作群；可先取有限指数正规核
+$L_0=\bigcap_{g\in G}gL'g^{-1}$，在 $G/L_0$ 中工作。
+点群有限，所以该交只需有限不同项。
+候选嵌入 $H$ 须保留群类型、basis、origin 和物理表示，而非只有空间群号。
+通过平移相位枚举相容 k-star，再用限制表示的固定空间确定初级/次级序参量
+\citep{Hatch2002,COPL2002}。
+非零固定空间仅说明某些畸变保持 $H$；精确稳定子检查排除实际对称性更高者。
+对由有限指数超胞约束产生的有限商群，枚举全部子群给出原则上的完备算法；
+实际搜索的指数上界、超时、候选裁剪必须作为额外边界记录。
+若目标嵌入与指定物理类型不相容，正确结果可能是空集。
+
+\subsection{Method 4：给定子相的模式分解}
+必须先指定母子 setting、超胞、原点和物种双射，剥离所选均匀应变规范，
+得到公共参考结构上的位移 $u$。
+模式矩阵 $B$ 的列必须覆盖被分解的自由参数空间。
+其带度量最小二乘解见补充论证；若 $B$ 为完整独立基则残差为零，
+否则残差只表示相对于所选子空间的不可表示分量。
+原点/匹配不唯一、缺陷或占位变更会改变这个问题本身。
+因此先做最小二乘再给晶体学身份是不充分的
+\citep{Campbell2006,PerezMato2010,Amplimodes2009}。
+
+\section{模式幅度、单位、重数与应变}\label{sec:amplitudes}
+原始模式列 $b_i$、归一化列 $\hat b_i=n_i b_i$ 和物理幅度 $a_i$ 满足
+$u=\sum_i a_i\hat b_i$。
+定义范数时必须包含全部对称生成的原子、正确度量及约定的 primitive supercell。
+由 $A_s^2$ 为总平方范数得到
+$A_p=A_s\sqrt{V_p/V_s}$，体积是参考 primitive cell 的体积
+\citep{OfficialHelp}。
+在一组正交归一模式中，$\norm u^2=\sum_i a_i^2$；
+若模式非正交，正确表达式是 $a^\T(B^\T WB)a$，不能直接取系数平方和。
+
+\begin{proposition}[协方差传播的条件]
+当 $a=Lu$ 为固定线性映射且 $\operatorname{Cov}(u)=\Sigma$ 时，
+$\operatorname{Cov}(a)=L\Sigma L^\T$。
+\end{proposition}
+\begin{proof}
+将 $a-\mathbb Ea=L(u-\mathbb Eu)$ 代入协方差定义即可。
+\end{proof}
+这是线性误差传播的证明，不是网站当前计算 ESD 的证明。
+官方帮助的旧叙述提到 ESD，版本记录却记载 5.5 版本移除 ESD；
+本库将该项标为\textbf{文档冲突/版本依赖}\citep{OfficialHelp,OfficialVersions}。
+
+有限应变要与笛卡尔小应变、Green--Lagrange 应变和分数基对称乘子区分。
+代码中的正定度量匹配方程有严格唯一解，但其与官网规范的一致性需要额外证据。
+宏观应变模式不适用微观原胞重复计数；
+工程剪切的因子 $2$ 与 tensor shear、Voigt 顺序须逐接口记录。
+
+\section{非公度调制、谐波及超空间}\label{sec:ssg}
+设 $d$ 个调制波矢组成 $Q\in\R^{d\times3}$，
+内坐标为 $\xi=Qx+\phi\pmod{\Z^d}$。
+位移/占位等周期函数可写为有限截断或收敛 Fourier 展开
+\[
+ f(\xi)=\sum_{m\in\Z^d}c_m e^{2\pi i m^\T\xi},
+ \qquad c_{-m}=\overline{c_m}
+\]
+以保证实值。调制函数、卫星及超空间截面的直观解释见 \citet{Wagner2009}。
+Fourier 级数在何种范数收敛取决于函数正则性；
+有限谐波截断不能无条件证明对任意调制完全精确。
+
+\begin{proposition}[截面的仿射相容性]
+设超空间操作
+$\widetilde g:(x,\xi)\mapsto(Rx+t,Mx+S\xi+\tau)$，
+其中 $M$ 为整数 $d\times3$ 矩阵，$S\in GL(d,\Z)$。
+它把固定截面 $\xi=Qx+\phi$ 映到同一截面，当且仅当
+\[
+ M+SQ=QR,\qquad \tau=Qt+\phi-S\phi\pmod{\Z^d}.
+\]
+\end{proposition}
+\begin{proof}
+把截面代入变换的第二分量，得到
+$(M+SQ)x+S\phi+\tau$。要求它等于
+$Q(Rx+t)+\phi$ 模整数。对连续 $x$ 比较线性项和常数项便得条件。
+\end{proof}
+一般超空间对称还可以把一个截面映到另一个相位截面；
+不能将上述“固定截面”条件误用为所有非公度体相操作的限制。
+坐标系和波矢规范不同会改变矩阵块的符号与位置，须按命题
+\ref{prop:affine} 转换。
+
+\begin{proposition}[内部平移的谐波表示]
+内平移 $\delta$ 将第 $m$ 个复 Fourier 模式乘以
+$e^{2\pi i m^\T\delta}$；
+在其 cosine/sine 实子空间上这是二维正交旋转，旋转方向取决于已声明的主动/被动约定。
+\end{proposition}
+\begin{proof}
+将 $\xi+\delta$ 代入指数函数，然后取实部与虚部，应用三角加法公式即可。
+\end{proof}
+对于公度截面，特征标可能自共轭或发生别名；补充论证给出阶数和秩的精确判定。
+对于无理波矢，内部平移的相位群一般不是有限群，不能直接套用有限群枚举证明。
+
+超空间群生成、标准识别、等价变换和相应 irrep 的基础由
+\citet{Stokes2007,Stokes2011,Stokes2013,Smaalen2013,Stokes2017} 给出。
+本次核查到 2017 论文将某些微观基函数投影问题留待后续工作，
+因此不能仅凭该一篇论文声称非公度微观列定义的全部来源已覆盖。
+补充论证的“非公度微观模式”一节进一步从函数拉回作用严格构造微观表示，
+利用生成元的等变线性方程求出全部指定 irrep 的嵌入；这不需要把无理相位伪装成有限群。
+但若站点对应、内部相位或 irrep 基约定未知，仍不能确定官网逐列身份。
+本节证明仿射/Fourier 合同；完整超空间分类的证明依赖上述文献，
+数据库每一条和所有谐波组合的实现仍属条件性支持。
+磁超空间必须另加时间反演及磁轴矢量合同\citep{Magnetic2012}。
+
+\section{生成结构、畴、序参量组合与子群树}\label{sec:derived}
+\subsection{由幅度生成结构}
+在相容模式空间中 $u=B a$。
+若 $D(h)B=B$，则 $D(h)u=u$，生成结构至少保持 $H$。
+特殊幅度可能恢复更高对称性；零幅度一般恢复母相。
+若幅度违反占位界、造成原子重叠或进入非线性转动的错误参数域，
+保持群对称仍不等于结构物理可行。
+
+\subsection{等价畴}
+\begin{theorem}[畴与陪集]
+若一个畸变的精确稳定子为 $H$，其母群轨道与左陪集 $G/H$ 双射。
+有限指数情形的畴数为 $[G:H]$。
+\end{theorem}
+\begin{proof}
+$g_1\eta=g_2\eta$ 当且仅当 $g_2^{-1}g_1\in H$，
+恰为相同左陪集的条件。
+\end{proof}
+若母平移群为 $T$，则
+$[G:H]=[G:TH]\,[T:T\cap H]$。
+第一个因子对应点群取向的差别，第二个对应平移/反相畴；
+等式由指数乘法及 $TH/H\simeq T/(T\cap H)$ 的集合双射成立。
+实际畴壁、孪晶界能量和动力学不由此给出。
+
+\subsection{潜在主序参量与不变量}
+直和序参量的稳定子取交，故可以列出达到目标 $H$ 的组合；
+多个不同组合可能都足以产生同一 $H$。
+对有限群和多项式 $f$，Reynolds 平均
+$\mathcal R f(\eta)=|G|^{-1}\sum_g f(D(g)\eta)$ 为不变量，
+且任何不变量都满足 $\mathcal R f=f$。
+因此对全部固定次数单项式求平均并线性去重，可张成该次数的不变量空间。
+这个证明不保证任意次数截断已经找到整个不变量环的生成元。
+INVARIANTS 和耦合理论提供相关方法\citep{Invariants2003,Coupled1991}；
+网站“potentially primary”不是唯一热力学驱动力的测量。
+自由能系数、稳定极小值和一级/二级相变的实际判断还需要独立物理模型和实验。
+
+\subsection{中间子群树}
+当 $H\leq K\leq G$ 且 $[G:H]<\infty$，
+取 $H$ 的正规核 $N=\bigcap_{g\in G}gHg^{-1}$，它具有有限指数。
+中间子群对应有限群 $G/N$ 中包含 $H/N$ 的子群。
+枚举它们并按包含关系取覆盖边，得到完整 Hasse 图；
+若另对共轭类合并，必须记录其合并标准和丢失的嵌入重数。
+这一证明解释子群树的数学对象，不认证网页资源限制下每次生成都完整。
+
+\section{衍射与可视化的理论边界}\label{sec:diffraction}
+在独立原子、运动学近似中，反射振幅为
+\[
+ F(h)=\sum_j o_j f_j(h)e^{2\pi i h^\T x_j}\,T_j(h),
+ \qquad I(h)\propto |F(h)|^2,
+\]
+其中 $T_j$ 是选定的温度因子。
+\begin{proposition}[平移消光]
+若原子图样在有限平移子群下不变，则反射振幅含该平移群特征标之和；
+非平凡特征标的和为零，所以相应反射消光。
+\end{proposition}
+\begin{proof}
+将求和按平移轨道分组，每个轨道公共系数乘
+$\sum_t e^{2\pi i h^\T t}$。
+平移置换与非平凡特征标的求和恒等式给出零。
+\end{proof}
+螺旋轴和滑移面的消光也需带相位的完整操作，不能只查点群。
+调制结构在 Fourier 展开下出现 $h+Q^\T m$ 的卫星位置；
+强度仍取决于散射因子和具体调制，而非仅由子群标签决定。
+官方交互显示的具体散射近似、峰形和版本必须另行核对\citep{OfficialHelp}；
+磁中子散射需磁矩垂直于散射矢量的分量，不能由上述标量式直接替代。
+
+三维显示只把坐标、半径、键阈值与矢量绘制成图；
+阈值键线不是化学键或力常数的证明。
+本节说明理论对象与预期不变量，没有审计 ISOVIZ 渲染器或衍射程序源代码。
+对称模式也不是完整声子本征模：后者还需要质量和力常数；
+SMODES 的对称分块不能自动给出频率\citep{Frozen1995,SmodesManual}。
+
+\section{CIF、模式文件与精修接口}\label{sec:formats}
+CIF 是数据语法和字典合同，不是算法正确性认证。
+结构的晶格、对称操作、坐标和占位须相互一致；
+msCIF/magCIF 另规定调制和磁量的语义\citep{CifSpec,CifCore,CifMs,CifMag}。
+官方帮助把多数 \code{_iso_*} 模式标签描述为软件专属扩展
+\citep{OfficialHelp}，不能凭字段名前缀宣称它们都是 IUCr 标准字段。
+
+\begin{proposition}[可逆序列化的必要合同]
+若写入器 $E$、读取器 $D$ 满足 $D(E(s))=s$（允许声明的坐标/排序等价），
+则结构 $s$ 的语义在往返中保持。
+仅满足语法正确、读取器不报错或文件哈希相等均不足以推出这个等式。
+\end{proposition}
+\begin{proof}
+第一句就是左逆的定义。对反向推论，取遗漏占位或误写原点的语法合法文件，
+即可得到解析成功而恢复结构不同的反例。
+\end{proof}
+TOPAS、FullProf、CIF 和 IsoVIZ 应保留相同的模式矩阵、幅度单位、列身份与应变顺序。
+模式精修实际上把 $u=B a$ 代入实验模型，减少或重组参数；
+能否改善拟合取决于实验、约束和可辨识性，不由换基单独保证
+\citep{Refinement2007,Kerman2012}。
+本地 \code{ISOVIZ_INPUT} 的 CSV 到 \code{amp} 写入必须沿用原始系数合同，
+不能把显示用 normalized amplitude 当成任意模式文件的参数。
+
+\section{能力覆盖、证据缺口与结论}
+本次按官方帮助将能力分为：输入/识别、晶格与 setting、k/irrep、
+物理表示与投影、Method 1--4、超空间、幅度与应变、
+结构生成、畴、主序参量/不变量、子群树、衍射、可视化、导出/精修。
+每类均有本文件相应解释以及 \code{coverage.json} 的来源、证明位置和本地模块映射。
+这表示\emph{主题覆盖}，不是每项实现已被形式化证明。
+
+仍不能无条件认证的项目包括：外部二进制与数据表的全部正确性；
+非公度微观列投影与官网标签的完整对应；极端斜晶格中的版本特定有限应变规范；
+容差改变空间群或原子匹配时的行为；所有 GUI 和衍射近似；所有输出格式的实际互操作性。
+这些缺口没有被写成已完成的证明。
+
+\paragraph{复用规则。}
+修改算法时先定位对应的数学合同，声明输入域与约定，核查引用和反例；
+再用不变量和独立数据验收实现。引用当前文献不能继承旧源码签名的测试结论。
+任何新增功能必须同时补充文献/证明、实现适用范围与验收证据。
+本文给出可供该流程使用的理论基础，而不替代独立同行复核、实验验证或源码审计。
+
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+\end{document}

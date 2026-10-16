@@ -2439,7 +2439,7 @@ def _generate_live_case(
         from application.session import IsoDistort
 
         selector = case["selector"]
-        api = IsoDistort(language="en")
+        api = IsoDistort()
         manifest["runtime_context"] = _configure_live_api(
             api,
             run_root / "isotropy_cache",

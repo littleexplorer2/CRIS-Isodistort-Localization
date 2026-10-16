@@ -1,0 +1,738 @@
+{
+  "schema": "cris-theory-code-audit/v1",
+  "date": "2026-10-16",
+  "report": "THEORY_CODE_AUDIT.md",
+  "scope": "Critical-contract inspection plus independent counterexamples and regression; not line-by-line formal or all-crystal certification.",
+  "findings": [
+    "A01 reference archive feedback",
+    "A02 row lattice action and exact equivalence",
+    "A03 heuristic occupational modes",
+    "A04 polar versus axial physical types",
+    "A05 invented Wyckoff letters",
+    "A06 affine wavevector parameters",
+    "A07 sparse parent-cell displacement filling"
+  ],
+  "capabilities": [
+    {
+      "id": "C01",
+      "title": "CIF、msCIF、magCIF 输入与模式字段",
+      "status": "partial_review",
+      "conclusion": "CIF parsing and metadata boundaries retained; no new msCIF/magCIF end-to-end certification.",
+      "source_ids": [
+        "CifSpec",
+        "CifCore",
+        "CifMs",
+        "CifMag",
+        "OfficialHelp"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:formats"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/input_cif",
+        "ISODISTORT/backend/export",
+        "ISODISTORT/tests/validation/backend/cif"
+      ]
+    },
+    {
+      "id": "C02",
+      "title": "晶格、原/惯用胞、超胞、setting/origin",
+      "status": "fixed_counterexamples",
+      "conclusion": "Exact row-lattice GL(3,Z) and B R^T action; float-to-rational reconstruction remains an input boundary.",
+      "source_ids": [
+        "ITCGeometry",
+        "Hatch1985",
+        "ITA"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:affine"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:lattice"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:shared-mapping"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/utils/lattice.py",
+        "ISODISTORT/backend/method1/affine_embeddings.py"
+      ]
+    },
+    {
+      "id": "C03",
+      "title": "结构对称识别与周期原子匹配",
+      "status": "reviewed_contract_conditional",
+      "conclusion": "spglib/FINDSYM setting guards and Cartesian tolerance; noisy input does not determine a unique exact group.",
+      "source_ids": [
+        "Findsym2005",
+        "Spglib2024"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:symmetry"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:matching"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:shared-mapping"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/wrappers/findsym_wrapper.py",
+        "ISODISTORT/backend/method2/distortion_mapper.py"
+      ]
+    },
+    {
+      "id": "C04",
+      "title": "Wyckoff 轨道、位置稳定子与分裂",
+      "status": "fixed_with_open_obligations",
+      "conclusion": "Removed guessed labels; corrected Cmma standard metadata using official ISO and spglib; 31 stored seeds checked in actual Hall settings. Require unchanged basis/origin for spglib labels. Free-parameter degeneracies and all 230 groups remain open.",
+      "source_ids": [
+        "ITA",
+        "ITA1",
+        "Campbell2006",
+        "IsotropyManual",
+        "Spglib2024"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:symmetry"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method1",
+        "ISODISTORT/backend/wrappers",
+        "ISODISTORT/backend/export/isodistort_cif.py"
+      ]
+    },
+    {
+      "id": "C05",
+      "title": "k-star、小群与非对称形相位",
+      "status": "fixed_counterexamples",
+      "conclusion": "Exact affine k substitution and coupled parameter solve; reciprocal star uses inverse transpose and primitive translations.",
+      "source_ids": [
+        "Stokes2013",
+        "IsoIr",
+        "BCSKvectors"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:k"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:lattice"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/tables",
+        "ISODISTORT/backend/utils/lattice.py"
+      ]
+    },
+    {
+      "id": "C06",
+      "title": "复/实物理不可约表示及表约定",
+      "status": "partial_review",
+      "conclusion": "Representation homomorphisms/projectors and provenance guards inspected; external irrep database not independently reconstructed.",
+      "source_ids": [
+        "Stokes2013",
+        "IsoIr",
+        "IsoKov"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:k"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:micro"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/tables/irreps_cdml.py",
+        "ISODISTORT/backend/wrappers/iso_wrapper.py"
+      ]
+    },
+    {
+      "id": "C07",
+      "title": "位移模式投影、正交性与完备性",
+      "status": "fixed_with_open_obligations",
+      "conclusion": "Removed uniform/nearest filling of sparse parent BUSH rows. Production uses complete child columns; compatibility uses the same coverage/provenance checks. Canonical column identity still requires signed Cartesian source verification, not just subspace equivalence.",
+      "source_ids": [
+        "Stokes1991",
+        "Campbell2006",
+        "PerezMato2010"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:physical"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:modes"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/wrappers/smodes_wrapper.py",
+        "ISODISTORT/backend/method4/distortion_engine.py",
+        "ISODISTORT/backend/method2/distortion_mapper.py"
+      ]
+    },
+    {
+      "id": "C08",
+      "title": "占位模式与化学约束",
+      "status": "unsupported_fail_closed",
+      "conclusion": "Removed coordinate-halving and amplitude clipping; scalar site/composition representation is required.",
+      "source_ids": [
+        "Campbell2006",
+        "OfficialHelp"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:physical"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method1/occupational_modes.py"
+      ]
+    },
+    {
+      "id": "C09",
+      "title": "磁模式、轴矢量与时间反演",
+      "status": "unsupported_fail_closed",
+      "conclusion": "Magnetic label prefix cannot prove time-odd axial-vector activity.",
+      "source_ids": [
+        "Magnetic2012",
+        "IsoMag",
+        "Stokes2013"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:physical"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:micro"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method2/superspace.py",
+        "ISODISTORT/backend/wrappers/smodes_wrapper.py"
+      ]
+    },
+    {
+      "id": "C10",
+      "title": "转动模式与刚体运动",
+      "status": "unsupported_fail_closed",
+      "conclusion": "Removed displacement-as-rotation substitution; rigid-unit axial constraints are required.",
+      "source_ids": [
+        "Muller2014",
+        "Howard1998",
+        "HowardErratum2002"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:physical"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/wrappers/smodes_wrapper.py"
+      ]
+    },
+    {
+      "id": "C11",
+      "title": "各向同性子群、OPD 与精确稳定子",
+      "status": "reviewed_contract_conditional",
+      "conclusion": "Exact Reynolds projector and pointwise-stabilizer criterion; valid finite quotient and representation are prerequisites.",
+      "source_ids": [
+        "Hatch2002",
+        "Stokes1985",
+        "Stokes2016",
+        "Stokes2017"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:isotropy"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:stabilizer"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method3/inverse_landau.py",
+        "ISODISTORT/backend/method1/search_methods.py"
+      ]
+    },
+    {
+      "id": "C12",
+      "title": "Method 1：特殊 k 点搜索和过滤",
+      "status": "fixed_counterexamples",
+      "conclusion": "No reference-archive runtime feedback; exact lattice classes and supported physical-type filtering.",
+      "source_ids": [
+        "OfficialHelp",
+        "Stokes2016"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:methods"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:validation"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method1/search_methods.py"
+      ]
+    },
+    {
+      "id": "C13",
+      "title": "Method 2：指定 k/irrep、耦合序参量",
+      "status": "partial_review",
+      "conclusion": "Single-IR route/microscopic provenance retained; arbitrary coupled-IR and all k-domain completeness not certified.",
+      "source_ids": [
+        "Coupled1991",
+        "Stokes2016",
+        "Stokes2017",
+        "OfficialHelp"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:methods"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:stabilizer"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method2",
+        "ISODISTORT/backend/method3/coupled_routes.py"
+      ]
+    },
+    {
+      "id": "C14",
+      "title": "Method 3：逆 Landau、主/次序参量",
+      "status": "reviewed_contract_conditional",
+      "conclusion": "Exact affine quotient and fixed-space criterion; nonunique primary decompositions and bounded search domain remain explicit.",
+      "source_ids": [
+        "Hatch2002",
+        "COPL2002"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:methods"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:stabilizer"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method3"
+      ]
+    },
+    {
+      "id": "C15",
+      "title": "Method 4：给定子相的模式分解",
+      "status": "reviewed_contract_conditional",
+      "conclusion": "Metric periodic images, species-preserving global assignment, full-column-rank LS; no proof that matching identity is unique.",
+      "source_ids": [
+        "Campbell2006",
+        "PerezMato2010",
+        "Amplimodes2009"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:methods"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:modes"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method4/distortion_engine.py",
+        "ISODISTORT/backend/method1/search_methods.py",
+        "ISODISTORT/backend/method4/decomposition.py"
+      ]
+    },
+    {
+      "id": "C16",
+      "title": "幅度、primitive cell 重数与单位",
+      "status": "reviewed_contract_conditional",
+      "conclusion": "Primitive-cell multiplicities and As/Ap scale contract; labels/signs/version-specific norms remain separate obligations.",
+      "source_ids": [
+        "OfficialHelp",
+        "OfficialVersions",
+        "Amplimodes2009"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:amplitudes"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:modes"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/models/iso_mode_models.py",
+        "ISODISTORT/backend/export",
+        "ISODISTORT/backend/method1/search_methods.py"
+      ]
+    },
+    {
+      "id": "C17",
+      "title": "均匀应变、斜晶格与有限度量匹配",
+      "status": "reviewed_contract_conditional",
+      "conclusion": "SPD metric equation and Sylvester/engineering-Voigt conventions inspected; not all-version website strain certification.",
+      "source_ids": [
+        "OfficialHelp",
+        "OfficialVersions",
+        "Higham1986",
+        "ITD"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:amplitudes"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:strain"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method4/strain.py",
+        "ISODISTORT/backend/method4/strain_modes.py"
+      ]
+    },
+    {
+      "id": "C18",
+      "title": "非公度超空间群、标准化与等价",
+      "status": "partial_review",
+      "conclusion": "Exact source and subspace gates inspected; complete superspace classification and arbitrary settings not independently certified.",
+      "source_ids": [
+        "Stokes2007",
+        "Stokes2011",
+        "Smaalen2013",
+        "Stokes2017",
+        "Magnetic2012"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:ssg"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:micro"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method2/superspace.py"
+      ]
+    },
+    {
+      "id": "C19",
+      "title": "多 Q、Fourier 谐波、相位与别名",
+      "status": "partial_review",
+      "conclusion": "Self-conjugate translation-character guard and rational periods; arbitrary finite Fourier truncation closure not certified.",
+      "source_ids": [
+        "Stokes2013",
+        "Stokes2017",
+        "Magnetic2012",
+        "Wagner2009"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:ssg"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:micro"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method2/superspace.py"
+      ]
+    },
+    {
+      "id": "C20",
+      "title": "结构生成与幅度回代",
+      "status": "fixed_with_open_obligations",
+      "conclusion": "Linear displacement generation retained; unproved occupational mutation removed; website Generate UI is outside local scope.",
+      "source_ids": [
+        "OfficialHelp",
+        "Campbell2006"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:derived"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:modes"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method4/distortion_engine.py",
+        "ISODISTORT/backend/export"
+      ]
+    },
+    {
+      "id": "C21",
+      "title": "等价畴、反相畴与陪集",
+      "status": "external_backend_contract",
+      "conclusion": "Local wrapper delegates domains to ISO; coset theorem does not independently certify every binary result.",
+      "source_ids": [
+        "OfficialHelp",
+        "Campbell2006"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:derived"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method1/domain_generator.py"
+      ]
+    },
+    {
+      "id": "C22",
+      "title": "主序参量组合、不变量与相路径",
+      "status": "partial_review",
+      "conclusion": "Direct-sum stabilizer intersection has a theoretical basis; no general free-energy minimization or primary-IR uniqueness claim.",
+      "source_ids": [
+        "Coupled1991",
+        "Invariants2003",
+        "Hatch2002"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:derived"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:stabilizer"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method1/phase_path.py",
+        "ISODISTORT/backend/method3"
+      ]
+    },
+    {
+      "id": "C23",
+      "title": "中间子群树及嵌入去重",
+      "status": "not_in_local_ui_scope",
+      "conclusion": "Complete website subgroup-tree functionality is not a local implemented capability.",
+      "source_ids": [
+        "Stokes2016",
+        "ITA1",
+        "OfficialHelp"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:derived"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:validation"
+        }
+      ],
+      "repository_modules": []
+    },
+    {
+      "id": "C24",
+      "title": "衍射、卫星、消光和可视化",
+      "status": "not_reaudited_end_to_end",
+      "conclusion": "Theoretical diffraction treatment retained; neither peak models nor GUI behavior certified in this audit.",
+      "source_ids": [
+        "OfficialHelp",
+        "Wagner2009",
+        "Frozen1995",
+        "SmodesManual"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:diffraction"
+        }
+      ],
+      "repository_modules": [
+        "ISOVIZ_INPUT/isoviz_input/backend",
+        "ISOVIZ_INPUT/isoviz_input/application"
+      ]
+    },
+    {
+      "id": "C25",
+      "title": "导出、精修与 CSV→IsoVIZ 幅度合同",
+      "status": "partial_review",
+      "conclusion": "Mode provenance and serialization boundaries inspected; all consumer/setting variants and GUI remain unverified.",
+      "source_ids": [
+        "Refinement2007",
+        "Kerman2012",
+        "CifCore",
+        "CifMag",
+        "CifMs"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:formats"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:modes"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/export",
+        "ISOVIZ_INPUT/isoviz_input/backend/amplitudes",
+        "ISODISTORT/tests/validation/backend/comparison"
+      ]
+    },
+    {
+      "id": "C26",
+      "title": "误差传播、容差与数值稳定性",
+      "status": "partial_review",
+      "conclusion": "Exact arithmetic, rank, residual and condition checks inspected; model-changing tolerance and extreme conditioning remain unverified.",
+      "source_ids": [
+        "Spglib2024",
+        "Higham1986",
+        "OfficialHelp",
+        "OfficialVersions"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:amplitudes"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:validation"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method4",
+        "ISODISTORT/tests/validation/backend/comparison"
+      ]
+    }
+  ],
+  "validation": {
+    "independent_counterexample_test_file": "ISODISTORT/tests/test_theory_contracts.py",
+    "targeted_core_and_architecture": {
+      "passed": 56
+    },
+    "setting_guards_and_counterexamples": {
+      "passed": 56
+    },
+    "real_iso_parameter_templates": {
+      "total": 25,
+      "passed": 25,
+      "scope": "all parameter k entries in registered SG123/139 convention table, one generic rational tuple each"
+    },
+    "architecture_gate": {
+      "passed": 18
+    },
+    "ruff_F": "passed",
+    "git_diff_check": "passed",
+    "full_suite": {
+      "status": "passed_with_documented_skips",
+      "passed": 1092,
+      "skipped": 3,
+      "failed": 0,
+      "errors": 0,
+      "collected": 1095,
+      "duration_seconds": 1131.836,
+      "log": "full-final.txt",
+      "log_sha256": "f55505eb13e9c70872323728bf7c90609003010b4a0c8b570fca9acaff137cf8",
+      "junit": "full-final.xml",
+      "junit_sha256": "de769763331f72de1b0f41ffca399be92830c5a82cffa49a841411eba0a7e502",
+      "skip_reasons": [
+        "Missing official/local X4- P3 paired CIF files",
+        "Native POSIX shell test on Windows",
+        "Missing EuAl4 LD1 g=1/6 subgroup database; not generated in this audit"
+      ]
+    },
+    "gui": "not_run",
+    "new_official_scientific_batch": "not_run",
+    "wyckoff_metadata": {
+      "original_entries": 32,
+      "original_defects": 4,
+      "corrected_entries": 31,
+      "passed": 31,
+      "scope": "stored seeds only, actual Hall setting and zero standardization shift; not entire parameter families"
+    },
+    "wyckoff_and_export_regression": {
+      "passed": 139,
+      "log": "wyckoff-after.txt"
+    },
+    "repository_suite": {
+      "passed": 32,
+      "skipped": 0,
+      "log": "repo-wheel-final.txt",
+      "wheel": "actual build and isolated import included; reused existing build-deps through process-only PYTHONPATH"
+    },
+    "validate_consumer_suite": {
+      "passed": 29,
+      "log": "validate_consumer_final.txt",
+      "wheel": "included; existing build dependencies supplied through process-only PYTHONPATH"
+    },
+    "full_suite_before_wyckoff_mapper": {
+      "passed": 1058,
+      "skipped": 3,
+      "duration_seconds": 1094.63,
+      "log": "full-before-wyckoff-mapper.txt",
+      "note": "Source changed later; not final acceptance."
+    },
+    "checked_at": "2026-10-15T16:42:56.318730+00:00",
+    "mapper_regression": {
+      "passed": 105,
+      "log": "mapper-after.txt",
+      "duration_seconds": 269.23
+    },
+    "source_fingerprint": {
+      "file": "source_final.json",
+      "sha256": "46fe33e48a07c23e70cb694b1b567ba6d1e341efade3c2c61c1cdf9be9d488b2",
+      "files": 141,
+      "matches_after_final_suite": true,
+      "protected_scientific_backends_unchanged": true
+    },
+    "document_integrity": "passed; citations, proof labels, module paths and compiled PDF hashes; not engine certification"
+  },
+  "evidence_directory": "ISODISTORT/output/validation/theory_design_audit_20261015"
+}

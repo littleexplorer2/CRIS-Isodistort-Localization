@@ -54,6 +54,21 @@ P0 为交付阻断，P1 为结果或可复核性风险，P2 为性能与可诊�
 缺少来源字段继续 fail-closed。验收覆盖 `q=1/4` 的正交 cosine/sine、自共轭区边界、
 中心化点阵和原点平移协变性。
 
+### [P1] THEORY-001 完整 setting/Wyckoff 元数据审定
+
+依据理论资料库与标准表，建立 Hall setting、原点、坐标和 Wyckoff 字母的完整对应，
+覆盖一般位置、特殊参数退化和相同重数的不同位置。writer 的部分表和 spglib 标准化
+结果须用实际仿射变换校验，不能只凭空间群号或重数赋字母；未知字段保持未知。
+完整认证前，不把当前有限回归外推至全部 230 空间群。
+
+### [P1] THEORY-002 缺失物理表示与数值边界
+
+occupational 需建立标量站点表示、母相占位基线、成分约束及物理可行范围；rotational
+需轴矢量与刚性单元约束；magnetic 需时间奇轴矢量、磁群及 setting 合同。表示完成前
+继续明确拒绝正式计算，不能复用位移活性或坐标排序二分模式。
+对版本特定应变规范、极端病态晶格的容差、非公度谐波空间封闭和任意 k 搜索完备性
+补充独立证据；理论义务与源码对应见参考资料库的实现审查清单。
+
 ### [P2] BUG-004 大批量导出成本
 
 逐候选串行重算和大型超胞精确有理运算仍需优化。先记录候选级耗时与峰值资源，
@@ -94,7 +109,7 @@ Method 4 保存 TXT/CSV 或预期拒绝的原始响应。查询、候选和文�
 - 扩展精确微观身份链到更多晶系、点阵、超胞、混合/部分占位，逐层保留正反例。
 - Method 3：arbitrary/multi-parameter k、point-group-only affine、reciprocal 子格、
   唯一 primary coupled IR/OPD 分解，以及 rotational/occupational/magnetic
-  同等级表示尚未完成；rotational-only 仍有位移活性近似限制。
+  同等级表示尚未完成；这些物理类型的正式计算须维持明确拒绝，不能以位移活性替代。
 - 位移来源合同暂限单物种满占位；补齐非 Γ transporter 的 component-to-star-arm
   相位证据，扩展轴矢量、磁和占位模式身份链。
 - Method 4：核验全部允许原点自动枚举，并扩展 occupancy/magnetic/rotational 分解。

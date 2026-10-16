@@ -64,6 +64,7 @@ from backend.utils import (
     parse_subgroup_table,
 )
 from backend.utils.lattice import as_fraction, centering_primitive_matrix, multiply
+from backend.utils.text_parser import k_coordinate_parameters
 from backend.utils.opd_format import (
     direction_coefficient_matrix,
     format_k_active,
@@ -117,9 +118,7 @@ class KPointInfo:
     kovalev: str | None = None       # 官网 Kovalev 编号（如 "k14"），本地无数据时为 None
 
     def __post_init__(self) -> None:
-        self.parameters = sorted(
-            {c for c in self.coordinates if re.search(r"[a-zA-Z]", c)}
-        )
+        self.parameters = k_coordinate_parameters(self.coordinates)
         self.is_special = not self.parameters
 
 

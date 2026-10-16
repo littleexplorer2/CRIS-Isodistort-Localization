@@ -50,6 +50,9 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "backend.method1.phase_path",
         "normalize_distortion_types",
     ),
+    "require_supported_physical_types": (
+        "backend.method1.phase_path", "require_supported_physical_types",
+    ),
     "IsoSearchEngine": ("backend.method1.search_methods", "IsoSearchEngine"),
     "Method1Query": ("backend.method1.search_methods", "Method1Query"),
     "Method1ResultItem": ("backend.method1.search_methods", "Method1ResultItem"),

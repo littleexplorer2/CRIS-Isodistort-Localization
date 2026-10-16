@@ -482,10 +482,3 @@ class BaseWrapper:
         """输入文件参数模式调用（适用于 findsym 关键字输入）。"""
         return self._run_program(binary_path, input_text, input_via_stdin=False,
                                  extra_args=extra_args)
-
-    # ---- 兼容旧接口 ----
-
-    def _run_binary(self, binary_path: Path, input_text: str,
-                    extra_args: list | None = None) -> str:
-        """旧接口：默认走 stdin 模式（iso 交互命令流）。"""
-        return self.run_stdin(binary_path, input_text, extra_args)

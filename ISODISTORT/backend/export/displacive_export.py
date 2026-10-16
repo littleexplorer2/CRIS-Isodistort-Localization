@@ -33,6 +33,7 @@ from backend.utils.lattice import (
     RationalMatrix,
     as_fraction,
     centering_primitive_matrix,
+    centering_multiplicity,
     determinant,
     inverse,
     is_integral,
@@ -165,14 +166,7 @@ def _affine_embedding_id(
 
 
 def _centering_multiplicity_from_letter(letter: str) -> int:
-    letter = str(letter).strip().upper()
-    if letter == "F":
-        return 4
-    if letter == "R":
-        return 3
-    if letter in {"A", "B", "C", "I"}:
-        return 2
-    return 1
+    return centering_multiplicity(letter)
 
 
 def _centering_multiplicity(space_group_number: int) -> int:

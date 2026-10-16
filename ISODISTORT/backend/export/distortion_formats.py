@@ -28,6 +28,7 @@ import numpy as np
 from pymatgen.core import Lattice, Structure
 
 from backend.utils.config_loader import get_config
+from backend.utils.lattice import centering_multiplicity
 from backend.utils.schoenflies import hm_symbol
 from backend.wrappers import SubgroupInfo
 from backend.method4.strain_modes import (
@@ -718,13 +719,6 @@ def render_isoviz(spec: SubgroupExportSpec) -> str:
     return render_isodistort_isoviz(spec)
 
 
-def _parent_primitive_volume(parent: Structure | None) -> float:
-    if parent is None:
-        return 1.0
-    try:
-        return float(parent.get_primitive_structure().lattice.volume)
-    except (ValueError, TypeError, np.linalg.LinAlgError):
-        return float(parent.lattice.volume)
 
 
 def render_complete_modes(spec: SubgroupExportSpec) -> str:
@@ -941,39 +935,14 @@ def render_complete_modes(spec: SubgroupExportSpec) -> str:
     return "\n".join(lines) + "\n"
 
 
-def _unique_site_indices(structure: Structure) -> list[int]:
-    """对称独立位点在超胞中的代表下标；失败时退回全部原子（P1）。"""
-    try:
-        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer  # noqa: PLC0415
-        cfg = get_config()
-        sga = SpacegroupAnalyzer(
-            structure,
-            symprec=cfg.symmetry_cartesian_tolerance_angstrom,
-            angle_tolerance=cfg.symmetry_angle_tolerance_degrees,
-        )
-        eq = sga.get_symmetrized_structure().equivalent_indices
-        return [group[0] for group in eq if group]
-    except (ValueError, TypeError, np.linalg.LinAlgError, AttributeError):
-        return list(range(len(structure)))
 
 
-def _site_tag(structure: Structure, idx: int) -> str:
-    """TOPAS 位点名：Eu_1 / Al_2。"""
-    el = structure[idx].species_string
-    el = re.sub(r"[^A-Za-z0-9]", "", el) or "X"
-    return f"{el}_{idx + 1}"
 
 
 def _centering_multiplicity(symbol: str | None) -> int:
     """Conventional-cell centering order (P=1, I/C/A/B=2, F=4, R=3)."""
     letter = (symbol or "P").lstrip("0123456789 ").strip()[:1].upper()
-    if letter == "F":
-        return 4
-    if letter == "R":
-        return 3
-    if letter in {"I", "C", "A", "B"}:
-        return 2
-    return 1
+    return centering_multiplicity(letter)
 
 
 def compact_mode_label(pretty: str, *, topas_space_before_ir: bool = False) -> str:
@@ -1211,15 +1180,6 @@ def render_topas(spec: SubgroupExportSpec) -> str:
     return "\n".join(lines)
 
 
-def _site_tag_official(structure: Structure, idx: int, spec: SubgroupExportSpec) -> str:
-    """Prefer parent Wyckoff stems (``Eu1_1``) when available."""
-    site = structure[idx]
-    label = (site.label or "").strip()
-    if label and re.match(r"^[A-Za-z]+\d*", label):
-        stem = re.split(r"[_\s]", label)[0]
-        return f"{stem}_1" if "_" not in label else label
-    el = re.sub(r"[^A-Za-z0-9]", "", site.species_string) or "X"
-    return f"{el}_{idx + 1}"
 
 
 def render_format(fmt: str, spec: SubgroupExportSpec) -> bytes:

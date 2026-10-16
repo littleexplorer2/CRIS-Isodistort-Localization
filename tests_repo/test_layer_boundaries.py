@@ -57,12 +57,18 @@ def _violations(source: str, module: str, is_package: bool, layer: str, project:
     prefix = project["namespace"]
     compatibility = [".".join(filter(None, [prefix, path.removesuffix(".py").replace("/", ".")]))
                      for path in project["compatibility"]]
+    compatibility += project.get("retired_imports", [])
     errors = []
     source_local = module.removeprefix(prefix + ".") if prefix else module
     source_module = ".".join(source_local.split(".")[:2])
     for line, target in _imports(ast.parse(source), module, is_package):
+        if project.get("role") != "test_support" and (
+            target == "tests" or target.startswith("tests.")
+        ):
+            errors.append(f"{module}:{line}: production imports validation/test code {target}")
         if any(target == legacy or target.startswith(legacy + ".") for legacy in compatibility):
             errors.append(f"{module}:{line}: production imports compatibility path {target}")
+            continue
         local = target.removeprefix(prefix + ".") if prefix else target
         if prefix and local == target:
             continue
@@ -148,6 +154,8 @@ def test_compatibility_paths_contain_no_business_implementation(project):
     ("import features.method1", "application", "application.session.bad"),
     ('importlib.import_module("backend.api")', "application", "application.session.bad"),
     ("from backend.utils.lattice import _unlisted_helper", "application", "application.session.bad"),
+    ("from tests.validation.application.single import compare_cif", "backend", "backend.utils.bad"),
+    ('importlib.import_module("tests.validation")', "application", "application.session.bad"),
 ])
 def test_dependency_gate_rejects_reverse_and_legacy_imports(source, layer, module):
     assert _violations(source, module, False, layer, PROJECTS[0])

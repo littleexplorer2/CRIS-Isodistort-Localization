@@ -6,6 +6,9 @@ from importlib import import_module
 from typing import Any
 
 _EXPORTS: dict[str, tuple[str, str]] = {
+    "ModeDecomposer": ("backend.method4.decomposition", "ModeDecomposer"),
+    "Method4Query": ("backend.method4.decomposition", "Method4Query"),
+    "Method4Result": ("backend.method4.decomposition", "Method4Result"),
     "DistortionEngine": ("backend.method4.distortion_engine", "DistortionEngine"),
     "HomogeneousStrainResult": ("backend.method4.strain", "HomogeneousStrainResult"),
     "decompose_homogeneous_strain": (

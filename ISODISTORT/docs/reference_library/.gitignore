@@ -1,0 +1,8 @@
+# Downloaded third-party full texts remain local; links and metadata are versioned.
+/pdf/*.pdf
+/snapshots/*
+/audit/extracted/
+/audit/rendered/
+/audit/.deps/
+/audit/.texcache/
+/latex/build/

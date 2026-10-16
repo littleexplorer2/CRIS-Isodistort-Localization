@@ -203,7 +203,6 @@ def _state_summary() -> dict:
     modes = list(iso.mode_displacements.keys()) + list(iso.mode_occupancies.keys())
     summary = {
         "revision": _SESSION.revision,
-        "language": None,
         "structure": None,
         "subgroups": len(iso.subgroups),
         "modes": modes,

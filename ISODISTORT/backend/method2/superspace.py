@@ -38,7 +38,6 @@ from itertools import product
 import numpy as np
 from pymatgen.core import Lattice, Structure
 from pymatgen.core.operations import SymmOp
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
 
 from backend.models.iso_mode_models import (
@@ -82,7 +81,7 @@ from backend.wrappers.iso_wrapper import (
     microscopic_source_basis_digest,
 )
 from backend.wrappers.smodes_wrapper import SmodesAtom, SmodesModeBlock, SmodesWrapper
-from backend.input_cif.coordinate_transform import build_supercell
+from backend.input_cif import build_supercell, map_supercell_sites
 from backend.method1.search_methods import (
     _k_compatible_with_supercell,
     _param_value_candidates,
@@ -3152,129 +3151,6 @@ def _parent_little_group_actions(
     return result
 
 
-def _parent_map(parent: Structure, supercell: Structure, basis: np.ndarray
-                ) -> tuple[np.ndarray, np.ndarray]:
-    """For each supercell atom: parent index and integer translation t."""
-    inv_b = np.linalg.inv(np.asarray(basis, dtype=float))
-    parent_frac_in_parent = (
-        np.asarray(supercell.frac_coords, dtype=float) @ np.asarray(basis, dtype=float)
-    )
-    pc = np.asarray(parent.frac_coords, dtype=float)
-    idx = np.zeros(len(supercell), dtype=int)
-    trans = np.zeros((len(supercell), 3), dtype=float)
-    for j in range(len(supercell)):
-        best_i, best = 0, 1e9
-        for i in range(len(parent)):
-            if supercell[j].species_string != parent[i].species_string:
-                continue
-            dist = float(parent.lattice.get_distance_and_image(
-                pc[i], parent_frac_in_parent[j],
-            )[0])
-            if dist < best:
-                best, best_i = dist, i
-        idx[j] = best_i
-        t = parent_frac_in_parent[j] - pc[best_i]
-        trans[j] = np.round(t)
-    _ = inv_b
-    return idx, trans
-
-
-def _site_point_groups(parent: Structure) -> dict[int, str]:
-    """Return spglib's oriented site-symmetry symbols unchanged.
-
-    Dots carry crystallographic orientation information (for example ``m..``
-    versus ``.m.``), so normalising them away makes the result unsuitable for
-    representation labels.  This helper is retained for diagnostic callers;
-    labels themselves come from ISO's oriented microscopic tables.
-    """
-    try:
-        cfg = get_config()
-        sga = SpacegroupAnalyzer(
-            parent,
-            symprec=cfg.symmetry_cartesian_tolerance_angstrom,
-            angle_tolerance=cfg.symmetry_angle_tolerance_degrees,
-        )
-        data = sga.get_symmetry_dataset()
-        symbols = list(data.get("site_symmetry_symbols") or [])
-    except Exception:  # noqa: BLE001
-        return {}
-    out: dict[int, str] = {}
-    for i, sym in enumerate(symbols):
-        out[i] = str(sym)
-    return out
-
-
-def _site_transport_rotations(
-    parent: Structure,
-    wyckoff_sites: Sequence[dict],
-) -> dict[int, np.ndarray]:
-    """Return parent operations carrying each orbit representative to a site.
-
-    Site-symmetry irreps are defined at one representative point.  A vector
-    printed on an equivalent point must therefore be pulled back through the
-    corresponding coset transporter before its direction is classified.  The
-    old largest-global-axis shortcut confused, for example, the orthorhombic
-    ``B2u`` and ``B3u`` axes after an orbit permutation.
-    """
-    cfg = get_config()
-    try:
-        operations = SpacegroupAnalyzer(
-            parent,
-            symprec=cfg.symmetry_cartesian_tolerance_angstrom,
-            angle_tolerance=cfg.symmetry_angle_tolerance_degrees,
-        ).get_symmetry_operations(cartesian=False)
-    except (ValueError, TypeError, np.linalg.LinAlgError, AttributeError):
-        return {}
-
-    rotations: dict[int, np.ndarray] = {}
-    for site in wyckoff_sites:
-        try:
-            representative = int(site["representative_index"])
-        except (KeyError, TypeError, ValueError):
-            continue
-        if representative < 0 or representative >= len(parent):
-            continue
-        rep_coord = np.asarray(parent[representative].frac_coords, dtype=float)
-        indices = [
-            int(value)
-            for value in (site.get("equivalent_indices") or [representative])
-        ]
-        for target in indices:
-            if target < 0 or target >= len(parent):
-                continue
-            target_coord = np.asarray(parent[target].frac_coords, dtype=float)
-            best_rotation: np.ndarray | None = None
-            best_distance = float("inf")
-            for operation in operations:
-                mapped = operation.operate(rep_coord)
-                distance = float(
-                    parent.lattice.get_distance_and_image(mapped, target_coord)[0]
-                )
-                if distance < best_distance:
-                    best_distance = distance
-                    best_rotation = np.asarray(operation.rotation_matrix, dtype=float)
-            if (
-                best_rotation is not None
-                and best_distance <= cfg.symmetry_cartesian_tolerance_angstrom
-            ):
-                rotations[target] = best_rotation
-    return rotations
-
-
-def _site_irrep_for_disp(site_pg: str, disp: np.ndarray) -> str:
-    """Compatibility shim for callers that lack an audited mode identity.
-
-    One arbitrary displacement vector need not span an irreducible subspace,
-    especially after a degenerate basis rotation.  A label therefore cannot
-    be inferred from its largest Cartesian component.  Returning the empty
-    unresolved value keeps staged callers fail-closed until they consume the
-    ISO microscopic :class:`ModeIdentity` directly.
-    """
-
-    _ = site_pg, disp
-    return ""
-
-
 def _looks_numeric(token: str) -> bool:
     try:
         parse_k_token(token)
@@ -3632,7 +3508,7 @@ def compute_parametric_modes(
         dtype=float,
     )
     supercell = build_supercell(parent, basis)
-    parent_idx, parent_translations = _parent_map(parent, supercell, basis)
+    parent_idx, parent_translations = map_supercell_sites(parent, supercell, basis)
     child_origins = _child_origin_candidates(
         subgroup.origin or [0.0, 0.0, 0.0],
         basis,

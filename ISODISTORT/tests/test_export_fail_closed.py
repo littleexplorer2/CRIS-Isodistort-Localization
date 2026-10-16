@@ -15,7 +15,7 @@ import numpy as np
 import pytest
 from pymatgen.core import Lattice, Structure
 
-import backend.api.core_api as core_api_module
+import application.session.core_api as core_api_module
 from application.session.core_api import (
     ExportBatchPlan,
     ExportCandidateFailure,

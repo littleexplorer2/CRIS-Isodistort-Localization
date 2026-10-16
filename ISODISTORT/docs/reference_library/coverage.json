@@ -1,0 +1,647 @@
+{
+  "schema": "cris-theory-coverage/v1",
+  "as_of": "2026-10-15",
+  "scope_source": "OfficialHelp",
+  "meaning": "Topic coverage and mathematical contracts, not certification of all code branches, binary tables, GUI or all official versions.",
+  "capabilities": [
+    {
+      "id": "C01",
+      "title": "CIF、msCIF、magCIF 输入与模式字段",
+      "source_ids": [
+        "CifSpec",
+        "CifCore",
+        "CifMs",
+        "CifMag",
+        "OfficialHelp"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:formats"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/input_cif",
+        "ISODISTORT/backend/export",
+        "ISODISTORT/tests/validation/backend/cif"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "语法、字典和可逆序列化合同；未穷尽解析器和全部格式消费者。"
+    },
+    {
+      "id": "C02",
+      "title": "晶格、原/惯用胞、超胞、setting/origin",
+      "source_ids": [
+        "ITCGeometry",
+        "Hatch1985",
+        "ITA"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:affine"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:lattice"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:shared-mapping"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/utils/lattice.py",
+        "ISODISTORT/backend/method1/affine_embeddings.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "证明基变换、整数指数、平移相位相容；需正确输入原胞。"
+    },
+    {
+      "id": "C03",
+      "title": "结构对称识别与周期原子匹配",
+      "source_ids": [
+        "Findsym2005",
+        "Spglib2024"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:symmetry"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:matching"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:shared-mapping"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/wrappers/findsym_wrapper.py",
+        "ISODISTORT/backend/method2/distortion_mapper.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "证明精确理想输入的有限搜索与最近像界；噪声容差和多解身份未认证。"
+    },
+    {
+      "id": "C04",
+      "title": "Wyckoff 轨道、位置稳定子与分裂",
+      "source_ids": [
+        "ITA",
+        "ITA1",
+        "Campbell2006",
+        "IsotropyManual",
+        "Spglib2024"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:symmetry"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method1",
+        "ISODISTORT/backend/wrappers",
+        "ISODISTORT/backend/export/isodistort_cif.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "轨道-稳定子证明；全部标准字母/数据库条目未逐一核验。"
+    },
+    {
+      "id": "C05",
+      "title": "k-star、小群与非对称形相位",
+      "source_ids": [
+        "Stokes2013",
+        "IsoIr",
+        "BCSKvectors"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:k"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:lattice"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/tables",
+        "ISODISTORT/backend/utils/lattice.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "证明倒易作用和相位阶数；必须使用真正平移格。"
+    },
+    {
+      "id": "C06",
+      "title": "复/实物理不可约表示及表约定",
+      "source_ids": [
+        "Stokes2013",
+        "IsoIr",
+        "IsoKov"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:k"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:micro"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/tables/irreps_cdml.py",
+        "ISODISTORT/backend/wrappers/iso_wrapper.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "证明实化和等变嵌入；实/复/四元数型、数据库基身份仍是输入义务。"
+    },
+    {
+      "id": "C07",
+      "title": "位移模式投影、正交性与完备性",
+      "source_ids": [
+        "Stokes1991",
+        "Campbell2006",
+        "PerezMato2010"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:physical"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:modes"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/wrappers/smodes_wrapper.py",
+        "ISODISTORT/backend/method4/distortion_engine.py",
+        "ISODISTORT/backend/method2/distortion_mapper.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "证明完全可约、字符投影、最小二乘；重复实例列不由子空间唯一决定。"
+    },
+    {
+      "id": "C08",
+      "title": "占位模式与化学约束",
+      "source_ids": [
+        "Campbell2006",
+        "OfficialHelp"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:physical"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method1/occupational_modes.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "置换表示与固定空间支持允许模式；概率界和组分守恒须额外施加。"
+    },
+    {
+      "id": "C09",
+      "title": "磁模式、轴矢量与时间反演",
+      "source_ids": [
+        "Magnetic2012",
+        "IsoMag",
+        "Stokes2013"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:physical"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:micro"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method2/superspace.py",
+        "ISODISTORT/backend/wrappers/smodes_wrapper.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "证明轴矢量变换；不把全部磁功能视为本地已经验收。"
+    },
+    {
+      "id": "C10",
+      "title": "转动模式与刚体运动",
+      "source_ids": [
+        "Muller2014",
+        "Howard1998",
+        "HowardErratum2002"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:physical"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/wrappers/smodes_wrapper.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "线性切空间与矩阵指数保证局部刚体长度；共享原子与有限机构另验。"
+    },
+    {
+      "id": "C11",
+      "title": "各向同性子群、OPD 与精确稳定子",
+      "source_ids": [
+        "Hatch2002",
+        "Stokes1985",
+        "Stokes2016",
+        "Stokes2017"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:isotropy"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:stabilizer"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method3/inverse_landau.py",
+        "ISODISTORT/backend/method1/search_methods.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "精确稳定子充要条件与有理见证已证明；输入表示必须满足群乘法。"
+    },
+    {
+      "id": "C12",
+      "title": "Method 1：特殊 k 点搜索和过滤",
+      "source_ids": [
+        "OfficialHelp",
+        "Stokes2016"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:methods"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:validation"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method1/search_methods.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "完备性相对于指定特殊 k 表与单 irrep 输入域。"
+    },
+    {
+      "id": "C13",
+      "title": "Method 2：指定 k/irrep、耦合序参量",
+      "source_ids": [
+        "Coupled1991",
+        "Stokes2016",
+        "Stokes2017",
+        "OfficialHelp"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:methods"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:stabilizer"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method2",
+        "ISODISTORT/backend/method3/coupled_routes.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "直和的稳定子交已证明；随机 OPD 采样不是穷尽。"
+    },
+    {
+      "id": "C14",
+      "title": "Method 3：逆 Landau、主/次序参量",
+      "source_ids": [
+        "Hatch2002",
+        "COPL2002"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:methods"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:stabilizer"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method3"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "嵌入、正规核和精确稳定子是前提；主序参量可能不唯一。"
+    },
+    {
+      "id": "C15",
+      "title": "Method 4：给定子相的模式分解",
+      "source_ids": [
+        "Campbell2006",
+        "PerezMato2010",
+        "Amplimodes2009"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:methods"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:modes"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method4/distortion_engine.py",
+        "ISODISTORT/backend/method1/search_methods.py",
+        "ISODISTORT/backend/method4/decomposition.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "固定配对、参考几何和满秩基下 LS 解唯一；小残差不保证晶体学身份。"
+    },
+    {
+      "id": "C16",
+      "title": "幅度、primitive cell 重数与单位",
+      "source_ids": [
+        "OfficialHelp",
+        "OfficialVersions",
+        "Amplimodes2009"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:amplitudes"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:modes"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/models/iso_mode_models.py",
+        "ISODISTORT/backend/export",
+        "ISODISTORT/backend/method1/search_methods.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "证明平均平方贡献与 As/Ap 换算；列、符号、normfactor 是独立合同。"
+    },
+    {
+      "id": "C17",
+      "title": "均匀应变、斜晶格与有限度量匹配",
+      "source_ids": [
+        "OfficialHelp",
+        "OfficialVersions",
+        "Higham1986",
+        "ITD"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:amplitudes"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:strain"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method4/strain.py",
+        "ISODISTORT/backend/method4/strain_modes.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "SPD 解唯一与右作用已证明；不等于所有斜晶格官网规范已认证。"
+    },
+    {
+      "id": "C18",
+      "title": "非公度超空间群、标准化与等价",
+      "source_ids": [
+        "Stokes2007",
+        "Stokes2011",
+        "Smaalen2013",
+        "Stokes2017",
+        "Magnetic2012"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:ssg"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:micro"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method2/superspace.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "证明截面相容与微观表示合同；完整分类依赖已发表算法和正确数据表。"
+    },
+    {
+      "id": "C19",
+      "title": "多 Q、Fourier 谐波、相位与别名",
+      "source_ids": [
+        "Stokes2013",
+        "Stokes2017",
+        "Magnetic2012",
+        "Wagner2009"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:ssg"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:micro"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method2/superspace.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "有限商特征标与谐波封闭有证明；任意截断没有无条件误差保证。"
+    },
+    {
+      "id": "C20",
+      "title": "结构生成与幅度回代",
+      "source_ids": [
+        "OfficialHelp",
+        "Campbell2006"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:derived"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:modes"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method4/distortion_engine.py",
+        "ISODISTORT/backend/export"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "Ba 在固定空间保证至少 H；官网 Generate 菜单不属本地当前产品范围。"
+    },
+    {
+      "id": "C21",
+      "title": "等价畴、反相畴与陪集",
+      "source_ids": [
+        "OfficialHelp",
+        "Campbell2006"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:derived"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method1/domain_generator.py"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "畴数及指数分解有证明；后端模块存在不代表本地提供官网 Domains UI。"
+    },
+    {
+      "id": "C22",
+      "title": "主序参量组合、不变量与相路径",
+      "source_ids": [
+        "Coupled1991",
+        "Invariants2003",
+        "Hatch2002"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:derived"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:stabilizer"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method1/phase_path.py",
+        "ISODISTORT/backend/method3"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "固定次数不变量空间有生成证明；自由能稳定性需物理参数。"
+    },
+    {
+      "id": "C23",
+      "title": "中间子群树及嵌入去重",
+      "source_ids": [
+        "Stokes2016",
+        "ITA1",
+        "OfficialHelp"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:derived"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:validation"
+        }
+      ],
+      "repository_modules": [],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "正规核有限商与 Hasse 图原理有证明；网站完整子群树未作为本地已实现能力。"
+    },
+    {
+      "id": "C24",
+      "title": "衍射、卫星、消光和可视化",
+      "source_ids": [
+        "OfficialHelp",
+        "Wagner2009",
+        "Frozen1995",
+        "SmodesManual"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:diffraction"
+        }
+      ],
+      "repository_modules": [
+        "ISOVIZ_INPUT/isoviz_input/backend",
+        "ISOVIZ_INPUT/isoviz_input/application"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "证明标量运动学平移消光及卫星位置；未认证 GUI、峰形和磁散射。"
+    },
+    {
+      "id": "C25",
+      "title": "导出、精修与 CSV→IsoVIZ 幅度合同",
+      "source_ids": [
+        "Refinement2007",
+        "Kerman2012",
+        "CifCore",
+        "CifMag",
+        "CifMs"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:formats"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:modes"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/export",
+        "ISOVIZ_INPUT/isoviz_input/backend/amplitudes",
+        "ISODISTORT/tests/validation/backend/comparison"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "序列化左逆合同和模式重参数化；实际多工具互操作须另行验收。"
+    },
+    {
+      "id": "C26",
+      "title": "误差传播、容差与数值稳定性",
+      "source_ids": [
+        "Spglib2024",
+        "Higham1986",
+        "OfficialHelp",
+        "OfficialVersions"
+      ],
+      "proofs": [
+        {
+          "file": "latex/isodistort_theoretical_foundations.tex",
+          "label": "sec:amplitudes"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:validation"
+        }
+      ],
+      "repository_modules": [
+        "ISODISTORT/backend/method4",
+        "ISODISTORT/tests/validation/backend/comparison"
+      ],
+      "implementation_status": "conditional_or_not_audited",
+      "qualification": "固定模型扰动与协方差已证明；ESD 帮助/版本史冲突，离散模型变化不适用线性误差界。"
+    }
+  ],
+  "implementation_audit": "audit/implementation_audit.json"
+}

@@ -1,6 +1,6 @@
 """Install, download, and diagnose the CRIS runtime.
 
-This is the single deployment entry point for all three CRIS subprojects.
+This is the single deployment entry point for the two CRIS runtime projects.
 It intentionally uses only the Python standard library so that it can create
 the shared ``.venv`` before third-party packages are available.
 """
@@ -39,12 +39,6 @@ PROJECTS = {
         ROOT / "ISODISTORT",
         ROOT / "ISODISTORT" / "requirements.txt",
         ROOT / "ISODISTORT" / "requirements-dev.txt",
-    ),
-    "validate": Project(
-        "validate",
-        ROOT / "ISODISTORT_VALIDATE",
-        ROOT / "ISODISTORT_VALIDATE" / "requirements.txt",
-        ROOT / "ISODISTORT_VALIDATE" / "requirements-dev.txt",
     ),
     "isoviz": Project(
         "isoviz",
@@ -380,9 +374,6 @@ def _ensure_runtime_directories(projects: Sequence[Project]) -> None:
     paths: list[Path] = []
     if "isodistort" in selected:
         paths.extend([ROOT / "ISODISTORT" / "output", ROOT / "ISODISTORT" / "output" / "tmp"])
-    if "validate" in selected:
-        compare = ROOT / "ISODISTORT_VALIDATE" / "compare"
-        paths.extend([compare, compare / "item", compare / "true"])
     if "isoviz" in selected:
         inputs = ROOT / "ISOVIZ_INPUT" / "input_content"
         paths.extend([inputs, inputs / "data.csv", inputs / "subgroup.isoviz"])
@@ -919,43 +910,6 @@ print(json.dumps(native_executables))
             report.add("isodistort", f"{key}-executable", "pass", str(check["executable"]))
 
 
-def _check_validate(report: DoctorReport, python: Path) -> None:
-    project = PROJECTS["validate"]
-    _import_probe(
-        report,
-        python,
-        project,
-        "from isodistort_validate import __version__, compare_cif, run_batch; print(__version__)",
-    )
-    payload, error = _probe_json(
-        python,
-        "import json; from isodistort_validate.backend.config import get_config; c=get_config(); "
-        "print(json.dumps({'root': str(c.compare_root), 'item': str(c.item_dir), "
-        "'true': str(c.true_dir)}))",
-        cwd=project.directory,
-    )
-    if not isinstance(payload, dict):
-        report.add("validate", "configuration", "fail", error)
-        return
-    for name in ("root", "item", "true"):
-        path = Path(str(payload[name]))
-        status = "pass" if path.is_dir() else "warn"
-        fix = "Run setup_cris.py install --project validate." if status == "warn" else ""
-        report.add("validate", f"compare-{name}", status, str(path), fix)
-    item_path = Path(str(payload["item"]))
-    true_path = Path(str(payload["true"]))
-    item_files = list(item_path.rglob("*.cif")) if item_path.is_dir() else []
-    true_files = list(true_path.rglob("*.cif")) if true_path.is_dir() else []
-    if item_files and true_files:
-        report.add("validate", "input-data", "pass", f"item={len(item_files)}, true={len(true_files)} CIF files")
-    else:
-        report.add(
-            "validate",
-            "input-data",
-            "warn",
-            f"item={len(item_files)}, true={len(true_files)} CIF files; no comparison was run",
-            "Place matching relative CIF paths in compare/item and compare/true before use.",
-        )
 
 
 def _check_isoviz(report: DoctorReport, python: Path) -> None:
@@ -1034,8 +988,6 @@ def _doctor(args: argparse.Namespace) -> int:
         selected = {project.key for project in projects}
         if "isodistort" in selected:
             _check_isodistort(report, python)
-        if "validate" in selected:
-            _check_validate(report, python)
         if "isoviz" in selected:
             _check_isoviz(report, python)
     if args.json:

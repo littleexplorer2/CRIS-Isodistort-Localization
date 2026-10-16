@@ -274,6 +274,7 @@ def _mapper_mode() -> DistortionMode:
                           k_point_label="GM")
     mode.bush_modes = [
         BushMode("GM1+", "P1", "a", [0, 0, 0], ["0", "0", "0"], [[0, 0, 0]]),
+        BushMode("GM1+", "P1", "a", [0.5, 0.5, 0.5], ["1/2", "1/2", "1/2"], [[0, 0, 0]]),
         # e 位点：两个相反位移的代表（(0,0,z) 与 (0,0,-z)）
         BushMode("GM1+", "P1", "e", [0, 0, 0], ["0", "0", "z"], [[0, 0, 1]]),
         BushMode("GM1+", "P1", "e", [0, 0, 0], ["0", "0", "-z"], [[0, 0, -1]]),
@@ -303,17 +304,15 @@ def test_mapper_coordinate_token_parser_consumes_the_complete_expression():
         evaluate("q", {})
 
 
-def test_mapper_uniform_single_rep():
-    """单代表行（均匀模式）：同一位移作用于该位点全部原子。"""
+def test_mapper_incomplete_single_rep_is_not_assumed_uniform():
+    """单代表行不足以证明另一个位置具有相同位移。"""
     mode = _mapper_mode()
     mode.bush_modes = [
         BushMode("GM1+", "P1", "e", [0, 0, 0], ["0", "0", "z"], [[0, 0, 1]]),
     ]
     mapper = DistortionMapper()
-    result = mapper.map_modes_to_atoms(_mapper_parent(), _mapper_wyckoff(), [mode])
-    disp = result["GM1+"]["displacements"]
-    assert np.allclose(disp[2], [0, 0, 1])
-    assert np.allclose(disp[3], [0, 0, 1])
+    with pytest.raises(ValueError, match="does not cover child atom"):
+        mapper.map_modes_to_atoms(_mapper_parent(), _mapper_wyckoff(), [mode])
 
 
 def test_mapper_periodic_distance_uses_true_skew_cell_minimum_image():
@@ -323,8 +322,7 @@ def test_mapper_periodic_distance_uses_true_skew_cell_minimum_image():
         ["Fe"],
         [[0.0, 0.0, 0.0]],
     )
-    mapper = DistortionMapper()
-    mapper._lattice_setup(structure)
+    from backend.input_cif import map_supercell_sites
 
     first = np.asarray([0.0, 0.0, 0.0])
     second = np.asarray([0.49, 0.49, 0.0])
@@ -334,10 +332,13 @@ def test_mapper_periodic_distance_uses_true_skew_cell_minimum_image():
         np.linalg.norm(component_wrapped @ structure.lattice.matrix)
     )
 
-    distance = mapper._periodic_distance(first, second)
+    child = Structure(structure.lattice, ["Fe"], [second])
+    # This point has two equally close periodic images. Mapping it with a
+    # radius covering both cannot determine a unique translation phase.
+    with pytest.raises(ValueError, match="compatible parent sites"):
+        map_supercell_sites(structure, child, np.eye(3), tolerance=1.0)
     expected = structure.lattice.get_distance_and_image(first, second)[0]
-    assert distance == pytest.approx(expected)
-    assert distance < 1.0
+    assert expected < 1.0
     assert component_wrapped_distance > 9.0
 
 
@@ -706,55 +707,18 @@ def _occ_subgroup(basis) -> SubgroupInfo:
     )
 
 
-def test_occupational_mode_doubled_cell():
-    """2x1x1 超胞：Al 位点分裂为两类 -> 产生 +1/-1 占据率模式。"""
+@pytest.mark.parametrize("basis,scope", [
+    ([[2, 0, 0], [0, 1, 0], [0, 0, 1]], {"Al"}),
+    ([[1, 0, 0], [0, 1, 0], [0, 0, 1]], {"Al"}),
+    ([[2, 0, 0], [0, 1, 0], [0, 0, 1]], {"Eu"}),
+])
+def test_occupational_generation_requires_scalar_representation(basis, scope):
+    """Neither supercell size nor species selection proves a scalar mode."""
     parent = _occ_parent()
-    gen = OccupationalModeGenerator(tolerance=1e-4)
-    modes = gen.generate(parent, _occ_wyckoff(), _occ_subgroup([[2, 0, 0], [0, 1, 0], [0, 0, 1]]),
-                         {"Al"})
-    assert modes, "倍胞下 Al 位点应产生占据率模式"
-    m = modes[0]
-    assert m.species == "Al"
-    assert m.label == "occ-Al-b"
-    # 模式值只含 +1/-1/0，且 +1 与 -1 数量相等（两类各半）
-    assert set(np.unique(m.pattern)) <= {1.0, -1.0, 0.0}
-    assert np.count_nonzero(m.pattern == 1) == np.count_nonzero(m.pattern == -1)
-
-
-def test_occupational_mode_no_split_identity_cell():
-    """单位基矢（t 子群，无超胞）：位点不分裂 -> 无占据率模式。"""
-    parent = _occ_parent()
-    gen = OccupationalModeGenerator(tolerance=1e-4)
-    modes = gen.generate(parent, _occ_wyckoff(),
-                         _occ_subgroup([[1, 0, 0], [0, 1, 0], [0, 0, 1]]), {"Al"})
-    assert modes == []
-
-
-def test_occupational_scope_filters_species():
-    """作用域只含 Eu 时，Al 位点不产生模式。"""
-    parent = _occ_parent()
-    gen = OccupationalModeGenerator(tolerance=1e-4)
-    modes = gen.generate(parent, _occ_wyckoff(),
-                         _occ_subgroup([[2, 0, 0], [0, 1, 0], [0, 0, 1]]), {"Eu"})
-    assert all(m.species == "Eu" for m in modes)
-
-
-def test_occupancy_exportable_structure():
-    """生成的占据率结构可被 pymatgen 构建（部分占据位点）。"""
-    parent = _occ_parent()
-    gen = OccupationalModeGenerator(tolerance=1e-4)
-    modes = gen.generate(parent, _occ_wyckoff(),
-                         _occ_subgroup([[2, 0, 0], [0, 1, 0], [0, 0, 1]]), {"Al"})
-    engine = DistortionEngine()
-    m = modes[0]
-    sc = engine.generate_modes(
-        parent, m.basis_vectors,
-        parent_displacements=None,
-        occupancy_patterns=[(m.pattern, 0.2)],
-    )
-    assert len(sc) == 4  # 2 原子 x 2 倍胞
-    occs = {s.species_string for s in sc if "Al" in s.species_string}
-    assert any(o != "Al" for o in occs)  # 至少一个 Al 位点变为部分占据
+    with pytest.raises(NotImplementedError, match="occupational"):
+        OccupationalModeGenerator(tolerance=1e-4).generate(
+            parent, _occ_wyckoff(), _occ_subgroup(basis), scope,
+        )
 
 
 # --- from test_self_check.py ---
@@ -828,7 +792,7 @@ def test_mode_orthogonality():
 # --- from test_multi_mode.py ---
 
 def _load_iso(path: Path) -> IsoDistort:
-    iso = IsoDistort(language="en")
+    iso = IsoDistort()
     iso.set_distortion_scope({
         "displacive": ["*"], "occupational": [], "strain": [],
         "magnetic": [], "rotational": [],

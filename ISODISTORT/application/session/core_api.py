@@ -21,7 +21,6 @@
 """
 import copy
 import hashlib
-import html
 import json
 import os
 import re
@@ -49,10 +48,12 @@ from backend.utils import IsodistortError, get_config
 from backend.utils.lattice import (
     as_fraction,
     centering_primitive_matrix,
+    centering_multiplicity,
     identity_matrix,
     inverse,
     multiply,
     rational_matrix,
+    same_lattice_in_point_group_orbit,
     transpose,
 )
 from backend.utils.opd_format import _centering_letter, format_k_active
@@ -113,14 +114,14 @@ from backend.method1 import (
     Method1ResultItem,
     Method2Query,
     Method3Query,
-    Method4Query,
-    OccupationalModeGenerator,
     PhasePath,
     embedding_from_identity,
     normalize_distortion_types,
+    require_supported_physical_types,
     parent_affine_group,
 )
 from backend.method1.affine_embeddings import translation_cosets
+from backend.method4 import Method4Query, ModeDecomposer
 from backend.method1.search_methods import (
     _sg_to_crystal_system,
     _validated_single_irrep_count,
@@ -140,7 +141,6 @@ from backend.method4 import (
 )
 from backend.messages import t
 
-_CRIS_ROOT = Path(__file__).resolve().parents[3]
 _EXPORT_BATCH_SCHEMA = "isodistort.export-batch.v1"
 _EXPORT_BATCH_PREFIX = ".isodistort-batch-v1-"
 _EXPORT_BATCH_READY_SUFFIX = ".ready"
@@ -537,13 +537,11 @@ class IsoDistort:
         加载结构 → 识别对称 → 枚举子群（Method 1）→ 选择路径（Method 2）
         → 计算畸变模式 → 生成畸变结构 → 导出/畴
 
-    UI strings are English only. The ``language`` argument is ignored and kept
-    so existing ``IsoDistort(language="en")`` call sites still construct.
+    UI strings are English only; language selection is not supported.
     """
 
-    def __init__(self, language: str | None = None) -> None:
+    def __init__(self) -> None:
         self.cfg = get_config()
-        _ = language
 
         # 底层封装
         self._iso = IsoWrapper()
@@ -953,33 +951,6 @@ class IsoDistort:
         """Delete named generated cache files through the public API."""
         return delete_isotropy_cache(self._iso, names)
 
-    @staticmethod
-    def _subgroup_identity(subgroup: SubgroupInfo | None) -> tuple | None:
-        """Stable path identity; local display indices are deliberately excluded."""
-        if subgroup is None:
-            return None
-
-        def _matrix(values) -> tuple:
-            return tuple(
-                tuple(round(float(value), 10) for value in row)
-                for row in (values or [])
-            )
-
-        return (
-            int(subgroup.parent_sg),
-            int(subgroup.space_group_number),
-            int(subgroup.subgroup_index),
-            int(subgroup.size),
-            str(subgroup.k_point_label or ""),
-            tuple(str(value) for value in (subgroup.k_coordinates or [])),
-            str(subgroup.irrep_label or ""),
-            str(subgroup.opd_symbol or ""),
-            str(subgroup.opd_dir_raw or ""),
-            tuple(round(float(value), 10) for value in (subgroup.opd_vector or [])),
-            tuple(str(value) for value in (subgroup.k_parameters or [])),
-            _matrix(subgroup.basis_vectors),
-            tuple(round(float(value), 10) for value in (subgroup.origin or [])),
-        )
 
     @staticmethod
     def _method3_embedding_guard_key(subgroup: SubgroupInfo) -> tuple:
@@ -1200,7 +1171,8 @@ class IsoDistort:
                                      official_kparams: list | None) -> list[SubgroupInfo]:
         """按 Distortion Types + 物种作用域过滤子群（对齐官网 Search 阶段）。"""
         types = normalize_distortion_types(self.distortion_types)
-        mode_types = [tp for tp in types if tp in ("displacive", "rotational", "occupational")]
+        require_supported_physical_types(types)
+        mode_types = [tp for tp in types if tp == "displacive"]
         if not mode_types:
             return subgroups
 
@@ -1219,9 +1191,9 @@ class IsoDistort:
             return subgroups
 
         # 特殊 k 点：用 BUSH 探测各子群是否在作用域 Wyckoff 上有位移模式
-        if not any(tp in types for tp in ("displacive", "rotational")):
+        if not "displacive" in types:
             return subgroups
-        bush_types = [tp for tp in types if tp in ("displacive", "rotational")]
+        bush_types = [tp for tp in types if tp == "displacive"]
         letters = self._letters_for_species(self._union_scope_species(bush_types))
         if not letters:
             return []
@@ -1321,20 +1293,15 @@ class IsoDistort:
         return self._special_subgroups_cache
 
     def _filter_method1_by_types(self, items, distortion_types) -> list:
-        """Keep Method 1 rows that the official site would list for the selected types.
+        """Keep rows with proved displacement or homogeneous-strain activity.
 
-        Each requested physical representation is tested independently and the
-        union is returned.  Displacive/rotational activity comes from smodes;
-        occupational activity requires a generated pattern that independently
-        validates as the requested subgroup; homogeneous strain uses the
-        symmetric metric-tensor representation ``E -> R.T E R``.  An unknown
-        backend result never masquerades as physical activity.
+        Strain uses the exact embedded tensor fixed space. Unsupported scalar,
+        axial or magnetic models are rejected before querying any candidate.
         """
         types = normalize_distortion_types(distortion_types or self.distortion_types)
-        want_mag = "magnetic" in types
-        want_disp = any(tp in types for tp in ("displacive", "rotational"))
+        require_supported_physical_types(types)
+        want_disp = "displacive" in types
         want_strain = "strain" in types
-        want_occupational = "occupational" in types
         if not items:
             return items
 
@@ -1360,7 +1327,7 @@ class IsoDistort:
             )
             if unresolved:
                 raise RuntimeError(
-                    "Could not establish displacive/rotational irrep activity "
+                    "Could not establish displacive irrep activity "
                     "from smodes for k point(s): " + ", ".join(unresolved)
                 )
 
@@ -1368,19 +1335,10 @@ class IsoDistort:
         if self.symmetry_info:
             parent_sg_n = int(self.symmetry_info["space_group_number"])
 
-        occupational_generator = (
-            OccupationalModeGenerator() if want_occupational else None
-        )
-        occupational_scope = (
-            self._scope_species("occupational") if want_occupational else set()
-        )
-
         kept = []
         for item in items:
             ir = (item.subgroup.irrep_label or "").strip()
             if ir.startswith("m"):
-                if want_mag:
-                    kept.append(item)
                 continue
 
             is_active = False
@@ -1389,24 +1347,6 @@ class IsoDistort:
                 is_active = active is not None and ir in active
             if want_strain and self._keep_strain_only_irrep(item, parent_sg_n):
                 is_active = True
-            if (
-                occupational_generator is not None
-                and self.structure is not None
-                and self.symmetry_info
-                and occupational_scope
-            ):
-                try:
-                    occupational_modes = occupational_generator.generate(
-                        self.structure,
-                        self.symmetry_info["wyckoff_sites"],
-                        item.subgroup,
-                        occupational_scope,
-                    )
-                except Exception:  # noqa: BLE001 - unsupported route is inactive
-                    occupational_modes = []
-                if any(bool(getattr(mode, "validated", False))
-                       for mode in occupational_modes):
-                    is_active = True
             if is_active:
                 kept.append(item)
         return kept
@@ -1421,20 +1361,13 @@ class IsoDistort:
         identity and must be supplied (after the existing official-to-backend
         parameter conversion) to smodes when checking displacement activity.
 
-        The filtering follows the capabilities already exposed elsewhere:
-        displacement/rotation activity comes from smodes, strain uses the
-        symmetric-tensor fixed-space rule, occupational activity requires a
-        generated pattern independently validated as the requested subgroup,
-        and magnetic activity is limited to magnetic (``m*``) irreps.  A
-        failed smodes probe remains unresolved and is not promoted to active.
+        Only the implemented displacement and homogeneous-strain models may
+        establish activity; unresolved backend evidence is not promoted.
         """
         types = normalize_distortion_types(distortion_types or self.distortion_types)
-        want_displacement = any(
-            name in types for name in ("displacive", "rotational")
-        )
+        require_supported_physical_types(types)
+        want_displacement = "displacive" in types
         want_strain = "strain" in types
-        want_occupational = "occupational" in types
-        want_magnetic = "magnetic" in types
         if not items:
             return items
 
@@ -1452,7 +1385,7 @@ class IsoDistort:
             and self.symmetry_info
         ):
             displacement_species: set[str] = set()
-            for name in ("displacive", "rotational"):
+            for name in ("displacive",):
                 if name in types:
                     displacement_species |= self._scope_species(name)
             for route in routes:
@@ -1477,18 +1410,12 @@ class IsoDistort:
                     ),
                 )
 
-        occupational_generator = (
-            OccupationalModeGenerator() if want_occupational else None
-        )
-        occupational_scope = (
-            self._scope_species("occupational") if want_occupational else set()
-        )
         parent_sg = int((self.symmetry_info or {}).get("space_group_number") or 0)
 
         def route_is_active(route: SubgroupInfo) -> bool:
             irrep = str(route.irrep_label or "").strip()
             if irrep.startswith("m"):
-                return want_magnetic
+                return False
 
             if want_displacement:
                 key = (
@@ -1508,23 +1435,6 @@ class IsoDistort:
                 if self._keep_strain_only_irrep(probe, parent_sg):
                     return True
 
-            if (
-                occupational_generator is not None
-                and self.structure is not None
-                and self.symmetry_info
-                and occupational_scope
-            ):
-                try:
-                    modes = occupational_generator.generate(
-                        self.structure,
-                        self.symmetry_info["wyckoff_sites"],
-                        route,
-                        occupational_scope,
-                    )
-                except Exception:  # noqa: BLE001 - unsupported embedding is inactive
-                    modes = []
-                if any(bool(getattr(mode, "validated", False)) for mode in modes):
-                    return True
             return False
 
         kept = []
@@ -1725,33 +1635,7 @@ class IsoDistort:
     @staticmethod
     def _centering_matrix(letter: str) -> np.ndarray:
         """惯用 → 原胞的标准心化矩阵（行向量为惯用坐标下的原胞基矢）。"""
-        tables = {
-            "P": np.eye(3),
-            "I": np.array(
-                [[-0.5, 0.5, 0.5], [0.5, -0.5, 0.5], [0.5, 0.5, -0.5]], dtype=float
-            ),
-            "F": np.array(
-                [[0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]], dtype=float
-            ),
-            "A": np.array(
-                [[1.0, 0.0, 0.0], [0.0, 0.5, 0.5], [0.0, -0.5, 0.5]], dtype=float
-            ),
-            "B": np.array(
-                [[0.5, 0.0, 0.5], [0.0, 1.0, 0.0], [-0.5, 0.0, 0.5]], dtype=float
-            ),
-            "C": np.array(
-                [[0.5, 0.5, 0.0], [-0.5, 0.5, 0.0], [0.0, 0.0, 1.0]], dtype=float
-            ),
-            "R": np.array(
-                [
-                    [2 / 3, 1 / 3, 1 / 3],
-                    [-1 / 3, 1 / 3, 1 / 3],
-                    [-1 / 3, -2 / 3, 1 / 3],
-                ],
-                dtype=float,
-            ),
-        }
-        return tables.get((letter or "P")[:1].upper(), np.eye(3)).copy()
+        return np.asarray(centering_primitive_matrix(letter), dtype=float)
 
     def _parent_centering_matrix(self) -> np.ndarray:
         """母相惯用 → 原胞的标准心化矩阵 T。"""
@@ -1759,7 +1643,7 @@ class IsoDistort:
         return self._centering_matrix(letter)
 
     def _conv_to_prim(self) -> np.ndarray:
-        """母相惯用格子 -> 原胞格子的变换矩阵 T（L_prim = L_conv @ T）。"""
+        """母相惯用格子 -> 原胞的行基矩阵 T（L_prim = T @ L_conv）。"""
         if self._conv_to_prim_cache is None:
             # 与官网 Primitive lattice 同一套心化约定（不用 pymatgen 的备选约定）
             self._conv_to_prim_cache = self._parent_centering_matrix()
@@ -1782,29 +1666,13 @@ class IsoDistort:
             m = m @ self._conv_to_prim()
         return m.tolist()
 
-    @staticmethod
-    def _same_lattice(a, b) -> bool:
-        """两个 3x3 超胞基矢是否生成同一格点（GL(3,Z) 等价）。"""
-        tolerance = get_config().lattice_tolerance
-        a_arr = np.asarray(a, dtype=float)
-        b_arr = np.asarray(b, dtype=float)
-        if a_arr.shape != (3, 3) or b_arr.shape != (3, 3):
-            return False
-        if abs(abs(np.linalg.det(a_arr)) - abs(np.linalg.det(b_arr))) > tolerance:
-            return False
-        try:
-            n = a_arr @ np.linalg.inv(b_arr)
-        except np.linalg.LinAlgError:
-            return False
-        return bool(np.allclose(n, np.round(n), atol=tolerance))
 
     def _same_lattice_orbit(self, a, b) -> bool:
         """同一格点类：含母相点群旋转轨道（官网 lattice 选项语义）。"""
-        b_arr = np.asarray(b, dtype=float)
-        for rot in self._parent_rotations():
-            if self._same_lattice(a, b_arr @ rot) or self._same_lattice(a, rot @ b_arr):
-                return True
-        return False
+        return same_lattice_in_point_group_orbit(
+            rational_matrix(a), rational_matrix(b),
+            [rational_matrix(rot) for rot in self._parent_rotations()],
+        )
 
     def _method1_filtered_subgroups(self) -> list:
         """Method 1 下拉与搜索共用的类型过滤后子群列表。"""
@@ -1822,14 +1690,10 @@ class IsoDistort:
 
     @staticmethod
     def _opd_lattice_sort_key(direction: str) -> tuple:
-        """Canonical OPD complexity used by the website's lattice grouping.
+        """Deterministic presentation order based on symbolic OPD complexity.
 
-        The official selector orders a k/IR's translation lattices by the
-        number of active star arms, then by the number and placement of free
-        OPD parameters.  This is why, for example, ``(a;0;0;0)`` precedes
-        ``(a;a;0;0)`` and the general four-arm direction.  Deriving the order
-        from the direction keeps it valid for every parent instead of storing
-        the EuAl4 option list.
+        This sort order is not a theorem about website ordering or a physical
+        equivalence test; lattice classification uses exact group actions.
         """
         body = (direction or "").strip().strip("()")
         tokens = [part.strip() for part in re.split(r"[;,]", body)] if body else []
@@ -2031,91 +1895,12 @@ class IsoDistort:
         def fmt_row(row):
             parts = []
             for x in row:
-                f = Fraction(float(x)).limit_denominator(12)
+                f = as_fraction(x)
                 parts.append(str(f.numerator) if f.denominator == 1
                              else f"{f.numerator}/{f.denominator}")
             return "(" + ",".join(parts) + ")"
 
         return ",".join(fmt_row(r) for r in key)
-
-    @staticmethod
-    def _structure_signature(structure: Structure) -> tuple:
-        """Identify an archived parent independently of its upload filename."""
-        lattice = tuple(np.round(structure.lattice.matrix, 6).flat)
-        sites = tuple(sorted(
-            (site.species_string, *(
-                round(float(value) % 1, 6) % 1 for value in site.frac_coords
-            ))
-            for site in structure
-        ))
-        return lattice, sites
-
-    def _archived_lattice_labels(self) -> dict[str, list[tuple[str, int, list]]] | None:
-        """Read saved official selectors for the same parent, when available.
-
-        The archive supplies display representatives only. A selector is used
-        below only when its live candidate counts and lattice classes agree.
-        Other CIFs continue to use computed representatives.
-        """
-        if self.structure is None:
-            return None
-        archive_root = _CRIS_ROOT / "webpage_info"
-        parent_root = _CRIS_ROOT / "experiment_data"
-        signature = self._structure_signature(self.structure)
-        for folder in archive_root.iterdir() if archive_root.is_dir() else ():
-            parent_file = parent_root / folder.name
-            search_page = folder / "2. ISODISTORT_ search.html"
-            if not folder.is_dir() or not parent_file.is_file() or not search_page.is_file():
-                continue
-            try:
-                if self._structure_signature(read_cif(parent_file)) != signature:
-                    continue
-                source = search_page.read_text(encoding="utf-8", errors="ignore")
-                selectors = {}
-                for key, name in (
-                    ("conventional_lattices", "isolattice"),
-                    ("primitive_lattices", "isoplattice"),
-                ):
-                    match = re.search(
-                        rf'<select name="{name}">(.*?)</select>', source, re.DOTALL
-                    )
-                    if match is None:
-                        break
-                    entries = []
-                    for value, label_html in re.findall(
-                        r'<option(?: value="([^"]*)")?>(.*?)</option>',
-                        match.group(1), re.DOTALL,
-                    ):
-                        label = html.unescape(re.sub(r"<[^>]+>", "", label_html)).strip()
-                        if not value:
-                            continue
-                        entries.append((label, int(value.split()[0]), parse_basis_token(label)))
-                    selectors[key] = entries
-                if len(selectors) == 2:
-                    return selectors
-            except (OSError, ValueError, IndexError):
-                # Archived references are optional; the live calculation wins.
-                continue
-        return None
-
-    def _align_archived_lattice_labels(self, options: dict[str, list[dict]]) -> None:
-        """Use official display bases only after validating every live class."""
-        reference = self._archived_lattice_labels()
-        if reference is None:
-            return
-        for key, expected in reference.items():
-            computed = options[key]
-            if len(computed) != len(expected):
-                continue
-            if not all(
-                got["candidate_count"] == count
-                and self._same_lattice_orbit(got["basis"], basis)
-                for got, (_, count, basis) in zip(computed, expected, strict=True)
-            ):
-                continue
-            for got, (label, _count, basis) in zip(computed, expected, strict=True):
-                got["label"] = label
-                got["basis"] = basis
 
     def method1_options(self) -> dict:
         """
@@ -2124,8 +1909,7 @@ class IsoDistort:
         - conventional_lattices / primitive_lattices：Conventional /
           Primitive lattice 下拉。分类时合并母相点群旋转轨道；Primitive 对
           每个子群用其子群心化矩阵作 ``T_sub @ B`` 后再按母相点群轨道分类。
-          分类、候选数来自 iso 枚举；若同一母相有官网存档，验证分类
-          一致后使用存档中的显示代表元。
+          分类、候选数和代表元只来自运行时计算，不读取官网结果档案。
         """
         subs = self._method1_filtered_subgroups()
         numbers: list[int] = []
@@ -2175,10 +1959,6 @@ class IsoDistort:
             ],
             standardized_kind="primitive" if standardize else None,
         )
-        self._align_archived_lattice_labels({
-            "conventional_lattices": conventional,
-            "primitive_lattices": primitive,
-        })
         return {
             "space_groups": space_groups,
             "conventional_lattices": conventional,
@@ -2424,6 +2204,7 @@ class IsoDistort:
             if distortion_type is None
             else distortion_type
         )
+        require_supported_physical_types(types)
         active_scope = self._copy_distortion_scope(
             getattr(self, "distortion_scope", {})
         )
@@ -2457,12 +2238,10 @@ class IsoDistort:
             n_sites = len({b.wyckoff_letter for b in m.bush_modes})
             print(t("mode.sites", irrep=m.irrep_label, opd=m.opd_symbol, n=n_sites))
 
-        # 映射到原子位移（仅 displacive/rotational 位移模式）
-        self.mode_displacements = self._dist_mapper.map_modes_to_atoms(
-            self.structure,
-            self.symmetry_info["wyckoff_sites"],
-            self.distortion_modes,
-        )
+        # 映射到原子位移；轴矢量类型不由位移表示替代。
+        # Parent entries are projected from complete child columns below.
+        # A sparse BUSH row does not authorize parent-orbit displacement filling.
+        self.mode_displacements = {}
         self._install_special_bush_supercell_modes(target)
         self._sync_parametric_session_keys()
         self._mode_cache_key = self._mode_context_key(
@@ -2750,16 +2529,13 @@ class IsoDistort:
         distortion_scope: dict | None = None,
     ) -> list[DistortionMode]:
         """
-        按畸变类型 + 物种作用域整理子群路径的模式：
-        - displacive / rotational：BUSH 位移模式（raw_modes 已按作用域
-          Wyckoff 位置计算），再按各类型作用域过滤并标注 mode_type；
-        - occupational：本地占据率模式生成器（+1/-1 交替占据，见
-          OccupationalModeGenerator），结果存入 self.mode_occupancies；
-        - strain / magnetic：本地引擎暂不产生对应模式（见 README 已知差异）。
+        按物种作用域整理经证明的位移模式。应变走独立张量合同；
+        occupational / rotational / magnetic 尚无对应表示，明确拒绝。
         """
         self._require_verified_parent_setting()
+        require_supported_physical_types(types)
         self.mode_occupancies = {}
-        bush_types = [tp for tp in types if tp in ("displacive", "rotational")]
+        bush_types = [tp for tp in types if tp == "displacive"]
 
         modes: list[DistortionMode] = []
         if raw_modes is None and bush_types:
@@ -2798,36 +2574,9 @@ class IsoDistort:
                 if in_scope:
                     modes.append(replace(
                         m,
-                        mode_type=(
-                            "displacive"
-                            if "displacive" in bush_types
-                            else "rotational"
-                        ),
+                        mode_type="displacive",
                     ))
 
-        if "occupational" in types:
-            generator = OccupationalModeGenerator()
-            occ_modes = generator.generate(
-                self.structure,
-                self.symmetry_info["wyckoff_sites"],
-                target,
-                (
-                    self._scope_species("occupational")
-                    if distortion_scope is None
-                    else self._scope_species(
-                        "occupational",
-                        scope=distortion_scope,
-                    )
-                ),
-            )
-            for om in occ_modes:
-                self.mode_occupancies[om.label] = {
-                    "mode": om,
-                    "pattern": om.pattern,
-                    "basis": om.basis_vectors,
-                    "validated": om.validated,
-                    "note": om.note,
-                }
         return modes
 
     # ================================================================
@@ -2913,7 +2662,7 @@ class IsoDistort:
                 print(t("export.default", path=paths[0]))
             return self.distorted_structure
 
-        # occupational 模式：占据率调制（+1 类全占据，-1 类 1-amplitude）
+        # 旧 occupational 会话入口保留；底层明确拒绝未实现的标量模式。
         if irrep_label in self.mode_occupancies:
             entry = self.mode_occupancies[irrep_label]
             basis = supercell or entry["basis"]
@@ -2968,7 +2717,7 @@ class IsoDistort:
 
     def generate_mixed_distortion(self, contributions: dict[str, float],
                                   supercell: list | None = None) -> Structure:
-        """生成多模式混合畸变（可同时包含位移模式与 occupational 占据率模式）
+        """生成多位移模式混合畸变；旧 occupational 请求由底层明确拒绝。
 
         Args:
             contributions: {irrep_label: amplitude} 各模式贡献
@@ -4121,9 +3870,6 @@ class IsoDistort:
             require_verified_displacive_data=bool(lifted),
         )
 
-    def _is_parametric_subgroup(self, subgroup) -> bool:
-        """Subgroup of a parametric k point (LD/DT, …)."""
-        return bool(getattr(subgroup, "k_parameters", None))
 
     @staticmethod
     def _export_folder_method(
@@ -4919,6 +4665,7 @@ class IsoDistort:
             if distortion_type is None
             else distortion_type
         )
+        require_supported_physical_types(types)
         active_scope = self._copy_distortion_scope(
             getattr(self, "distortion_scope", {})
             if distortion_scope is None
@@ -4965,7 +4712,7 @@ class IsoDistort:
 
         parent_sg = self.symmetry_info["space_group_number"]
         # 按作用域限制 BUSH / smodes 的 Wyckoff 位置（避免重复计算）
-        bush_types = [tp for tp in types if tp in ("displacive", "rotational")]
+        bush_types = [tp for tp in types if tp == "displacive"]
         scoped_species = self._union_scope_species(
             bush_types,
             distortion_scope=active_scope,
@@ -5022,11 +4769,9 @@ class IsoDistort:
             raw_modes=result.modes,
             distortion_scope=active_scope,
         )
-        self.mode_displacements = self._dist_mapper.map_modes_to_atoms(
-            self.structure,
-            self.symmetry_info["wyckoff_sites"],
-            self.distortion_modes,
-        )
+        # Parent entries are projected from complete child columns below.
+        # A sparse BUSH row does not authorize parent-orbit displacement filling.
+        self.mode_displacements = {}
         self._install_special_bush_supercell_modes(result.subgroup)
         self._sync_parametric_session_keys()
         emitted_keys = set(self.mode_displacements_sc or self.mode_displacements)
@@ -5246,7 +4991,7 @@ class IsoDistort:
             ),
         )
 
-        result = self._search.method_4_decompose(
+        result = ModeDecomposer().method_4_decompose(
             parent,
             distorted_structure,
             mode_disp,
@@ -5258,14 +5003,7 @@ class IsoDistort:
 
     @staticmethod
     def _centering_multiplicity(space_group_number: int) -> int:
-        letter = _centering_letter(int(space_group_number))
-        if letter == "F":
-            return 4
-        if letter == "R":
-            return 3
-        if letter in {"A", "B", "C", "I"}:
-            return 2
-        return 1
+        return centering_multiplicity(_centering_letter(int(space_group_number)))
 
     def _method4_reference_modes(self, distorted: Structure
                                  ) -> tuple[Structure, dict[str, np.ndarray]]:

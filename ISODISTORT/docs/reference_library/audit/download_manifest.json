@@ -1,0 +1,536 @@
+[
+  {
+    "id": "Campbell2006",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2006%20Campbell.pdf",
+    "final_url": "https://iso.byu.edu/2006%20Campbell.pdf",
+    "local_file": "pdf/Campbell2006.pdf",
+    "bytes": 268721,
+    "sha256": "8a1d3e295055da79a2d243167d6b735fd2a743fa9ce12023040e1c0cbed889f4",
+    "checked_at": "2026-10-15T13:19:58.764268+00:00",
+    "text_characters": 70361,
+    "doi_candidates": [
+      "10.1107/S0021889806014075"
+    ]
+  },
+  {
+    "id": "Stokes1991",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/1991%20Stokes%20b.pdf",
+    "final_url": "https://iso.byu.edu/1991%20Stokes%20b.pdf",
+    "local_file": "pdf/Stokes1991.pdf",
+    "bytes": 1445766,
+    "sha256": "0fb6d091567c9afbb081a3ee95ef575986a0d489f3d6c816af689b7c5e519a1b",
+    "checked_at": "2026-10-15T13:19:58.713193+00:00",
+    "text_characters": 9,
+    "doi_candidates": []
+  },
+  {
+    "id": "Hatch1985",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/1985%20Hatch%20a.pdf",
+    "final_url": "https://iso.byu.edu/1985%20Hatch%20a.pdf",
+    "local_file": "pdf/Hatch1985.pdf",
+    "bytes": 987029,
+    "sha256": "8a23d716851d5984e825709a54f6118c40959c7f3d5684d73b3044d73de1c2a5",
+    "checked_at": "2026-10-15T13:19:58.712193+00:00",
+    "text_characters": 5,
+    "doi_candidates": []
+  },
+  {
+    "id": "Stokes1985",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/1985%20Stokes%20b.pdf",
+    "final_url": "https://iso.byu.edu/1985%20Stokes%20b.pdf",
+    "local_file": "pdf/Stokes1985.pdf",
+    "bytes": 335264,
+    "sha256": "213c90308d8137e6c5fdf87dfd3c20d093b869389af48c478ba59190f1f821af",
+    "checked_at": "2026-10-15T13:19:58.712193+00:00",
+    "text_characters": 3,
+    "doi_candidates": []
+  },
+  {
+    "id": "Hatch2002",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2002%20Hatch%20a.pdf",
+    "final_url": "https://iso.byu.edu/2002%20Hatch%20a.pdf",
+    "local_file": "pdf/Hatch2002.pdf",
+    "bytes": 57494,
+    "sha256": "ecfb1f7dc39f4eb987defa844f7f466b3f138d7f0531e473b584662ae6c01c14",
+    "checked_at": "2026-10-15T13:19:58.734744+00:00",
+    "text_characters": 31439,
+    "doi_candidates": [
+      "10.1103/PhysRevB.65.014113"
+    ]
+  },
+  {
+    "id": "COPL2002",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2002%20Hatch%20b.pdf",
+    "final_url": "https://iso.byu.edu/2002%20Hatch%20b.pdf",
+    "local_file": "pdf/COPL2002.pdf",
+    "bytes": 111785,
+    "sha256": "1478855d8697824bc8eb82cbe455514fa2d86d7be24decfe34b8c747e642e83c",
+    "checked_at": "2026-10-15T13:19:58.742742+00:00",
+    "text_characters": 7927,
+    "doi_candidates": []
+  },
+  {
+    "id": "Coupled1991",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/1991%20Stokes%20a.pdf",
+    "final_url": "https://iso.byu.edu/1991%20Stokes%20a.pdf",
+    "local_file": "pdf/Coupled1991.pdf",
+    "bytes": 724619,
+    "sha256": "72f8d382147ca614a49ea45309fe796be701af1846cd5f92d62ee266a2e9183f",
+    "checked_at": "2026-10-15T13:19:58.739747+00:00",
+    "text_characters": 16,
+    "doi_candidates": []
+  },
+  {
+    "id": "Stokes2016",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2016%20Stokes.pdf",
+    "final_url": "https://iso.byu.edu/2016%20Stokes.pdf",
+    "local_file": "pdf/Stokes2016.pdf",
+    "bytes": 1770764,
+    "sha256": "2925c04755da3e6b2291ac6033e25cc6552e3f23c23d1b0df9786dcc16dcaad3",
+    "checked_at": "2026-10-15T13:19:58.773741+00:00",
+    "text_characters": 29194,
+    "doi_candidates": [
+      "10.1107/S160057671601311X"
+    ]
+  },
+  {
+    "id": "Stokes2017",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2017%20Stokes.pdf",
+    "final_url": "https://iso.byu.edu/2017%20Stokes.pdf",
+    "local_file": "pdf/Stokes2017.pdf",
+    "bytes": 401740,
+    "sha256": "ac8d721da462ca2b5835ebc0b82362761255f710fc18fedefa65168fd6598335",
+    "checked_at": "2026-10-15T13:19:58.819859+00:00",
+    "text_characters": 79033,
+    "doi_candidates": [
+      "10.1107/S2053273316017629"
+    ]
+  },
+  {
+    "id": "Stokes2013",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2013%20Stokes.pdf",
+    "final_url": "https://iso.byu.edu/2013%20Stokes.pdf",
+    "local_file": "pdf/Stokes2013.pdf",
+    "bytes": 234964,
+    "sha256": "388b48b3ab1803ee07d88a9345d29b75da6a1c106e1ca4d842a1ce8de6fb7c26",
+    "checked_at": "2026-10-15T13:19:58.819859+00:00",
+    "text_characters": 66663,
+    "doi_candidates": [
+      "10.1107/S0108767313007538"
+    ]
+  },
+  {
+    "id": "Stokes2011",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2011%20Stokes.pdf",
+    "final_url": "https://iso.byu.edu/2011%20Stokes.pdf",
+    "local_file": "pdf/Stokes2011.pdf",
+    "bytes": 156941,
+    "sha256": "21c9e70e99dc93f6e3313d98192c53e52ce57178f537150544d9a35abd92134a",
+    "checked_at": "2026-10-15T13:19:58.831277+00:00",
+    "text_characters": 90233,
+    "doi_candidates": [
+      "10.1107/S0108767310042297"
+    ]
+  },
+  {
+    "id": "Smaalen2013",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2013%20van%20Smaalen.pdf",
+    "final_url": "https://iso.byu.edu/2013%20van%20Smaalen.pdf",
+    "local_file": "pdf/Smaalen2013.pdf",
+    "bytes": 612396,
+    "sha256": "bdad8c5bac5053e7e7bff680e17b4a56f9843af4bc441bd7118221934ad2a46a",
+    "checked_at": "2026-10-15T13:19:58.896991+00:00",
+    "text_characters": 139401,
+    "doi_candidates": [
+      "10.1107/S0108767312041657"
+    ]
+  },
+  {
+    "id": "Stokes2007",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2007%20Stokes.pdf",
+    "final_url": "https://iso.byu.edu/2007%20Stokes.pdf",
+    "local_file": "pdf/Stokes2007.pdf",
+    "bytes": 156856,
+    "sha256": "691d70c6d8f93dc9597feed9f8d70cc5c21551da1fb89b6c7af6c1cc3b89f9c8",
+    "checked_at": "2026-10-15T13:19:58.865809+00:00",
+    "text_characters": 83181,
+    "doi_candidates": [
+      "10.1107/S0108767307024890"
+    ]
+  },
+  {
+    "id": "Findsym2005",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2005%20Stokes.pdf",
+    "final_url": "https://iso.byu.edu/2005%20Stokes.pdf",
+    "local_file": "pdf/Findsym2005.pdf",
+    "bytes": 100992,
+    "sha256": "fc06c84f1f5557c3829af64d4d029c23c4075fb58c367e7ed06dec0a1f7f980f",
+    "checked_at": "2026-10-15T13:19:58.858764+00:00",
+    "text_characters": 11757,
+    "doi_candidates": [
+      "10.1107/S0021889804031528"
+    ]
+  },
+  {
+    "id": "Invariants2003",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2003%20Hatch%20a.pdf",
+    "final_url": "https://iso.byu.edu/2003%20Hatch%20a.pdf",
+    "local_file": "pdf/Invariants2003.pdf",
+    "bytes": 120046,
+    "sha256": "798d63cb4f8b7de171487a17e5f03419ea736085cafc06a249035a0f4d16dd2a",
+    "checked_at": "2026-10-15T13:19:58.858764+00:00",
+    "text_characters": 9163,
+    "doi_candidates": []
+  },
+  {
+    "id": "Kerman2012",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2012%20Kerman.pdf",
+    "final_url": "https://iso.byu.edu/2012%20Kerman.pdf",
+    "local_file": "pdf/Kerman2012.pdf",
+    "bytes": 1661124,
+    "sha256": "5f9f3bc7fba2f6eb7b2d5c64264d51a5fc6394ed8e240a4918414abdef7106ab",
+    "checked_at": "2026-10-15T13:19:58.919856+00:00",
+    "text_characters": 90220,
+    "doi_candidates": [
+      "10.1107/S0108767311046241"
+    ]
+  },
+  {
+    "id": "Refinement2007",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2007%20Campbell.pdf",
+    "final_url": "https://iso.byu.edu/2007%20Campbell.pdf",
+    "local_file": "pdf/Refinement2007.pdf",
+    "bytes": 1691578,
+    "sha256": "d07783f2eb7758c5d30ca8b20ed1cfea7a7dceffeb85f0156e5b4c659c226ac7",
+    "checked_at": "2026-10-15T13:19:58.946219+00:00",
+    "text_characters": 63435,
+    "doi_candidates": []
+  },
+  {
+    "id": "Muller2014",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2014%20Muller.pdf",
+    "final_url": "https://iso.byu.edu/2014%20Muller.pdf",
+    "local_file": "pdf/Muller2014.pdf",
+    "bytes": 779997,
+    "sha256": "67437c77df84e3b1af9d4d8760ab25730a5f956219e08aef869c3c47018a1367",
+    "checked_at": "2026-10-15T13:19:58.914849+00:00",
+    "text_characters": 44347,
+    "doi_candidates": [
+      "10.1107/S1600576713034560"
+    ]
+  },
+  {
+    "id": "Howard1998",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/1998%20Howard.pdf",
+    "final_url": "https://iso.byu.edu/1998%20Howard.pdf",
+    "local_file": "pdf/Howard1998.pdf",
+    "bytes": 246752,
+    "sha256": "1d4bef149c4b2704b0f86749d4ae8f1f306fbb00f7b3008410ca2f5473d96107",
+    "checked_at": "2026-10-15T13:19:58.920856+00:00",
+    "text_characters": 57930,
+    "doi_candidates": []
+  },
+  {
+    "id": "HowardErratum2002",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/1998%20Howard%20erratum.pdf",
+    "final_url": "https://iso.byu.edu/1998%20Howard%20erratum.pdf",
+    "local_file": "pdf/HowardErratum2002.pdf",
+    "bytes": 111222,
+    "sha256": "d26bb0044934bea0701dda0ec541abab8bc7fe2b77e045f31c46f596afaa47a6",
+    "checked_at": "2026-10-15T13:19:58.946219+00:00",
+    "text_characters": 3685,
+    "doi_candidates": []
+  },
+  {
+    "id": "StokesTheory2006",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/2006%20Stokes.pdf",
+    "final_url": "https://iso.byu.edu/2006%20Stokes.pdf",
+    "local_file": "pdf/StokesTheory2006.pdf",
+    "bytes": 103557,
+    "sha256": "2e66e1f42d4fbb758e2518a0562d1f8543e735aff15cb72f3840c32c2bd71956",
+    "checked_at": "2026-10-15T13:19:58.978422+00:00",
+    "text_characters": 28926,
+    "doi_candidates": []
+  },
+  {
+    "id": "Frozen1995",
+    "status": "cached_local",
+    "url": "https://iso.byu.edu/1995%20Stokes.pdf",
+    "final_url": "https://iso.byu.edu/1995%20Stokes.pdf",
+    "local_file": "pdf/Frozen1995.pdf",
+    "bytes": 300235,
+    "sha256": "b8bc5c4e13d9c8b183b43da59b91ef5d740cec78f6e9603e63a01e2e59064f61",
+    "checked_at": "2026-10-15T13:19:58.946219+00:00",
+    "text_characters": 6,
+    "doi_candidates": []
+  },
+  {
+    "id": "PerezMato2010",
+    "status": "unavailable",
+    "url": "https://test1.cryst.ehu.eus/html/resources/bcs_workshop2022/Mode%20crystallography%20of%20distorted%20structures.pdf",
+    "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)>"
+  },
+  {
+    "id": "Magnetic2012",
+    "status": "downloaded",
+    "url": "https://jana.fzu.cz/workshops/wmag2.pdf",
+    "final_url": "https://jana.fzu.cz/workshops/wmag2.pdf",
+    "local_file": "pdf/Magnetic2012.pdf",
+    "bytes": 740580,
+    "sha256": "d0af835405b8191152f584534d77739f9a0bebe540583349845d98260f779779",
+    "checked_at": "2026-10-15T13:20:03.824175+00:00",
+    "text_characters": 148853,
+    "doi_candidates": [
+      "10.1088/0953-8984/24/16/163201"
+    ]
+  },
+  {
+    "id": "Higham1986",
+    "status": "downloaded",
+    "url": "https://eprints.maths.manchester.ac.uk/694/1/high86p.pdf",
+    "final_url": "https://eprints.maths.manchester.ac.uk/694/1/high86p.pdf",
+    "local_file": "pdf/Higham1986.pdf",
+    "bytes": 1563000,
+    "sha256": "fc82b1617805593ef30c767a5a764ff9c2c854f77c9969eba55008608cc399a4",
+    "checked_at": "2026-10-15T13:20:13.368000+00:00",
+    "text_characters": 45072,
+    "doi_candidates": []
+  },
+  {
+    "id": "Spglib2024",
+    "status": "downloaded",
+    "url": "https://arxiv.org/pdf/1808.01590",
+    "final_url": "https://arxiv.org/pdf/1808.01590",
+    "local_file": "pdf/Spglib2024.pdf",
+    "bytes": 293898,
+    "sha256": "2676f767065fcc0f280ae9c2111865e76c9ec67c03ce86bad6f244ef4ee71d40",
+    "checked_at": "2026-10-15T13:20:01.726863+00:00",
+    "text_characters": 93291,
+    "doi_candidates": []
+  },
+  {
+    "id": "CampbellTutorial2022",
+    "status": "downloaded",
+    "url": "https://physics.byu.edu/faculty/campbell/docs/tutorials-prahaworkshop2022/instructions.pdf",
+    "final_url": "https://physics.byu.edu/faculty/campbell/docs/tutorials-prahaworkshop2022/instructions.pdf",
+    "local_file": "pdf/CampbellTutorial2022.pdf",
+    "bytes": 1123595,
+    "sha256": "715452096c504c8d3e792a5f599b8a709ca1e8a391ed8a968fd95e2bf540b7c5",
+    "checked_at": "2026-10-15T13:20:12.068053+00:00",
+    "text_characters": 80838,
+    "doi_candidates": []
+  },
+  {
+    "id": "IUCrMetric",
+    "status": "unavailable",
+    "url": "https://www.iucr.org/sites/default/files/2026-03/pamphlet10.pdf",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "OfficialHelp",
+    "status": "downloaded",
+    "url": "https://iso.byu.edu/isodistorthelp.php",
+    "final_url": "https://iso.byu.edu/isodistorthelp.php",
+    "local_file": "snapshots/OfficialHelp.html",
+    "bytes": 66479,
+    "sha256": "93bb70d6eafd98a5d657229456889077a645a00cae9ab35b4f4816de35b79d2c",
+    "checked_at": "2026-10-15T13:20:03.545827+00:00",
+    "text_characters": 61831,
+    "doi_candidates": []
+  },
+  {
+    "id": "OfficialHome",
+    "status": "downloaded",
+    "url": "https://iso.byu.edu/isodistort.php",
+    "final_url": "https://iso.byu.edu/isodistort.php",
+    "local_file": "snapshots/OfficialHome.html",
+    "bytes": 3889,
+    "sha256": "5272c3600f76ed27d662c890ca85441908293c9b56bd2ba5fbd8548c7f51fad6",
+    "checked_at": "2026-10-15T13:20:03.313240+00:00",
+    "text_characters": 1436,
+    "doi_candidates": []
+  },
+  {
+    "id": "OfficialVersions",
+    "status": "downloaded",
+    "url": "https://iso.byu.edu/isodistortversions.php",
+    "final_url": "https://iso.byu.edu/isodistortversions.php",
+    "local_file": "snapshots/OfficialVersions.html",
+    "bytes": 26130,
+    "sha256": "45ad229cc67face587c7e146a0dce4ec3ac33e46483ceed0b61d1873bfa87883",
+    "checked_at": "2026-10-15T13:20:05.290450+00:00",
+    "text_characters": 24178,
+    "doi_candidates": []
+  },
+  {
+    "id": "SuiteReferences",
+    "status": "downloaded",
+    "url": "https://iso.byu.edu/references.php",
+    "final_url": "https://iso.byu.edu/references.php",
+    "local_file": "snapshots/SuiteReferences.html",
+    "bytes": 14623,
+    "sha256": "bea374ad48ae20017dbf7351fdc129eb61bf2c2c0d13d187baf4a71dc6de4bd8",
+    "checked_at": "2026-10-15T13:20:05.740219+00:00",
+    "text_characters": 9837,
+    "doi_candidates": []
+  },
+  {
+    "id": "IsotropyManual",
+    "status": "downloaded",
+    "url": "https://iso.byu.edu/isotropy_doc.php",
+    "final_url": "https://iso.byu.edu/isotropy_doc.php",
+    "local_file": "snapshots/IsotropyManual.html",
+    "bytes": 101279,
+    "sha256": "76056531867ae85e3d884890db19347d6bf7f6e0d14d2f2d42142c6abc63bb77",
+    "checked_at": "2026-10-15T13:20:06.242238+00:00",
+    "text_characters": 75661,
+    "doi_candidates": []
+  },
+  {
+    "id": "SmodesManual",
+    "status": "downloaded",
+    "url": "https://iso.byu.edu/smodes.php",
+    "final_url": "https://iso.byu.edu/smodes.php",
+    "local_file": "snapshots/SmodesManual.html",
+    "bytes": 2482,
+    "sha256": "cf8cf6385dfb1dd0f9ad50c3d99d502c9a369453a3d077ea9d4f61cb74d62d64",
+    "checked_at": "2026-10-15T13:20:06.870451+00:00",
+    "text_characters": 877,
+    "doi_candidates": []
+  },
+  {
+    "id": "IsoKov",
+    "status": "downloaded",
+    "url": "https://iso.byu.edu/isokov.php",
+    "final_url": "https://iso.byu.edu/isokov.php",
+    "local_file": "snapshots/IsoKov.html",
+    "bytes": 2219,
+    "sha256": "6ff78bf27a7b86c51075c2892b2f9051337d8757d52b7c209ac3de115a8b96a6",
+    "checked_at": "2026-10-15T13:20:08.116603+00:00",
+    "text_characters": 649,
+    "doi_candidates": []
+  },
+  {
+    "id": "CifSpec",
+    "status": "unavailable",
+    "url": "https://www.iucr.org/resources/cif/spec",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "CifCore",
+    "status": "unavailable",
+    "url": "https://www.iucr.org/resources/cif/dictionaries/cif_core",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "CifMag",
+    "status": "unavailable",
+    "url": "https://www.iucr.org/resources/cif/dictionaries/browse/cif_mag",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "CifMs",
+    "status": "unavailable",
+    "url": "https://www.iucr.org/__data/iucr/cifdic_html/1/cif_ms.dic/index.html",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "ITA",
+    "status": "unavailable",
+    "url": "https://it.iucr.org/Ab/",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "ITA1",
+    "status": "unavailable",
+    "url": "https://it.iucr.org/A1/",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "ITD",
+    "status": "unavailable",
+    "url": "https://it.iucr.org/Db/",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "ReciprocalIUCr",
+    "status": "unavailable",
+    "url": "https://www.iucr.org/education/pamphlets/4/full-text",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "BCSKvectors",
+    "status": "unavailable",
+    "url": "https://www.cryst.ehu.eus/cryst/help/definitions_kvec.html",
+    "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)>"
+  },
+  {
+    "id": "Amplimodes2009",
+    "status": "unavailable",
+    "url": "https://journals.iucr.org/paper?S0021889809028064=",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "IsoIr",
+    "status": "downloaded",
+    "url": "https://iso.byu.edu/irtables.php",
+    "final_url": "https://iso.byu.edu/irtables.php",
+    "local_file": "snapshots/IsoIr.html",
+    "bytes": 32744,
+    "sha256": "abfe3f62f256d8748fc70d475022c895305c0a043ee620708665f43a809c2ed3",
+    "checked_at": "2026-10-15T13:49:22.378667+00:00",
+    "text_characters": 10948,
+    "doi_candidates": []
+  },
+  {
+    "id": "IsoMag",
+    "status": "downloaded",
+    "url": "https://iso.byu.edu/magneticspacegroups.php",
+    "final_url": "https://iso.byu.edu/magneticspacegroups.php",
+    "local_file": "snapshots/IsoMag.html",
+    "bytes": 2354,
+    "sha256": "d1edf725cfeba1c0de225b2ffe892f2b1194c723e9db39ab555c2d1a1d20d917",
+    "checked_at": "2026-10-15T13:49:22.365716+00:00",
+    "text_characters": 775,
+    "doi_candidates": []
+  },
+  {
+    "id": "Wagner2009",
+    "status": "unavailable",
+    "url": "https://doi.org/10.1107/S0108768109015614",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "ITCGeometry",
+    "status": "unavailable",
+    "url": "https://it.iucr.org/Cb/ch1o1v0001/",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "id": "SuperstructureIUCr",
+    "status": "unavailable",
+    "url": "https://dictionary.iucr.org/Superstructure",
+    "error": "HTTP Error 403: Forbidden"
+  }
+]

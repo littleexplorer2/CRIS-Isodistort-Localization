@@ -1,0 +1,26 @@
+[
+  {
+    "file": "snapshots/howard_erratum_search.txt",
+    "sha256": "bf1b0ef9977578d282451c83d3b90531e21619385f21b036e877cde5c3315a10",
+    "bytes": 4347,
+    "provenance": "Exa primary-page extraction or query excerpts; filename records retrieval topic."
+  },
+  {
+    "file": "snapshots/independent_primary_exa.txt",
+    "sha256": "f92c562101a6361dad17736f83de13d0c6e9f44d2268bc4673e1e384c88f474f",
+    "bytes": 19960,
+    "provenance": "Exa primary-page extraction or query excerpts; filename records retrieval topic."
+  },
+  {
+    "file": "snapshots/microscopic_projection_search.txt",
+    "sha256": "aba7eabf0e05cca50580facf84835845b693ed2fd45b7c6d7e765648dc6143b2",
+    "bytes": 35035,
+    "provenance": "Exa primary-page extraction or query excerpts; filename records retrieval topic."
+  },
+  {
+    "file": "snapshots/official_tables_exa.txt",
+    "sha256": "d039876805777fb9257283b512ecbaeaf698c849df5a0231ece2dbf03e9aeae8",
+    "bytes": 3155,
+    "provenance": "Exa primary-page extraction or query excerpts; filename records retrieval topic."
+  }
+]

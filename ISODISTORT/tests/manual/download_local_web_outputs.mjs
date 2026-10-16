@@ -49,7 +49,6 @@ const WEB_CONTRACT_PATHS = [
 const SOURCE_TREE_ROOTS = [
   "ISODISTORT/backend",
   "ISODISTORT/application",
-  "ISODISTORT/features",
   "ISODISTORT/frontend",
 ];
 const SOURCE_TREE_FILES = [
