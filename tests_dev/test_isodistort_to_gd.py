@@ -35,16 +35,16 @@ def test_runtime_loader_uses_restructured_cris_modules(tmp_path, monkeypatch):
 
     modules = {
         "backend": types.ModuleType("backend"),
-        "backend.api": types.ModuleType("backend.api"),
-        "features": types.ModuleType("features"),
-        "features.export": types.ModuleType("features.export"),
-        "features.export.distortion_formats": types.ModuleType(
-            "features.export.distortion_formats"
+        "application.session": types.ModuleType("application.session"),
+        "application": types.ModuleType("application"),
+        "backend.export": types.ModuleType("backend.export"),
+        "backend.export.distortion_formats": types.ModuleType(
+            "backend.export.distortion_formats"
         ),
     }
-    modules["backend.api"].IsoDistort = iso_distort
+    modules["application.session"].IsoDistort = iso_distort
     modules[
-        "features.export.distortion_formats"
+        "backend.export.distortion_formats"
     ].cart_normalized_mode_matrix = normalize_modes
     for name, module in modules.items():
         monkeypatch.setitem(sys.modules, name, module)

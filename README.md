@@ -64,6 +64,10 @@ sub_name = path\LD1_C1
 data_path = D:\OneDrive\PhD\Projects\2511HXRD\Data Process\table\All Combined.csv
 ```
 
+转换器通过 `application.session.IsoDistort` 和
+`backend.export.distortion_formats.cart_normalized_mode_matrix` 调用 CRIS 的三层架构。
+两端须使用完成本次接口迁移的版本；会话固定英文，不接受语言参数。
+
 本机若没有 `D:\OneDrive\...` 那份精修目录，用 CRIS `.venv` 从本地 ISODISTORT 生成一套**同样契约**的文件（不改 tianren 笔记本，也不覆盖 `D:\` 原件）：
 
 ```powershell

@@ -341,8 +341,8 @@ def _ensure_isodistort_source(cris_root: Path) -> None:
 
 def _load_isodistort_components(cris_root: Path):
     _ensure_isodistort_source(cris_root)
-    from backend.api import IsoDistort
-    from features.export.distortion_formats import cart_normalized_mode_matrix
+    from application.session import IsoDistort
+    from backend.export.distortion_formats import cart_normalized_mode_matrix
 
     return IsoDistort, cart_normalized_mode_matrix
 
@@ -372,7 +372,6 @@ def compute_gd_bundle(
     k_params: list[str],
     nmod: int,
     cris_root: Path,
-    language: str = "en",
 ) -> GdBundle:
     IsoDistort, cart_normalized_mode_matrix = _load_isodistort_components(cris_root)
 
@@ -380,7 +379,7 @@ def compute_gd_bundle(
     if not cif.is_file():
         raise FileNotFoundError(cif)
 
-    iso = IsoDistort(language=language)
+    iso = IsoDistort()
     iso.set_distortion_types(["strain", "displacive"])
     iso.set_distortion_scope({
         "displacive": ["*"],
