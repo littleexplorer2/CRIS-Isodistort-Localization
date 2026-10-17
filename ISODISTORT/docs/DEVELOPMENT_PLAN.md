@@ -4,20 +4,39 @@
 [历史索引](history/README.md)。下载步骤见 [DOWNLOAD_CHECKLIST.md](DOWNLOAD_CHECKLIST.md)，
 验证命令见 [MANUAL_VALIDATION.md](MANUAL_VALIDATION.md)，证据入口见
 [BUGFIX_VALIDATION_REPORT.md](BUGFIX_VALIDATION_REPORT.md)。
+2026-10-16 的重置决定、作废范围与归档指纹见
+[重置记录](manifests/validation_reset_20261016.json)：旧的 74 项冻结清单与其批次产物
+已作废归档，当前**没有**生效的本地刷新冻结清单。
 
 ## 当前执行顺序
 
-1. 使用已冻结的 [本地重下载清单](manifests/local_web_output_refresh_manifest.json)，
-   开始前复核来源 manifest、母相与 daughter 哈希并记录实际工作树、配置、依赖和后端签名。
-   当前批次 74 项（Method 1/2/3/4 分别 3/7/40/24），下载尚未启动。
-2. 经真实本地网页按 Method 1 → 2 → 3 → 4 执行；每项保存完整输入、输出、状态、
-   候选身份与文件清单。旧 API/live 报告不能代替本轮浏览器下载。
-3. 遇到实际 blocker，保留原始错误，修通用根因，再续跑相同案例；对修改影响的已完成
-   案例重新验收。不得删除失败项、换输入或降低身份门槛来获得通过。
-4. 仅尝试补 EuAl4 Method 4 G05 auto-origin 的官网 basis HTML；
-   无法取得则保留有依据的 not_available/pass_with_warnings。
-5. 依次建立并执行 4310 Method 2 扩展、Method 3、Method 4 正式矩阵。
-6. 执行跨晶系、组成、工具兼容、性能和并发扩展验收。
+**当前范围（2026-10-17）**：本轮执行输入网格的理论修复及回归；官网新差分仍等下载完成。
+旧 Method 3 闭包因答案污染及晶格判据缺陷而失效，不能仅凭源码稳定或清空缓存恢复。
+
+1. **A 阶段（可立即执行，用户在官网操作）**
+   - Method 2 共 **98 个查询**已冻结：16 个固定特殊 k 标签 × nmod{0,1} = 32 个，33 个参数化
+     标签 × nmod{0,1} = 66 个（代表值 `a=1/6`、`b=1/4`、`g=1/3`，仿射模板一般位置精确验证 pass；不代表非公度模式验证）。目录已建好。
+   - 官网补页**已完成并核对为 `pass`**：EuAl4 Method 4 G05 auto-origin 的 basis 页
+     （SHA-256 `9e2bfc51…`）＋提交态截图 `Screenshot 2026-10-17 005445.png`（`230d2182…`）
+     共同证明基矢 `(0,1,1),(1,0,0),(0,0,-1)`、`Automatic origin detection`、`nearest-site`、
+     robust 未启用；被替换的旧截图已在记录中登记。操作与验收记录见
+     [下载清单第 4 节](DOWNLOAD_CHECKLIST.md)。
+   - 新官网材料写入
+     `ISODISTORT/output/validation/official_full_download/20261016-official-full-v1/`；
+     `output_compare/` 与 `webpage_info/` 保持只读。
+2. **B 阶段（独立重建范围）**：Method 3/4 暂不下载。旧闭包工具已停用，历史案例分类匹配
+   不能证明覆盖。须从用户输入和通用晶格数据定义有限原胞指数/基矢界限，明确母/子心化、
+   setting 与等价关系，并证明枚举范围。Method 4 另行冻结独立 daughter 输入及变换上界；
+   不继承旧闭包种子、checkpoint 或推算规模。
+3. 下载完成后运行只读审计：逐页面/候选登记身份、四格式、非空性与 SHA-256；官网确实未提供的
+   项显式记 `not_available`，不得补造。审计未通过前不进入算法差分。
+4. 按预先登记的独立用户输入重建本地刷新清单（新 batch id + 新 runtime revision），不得
+   从官网候选结果反推输入；本地独立冻结后再作集合对照。旧 74 项清单只作历史参考。
+5. 用新官网集重跑 Method 1 → 2 → 3 → 4 本地对照；旧报告的数字与结论只适用于旧官网集，
+   不得作为新范围的验收。
+6. 遇到实际 blocker，保留原始错误，修通用根因，再续跑相同案例；不得删例、换输入或降低身份
+   门槛来获得通过。
+7. 最后执行跨晶系、组成、工具兼容、性能和并发扩展验收。
 
 ## 待修的程序漏洞
 
@@ -83,22 +102,27 @@ occupational 需建立标量站点表示、母相占位基线、成分约束及�
 
 ## 待执行的优化计划
 
-### P0：本地网页版输出刷新
+### P0：官网已冻结有限输入集下载 → 本地清单重建 → 本地刷新
 
-按统一 manifest 固定的 74 项执行，不穷举任意输入或筛选组合。
-Method 1–3 保存完整 TXT/CSV、四格式原始 ZIP及实际产生的状态报告；
-Method 4 保存 TXT/CSV 或预期拒绝的原始响应。查询、候选和文件分别计数。
-完成状态必须绑定最终运行签名；所有未完成案例保持可追溯。
-官网既有核心归档只读，当前只补 G05 basis 页。操作详见下载清单。
+1. **官网下载（当前 P0，由用户执行）**：按 [下载清单](DOWNLOAD_CHECKLIST.md) 中三母相
+   Method 2 已冻结查询逐项保存，Method 3/4 等独立范围冻结后再执行；不重下已登记的旧官网件，不动 `output_compare/` 只读归档。
+2. **下载后只读审计**：新增支持新查询目录的 Method 2 只读审计，为 Method 4 审计补充
+   `--official-root`；Method 3 使用既有审计入口但需显式匹配新输入清单。具体缺口见下载清单第 9 节；
+   候选数、四格式、页面角色、身份与 SHA-256 逐项核对，官网确未提供者记 `not_available`。
+3. **清单重建**：从独立用户输入生成新的 `local_web_output_refresh_manifest.json`
+   （新 batch id）与新的 runtime revision；旧清单保持 `superseded` 状态可查。
+4. **本地刷新**：按 Method 1 → 2 → 3 → 4 经真实本地网页执行；Method 1–3 保存完整
+   TXT/CSV、四格式原始 ZIP 及实际产生的状态报告，Method 4 保存 TXT/CSV 或预期拒绝的
+   原始响应。查询、候选和文件分别计数，完成状态绑定最终运行签名，未完成案例可追溯。
 
-### 4310 新增矩阵
+### Method 2/3/4 扩展矩阵（三母相通用）
 
-1. Method 2：先冻结 Γ、非 Γ 特殊 k、公度参数 k 的输入清单；参数 k 覆盖
-   `nmod=0/1`，核对 site-mode 身份、维数、归一化、子空间与四格式。
-   已有 X 查询在当前批次；扩展批次不重复官网下载它。
-2. Method 3：Method 2 闭合后，冻结 identity、oriented-cell、special-supercell、
-   parameter-k 查询，核对 `(SG,basis,origin,s,i)`、等价子格、single/coupled route。
-   先审计官网结果表和候选全集，再作算法差分。
+1. Method 2：按已冻结代表输入与 `nmod=0/1` 下载；变更参数后重新运行精确网格审计；
+   核对 site-mode 身份、维数、归一化、子空间与四格式。已归档的 X 点等官网件只登记，
+   不重下，也不能决定其它 k 点的预期答案。
+2. Method 3：从独立输入枚举并证明有限晶格/setting 范围；四类历史标签只作描述，
+   核对 `(SG,basis,origin,s,i)`、等价子格、single/coupled route。先审计官网结果表和
+   候选全集，再作算法差分。
 3. Method 4：从核定路径生成并冻结 daughter CIF、哈希、basis/origin/matching 和候选
    身份，覆盖零、正负单模式、正交双模式、参数 k、多模式/近上界、重排/换像/原点/
    小噪声、均匀应变、物种不符和距离阈值拒绝。核对幅度、As/Ap/normfactor、
@@ -113,7 +137,8 @@ Method 4 保存 TXT/CSV 或预期拒绝的原始响应。查询、候选和文�
 - 位移来源合同暂限单物种满占位；补齐非 Γ transporter 的 component-to-star-arm
   相位证据，扩展轴矢量、磁和占位模式身份链。
 - Method 4：核验全部允许原点自动枚举，并扩展 occupancy/magnetic/rotational 分解。
-- nmod=1 非零四格式官网参考对仍是证据缺口，后续另定义输入；当前不据此要求重下旧官网。
+- nmod=1 非零四格式官网参考对仍是证据缺口：新下载清单把每个 k 标签的 `nmod=1` 收进范围，
+  旧归档不重下。
 - 如需抵抗外部伪造 provenance，须补可重放 transcript/矩阵或签名；现有进程内合同
   不能当作密码学认证。
 
@@ -124,7 +149,7 @@ Method 4 保存 TXT/CSV 或预期拒绝的原始响应。查询、候选和文�
 - 冻结可再分发的七晶系、P/A/B/C/I/F/R 点阵、一般/特殊 Wyckoff、单/多元素、
   混合占位、不同 ASU 大小的样本；来源见 [EXTERNAL_CIF_SOURCES.md](EXTERNAL_CIF_SOURCES.md)。
 - 后续单独建立限速的官网版本漂移检查；官网不可用、证据不足或身份歧义记 inconclusive。
-  当前批次仍只补已定义缺页。
+  只下载当轮冻结清单内的项；已登记归档只补已定义的缺页，不做全量重下。
 - 扩展 TOPAS 本体/解析测试和 VESTA、IsoVIZ GUI 分层抽检；静态解析不代表工具正确识别。
 - 三次冷/热重复，记录 P50/P95、峰值内存、WSL 进程数、ZIP 大小与规范化摘要。
 - 多标签、多进程、快速提交、ZIP/GenDB 中断与缓存并发；核验服务、端口及子进程回收。

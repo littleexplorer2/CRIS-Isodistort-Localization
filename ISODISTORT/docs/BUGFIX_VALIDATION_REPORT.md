@@ -4,6 +4,53 @@
 下载动作见 [DOWNLOAD_CHECKLIST.md](DOWNLOAD_CHECKLIST.md)。
 已完成 debug、下载、迁移和修改历史的完整原文见 [可恢复归档](history/README.md)。
 
+## 2026-10-17 下载输入的倒格与一般位置复核
+
+本轮只修改输入审计和相关证据/计划，不改变生产科学算法，不运行新的官网差分。
+输入为三个母相 CIF 的既定哈希、标准四方 setting 及独立冻结的 k/nmod 控件参数；
+通用 k 表与精确晶格工具可参与计算，官网结果、预期候选数和 manifest 自报 pass 均不参与。
+推导见[补充证明](reference_library/latex/unsupported_algorithm_proofs.tex)的
+`sec:grid-duality`；依据为 IUCr 倒格教学材料与 International Tables 的对偶格定义。
+
+原胞直接平移按行组成 P，倒格等价条件为 `P(k1-k2) ∈ Z³`，点操作为 `R^-T`。
+一般位置小余群通过仿射模板常数项/系数的精确条件取得，未用有限样点估计。
+当前输入共 51 标签（16 固定、35 参数化），全部通过模板内一般位置与同星碰撞检查；
+没有模倒格别名。I 心的 GM 与 M 不等价；EuAl4/4310 的 Q 小余群阶数为 2、W 为 4。
+现有代表值和 98 次待下载查询保持不变；每条查询的目录已在机器清单登记并核对存在。
+这些结论不证明非公度物理表示、全部参数域、nmod>=2 等价性或 Method 3/4 范围完备。
+
+同类审查覆盖生产 `search_methods` 的原胞相位判等、`opd_format` 的 P/A/B/C/I/F/R
+选择规则与逆转置星臂、`superspace` 的平移相位及验证器的原胞晶格包含判定。
+这些现有路径已考虑心化；生产公开星臂 API 对本次全部 51 个独立输入给出的臂数与精确
+轨道稳定子结果一致。该交叉检查不等于证明这些模块的所有分支正确。
+
+旧 DS 网格报告已标为 invalidated；旧 Method 3 闭包从官网输出取种子，且缺少母/子
+原胞心化、指数与完备性证明，所有相关报告/checkpoint 均禁止继续用于验收或续跑。
+`measure_method3_closure.py` 只保留明确返回 2 的停用提示，不再读取种子或启动搜索。
+修正前源文件、报告和清单已按 SHA-256 归档，见[历史索引](history/README.md)。
+“40 个历史分类一致”、114 种目标群、HNF 类数与其推算规模全部撤销为当前范围依据；
+历史案例本身保留，Method 3/4 独立输入枚举的待办见开发计划。
+
+本轮证据目录为 `output/validation/reciprocal_scope_20261017/`（不提交）：
+`grid-report.json` 保存输入摘要和源码签名，`production-star-crosscheck.json` 保存 51 项
+公开接口核对；`test-start-signatures.json` 固定回归开始时的三层和测试源文件。
+新增 26 项测试覆盖七种心化、基变换协变性、非正交轴、仿射退化反例、输入漂移及停用门禁。
+完整科学回归 **1160 passed、2 skipped、0 failed**，耗时 19 分 28 秒（`full.xml` / `full.log`）；
+仓库架构/打包门禁 **34 passed**（`repo.xml`）。161 个三层/测试 Python 文件在回归前后
+SHA-256 全部一致，见 `final-evidence.json`。跳过项为缺失 X4- P3 外部 CIF 配对、需要原生
+POSIX shell 的生命周期测试；本轮未执行人工 GUI 或新官网全量差分。
+资料完整性、LaTeX 引用与新增页面渲染检查通过，未增加经验拟合、材料特判或官网答案输入。
+
+## 2026-10-16 重置
+
+用户要求先完成官网三母相有限全量输出的下载、再重新开始验证与 debug。旧的 74 项本地
+刷新冻结清单及其 20261009 批次产物整体作废并归档，细节见
+[重置记录](manifests/validation_reset_20261016.json) 与[历史索引](history/README.md)。
+当前**没有生效的本地刷新冻结清单**：`download_local_web_outputs.mjs` 会因 `status != frozen`
+拒绝运行，这是预期行为。理论与代码审查、三层重构验证、参考资料库与 pytest 结论不依赖
+官网下载范围，继续有效；所有“官网↔本地”对照结论只适用于旧官网集，必须在新官网集下重做。
+本轮只改文档与机器记录，未改生产代码、算法、配置默认值或科学合同。
+
 ## 集成验证与管线合同检查（2026-10-16）
 
 验证公共入口为 `tests.validation`；生产模块不导入测试支持包。入口、默认配置、
@@ -95,20 +142,35 @@ Wyckoff 标签增加实际 Hall/原点门禁，标准表种子经独立交叉检
 
 ## 当前需要核验
 
-- 本地输出刷新：执行冻结清单的 74 项真实网页运行；冻结自检通过不等于网页或科学结果通过。
-- NdNiO2 Y `a=1/3`：完成 nmod=0/1 全候选长时验收，逐项审查导出、跳过原因和网页状态。
-- 官网补证：EuAl4 G05 auto-origin basis HTML；无法取得仍保留证据警告。
-- 4310 Method 2 扩展及 Method 3/4：先定义输入，再执行；未定义范围不能称为漏下载。
+- 官网有限输入集：Method 2 代表网格已精确复核，98 次查询待用户下载和只读审计；
+  Method 3/4 仍缺独立枚举与上界，旧闭包证据失效，不能据此开始下载。
+- 本地输出刷新：**当前没有生效的冻结清单**（旧的 74 项已于 2026-10-16 作废归档）；
+  新官网集审计通过后重建清单与 runtime revision，再执行真实网页运行。
+- NdNiO2 Y `a=1/3`：旧批次在 `status=running` 且缺四格式 ZIP 的状态下被重置；
+  在新官网集下重新执行 nmod=0/1 全候选长时验收。
+- 官网补证：EuAl4 G05 auto-origin basis HTML 已于 2026-10-17 补齐并核对为 `pass`。basis 页
+  （`output_compare/…/Method4/G05/auto-origin/ISODISTORT_ distorted structure (basis).html`，
+  SHA-256 `9e2bfc51…`）的位置、文件名、页面角色与隐藏字段都正确，且不是显式那份（`ce01fea7…`）；
+  提交态由新增截图 `Screenshot 2026-10-17 005445.png`（SHA-256 `230d2182…`）证明：
+  `Specify basis as` 的三行系数给出基矢 `(0,1,1),(1,0,0),(0,0,-1)`、`Automatic origin detection`
+  选中、`Nearest-site method` 选中、robust 未启用、Types = strain + ALL displacive。
+  证据替换已登记：被审计的 `Screenshot 2026-09-27 204517.png`（`cc388949…`）已不在归档中，
+  旧审计报告保持其自身快照不改写；数值证据未被改动。
 - 泛用性、非 Γ 来源合同、混合占位、跨晶系、工具 GUI、性能与并发缺口：
   按开发计划逐项验收。
 
 ## 正在使用的证据入口
 
-- 冻结输入：`manifests/local_web_output_refresh_manifest.json` 及其引用的 Method 3/4 manifest。
-- 冻结自检：`../output/validation/local_web_output_refresh_manifest_audit_20261009.json`。
+- 重置记录：`manifests/validation_reset_20261016.json`（作废范围、归档指纹、开放上界）。
+- 旧冻结清单：`manifests/local_web_output_refresh_manifest.json`（状态已改为
+  `superseded`，案例表保留作参考；冻结字节只在归档中）。
+- 旧批次归档：`../docs/history/local-web-output-refresh-20261009.zip`
+  （2,150 条目，SHA-256 `935d62e3…8dead`，已逐文件核对一致）。
+- 下载清单与目录：`DOWNLOAD_CHECKLIST.md`；新官网材料写入
+  `../output/validation/official_full_download/<批次>/<母相>/官网/<Method>/`。
 - 导出诊断：`../output/validation/ndnio2_export_audit_20261006/`。
-- 新批次产物、报告和 checkpoint：`../output/validation/web_output_refresh/`。
 - 既有机器报告仍在 `../output/validation/`；历史索引和适用源码签名可从归档恢复。
+  旧官网集的对照报告只适用于其原有官网集与源码签名，不得作为新范围验收。
 
 解释任何结果前核对输入、实际源码、配置、依赖、后端及结束签名；
 签名漂移、工具缺失、GUI 未运行或证据不足须显式记录。

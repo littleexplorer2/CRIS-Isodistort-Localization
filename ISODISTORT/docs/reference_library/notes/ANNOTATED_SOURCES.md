@@ -490,13 +490,13 @@
 
 ## ReciprocalIUCr
 
-[The reciprocal lattice](https://www.iucr.org/education/pamphlets/4/full-text)
+[The reciprocal lattice](https://www.iucr.org/what-we-do/education/pamphlets/reciprocal-lattice)
 
-- 作者/机构：International Union of Crystallography
-- 核验材料：官方入口
-- 支持内容：IUCr 倒易格教学入口。
-- 使用边界：仅作辅助阅读；本地未下载完整正文。
-- 获取入口：[iucr_tutorial](https://www.iucr.org/education/pamphlets/4/full-text)
+- 作者/机构：A. Authier
+- 核验材料：2026-10-17 IUCr 教学正文第 2、4、5 节；并交叉核对 IUCr Reciprocal lattice 词条的 Definition/Centred lattices/Diffraction condition。
+- 支持内容：直接/倒格对偶、心化平移和相位整数性；本项目补充证明将其用于输入网格。
+- 使用边界：在线正文相关段落已审读；本地获取状态仍由下载 manifest 决定，不等于全书或程序认证。
+- 获取入口：[iucr_tutorial](https://www.iucr.org/what-we-do/education/pamphlets/reciprocal-lattice)
 - 预定本地位置：`snapshots/ReciprocalIUCr.html`（实际可用性见下载清单）。
 
 ## BCSKvectors

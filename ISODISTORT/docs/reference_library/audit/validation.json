@@ -1,8 +1,8 @@
 {
-  "checked_at": "2026-10-16T16:30:38.307071+00:00",
+  "checked_at": "2026-10-16T17:18:20.178874+00:00",
   "status": "passed_document_integrity_checks",
   "source_records": 50,
-  "cited_records": 41,
+  "cited_records": 42,
   "capability_topics": 26,
   "downloaded_primary_files": 35,
   "reference_pdfs": 26,
@@ -16,9 +16,9 @@
   "compiled_documents": [
     {
       "file": "latex/unsupported_algorithm_proofs.pdf",
-      "pages": 11,
-      "sha256": "7e96931546aafdb58604a76e869dadaa7cc7a3da06d0d141457256713e968450",
-      "text_characters": 16949,
+      "pages": 13,
+      "sha256": "3dc854fff4bdd75f062c0c3e8415811150f1408d4ab9c975ae2769d2871cae15",
+      "text_characters": 21315,
       "citations_resolved": true
     },
     {

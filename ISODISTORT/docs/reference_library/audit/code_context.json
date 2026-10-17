@@ -1,5 +1,5 @@
 {
-  "head": "bc90e261bdb01f471bc011f6e1ff669ae780ac2b",
+  "head": "9f55d82fa7e337ef8f7a10b8c90880746eb292f1",
   "meaning": "Module-location context, NOT a claim that these source files were fully audited or tested.",
   "files": {
     "ISODISTORT/backend/export/__init__.py": "b539276e535d7c109224c6de936a146ff31bba29111fd8df12b22a165c7f354b",
@@ -44,6 +44,7 @@
     "ISODISTORT/backend/wrappers/iso_wrapper.py": "53ef6b0a075d0ced91ab7ad3227aaf0e2b57f882ac9b1b72476fa3d56fe1ecbf",
     "ISODISTORT/backend/wrappers/isotropy_cache.py": "273c0e16bfaf35a114651112285ad45c4bb22ce685289b50610326e9036837b6",
     "ISODISTORT/backend/wrappers/smodes_wrapper.py": "1abd1dbfd5db2906596d806cce40049f7623fe62f70209de93a76a8d3d59e5c6",
+    "ISODISTORT/tests/manual/verify_parametric_k_grid.py": "3fd7c94bb57dee4fae559e0d30b3f47f703651718b7518e1fd1c61935ea10f29",
     "ISODISTORT/tests/validation/backend/cif/__init__.py": "2bc2bee014c1222adf3afbc5f8402eb8f95f6aa584d5abfe52eb20b10e29a00c",
     "ISODISTORT/tests/validation/backend/cif/service.py": "37d2a8979217f84cfdd3617d29f2069ceea4693be408e02d4d57ae25c1bb0336",
     "ISODISTORT/tests/validation/backend/comparison/__init__.py": "af7476086d29bb50c59df0fca7588d4bc0ad3b8c03277bcd732333ccae7055d8",

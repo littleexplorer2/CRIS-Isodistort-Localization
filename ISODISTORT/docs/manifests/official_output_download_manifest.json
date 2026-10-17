@@ -1,0 +1,1783 @@
+{
+  "schema": "official-output-download-manifest/v1",
+  "status": "partially_frozen",
+  "frozen_at": "2026-10-16",
+  "batch_id": "20261016-official-full-v1",
+  "output_root": "ISODISTORT/output/validation/official_full_download/20261016-official-full-v1",
+  "purpose": "Finite Method 2 representative inputs for manual download; not all outputs of infinite parameter domains. Method 3/4 scope remains unproved. No official answers may enter local computation.",
+  "reset_record": "ISODISTORT/docs/manifests/validation_reset_20261016.json",
+  "worksheet": "ISODISTORT/docs/DOWNLOAD_CHECKLIST.md",
+  "scope_study_evidence": [
+    "ISODISTORT/output/tmp/official_scope/method2_scope.json",
+    "ISODISTORT/output/tmp/official_scope/method34_scope.json"
+  ],
+  "isolation": {
+    "official_material_role": "read-only reference for an independent read-only audit stage only",
+    "forbidden": [
+      "preprocessing",
+      "search",
+      "filtering",
+      "mode construction",
+      "normalization",
+      "fitting",
+      "cache",
+      "export"
+    ],
+    "no_answer_channel": "No test fixture, mock, environment variable, side file, copied field or precomputed cache may carry an official candidate set, subgroup/setting answer, mode basis, amplitude or normalization factor into the local computation chain.",
+    "new_download_zone": "ISODISTORT/output/validation/official_full_download/ is written only by the user's manual downloads and read only by audit tooling.",
+    "untouched_archive": "output_compare/ and webpage_info/ stay read-only; new downloads never merge into them."
+  },
+  "section_status": {
+    "method1": "registered_only_not_downloaded",
+    "method2_fixed_k": "frozen",
+    "method2_parametric": "frozen",
+    "method3": "invalidated_requires_independent_scope",
+    "method4": "pending_independent_inputs_and_bounds",
+    "official_supplement_g05_auto_origin_basis": "delivered_and_verified"
+  },
+  "parents": {
+    "EuAl4 Parent.cif": {
+      "path": "experiment_data/EuAl4 Parent.cif",
+      "sha256": "2a01942bff7aa74d6156e4907de207ff864b134ccdc85f38f88d53e2d6ebf5e7",
+      "space_group_type": 139,
+      "space_group_symbol": "I4/mmm",
+      "distortion_types": [
+        "strain",
+        "displacive"
+      ],
+      "displacive_scope": [
+        "*"
+      ]
+    },
+    "NdNiO2 own.cif": {
+      "path": "experiment_data/NdNiO2 own.cif",
+      "sha256": "11f9c18a976691e8306b268cdd99a1d666d73c218ec45604b4c35539dd8da5c3",
+      "space_group_type": 123,
+      "space_group_symbol": "P4/mmm",
+      "distortion_types": [
+        "strain",
+        "displacive"
+      ],
+      "displacive_scope": [
+        "*"
+      ]
+    },
+    "4310_tetra.cif": {
+      "path": "experiment_data/4310_tetra.cif",
+      "sha256": "13dd94f3694fb89de3d137f23ebed74c9ea4dd5bd5a85b576cdfa97d36687b8d",
+      "space_group_type": 139,
+      "space_group_symbol": "I4/mmm",
+      "distortion_types": [
+        "strain",
+        "displacive"
+      ],
+      "displacive_scope": [
+        "*"
+      ]
+    }
+  },
+  "method1_registered": {
+    "download": false,
+    "reason": "Already archived and audited; the reset forbids re-downloading registered official material.",
+    "registered_candidates": {
+      "EuAl4 Parent.cif": 123,
+      "NdNiO2 own.cif": 82,
+      "4310_tetra.cif": 125
+    },
+    "audit_evidence": "ISODISTORT/output/validation/audit_method1_official_downloads_20261003.json",
+    "audit_status": "pass, 330/330 candidates, 0 issues",
+    "validity": "applies to the old official archive only; not usable as acceptance for the new scope"
+  },
+  "method2_fixed_k_queries": {
+    "source_of_labels": "ISODISTORT/backend/tables/kpoints_official.py",
+    "label_cross_check": "webpage_info/<parent>/2*.html k-vector dropdown, 15/21/15 options for EuAl4/NdNiO2/4310",
+    "nmod_values": [
+      0,
+      1
+    ],
+    "nmod_note": "Only nmod 0/1 are in this finite batch. No equivalence to nmod >= 2 is claimed.",
+    "candidate_count_evidence": "IR-prefix partition of output_compare/<parent>/官网/Method1/ candidate directory names; cross-checked against the frozen 20261009 manifest and method_outputs_static_current_20261005.json. Audit reference only, never a predicted answer.",
+    "equivalence_warning": "Method1-partition == Method2-candidate-set is independently demonstrated only for 4310 X. For every other label it is a convention, not a conclusion.",
+    "queries": [
+      {
+        "id": "M2F-EU-GM",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "GM",
+        "kovalev": "k14",
+        "coordinates": [
+          "0",
+          "0",
+          "0"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/GM_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/GM_nmod1"
+        }
+      },
+      {
+        "id": "M2F-EU-X",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "X",
+        "kovalev": "k13",
+        "coordinates": [
+          "1/2",
+          "1/2",
+          "0"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/X_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/X_nmod1"
+        }
+      },
+      {
+        "id": "M2F-EU-M",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "M",
+        "kovalev": "k15",
+        "coordinates": [
+          "1",
+          "1",
+          "1"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/M_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/M_nmod1"
+        }
+      },
+      {
+        "id": "M2F-EU-N",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "N",
+        "kovalev": "k11",
+        "coordinates": [
+          "1/2",
+          "0",
+          "1/2"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/N_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/N_nmod1"
+        }
+      },
+      {
+        "id": "M2F-EU-P",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "P",
+        "kovalev": "k12",
+        "coordinates": [
+          "1/2",
+          "1/2",
+          "1/2"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/P_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/P_nmod1"
+        }
+      },
+      {
+        "id": "M2F-ND-GM",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "GM",
+        "kovalev": "k17",
+        "coordinates": [
+          "0",
+          "0",
+          "0"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/GM_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/GM_nmod1"
+        }
+      },
+      {
+        "id": "M2F-ND-M",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "M",
+        "kovalev": "k18",
+        "coordinates": [
+          "1/2",
+          "1/2",
+          "0"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/M_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/M_nmod1"
+        }
+      },
+      {
+        "id": "M2F-ND-X",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "X",
+        "kovalev": "k15",
+        "coordinates": [
+          "0",
+          "1/2",
+          "0"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/X_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/X_nmod1"
+        }
+      },
+      {
+        "id": "M2F-ND-A",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "A",
+        "kovalev": "k20",
+        "coordinates": [
+          "1/2",
+          "1/2",
+          "1/2"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/A_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/A_nmod1"
+        }
+      },
+      {
+        "id": "M2F-ND-R",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "R",
+        "kovalev": "k16",
+        "coordinates": [
+          "0",
+          "1/2",
+          "1/2"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/R_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/R_nmod1"
+        }
+      },
+      {
+        "id": "M2F-ND-Z",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "Z",
+        "kovalev": "k19",
+        "coordinates": [
+          "0",
+          "0",
+          "1/2"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/Z_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/Z_nmod1"
+        }
+      },
+      {
+        "id": "M2F-C4310-GM",
+        "parent": "4310_tetra.cif",
+        "k_label": "GM",
+        "kovalev": "k14",
+        "coordinates": [
+          "0",
+          "0",
+          "0"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/GM_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/GM_nmod1"
+        }
+      },
+      {
+        "id": "M2F-C4310-X",
+        "parent": "4310_tetra.cif",
+        "k_label": "X",
+        "kovalev": "k13",
+        "coordinates": [
+          "1/2",
+          "1/2",
+          "0"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "duplicate_of_registered_archive": "output_compare/4310_tetra.cif/官网/Method2 (24 candidates, identity-identical to the Method1 X partition; subgroup.cif differs only by comment whitespace)",
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/X_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/X_nmod1"
+        }
+      },
+      {
+        "id": "M2F-C4310-M",
+        "parent": "4310_tetra.cif",
+        "k_label": "M",
+        "kovalev": "k15",
+        "coordinates": [
+          "1",
+          "1",
+          "1"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/M_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/M_nmod1"
+        }
+      },
+      {
+        "id": "M2F-C4310-N",
+        "parent": "4310_tetra.cif",
+        "k_label": "N",
+        "kovalev": "k11",
+        "coordinates": [
+          "1/2",
+          "0",
+          "1/2"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/N_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/N_nmod1"
+        }
+      },
+      {
+        "id": "M2F-C4310-P",
+        "parent": "4310_tetra.cif",
+        "k_label": "P",
+        "kovalev": "k12",
+        "coordinates": [
+          "1/2",
+          "1/2",
+          "1/2"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/P_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/P_nmod1"
+        }
+      }
+    ]
+  },
+  "method2_parametric": {
+    "status": "frozen",
+    "grid_rule": "One exact rational representative per affine k template. Generic little co-group certified symbolically using R^-T and the parent primitive translation lattice; unequal parameters alone are insufficient. Registered representatives keep their independent input values.",
+    "representative_values": {
+      "a": "1/6",
+      "b": "1/4",
+      "g": "1/3"
+    },
+    "frozen_archived_values": [
+      {
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "LD",
+        "kovalev": "k10",
+        "template": [
+          "0",
+          "0",
+          "g"
+        ],
+        "values": {
+          "g": "1/6"
+        },
+        "coordinates": [
+          "0",
+          "0",
+          "1/6"
+        ],
+        "candidates_nmod0": 22,
+        "candidates_nmod1": 22,
+        "download": false,
+        "little_group_order": 8,
+        "generic_little_group_order": 8,
+        "general_position": true,
+        "star_size": 2
+      },
+      {
+        "parent": "NdNiO2 own.cif",
+        "k_label": "Y",
+        "kovalev": "k6",
+        "template": [
+          "a",
+          "1/2",
+          "0"
+        ],
+        "values": {
+          "a": "1/3"
+        },
+        "coordinates": [
+          "1/3",
+          "1/2",
+          "0"
+        ],
+        "candidates_nmod0": 48,
+        "candidates_nmod1": 48,
+        "download": false,
+        "little_group_order": 4,
+        "generic_little_group_order": 4,
+        "general_position": true,
+        "star_size": 4
+      }
+    ],
+    "queries": [
+      {
+        "id": "M2P-EU-A",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "A",
+        "kovalev": "k3",
+        "template": [
+          "a",
+          "a",
+          "g"
+        ],
+        "values": {
+          "a": "1/6",
+          "g": "1/3"
+        },
+        "coordinates": [
+          "1/6",
+          "1/6",
+          "1/3"
+        ],
+        "little_group_order": 2,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 2,
+        "star_size": 8,
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/A_a1-6-g1-3_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/A_a1-6-g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-EU-B",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "B",
+        "kovalev": "k1",
+        "template": [
+          "a",
+          "0",
+          "g"
+        ],
+        "values": {
+          "a": "1/6",
+          "g": "1/3"
+        },
+        "coordinates": [
+          "1/6",
+          "0",
+          "1/3"
+        ],
+        "little_group_order": 2,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 2,
+        "star_size": 8,
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/B_a1-6-g1-3_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/B_a1-6-g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-EU-C",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "C",
+        "kovalev": "k2",
+        "template": [
+          "a",
+          "b",
+          "0"
+        ],
+        "values": {
+          "a": "1/6",
+          "b": "1/4"
+        },
+        "coordinates": [
+          "1/6",
+          "1/4",
+          "0"
+        ],
+        "little_group_order": 2,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 2,
+        "star_size": 8,
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/C_a1-6-b1-4_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/C_a1-6-b1-4_nmod1"
+        }
+      },
+      {
+        "id": "M2P-EU-DT",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "DT",
+        "kovalev": "k7",
+        "template": [
+          "a",
+          "a",
+          "0"
+        ],
+        "values": {
+          "a": "1/6"
+        },
+        "coordinates": [
+          "1/6",
+          "1/6",
+          "0"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/DT_a1-6_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/DT_a1-6_nmod1"
+        }
+      },
+      {
+        "id": "M2P-EU-GP",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "GP",
+        "kovalev": "k0",
+        "template": [
+          "a",
+          "b",
+          "g"
+        ],
+        "values": {
+          "a": "1/6",
+          "b": "1/4",
+          "g": "1/3"
+        },
+        "coordinates": [
+          "1/6",
+          "1/4",
+          "1/3"
+        ],
+        "little_group_order": 1,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 1,
+        "star_size": 16,
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/GP_a1-6-b1-4-g1-3_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/GP_a1-6-b1-4-g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-EU-Q",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "Q",
+        "kovalev": "k5",
+        "template": [
+          "1/2",
+          "b",
+          "1/2"
+        ],
+        "values": {
+          "b": "1/4"
+        },
+        "coordinates": [
+          "1/2",
+          "1/4",
+          "1/2"
+        ],
+        "little_group_order": 2,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 2,
+        "star_size": 8,
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/Q_b1-4_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/Q_b1-4_nmod1"
+        }
+      },
+      {
+        "id": "M2P-EU-SM",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "SM",
+        "kovalev": "k6",
+        "template": [
+          "a",
+          "0",
+          "0"
+        ],
+        "values": {
+          "a": "1/6"
+        },
+        "coordinates": [
+          "1/6",
+          "0",
+          "0"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/SM_a1-6_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/SM_a1-6_nmod1"
+        }
+      },
+      {
+        "id": "M2P-EU-W",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "W",
+        "kovalev": "k9",
+        "template": [
+          "1/2",
+          "1/2",
+          "g"
+        ],
+        "values": {
+          "g": "1/3"
+        },
+        "coordinates": [
+          "1/2",
+          "1/2",
+          "1/3"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/W_g1-3_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/W_g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-EU-Y",
+        "parent": "EuAl4 Parent.cif",
+        "k_label": "Y",
+        "kovalev": "k8",
+        "template": [
+          "a",
+          "-a+1",
+          "0"
+        ],
+        "values": {
+          "a": "1/6"
+        },
+        "coordinates": [
+          "1/6",
+          "5/6",
+          "0"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "EuAl4 Parent.cif/官网/Method2/Y_a1-6_nmod0",
+          "1": "EuAl4 Parent.cif/官网/Method2/Y_a1-6_nmod1"
+        }
+      },
+      {
+        "id": "M2P-C4310-A",
+        "parent": "4310_tetra.cif",
+        "k_label": "A",
+        "kovalev": "k3",
+        "template": [
+          "a",
+          "a",
+          "g"
+        ],
+        "values": {
+          "a": "1/6",
+          "g": "1/3"
+        },
+        "coordinates": [
+          "1/6",
+          "1/6",
+          "1/3"
+        ],
+        "little_group_order": 2,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 2,
+        "star_size": 8,
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/A_a1-6-g1-3_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/A_a1-6-g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-C4310-B",
+        "parent": "4310_tetra.cif",
+        "k_label": "B",
+        "kovalev": "k1",
+        "template": [
+          "a",
+          "0",
+          "g"
+        ],
+        "values": {
+          "a": "1/6",
+          "g": "1/3"
+        },
+        "coordinates": [
+          "1/6",
+          "0",
+          "1/3"
+        ],
+        "little_group_order": 2,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 2,
+        "star_size": 8,
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/B_a1-6-g1-3_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/B_a1-6-g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-C4310-C",
+        "parent": "4310_tetra.cif",
+        "k_label": "C",
+        "kovalev": "k2",
+        "template": [
+          "a",
+          "b",
+          "0"
+        ],
+        "values": {
+          "a": "1/6",
+          "b": "1/4"
+        },
+        "coordinates": [
+          "1/6",
+          "1/4",
+          "0"
+        ],
+        "little_group_order": 2,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 2,
+        "star_size": 8,
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/C_a1-6-b1-4_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/C_a1-6-b1-4_nmod1"
+        }
+      },
+      {
+        "id": "M2P-C4310-DT",
+        "parent": "4310_tetra.cif",
+        "k_label": "DT",
+        "kovalev": "k7",
+        "template": [
+          "a",
+          "a",
+          "0"
+        ],
+        "values": {
+          "a": "1/6"
+        },
+        "coordinates": [
+          "1/6",
+          "1/6",
+          "0"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/DT_a1-6_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/DT_a1-6_nmod1"
+        }
+      },
+      {
+        "id": "M2P-C4310-GP",
+        "parent": "4310_tetra.cif",
+        "k_label": "GP",
+        "kovalev": "k0",
+        "template": [
+          "a",
+          "b",
+          "g"
+        ],
+        "values": {
+          "a": "1/6",
+          "b": "1/4",
+          "g": "1/3"
+        },
+        "coordinates": [
+          "1/6",
+          "1/4",
+          "1/3"
+        ],
+        "little_group_order": 1,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 1,
+        "star_size": 16,
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/GP_a1-6-b1-4-g1-3_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/GP_a1-6-b1-4-g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-C4310-LD",
+        "parent": "4310_tetra.cif",
+        "k_label": "LD",
+        "kovalev": "k10",
+        "template": [
+          "0",
+          "0",
+          "g"
+        ],
+        "values": {
+          "g": "1/3"
+        },
+        "coordinates": [
+          "0",
+          "0",
+          "1/3"
+        ],
+        "little_group_order": 8,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 8,
+        "star_size": 2,
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/LD_g1-3_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/LD_g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-C4310-Q",
+        "parent": "4310_tetra.cif",
+        "k_label": "Q",
+        "kovalev": "k5",
+        "template": [
+          "1/2",
+          "b",
+          "1/2"
+        ],
+        "values": {
+          "b": "1/4"
+        },
+        "coordinates": [
+          "1/2",
+          "1/4",
+          "1/2"
+        ],
+        "little_group_order": 2,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 2,
+        "star_size": 8,
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/Q_b1-4_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/Q_b1-4_nmod1"
+        }
+      },
+      {
+        "id": "M2P-C4310-SM",
+        "parent": "4310_tetra.cif",
+        "k_label": "SM",
+        "kovalev": "k6",
+        "template": [
+          "a",
+          "0",
+          "0"
+        ],
+        "values": {
+          "a": "1/6"
+        },
+        "coordinates": [
+          "1/6",
+          "0",
+          "0"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/SM_a1-6_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/SM_a1-6_nmod1"
+        }
+      },
+      {
+        "id": "M2P-C4310-W",
+        "parent": "4310_tetra.cif",
+        "k_label": "W",
+        "kovalev": "k9",
+        "template": [
+          "1/2",
+          "1/2",
+          "g"
+        ],
+        "values": {
+          "g": "1/3"
+        },
+        "coordinates": [
+          "1/2",
+          "1/2",
+          "1/3"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/W_g1-3_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/W_g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-C4310-Y",
+        "parent": "4310_tetra.cif",
+        "k_label": "Y",
+        "kovalev": "k8",
+        "template": [
+          "a",
+          "-a+1",
+          "0"
+        ],
+        "values": {
+          "a": "1/6"
+        },
+        "coordinates": [
+          "1/6",
+          "5/6",
+          "0"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "4310_tetra.cif/官网/Method2/Y_a1-6_nmod0",
+          "1": "4310_tetra.cif/官网/Method2/Y_a1-6_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-B",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "B",
+        "kovalev": "k3",
+        "template": [
+          "0",
+          "b",
+          "g"
+        ],
+        "values": {
+          "b": "1/4",
+          "g": "1/3"
+        },
+        "coordinates": [
+          "0",
+          "1/4",
+          "1/3"
+        ],
+        "little_group_order": 2,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 2,
+        "star_size": 8,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/B_b1-4-g1-3_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/B_b1-4-g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-C",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "C",
+        "kovalev": "k5",
+        "template": [
+          "a",
+          "a",
+          "g"
+        ],
+        "values": {
+          "a": "1/6",
+          "g": "1/3"
+        },
+        "coordinates": [
+          "1/6",
+          "1/6",
+          "1/3"
+        ],
+        "little_group_order": 2,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 2,
+        "star_size": 8,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/C_a1-6-g1-3_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/C_a1-6-g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-D",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "D",
+        "kovalev": "k1",
+        "template": [
+          "a",
+          "b",
+          "0"
+        ],
+        "values": {
+          "a": "1/6",
+          "b": "1/4"
+        },
+        "coordinates": [
+          "1/6",
+          "1/4",
+          "0"
+        ],
+        "little_group_order": 2,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 2,
+        "star_size": 8,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/D_a1-6-b1-4_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/D_a1-6-b1-4_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-DT",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "DT",
+        "kovalev": "k8",
+        "template": [
+          "0",
+          "b",
+          "0"
+        ],
+        "values": {
+          "b": "1/4"
+        },
+        "coordinates": [
+          "0",
+          "1/4",
+          "0"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/DT_b1-4_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/DT_b1-4_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-E",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "E",
+        "kovalev": "k2",
+        "template": [
+          "a",
+          "b",
+          "1/2"
+        ],
+        "values": {
+          "a": "1/6",
+          "b": "1/4"
+        },
+        "coordinates": [
+          "1/6",
+          "1/4",
+          "1/2"
+        ],
+        "little_group_order": 2,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 2,
+        "star_size": 8,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/E_a1-6-b1-4_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/E_a1-6-b1-4_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-F",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "F",
+        "kovalev": "k4",
+        "template": [
+          "a",
+          "1/2",
+          "g"
+        ],
+        "values": {
+          "a": "1/6",
+          "g": "1/3"
+        },
+        "coordinates": [
+          "1/6",
+          "1/2",
+          "1/3"
+        ],
+        "little_group_order": 2,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 2,
+        "star_size": 8,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/F_a1-6-g1-3_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/F_a1-6-g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-GP",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "GP",
+        "kovalev": "k0",
+        "template": [
+          "a",
+          "b",
+          "g"
+        ],
+        "values": {
+          "a": "1/6",
+          "b": "1/4",
+          "g": "1/3"
+        },
+        "coordinates": [
+          "1/6",
+          "1/4",
+          "1/3"
+        ],
+        "little_group_order": 1,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 1,
+        "star_size": 16,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/GP_a1-6-b1-4-g1-3_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/GP_a1-6-b1-4-g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-LD",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "LD",
+        "kovalev": "k13",
+        "template": [
+          "0",
+          "0",
+          "g"
+        ],
+        "values": {
+          "g": "1/3"
+        },
+        "coordinates": [
+          "0",
+          "0",
+          "1/3"
+        ],
+        "little_group_order": 8,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 8,
+        "star_size": 2,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/LD_g1-3_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/LD_g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-S",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "S",
+        "kovalev": "k11",
+        "template": [
+          "a",
+          "a",
+          "1/2"
+        ],
+        "values": {
+          "a": "1/6"
+        },
+        "coordinates": [
+          "1/6",
+          "1/6",
+          "1/2"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/S_a1-6_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/S_a1-6_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-SM",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "SM",
+        "kovalev": "k10",
+        "template": [
+          "a",
+          "a",
+          "0"
+        ],
+        "values": {
+          "a": "1/6"
+        },
+        "coordinates": [
+          "1/6",
+          "1/6",
+          "0"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/SM_a1-6_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/SM_a1-6_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-T",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "T",
+        "kovalev": "k7",
+        "template": [
+          "a",
+          "1/2",
+          "1/2"
+        ],
+        "values": {
+          "a": "1/6"
+        },
+        "coordinates": [
+          "1/6",
+          "1/2",
+          "1/2"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/T_a1-6_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/T_a1-6_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-U",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "U",
+        "kovalev": "k9",
+        "template": [
+          "0",
+          "b",
+          "1/2"
+        ],
+        "values": {
+          "b": "1/4"
+        },
+        "coordinates": [
+          "0",
+          "1/4",
+          "1/2"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/U_b1-4_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/U_b1-4_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-V",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "V",
+        "kovalev": "k14",
+        "template": [
+          "1/2",
+          "1/2",
+          "g"
+        ],
+        "values": {
+          "g": "1/3"
+        },
+        "coordinates": [
+          "1/2",
+          "1/2",
+          "1/3"
+        ],
+        "little_group_order": 8,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 8,
+        "star_size": 2,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/V_g1-3_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/V_g1-3_nmod1"
+        }
+      },
+      {
+        "id": "M2P-ND-W",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "W",
+        "kovalev": "k12",
+        "template": [
+          "0",
+          "1/2",
+          "g"
+        ],
+        "values": {
+          "g": "1/3"
+        },
+        "coordinates": [
+          "0",
+          "1/2",
+          "1/3"
+        ],
+        "little_group_order": 4,
+        "general_position": true,
+        "nmod_values": [
+          0,
+          1
+        ],
+        "generic_little_group_order": 4,
+        "star_size": 4,
+        "download_directories": {
+          "0": "NdNiO2 own.cif/官网/Method2/W_g1-3_nmod0",
+          "1": "NdNiO2 own.cif/官网/Method2/W_g1-3_nmod1"
+        }
+      }
+    ],
+    "query_count": {
+      "fixed_labels": 16,
+      "fixed_queries": 32,
+      "parametric_labels_total": 35,
+      "parametric_labels_new": 33,
+      "parametric_queries_new": 66,
+      "registered_queries": 4,
+      "download_queries": 98
+    },
+    "general_position_check": {
+      "status": "pass",
+      "report": "ISODISTORT/output/validation/reciprocal_scope_20261017/grid-report.json",
+      "input_contract_sha256": "4f0e35f3bed5fb46055818b391fb5ff90ef99db2792a4414cba3e4657931a581",
+      "source_signatures": {
+        "ISODISTORT/tests/manual/verify_parametric_k_grid.py": "3fd7c94bb57dee4fae559e0d30b3f47f703651718b7518e1fd1c61935ea10f29",
+        "ISODISTORT/backend/tables/kpoints_official.py": "3b3d90161e6425184fa53b95014f090645286ad27e1bc4e634ecf876ffcea42b",
+        "ISODISTORT/backend/utils/lattice.py": "4bae3d40a481e2ca6a08f06250f2da07fa2d286e7392e555453808567d7eb038",
+        "ISODISTORT/backend/utils/text_parser.py": "d92da8ec39615ca3b92e4cb30a58906ccd14ecf4d7439c5177f43ea47fbb6bb8"
+      },
+      "issues": [],
+      "label_aliases": [],
+      "same_star_pairs": [],
+      "scope_limit": "Generic little co-group on each stated affine template only; rational representatives, nmod 0/1. No physical-mode, nmod-equivalence, full Brillouin-zone or Method 3/4 completeness certification.",
+      "proof": "reference_library/latex/unsupported_algorithm_proofs.tex#sec:grid-duality"
+    },
+    "remaining_before_download": []
+  },
+  "method3_pending": {
+    "status": "invalidated_requires_independent_scope",
+    "reason": "Official Method 1 output seeded local searches; centering-blind categories and sampled agreement do not prove input completeness.",
+    "retired_command": "tests/manual/measure_method3_closure.py returns exit 2 without running computations",
+    "invalidated_evidence_archive": "ISODISTORT/docs/history/ds-scope-before-correction-20261017.zip",
+    "old_checkpoints": "invalid_for_acceptance_and_resume",
+    "required_inputs": [
+      "Independent parent/target setting and primitive translations",
+      "Finite primitive translation index and basis bounds",
+      "User-input origin/basis provenance independent of official output"
+    ],
+    "required_proofs": [
+      "L_child subset L_parent via P_child B P_parent^-1 integral",
+      "Index abs(det(P_child B))/abs(det(P_parent))",
+      "Enumeration modulo explicitly stated lattice/point-group equivalence",
+      "No P/I-only target-centering or global order-two special-k assumptions"
+    ],
+    "bounds": null,
+    "download": false
+  },
+  "method4_pending": {
+    "status": "pending_independent_inputs_and_bounds",
+    "download": false,
+    "required_inputs": [
+      "Independently approved local paths and mode contracts",
+      "Frozen daughter hashes and basis/origin/matching parameters",
+      "Finite per-path mode/amplitude/strain/noise bounds"
+    ],
+    "scope_limit": "No cardinality or completeness follows from the invalidated Method 3 closure. Existing G05 evidence is a separate historical case."
+  },
+  "official_supplement": {
+    "status": "delivered_and_verified",
+    "item": "EuAl4 Parent.cif Method 4 G05-origin-shift auto-origin run: ISODISTORT_ distorted structure (basis).html",
+    "target": "<output_root>/EuAl4 Parent.cif/官网补页/Method4/",
+    "why_missing": "auto-origin/ already holds subgroup.cif, topas.str, data.isoviz, the distortion result page, the complete modes details page and a completed-controls screenshot, but not the basis/matching input page. The explicit-origin run under G05/ has that page (SHA-256 ce01fea7...); it must not be passed off as the auto-origin page. Both runs return the same subgroup identity, so this is an evidence-completeness gap, not a numerical one.",
+    "frozen_inputs": {
+      "parent": "experiment_data/EuAl4 Parent.cif",
+      "parent_sha256": "2a01942bff7aa74d6156e4907de207ff864b134ccdc85f38f88d53e2d6ebf5e7",
+      "daughter_cif": "ISODISTORT/output/validation/method4_inputs/EuAl4/G05-origin-shift/daughter.cif",
+      "daughter_sha256": "a503025301b508690dcf3941f2080d39f1abd7d440ca0cef63a010a875a32dda",
+      "distortion_types": [
+        "strain",
+        "displacive"
+      ],
+      "displacive_scope": [
+        "*"
+      ]
+    },
+    "entry_page_controls": {
+      "upload": "the frozen daughter.cif above; never regenerate it",
+      "atom_matching_method": "nearest-site",
+      "robust_distance_threshold": "not enabled (default)",
+      "known_origin_shift_daughter_fractional": "empty; this is the only input difference from the explicit run, which used (0.125, 0.25, 0.0) daughter-fractional = (-0.25, -0.125, -0.125) parent-fractional"
+    },
+    "basis_page_controls": {
+      "supercell_basis_rows": [
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ],
+      "basis_entry": "pick the listed supercell or choose specify and type 0 1 1 / 1 0 0 / 0 0 -1, preserving row order and signs",
+      "chooseorigin": "true (Automatic origin detection); do not use Specify origin as",
+      "trynearest": "true (Wyckoff-site matching / nearest-site)",
+      "robust_method_dmax": "not enabled, keep the default",
+      "capture_before_submit": "screenshot or print-to-PDF of the four filled controls; the saved HTML alone cannot prove the submit-time state"
+    },
+    "acceptance": {
+      "title": "ISODISTORT: distorted structure (basis) (role distorted_structure_basis)",
+      "subgroup_identity": {
+        "space_group_number": 1,
+        "symbol": "P1",
+        "basis": [
+          [
+            0,
+            1,
+            1
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ],
+        "origin": [
+          -0.25,
+          -0.125,
+          -0.125
+        ],
+        "s": 2,
+        "i": 32
+      },
+      "amplitudes": {
+        "displacive_mode_count": 30,
+        "strain_mode_count": 6,
+        "examples": {
+          "[0,0,0]GM2+(a)[Al1:d:dsp]B2(a)": {
+            "As": -0.78141,
+            "Ap": -0.55254
+          },
+          "[0,0,0]GM5+(a,b)[Al1:d:dsp]E(a)": {
+            "As": 0.52824,
+            "Ap": 0.37352
+          }
+        }
+      },
+      "must_not_overwrite": "output_compare/EuAl4 Parent.cif/官网/Method4/G05/ISODISTORT_ distorted structure (basis).html (explicit run, SHA-256 ce01fea7...)",
+      "if_byte_identical_to_explicit_page": "record it explicitly; do not claim it as independent evidence"
+    },
+    "known_contradiction": "The Method 4 official audit recorded automatic_origin_checked_in_saved_html=true for this case, while the archived explicit-run basis page shows chooseorigin=false (Specify origin, origin1..3 = 0,0,0). The submit-time state can therefore only be proven by the new screenshot/PDF; if the new run reproduces the explicit run instead of the auto-origin artifacts, keep pass_with_warnings and record the difference without rewriting existing numeric evidence.",
+    "fallback": "record not_available with parent, method, case id, daughter hash, the four control settings, attempt time and the raw official response; keep pass_with_warnings",
+    "delivered": {
+      "saved_at_local": "2026-10-17 00:48 (+08:00)",
+      "path": "output_compare/EuAl4 Parent.cif/官网/Method4/G05/auto-origin/ISODISTORT_ distorted structure (basis).html",
+      "sha256": "9e2bfc515d6c13ef7e322041fe16d162976d08936d92dc51193f2e289d020c9a",
+      "bytes": 9055,
+      "resource_dir": "output_compare/EuAl4 Parent.cif/官网/Method4/G05/auto-origin/ISODISTORT_ distorted structure (basis)_files/ (bootstrap.css, docs.css, help.jpg, isodistort.js.download, swingjs2.js.download)",
+      "verification": {
+        "location_correct": true,
+        "role": "distorted_structure_basis",
+        "role_evidence": "title and h1 are both \"ISODISTORT: distorted structure (basis)\"",
+        "hidden_fields": {
+          "origintype": "method4",
+          "spacegroup": "139 I4/mmm D2h-17 style value as saved: \"139 I4/mmm     D4h-17\""
+        },
+        "distinct_from_explicit_run_page": true,
+        "explicit_run_sha256": "ce01fea7520cce2fe92a9075c54ce0356d51df67f5e49cc481967e27b721b26c",
+        "difference_vs_explicit_run_page": "exactly one hidden field differs: filename /home/isomain/tmp/isodistort_50588.iso vs isodistort_18838.iso; all visible control states are identical",
+        "recorded_control_state": {
+          "inputbasis": "list (checked)",
+          "basis11..33": "identity matrix",
+          "chooseorigin": "false (Specify origin as, checked)",
+          "origin1..3": "0, 0, 0",
+          "trynearest": "true (checked)",
+          "dmax": "1"
+        },
+        "verdict": "pass",
+        "warnings": [],
+        "warnings_resolved_by_controls_capture": [
+          "the saved page is the default state of this form step, so it does not prove the submitted supercell basis (0,1,1),(1,0,0),(0,0,-1) nor the Automatic origin detection choice",
+          "the pre-submit screenshot/PDF required by the worksheet is still missing; the only capture in the directory is Screenshot 2026-09-27 204517.png",
+          "consequently the audit note automatic_origin_checked_in_saved_html=true is not supported by the archived HTML: both basis pages read chooseorigin=false",
+          "resolved on 2026-10-17 by the submit-time controls capture listed under delivered.controls_capture"
+        ],
+        "open_warnings": []
+      },
+      "staging_folder_removed": "ISODISTORT/output/validation/official_full_download/20261016-official-full-v1/EuAl4 Parent.cif/官网补页 (removed 2026-10-17 at the user request; verified to contain 0 files)",
+      "controls_capture": {
+        "path": "output_compare/EuAl4 Parent.cif/官网/Method4/G05/auto-origin/Screenshot 2026-10-17 005445.png",
+        "sha256": "230d21826028ca67f4fae55bad27236f6deb00c097a04c4e0c415ffe8abd197c",
+        "bytes": 290929,
+        "captured_local": "2026-10-17 00:54 (+08:00)",
+        "image": "1917x1077 px PNG (read-only inspection)",
+        "shows": {
+          "url": "https://landau3.byu.edu/isodistortform.php",
+          "page_title": "ISODISTORT: distorted structure (basis)",
+          "parent_header": "Space Group: 139 I4/mmm D4h-17; a=4.40200 b=4.40200 c=11.16300; Eu1 2a (0,0,0), Al1 4d (0,1/2,1/4), Al2 4e (0,0,z) z=0.38000",
+          "distortion_types": "Include strain, displacive ALL distortions",
+          "distorted_structure": "Space group 1 P1 C1-1, 10 atoms (Eu0, Eu1, Al1..Al9), a=11.99959 b=4.40200 c=11.16300 beta=158.47878",
+          "basis_radio": "Specify basis as (selected)",
+          "basis_rows": [
+            [
+              0,
+              1,
+              1
+            ],
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              -1
+            ]
+          ],
+          "origin_radio": "Automatic origin detection (selected); Specify origin as 0a+0b+0c not selected",
+          "matching_radio": "Nearest-site method (selected); More robust but slower method not selected, d_max=1 Angstrom unused",
+          "map_atoms_manually": false
+        },
+        "conclusion": "documents the submit-time controls of the auto-origin run, which the saved basis page (default form state) could not prove"
+      },
+      "replaced_evidence": {
+        "removed_capture": "output_compare/EuAl4 Parent.cif/官网/Method4/G05/auto-origin/Screenshot 2026-09-27 204517.png",
+        "removed_sha256": "cc3889493f36c89705594589f071c7392b5731a0a2e5282d038c3506e9000fc4",
+        "removed_bytes": 285677,
+        "status": "no longer present anywhere under output_compare; the 2026-10-06 audit still references it and is kept unchanged as a historical record of its own snapshot",
+        "note": "the substitution is recorded here so the audit path/hash difference is not silently lost"
+      }
+    }
+  },
+  "artifact_contract": {
+    "result_table": "result_table.html per query/case, with candidate rows or an explicit zero-candidate response",
+    "per_candidate_files": [
+      "subgroup.cif",
+      "data.isoviz",
+      "topas.str",
+      "complete_modes_details.html"
+    ],
+    "candidate_directory": "Inside the query directory: <IR>_<OPD>; append a stable row number if that pair repeats. Never share candidate directories across k/nmod queries.",
+    "resource_directories": "browser 'webpage complete' *_files directories keep their original names and are not counted as candidate core files",
+    "method4_forbidden_fabrication": [
+      "ZIP",
+      "four-format bundle"
+    ],
+    "query_directories": "Per-query download_directories maps nmod to paths relative to output_root; existing 98 directories verified, no official files modified.",
+    "input_record": "Capture submitted k parameters, nmod, Types, parent SHA-256 and query ID independently before submitting; result HTML defaults alone do not prove the submitted state."
+  },
+  "not_available_policy": "Every missing official item is recorded with parent, method, query/case identity, parameters, attempt time, raw official response and conclusion. Substitution or renaming is forbidden.",
+  "open_decisions": [
+    "Define independent finite Method 3/4 input enumeration and prove its declared coverage; never resume official-result-seeded closure.",
+    "nmod >= 2 and additional parameter values need separately registered input scope."
+  ],
+  "self_check": {
+    "status": "method2_input_grid_pass_only",
+    "query_count": {
+      "fixed_labels": 16,
+      "fixed_queries": 32,
+      "parametric_labels_total": 35,
+      "parametric_labels_new": 33,
+      "parametric_queries_new": 66,
+      "registered_queries": 4,
+      "download_queries": 98
+    },
+    "report": "ISODISTORT/output/validation/reciprocal_scope_20261017/grid-report.json",
+    "method3_method4": "not_certified"
+  },
+  "scope_review_date": "2026-10-17"
+}

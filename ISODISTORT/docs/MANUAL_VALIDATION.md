@@ -24,6 +24,24 @@
 `tests/validation/config/settings.yaml`。模式分解、超胞生成或修改参数必须在比较前
 独立完成；参考答案只能进入只读比较环节。没有实际比较用例必须报告未验证。
 
+### 下载输入网格的精确审计
+
+从 CRIS 根目录运行（不调用 ISO、不读取官网计算结果）：
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 ISODISTORT/tests/manual/verify_parametric_k_grid.py
+.\.venv\Scripts\python.exe -m pytest ISODISTORT/tests/test_parametric_k_grid.py -q
+```
+
+默认读取 `docs/manifests/official_output_download_manifest.json` 的输入白名单，重新核验
+母相 SHA-256、标准 setting、全部标签、参数与坐标、符号一般小余群和同星碰撞。
+默认报告写入 `output/validation/reciprocal_scope_20261017/grid-report.json`；后续修订用
+`--manifest <输入清单> --report <新报告路径>`，不要覆盖本轮冻结证据。
+该通过状态只证明声明的输入网格合同，不是官网结果或物理模式验收。
+
+旧 `measure_method3_closure.py` 已停用，任何调用都返回 2，禁止恢复旧 checkpoint。
+必须先完成开发计划中的独立输入枚举与心化/指数证明，再实现新的受检验范围工具。
+
 ### 长时科学审计
 
 命令从 `CRIS/ISODISTORT/` 执行，经 `..\run_cris.ps1` 使用实体 .venv。
@@ -31,11 +49,14 @@
 以下历史日期是路径示例，不得覆盖原有证据。API 审计不能替代本轮真实浏览器下载。
 固定 Method 4 daughter 已在 manifest 中按哈希引用，本轮不得重新生成它们。
 
-`tests/manual/download_local_web_outputs.mjs` 的当前运行签名修订为
-`manifests/local_web_output_refresh_runtime_revision_20261015.json`；冻结输入范围和旧修订
-保留不变。源码指纹覆盖 `backend/`、`application/`、`frontend/` 及兼容目录，
-网页合同签名指向实际会话、工作流与消息实现。修订记录的是该次 Windows 工作区的
-原始文件字节；源码或换行变化后须核对并新增修订，不能把旧批次结果当成新代码的验收。
+`tests/manual/download_local_web_outputs.mjs` 的运行签名修订当前**没有生效项**：旧清单
+`manifests/local_web_output_refresh_manifest.json` 已于 2026-10-16 置为 `superseded`，
+脚本会据此拒绝运行，这是预期行为（见 [重置记录](manifests/validation_reset_20261016.json)）。
+旧修订 `..._runtime_revision_20261011.json` 与 `..._20261015.json` 仅作历史记录，不得再用；
+新官网集审计通过、新的冻结清单写入后，必须新增一份 runtime revision 才能恢复下载。
+源码指纹覆盖 `backend/`、`application/`、`frontend/` 的实际实现，网页合同签名指向实际会话、
+工作流与消息实现；修订记录的是该次 Windows 工作区的原始文件字节，源码或换行变化后须核对
+并新增修订，不能把旧批次结果当成新代码的验收。
 
 ## 可用命令
 

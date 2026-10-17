@@ -1,11 +1,25 @@
 {
   "schema": "local-web-output-refresh-manifest/v1",
-  "status": "frozen",
+  "status": "superseded",
   "frozen_at": "2026-10-09",
+  "superseded_at": "2026-10-16",
   "batch_id": "20261009-local-web-output-refresh-v1",
   "purpose": "Freeze the finite set of existing local-web outputs that must be regenerated through the browser-facing workflow. This manifest does not authorize or require any official-site redownload.",
-  "execution_status": "not_started",
+  "execution_status": "reset_superseded",
   "new_downloads_required_to_freeze": false,
+  "superseded": {
+    "reset_record": "ISODISTORT/docs/manifests/validation_reset_20261016.json",
+    "reason": "The user directed a reset: finish downloading the finite full official-site output set for the three parents first, then restart local validation and debugging. The previous frozen scope and its batch outputs are void.",
+    "frozen_bytes_sha256": "322a75e7d28bd9bd9516309602ff01b298c7faa77e1974b7b562273b2206728d",
+    "archive": {
+      "path": "ISODISTORT/docs/history/local-web-output-refresh-20261009.zip",
+      "sha256": "935d62e3ce549a489b3cc773077bfafd2648c0c1616e2c49f365bd3a4ad8dead",
+      "entry_count": 2150,
+      "restore": "Extract with Python zipfile. Entry paths are repository-relative and restore the whole 20261009 batch directory, this manifest's frozen bytes and the 2026-10-09 self-check report byte-for-byte."
+    },
+    "runner_effect": "download_local_web_outputs.mjs refuses to run while status != frozen. That refusal is intended until a replacement scope is frozen with a new batch_id and a new runtime revision.",
+    "case_list_retained_for_reference": true
+  },
   "case_count": 74,
   "case_counts_by_method": {
     "method1": 3,

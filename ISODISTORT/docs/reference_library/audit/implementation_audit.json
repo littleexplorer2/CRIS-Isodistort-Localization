@@ -45,7 +45,8 @@
       "source_ids": [
         "ITCGeometry",
         "Hatch1985",
-        "ITA"
+        "ITA",
+        "ReciprocalIUCr"
       ],
       "proofs": [
         {
@@ -59,12 +60,18 @@
         {
           "file": "latex/unsupported_algorithm_proofs.tex",
           "label": "sec:shared-mapping"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:grid-duality"
         }
       ],
       "repository_modules": [
         "ISODISTORT/backend/utils/lattice.py",
-        "ISODISTORT/backend/method1/affine_embeddings.py"
-      ]
+        "ISODISTORT/backend/method1/affine_embeddings.py",
+        "ISODISTORT/tests/manual/verify_parametric_k_grid.py"
+      ],
+      "input_scope_audit": "2026-10-17: exact dual-lattice and symbolic generic little co-group audit; no production-mode or infinite-scope certification."
     },
     {
       "id": "C03",
@@ -126,7 +133,8 @@
       "source_ids": [
         "Stokes2013",
         "IsoIr",
-        "BCSKvectors"
+        "BCSKvectors",
+        "ReciprocalIUCr"
       ],
       "proofs": [
         {
@@ -136,12 +144,18 @@
         {
           "file": "latex/unsupported_algorithm_proofs.tex",
           "label": "sec:lattice"
+        },
+        {
+          "file": "latex/unsupported_algorithm_proofs.tex",
+          "label": "sec:grid-duality"
         }
       ],
       "repository_modules": [
         "ISODISTORT/backend/tables",
-        "ISODISTORT/backend/utils/lattice.py"
-      ]
+        "ISODISTORT/backend/utils/lattice.py",
+        "ISODISTORT/tests/manual/verify_parametric_k_grid.py"
+      ],
+      "input_scope_audit": "2026-10-17: exact dual-lattice and symbolic generic little co-group audit; no production-mode or infinite-scope certification."
     },
     {
       "id": "C06",
