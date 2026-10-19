@@ -58,7 +58,7 @@ application.pipeline
   <irrep>_<structure_type>/<irrep>_<structure_type>_best_model_parameters.csv
 ```
 
-默认 GUI 启动器统一放在仓库根 `local_tools/launchers/`，实际快捷方式、JAR 和 EXE 由根 `.gitignore` 排除。源 CSV、源 `.isoviz` 和同级 `Best_Model_Parameters` 都不会被本程序改写。
+本机 GUI 启动器统一放在仓库根 `launchers/`，程序默认搜索此目录，Git 排除该目录中的本机文件。源 CSV、源 `.isoviz` 和同级 `Best_Model_Parameters` 都不会被本程序改写。
 
 ## 用户需要配置 / 放置的路径
 
@@ -66,7 +66,7 @@ application.pipeline
 | --- | --- | --- |
 | 振幅 CSV | GUI 选择文件或粘贴完整 CSV；文件对话框优先打开同级 `Best_Model_Parameters` | 使用 GD 导出的 Best Model Parameter |
 | 子群 `.isoviz` | GUI 选择文件或粘贴完整文本 | 使用与 CSV 相同 IR / OPD / path 的官方文件 |
-| IsoVIZ | `config/settings.yaml` 的 `isoviz` 段 | 放到 `local_tools/launchers/`，或设置 `ISOVIZ` / `ISOVIZ_JAR` |
+| IsoVIZ | `config/settings.yaml` 的 `isoviz` 段 | 放到 `launchers/` 自动发现；其他位置用 `ISOVIZ` / `ISOVIZ_JAR` 指定 |
 | Java | 系统 `PATH` | 仅从 `.jar` 启动时必需 |
 | 临时文件 | 系统临时目录 | 自动生成；不需要仓库 `output/` |
 
@@ -118,9 +118,9 @@ py -3.10 setup_cris.py install --project isoviz
 
 | 方式 | 说明 |
 | --- | --- |
-| 快捷方式 | 把快捷方式放到仓库根的 **`local_tools/launchers/`**，命名为 `ISOViz.lnk`（或 `IsoVIZ.lnk` / `ISOVIZ.lnk`）。目录内容已在根 `.gitignore` 中排除；查找顺序见 `config/settings.yaml` |
-| 可执行文件 / JAR | 在 `local_tools/launchers/` 中放置 `IsoViz.exe` / `ISOViz.exe`，或 `IsoViz.jar` / `ISOViz.jar` / `isoviz.jar` |
-| 环境变量 | 设置 `ISOVIZ` 或 `ISOVIZ_JAR` 指向 `.exe` / `.jar` 的完整路径 |
+| 快捷方式 | 把快捷方式放到仓库根的 **`launchers/`**，命名为 `ISOViz.lnk`（或 `IsoVIZ.lnk` / `ISOVIZ.lnk`）。自动查找且由 Git 忽略；顺序见 `config/settings.yaml` |
+| 可执行文件 / JAR | 在 `launchers/` 中放置 `IsoViz.exe` / `ISOViz.exe`，或 `IsoViz.jar` / `ISOViz.jar` / `isoviz.jar`，程序自动查找 |
+| 环境变量 | 设置 `ISOVIZ` 指向 `.lnk` / `.exe`，或 `ISOVIZ_JAR` 指向 `.jar` 的完整路径 |
 | Windows 文件关联 | 若 `.isoviz` 已关联到 IsoVIZ，脚本也可直接 `startfile` 打开 |
 
 本工具会把填好振幅的内容写成临时文件再交给 IsoVIZ，**不会**在本子项目里维护 `output/`。
@@ -201,7 +201,7 @@ CSV **必须有表头**。识别列名时不区分大小写。常用（与梯度
    `Normalized Amplitude` 不是。
 
 如果默认查找位置没有 IsoVIZ 启动器，仅有 Java 还不够；请把 `ISOViz.lnk`
-放到 CRIS 根目录的 `local_tools/launchers/`，或者设置 `ISOVIZ` / `ISOVIZ_JAR`。源
+放到 CRIS 根目录的 `launchers/`，或通过 `ISOVIZ` / `ISOVIZ_JAR` 指定其他位置。源
 `.isoviz` 和 CSV 都不会被修改；被打开的是系统临时目录中的副本。
 
 ---
@@ -262,8 +262,21 @@ py -3.10 setup_cris.py install --project isoviz --dev
 | 现象 | 处理 |
 | --- | --- |
 | 提示找不到 Java | 安装 JRE/JDK，并把 `java` 加入 PATH |
-| 提示找不到 IsoVIZ | 在 `local_tools/launchers/` 放 `ISOViz.lnk`，或设置 `ISOVIZ` / `ISOVIZ_JAR`，或关联 `.isoviz` 扩展名 |
+| 提示找不到 IsoVIZ | 在 `launchers/` 放 `ISOViz.lnk` 并核对目标，或设置 `ISOVIZ` / `ISOVIZ_JAR` 指向其他位置 |
 | `[matched] 0 mode(s)` | 核对 CSV 的 Mode Name 是否与 `.isoviz` 标签一致；或改用 `Mode=a1,a2,…` 按文件顺序 |
 | 改完 CSV 再跑仍像旧的 | 确认 IsoVIZ 打开的是本次启动生成的临时文件，而不是原始输入 `.isoviz` |
 
 官网套件入口：[isotropy.php](https://iso.byu.edu/isotropy.php)。
+
+### 指定其他启动器位置
+
+快捷方式默认放在 `CRIS/launchers/`，`.gitkeep` 位于 CRIS 根。默认目录内的已知名称无需设置环境变量；
+要覆盖自动发现结果，可在启动 GUI 的同一个 PowerShell 窗口执行：
+
+```powershell
+$env:ISOVIZ = Join-Path $PWD "launchers\ISOViz.lnk"
+.\.venv\Scripts\python.exe ISOVIZ_INPUT\main.py
+```
+
+变量中的路径应与磁盘上的实际文件一致；`ISOVIZ` / `ISOVIZ_JAR` 的优先级高于默认目录。
+启动器路径能解析不等于窗口已经打开或内容已经识别。

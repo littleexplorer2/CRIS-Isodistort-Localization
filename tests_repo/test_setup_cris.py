@@ -5,11 +5,23 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
 import setup_cris
+
+
+@pytest.mark.parametrize("project", ["ISODISTORT", "ISOVIZ_INPUT"])
+def test_subproject_installer_resolves_repository_from_unrelated_cwd(tmp_path, project):
+    completed = subprocess.run(
+        [sys.executable, "-I", str(setup_cris.ROOT / project / "main_requirement.py"), "--help"],
+        cwd=tmp_path, capture_output=True, text=True, timeout=30,
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert "--wheelhouse" in completed.stdout
+    assert "--recreate" in completed.stdout
 
 
 def test_all_projects_have_requirements_and_shared_version() -> None:

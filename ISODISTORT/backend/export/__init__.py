@@ -26,6 +26,7 @@ from .distortion_formats import (
     parse_export_formats,
     parse_export_method,
     render_subgroup_files,
+    subgroup_identity,
     subgroup_identity_digest,
     subgroup_label,
     unique_folder_name,
@@ -36,6 +37,7 @@ from .result_serializer import ResultSerializer
 from .structure_exporter import StructureExporter
 
 __all__ = [
+    "exact_child_operations",
     "FORMAT_CIF",
     "FORMAT_ISOVIZ",
     "FORMAT_MODES",
@@ -58,9 +60,12 @@ __all__ = [
     "parse_export_formats",
     "parse_export_method",
     "render_subgroup_files",
+    "subgroup_identity",
     "subgroup_identity_digest",
     "subgroup_label",
     "unique_folder_name",
     "write_rendered_subgroup_files",
     "write_subgroup_files",
 ]
+
+from .child_frame import exact_child_operations

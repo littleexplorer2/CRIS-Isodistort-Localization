@@ -24,6 +24,21 @@ ExactVector: TypeAlias = tuple[Fraction, Fraction, Fraction]
 ExactMatrix3: TypeAlias = tuple[ExactVector, ExactVector, ExactVector]
 PrintedCoefficient: TypeAlias = Fraction | Decimal
 
+ModeIdentityStatus: TypeAlias = Literal[
+    "not_checked", "unresolved", "verified", "not_applicable",
+]
+
+
+@dataclass(frozen=True)
+class ModeIdentityFailure:
+    """One displacement column without a verified microscopic identity."""
+
+    amplitude_key: str
+    orbit_id: str
+    global_irrep: str
+    k_coordinates: tuple[str, ...]
+    reason: str
+
 
 @dataclass(frozen=True)
 class InvariantDirection:

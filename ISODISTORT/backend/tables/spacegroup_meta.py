@@ -238,3 +238,63 @@ SPACE_GROUP_META: dict[int, tuple[str, str]] = {
     229: ('Im-3m', 'Oh-9'),
     230: ('Ia-3d', 'Oh-10'),
 }
+
+
+def _hall_catalog() -> tuple[dict[int, str], dict[int, int]]:
+    """Map IT number → Hall setting. Prefer origin choice 2 (ISODISTORT default)."""
+    cached = getattr(_hall_catalog, "_cache", None)
+    if cached is not None:
+        return cached
+    symbols: dict[int, str] = {}
+    numbers: dict[int, int] = {}
+    choices: dict[int, str] = {}
+    try:
+        import warnings  # noqa: PLC0415 - optional spglib compatibility path
+
+        from spglib import get_spacegroup_type  # noqa: PLC0415
+    except ImportError:
+        empty: tuple[dict[int, str], dict[int, int]] = ({}, {})
+        _hall_catalog._cache = empty
+        return empty
+    for hall_n in range(1, 531):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            info = get_spacegroup_type(hall_n)
+        sg_n = int(info.number)
+        choice = str(getattr(info, "choice", "") or "")
+        hall_sym = f"{sg_n:03d}:{info.hall_symbol}"
+        if sg_n not in symbols:
+            symbols[sg_n] = hall_sym
+            numbers[sg_n] = hall_n
+            choices[sg_n] = choice
+            continue
+        # Upgrade to origin choice 2 when available (matches Distortion-page CIF).
+        if choice == "2" and choices.get(sg_n) != "2":
+            symbols[sg_n] = hall_sym
+            numbers[sg_n] = hall_n
+            choices[sg_n] = choice
+    _hall_catalog._cache = (symbols, numbers)
+    return symbols, numbers
+
+
+def hall_for_number(sg_number: int) -> tuple[int, str]:
+    symbols, numbers = _hall_catalog()
+    return numbers.get(sg_number, 0), symbols.get(sg_number, f"{sg_number:03d}")
+
+
+def crystal_system_for_number(space_group_number: int) -> str:
+    if 1 <= space_group_number <= 2:
+        return "triclinic"
+    if 3 <= space_group_number <= 15:
+        return "monoclinic"
+    if 16 <= space_group_number <= 74:
+        return "orthorhombic"
+    if 75 <= space_group_number <= 142:
+        return "tetragonal"
+    if 143 <= space_group_number <= 167:
+        return "trigonal"
+    if 168 <= space_group_number <= 194:
+        return "hexagonal"
+    if 195 <= space_group_number <= 230:
+        return "cubic"
+    return "unknown"

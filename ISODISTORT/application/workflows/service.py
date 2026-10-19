@@ -4,10 +4,12 @@ Owns the live session, atomic revisions, upload lifetime and export snapshots.
 The HTTP adapter supplies decoded inputs and serializes the returned values.
 """
 from __future__ import annotations
+from backend.models.phase_path import validate_modulation_count
 
 import contextlib
 import copy
 import re
+import logging
 import threading
 import uuid
 from dataclasses import dataclass
@@ -18,9 +20,12 @@ import numpy as np
 from application.session import IsoDistort
 from backend.export import parse_export_formats, parse_export_method
 from backend.messages import MESSAGES
-from backend.method1 import DISTORTION_TYPES
 from backend.utils import get_config
 from backend.utils.schoenflies import hm_symbol, schoenflies_symbol
+
+from .inputs import action_input, export_job_id, nonnegative_integer, query_value
+from .jobs import ExportJobs
+from .wire import response_data
 
 _COUPLED_METHOD2_UNSUPPORTED = (
     "Method 2 with more than one superposed IR component is not implemented "
@@ -104,11 +109,28 @@ class WebSession:
             self._iso = IsoDistort()
         return self._iso
 
-    def replace_parent_upload(self, path: str | Path) -> None:
-        previous = self.parent_upload_path
-        self.parent_upload_path = Path(path)
-        if previous is not None and previous != self.parent_upload_path:
-            _discard_upload(previous)
+    def stage(self, *, replace_parent: bool = False) -> "WebSession":
+        """Copy all web state together and isolate the mutable calculation engine."""
+        staged = WebSession()
+        if replace_parent:
+            # A new parent starts a fresh runtime, including after a read-only
+            # query retired the old wrapper on timeout. Retain only the user's
+            # selections and revision; generated tables belong to the replaced
+            # calculation. The old session stays live until the upload commits.
+            staged.revision = self.revision
+            staged.distortion_types, staged.distortion_scope = copy.deepcopy((
+                self.distortion_types, self.distortion_scope,
+            ))
+            return staged
+        fields = {key: value for key, value in vars(self).items() if key != "_iso"}
+        staged.__dict__.update(copy.deepcopy(fields))
+        if self._iso is not None:
+            staged._iso = self._iso.snapshot_for_action()
+        return staged
+
+    def close(self) -> None:
+        if self._iso is not None:
+            _close_worker(self._iso)
 
     def cleanup_uploads(self) -> None:
         if self.parent_upload_path is not None:
@@ -123,44 +145,15 @@ _SESSION = WebSession()
 # snapshot after this lock is released.  A monotonic revision rejects stale
 # writes from another tab; tabs still share one live session.
 _SESSION_LOCK = threading.RLock()
-_EXPORT_JOB_LOCK = threading.Lock()
-_EXPORT_PROGRESS_LOCK = threading.Lock()
-_EXPORT_CANCEL = threading.Event()
+_EXPORT_JOBS = ExportJobs()
 
 
-def _initial_export_progress() -> dict:
-    return {
-        "active": False,
-        "phase": "idle",
-        "total": 0,
-        "completed": 0,
-        "successful": 0,
-        "ineligible": 0,
-        "failed": 0,
-        "estimated_remaining_seconds": None,
-        "cancellation_requested": False,
-    }
-
-
-_EXPORT_PROGRESS: dict = _initial_export_progress()
-
-
-def _export_progress_snapshot() -> dict:
-    with _EXPORT_PROGRESS_LOCK:
-        return dict(_EXPORT_PROGRESS)
-
-
-def _update_export_progress(**values) -> None:
-    with _EXPORT_PROGRESS_LOCK:
-        _EXPORT_PROGRESS.update(values)
-
-
-def _reset_export_progress(**values) -> None:
-    """Start a clean export status record without stale job-specific fields."""
-    with _EXPORT_PROGRESS_LOCK:
-        _EXPORT_PROGRESS.clear()
-        _EXPORT_PROGRESS.update(_initial_export_progress())
-        _EXPORT_PROGRESS.update(values)
+def _close_worker(worker) -> None:
+    """Housekeeping must neither hide an action failure nor undo its commit."""
+    try:
+        worker.close()
+    except Exception:
+        logging.getLogger(__name__).warning("Could not close calculation worker", exc_info=True)
 
 
 class StaleContextError(RuntimeError):
@@ -171,10 +164,7 @@ def _assert_current_revision(value) -> None:
     """Validate an optional client revision while ``_SESSION_LOCK`` is held."""
     if value is None or value == "":
         return  # Backward compatibility for API clients predating revisions.
-    try:
-        expected = int(value)
-    except (TypeError, ValueError) as exc:
-        raise ValueError("revision must be an integer") from exc
+    expected = nonnegative_integer(value, "revision", text=isinstance(value, str))
     if expected != _SESSION.revision:
         raise StaleContextError(
             "Stale context: this tab used revision "
@@ -197,18 +187,18 @@ def _space_groups() -> list[dict]:
     return _SPACE_GROUPS
 
 
-def _state_summary() -> dict:
+def _state_summary(session: WebSession) -> dict:
     """返回当前会话状态摘要（供前端展示）。"""
-    iso = _SESSION.iso
+    iso = session.iso
     modes = list(iso.mode_displacements.keys()) + list(iso.mode_occupancies.keys())
     summary = {
-        "revision": _SESSION.revision,
+        "revision": session.revision,
         "structure": None,
         "subgroups": len(iso.subgroups),
         "modes": modes,
         "distorted_atoms": len(iso.distorted_structure) if iso.distorted_structure else None,
-        "distortion_types": _SESSION.distortion_types,
-        "distortion_scope": _SESSION.distortion_scope,
+        "distortion_types": session.distortion_types,
+        "distortion_scope": session.distortion_scope,
         "species": iso.species(),
     }
     if iso.structure is not None:
@@ -250,12 +240,8 @@ def _subgroup_rows(subgroups) -> list[dict]:
     """把 SubgroupInfo 列表序列化为前端友好的 dict 列表。"""
     rows = []
     for sg in subgroups:
-        identity_status = str(
-            getattr(sg, "_mode_identity_status", "not_checked") or "not_checked"
-        )
-        identity_failures = tuple(
-            getattr(sg, "_mode_identity_failures", ()) or ()
-        )
+        identity_status = sg.mode_identity_status
+        identity_failures = sg.mode_identity_failures
         rows.append({
             "index": sg.index,
             "space_group_number": sg.space_group_number,
@@ -360,7 +346,16 @@ def _write_upload(filename: str, content: str) -> str:
     upload_dir = cfg.temp_dir / "web_uploads"
     upload_dir.mkdir(parents=True, exist_ok=True)
     path = upload_dir / f"{uuid.uuid4().hex}-{safe}"
-    path.write_text(content, encoding="utf-8")
+    try:
+        path.write_text(content, encoding="utf-8")
+    except BaseException:
+        try:
+            _discard_upload(path)
+        except OSError:
+            logging.getLogger(__name__).warning(
+                "Could not remove interrupted upload", exc_info=True,
+            )
+        raise
     return str(path)
 
 
@@ -373,125 +368,112 @@ def _discard_upload(path: str | Path) -> None:
         upload_path.parent.rmdir()
 
 
-def _api_load_cif(data: dict) -> dict:
+def _api_load_cif(session: WebSession, data: dict) -> dict:
     content = data.get("content", "")
     filename = data.get("filename", "upload.cif")
     if not content.strip():
         raise ValueError("CIF 内容为空 / CIF content is empty")
     path = _write_upload(filename, content)
-    try:
-        _SESSION.iso.load_structure(path)
-    except Exception:
-        _discard_upload(path)
-        raise
-    _SESSION.replace_parent_upload(path)
-    _SESSION.iso.set_distortion_scope(_SESSION.distortion_scope)
-    _SESSION.iso.set_distortion_types(_SESSION.distortion_types)
-    _SESSION.method1, _SESSION.method2, _SESSION.method3 = [], None, []
-    _SESSION.method2_subgroups = []
+    # Register ownership before constructing/loading the new engine so the
+    # transaction cleans this upload for every failure, including cancellation.
+    session.parent_upload_path = Path(path)
+    session.iso.load_structure(path)
+    session.iso.set_distortion_scope(session.distortion_scope)
+    session.iso.set_distortion_types(session.distortion_types)
+    session.method1, session.method2, session.method3 = [], None, []
+    session.method2_subgroups = []
     return {}
 
 
-def _api_set_types(data: dict) -> dict:
-    types = data.get("types", ["strain"])
-    valid = set(DISTORTION_TYPES)
-    _SESSION.distortion_types = [t for t in types if t in valid] or ["strain"]
+def _api_set_types(session: WebSession, data: dict) -> dict:
+    session.distortion_types = list(data["types"])
     scope = data.get("scope")
     if scope is not None:
-        _SESSION.distortion_scope = {
-            tp: (["*"] if (v == "*" or v == "all") else
-                 (v if isinstance(v, list) else []))
-            for tp, v in scope.items() if tp in valid
-        }
+        session.distortion_scope = copy.deepcopy(scope)
         # 同步到底层 IsoDistort（模式计算按作用域过滤）
-        _SESSION.iso.set_distortion_scope(_SESSION.distortion_scope)
-    _SESSION.iso.set_distortion_types(_SESSION.distortion_types)
+        session.iso.set_distortion_scope(session.distortion_scope)
+    session.iso.set_distortion_types(session.distortion_types)
     # Every result below the Types panel depends on these selections.
     # Clear both the web-owned tables and all derived engine state so a
     # later click cannot reuse a path computed under the previous scope.
-    _SESSION.method1, _SESSION.method2, _SESSION.method3 = [], None, []
-    _SESSION.method2_subgroups = []
-    _SESSION.iso.set_subgroup_candidates([])
-    _SESSION.iso.clear_selected_modes()
+    session.method1, session.method2, session.method3 = [], None, []
+    session.method2_subgroups = []
+    session.iso.set_subgroup_candidates([])
+    session.iso.clear_selected_modes()
     return {}
 
 
-def _api_method1(data: dict) -> dict:
+def _api_method1(session: WebSession, data: dict) -> dict:
     lattice = data.get("lattice")
     if lattice is not None:
-        lattice = _SESSION.iso.lattice_in_conventional_frame(
+        lattice = session.iso.lattice_in_conventional_frame(
             lattice, data.get("frame", "conventional")
         )
-    result = _SESSION.iso.search_method_1(
-        distortion_types=data.get("distortion_types", _SESSION.distortion_types),
+    result = session.iso.search_method_1(
+        distortion_types=data.get("distortion_types", session.distortion_types),
         crystal_system=data.get("crystal_system") or None,
         subgroup_space_group=data.get("subgroup_space_group") or None,
         lattice=lattice,
         lattice_kind=data.get("lattice_kind", "conventional"),
         maximal_subgroup_only=bool(data.get("maximal_subgroup_only", False)),
     )
-    _SESSION.method1 = result
+    session.method1 = result
     return {"candidates": _method1_rows(result)}
 
 
-def _api_subgroups(data: dict) -> dict:
+def _api_subgroups(session: WebSession, data: dict) -> dict:
     # 对齐官网 Method 2 的单组分量：枚举指定 k 点
     # （+ 参数）下全部 IR 的子群。多组分量需要 coupled-IR
     # 稳定子的交集枚举，不能拼接各自的单-IR 子群表。
     # 候选池由应用层会话统一持有，后续模式计算必须携带同一查询上下文。
-    _require_single_method2_component(data)
     gen = bool(data.get("generate", False))
     groups = data.get("kpoints")
     if groups:
         group = groups[0]
-        subs = _SESSION.iso.list_subgroups_at_kpoint(
+        subs = session.iso.list_subgroups_at_kpoint(
             group["k"],
             k_parameters=group.get("params"),
             generate_if_missing=gen,
         )
-        _SESSION.iso.set_subgroup_candidates(subs)
-        _SESSION.method2_subgroups = list(subs)
+        session.iso.set_subgroup_candidates(subs)
+        session.method2_subgroups = list(subs)
         return {"subgroups": _subgroup_rows(subs)}
     # 兼容旧版单 k 点（可带 ir 参数）路径
     if data.get("ir"):
-        subs = _SESSION.iso.list_subgroups_at(
+        subs = session.iso.list_subgroups_at(
             data["k"], data["ir"],
             k_parameters=data.get("params"),
             opd_symbol=data.get("opd"),
             generate_if_missing=gen,
         )
     else:
-        subs = _SESSION.iso.list_subgroups_at_kpoint(
+        subs = session.iso.list_subgroups_at_kpoint(
             data["k"],
             k_parameters=data.get("params"),
             generate_if_missing=gen,
         )
-    _SESSION.iso.set_subgroup_candidates(subs)
-    _SESSION.method2_subgroups = list(subs)
+    session.iso.set_subgroup_candidates(subs)
+    session.method2_subgroups = list(subs)
     return {"subgroups": _subgroup_rows(subs)}
 
 
-def _api_method2(data: dict) -> dict:
-    _require_single_method2_component(data)
-    idx = data.get("subgroup_idx")
-    if idx is None:
-        raise ValueError("subgroup_idx 缺失 / subgroup_idx missing")
-    idx = int(idx)
-    iso = _SESSION.iso
+def _api_method2(session: WebSession, data: dict) -> dict:
+    idx = data["subgroup_idx"]
+    iso = session.iso
     # 按结果表来源显式传入候选池。不同 Method 的 index 会重复，
     # 因此不能再通过覆盖 iso.subgroups 来隐式切换上下文。
     source = data.get("source")
     if source == "method1":
-        if not _SESSION.method1:
+        if not session.method1:
             raise ValueError("Method 1 candidate table is not available")
-        candidates = [item.subgroup for item in _SESSION.method1]
+        candidates = [item.subgroup for item in session.method1]
     elif source == "method3":
-        if not _SESSION.method3:
+        if not session.method3:
             raise ValueError("Method 3 candidate table is not available")
         selected_item = next(
             (
                 item
-                for item in _SESSION.method3
+                for item in session.method3
                 if int(item.subgroup.index) == idx
             ),
             None,
@@ -506,31 +488,27 @@ def _api_method2(data: dict) -> dict:
                 "This affine embedding has no resolved single-IR or coupled-IR "
                 "second-stage route; mode calculation is not implemented for it"
             )
-        candidates = [item.subgroup for item in _SESSION.method3]
+        candidates = [item.subgroup for item in session.method3]
     elif source == "subgroups":
-        if not _SESSION.method2_subgroups:
+        if not session.method2_subgroups:
             raise ValueError("Method 2 subgroup table is not available")
-        candidates = list(_SESSION.method2_subgroups)
+        candidates = list(session.method2_subgroups)
     elif source in (None, ""):
         # Backward compatibility for older clients that did not send source.
-        candidates = list(_SESSION.method2_subgroups) or None
+        candidates = list(session.method2_subgroups) or None
     else:
         raise ValueError(f"Unknown Method 2 candidate source: {source}")
-    iso.set_distortion_scope(_SESSION.distortion_scope)
-    iso.set_distortion_types(_SESSION.distortion_types)
-    nmod = data.get("nmod", data.get("number_of_independent_modulations", 0))
-    try:
-        nmod = int(nmod or 0)
-    except (TypeError, ValueError):
-        nmod = 0
+    iso.set_distortion_scope(session.distortion_scope)
+    iso.set_distortion_types(session.distortion_types)
+    nmod = data["nmod"]
     result = iso.search_method_2(
         subgroup_idx=idx,
-        distortion_type=data.get("distortion_type", _SESSION.distortion_types),
+        distortion_type=data.get("distortion_type", session.distortion_types),
         number_of_independent_modulations=nmod,
-        number_of_superposed_irreps=int(data.get("nsup", 1) or 1),
+        number_of_superposed_irreps=data.get("nsup", 1),
         candidates=candidates,
     )
-    _SESSION.method2 = result
+    session.method2 = result
     modes = []
     for m in result.modes:
         key = str(getattr(m, "amplitude_key", "") or m.irrep_label)
@@ -582,9 +560,9 @@ def _api_method2(data: dict) -> dict:
     }
 
 
-def _api_method3(data: dict) -> dict:
-    result = _SESSION.iso.search_method_3(
-        distortion_types=data.get("distortion_types", _SESSION.distortion_types),
+def _api_method3(session: WebSession, data: dict) -> dict:
+    result = session.iso.search_method_3(
+        distortion_types=data.get("distortion_types", session.distortion_types),
         point_group=data.get("point_group") or None,
         space_group_type=data.get("space_group_type") or None,
         supercell_basis=data.get("supercell_basis"),
@@ -592,17 +570,17 @@ def _api_method3(data: dict) -> dict:
         lattice_type=data.get("lattice_type", "direct"),
         generate_if_missing=bool(data.get("generate", False)),
     )
-    _SESSION.method3 = result
+    session.method3 = result
     return {"candidates": _method3_rows(result)}
 
 
-def _api_method4(data: dict) -> dict:
+def _api_method4(session: WebSession, data: dict) -> dict:
     content = data.get("content", "")
     if not content.strip():
         raise ValueError("Daughter CIF 内容为空 / daughter CIF content is empty")
     path = _write_upload(data.get("filename", "daughter.cif"), content)
     try:
-        result = _SESSION.iso.search_method_4(
+        result = session.iso.search_method_4(
             distorted_cif_path=path,
             atom_matching_method=data.get("atom_matching_method", "nearest-site"),
             robust_distance_threshold=float(data.get("robust_distance_threshold", 0.25)),
@@ -646,32 +624,32 @@ def _api_method4(data: dict) -> dict:
     }
 
 
-def _api_isotropy_cache_list() -> dict:
-    entries = _SESSION.iso.list_isotropy_cache()
+def _api_isotropy_cache_list(session: WebSession) -> dict:
+    entries = session.iso.list_isotropy_cache()
     return {
         "entries": [e.to_dict() for e in entries],
         "count": len(entries),
     }
 
 
-def _api_isotropy_cache_delete(data: dict) -> dict:
+def _api_isotropy_cache_delete(session: WebSession, data: dict) -> dict:
     names = data.get("names") or []
     if not isinstance(names, list):
         raise ValueError("names must be a list of cache file names")
-    result = _SESSION.iso.delete_isotropy_cache([str(n) for n in names])
-    remaining = _api_isotropy_cache_list()
+    result = session.iso.delete_isotropy_cache([str(n) for n in names])
+    remaining = _api_isotropy_cache_list(session)
     return {**result, **remaining}
 
 
-def _subgroups_for_method(method: int) -> list:
+def _subgroups_for_method(session: WebSession, method: int) -> list:
     """取出所选 Method 当次计算得到的子群列表（不含其它 Method）。"""
     if method == 1:
-        return [item.subgroup for item in _SESSION.method1]
+        return [item.subgroup for item in session.method1]
     if method == 3:
-        return [item.subgroup for item in _SESSION.method3]
-    subs = list(_SESSION.method2_subgroups)
-    if not subs and _SESSION.method2 is not None:
-        subs = [_SESSION.method2.subgroup]
+        return [item.subgroup for item in session.method3]
+    subs = list(session.method2_subgroups)
+    if not subs and session.method2 is not None:
+        subs = [session.method2.subgroup]
     return subs
 
 
@@ -685,10 +663,7 @@ class RuntimeSettings:
 class Download:
     filename: str
     body: bytes
-
-
-class ExportBusyError(RuntimeError):
-    """A previous export still owns the single export worker."""
+    export_status: dict | None = None
 
 
 class ExportFailedError(RuntimeError):
@@ -702,34 +677,28 @@ def runtime_settings() -> RuntimeSettings:
 
 def state_summary() -> dict:
     with _SESSION_LOCK:
-        return _state_summary()
+        return copy.deepcopy(_state_summary(_SESSION))
 
 
 def messages() -> dict:
-    return MESSAGES
+    return copy.deepcopy(MESSAGES)
 
 
 def space_groups() -> list[dict]:
-    return _space_groups()
+    return copy.deepcopy(_space_groups())
 
 
 def export_progress_snapshot() -> dict:
-    return _export_progress_snapshot()
+    return _EXPORT_JOBS.snapshot()
 
 
-def cancel_export() -> bool:
-    progress = _export_progress_snapshot()
-    if progress.get("active"):
-        _EXPORT_CANCEL.set()
-        _update_export_progress(
-            phase="cancellation_requested", cancellation_requested=True,
-        )
-    return bool(progress.get("active"))
+def cancel_export(job_id: str | None = None) -> bool:
+    """Request cancellation only for the identified currently running export."""
+    return _EXPORT_JOBS.cancel(job_id)
 
 
 def reset_export_progress() -> None:
-    _EXPORT_CANCEL.clear()
-    _reset_export_progress()
+    _EXPORT_JOBS.reset()
 
 
 def cleanup_uploads() -> None:
@@ -737,24 +706,36 @@ def cleanup_uploads() -> None:
         _SESSION.cleanup_uploads()
 
 
-def _api_kpoints(_data: dict) -> dict:
+def close_session() -> None:
+    """Release the live session after transport request workers have stopped."""
+    global _SESSION
+    with _SESSION_LOCK:
+        previous = _SESSION
+        _SESSION = WebSession()
+        try:
+            previous.cleanup_uploads()
+        finally:
+            previous.close()
+
+
+def _api_kpoints(session: WebSession, _data: dict) -> dict:
     return {"kpoints": [
         {"label": kp.label, "coordinates": kp.coordinates,
          "parameters": kp.parameters, "is_special": kp.is_special,
          "kovalev": kp.kovalev}
-        for kp in _SESSION.iso.list_k_points()
+        for kp in session.iso.list_k_points()
     ]}
 
 
-def _api_irreps(data: dict) -> dict:
+def _api_irreps(session: WebSession, data: dict) -> dict:
     return {"irreps": [
         {"label": ir.label, "dimension": ir.dimension, "active": ir.active}
-        for ir in _SESSION.iso.list_irreps(data.get("k", ""), data.get("params"))
+        for ir in session.iso.list_irreps(data.get("k", ""), data.get("params"))
     ]}
 
 
-def _api_method1_options(_data: dict) -> dict:
-    return {"options": _SESSION.iso.method1_options()}
+def _api_method1_options(session: WebSession, _data: dict) -> dict:
+    return {"options": session.iso.method1_options()}
 
 
 _ACTIONS = {
@@ -765,7 +746,7 @@ _ACTIONS = {
     "method2": _api_method2,
     "method3": _api_method3,
     "method4": _api_method4,
-    "isotropy_cache": lambda _data: _api_isotropy_cache_list(),
+    "isotropy_cache": lambda session, _data: _api_isotropy_cache_list(session),
     "isotropy_cache/delete": _api_isotropy_cache_delete,
     "kpoints": _api_kpoints,
     "irreps": _api_irreps,
@@ -777,19 +758,49 @@ _MUTATIONS = frozenset({
 
 
 def execute(action: str, data: dict | None = None, *, revision=None) -> dict:
-    """Apply an application action atomically and return its committed DTO.
-
-    Loading a new parent intentionally replaces the context regardless of the
-    sender's previous revision; all other mutations reject stale senders.
-    """
-    data = data or {}
+    """Validate, compute against isolated state, then commit one new revision."""
+    global _SESSION
+    if action not in _ACTIONS:
+        raise ValueError(f"Unknown action: {action}")
+    values = action_input(action, data)
+    if action in ("subgroups", "method2"):
+        _require_single_method2_component(values)
     with _SESSION_LOCK:
         if action != "load_cif":
             _assert_current_revision(revision)
-        result = _ACTIONS[action](data) or {}
-        if action in _MUTATIONS:
-            _SESSION.revision += 1
-            result["state"] = _state_summary()
+        if action not in _MUTATIONS:
+            result = _ACTIONS[action](_SESSION, values) or {}
+            result.setdefault("ok", True)
+            result = response_data(result)
+        else:
+            previous = _SESSION
+            staged = previous.stage(replace_parent=action == "load_cif")
+            try:
+                result = _ACTIONS[action](staged, values) or {}
+                staged.revision = previous.revision + 1
+                result["state"] = _state_summary(staged)
+                result.setdefault("ok", True)
+                result = response_data(result)
+            except BaseException:
+                try:
+                    if staged.parent_upload_path != previous.parent_upload_path:
+                        staged.cleanup_uploads()
+                except OSError:
+                    logging.getLogger(__name__).warning(
+                        "Could not remove failed parent upload", exc_info=True,
+                    )
+                finally:
+                    staged.close()
+                raise
+            _SESSION = staged
+            previous.close()
+            if previous.parent_upload_path != staged.parent_upload_path:
+                try:
+                    previous.cleanup_uploads()
+                except OSError:
+                    logging.getLogger(__name__).warning(
+                        "Could not remove superseded parent upload", exc_info=True,
+                    )
     result.setdefault("ok", True)
     return result
 
@@ -807,93 +818,59 @@ def read_download(filename: str) -> Download:
 
 
 def export_archive(values: dict[str, list[str]]) -> Download:
-    """Export a frozen candidate pool, releasing the live-session lock first.
-
-    Values are decoded form fields. This workflow has no HTTP or rendering
-    dependency; a caller decides how to present validation and worker errors.
-    """
-    requested_revision = (values.get("revision") or [None])[0]
-    with _SESSION_LOCK:
-        _assert_current_revision(requested_revision)
-    method_values = values.get("method") or ["2"]
-    if len(method_values) > 1:
-        raise ValueError("只能选择一个 Method 导出，不能多选 / select exactly one Method")
-    method = parse_export_method(method_values[0])
-    formats = parse_export_formats(
-        (values.get("formats") or ["cif,isoviz,modes,topas"])[0]
-    )
+    """Validate a request and export a frozen pool under one identified job."""
+    requested_revision = query_value(values, "revision")
+    method = parse_export_method(query_value(values, "method", "2"))
+    formats = parse_export_formats(query_value(values, "formats", "cif,isoviz,modes,topas"))
     if method == 2:
-        nsup_values = values.get("nsup") or ["1"]
-        if len(nsup_values) != 1:
-            raise ValueError("nsup must be provided at most once")
-        nsup_text = nsup_values[0]
-        if re.fullmatch(r"[1-9]\d*", nsup_text) is None:
-            raise ValueError("nsup query parameter must be a positive integer")
-        _require_single_method2_component({"nsup": int(nsup_text)})
-    indices_raw = (values.get("indices") or [""])[0].strip()
+        nsup = nonnegative_integer(query_value(values, "nsup", "1"), "nsup", text=True)
+        _require_single_method2_component({"nsup": nsup})
+    export_nmod = validate_modulation_count(nonnegative_integer(query_value(values, "nmod", "0"), "nmod", text=True))
+    job_id = export_job_id(query_value(values, "job_id"))
+    compute = query_value(values, "compute_modes", "1").lower()
+    if compute not in ("0", "false", "no", "1", "true", "yes"):
+        raise ValueError("compute_modes must be 0/1, false/true or no/yes")
+    compute_missing_modes = any(fmt != "cif" for fmt in formats) and compute in ("1", "true", "yes")
+    indices_raw = query_value(values, "indices", "").strip()
     wanted = None
     if indices_raw:
-        try:
-            wanted = {int(item.strip()) for item in indices_raw.split(",") if item.strip()}
-        except ValueError as exc:
-            raise ValueError("indices must be comma-separated integers") from exc
-    with _SESSION_LOCK:
-        # Recheck at the snapshot point, after parsing the potentially long input.
-        _assert_current_revision(requested_revision)
-        live_iso = _SESSION.iso
-        if live_iso.structure is None:
-            raise FileNotFoundError("请先加载母相 CIF / load a parent CIF first")
-        subgroups = _subgroups_for_method(method)
-        if wanted is not None:
-            subgroups = [sg for sg in subgroups if sg.index in wanted]
-        if not subgroups:
-            raise FileNotFoundError(
-                f"没有可导出的 Method {method} 子群；请先完成该 Method 的计算"
-                f" / no Method {method} subgroups; run that Method first"
-            )
-        snapshot = getattr(live_iso, "snapshot_for_export", None)
-        iso = snapshot() if callable(snapshot) else live_iso
-        subgroups = copy.deepcopy(subgroups)
-    need_modes = any(fmt != "cif" for fmt in formats)
-    compute = (values.get("compute_modes") or ["1"])[0].strip().lower()
-    compute_missing_modes = need_modes and compute not in ("0", "false", "no")
-    nmod_raw = (values.get("nmod") or ["0"])[0].strip()
+        wanted = {nonnegative_integer(item.strip(), "indices", text=True)
+                  for item in indices_raw.split(",")}
+    worker = None
+    job = None
     try:
-        export_nmod = int(nmod_raw or 0)
-    except ValueError:
-        export_nmod = 0
-    if not _EXPORT_JOB_LOCK.acquire(blocking=False):
-        raise ExportBusyError("Another subgroup export is already running")
-    _EXPORT_CANCEL.clear()
-    _reset_export_progress(
-        active=True, phase="starting", method=method, total=len(subgroups),
-        completed=0, successful=0, ineligible=0, failed=0,
-        estimated_remaining_seconds=None, cancellation_requested=False,
-    )
-
-    def progress_callback(update: dict) -> None:
-        _update_export_progress(active=True, **update)
-
-    try:
-        body = iso.export_subgroups_zip(
+        with _SESSION_LOCK:
+            _assert_current_revision(requested_revision)
+            live_iso = _SESSION.iso
+            if live_iso.structure is None:
+                raise FileNotFoundError("load a parent CIF first")
+            subgroups = _subgroups_for_method(_SESSION, method)
+            if wanted is not None:
+                subgroups = [sg for sg in subgroups if sg.index in wanted]
+            if not subgroups:
+                raise FileNotFoundError(f"no Method {method} subgroups; run that Method first")
+            job = _EXPORT_JOBS.start(job_id, revision=_SESSION.revision,
+                                      method=method, total=len(subgroups))
+            worker = live_iso.snapshot_for_export()
+            subgroups = copy.deepcopy(subgroups)
+        body = worker.export_subgroups_zip(
             formats=formats, subgroups=subgroups,
             compute_missing_modes=compute_missing_modes, wrapping=None,
-            export_method=method,
-            number_of_independent_modulations=export_nmod,
-            progress_callback=progress_callback,
-            cancel_check=_EXPORT_CANCEL.is_set,
+            export_method=method, number_of_independent_modulations=export_nmod,
+            progress_callback=lambda update: _EXPORT_JOBS.update(job, update),
+            cancel_check=job.cancellation.is_set,
         )
-    except Exception as exc:
-        _update_export_progress(active=False, phase="failed", error=str(exc))
-        raise ExportFailedError(str(exc)) from exc
+        _close_worker(worker)
+        worker = None
+        status = _EXPORT_JOBS.finish(job)
+        job = None
+        return Download(f"isodistort_method{method}.zip", body, export_status=status)
+    except BaseException as exc:
+        if job is not None:
+            _EXPORT_JOBS.finish(job, error=str(exc))
+            if isinstance(exc, Exception):
+                raise ExportFailedError(str(exc)) from exc
+        raise
     finally:
-        _EXPORT_JOB_LOCK.release()
-    # Only the collector's candidate-boundary event proves cancellation.
-    final_phase = (
-        "cancelled" if _export_progress_snapshot().get("phase") == "cancelled"
-        else "complete"
-    )
-    _update_export_progress(
-        active=False, phase=final_phase, estimated_remaining_seconds=0.0,
-    )
-    return Download(f"isodistort_method{method}.zip", body)
+        if worker is not None:
+            _close_worker(worker)

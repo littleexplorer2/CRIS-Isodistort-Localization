@@ -1,31 +1,19 @@
 {
   "schema": "local-web-output-refresh-runtime-revision/v1",
-  "revision_id": "20261015-three-layer-architecture",
-  "parent_manifest": "ISODISTORT/docs/manifests/local_web_output_refresh_manifest.json",
-  "parent_manifest_sha256": "322a75e7d28bd9bd9516309602ff01b298c7faa77e1974b7b562273b2206728d",
-  "previous_runtime_revision": "ISODISTORT/docs/manifests/local_web_output_refresh_runtime_revision_20261011.json",
-  "previous_runtime_revision_sha256": "cd4a6dced6a83b8a99f8a1f7475e32806b1a29fce6ba587eccf7c8157a9f21e8",
-  "created_at": "2026-10-15",
-  "case_scope_changed": false,
-  "reason": "Relocate the existing runtime into backend, application, and frontend modules. Sign the canonical session, workflow, and message implementations; include application in the start/end source-tree digest. Historical runtime revisions remain unchanged.",
-  "affected_runtime_contract": "Import paths and ownership change; scientific algorithm equivalence and existing export/status contracts are covered by regression tests. This revision does not claim a new browser or scientific batch acceptance.",
+  "status": "unfrozen",
+  "revision_id": "legacy-entrypoint-invalidated-20261019",
+  "reason": "retained path for existing tooling compatibility; no active runtime approval",
+  "parent_manifest_sha256": null,
   "web_contract_files": {
-    "ISODISTORT/main_web.py": "66992628f7cd586c005b48963da90a1fa198203350fee76c5d16a8f29e48cbd0",
-    "ISODISTORT/frontend/web/server.py": "128566ca1a92139a7f40598d9735a82a47ee60d40839d0581a1b349c0859109c",
-    "ISODISTORT/frontend/web/index.html": "1525f0cd603dd346690f4182bfd25ec8435ebb928b6686c975d91f82dc411966",
-    "ISODISTORT/backend/messages/__init__.py": "73f3a82f3e1db7023e401ac4e9efd96f34d9c41bb3f04cf611ae9161c8cc217c",
-    "ISODISTORT/backend/messages/messages.py": "48145d8f0055fcca09003786e8494d07f814d2876e1b532e135fa487cf62015d",
-    "ISODISTORT/application/session/__init__.py": "87ad33f503b251cd041b804fa14eb83a4ca5d2f7386ccc32aeb2a4f175b94acf",
-    "ISODISTORT/application/session/core_api.py": "b9a0d3f11dfe57cf904b2408187652e19450a47d6db7dd9a4f9490465a30aa22",
-    "ISODISTORT/application/workflows/__init__.py": "8fa3996f68414b936d7d1cbc380f840e6623780b102af878d7f6c78f52ab90fd",
-    "ISODISTORT/application/workflows/service.py": "2f4913c419af0df53064bf228d76d8c225838d24d5019f021da0da2447f7c3eb",
-    "ISODISTORT/resources/config/settings.yaml": "8bd69f38b30adcc0a42c0939297b6aa50e2ee7dd5f6caf40ecff8c3e0050393d"
-  },
-  "verification": {
-    "isodistort_pytest": "1040 passed, 3 skipped, 0 failed",
-    "scientific_migration_ast_files": 31,
-    "browser_batch": "not_run",
-    "report": "ISODISTORT/docs/BUGFIX_VALIDATION_REPORT.md"
-  },
-  "byte_signature_scope": "Raw working-tree bytes in the recorded Windows workspace. Line-ending conversion or any source change requires a new explicit runtime revision before continuing the frozen batch."
+    "ISODISTORT/main_web.py": null,
+    "ISODISTORT/frontend/web/server.py": null,
+    "ISODISTORT/frontend/web/index.html": null,
+    "ISODISTORT/backend/messages/__init__.py": null,
+    "ISODISTORT/backend/messages/messages.py": null,
+    "ISODISTORT/application/session/__init__.py": null,
+    "ISODISTORT/application/session/core_api.py": null,
+    "ISODISTORT/application/workflows/__init__.py": null,
+    "ISODISTORT/application/workflows/service.py": null,
+    "ISODISTORT/resources/config/settings.yaml": null
+  }
 }

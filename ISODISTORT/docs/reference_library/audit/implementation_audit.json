@@ -35,7 +35,8 @@
         "ISODISTORT/backend/input_cif",
         "ISODISTORT/backend/export",
         "ISODISTORT/tests/validation/backend/cif"
-      ]
+      ],
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C02",
@@ -68,10 +69,11 @@
       ],
       "repository_modules": [
         "ISODISTORT/backend/utils/lattice.py",
-        "ISODISTORT/backend/method1/affine_embeddings.py",
-        "ISODISTORT/tests/manual/verify_parametric_k_grid.py"
+        "ISODISTORT/backend/utils/affine_embeddings.py",
+        "ISODISTORT/tests/verify_parametric_k_grid.py"
       ],
-      "input_scope_audit": "2026-10-17: exact dual-lattice and symbolic generic little co-group audit; no production-mode or infinite-scope certification."
+      "input_scope_audit": "2026-10-17: exact dual-lattice and symbolic generic little co-group audit; no production-mode or infinite-scope certification.",
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C03",
@@ -153,7 +155,7 @@
       "repository_modules": [
         "ISODISTORT/backend/tables",
         "ISODISTORT/backend/utils/lattice.py",
-        "ISODISTORT/tests/manual/verify_parametric_k_grid.py"
+        "ISODISTORT/tests/verify_parametric_k_grid.py"
       ],
       "input_scope_audit": "2026-10-17: exact dual-lattice and symbolic generic little co-group audit; no production-mode or infinite-scope certification."
     },
@@ -295,8 +297,9 @@
       ],
       "repository_modules": [
         "ISODISTORT/backend/method3/inverse_landau.py",
-        "ISODISTORT/backend/method1/search_methods.py"
-      ]
+        "ISODISTORT/backend/method3/search.py"
+      ],
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C12",
@@ -318,8 +321,9 @@
         }
       ],
       "repository_modules": [
-        "ISODISTORT/backend/method1/search_methods.py"
-      ]
+        "ISODISTORT/backend/method1/search.py"
+      ],
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C13",
@@ -345,7 +349,8 @@
       "repository_modules": [
         "ISODISTORT/backend/method2",
         "ISODISTORT/backend/method3/coupled_routes.py"
-      ]
+      ],
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C14",
@@ -368,7 +373,8 @@
       ],
       "repository_modules": [
         "ISODISTORT/backend/method3"
-      ]
+      ],
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C15",
@@ -392,9 +398,9 @@
       ],
       "repository_modules": [
         "ISODISTORT/backend/method4/distortion_engine.py",
-        "ISODISTORT/backend/method1/search_methods.py",
         "ISODISTORT/backend/method4/decomposition.py"
-      ]
+      ],
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C16",
@@ -419,8 +425,10 @@
       "repository_modules": [
         "ISODISTORT/backend/models/iso_mode_models.py",
         "ISODISTORT/backend/export",
-        "ISODISTORT/backend/method1/search_methods.py"
-      ]
+        "ISODISTORT/backend/method2/search.py",
+        "ISODISTORT/application/session/core_api.py"
+      ],
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C17",
@@ -563,7 +571,7 @@
         }
       ],
       "repository_modules": [
-        "ISODISTORT/backend/method1/phase_path.py",
+        "ISODISTORT/backend/models/phase_path.py",
         "ISODISTORT/backend/method3"
       ]
     },
@@ -637,7 +645,8 @@
         "ISODISTORT/backend/export",
         "ISOVIZ_INPUT/isoviz_input/backend/amplitudes",
         "ISODISTORT/tests/validation/backend/comparison"
-      ]
+      ],
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C26",
@@ -663,11 +672,11 @@
       "repository_modules": [
         "ISODISTORT/backend/method4",
         "ISODISTORT/tests/validation/backend/comparison"
-      ]
+      ],
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     }
   ],
   "validation": {
-    "independent_counterexample_test_file": "ISODISTORT/tests/test_theory_contracts.py",
     "targeted_core_and_architecture": {
       "passed": 56
     },
@@ -746,7 +755,26 @@
       "matches_after_final_suite": true,
       "protected_scientific_backends_unchanged": true
     },
-    "document_integrity": "passed; citations, proof labels, module paths and compiled PDF hashes; not engine certification"
+    "document_integrity": "passed; citations, proof labels, module paths and compiled PDF hashes; not engine certification",
+    "independent_counterexample_test_files": [
+      "ISODISTORT/tests/application/test_session.py",
+      "ISODISTORT/tests/backend/test_export.py",
+      "ISODISTORT/tests/backend/test_method1.py",
+      "ISODISTORT/tests/backend/test_method4.py",
+      "ISODISTORT/tests/backend/test_tables.py",
+      "ISODISTORT/tests/backend/test_utils.py"
+    ]
   },
-  "evidence_directory": "ISODISTORT/output/validation/theory_design_audit_20261015"
+  "evidence_directory": "ISODISTORT/output/validation/theory_design_audit_20261015",
+  "architecture_revision": {
+    "date": "2026-10-19",
+    "proof": "notes/ARCHITECTURE_CONTRACTS_20261019.md",
+    "scope": "Module paths and added architecture contracts; prior scientific qualifications remain unchanged."
+  },
+  "test_layout_revision": {
+    "date": "2026-10-19",
+    "scope": "Current test locations only; historical test counts and scientific qualifications are unchanged.",
+    "mapping": "ISODISTORT/output/validation/test_layout_20261019/definition_mapping.json",
+    "original_archive": "ISODISTORT/docs/history/test-layout-before-20261019.zip"
+  }
 }

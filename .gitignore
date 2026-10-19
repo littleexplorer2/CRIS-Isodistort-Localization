@@ -85,8 +85,10 @@ desktop.ini
 /output_compare/
 
 # Machine-local GUI launchers
-/local_tools/launchers/*
-!/local_tools/launchers/.gitkeep
+/launchers/
+
+# Local recovery bundles contain generated scientific data, not project source
+/ISODISTORT/docs/history/reset-local-outputs-*.zip
 
 # Not part of this git remote
 /GD/

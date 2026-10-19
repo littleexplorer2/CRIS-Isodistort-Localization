@@ -1,113 +1,82 @@
 # 当前手工与长时验证操作
 
-当前任务见 [开发计划](DEVELOPMENT_PLAN.md)，浏览器下载步骤见
-[下载清单](DOWNLOAD_CHECKLIST.md)。历史命令、计数与修复过程见
-[可恢复归档](history/README.md)。
+下载步骤与路径只维护在 [DOWNLOAD_CHECKLIST.md](DOWNLOAD_CHECKLIST.md)。
+检验任务见 [validation_checklist_20261019.json](manifests/validation_checklist_20261019.json)。
+旧命令、输入签名、运行结果和 checkpoint 已在 [历史索引](history/README.md) 归档；不按旧进度续跑。
 
-## 运行前
+## 工程检查
 
-### Agent 的统一测试与只读比较入口
-
-以下命令从 **CRIS 根目录**执行，其余章节按各自说明切换目录：
+从 `E:\CRIS` 运行；若执行策略禁止脚本，按下面的进程级 Bypass 调用，不修改系统策略。
 
 ```powershell
-.\run_cris.ps1 -m pytest ISODISTORT/tests -q --tb=line
-.\run_cris.ps1 -m pytest tests_repo -q --tb=line
-.\run_cris.ps1 -m tests.validation compare --local "local.cif" --reference "reference.cif" --json
-.\run_cris.ps1 -m tests.validation batch --local-dir "local" --reference-dir "reference" --json
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\run_cris.ps1 -m pytest tests_repo -q --tb=line
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\run_cris.ps1 -m pytest ISODISTORT/tests -q --tb=line
+.\.venv\Scripts\python.exe -m pytest E:/GD/tests_dev/test_isodistort_to_gd.py -q --tb=line
+git -c core.safecrlf=false diff --check
 ```
 
-单对输入可改用默认目录下的相对路径；批量以相同相对路径配对。
-共同参数：`--lattice-tol`、`--coord-tol`、`--scalar-tol`、`--ignore-atom-order`、
-`--strict`、`--json`。单对支持 `--reference-sha256`；批量支持 `--pattern` 与
-`--hash-manifest`（相对路径到参考 SHA-256 的 JSON 映射）。未显式传目录时读取
-`tests/validation/config/settings.yaml`。模式分解、超胞生成或修改参数必须在比较前
-独立完成；参考答案只能进入只读比较环节。没有实际比较用例必须报告未验证。
+生产模块回归按 `tests/backend`、`tests/application`、`tests/frontend` 存放，每模块一个文件。
+单模块命令与清单见 [测试入口](../tests/README.md)。准备、下载、诊断和审计脚本直接放在 `tests/`；
+原 `tests/manual/` 已移除。`tests/validation/` 是只读比较实现包，调用接口保持不变。
+路径、工具内容或签名材料变化后，必须新建运行签名，不能恢复历史 checkpoint。
 
-### 下载输入网格的精确审计
+## 独立输入网格复核
 
-从 CRIS 根目录运行（不调用 ISO、不读取官网计算结果）：
+此工具只读取输入清单、母相和通用 k 表，不读取官网结果；结论仅限有限代表输入。
+使用新的报告路径，避免覆盖冻结证据。
 
 ```powershell
-.\.venv\Scripts\python.exe -X utf8 ISODISTORT/tests/manual/verify_parametric_k_grid.py
-.\.venv\Scripts\python.exe -m pytest ISODISTORT/tests/test_parametric_k_grid.py -q
+.\.venv\Scripts\python.exe -X utf8 ISODISTORT/tests/verify_parametric_k_grid.py --manifest ISODISTORT/docs/manifests/official_output_download_manifest.json --report ISODISTORT/output/validation/<新批次>/grid-report.json
 ```
 
-默认读取 `docs/manifests/official_output_download_manifest.json` 的输入白名单，重新核验
-母相 SHA-256、标准 setting、全部标签、参数与坐标、符号一般小余群和同星碰撞。
-默认报告写入 `output/validation/reciprocal_scope_20261017/grid-report.json`；后续修订用
-`--manifest <输入清单> --report <新报告路径>`，不要覆盖本轮冻结证据。
-该通过状态只证明声明的输入网格合同，不是官网结果或物理模式验收。
+## 文件清单与归档检查
 
-旧 `measure_method3_closure.py` 已停用，任何调用都返回 2，禁止恢复旧 checkpoint。
-必须先完成开发计划中的独立输入枚举与心化/指数证明，再实现新的受检验范围工具。
+主登记为 `docs/manifests/official_archive_reuse_20261019.json`，包含按内容识别的全部候选与文件指纹；
+`official_result_list_stage_20261019.json` 分别记录列表、候选四件套和待检验状态。
+一次性重建脚本和机器证据位于 `output/validation/rebuild_20261019/`，含已执行的归档/搬移步骤，
+不可把有写操作的重建脚本当作日常审计重复执行。
 
-### 长时科学审计
+`tests/register_official_archive_reuse.py` 仅复核三个已知 Method 2 查询的文件合同，
+输出 `docs/manifests/official_archive_reuse_known_method2.json`。它不是全部查询发现器或完整清单，
+不能用它覆盖主登记；新增官网材料应先按完整查询身份与当前主登记核对。
 
-命令从 `CRIS/ISODISTORT/` 执行，经 `..\run_cris.ps1` 使用实体 .venv。
-先核对冻结输入与运行签名；给 report、checkpoint、dest-root 选择新的批次目录。
-以下历史日期是路径示例，不得覆盖原有证据。API 审计不能替代本轮真实浏览器下载。
-固定 Method 4 daughter 已在 manifest 中按哈希引用，本轮不得重新生成它们。
+## 本地重跑与只读对照
 
-`tests/manual/download_local_web_outputs.mjs` 的运行签名修订当前**没有生效项**：旧清单
-`manifests/local_web_output_refresh_manifest.json` 已于 2026-10-16 置为 `superseded`，
-脚本会据此拒绝运行，这是预期行为（见 [重置记录](manifests/validation_reset_20261016.json)）。
-旧修订 `..._runtime_revision_20261011.json` 与 `..._20261015.json` 仅作历史记录，不得再用；
-新官网集审计通过、新的冻结清单写入后，必须新增一份 runtime revision 才能恢复下载。
-源码指纹覆盖 `backend/`、`application/`、`frontend/` 的实际实现，网页合同签名指向实际会话、
-工作流与消息实现；修订记录的是该次 Windows 工作区的原始文件字节，源码或换行变化后须核对
-并新增修订，不能把旧批次结果当成新代码的验收。
+`local_web_output_refresh_manifest.json` 当前为 `unfrozen`；历史 runtime 路径保留为无有效签名的
+兼容入口，旧下载器拒绝启动是预期行为。新的检验任务清单已经冻结，但缺少官网列表、独立
+输入或运行签名的任务仍未达到执行条件。
 
-## 可用命令
+Method 3/4 旧机器清单已撤销可执行案例；完整旧文件只在历史归档中。先证明输入来源与合同，
+再生成新批次，不得为恢复工具运行而把官网结果回填为输入。
 
-```text
-..\run_cris.ps1 tests/manual/validate_method_outputs.py
-..\run_cris.ps1 tests/manual/validate_method_outputs.py --live-method12
-..\run_cris.ps1 tests/manual/validate_method_outputs.py --live-method3
-..\run_cris.ps1 tests/manual/audit_method3_downloads.py "../output_compare/EuAl4 Parent.cif/官网/Method3" --json-output output/validation/method3_official_download_audit_eual4.json
-..\run_cris.ps1 tests/manual/audit_method3_downloads.py "../output_compare/NdNiO2 own.cif/官网/Method3" --json-output output/validation/method3_official_download_audit_ndnio2.json
-..\run_cris.ps1 tests/manual/audit_method3_embedding_routes.py --omit-raw-output
-..\run_cris.ps1 tests/manual/audit_method1_4310_live.py --checkpoint output/validation/method1_4310_current_checkpoint_20261006.json --report output/validation/method1_4310_current_audit_20261006.json --dest-root output/validation/method1_4310_current_cifs_20261006 --restart
-..\run_cris.ps1 tests/manual/audit_method12_numeric_semantics.py --live-current-source --case EU_M2_LD1_C1_NMOD0 --case ND_M2_Y1_C1_NMOD0 --live-root output/validation/method2_numeric_live_current_source --live-report output/validation/method2_numeric_semantic_live_current.json --live-checkpoint output/validation/method2_numeric_semantic_live_current.checkpoint.json --live-restart
-..\run_cris.ps1 tests/manual/diagnose_method2_export_preparation.py "../experiment_data/NdNiO2 own.cif" --output output/validation/ndnio2_export_audit_20261006 --k-point Y --k-parameter 1/3 --label Y_full
-..\run_cris.ps1 tests/manual/compare_method3_official_local.py --report output/validation/method3_official_local_comparison_20261006_current.json --checkpoint output/validation/method3_official_local_checkpoint_20261006_current.json --restart
-..\run_cris.ps1 tests/manual/audit_method3_basis_metamorphism.py
-..\run_cris.ps1 tests/manual/validate_method4_local.py --json-output output/validation/method4_local_validation_20261006_current_v2.json
-..\run_cris.ps1 tests/manual/validate_method4_local.py --parent "EuAl4 Parent.cif" --context gamma --case-id F02-invalid-lattice --json-output output/validation/strain_audit_f02_end_to_end.json
-..\run_cris.ps1 tests/manual/audit_method4_official.py --local-report output/validation/method4_local_validation_20261006_current_v2.json --json-output output/validation/method4_official_audit_20261006_current_v2.json
-..\run_cris.ps1 -m pytest tests -q --tb=line
+本地独立求解、导出并冻结之后，才可以调用公共只读比较入口：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\run_cris.ps1 -m tests.validation compare --local "<本地冻结CIF>" --reference "<官网CIF>" --json
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\run_cris.ps1 -m tests.validation batch --local-dir "<本地目录>" --reference-dir "<官网目录>" --json
 ```
 
-## 验收与续跑约束
+母相、方法、k/nmod、IR/OPD、完整子群身份、单位/坐标/归一化、实际外部读取、配置/源码/依赖
+和输出指纹必须登记；每个数值比较须引用已有理论合同和适用容差。不存在输入、结果或有效
+配对时记未执行/不支持/inconclusive，不把零案例或进程成功退出记成科学通过。
 
-- NdNiO2 诊断命令加 `--list-only` 只枚举候选；完整诊断保存模式身份原因与导出准备
-  状态，不发布浏览器文件。两种模式均不能替代真实网页 nmod=0/1 全候选验收。
-- 四格式批次若部分成功或取消，保存实际生成的
-  `export_candidate_status.json/.txt`；未生成的报告不可补造为浏览器原件。
-- Method 3 官网结果表必须含候选，或明确的合法零候选响应；核对母相、目标 SG、
-  basis、centering、Types 与完整候选身份。缺页、重复角色、provisional/skipped
-  项不能升级为全量通过。诊断选项 `--allow-candidate-inventory`、
-  `--accept-provisional` 不改变这个要求。
-- HTML 按内容角色识别，须保留 .html/.htm 后缀与原候选目录归属。
-- basis/origin 差异先记录字面结果，再以精确 Seitz/整数幺模 witness 判等价。
-- checkpoint 只按各脚本合同续跑；`pending_final_signature` 不可复用，
-  数值审计必须 restart；参数 k 生成缓存不能稳定签名时禁用跨进程复用。
-  运行结束重验源码和证据签名，漂移则结果失效。
-- Method 4 核对 daughter 哈希、拟合系数、As/Ap/normfactor、Å residual、
-  原子匹配、秩/条件数及预期拒绝；筛选单例不能代表完整矩阵。
-- 4310 `--max-candidates 1` 只作 partial 烟测；全量仍须逐候选核验身份、
-  模式数、BUSH 覆盖、秩与 CIF 语义。数值向量与归一化另需独立证据。
+## 严格可信参考比较
 
-## 扩展验证入口
+普通模式报告结构/元数据语义一致；严格模式额外要求可信登记指纹及字节一致。
+期望指纹从独立冻结的登记读取，不能临时对待比较文件算一个哈希再充作可信来源。
+缺少可信哈希且未发现其他不匹配时返回 inconclusive；已有语义或字节差异仍为 fail，均退出码 1。
+解析/调用错误退出码为 2。
 
-```text
-..\run_cris.ps1 tests/manual/run_web.py spotcheck
-..\run_cris.ps1 tests/manual/run_web.py m134
-..\run_cris.ps1 tests/manual/run_web.py method2_ld
-..\run_cris.ps1 tests/manual/run_batch.py cif30
-..\run_cris.ps1 tests/manual/run_batch.py external
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\run_cris.ps1 -m tests.validation compare --local "<本地冻结CIF>" --reference "<官网CIF>" --reference-sha256 "<独立登记SHA256>" --strict --json
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\run_cris.ps1 -m tests.validation batch --local-dir "<本地目录>" --reference-dir "<官网目录>" --hash-manifest "<参考相对路径到可信SHA256的JSON>" --strict --json
 ```
 
-样本入口为 `tests/cifs_30/`、`cifs_external/` 与只读 `../experiment_data/`。
-运行配置唯一来源为 `resources/config/settings.yaml`；网页入口为 `main_web.py`。
-新增外部样本前按 [EXTERNAL_CIF_SOURCES.md](EXTERNAL_CIF_SOURCES.md) 确定来源与许可。
+`tests/validation/backend/provenance/` 提供共享文件快照、哈希、运行环境及原子 JSON 写入服务；
+各审计定义自己的签名材料，尚非所有报告均使用原子写入。源码职责迁移后必须新建签名，
+不得沿用旧 search_methods 路径、Method 4 v1 provenance 或未冻结 Method 3 checkpoint。
+Method 3/4 准备器通过共享注册表覆盖生产 backend/application 源码和运行配置；
+实现或配置变化后的旧 checkpoint/输入批次不得继续作为同一次运行复用。
+公用科学计算入口为 `application.session`；外部 GD 读取 `displacement_snapshot()`。
+浏览器人工验收应记录上传→搜索→模式→导出时 revision、job_id、取消结果及关闭后的资源释放；
+失败动作后还要确认原候选/输入/模式未被改写，不以页面打开代替这项验收。

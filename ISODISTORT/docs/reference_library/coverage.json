@@ -26,7 +26,8 @@
         "ISODISTORT/tests/validation/backend/cif"
       ],
       "implementation_status": "conditional_or_not_audited",
-      "qualification": "语法、字典和可逆序列化合同；未穷尽解析器和全部格式消费者。"
+      "qualification": "语法、字典和可逆序列化合同；未穷尽解析器和全部格式消费者。",
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C02",
@@ -57,12 +58,13 @@
       ],
       "repository_modules": [
         "ISODISTORT/backend/utils/lattice.py",
-        "ISODISTORT/backend/method1/affine_embeddings.py",
-        "ISODISTORT/tests/manual/verify_parametric_k_grid.py"
+        "ISODISTORT/backend/utils/affine_embeddings.py",
+        "ISODISTORT/tests/verify_parametric_k_grid.py"
       ],
       "implementation_status": "conditional_or_not_audited",
       "qualification": "证明基变换、整数指数、平移相位相容；需正确输入原胞。",
-      "input_scope_audit": "2026-10-17: exact dual-lattice and symbolic generic little co-group audit; no production-mode or infinite-scope certification."
+      "input_scope_audit": "2026-10-17: exact dual-lattice and symbolic generic little co-group audit; no production-mode or infinite-scope certification.",
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C03",
@@ -142,7 +144,7 @@
       "repository_modules": [
         "ISODISTORT/backend/tables",
         "ISODISTORT/backend/utils/lattice.py",
-        "ISODISTORT/tests/manual/verify_parametric_k_grid.py"
+        "ISODISTORT/tests/verify_parametric_k_grid.py"
       ],
       "implementation_status": "conditional_or_not_audited",
       "qualification": "证明倒易作用和相位阶数；必须使用真正平移格。",
@@ -284,10 +286,11 @@
       ],
       "repository_modules": [
         "ISODISTORT/backend/method3/inverse_landau.py",
-        "ISODISTORT/backend/method1/search_methods.py"
+        "ISODISTORT/backend/method3/search.py"
       ],
       "implementation_status": "conditional_or_not_audited",
-      "qualification": "精确稳定子充要条件与有理见证已证明；输入表示必须满足群乘法。"
+      "qualification": "精确稳定子充要条件与有理见证已证明；输入表示必须满足群乘法。",
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C12",
@@ -307,10 +310,11 @@
         }
       ],
       "repository_modules": [
-        "ISODISTORT/backend/method1/search_methods.py"
+        "ISODISTORT/backend/method1/search.py"
       ],
       "implementation_status": "conditional_or_not_audited",
-      "qualification": "完备性相对于指定特殊 k 表与单 irrep 输入域。"
+      "qualification": "完备性相对于指定特殊 k 表与单 irrep 输入域。",
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C13",
@@ -336,7 +340,8 @@
         "ISODISTORT/backend/method3/coupled_routes.py"
       ],
       "implementation_status": "conditional_or_not_audited",
-      "qualification": "直和的稳定子交已证明；随机 OPD 采样不是穷尽。"
+      "qualification": "直和的稳定子交已证明；随机 OPD 采样不是穷尽。",
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C14",
@@ -359,7 +364,8 @@
         "ISODISTORT/backend/method3"
       ],
       "implementation_status": "conditional_or_not_audited",
-      "qualification": "嵌入、正规核和精确稳定子是前提；主序参量可能不唯一。"
+      "qualification": "嵌入、正规核和精确稳定子是前提；主序参量可能不唯一。",
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C15",
@@ -381,11 +387,11 @@
       ],
       "repository_modules": [
         "ISODISTORT/backend/method4/distortion_engine.py",
-        "ISODISTORT/backend/method1/search_methods.py",
         "ISODISTORT/backend/method4/decomposition.py"
       ],
       "implementation_status": "conditional_or_not_audited",
-      "qualification": "固定配对、参考几何和满秩基下 LS 解唯一；小残差不保证晶体学身份。"
+      "qualification": "固定配对、参考几何和满秩基下 LS 解唯一；小残差不保证晶体学身份。",
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C16",
@@ -408,10 +414,12 @@
       "repository_modules": [
         "ISODISTORT/backend/models/iso_mode_models.py",
         "ISODISTORT/backend/export",
-        "ISODISTORT/backend/method1/search_methods.py"
+        "ISODISTORT/backend/method2/search.py",
+        "ISODISTORT/application/session/core_api.py"
       ],
       "implementation_status": "conditional_or_not_audited",
-      "qualification": "证明平均平方贡献与 As/Ap 换算；列、符号、normfactor 是独立合同。"
+      "qualification": "证明平均平方贡献与 As/Ap 换算；列、符号、normfactor 是独立合同。",
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C17",
@@ -552,7 +560,7 @@
         }
       ],
       "repository_modules": [
-        "ISODISTORT/backend/method1/phase_path.py",
+        "ISODISTORT/backend/models/phase_path.py",
         "ISODISTORT/backend/method3"
       ],
       "implementation_status": "conditional_or_not_audited",
@@ -628,7 +636,8 @@
         "ISODISTORT/tests/validation/backend/comparison"
       ],
       "implementation_status": "conditional_or_not_audited",
-      "qualification": "序列化左逆合同和模式重参数化；实际多工具互操作须另行验收。"
+      "qualification": "序列化左逆合同和模式重参数化；实际多工具互操作须另行验收。",
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     },
     {
       "id": "C26",
@@ -654,8 +663,18 @@
         "ISODISTORT/tests/validation/backend/comparison"
       ],
       "implementation_status": "conditional_or_not_audited",
-      "qualification": "固定模型扰动与协方差已证明；ESD 帮助/版本史冲突，离散模型变化不适用线性误差界。"
+      "qualification": "固定模型扰动与协方差已证明；ESD 帮助/版本史冲突，离散模型变化不适用线性误差界。",
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
     }
   ],
-  "implementation_audit": "audit/implementation_audit.json"
+  "implementation_audit": "audit/implementation_audit.json",
+  "architecture_revision": {
+    "date": "2026-10-19",
+    "proof": "notes/ARCHITECTURE_CONTRACTS_20261019.md",
+    "scope": "Module paths and added architecture contracts; prior scientific qualifications remain unchanged."
+  },
+  "test_layout_revision": {
+    "date": "2026-10-19",
+    "scope": "Audit tools moved to tests root; production algorithms, tolerances and proof qualifications unchanged."
+  }
 }

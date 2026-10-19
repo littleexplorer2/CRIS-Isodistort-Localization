@@ -4,11 +4,16 @@
 
 ## 边界
 
-- 永远只读：`experiment_data/`、`webpage_info/`、`output_compare/`、
-  `ISODISTORT/resources/isobyu/`、仓库内 `GD/`。
+- 永远只读：`experiment_data/`、`webpage_info/` 的既有页面内容、`output_compare/` 的既有官网
+  归档、`ISODISTORT/resources/isobyu/`、仓库内 `GD/`。两处官网树的例外只能按登记执行：
+  `webpage_info/` 允许按 `webpage_info/_PAGE_INDEX.json` 登记的改名与资源引用修复，以及按
+  `webpage_info/README.md` 命名下载新的官网页面（未下载的列表保持空白，禁止用本地输出补）；
+  `output_compare/` 只允许写入由真实官网结果列表解析出的查询/候选目录，禁止覆盖/删除既有
+  归档，新增材料仍只作官网参考、不得进入本地计算链。
 - 与 CRIS 同级的 `GD/` 服从其自身规则；禁止修改 tianren 参考笔记本及
   `D:\OneDrive\...` 原始数据。
-- 可改主体：`ISODISTORT/`（除 `resources/isobyu/`）、`ISOVIZ_INPUT/`。
+- 可改主体：`ISODISTORT/`（除 `resources/isobyu/`）、`ISOVIZ_INPUT/`；`webpage_info/` 与
+  `output_compare/` 只在上述登记规则内改名/新增，不改变既有内容与隔离角色。
 - 两个运行项目及集成测试共用根目录内的实体 `.venv`，除非用户明确要求，不重建环境。普通
   Python 命令使用 `.\.venv\Scripts\python.exe`；本机从 OneDrive 内的解释器调用
   WSL 会触发 `Wsl/E_ACCESSDENIED`，需要 WSL 的 ISODISTORT 命令改用根目录
@@ -17,7 +22,7 @@
 - 根部署器与仓库编排测试统一放在 `tests_repo/`；科学测试和比较工具统一放在
   `ISODISTORT/tests/`，ISOVIZ_INPUT 使用自身 `tests_dev/`。
   根门禁运行 `.\run_cris.ps1 -m pytest tests_repo -q --tb=line`。
-- 本机 GUI 快捷方式与可执行启动器统一放在 `local_tools/launchers/`，该目录内容不提交；
+- 本机 GUI 快捷方式与可执行启动器统一放在 `launchers/`，该目录内容不提交；
   `ISOVIZ` / `ISOVIZ_JAR` 环境变量仍可显式覆盖默认查找位置。
 
 ## 科学计算硬性规则（所有子项目及验证脚本均适用）
@@ -28,6 +33,8 @@
   计算链。计算链包括预处理、搜索、筛选、模式构造、归一化、拟合、缓存和导出。
   禁止通过测试夹具、mock、环境变量、旁路文件、复制字段或预计算缓存间接注入答案。
   生产运行与验证运行必须遵守同一隔离规则，不得设置仅验证时启用的答案通道。
+  官网新增下载即使写在 `output_compare/` 预登记目录，也不改变其官网参考角色与隔离要求；
+  已登记的复用件同样只能按引用读取，禁止复制进计算输入或新查询目录冒充新下载。
 - 官网材料中仅可使用用户在官网也必须主动指定的输入参数，并须有独立的输入记录：
   例如用户提供的母相结构、k 向量、所选 IR/OPD、主动指定的基变换或原点。
   必须按当前 Method 的任务定义判定输入/输出角色，不能因为某字段在另一 Method
@@ -103,6 +110,7 @@
   原路径、SHA-256 和恢复方法，归档须验证可恢复后再精简正文。有效操作说明和在用
   机器 manifest 保持可直接读取，不重复维护历史叙述。
 - `ISODISTORT/docs/DOWNLOAD_CHECKLIST.md`：人工下载动作与目录。
+  `ISODISTORT/docs/manifests/official_archive_reuse_*.json` 登记既有官网归档的复用与指纹。
 - `ISODISTORT/docs/MANUAL_VALIDATION.md`：长时/手工验证命令。
 - 根规则只维护全仓硬性边界，子项目 `agent.md` 只补充专属职责与门禁；规则文件
   禁止追加修复流水账、批次结果、下载状态或临时进度。删除重复规则时必须保留唯一
@@ -155,7 +163,7 @@ ISOVIZ_INPUT/isoviz_input/
 - ISOVIZ_INPUT 包根的旧平铺模块仅作既有兼容转发，生产层不得经它们绕过分层。
 - 根 `setup_cris.py`、`run_cris.ps1` 与子项目 `main*.py` 保留安装/启动入口职责；
   不在入口复制领域算法或应用工作流。
-- 验证唯一实现是 `ISODISTORT/tests/validation/`，pytest 与 `tests/manual/` 的审计
+- 验证唯一实现是 `ISODISTORT/tests/validation/`，pytest 与 `tests/` 根目录的审计
   脚本必须调用其公共入口；生产三层禁止导入任何测试/比较代码。禁止重建独立验证
   产品、安装包或复制比较器；只读比较不能启动生产计算或回填参考答案。
 - 所有管线变更必须核对 HTTP → workflows → session → backend 的实际调用。

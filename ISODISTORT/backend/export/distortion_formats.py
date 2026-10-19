@@ -17,11 +17,13 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import math
 import re
 import tempfile
 import zipfile
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
+from numbers import Integral
 from pathlib import Path
 
 import numpy as np
@@ -162,7 +164,7 @@ def safe_name(text: str, fallback: str = "subgroup") -> str:
 def subgroup_label(subgroup: SubgroupInfo) -> str:
     """子群显示名：``IR OPD``，例如 ``LD1 C1``。"""
     if (
-        str(getattr(subgroup, "_method3_route_resolution", ""))
+        str(getattr(subgroup, "method3_route_resolution", ""))
         == "exact_fixed_space"
     ):
         return "exact fixed space"
@@ -171,7 +173,7 @@ def subgroup_label(subgroup: SubgroupInfo) -> str:
     return f"{ir} {opd}"
 
 
-def _identity_payload(subgroup: SubgroupInfo) -> dict:
+def subgroup_identity(subgroup: SubgroupInfo) -> dict:
     """Serializable scientific identity used only for deterministic names."""
 
     def values(items) -> list[str]:
@@ -202,7 +204,7 @@ def _identity_payload(subgroup: SubgroupInfo) -> dict:
         "origin": values(subgroup.origin),
         "k_active_raw": str(subgroup.k_active_raw or ""),
         "method3_embedding_id": str(
-            getattr(subgroup, "_method3_embedding_id", "") or ""
+            getattr(subgroup, "method3_embedding_id", "") or ""
         ),
     }
 
@@ -210,7 +212,7 @@ def _identity_payload(subgroup: SubgroupInfo) -> dict:
 def subgroup_identity_digest(subgroup: SubgroupInfo, length: int = 10) -> str:
     """Short deterministic digest of the full subgroup/path identity."""
     payload = json.dumps(
-        _identity_payload(subgroup),
+        subgroup_identity(subgroup),
         ensure_ascii=False,
         sort_keys=True,
         separators=(",", ":"),
@@ -233,7 +235,7 @@ def method3_case_folder(
         return safe_name(stable_case_id, "M3")
     identities = sorted(
         json.dumps(
-            _identity_payload(subgroup),
+            subgroup_identity(subgroup),
             ensure_ascii=False,
             sort_keys=True,
             separators=(",", ":"),
@@ -979,36 +981,117 @@ def cart_normalized_mode_matrix(
     *,
     centering_mult: int = 1,
 ) -> tuple[np.ndarray, float]:
-    """Scale unitless mode vectors so Σ‖Δr‖² over the *primitive* cell ≈ 1.
+    """Normalize one nonzero fractional mode column in numerical Angstrom units.
 
-    Local iso often emits max-component=1 vectors. Official TOPAS / IsoVIZ use a
-    Cartesian primitive-cell normalization (I-centering → factor √2 vs full cell).
-    ``maxamp_hint`` is the amplitude at which the largest Cartesian atomic
-    displacement reaches 1 Angstrom, i.e. ``1 / dmax(As=1)``.  This follows
-    the ISODISTORT definitions of the supercell-normalized amplitude ``As``
-    and ``dmax`` rather than a space-group-centring heuristic.
+    The rows of ``lattice_matrix`` are lattice vectors in Angstrom; fractional
+    row vectors transform as ``V @ lattice_matrix``. The returned ``V`` obeys
+    ``sum(abs(V @ lattice_matrix)**2) / centering_mult = 1``. The second return
+    value is the amplitude bound for a maximum displacement of 1 Angstrom, so
+    ``bound * max(norm(V @ lattice_matrix, axis=1)) = 1``.
 
-    Returns ``(scaled_matrix, maxamp_hint)``.
+    The positive integer divisor is a caller-supplied normalization convention.
+    Its interpretation as primitive-cell multiplicity requires a consistent
+    atom-image convention; an arbitrary divisor does not define ISO amplitude.
+    Invalid inputs or numerically unrepresentable outputs raise ``ValueError``.
     """
-    mat = np.asarray(arr, dtype=float)
-    if mat.ndim != 2 or mat.shape[1] != 3 or mat.size == 0:
-        return mat, 1.0
+    if (
+        isinstance(centering_mult, bool)
+        or not isinstance(centering_mult, Integral)
+        or centering_mult <= 0
+    ):
+        raise ValueError("centering_mult must be a positive integer")
+    if np.iscomplexobj(arr) or np.iscomplexobj(lattice_matrix):
+        raise ValueError("Mode and lattice must contain real values")
+    try:
+        mat = np.asarray(arr, dtype=float)
+        bmat = np.asarray(lattice_matrix, dtype=float)
+        sqrt_n = math.sqrt(int(centering_mult))
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError("Mode, lattice, and normalization must be representable") from exc
+    if (
+        mat.ndim != 2
+        or mat.shape[1] != 3
+        or mat.size == 0
+        or not np.all(np.isfinite(mat))
+    ):
+        raise ValueError("Mode must be a finite nonempty Nx3 matrix")
+    if bmat.shape != (3, 3) or not np.all(np.isfinite(bmat)):
+        raise ValueError("Lattice must be a finite nonsingular 3x3 matrix")
+    determinant_sign, log_abs_determinant = np.linalg.slogdet(bmat)
+    if determinant_sign == 0 or not np.isfinite(log_abs_determinant):
+        raise ValueError("Lattice must be a finite nonsingular 3x3 matrix")
     max_comp = float(np.max(np.abs(mat)))
-    unit = mat / max_comp if max_comp > 1e-16 else mat
-    bmat = np.asarray(lattice_matrix, dtype=float)
-    cart = unit @ bmat
-    ssq = float(np.sum(cart * cart))
-    n_c = max(int(centering_mult), 1)
-    # Attribute equal share of conventional-cell images to the primitive cell.
-    ssq_prim = ssq / n_c
-    scale = (1.0 / np.sqrt(ssq_prim)) if ssq_prim > 1e-30 else 1.0
-    scaled = unit * scale
-    cartesian_at_as_one = scaled @ bmat
-    dmax_at_as_one = float(
-        np.max(np.linalg.norm(cartesian_at_as_one, axis=1))
-    )
-    maxamp = (1.0 / dmax_at_as_one) if dmax_at_as_one > 1e-30 else 1.0
-    return scaled, maxamp
+    if max_comp == 0:
+        raise ValueError("Cannot normalize a zero mode column")
+
+    def require_normal_components(values: np.ndarray, nonzero: np.ndarray) -> None:
+        # The usual relative rounding bound applies to normal results, not
+        # subnormal values or nonzero quantities rounded to zero. Reject this
+        # conservative domain explicitly instead of normalizing an already
+        # damaged direction. Structural zeros do not contribute to a dot
+        # product; cancellation of rounded normal terms may also be zero.
+        selected = np.abs(values[nonzero])
+        if np.any(selected < np.finfo(float).tiny):
+            raise ValueError("Mode normalization component underflow is not supported")
+        if not np.all(np.isfinite(selected)):
+            raise ValueError("Mode normalization components are not numerically representable")
+
+    # Remove the arbitrary column magnitude before any products or squares.
+    # The lattice and Cartesian column are independently scaled too, so tiny
+    # lengths never get squared to zero and large lengths never get squared
+    # to infinity. No absolute magnitude threshold changes the convention.
+    with np.errstate(under="ignore"):
+        unit = mat / max_comp
+    require_normal_components(unit, mat != 0)
+    lattice_scale = float(np.max(np.abs(bmat)))
+    with np.errstate(under="ignore"):
+        lattice_unit = bmat / lattice_scale
+    active_axes = np.any(unit != 0, axis=0)
+    require_normal_components(lattice_unit, (bmat != 0) & active_axes[:, None])
+    # Inspect each of the three actual products. A final matrix product can
+    # look finite and nonzero even after one contributing term underflowed;
+    # relying on BLAS floating-point status flags cannot certify otherwise.
+    cart = np.zeros_like(unit)
+    for axis in range(3):
+        left, right = unit[:, axis, None], lattice_unit[axis, :]
+        with np.errstate(under="ignore"):
+            product = left * right
+        require_normal_components(product, (left != 0) & (right != 0))
+        cart = cart + product
+        require_normal_components(cart, cart != 0)
+    cart_scale = float(np.max(np.abs(cart)))
+    if cart_scale == 0 or not np.isfinite(cart_scale):
+        raise ValueError("Cartesian mode direction is not numerically representable")
+    with np.errstate(under="ignore"):
+        cart_unit = cart / cart_scale
+    require_normal_components(cart_unit, cart != 0)
+    cart_norm = float(np.linalg.norm(cart_unit))
+    if not math.isfinite(cart_norm) or cart_norm == 0:
+        raise ValueError("Cartesian mode norm is not numerically representable")
+
+    # Compose sqrt(N)/(lattice_scale*cart_scale*cart_norm) through binary
+    # exponents: each factor is finite, even when their product is not.
+    numerator, exponent = math.frexp(sqrt_n)
+    for factor in (lattice_scale, cart_scale, cart_norm):
+        mantissa, factor_exponent = math.frexp(factor)
+        numerator /= mantissa
+        exponent -= factor_exponent
+    try:
+        scale = math.ldexp(numerator, exponent)
+    except OverflowError as exc:
+        raise ValueError("Normalized mode is not numerically representable") from exc
+    if not math.isfinite(scale) or scale == 0:
+        raise ValueError("Normalized mode is not numerically representable")
+    with np.errstate(under="ignore"):
+        scaled = unit * scale
+        cartesian_at_unit_amplitude = cart_unit * (sqrt_n / cart_norm)
+    require_normal_components(scaled, unit != 0)
+    require_normal_components(cartesian_at_unit_amplitude, cart_unit != 0)
+    dmax = max(math.hypot(*row) for row in cartesian_at_unit_amplitude)
+    bound = 1.0 / dmax
+    if not math.isfinite(bound) or bound == 0:
+        raise ValueError("Displacement amplitude bound is not numerically representable")
+    return scaled, bound
 
 
 def render_topas(spec: SubgroupExportSpec) -> str:

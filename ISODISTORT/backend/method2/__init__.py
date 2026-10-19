@@ -7,12 +7,13 @@ from typing import Any
 
 _EXPORTS: dict[str, tuple[str, str]] = {
     "DistortionMapper": ("backend.method2.distortion_mapper", "DistortionMapper"),
-    "verify_mapped_microscopic_columns": (
-        "backend.method2.distortion_mapper",
-        "verify_mapped_microscopic_columns",
-    ),
+    "verify_mapped_microscopic_columns": ("backend.method2.distortion_mapper", "verify_mapped_microscopic_columns"),
     "ParametricModeResult": ("backend.method2.superspace", "ParametricModeResult"),
     "compute_parametric_modes": ("backend.method2.superspace", "compute_parametric_modes"),
+    "Method2Query": ("backend.method2.search", "Method2Query"),
+    "Method2Result": ("backend.method2.search", "Method2Result"),
+    "Method2Solver": ("backend.method2.search", "Method2Solver"),
+    "validate_single_irrep_count": ("backend.method2.search", "validate_single_irrep_count"),
 }
 
 __all__ = sorted(_EXPORTS)  # noqa: PLE0605 - lazy export map is the source of truth

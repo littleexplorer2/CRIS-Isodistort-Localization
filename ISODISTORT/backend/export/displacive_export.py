@@ -450,7 +450,7 @@ class ExactParentChildEmbedding:
             )
         supplied_embedding_id = str(
             getattr(subgroup, "_displacive_embedding_id", "")
-            or getattr(subgroup, "_method3_embedding_id", "")
+            or getattr(subgroup, "method3_embedding_id", "")
             or getattr(subgroup, "embedding_id", "")
             or ""
         ).strip()
@@ -649,7 +649,7 @@ class DisplaciveSubgroupIdentity:
             or str(getattr(subgroup, "k_active_raw", "") or "").strip()
             or str(getattr(subgroup, "opd_dir_raw", "") or "").strip()
             or tuple(getattr(subgroup, "opd_vector", ()) or ())
-            or str(getattr(subgroup, "_method3_route_resolution", ""))
+            or str(getattr(subgroup, "method3_route_resolution", ""))
             != "exact_fixed_space"
         ):
             _fail(

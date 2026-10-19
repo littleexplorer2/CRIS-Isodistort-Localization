@@ -173,7 +173,7 @@ Domains/完整子群树/衍射可视化的理论收录不扩大本地产品范�
 
 ## 复现与结果入口
 
-- 独立反例与回归：`ISODISTORT/tests/test_theory_contracts.py`。
+- 独立反例与回归现已按责任模块分布到 `ISODISTORT/tests/backend/` 的 export、method1、method4、tables、utils 检查及 `tests/application/test_session.py`。具体文件见 `implementation_audit.json` 的 `independent_counterexample_test_files`；迁移只改变位置，不更新本报告历史科学结论。
 - 项目运行：从 CRIS 根目录执行 `run_cris.ps1 -m pytest ISODISTORT/tests -q --tb=line`。
   本机执行策略要求使用进程级 `powershell.exe -NoProfile -ExecutionPolicy Bypass -File` 前缀；
   没有修改系统执行策略。

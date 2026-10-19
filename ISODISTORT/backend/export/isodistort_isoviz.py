@@ -750,9 +750,9 @@ def _hm_quoted(number: int, short: str) -> str:
 
 def _hall_quoted(number: int) -> str:
     try:
-        from .isodistort_cif import _hall_for_number  # noqa: PLC0415
+        from .isodistort_cif import hall_for_number  # noqa: PLC0415
 
-        _hall_n, hall = _hall_for_number(int(number))
+        _hall_n, hall = hall_for_number(int(number))
         return f'"{hall}"'
     except Exception:  # noqa: BLE001
         return f'"{int(number):03d}"'
@@ -761,11 +761,11 @@ def _hall_quoted(number: int) -> str:
 def _ops_and_centering(number: int, short: str) -> tuple[list[SymmOp], list[np.ndarray]]:
     try:
         from .isodistort_cif import (  # noqa: PLC0415
-            _hall_for_number,
+            hall_for_number,
             _ops_from_hall,
         )
 
-        hall_n, _hall = _hall_for_number(int(number))
+        hall_n, _hall = hall_for_number(int(number))
         ops = _ops_from_hall(hall_n)
         if ops:
             return ops, _centering_from_symbol(short)

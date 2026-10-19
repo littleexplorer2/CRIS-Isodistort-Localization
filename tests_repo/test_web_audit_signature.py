@@ -11,7 +11,7 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "ISODISTORT/tests/manual/download_local_web_outputs.mjs"
+SCRIPT = ROOT / "ISODISTORT/tests/download_local_web_outputs.mjs"
 NODE = shutil.which("node")
 pytestmark = pytest.mark.skipif(NODE is None, reason="Node.js is required for the browser audit helper")
 

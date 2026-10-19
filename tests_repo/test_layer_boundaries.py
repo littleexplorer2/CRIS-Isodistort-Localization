@@ -62,6 +62,13 @@ def _violations(source: str, module: str, is_package: bool, layer: str, project:
     source_local = module.removeprefix(prefix + ".") if prefix else module
     source_module = ".".join(source_local.split(".")[:2])
     for line, target in _imports(ast.parse(source), module, is_package):
+        if project.get("role") == "test_support" and (
+            target == "tests" or target.startswith("tests.")
+        ) and not (target == prefix or target.startswith(prefix + ".")):
+            errors.append(f"{module}:{line}: read-only comparison imports external test/helper code {target}")
+        if any(target == forbidden or target.startswith(forbidden + ".")
+               for forbidden in project.get("forbidden_imports", [])):
+            errors.append(f"{module}:{line}: {project.get('role')} imports forbidden production role {target}")
         if project.get("role") != "test_support" and (
             target == "tests" or target.startswith("tests.")
         ):
@@ -89,6 +96,110 @@ def _violations(source: str, module: str, is_package: bool, layer: str, project:
             if (parts[-1].startswith("_")
                     and local not in project.get("legacy_scientific_interfaces", [])):
                 errors.append(f"{module}:{line}: imports private symbol {target}")
+    return errors
+
+
+def _private_session_accesses(source: str, factories: list[str]) -> list[str]:
+    """Track registered session constructors, helper returns, and local aliases.
+
+    This intentionally does not ban arbitrary underscore attributes. Unknown
+    dynamic values remain unknown; the gate is a static regression check, not a
+    proof about eval, reflection, runtime monkeypatching, or arbitrary data flow.
+    """
+    errors: list[str] = []
+    function_results: dict[str, object] = {}
+    factory_names = set(factories)
+
+    class Visitor(ast.NodeVisitor):
+        def __init__(self, names=None):
+            self.names = dict(names or {})
+            self.return_values = []
+
+        def symbol(self, node):
+            if isinstance(node, ast.Name):
+                return self.names.get(node.id)
+            if isinstance(node, ast.Attribute):
+                base = self.symbol(node.value)
+                return f"{base}.{node.attr}" if isinstance(base, str) else None
+            if isinstance(node, (ast.Tuple, ast.List)):
+                return tuple(self.symbol(element) for element in node.elts)
+            if isinstance(node, ast.Subscript) and isinstance(node.slice, ast.Constant):
+                value, index = self.symbol(node.value), node.slice.value
+                if isinstance(value, tuple) and isinstance(index, int) and -len(value) <= index < len(value):
+                    return value[index]
+            if isinstance(node, ast.Call):
+                target = self.symbol(node.func)
+                if isinstance(target, str) and target in factory_names:
+                    return "instance:" + target
+                if isinstance(target, str):
+                    return function_results.get(target)
+            return None
+
+        def bind(self, target, value):
+            if isinstance(target, ast.Name):
+                self.names[target.id] = value
+            elif isinstance(target, (ast.Tuple, ast.List)):
+                values = value if isinstance(value, tuple) and len(value) == len(target.elts) else [None] * len(target.elts)
+                for child, item in zip(target.elts, values):
+                    self.bind(child, item)
+
+        def visit_ImportFrom(self, node):
+            for alias in node.names:
+                self.names[alias.asname or alias.name] = f"{node.module}.{alias.name}"
+
+        def visit_Import(self, node):
+            for alias in node.names:
+                self.names[alias.asname or alias.name.split('.')[0]] = alias.name if alias.asname else alias.name.split('.')[0]
+
+        def visit_Assign(self, node):
+            self.visit(node.value)
+            value = self.symbol(node.value)
+            for target in node.targets:
+                self.visit(target)
+                self.bind(target, value)
+
+        def visit_AnnAssign(self, node):
+            if node.value is not None:
+                self.visit(node.value)
+            self.visit(node.target)
+            self.bind(node.target, self.symbol(node.value))
+
+        def visit_FunctionDef(self, node):
+            child = Visitor(self.names)
+            for arg in (*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs):
+                annotation = child.symbol(arg.annotation)
+                child.names[arg.arg] = "instance:" + annotation if annotation in factory_names else None
+            for statement in node.body:
+                child.visit(statement)
+            key = f"function:{node.name}:{node.lineno}"
+            values = child.return_values
+            if values and all(value == values[0] for value in values):
+                function_results[key] = values[0]
+            self.names[node.name] = key
+
+        visit_AsyncFunctionDef = visit_FunctionDef
+
+        def visit_Return(self, node):
+            self.visit(node.value) if node.value is not None else None
+            self.return_values.append(self.symbol(node.value))
+
+        def check_member(self, node, owner, member):
+            if (isinstance(owner, str) and owner.startswith("instance:")
+                    and isinstance(member, str) and member.startswith("_")
+                    and not (member.startswith("__") and member.endswith("__"))):
+                errors.append(f"line {node.lineno}: external consumer accesses private session member {member}")
+
+        def visit_Attribute(self, node):
+            self.check_member(node, self.symbol(node.value), node.attr)
+            self.generic_visit(node)
+
+        def visit_Call(self, node):
+            if isinstance(node.func, ast.Name) and node.func.id in {"getattr", "setattr", "delattr", "hasattr"}:
+                if len(node.args) >= 2 and isinstance(node.args[1], ast.Constant):
+                    self.check_member(node, self.symbol(node.args[0]), node.args[1].value)
+            self.generic_visit(node)
+
+    Visitor().visit(ast.parse(source))
     return errors
 
 
@@ -168,3 +279,72 @@ def test_dependency_gate_rejects_reverse_and_legacy_imports(source, layer, modul
 def test_dependency_gate_rejects_cross_module_private_imports(source):
     assert _violations(source, "isoviz_input.application.pipeline.service", False,
                        "application", PROJECTS[2])
+
+
+@pytest.mark.parametrize("source", [
+    "from application.session import IsoDistort",
+    "from backend.input_cif import read_cif",
+    "import frontend.web.server",
+    'importlib.import_module("application.session")',
+    "from ISODISTORT.application.session import IsoDistort",
+    "from tests.validate_method4_local import main",
+    "from tests.support_backend_export import _export_data",
+    "from tests import prepare_method4_inputs",
+])
+def test_read_only_validation_role_rejects_production_imports(source):
+    assert _violations(source, "tests.validation.application.single.service", False, "application", PROJECTS[1])
+
+
+@pytest.mark.parametrize("source", [
+    "from tests.validation.backend.provenance import FileSnapshot",
+    "from ...backend.results import VerificationPolicy",
+    "from pymatgen.io.cif import CifParser",
+    "import importlib.metadata",
+])
+def test_read_only_validation_role_allows_own_contracts_and_external_parsers(source):
+    assert not _violations(source, "tests.validation.application.single.service", False, "application", PROJECTS[1])
+
+
+def test_isodistort_checks_have_one_script_per_registered_module():
+    """Keep check entry points aligned with production ownership."""
+    checks = ROOT / "ISODISTORT" / "tests"
+    for layer, modules in PROJECTS[0]["modules"].items():
+        folder = checks / layer
+        assert folder.is_dir(), folder
+        assert {path.name for path in folder.glob("test_*.py")} == {
+            f"test_{module}.py" for module in modules
+        }
+        assert not [path for path in folder.rglob("test_*.py") if path.parent != folder]
+    assert not (checks / "manual").exists()
+
+
+@pytest.mark.parametrize("source", [
+    "from application.session import IsoDistort as Session\ns = Session()\ns._private()",
+    "from application.session import IsoDistort\nFactory = IsoDistort\ns = Factory()\nalias = s\nalias._state",
+    "import application.session as api\ns = api.IsoDistort()\ngetattr(s, '_state')",
+    "def load():\n from application.session import IsoDistort\n return IsoDistort, None\nFactory, normalizer = load()\ns = Factory()\ns._private()",
+    "from application.session import IsoDistort\ndef use(session: IsoDistort):\n alias = session\n alias._private()",
+])
+def test_external_consumer_gate_tracks_session_aliases_and_loader_returns(source):
+    assert _private_session_accesses(source, ["application.session.IsoDistort"])
+
+
+@pytest.mark.parametrize("source", [
+    "from application.session import IsoDistort\ns = IsoDistort()\ns.export_mode_result()",
+    "from application.session import IsoDistort\ns = IsoDistort()\nother = object()\nother._private()",
+    "from application.session import IsoDistort\ns = IsoDistort()\ns = object()\ns._private()",
+    "class Other:\n def method(self):\n  return self._private()",
+])
+def test_external_consumer_gate_preserves_public_contracts_and_unrelated_private_state(source):
+    assert not _private_session_accesses(source, ["application.session.IsoDistort"])
+
+
+@pytest.mark.parametrize("consumer", MANIFEST.get("external_consumers", []), ids=lambda item: item["path"])
+def test_registered_external_consumers_use_public_session_contracts(consumer):
+    path = (ROOT / consumer["path"]).resolve()
+    if not path.is_file() and not consumer.get("required", True):
+        pytest.skip(f"Optional sibling consumer is unavailable: {path}")
+    assert path.is_file(), path
+    if consumer.get("forbid_private_session_members"):
+        errors = _private_session_accesses(path.read_text(encoding="utf-8-sig"), consumer["session_factories"])
+        assert not errors, "\n".join(f"{path}: {error}" for error in errors)

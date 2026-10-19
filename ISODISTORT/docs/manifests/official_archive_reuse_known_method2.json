@@ -1,0 +1,3447 @@
+{
+  "schema": "official-archive-reuse/v1",
+  "status": "registered",
+  "generated_at": "2026-10-19T12:00:06.383123+00:00",
+  "generator": {
+    "path": "ISODISTORT/tests/manual/register_official_archive_reuse.py",
+    "sha256": "c1d8f1a4465bb41ce448d4fb7de2c80f878fbd9348e397fe12a8328320b444ee",
+    "command": ".venv/Scripts/python.exe ISODISTORT/tests/manual/register_official_archive_reuse.py"
+  },
+  "archive_root": "output_compare",
+  "fingerprint_algorithm": "For each file, sorted by POSIX relative path: sha256(relative_path UTF-8, NUL, decimal size, NUL, sha256(file bytes)). Candidate and subtree aggregates sort the same way; directory aggregates are not used.",
+  "write_policy": {
+    "archive_read_only": "Existing official files under output_compare are verifiable reference material: never overwrite, never delete, never rerun a query to replace them, and never copy them into a computation input.",
+    "new_downloads": "New official page downloads (result lists) go into the registered webpage_info/<parent>/ page archive using the documented naming; new official exports may only be written into Method2/<K>/nmod<N>/ folders that were generated from a parsed official result list. Unknown lists stay blank until downloaded; no local-web-version output may be used to infer them.",
+    "reuse": "Before every download, look the query up in this registry and in the webpage_info page index. A registered candidate set or already archived official page is reused by reference; it is not downloaded again and not copied into a computation input.",
+    "fingerprints": "An audit re-fingerprints the archive and fails closed if a registered subtree or candidate aggregate changes."
+  },
+  "method2_registered_reuse": [
+    {
+      "query_id": "M2P-EU-LD",
+      "parent": "EuAl4 Parent.cif",
+      "nmod": 0,
+      "expected_candidates": 22,
+      "archive_subdir": "LD_g1-6/nmod0",
+      "layout": "<K>/nmod<N>/<IR>_<OPD>",
+      "expected_k_header": "LD, k10 (0,0,g), g=1/6",
+      "registered_input_evidence": "independent input values reconfirmed in the 20261019 download manifest (k template (0,0,g), g=1/6); this archive predates it and is matched only by the official page header",
+      "submit_state_capture": null,
+      "action": "register_only_no_download",
+      "archive_path": "EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0",
+      "candidate_count": 22,
+      "candidate_nmod_values": {
+        "0": 22
+      },
+      "k_headers": [
+        "LD, k10 (0,0,g), g=1/6"
+      ],
+      "candidates_fingerprint": {
+        "file_count": 176,
+        "total_bytes": 21205625,
+        "aggregate_sha256": "eab5c7c947596a3587e031dfbd529f6b47e97b93bef35117ee6b5de19044c229"
+      },
+      "archive_top_level_files": {
+        "file_count": 0,
+        "total_bytes": 0,
+        "aggregate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "candidates": [
+        {
+          "id": "LD1_C1",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD1_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 32769,
+              "sha256": "5c8583af0ee1c66dfac3ed1ee62cbf8acafcadb5ab81c58601e1e594d715628b"
+            },
+            "data.isoviz": {
+              "bytes": 137362,
+              "sha256": "25582c5faab9197625801d5a275ea9cee426972ce866cdf33a84a741b682e519"
+            },
+            "topas.str": {
+              "bytes": 30461,
+              "sha256": "a235ce3e8e4295d7bde4ca43d6e318763e77938f25fa97f41f149ba994dc4de8"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 75514,
+              "sha256": "fc335ccf23d5a4e8e966d046496aa944b8beeeacdcfbedbaf7d90552944a67bb"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "0145284bdb4cf7a6ea2641833079136b18d6fe58fa1444f0f997e0f0516e9dff"
+        },
+        {
+          "id": "LD1_P1",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD1_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 14367,
+              "sha256": "277f0fb12c956eb64a652a6b7ca415a997b8d418b0496b4eeba90cbc66b6d47c"
+            },
+            "data.isoviz": {
+              "bytes": 96735,
+              "sha256": "4867134b35baf35a66007f188cf85fb1fed3b1a4e402bde0de255bdbf6901521"
+            },
+            "topas.str": {
+              "bytes": 12849,
+              "sha256": "8f296449ed1e549fcce7605f5a92d969bfaace935058a9e98214d23bd9cb7c9c"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 38780,
+              "sha256": "9daebedfcb05790216d96122c20ee474e8796684ff0b386f4385ade369b4e4a3"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "7c1c071a92cc300ff37c408d69bf36471c0d0054dabff565d7351aa2d89369d7"
+        },
+        {
+          "id": "LD1_P2",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD1_P2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 14949,
+              "sha256": "af1740733a86156fc51a89c072fc9131390a16a3d5830fb672fa63754ed6a761"
+            },
+            "data.isoviz": {
+              "bytes": 39489,
+              "sha256": "ba6273e6e4c1ce5205a4ce31f4fb1e91e69feb34ae28b99045676f3fd05d0b12"
+            },
+            "topas.str": {
+              "bytes": 13205,
+              "sha256": "d3cd29ba879bddee1632d25d45711dff37d139953de72cbac017f102472749c3"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 38117,
+              "sha256": "4d7907304ec572a4b5861f8cd3d030549ea348bd41cfd880264e071f90233198"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "013736e797df21aa0a8d0219c827c3f8239896050d4b8bb0e92281f2bb4d5bba"
+        },
+        {
+          "id": "LD2_C1",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD2_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 18679,
+              "sha256": "b8d5214fc279d87e4740be9d3a70c81b2d62e8966de5a1b7532446e72f1e208a"
+            },
+            "data.isoviz": {
+              "bytes": 106275,
+              "sha256": "2e9c0c67fb8cceaad3c7eaf3396a5acd02f8043dbe8875832d6dd2fc063ef9bb"
+            },
+            "topas.str": {
+              "bytes": 16943,
+              "sha256": "424d9c4dc19dd5fc99835a68c2a068f25637dbf023380c9774d4989b4a8ceaf5"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 49621,
+              "sha256": "575edb8fa34847d68e4ad6fc15b6fffc128187e892c38348a49311c4f55a96af"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "da8481942c2c57d2592581e51fe92fa902b9bc12ca6065ea84e26f6abaf9db85"
+        },
+        {
+          "id": "LD2_P1",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD2_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 9633,
+              "sha256": "08dc674637d35633cc860d9f4968d474944f596ce2ee004fd49d1cc0adf3e451"
+            },
+            "data.isoviz": {
+              "bytes": 81197,
+              "sha256": "bd8996d5f5bf326621503d045e1eaf5ba2eecc64aa0ad4cd2b52e299105812f6"
+            },
+            "topas.str": {
+              "bytes": 7561,
+              "sha256": "819c1895f8d8d3ce919a7512d0a5b52cd7691aa73122bd62c9dfda841fba9652"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 25487,
+              "sha256": "7158a073fe32286f8f0e67c167f3ca21d4c12aafda1cf30f77e4e3b7063f9d5f"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "ca5665eae1fc3f7f79d1d9701d7aa260f243579a65e96d313779f3af8736a438"
+        },
+        {
+          "id": "LD2_P2",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD2_P2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 9578,
+              "sha256": "d0289b4849a116f1204ffdcb4966ffa3b45a8f45c5d203472211922b3f0fb992"
+            },
+            "data.isoviz": {
+              "bytes": 32975,
+              "sha256": "423081bf6730957307d9b802b562b78daac0408008a6847417e267502e30798b"
+            },
+            "topas.str": {
+              "bytes": 7464,
+              "sha256": "c92b93905ae78a28459f94530464c7788e7fdfd0357f5ec9298630c5535398c9"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 24803,
+              "sha256": "752a22ed8b929d316ff8418e9944020a696a3445218a5e57b19b9552e3d5ec3c"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "8332c3a626aca92ccb099aa95dcaef6945ff2f37afc4441dd81c77697f29953a"
+        },
+        {
+          "id": "LD5_4D1",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_4D1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 47122,
+              "sha256": "c3a0c62036e0fafecb8806dc0c040a90ee0b84d1c475058dab82671a249fb921"
+            },
+            "data.isoviz": {
+              "bytes": 205582,
+              "sha256": "6e6641af7b8a51f4f754f25904ea4cf9e8822a425427d40d3de51054f5ace7c5"
+            },
+            "topas.str": {
+              "bytes": 39016,
+              "sha256": "ef943b02c8245b02ee110d7f37d12bbe65d9aeaa5b6abe8f1dfe1f2ae477c028"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 134920,
+              "sha256": "e8937d17126b5ccdfd44c795d4d3ab4690f5a0e3c181ea02de451690ea8365a6"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "ec0e99e2c68852663dbb9696aa2a65e20ef0a74d307513aaf8fef2ae0cc4855c"
+        },
+        {
+          "id": "LD5_C1",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 19040,
+              "sha256": "be9e4ba5bcfaac74191e190d74f804cdf134b8f1ce2414ab20ef9263934b6e09"
+            },
+            "data.isoviz": {
+              "bytes": 129403,
+              "sha256": "5e756ae1c5afaf30b6b3f36fca4801a7a23a0e93b5a6b45a732c74ea2309c0ab"
+            },
+            "topas.str": {
+              "bytes": 15168,
+              "sha256": "87d32faa09d5b65d61959af6165927dd58d659e2484a4b970bdc27311f38144b"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 67555,
+              "sha256": "92646eaa0e22a4cee8cc14d30991a1325b1948de46b58a90be593678a85a30fb"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "9562ddd0e80e4c99123b7359befef973c16d01e66bc2cc925f9d83fcd59d432e"
+        },
+        {
+          "id": "LD5_C2",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_C2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 20949,
+              "sha256": "899e6e9e2b0149ebe19f495f485fd74aec5b4b33ad99ec5adf29f25d581fe0f1"
+            },
+            "data.isoviz": {
+              "bytes": 82897,
+              "sha256": "19c11c05bc6d44c5f8803abc142667e9b3f25555f66a36ca748486857edf2a1b"
+            },
+            "topas.str": {
+              "bytes": 16390,
+              "sha256": "0c7806e4e0818c45040c88689bb9aa06daac36c8e40237af17c147ee9ad9d9fe"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 68459,
+              "sha256": "ab79514eee64ff28585f23893b17486f8645690c74931c9b7953b0f1244fbc3a"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "695523df91005c0dee114eaa65b15a5f0dcccf1db65dce5df5f3bc18c27f98db"
+        },
+        {
+          "id": "LD5_C3",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_C3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 18515,
+              "sha256": "c423454f8867d421c9e8fe007e976fbeef3cd01ca06332c2481b0da122e9bb91"
+            },
+            "data.isoviz": {
+              "bytes": 190276,
+              "sha256": "df58e93378f2a64d4f0dc211c24b2874a34eb3e91b15b023609643ea2abd84c3"
+            },
+            "topas.str": {
+              "bytes": 14723,
+              "sha256": "bcdde70fa83e183c5c3b106627509c539dfec086cb260abae17e1aae7c612da4"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 123323,
+              "sha256": "d605e686fe034c3d6700c58b30e5b412f2411f1e34184c421b09b6ef96729324"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "93d913c7b12f1cbf246aa470e44afaf4f841a10aa42d865b6bcd4233855a0072"
+        },
+        {
+          "id": "LD5_C4",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_C4",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 19013,
+              "sha256": "a8dc486b6b408ecd659745dde4e84e4a36ab596335ac1e844238789ba139d662"
+            },
+            "data.isoviz": {
+              "bytes": 166360,
+              "sha256": "98b29b99707b13c2c2c8a640bae9b1d706f060f6776d77557ec1cef604cafe60"
+            },
+            "topas.str": {
+              "bytes": 15179,
+              "sha256": "7145beaf7f53c8c3bf9aa63817cd54b4caa89f91254c7f6415904137f4847773"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 119004,
+              "sha256": "0200de9f4f45fbf418ebf6fc7a688bb43402796d276104c3b9646821fb39f49f"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "806d94f1b76a41bb849d93664e156ff5ad47fb0d5ba5703eeafe5b4d251c06b7"
+        },
+        {
+          "id": "LD5_C5",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_C5",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 18713,
+              "sha256": "596337c81c1bfdf9cfd6ea0e18596112191a8ca1d96b7d5440438cdf06da795c"
+            },
+            "data.isoviz": {
+              "bytes": 123584,
+              "sha256": "28acca0595b3bd78a6ddd30447afcf4615fd3ca97e122bd756aaee38e2a26f2d"
+            },
+            "topas.str": {
+              "bytes": 15016,
+              "sha256": "070e668e84b759c698490c475808b139f62e1b342b9d0e6717028e37d68fd16e"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 68000,
+              "sha256": "9a88173a04c7572b93b694022d02bd0ba1af7b48ecda31e1358bdbbdef54f3d1"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "42a802a0236ee63ec37941f0a309d4326557005de0fbc9b014bdfa78eefca5bf"
+        },
+        {
+          "id": "LD5_C6",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_C6",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 16703,
+              "sha256": "b2c085930001b019d34306f1f255d6c395b24e00fcd4fde6241cff8f420755bc"
+            },
+            "data.isoviz": {
+              "bytes": 129526,
+              "sha256": "4ab252978445335de359e8d09cb61cb33858f7c173e30d417a991435c52b0dc5"
+            },
+            "topas.str": {
+              "bytes": 13421,
+              "sha256": "46d79d8a8d1f7e2caa55958ab5b876f036f80be055f27b2f8f108cb3fe8ede01"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 67779,
+              "sha256": "16160712dd8c4a9ca2119fec7fe9a49b5f5e7054a54f5c143c04acf70c15039f"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "f8c156283a5ce6791f191e68fd0984ca841d1a6398c1fc0e13b247b70d41b658"
+        },
+        {
+          "id": "LD5_C7",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_C7",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 19714,
+              "sha256": "acdcba1b63b9a7657c9a670a3a26f63152f34f76f4f86dd13556f917f839c1a3"
+            },
+            "data.isoviz": {
+              "bytes": 84905,
+              "sha256": "37e1f77267b45f27b0db19297aec0bd97b850172212b6ba1cd4e0a3b53268549"
+            },
+            "topas.str": {
+              "bytes": 15426,
+              "sha256": "ad81b35b0fb7dc8182876cf47841b0ec6329f175198501b9861db73f7b3649a0"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 68599,
+              "sha256": "3642bfef5ef8565af93e7fc741a5eb48e9946c2cff541c6aea6c163781211a0e"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "390d63ec078d054c4576fa04bf39de38f22a77940241f1536d73a5284f83f6cc"
+        },
+        {
+          "id": "LD5_C8",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_C8",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 27978,
+              "sha256": "4b10b5eb0a1a7c58dc532aeb080322841f9f70450b4974668538458368797cfb"
+            },
+            "data.isoviz": {
+              "bytes": 155781,
+              "sha256": "c3e3352144ec479ec66f7c0769f78a92a344018ef6256eedb3b3c9a785e7081c"
+            },
+            "topas.str": {
+              "bytes": 24432,
+              "sha256": "9ab1c8014011e1d2ca894cf4b2a935fad1a5c125ec79d7e33694c11ec01eb019"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 92449,
+              "sha256": "12af793439460567f8d5f9ef56bb7feeddb5244c7f1ed8b5f3ccdd4f55ff6bda"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "2abac423515bbc98e2b70646f8a14ed40981024b048d5c98f757e1e47de1fb96"
+        },
+        {
+          "id": "LD5_C9",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_C9",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 25184,
+              "sha256": "5f29f8bf267df6656af3176ddbb50e41abc29dbedbc8dfb80fc65d33b6ba2d38"
+            },
+            "data.isoviz": {
+              "bytes": 219321,
+              "sha256": "008020dae227cfa39abe0d5859e8becfd98accfe431e274ea5b3d083a7fb22fc"
+            },
+            "topas.str": {
+              "bytes": 21367,
+              "sha256": "a8940c7b42d2f341f1c33d243063c1baba925fbb1c618e0e3342337108c86d0d"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 150226,
+              "sha256": "1f0449b5e3b2a4a7741fbc7df55ba9974353d0e25d8e295154ea028d2cd9efc1"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "661df1a5b12f1b43b329ecdbc4a980745dbd92989405a1de020a7fb6cd49267c"
+        },
+        {
+          "id": "LD5_P1",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 9604,
+              "sha256": "542bfa71e8c9b386e4f6ba5a8ffa462792997a6a2d5689ad888e31308597dc40"
+            },
+            "data.isoviz": {
+              "bytes": 85403,
+              "sha256": "e22f45c914f676d5ab7a2faedb0d2d76de7e560a714218c426dc43502a38c951"
+            },
+            "topas.str": {
+              "bytes": 6815,
+              "sha256": "7ccfa1ff028dcd1c408cb4956be5400890141e329acd74caab9fd296b4b64865"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 33966,
+              "sha256": "62b0e27682f4f32b9bd248a018a450059809fe7d09702fe6157c21df9a3dec86"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "0ff795f76a5c83b2dacacf71f60f435014e255dd91703977ef2cc8a28212ebd0"
+        },
+        {
+          "id": "LD5_P2",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_P2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 13154,
+              "sha256": "715370b50a4844f570b3105157ea3bbf5dd553f4c2ad9024f57e0ef9e7e5fea4"
+            },
+            "data.isoviz": {
+              "bytes": 105053,
+              "sha256": "8f355eb821353ff5584142aac9d1f908be325cf46a6ee6e7f4ead26edf9e5388"
+            },
+            "topas.str": {
+              "bytes": 10458,
+              "sha256": "04bae747ef6d014f7f77672ff88a851eea4a8a41a31db4337fdcc580e7fdb082"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 46709,
+              "sha256": "4a0d4963bd633aec63c5992b2caaecd8b3ceeb20fcd75fa1aae0348cf4d6aeff"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "c96f1234e4984d9da9dcf5176399dfefb834b50d1370e55a40af78935fef3362"
+        },
+        {
+          "id": "LD5_P3",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_P3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 10136,
+              "sha256": "3510ebbd05f205f10ae69e5a4d5f065ce2ba124c5e9c5ff223d18da30cbdf52d"
+            },
+            "data.isoviz": {
+              "bytes": 92822,
+              "sha256": "b242654a4e8b913805bc70a86421d0cbf549bcaf93e0a872e401279f18427ac3"
+            },
+            "topas.str": {
+              "bytes": 7030,
+              "sha256": "4d452b268c23a614bb9640fbc9f6a28df8ba3bf163b1404caa9d49843148b8a9"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 35454,
+              "sha256": "9cc8068e1601b6dfd0c008184a8f2e66bfe0627af42a02eb2bc9a6659448dd72"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "5ddd5200687808f1ef6eefd6bbd434d93d4e99816fcb2d7f6c1d8d52353d4538"
+        },
+        {
+          "id": "LD5_P4",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_P4",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 13760,
+              "sha256": "279500ddb04c7c5b093db3d5c872b8c726e18b341863929b3526c8ec5a7672e7"
+            },
+            "data.isoviz": {
+              "bytes": 44452,
+              "sha256": "8ca0ae859a2ace0dec3232a0470462fcb1ab9a6a4a9690dad75c75072567b6b0"
+            },
+            "topas.str": {
+              "bytes": 10737,
+              "sha256": "028a8e692be454a2dda2e71b5f2fbc148644f360ed6b2066f3396e7937a454b2"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 47570,
+              "sha256": "334ed82150e4c6003842981b8714738732f7922816d217e950960af4fbb1cee1"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "19394764de75e40e72253249b29b0b133c325ae7f73c16f5dff5fe6d2b2c0e21"
+        },
+        {
+          "id": "LD5_P5",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_P5",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 12051,
+              "sha256": "1b0653eda6651c32ec2fa33ff8d2a916d5208cf59dee6fd507ee2cfac34cdc3c"
+            },
+            "data.isoviz": {
+              "bytes": 149422,
+              "sha256": "2731c1ed1b6e5f74e5f3e028cbfcabd720bdf0538cb14b7cbe53e7da47b696b1"
+            },
+            "topas.str": {
+              "bytes": 9096,
+              "sha256": "a9c778818ebd9a716382e59ed04c295deeea125b2d34192aa4515d59c8dd263a"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 74347,
+              "sha256": "f517c29c51033d576e55130efebe0b1e13737277cc728f0fd6ff304628f03c5f"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "0c813fb8d5c32d8c8f872be05e657c8d72d4a035d634db053f3613c30e84bf98"
+        },
+        {
+          "id": "LD5_P6",
+          "path": "output_compare/EuAl4 Parent.cif/官网/Method2/LD_g1-6/nmod0/LD5_P6",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 12207,
+              "sha256": "6ef5d6dd89de521e2e651a2593b19f8cecb2f81f357672232b2331fb49225987"
+            },
+            "data.isoviz": {
+              "bytes": 123225,
+              "sha256": "5ad61767af8bb6663acd9736174b4908d8ac870f861fc34413f9c5aed94480ce"
+            },
+            "topas.str": {
+              "bytes": 9198,
+              "sha256": "55d88679cb1fb7731ceca1ebe5f851531821f05017538a1305050cc7a9322299"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 72953,
+              "sha256": "5f5b8a6e2eb54c05f2636e7f47242ce978b8921cd8da1f250f1562f6e3b42f72"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "LD, k10 (0,0,g), g=1/6",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "b6bb1e635e2934ffea574b1d13ed5f0cdad2f79be3972fad4fc740b421d4053d"
+        }
+      ]
+    },
+    {
+      "query_id": "M2P-ND-Y",
+      "parent": "NdNiO2 own.cif",
+      "nmod": 0,
+      "expected_candidates": 48,
+      "archive_subdir": "Y_a1-3/nmod0",
+      "layout": "<K>/nmod<N>/<IR>_<OPD>",
+      "expected_k_header": "Y, k6 (a,1/2,0), a=1/3",
+      "registered_input_evidence": "independent input values reconfirmed in the 20261019 download manifest (k template (a,1/2,0), a=1/3); this archive predates it and is matched only by the official page header",
+      "submit_state_capture": null,
+      "action": "register_only_no_download",
+      "archive_path": "NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0",
+      "candidate_count": 48,
+      "candidate_nmod_values": {
+        "0": 48
+      },
+      "k_headers": [
+        "Y, k6 (a,1/2,0), a=1/3"
+      ],
+      "candidates_fingerprint": {
+        "file_count": 384,
+        "total_bytes": 73930023,
+        "aggregate_sha256": "327cef4f510d8f502ab5bc27343e8b1408e0d797d795a2a7332d372bf4305a02"
+      },
+      "archive_top_level_files": {
+        "file_count": 0,
+        "total_bytes": 0,
+        "aggregate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "candidates": [
+        {
+          "id": "Y1_4D1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y1_4D1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 298936,
+              "sha256": "2bc2d72ebce363f963e6e1e66a4f870ce05f50de059ba7ba465fd8b38afc6719"
+            },
+            "data.isoviz": {
+              "bytes": 1230367,
+              "sha256": "c70d0552ee9793ed5755a238e660d2825b40b170bee437900f79e688c908f0ac"
+            },
+            "topas.str": {
+              "bytes": 249004,
+              "sha256": "f3b78dd49c08e7386d72fc9068b1e1a0a7674e25ac70d08c63b51eef86c04e42"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 967529,
+              "sha256": "3dae992ddb75a2ff9b27c86ab5a733c64a6ed721e06ed36421bf1cc8cd6e33b6"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "d0f0e81ccdf861e5328b0bc032112f3e21678b410dff767cc4e86c5813896c1a"
+        },
+        {
+          "id": "Y1_C1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y1_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 11557,
+              "sha256": "c86b955338537b2702830636f48c613716d6e6a1c99e1e13d74696a9dbe672aa"
+            },
+            "data.isoviz": {
+              "bytes": 54279,
+              "sha256": "178faf49d76e2d7d3f866f2f270f1ed5e936cd2f02c35ea60ae913c0945f2219"
+            },
+            "topas.str": {
+              "bytes": 9507,
+              "sha256": "5816a5f2203265cd0a9e028eb2d83a8983c17b25fe04f245b6cffe7248dd4fc6"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 21401,
+              "sha256": "5f29aeea8808c45655e1542bfa88c305b8d5805b407b9dd17530c5bce9a157d1"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "75112d391cf7711361c9a0fc46a87bf6606f8d7515b2d730a2f95e5271828221"
+        },
+        {
+          "id": "Y1_C2",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y1_C2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 35724,
+              "sha256": "83f98f83bd64c078c0af1c3afab5d85238776c7b5d09b4a822e836fec1485d8f"
+            },
+            "data.isoviz": {
+              "bytes": 397409,
+              "sha256": "f28a8276723b97ba1b376b5dded92f44364c0209d00bf2c791d2ce6c12e8fc99"
+            },
+            "topas.str": {
+              "bytes": 33298,
+              "sha256": "b9a67eed8917e2c77f2b7750581235872b96627e34fbad5c719c0dfa3a698923"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 241969,
+              "sha256": "4bacaedccf781c45c14e3df112646bdf0220b715707fb48f9c16f812d029cf82"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "60ea12747a35e3b771d1c5aa4580d482aba3ff3270c05d2ff698e233c39c43e9"
+        },
+        {
+          "id": "Y1_C3",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y1_C3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 34453,
+              "sha256": "7ddb9dd9d0fd046c9883be592657ca40eb22f5a32337ea9cd5cbb8ad616201d9"
+            },
+            "data.isoviz": {
+              "bytes": 386328,
+              "sha256": "d3cd8ec676aaecbd13d0792c6be6760264a04cd7a94180ae9c9bbac6425a589f"
+            },
+            "topas.str": {
+              "bytes": 30837,
+              "sha256": "472d9040b608d4b87f294a254ff36381ea263beae5571e93b9e3fd7941316826"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 237292,
+              "sha256": "91ecbaa9965e6d1699efa9e2d541d538a3aab00b221a2f1fdfbe3b654e9c7eb8"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "0f6760949fc986499f4c177e008376e209a41bb0c277f4ce3d6bd5a77c7ca1af"
+        },
+        {
+          "id": "Y1_C4",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y1_C4",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 33001,
+              "sha256": "458915bbb27e342bdcb8651804427af0db5813f5999ca7360c1f82f769d852ec"
+            },
+            "data.isoviz": {
+              "bytes": 383934,
+              "sha256": "5c8219701fef5bb0f9720ed0331e26f779a4c75c658098d0a98efd9d42d247fa"
+            },
+            "topas.str": {
+              "bytes": 29180,
+              "sha256": "0a97d44c0c64b8802f4651441169b8c32a97a148a3686752a986d407cb4f034b"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 243128,
+              "sha256": "19481dea70defbced3a73ac89579c74331e527e0e787e85cdaf2562a707936a9"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "5a4b026d0f9258ecbd76cff9f258d339ec5b0cf9cad424cd4c52aa0b987bcd06"
+        },
+        {
+          "id": "Y1_C5",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y1_C5",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 163196,
+              "sha256": "5be09c503b902f0f44a0939c511c385a7197febe056bc35c3e836faa88054c1f"
+            },
+            "data.isoviz": {
+              "bytes": 1176920,
+              "sha256": "270bf927290e414065a5affac8a24f9519c2e710a2f4dc74a37fbc909b5eb891"
+            },
+            "topas.str": {
+              "bytes": 130957,
+              "sha256": "d8a810acd911586c6f62ed02b7513e091bd7ab8a3e6b3cbb3520aa58260590aa"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 937859,
+              "sha256": "a8e5d89843fc9cb7167854777b15d0b2c23a317674860f32f4cdd19fba0e13f9"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "4072dc0e42401b31817ba77bce14008d8e923abb69c6b651e4df5a81b37c08f1"
+        },
+        {
+          "id": "Y1_P1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y1_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 7203,
+              "sha256": "6915bdf3a55c62047f3e591205d8553e861c7d8a2257847fe4a337f91b9b03a3"
+            },
+            "data.isoviz": {
+              "bytes": 42762,
+              "sha256": "2a374b5f20a61b723be7ab0e17cd1de1f6c13f0b604077ba992a960974f95c2a"
+            },
+            "topas.str": {
+              "bytes": 5079,
+              "sha256": "2c0f2679917836e278d46cbe87584ef05727090ebde937d0cdae83306514f17b"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 11470,
+              "sha256": "f5910a837d8e73928b068f172ff0ed96f8bc07b4cda7256b31fe9046bc31a061"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "e6d9a4c8880ee85eb1b727f8a8147c9784e1340b58c46a506ef66474c305f44a"
+        },
+        {
+          "id": "Y1_P2",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y1_P2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 7019,
+              "sha256": "8ba7c770997a35c15dbe1aa2a2fb133778282aa2a758176c760b1d1ddac3b9c8"
+            },
+            "data.isoviz": {
+              "bytes": 38620,
+              "sha256": "50f2f71c9f97215824d161b85235e3abb5362f9f3c7ed2dd1fe0a58bf9cb668c"
+            },
+            "topas.str": {
+              "bytes": 4664,
+              "sha256": "0af1cab8afcc19458952dd34f548a78d60b19219d760962f926d63b2fc2c6aa0"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 11344,
+              "sha256": "cc049da62ddb792f02c94f39d3bfad05300a586f316019ab6fcbc81a693c6614"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "3a6610c56fa1feebea969e7227a91596bb88130fe1123316ef39a0dc32b0b9bd"
+        },
+        {
+          "id": "Y1_P3",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y1_P3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 18786,
+              "sha256": "19a4c8a008d10535b3288b3b9ee1f930e7243418b571fdd37a3ef60901409620"
+            },
+            "data.isoviz": {
+              "bytes": 263773,
+              "sha256": "d70237778e2bd53115220d8c4ce9936c9d00be105b9debedc663a13a105b9f69"
+            },
+            "topas.str": {
+              "bytes": 16825,
+              "sha256": "e3de3ba3b9ad481ed5ddd5b0fb6fe49813cdfcdc1b50ddb2879b83f4b74fc2c3"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 123169,
+              "sha256": "98f4147623513161b4b49958fee8214cfd2dab7707589e590c042c3c2c73f04b"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "c331bceae4737ca0887f7468e0d6a5876079c287d49926543a60572a02f474df"
+        },
+        {
+          "id": "Y1_P4",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y1_P4",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 17917,
+              "sha256": "ac297c2a8b6e1e70d4761309b84b73d3a54851b50f261841cceb9f35127ddf6d"
+            },
+            "data.isoviz": {
+              "bytes": 252728,
+              "sha256": "95f5166efaaba4f3102cc2c8b6725a0535a3e321eb03a418e39f08f2672a1e97"
+            },
+            "topas.str": {
+              "bytes": 14806,
+              "sha256": "df638fe2b0249fc91bc5dd385613e34ebc731d1de5272eb3906fe435accc10c1"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 121980,
+              "sha256": "23ad2f3cf42a5a6914f90c16cd9a8a91c45c1ce4f93d5f9022afd21876f38a30"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "5f93416a2ea863a683ea594e9c22bb0046f7c9f6040c46dd19f2bd73414bcd65"
+        },
+        {
+          "id": "Y1_S1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y1_S1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 95360,
+              "sha256": "2c24b47e5c2cf801d690548755295dface389bf3a6e419cc446625990ec09720"
+            },
+            "data.isoviz": {
+              "bytes": 679065,
+              "sha256": "34663639a2084078b9792c99a708d27325d7d1a9691b36d2d80e2ee16fbe4308"
+            },
+            "topas.str": {
+              "bytes": 84272,
+              "sha256": "2060dc345004fd1c5a1893f3a21b4b381b1d570ece19dffccf83e19b9d252c8f"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 487667,
+              "sha256": "4ceb4b6d4b2b24fe6d20807270d7156b874c96a60e6675a027dba59585b2048f"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "cb981848d98ba02d9467f8b2576a03a72fc1026dd90c5d64e018887317819855"
+        },
+        {
+          "id": "Y1_S2",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y1_S2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 87942,
+              "sha256": "8c75cf7447025d765161dd8aea2ac9bf5f7f17809dacff74da711a0e8a144f1f"
+            },
+            "data.isoviz": {
+              "bytes": 678881,
+              "sha256": "917873d23e2bf71c2e2ec9730791188f007fe28fb35d6f278276462a810028ce"
+            },
+            "topas.str": {
+              "bytes": 76627,
+              "sha256": "8cd38a584ae826b6303058880fa8c1683229ed1f3c282eb71004e8d42f0f6c13"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 486584,
+              "sha256": "db2a10433eacc8e47c71685121e917cc55101c17ba13a07cecb7b5653c4eac75"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "a3a25ac17edd65739338361387a5f222c4a95bbf0cfdda99f67885ee6f83b2ee"
+        },
+        {
+          "id": "Y2_4D1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y2_4D1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 155810,
+              "sha256": "b22b1c253fa80e80702971d5af1f4cc2d0419d0ccd4e273f9e7a5e79d1f45241"
+            },
+            "data.isoviz": {
+              "bytes": 916456,
+              "sha256": "b532f4414319b59122542493e1dfc7fc577e4b49f48532fab9aced333f025f78"
+            },
+            "topas.str": {
+              "bytes": 129019,
+              "sha256": "03714464a6475351463fa912fd8977f0b2be0a2dca052a1640467f31dea90eb8"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 722032,
+              "sha256": "00d1ee9fd945e107f1331a70b4434f5890aed835708591d7f4c01cd2193f7929"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "8428edf2d83dfea6f72c10214c9ea449219ed6d2be51cd52fe2519089ad7a290"
+        },
+        {
+          "id": "Y2_C1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y2_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 8819,
+              "sha256": "144f3bfee66fb4adcda91566b1c67ec55f84a3c00054ac80c45247297ab48aec"
+            },
+            "data.isoviz": {
+              "bytes": 48274,
+              "sha256": "54219e7f354300fde8189c85ebf393ed22abf2139501b617270d21a806ed40ca"
+            },
+            "topas.str": {
+              "bytes": 6544,
+              "sha256": "ae90543617ebd59e883d3adb2e2bfd634d943568b88d67b1ec5b1781ada3cc63"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 16677,
+              "sha256": "19b52e9ec25a207789875aa1520d684b0fafb886327d078070c5ab66517090e6"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "12e20273082e80d216fb2f0f50c9292bd75430c228f64cf24b1456823ff4ccbf"
+        },
+        {
+          "id": "Y2_C2",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y2_C2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 19117,
+              "sha256": "ba810a7c8d3cf01712012da127f271ba07e0e31c471d8ff5b72bf62f9f827365"
+            },
+            "data.isoviz": {
+              "bytes": 293168,
+              "sha256": "55469b36d94de66940ece49ec08284e9976afe792412a313a4bc9dfd53f9b2aa"
+            },
+            "topas.str": {
+              "bytes": 16470,
+              "sha256": "f48ea3d36eb8b64d82bba24c5a3676c38f8c629d8e0b94b58b6b351124ced9fa"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 157529,
+              "sha256": "3f6a7201b6fb65e7720a593413997fa44e6552eb2adf04b664fa7bcb1f424473"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "ebcd5fdf28dd6f4b5780675ee94142152521821c3d720c14046c60a37bf72450"
+        },
+        {
+          "id": "Y2_C3",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y2_C3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 20661,
+              "sha256": "7e9cedca241bab77d7b1f6d3b6d8ade9a4db6bd0407a385fe575b17a98388551"
+            },
+            "data.isoviz": {
+              "bytes": 315652,
+              "sha256": "9819e7ec96359edddef243a6332d527127c1817a12ea0d6c652b40491764fdad"
+            },
+            "topas.str": {
+              "bytes": 17767,
+              "sha256": "ed460307e42c168e8ad51973658e0e7741d0138fd767a3828068453f92c9e0f2"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 172976,
+              "sha256": "8a1b399bace1f52b476bbac0418cd626ec7b00a37c707d11be16b95c3c140d02"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "fbb6d4a90316691c2cfa785f175ef1e326ac4546351631b110b103b253309194"
+        },
+        {
+          "id": "Y2_C4",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y2_C4",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 24100,
+              "sha256": "23ac3489b2c28e3e49751f658a4089bdaf5999efa07b725f1051ac43ba107b40"
+            },
+            "data.isoviz": {
+              "bytes": 348969,
+              "sha256": "e63b2db14fc47800c753436a55fb3269a3f0c1e8ecd7eb68aff4421f88600490"
+            },
+            "topas.str": {
+              "bytes": 20179,
+              "sha256": "e79437a9d283c917fc58ed9c2c6d2fa656b025ec65aabe2b49dbe41b41c3b395"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 198512,
+              "sha256": "7c27d0a4ebaacf06c15af240029a3de488c70292a1ba0c35b50b497a7ed217a1"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "f0bb749445c4473c64e930ae58295a3712474bdaa986b72580521445d6a71890"
+        },
+        {
+          "id": "Y2_C5",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y2_C5",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 66321,
+              "sha256": "3d66645af5fdd516bf624edffb6919cef617629cb00812a8130813ad8714cf7b"
+            },
+            "data.isoviz": {
+              "bytes": 934611,
+              "sha256": "587d125b68688ab8cd0c31bb24bd49a9be36a1fbf553ca1c4a45ad254c0a9386"
+            },
+            "topas.str": {
+              "bytes": 54849,
+              "sha256": "d21f81e43691667fa0c7092700a578f18796d7a51ab9470a846cedb6cf4c50c4"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 702244,
+              "sha256": "8e9156e3fb1608b6daa69d50d84950d0523769393e5a521ea45c08343f60af34"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "114a5e38231b9e19f7fbe24acbedb0728a7801a365e0d8b42997fac8a022c316"
+        },
+        {
+          "id": "Y2_P1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y2_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 5803,
+              "sha256": "68a77777e5b00da51c519a282e91d58d4aec5c4d61bda472d8f7d9285d05b004"
+            },
+            "data.isoviz": {
+              "bytes": 37445,
+              "sha256": "70b4328632e6021bad9ccdb8a88d8ca91490feb73d0d05400de5762fcfeae3c4"
+            },
+            "topas.str": {
+              "bytes": 3412,
+              "sha256": "5162a9d259db03c56a3aa3c5d9bcff6faadcef6090acc061a24b2c54006c6922"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 8312,
+              "sha256": "3a394701cda6b759486f0d53c2d5ef682828131166f32dd86afe22bacb7ae6b2"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "d9112461c9f80f624bb39e18740222dfd52c1b29c2cb49210a42c52dd3540cd6"
+        },
+        {
+          "id": "Y2_P2",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y2_P2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 6190,
+              "sha256": "1e444d050c6ed7b8ed83fcf0d41602b5f227c3ab2873f29b8a1237599cd6aea7"
+            },
+            "data.isoviz": {
+              "bytes": 40739,
+              "sha256": "4582a45dff725483c6deea5553d78ef79e5a146538454258cefaa0dc83768fa9"
+            },
+            "topas.str": {
+              "bytes": 3784,
+              "sha256": "febb291ac7cd82a2edd286df096fa2b326d688751c88358c61f4e244d324d0a8"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 9759,
+              "sha256": "47dc48a8f210a73e53b729c056c98a5695514ea6802688e042be29164da249fe"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "a073d2e16e3e0b333e1885b7b0c08cec10430ff6e9401ec3ce785960a5f3acf2"
+        },
+        {
+          "id": "Y2_P3",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y2_P3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 11527,
+              "sha256": "dc088ea4099f0d471d5ad3abc07c564f9f228b0f3471d11a0190401e4b001193"
+            },
+            "data.isoviz": {
+              "bytes": 207343,
+              "sha256": "15edc2609860d9f0b8b0d3eaf172a1879964ca652832fad32922b04caac47432"
+            },
+            "topas.str": {
+              "bytes": 8859,
+              "sha256": "e991c4f33cae5a2d0388a3a2b6122eb38a324eced91b08f33e22690eabc740e0"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 80875,
+              "sha256": "5f633f0d928366f83b34e0b43f4fb0983acaf5522331ef197edfa14a59e9166e"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "e078c24c983061c04da8beeb9868ad8f92aaf1c7fe6947aa0d023bad04490ade"
+        },
+        {
+          "id": "Y2_P4",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y2_P4",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 13128,
+              "sha256": "f1ab82b8f1476ca4c2a225b0f77eda69d46d56c0635b656c2b9d0845722d4f43"
+            },
+            "data.isoviz": {
+              "bytes": 239568,
+              "sha256": "3e5d4a966c85884dd3c48a2a7dbf36d841dea0ad0183ccbf51ff7b4efe234506"
+            },
+            "topas.str": {
+              "bytes": 10547,
+              "sha256": "0cfdaceb61f971c53334f919af96e8add4812ccce8ce242c586dbe44ddd7067e"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 101607,
+              "sha256": "13e62bcf7b7c666bbb89b3ef3ee199b16773ba68644dbd6bcbb5951a329996f5"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "99821c6e3e03a3bbf63d9474bfcaa751763be68d4b476df70b7e82653f23b34e"
+        },
+        {
+          "id": "Y2_S1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y2_S1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 46378,
+              "sha256": "04f979d85eb5afec1fa5a4deb713e67ecc37fe4b7f29181365620910ac6fc998"
+            },
+            "data.isoviz": {
+              "bytes": 514465,
+              "sha256": "baebee03b8a0ec0ce5ac86c56b5caab765bd47d2b023938dc13e9681b2b47221"
+            },
+            "topas.str": {
+              "bytes": 40191,
+              "sha256": "74bdd3281707d3f8a25a3b0ca21dcf1598ab9903e27f0f8793a31b9b52c0d8ae"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 344343,
+              "sha256": "0cb10850690da370710dedb482207bd264f255ab26fd172fd42123fad7818067"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "654ed6e91ee77ce4b08f20fe416b4312fa89b71f0ad8163109737255f9d5fd59"
+        },
+        {
+          "id": "Y2_S2",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y2_S2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 52064,
+              "sha256": "9964bc2233d1d12993a6725af2ce4628997acd5237e1f8276507e3056e549f68"
+            },
+            "data.isoviz": {
+              "bytes": 553572,
+              "sha256": "0a2c7747d3bf396abca4e310060c730f7826dc8d5796c1e2a4b342927e126449"
+            },
+            "topas.str": {
+              "bytes": 44810,
+              "sha256": "20229b69ee86a6e3e6ef3b66fd6cbaf466d29816df4580018518b3e2bca26eec"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 384068,
+              "sha256": "40263e45701f5112f0b237ae1aa2abf657dfc4f9bf53fa0359942dd61d115036"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "893e6c2c12f19666bd4dc70ce928dd67d607b9e4d7307d7ba665fd0ec91b32c9"
+        },
+        {
+          "id": "Y3_4D1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y3_4D1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 155810,
+              "sha256": "faab3157f33a1f71586a59768ff24f66d34291b0f1f9ad10dab740f1260d6724"
+            },
+            "data.isoviz": {
+              "bytes": 916456,
+              "sha256": "906de19c5ca8269822dd56bf7a93be07d06ca2968ce3206f14a3825a8f114e07"
+            },
+            "topas.str": {
+              "bytes": 129019,
+              "sha256": "48268b4c107268d69fb0734aec4def8c4b796ecf90df9f697a9a19c28bacb053"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 722032,
+              "sha256": "8d702e168c53778ad4dc19f9494c284a19b99e7d958d9ac71125f048bbb570fa"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "785796a1201e35fcb9133b42a04f0fab23c1846108d0938e21deb22b0feb16aa"
+        },
+        {
+          "id": "Y3_C1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y3_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 8937,
+              "sha256": "a855a2bb457afc9075a3697fe8d91839d98c34c8f008316e5d67fba9d2e93d6c"
+            },
+            "data.isoviz": {
+              "bytes": 47317,
+              "sha256": "dfbfa6ac9a2e030ea6733c0cea330cc6d2453a849785c085e32dd991ae805a13"
+            },
+            "topas.str": {
+              "bytes": 6544,
+              "sha256": "fc8323ac43a8a45b04ed2a907613dcfc38d9d138a6b432b46285c0cf93268407"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 16679,
+              "sha256": "84189840bc57cfcf38bfb25955c7ac52798fb5d3d4e0d6cfd7685e8698177102"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "f8ca9a1a5bc87ddee9e9b588d0486eca259a1654f56f1027e178db42dc0c9f91"
+        },
+        {
+          "id": "Y3_C2",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y3_C2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 23619,
+              "sha256": "920b233af8fdc939e7ae80565a30a4e3d3c4e38a1531efafc54a0c3606346196"
+            },
+            "data.isoviz": {
+              "bytes": 339964,
+              "sha256": "522e89b3b9c6d6ee311078caa0aefdccf6f73cfcea741c96b74773ed91449ce5"
+            },
+            "topas.str": {
+              "bytes": 20176,
+              "sha256": "a6baa57c72179f41944ed3623163a1d0c08d51aedcdd7399af9208b8e0642ad5"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 198660,
+              "sha256": "52c5b19b5283b618757197e7df0635656cb50954b0bc471c48bbec5f2b2a2aee"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "c28ac670d3338baf21a518bc20dde1bc86fe155c60b1e8ef709da047fb3df360"
+        },
+        {
+          "id": "Y3_C3",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y3_C3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 21134,
+              "sha256": "f105ded256ce1d3f66004afff94cc8d2114f68ce29ff8858bee19ca819d06990"
+            },
+            "data.isoviz": {
+              "bytes": 319684,
+              "sha256": "68b6a21fe3ab62a4322874c9d2c05bfa53bfbe6e0a76a945eb77874b740e0c42"
+            },
+            "topas.str": {
+              "bytes": 17759,
+              "sha256": "2c194f5d24d9b6d1f4fbf0b37ba7b9b5772e0b23e87ff90b0d88dad120805fdb"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 172970,
+              "sha256": "68d9c2808f011a53066792b4910f38dd8c0d9ab417b9516116319fcf83a4083a"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "7c3735629e45a9042c50c27a6d95cb97b781bca2185aafdf5f88fd62ad0e2626"
+        },
+        {
+          "id": "Y3_C4",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y3_C4",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 19589,
+              "sha256": "19708ec284e8fce8a28c00a854b63a41b828058b34ada765556e140440b15126"
+            },
+            "data.isoviz": {
+              "bytes": 309085,
+              "sha256": "86c44232002f9c5de86bef0e35841c59baafc2573c987bf5c7e372d4e524a666"
+            },
+            "topas.str": {
+              "bytes": 16468,
+              "sha256": "a4159941dddc3ca08779701c408c5c4fed136196110be4ed158ae51551ad0066"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 157531,
+              "sha256": "676a48e05d8eb69f4463fdfe9f45803eb3415ac1f283ba485416803778196d64"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "d58ebcce2f891d26605cdb3e750d0030950eb4a6f9035690f42af3e4fb6eb1b0"
+        },
+        {
+          "id": "Y3_C5",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y3_C5",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 65948,
+              "sha256": "15961682cdbd67da66dc876c42bdde3ddaee0fdec2f695e880c0924066f48e25"
+            },
+            "data.isoviz": {
+              "bytes": 934611,
+              "sha256": "63d3d59610177701aaa23ed43c77410b2d1d38b2bcfb5ab1f47773ca21dc1eca"
+            },
+            "topas.str": {
+              "bytes": 54896,
+              "sha256": "241a6f78a9797bbc51a26593b89dd5ef27ca0771e4bd4ab48b367ade7d30ce7b"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 702804,
+              "sha256": "e5f180cace91fa1b62009d5f143f2dee0b3aec0c5ac0799e3b6b89ad09e1dd71"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "d32318d35b56356c199d528d4c7af79b6845601f8858fe091c0d785b293efae2"
+        },
+        {
+          "id": "Y3_P1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y3_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 5875,
+              "sha256": "72457b21f021d264786ab1f7cd170e1c8c44180ef8152ab3633ea9128536ea06"
+            },
+            "data.isoviz": {
+              "bytes": 39906,
+              "sha256": "d9fa9f6dad8e8a91641e2ed73b8ed1b260b9aabf6d980641aed4959b25a45da2"
+            },
+            "topas.str": {
+              "bytes": 3412,
+              "sha256": "b636163b6c6d5aa58ed4bf68d580617976f0f34f5d46f19892b623b2e2f3d411"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 8310,
+              "sha256": "900dd2ac5d45dc10eb962c4fb342ed8fe1c67f7ecd9988c51c87563fa0de7658"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "e49a2b0d8afab63631fb464f73862d911c2be6255022d03c76170fd027195cbd"
+        },
+        {
+          "id": "Y3_P2",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y3_P2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 6270,
+              "sha256": "44bf482a3e1de535034fce2c77de67aa13ede87bbc3ce105e8202292ed8afbb4"
+            },
+            "data.isoviz": {
+              "bytes": 39462,
+              "sha256": "4dca96be3d6189d3d4e47df71f180b6ad8933a8515b3b0ae42eb3124b1795559"
+            },
+            "topas.str": {
+              "bytes": 3784,
+              "sha256": "6537a9e27bd93c1895a2156be29eadd8f32d10ed45d1053b1145418b826aab45"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 9761,
+              "sha256": "5b13a0e91dd981aebfafff48cff46e3612b490015fb614936882b3ef690584fd"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "bd6df2d74a065e15f7596c0d674b608c4c75ba6f542b15c6250f4f2388b18e57"
+        },
+        {
+          "id": "Y3_P3",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y3_P3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 13264,
+              "sha256": "656f4300278a150a2fa051981e6cfe35d2739b7838ab9c59ea1c54ef9e4c4d7f"
+            },
+            "data.isoviz": {
+              "bytes": 230755,
+              "sha256": "d09b33a240396becb9d85fd60174036ffc1ea4f0951b7189479ab2a4f39fd66a"
+            },
+            "topas.str": {
+              "bytes": 10525,
+              "sha256": "677bfe691c7a19c3530c4c1f038308c1c75842b1bbc2dacbf2c666022be88402"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 101668,
+              "sha256": "dcefbaf664ff53b0c259b42e3f7109aa683d6704401cf04b54e72c0056a9c48a"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "a56e117b2c089ab80a72f9853f172338c6db624db31b8bd847d88938bc47ea13"
+        },
+        {
+          "id": "Y3_P4",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y3_P4",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 11387,
+              "sha256": "59de4d78b3f91bcf9b6f3f7349d81fa426c419e2eb64eb9ce3ebddb42f135379"
+            },
+            "data.isoviz": {
+              "bytes": 219612,
+              "sha256": "397cb7116f7286873d9e48fdd4133ecb01c66d3034bb6e623e956edae65cfe97"
+            },
+            "topas.str": {
+              "bytes": 8879,
+              "sha256": "c55b8f05ba862cdf2f5f9504b23bf7edff8ced3943e719251c1ac2167aa7dbd8"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 80950,
+              "sha256": "5d4e47fc3e4593dc928c02dbf4837fc65d25f6422ed0e58b11d667347cf889cb"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "9251b9b1153f4607064c18d88c6e9de75859982b9c15aa4b04779cde4e622650"
+        },
+        {
+          "id": "Y3_S1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y3_S1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 46422,
+              "sha256": "bb5b9533dc49f9243a2b1f42321ee7445cd6ecd6bc9f321417c711f37aed8290"
+            },
+            "data.isoviz": {
+              "bytes": 512167,
+              "sha256": "91a671e92329cb0c42cab403aa38d25c8405ed2eafd23e36d0cf08eb240da1b5"
+            },
+            "topas.str": {
+              "bytes": 40232,
+              "sha256": "c0aa9aba89452121342d725bf56398c499b9f14fdcaf0c3469b6904fcb18b567"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 344375,
+              "sha256": "0813703a984e12fcd326327ac8b6bd11f89440d5f6c1ac9c80fbccd32dbe22af"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "76c425d3b384bd8a1cf048e11f1c18accdfd19c3e0e5c9e1a856435464379cf8"
+        },
+        {
+          "id": "Y3_S2",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y3_S2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 52020,
+              "sha256": "d9e40a029ea3d17898187380ed65d9733db6b9bf4aca62c82023b702c12c8e29"
+            },
+            "data.isoviz": {
+              "bytes": 566238,
+              "sha256": "c8dec627add8595255491e816386bb016fae820a23540839268b5d2ce048518b"
+            },
+            "topas.str": {
+              "bytes": 44814,
+              "sha256": "b9fcd7f52cb2f01a7afef1a43fa2faa83ae9b60b20fce2f71ba82010cfd0cbfe"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 384036,
+              "sha256": "527ceac6ba22345f8f8b96db538849794249afcc77e2ecc6a931c70087bf2f3c"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "b0612b135f80e8f8c8dfa04235e13cdb8220f1acbc6402d7190655938686bd6d"
+        },
+        {
+          "id": "Y4_4D1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y4_4D1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 298936,
+              "sha256": "960ccf849d1cbbc4ee2747c91f06f7ba2c330f5ab343af067e7cd3d5659099a7"
+            },
+            "data.isoviz": {
+              "bytes": 1230367,
+              "sha256": "919f2b5181381e0d3bbe29f514674aac531cbef15413d66f023e868180305578"
+            },
+            "topas.str": {
+              "bytes": 249004,
+              "sha256": "e45fffb8762aefe557c978807a6932c711218829c6974bc79054f1a4ce91ca11"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 967529,
+              "sha256": "90f169c8365ba215b320214d6e4fad16a90e83977c7b7272016fac9fd22aa207"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "ce7c3f082fae84759a10f7ce0dbf6a94dadf11a4b5092f7865e9af5ecce79934"
+        },
+        {
+          "id": "Y4_C1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y4_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 11738,
+              "sha256": "4c4c56a046684c810cbfd65761753194b370f339e83f96f3974a3f138032b082"
+            },
+            "data.isoviz": {
+              "bytes": 52074,
+              "sha256": "0f44041d82267730146badaade864983d3baf679dd2249ed5877e868f6b90932"
+            },
+            "topas.str": {
+              "bytes": 9510,
+              "sha256": "063b9761d1038b20dc678827689287cf864c7a6c0ea79ca0c121cb27b928d14a"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 21403,
+              "sha256": "02298a92903aabc70dc57e1f85cebf8ecf3693cdedbefa1dbd09866134766e1e"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "76e98bc6a6b6bc3e751186bed756208a7cc3f0f04e56bd9f02f20951fb3a04db"
+        },
+        {
+          "id": "Y4_C2",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y4_C2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 32279,
+              "sha256": "31386b10e5957445a9b02608a4791a2f31a59ba604acf7307ad43d78978b54ec"
+            },
+            "data.isoviz": {
+              "bytes": 396907,
+              "sha256": "8ad4e46ac1e9a811715f53eef9c816a36069d1becf6c9a0d01bcba3e4700d762"
+            },
+            "topas.str": {
+              "bytes": 29192,
+              "sha256": "34b24559068feb9e6063c54b7cf2c8ad0c64a807525b7a353ea7fd6189838ebe"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 243308,
+              "sha256": "adf59c7a4acead6a9634fcb10b9dc15eddce175dc36a016828b2efbeb699f61a"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "bab73ff93fcec0542aee7e1bfc11e386778e1e63c821d4be5e1e7719781affeb"
+        },
+        {
+          "id": "Y4_C3",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y4_C3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 34447,
+              "sha256": "cef573faf1f90ffb2f17ed7b74aaa7fec69935a4fe0e873f7f2d69e3f8709c44"
+            },
+            "data.isoviz": {
+              "bytes": 386328,
+              "sha256": "59e3bb4851dab0054e216f00149d9ce9b85dc1ff7b449bdf2441a1da329d93f9"
+            },
+            "topas.str": {
+              "bytes": 30830,
+              "sha256": "ebc78337b4ba6411cd0f5052a3f944474b56733e6fd836b3e3dbe322145ce0f2"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 237285,
+              "sha256": "0ed64c2b6b35e7426806393a268d302aefda44b57c3fa7337614a7142b7e675f"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "a720c21ad6d2f5158e62f3b143fa1dd672bf11365aeeb762e9998321551c1e4f"
+        },
+        {
+          "id": "Y4_C4",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y4_C4",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 36731,
+              "sha256": "c3c1fa58b70f3da9a139a89250528f10c293528a6bc074fbc4c58602d81a48fe"
+            },
+            "data.isoviz": {
+              "bytes": 384436,
+              "sha256": "055de07230116b4019e28c91e7c1bbeddb64bf222eb813926ea0ea064e2a7ab1"
+            },
+            "topas.str": {
+              "bytes": 33313,
+              "sha256": "27420bfc1e673de569278741feb24aa5ab706148cfaf8f2582fdbafb6a4c7de3"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 241982,
+              "sha256": "abd882ca6a4fe11d1de667e730807e8c2fffa2c7978b9c6d664510fce23aa7ad"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "9cbf7f5f09218e240addd2ed4a547c07fe5219d58804dc3bdb5c732ed5df690a"
+        },
+        {
+          "id": "Y4_C5",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y4_C5",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 162521,
+              "sha256": "89f65dc910fab9e1b4b38a296aa8a7fab33743df2c9f0feb906bef36186512f0"
+            },
+            "data.isoviz": {
+              "bytes": 1176920,
+              "sha256": "74b74f01c29dba495266abbde90aeeb9daa7e136379cb3d42c2c8fbfdea3a199"
+            },
+            "topas.str": {
+              "bytes": 131070,
+              "sha256": "fb165ac8dd84d2967bc0592857edbe7f46f10ca3e15b7e306e44eaa49978b7a5"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 938655,
+              "sha256": "c589789441863a91d28ee966c2e0b7ccad62bd7b660c55cfa54108bebdd5d162"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "65e18939a972112ecccddb1d8c898b189072e6ff55326c8c04cc852e593df488"
+        },
+        {
+          "id": "Y4_P1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y4_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 7325,
+              "sha256": "fc014eedc9d002e3c728f3f0b3d64fe064e7f481f90902fc93d151e09c9f0111"
+            },
+            "data.isoviz": {
+              "bytes": 41069,
+              "sha256": "bb4ca38d4437d5d7aa7cf133bac1462cf31e46b0815e69dd18dd6fc4c26d162c"
+            },
+            "topas.str": {
+              "bytes": 5083,
+              "sha256": "9e6696735aa8766e3c887fcd395302da82574e2c1e502b62b2d1299dc7f28066"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 11472,
+              "sha256": "c5d8a058263f0c6e68872ef95029abf6eda0508554c8dce75b0103249a682583"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "a3b21e86aee23b14bf876f42bc0fe48b9fa716e3dc74c9b645852323a37254ed"
+        },
+        {
+          "id": "Y4_P2",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y4_P2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 6922,
+              "sha256": "9f20c1ecc4692afd2ada3c85b818d872191eeda67b6d82ccbf94a96718f90b1b"
+            },
+            "data.isoviz": {
+              "bytes": 41522,
+              "sha256": "696c74be69dc0c1cf94e82ca1bc3b5b0f7840ef17e2a5328265f4732a8c7857d"
+            },
+            "topas.str": {
+              "bytes": 4664,
+              "sha256": "338ea7ec3fb1861d4b9bc2a7a4196b72ad0f9f11ba6312dfc61c6c973436afa8"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 11342,
+              "sha256": "17886da87cab4fb18ba18528ce28bdfe94e3433f1e479c89c8e1fa08ee0a6bf6"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "ac8cf23179aec64f2e2be3116fa1fe43082209f3cd04323a5e468bc201e71702"
+        },
+        {
+          "id": "Y4_P3",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y4_P3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 17467,
+              "sha256": "783ba3099809fa625500939f4963a869b195c2a1aa92daf498219a5ae4965194"
+            },
+            "data.isoviz": {
+              "bytes": 263525,
+              "sha256": "e3d3148d238d995ba1b09ccbd6c9f7d968999b3b36c4049ea5e7a19dbfb28fb7"
+            },
+            "topas.str": {
+              "bytes": 14792,
+              "sha256": "044d1f1317120f17350f7a983a5b4b5b43d428796ab1ed539bb0a0476ae7e221"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 122052,
+              "sha256": "f7e994d362f72a3e9f0dca08c9d8fedf4a1d436642fec46707fcfa94f2703945"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "48cf4157bcaa73468f3755f9d8dcdadc4abb14b0fa5d1c182d6d1da756cf5a61"
+        },
+        {
+          "id": "Y4_P4",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y4_P4",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 19382,
+              "sha256": "432477e8bd8097002b72b442ff4b2d4e7aaad3cdc557f8bf4ae2243dd019700f"
+            },
+            "data.isoviz": {
+              "bytes": 252976,
+              "sha256": "8cf0b073124600c6b02b738163307ab2e58a3bd6470b581489a95ee3cba77576"
+            },
+            "topas.str": {
+              "bytes": 16860,
+              "sha256": "fca8e590a6cb42d6820b7483ab7204421da016ac5d99c58c871d85fb99067005"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 123293,
+              "sha256": "ba4646fcb05333b07120eb8a76dd2666be08e7a9834d46b10544d281064291c4"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "54add7fe7d745375c578766ced38218e2487a96adf4b6f6bb111bea9e7fcb00b"
+        },
+        {
+          "id": "Y4_S1",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y4_S1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 96265,
+              "sha256": "e1327c9cd4a26dbcb6f9695a05e81816463b21c10a52f8c32b390ffec1f47c99"
+            },
+            "data.isoviz": {
+              "bytes": 670431,
+              "sha256": "3260a3f80fe5338498bd4783edf2866d114b618ca54afd7a1769ae439ba1b5cb"
+            },
+            "topas.str": {
+              "bytes": 84172,
+              "sha256": "d0784403440003785c59ac40d785110a52aea5dc38f98433aa980196657a2560"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 487699,
+              "sha256": "c9e5b2da5c7e348068611b2a132f30d665cd3a80b2b7ad513388251641f5bda6"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "e417671ab5dae204ee1d2accb0519d7aafd34446f28d6a090323e6947d70c875"
+        },
+        {
+          "id": "Y4_S2",
+          "path": "output_compare/NdNiO2 own.cif/官网/Method2/Y_a1-3/nmod0/Y4_S2",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 87914,
+              "sha256": "b7874e2c149ab8334a0a406eba0e1d6d73b04857f4901996ecb4d02e0c0db9dd"
+            },
+            "data.isoviz": {
+              "bytes": 670247,
+              "sha256": "3a6480cebd9594d8e233ae260171de497f9b7692ce6a826353fb00d8af2bf15d"
+            },
+            "topas.str": {
+              "bytes": 76611,
+              "sha256": "f6fb43b8fd6e8deb09eb954149ce96a19cfe853a4c788655fce44c4a7ce4e319"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 486556,
+              "sha256": "5c669dad8f3b7930151630d4e4e60527dccd966f6084dbcaf9b8b4bce452391c"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "Y, k6 (a,1/2,0), a=1/3",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "6ab37e7d152d68a12687609f09a7400cf4fc862c9aa8a1bd35e251f49f8caf10"
+        }
+      ]
+    },
+    {
+      "query_id": "M2F-C4310-X",
+      "parent": "4310_tetra.cif",
+      "nmod": 0,
+      "expected_candidates": 24,
+      "archive_subdir": "X/nmod0",
+      "layout": "flat <IR>_<OPD> under Method2/X/nmod0 (built from archived result lists)",
+      "expected_k_header": "X, k13 (1/2,1/2,0)",
+      "registered_input_evidence": "submit-state screenshot in the archive shows k point X, k13 (1/2,1/2,0) and \"# of independent incommensurate modulations\" = 0",
+      "submit_state_capture": {
+        "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/Screenshot 2026-10-05 222306.png",
+        "bytes": 247718,
+        "sha256": "4b6586cfff6d3b6c7301316480f23407b539b52d09f6a9912828352dbc227460"
+      },
+      "action": "register_built_structure",
+      "list_evidence": "webpage_info/4310_tetra.cif/3. X_nmod0 - ... plus the eight 4.1-4.8 X_nmod0_<IR> result-list pages; 24 rows verified against these candidate folders in output/validation/rebuild_20261019/list_identity_checks.json",
+      "archive_path": "4310_tetra.cif/官网/Method2/X/nmod0",
+      "candidate_count": 24,
+      "candidate_nmod_values": {
+        "0": 24
+      },
+      "k_headers": [
+        "X, k13 (1/2,1/2,0)"
+      ],
+      "candidates_fingerprint": {
+        "file_count": 192,
+        "total_bytes": 20231260,
+        "aggregate_sha256": "418b8fb790dcfb0aa16d28e4050de8d725125f85c84710cb623adb8f6afe694b"
+      },
+      "archive_top_level_files": {
+        "file_count": 1,
+        "total_bytes": 247718,
+        "aggregate_sha256": "60379e369280c5398d60ba49f83d8d2c48182f932d99246a79c4afe70f0a618f"
+      },
+      "candidates": [
+        {
+          "id": "X1+_C1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X1+_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 14664,
+              "sha256": "458515486dd36445819cd88bb2789b11d73a81bb24f977df8a546d2e14f25748"
+            },
+            "data.isoviz": {
+              "bytes": 84781,
+              "sha256": "c3b7100e5fa4bbb345bdb9fc63693b5586f05faa5f5ebf5d771385d87759b6d8"
+            },
+            "topas.str": {
+              "bytes": 13428,
+              "sha256": "99be240bc6d5a5aea8ba1a344514ebfd582f1cb71a63dda605a1bcc85e3e4500"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 27935,
+              "sha256": "6de74bab9c3a56264b0b9d5d9aa9d8aee7cdf6dae1a83d57949d635422642a68"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "468670972cf70b766c542a22d022d3b98113820b91a118d4e23a571a8a1de049"
+        },
+        {
+          "id": "X1+_P1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X1+_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 10945,
+              "sha256": "0324bcaa70a6c22541f0680aa8b052d580e74539b9c173942e908b5dbd6be0ef"
+            },
+            "data.isoviz": {
+              "bytes": 80673,
+              "sha256": "d5a35ff6dc272fca4bb86a2fc0134845a0b1b07f7dca959b048101c4b7a00d34"
+            },
+            "topas.str": {
+              "bytes": 9725,
+              "sha256": "58ab1377543e833b9bb261a02b69c9ed15bbbadc16ebbdb892478d2e74896fec"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 20650,
+              "sha256": "69572871127ecf4b222d6f617dc33aa6b61508398847ae50195a96229e61386e"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "ac1f135d3150ef456cd2f24fb8bce80b4019a3dea058b51ea2fa1358f0fd4557"
+        },
+        {
+          "id": "X1+_P3",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X1+_P3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 8646,
+              "sha256": "7b0108e243000a37bcbd4c22499eeb8428a42c8f927d07e3f498f54793b214e2"
+            },
+            "data.isoviz": {
+              "bytes": 75668,
+              "sha256": "5c04c52ff3ced69372699d608774c3302261840795c1fa54032b755286aa16a5"
+            },
+            "topas.str": {
+              "bytes": 6567,
+              "sha256": "79c983f20a16eb8e25697d3d9b14c2e0b5fd90a85de51231e299b5bc486ab12a"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 15712,
+              "sha256": "09963ccede66f8f2adebc195554de0133364b61e6c345cbbd4c31e69323d3f4b"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "b7f3e54b10845fdd0b49f96a689cc49072474eb60ad67959ba00f18837b4007f"
+        },
+        {
+          "id": "X1-_C1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X1-_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 9278,
+              "sha256": "57941598e1502e2ab052854487ace31e2341613d30e69806f578a0047eff7068"
+            },
+            "data.isoviz": {
+              "bytes": 58773,
+              "sha256": "a04b19e96ce02340891490e4d32866a99b9cfda30a6d50d61fe003c35f9b3fbc"
+            },
+            "topas.str": {
+              "bytes": 7360,
+              "sha256": "27323a3e105cdb03e62e9cadaf43807005361d03bec5e3b64e442ef3f9024261"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 17962,
+              "sha256": "76ee47a61dec9b66a98f405a76c4da2d9a7f43b2538bba66652ca55e1320174f"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "e0f8c8846b8e224e8a2eea1194b290e9c36aee19233c1acc13066d1c72867c6f"
+        },
+        {
+          "id": "X1-_P1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X1-_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 8733,
+              "sha256": "9339214b18c5717ba61ba7e804d59e0675432fd170f88e51425b29fb71d9cee5"
+            },
+            "data.isoviz": {
+              "bytes": 57523,
+              "sha256": "d9984843cad11f48c485609f47da2ef911e038d301b37fcdab2403029b987586"
+            },
+            "topas.str": {
+              "bytes": 6926,
+              "sha256": "6cb360d27651af841417f4d067a79408cae85fa6970cf1c8b21b727039a18170"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 15715,
+              "sha256": "d9617d3d7125232e08e1bef670359e1074c61f0bb1b20b070020d7c56ae4cea6"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "439a48a55da83a5fc4289772b10e1b548eaa2eeb2a77280ede313862fdb64b08"
+        },
+        {
+          "id": "X1-_P3",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X1-_P3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 6450,
+              "sha256": "ad28e31c88622ea2aedc8f95c4cca051817c5ad20aa0df4526b3629b398ab627"
+            },
+            "data.isoviz": {
+              "bytes": 53479,
+              "sha256": "e53ef8e3575a6d3e2c7cc4b259f141e97e2fe50e590a3ef0eae833f6bb3ceb71"
+            },
+            "topas.str": {
+              "bytes": 3832,
+              "sha256": "2e27f48a74ff0e6bfe7e66a48f0aec2ea85b42aa6eeed3cb99fb3d01ae0937ef"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 10784,
+              "sha256": "7c3a1a3de4f6fd88502dbf3011acfd6fb196c469740cd3e53c41890f2289fc56"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "949017f88a45b8e696ae435e7d6edf31d508d6bb6df48f10827c0ba40eb23cdf"
+        },
+        {
+          "id": "X2+_C1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X2+_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 10074,
+              "sha256": "3cbdda3a42a26be5ae7de77271f87691953208dba4c34fde8877a5e41743de2e"
+            },
+            "data.isoviz": {
+              "bytes": 78271,
+              "sha256": "eba737c6898162ee9951a560ef7d34b9295ba187b60b88784121df293c3c656e"
+            },
+            "topas.str": {
+              "bytes": 8100,
+              "sha256": "f957332c69419cc4857ce54ef7da563cacd15e8a8b3cc455ae4a3322211c0213"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 20361,
+              "sha256": "8381cf1a89498e85c009d0f62e2f45a0175a7b53b9f2448c12ffb9e707b84032"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "2e280b8111a910c3d99e71127f9f4ef3ee8d824d76391ea957a3a693a3df4221"
+        },
+        {
+          "id": "X2+_P1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X2+_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 8970,
+              "sha256": "9baf38750e5eaba98ba8b41c28e2719bb3438baaf697cd38ace54cd66c461cd5"
+            },
+            "data.isoviz": {
+              "bytes": 76850,
+              "sha256": "bf3d0bd3801130cde05e3a0fe51325e2357bbb271148317c948098402ad1850b"
+            },
+            "topas.str": {
+              "bytes": 7208,
+              "sha256": "102e1dbe1de3de95968b98696f885c0369762959e536a1b88636dba44b1441ac"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 16926,
+              "sha256": "8b7260aa2d5624b28b1d89896ecdee238247d3c69a7900c5ba8300b76e0344d8"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "3d1ed2379f60d8614fc8c9db9e95c724af4c73065180c2e0f8d13da66de0564b"
+        },
+        {
+          "id": "X2+_P3",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X2+_P3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 6744,
+              "sha256": "82827a0d3a6fbbcbce47ef8f9fefa7f3321f0b8aabda1ca7df5a5402c4c944d2"
+            },
+            "data.isoviz": {
+              "bytes": 72414,
+              "sha256": "2c60e77a8ef93b1b7c63b3f27abdf6b0562d07c38a836039199432c622a954ac"
+            },
+            "topas.str": {
+              "bytes": 4131,
+              "sha256": "ca62992aa52dfb24f5706e0652a062d91719d71e0fee44e8e616597fea040405"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 11983,
+              "sha256": "4bf83268921ddc351e8394497ad4487555502edf73b4dc18bbc2c26b35ec67eb"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "37df821594900a7d1e0da3134e7a5463c782a6eb4e9c225c2c5d30747e4e8eda"
+        },
+        {
+          "id": "X2-_C1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X2-_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 13826,
+              "sha256": "88bca47b1456c066ebcbcd58fb2ddea592afa7fb6bf088379bf66284a81340de"
+            },
+            "data.isoviz": {
+              "bytes": 62557,
+              "sha256": "22466358ced72a2d2c4fd05f0da94de605680d743da71739c6e11dbc0e5c1f6a"
+            },
+            "topas.str": {
+              "bytes": 12518,
+              "sha256": "2929e8e987067ce099f9c635bc39da519acc22e75389cfa20835127cfd3bfc75"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 25950,
+              "sha256": "ec8e082edfca86d1c668add8811d9c90a34439878102c9fcde84f30351c760b0"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "1eca7328d75ca78faa11a789a5fa0d86fb038feba6a5373c40e262b2954af016"
+        },
+        {
+          "id": "X2-_P1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X2-_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 10760,
+              "sha256": "0c6456f20fcef23d1f463851b3be0a0e0ed7c610a6ae6d046d4521206ae9070e"
+            },
+            "data.isoviz": {
+              "bytes": 59041,
+              "sha256": "e444d5e73b05d873c8e4d33da8d453c3262625556493de2e483859a820f5f9fc"
+            },
+            "topas.str": {
+              "bytes": 9339,
+              "sha256": "d15e267b01d7930eabfb5965b35d1085c5fcaf286f5756bc79cbf7f4bddc2753"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 19726,
+              "sha256": "3eb9844a20b8e401bd846716d64c0b2f135520ba8fe947d071a27fe7a02f0766"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "e5f93ec1213c6bec336d7a1f8cce2c04ea8ed0d836c342968c98c140ce6bb6f1"
+        },
+        {
+          "id": "X2-_P3",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X2-_P3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 8364,
+              "sha256": "7d24d42094ee710bab72a32b9d064624f3b606e42dc732b0781f7e14162ba68b"
+            },
+            "data.isoviz": {
+              "bytes": 52142,
+              "sha256": "1ab8dcab9ac07f2dd06725709ef0e019142a727e92d3155439e3edac6cbb0c3b"
+            },
+            "topas.str": {
+              "bytes": 6153,
+              "sha256": "b1967e8b415e9c880e15b0f056c15f6c0885055a3f71e05b4db03e228b703e3c"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 14786,
+              "sha256": "7137df9b2d7757a41ac6a6fba0cdb3c96e98d0738493109e04faefbcf0aa22ea"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "70beec148f762ab11a987372310850e313358a3615c5965def7de154ecf40d05"
+        },
+        {
+          "id": "X3+_C1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X3+_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 9383,
+              "sha256": "4e69edbcaff6dd202a6450fb3f97bf11f5c267a40faa991e19f8233c6a008c5f"
+            },
+            "data.isoviz": {
+              "bytes": 79344,
+              "sha256": "12cbde955a64a08300011d66b5be7eae4880e668315a3def9583f6d877e5b458"
+            },
+            "topas.str": {
+              "bytes": 6921,
+              "sha256": "b952ed4a9af64e3973c4c30370eae430fc3f9e7567c22de34a8bb5629b153714"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 19544,
+              "sha256": "9206dec515949a79363e5e5446889763bf2653006c6a991a737222b0f400c80a"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "adb92fe894c61860253189cbad6717952e7c8bf484c65f4de213d3f717e5bc87"
+        },
+        {
+          "id": "X3+_P1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X3+_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 8038,
+              "sha256": "02c50ac0107506387ed9800628f641305560b21636108c00e931b3d1506bf1ea"
+            },
+            "data.isoviz": {
+              "bytes": 76347,
+              "sha256": "49aeb221ec77e9a502f946ae841006b92d0b94620cb76a67a20ae9a9c1237ec6"
+            },
+            "topas.str": {
+              "bytes": 5579,
+              "sha256": "d36ec42c64ab08fdf181fdb8e14b89627f5c896e236919295275906919e8b366"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 14673,
+              "sha256": "f0c70b60acbe0556a95376fe379e8563e75dfd608500bb219d4e6e448396ea7e"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "aa48b0efb4f450ebc43880baec6be1a4eaece0fef8f7e40374dad5607fc595f3"
+        },
+        {
+          "id": "X3+_P3",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X3+_P3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 7391,
+              "sha256": "4640c07ce707c515a537d530bafc3490de606b4dca960f6e7981526ab159ff39"
+            },
+            "data.isoviz": {
+              "bytes": 74578,
+              "sha256": "5af6b086aca9c11bd11eb80b02d88d8da81723696ab0377d5d31740de8e988c2"
+            },
+            "topas.str": {
+              "bytes": 4803,
+              "sha256": "5b959f93d3e284cd8e1cdcfe90bafa3292482b11039255e136e1d45d53babeb6"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 13425,
+              "sha256": "48f6628329276a13b3681115485df1614e842e31b97bdf929c1b573e9f156526"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "71841e28dbb7268ddb4aa3c1d04c95d348f9d571e613aeb7a98bf9fd508b0db3"
+        },
+        {
+          "id": "X3-_C1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X3-_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 9705,
+              "sha256": "ba7d2362fd884a2c20b69140216ba4e7948a7f53398e411970bde13dfdb62fd1"
+            },
+            "data.isoviz": {
+              "bytes": 58356,
+              "sha256": "a675610f1c22017396030c0b05ab8cbe604299f5e719675ff489d93942185ff0"
+            },
+            "topas.str": {
+              "bytes": 7403,
+              "sha256": "2d1bb31c889ddf8e4da94f631703e75d1803a77ed85ef4621d00c3a472c082c4"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 19334,
+              "sha256": "cca36fd4be75751f091b3c0ad14f519c7c5638c82fdfcbd634b470c3ed0c89d2"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "7439efe5886961c185f2620baa4fc3b068d18a703479ca13a4ca145637dc01eb"
+        },
+        {
+          "id": "X3-_P1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X3-_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 8172,
+              "sha256": "c199b161f853c9dea6f76b85a2726f2a646f649ae6a343c730757e57bcc402c6"
+            },
+            "data.isoviz": {
+              "bytes": 56479,
+              "sha256": "280c0c5097643037242a471d16cfec7df2371cca4948fe3e0e540e9d2872bc71"
+            },
+            "topas.str": {
+              "bytes": 5829,
+              "sha256": "15cd4afad22b2759534f6aec67eacb4a8bb1936cddfdf5e71a1aab7cbd1c8a28"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 14561,
+              "sha256": "57b93bcc1a5f36819d7201120bbf3d4bd6ec136fad2184f52435611e69a82f0a"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "399df4be60025c33de14b9bd0af7bb4391dec1137a0007c98b08af3a18f7e233"
+        },
+        {
+          "id": "X3-_P3",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X3-_P3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 7572,
+              "sha256": "540c64c029569424ec0e08f61e59870cd1ac983d4824fd2c3ba0b21bfb027fb4"
+            },
+            "data.isoviz": {
+              "bytes": 54089,
+              "sha256": "92ab0ffda44a3fb81a93a88d8a9fb267d42ad53fda4440802f334ee9f6703b58"
+            },
+            "topas.str": {
+              "bytes": 5066,
+              "sha256": "c6b493c16cec3e6fb804404a65455757b4c8736a9199f09ada9cb425777bb2f8"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 13322,
+              "sha256": "e1ea92ebabc71fa79c3d3d51ddcefb899c1820eba422328a3dd0cdca5485c9d6"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "3279d10fb236b6534c29ef555914846fb3abb570ea1e9fd44495b55ba533c0a2"
+        },
+        {
+          "id": "X4+_C1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X4+_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 9399,
+              "sha256": "6d6f1df4df4dd6d613113e511a1882f297199294d097676da1df0d2653b48e4a"
+            },
+            "data.isoviz": {
+              "bytes": 79360,
+              "sha256": "6893c65c2b507d45a7e673681450777b948555d20527604663c0460afb892d07"
+            },
+            "topas.str": {
+              "bytes": 6923,
+              "sha256": "01fa8573c5b11249950651614692c40167207acf66586c8962c35e273d7e4380"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 19544,
+              "sha256": "fa5d2c64950887326d344b863764a26c84ef1eddde9c66b41531847f888bedc8"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "59bf4650b4299563abd48f682465689d1723ccaad72fb9abebdf095bbdb2db7b"
+        },
+        {
+          "id": "X4+_P1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X4+_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 8020,
+              "sha256": "17887f4822ff6da3d3d18d08e92a59d27da88155810db991f81bb4d79b3df8e7"
+            },
+            "data.isoviz": {
+              "bytes": 75777,
+              "sha256": "aeeb1038f49bb4eed850ea284632b1213e7b1ea2ca2ee870f03edb907e823756"
+            },
+            "topas.str": {
+              "bytes": 5561,
+              "sha256": "c88cbe614c387f7fae8f30fd141f52b745b9372e49f60790915268346b15c97f"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 14668,
+              "sha256": "c800db67b9a9b3de4529e812f776b22326e653911f525533566da6dd76e33681"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "edfcfa58af7c85f4e255aad187226bbc0dbb02b025028fb47da09f8d04a7e9af"
+        },
+        {
+          "id": "X4+_P3",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X4+_P3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 7409,
+              "sha256": "08892743b6a0a16f3bd08870ee3aece4149713532ae1b6c01185bbba8f79252d"
+            },
+            "data.isoviz": {
+              "bytes": 51440,
+              "sha256": "16b7623906410d1a3d7c2a94f90997e4efd16e872e370166b6bf84eac8121c4d"
+            },
+            "topas.str": {
+              "bytes": 4811,
+              "sha256": "93423066db9aa190344f04ed7bf220255dcbd327a82ab36ad91a6d83e3c53fa4"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 13431,
+              "sha256": "c25dd470bc659fbc6bf56d475a36c23516a463d40fe2b4aea73712893bacd3eb"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "fd060812ac1e993362157be4078e9939504f26cb2bf0212590184c519c2187ae"
+        },
+        {
+          "id": "X4-_C1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X4-_C1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 9675,
+              "sha256": "a8233a80a0ef2bc852aabcfa36c2e04b33556602e9fb8c7fd281095bb53fd99d"
+            },
+            "data.isoviz": {
+              "bytes": 58354,
+              "sha256": "0a0bf586446b89480c94c067599f085ca08a3e039ebcf764b4badb5dd4de0351"
+            },
+            "topas.str": {
+              "bytes": 7407,
+              "sha256": "7231f447d4d07ba4e7e478d0f35347aa553fa6f7c15e6fe66aeefc8380f0c775"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 19334,
+              "sha256": "0b75449df29205a92f0b33bae01b15a222042adc363986b5bf187eaa3d25ec2d"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "ba6440069a68736478ad8c809f9685e2bc128850a327fb52c802ed2a2e59f7f5"
+        },
+        {
+          "id": "X4-_P1",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X4-_P1",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 8113,
+              "sha256": "199df833626cc5e702b67ed43af0a21be79015715aac6d13718c78049b3bbe1b"
+            },
+            "data.isoviz": {
+              "bytes": 56478,
+              "sha256": "6e629a4203dce2306a4cec979c6562fcc2e002836c163161727e2de6b6d03ea8"
+            },
+            "topas.str": {
+              "bytes": 5835,
+              "sha256": "21b13d6c097c79fd55e77af058c02194bd5d1191098d3bdbc7e7cf15970b92c6"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 14561,
+              "sha256": "2e09c23fe40d160b56a6e48bcfa56a969d0938d8b71fadb41d61e635b5510b7a"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "be57e912dbe540130d42989ebb272bf0d776fa61ae3bc9729860f5503247a1bf"
+        },
+        {
+          "id": "X4-_P3",
+          "path": "output_compare/4310_tetra.cif/官网/Method2/X/nmod0/X4-_P3",
+          "missing_files": [],
+          "files": {
+            "subgroup.cif": {
+              "bytes": 7541,
+              "sha256": "f5bc9bb9d2076eefc8a744225f556969cf78bc7cf0c8eb94d3cd63e3ba9038d0"
+            },
+            "data.isoviz": {
+              "bytes": 54088,
+              "sha256": "e8c21263eb7017e5d2bf20f14777b2780d9718e44cefd574c7e0864a130db7d9"
+            },
+            "topas.str": {
+              "bytes": 5068,
+              "sha256": "c068ad9a1fa505fa44e5370b84cd4340d5e72fc61f127f98f4db4453987a95b1"
+            },
+            "ISODISTORT_ complete modes details.html": {
+              "bytes": 13322,
+              "sha256": "09da35a20f8d5632af877b56a526b87e18495715ade1fe402360827a534c3c1d"
+            }
+          },
+          "resource_dirs": [
+            {
+              "path": "ISODISTORT_ complete modes details_files",
+              "file_count": 4,
+              "total_bytes": 743826,
+              "aggregate_sha256": "e2afff34d2667c76108cb1105e9ab37ee89d1bc77410b8769d6f16cfbd6d53e5"
+            }
+          ],
+          "k_header": "X, k13 (1/2,1/2,0)",
+          "number_of_modulations": 0,
+          "aggregate_sha256": "47075151a326ad24018da56956bbf8c8a293c63e71c55e0523e9328ea1255dc7"
+        }
+      ]
+    }
+  ],
+  "method2_nmod1_status": [
+    {
+      "query_id": "M2P-EU-LD",
+      "parent": "EuAl4 Parent.cif",
+      "nmod": 1,
+      "status": "absent_conditional_candidate_reuse",
+      "rule": "download the nmod=1 official result-list pages first; candidate files may be reused only if every candidate identity and every core file byte matches the registered nmod=0 archive, otherwise save them"
+    },
+    {
+      "query_id": "M2P-ND-Y",
+      "parent": "NdNiO2 own.cif",
+      "nmod": 1,
+      "status": "absent_conditional_candidate_reuse",
+      "rule": "download the nmod=1 official result-list pages first; candidate files may be reused only if every candidate identity and every core file byte matches the registered nmod=0 archive, otherwise save them"
+    },
+    {
+      "query_id": "M2F-C4310-X",
+      "parent": "4310_tetra.cif",
+      "nmod": 1,
+      "status": "absent_must_download",
+      "rule": "no archived nmod=1 candidate set exists for this label"
+    }
+  ],
+  "other_methods": {
+    "4310_tetra.cif/官网/Method1": {
+      "candidate_or_case_dirs": 125,
+      "top_level_dirs": 125,
+      "file_count": 1000,
+      "total_bytes": 124759530,
+      "aggregate_sha256": "80284a7a40e9e488e1c644246d21aec497692c325ecb18e45b94221f1f8e9bc3"
+    },
+    "4310_tetra.cif/官网/Method2": {
+      "candidate_or_case_dirs": 24,
+      "top_level_dirs": 1,
+      "file_count": 193,
+      "total_bytes": 20478978,
+      "aggregate_sha256": "1315e65668abf2f3fecbde5fe382d83254d184cbcbfb49b3ee9c90640f6731f2"
+    },
+    "4310_tetra.cif/官网/Method3": {
+      "candidate_or_case_dirs": 0,
+      "top_level_dirs": 0,
+      "file_count": 0,
+      "total_bytes": 0,
+      "aggregate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "4310_tetra.cif/官网/Method4": {
+      "candidate_or_case_dirs": 0,
+      "top_level_dirs": 0,
+      "file_count": 0,
+      "total_bytes": 0,
+      "aggregate_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "EuAl4 Parent.cif/官网/Method1": {
+      "candidate_or_case_dirs": 123,
+      "top_level_dirs": 123,
+      "file_count": 984,
+      "total_bytes": 100486687,
+      "aggregate_sha256": "3be45012349186c8a46516b52ebbc33a50bc4994e4cb78b74d0dd3cd15ae5467"
+    },
+    "EuAl4 Parent.cif/官网/Method2": {
+      "candidate_or_case_dirs": 22,
+      "top_level_dirs": 1,
+      "file_count": 176,
+      "total_bytes": 21205625,
+      "aggregate_sha256": "b43a8a5dad12f8f5f388cf875c120dae7c3befec3e42cfc6cfb3cc73b2597ac8"
+    },
+    "EuAl4 Parent.cif/官网/Method3": {
+      "candidate_or_case_dirs": 35,
+      "top_level_dirs": 20,
+      "file_count": 380,
+      "total_bytes": 44159168,
+      "aggregate_sha256": "7eba9d18d5f51c7b70536f93ef5a686bdf1c28e9c5eb190dfb89bbdbb67bee02"
+    },
+    "EuAl4 Parent.cif/官网/Method4": {
+      "candidate_or_case_dirs": 11,
+      "top_level_dirs": 12,
+      "file_count": 281,
+      "total_bytes": 37249557,
+      "aggregate_sha256": "a4404d17eca646f99bbdefa620a89e55fd6c1bd32a7604b55a10c2029bcc8c54"
+    },
+    "NdNiO2 own.cif/官网/Method1": {
+      "candidate_or_case_dirs": 82,
+      "top_level_dirs": 82,
+      "file_count": 656,
+      "total_bytes": 63985124,
+      "aggregate_sha256": "abfe293bcaad90287ea6168e28e571f20fc1a5f171591eff3efbbdf983156424"
+    },
+    "NdNiO2 own.cif/官网/Method2": {
+      "candidate_or_case_dirs": 48,
+      "top_level_dirs": 1,
+      "file_count": 384,
+      "total_bytes": 73930023,
+      "aggregate_sha256": "92166da0af5d2ab29101f5bdc5e33c0ac3f908f89e82441b0ad5b456ee738214"
+    },
+    "NdNiO2 own.cif/官网/Method3": {
+      "candidate_or_case_dirs": 42,
+      "top_level_dirs": 20,
+      "file_count": 435,
+      "total_bytes": 48043254,
+      "aggregate_sha256": "ddf97c5ab86e995d8f57350441998055eb394c650c62ecf3d7ec01c97c62723f"
+    },
+    "NdNiO2 own.cif/官网/Method4": {
+      "candidate_or_case_dirs": 11,
+      "top_level_dirs": 12,
+      "file_count": 264,
+      "total_bytes": 32530581,
+      "aggregate_sha256": "2fd0b48fcaa33b2e436e86c3f99b3916c8325dc151a4375306091d4becdffcc2"
+    }
+  },
+  "scope_notes": [
+    "Only Method 2 nmod=0 candidate sets are archived for the reusable k points; no nmod=1 candidate set exists in the archive.",
+    "The 4310 X/nmod=0 candidate set was moved into the official query folder Method2/X/nmod0 after verifying all 24 rows against the archived official result-list pages; EuAl4 LD and NdNiO2 Y files are now organized under their own K/nmod0 folders, with missing result lists tracked separately.",
+    "Method 1 (330 candidates in total) stays registered-only and is not downloaded again; its complete official result lists live in the read-only webpage_info page archive and are referenced, not copied.",
+    "Method 3/4 archive cases are historical evidence for the superseded scope. Previous Method 3/4 freezes are revoked; independent inputs remain unresolved. This helper checks only the three known Method 2 sets; the current complete inventory is official_archive_reuse_20261019.json.",
+    "The EuAl4 Method 4 G05 auto-origin basis supplement is already delivered under output_compare and needs no further download."
+  ],
+  "official_archive_snapshot": {
+    "path": "output_compare/<parent>/官网",
+    "parents": [
+      "4310_tetra.cif",
+      "EuAl4 Parent.cif",
+      "NdNiO2 own.cif"
+    ],
+    "subtree_count": 12,
+    "file_count": 4753,
+    "total_bytes": 566828527,
+    "aggregate_sha256": "49d61de4d6a976550ba409673001925e0efdff366caf8f9175830cf629f1361a",
+    "note": "Snapshot at registration time.  Method 2 (and later Method 3/4) subtrees may grow only through the pre-registered new download directories; the immutable part is method2_registered_reuse, whose candidate fingerprints must not change."
+  },
+  "verdict": "pass"
+}

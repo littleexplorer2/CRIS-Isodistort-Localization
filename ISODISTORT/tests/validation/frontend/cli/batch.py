@@ -42,7 +42,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--hash-manifest", type=Path, help="JSON mapping reference-relative paths to trusted SHA-256")
     parser.add_argument("--strict", action=argparse.BooleanOptionalAction, default=cfg.strict,
-                        help="also require byte-identical files")
+                        help="require semantic equality, trusted reference hashes, and byte-identical files")
     parser.add_argument("--json", action="store_true", help="print a machine-readable summary")
     return parser
 
@@ -67,7 +67,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(summary, ensure_ascii=False, indent=2))
     else:
         for result in results:
-            status = "PASS" if result["passed"] else "FAIL"
+            status = result.get("verification", {}).get("status", "pass" if result["passed"] else "fail").upper()
             print(f"{status:4s} {result['relative_path']}")
             for issue in result["issues"]:
                 print(f"      - {issue}")

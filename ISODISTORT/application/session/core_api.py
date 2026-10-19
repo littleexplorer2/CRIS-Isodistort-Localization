@@ -22,15 +22,11 @@
 import copy
 import hashlib
 import json
-import os
 import re
-import shutil
-import tempfile
 import threading
 import time
 from collections.abc import Callable
-from contextlib import contextmanager
-from dataclasses import asdict, dataclass, replace
+from dataclasses import asdict, replace
 from fractions import Fraction
 from pathlib import Path
 
@@ -54,7 +50,6 @@ from backend.utils.lattice import (
     multiply,
     rational_matrix,
     same_lattice_in_point_group_orbit,
-    transpose,
 )
 from backend.utils.opd_format import _centering_letter, format_k_active
 from backend.utils.parent_header import parent_wyckoff_display
@@ -86,8 +81,6 @@ from backend.export import (
     method3_case_folder,
     parse_export_formats,
     parse_export_method,
-    render_subgroup_files,
-    subgroup_label,
     unique_folder_name,
 )
 from backend.export.cif_displacive_model import (
@@ -105,27 +98,20 @@ from backend.input_cif import (
     read_cif_space_group_number,
     read_structure,
 )
-from backend.method1 import (
+from backend.models.phase_path import (
     DEFAULT_DISTORTION_TYPES,
+    validate_modulation_count,
     DISTORTION_TYPES,
-    DomainGenerator,
-    IsoSearchEngine,
-    Method1Query,
-    Method1ResultItem,
-    Method2Query,
-    Method3Query,
     PhasePath,
-    embedding_from_identity,
     normalize_distortion_types,
     require_supported_physical_types,
-    parent_affine_group,
 )
-from backend.method1.affine_embeddings import translation_cosets
+from backend.method1 import DomainGenerator, Method1Query, Method1ResultItem, Method1Solver
+from backend.method2 import Method2Query, Method2Solver, validate_single_irrep_count
+from backend.method3 import Method3Query, Method3Solver
+from backend.utils.affine_embeddings import embedding_from_identity, parent_affine_group
+from backend.tables.spacegroup_meta import crystal_system_for_number
 from backend.method4 import Method4Query, ModeDecomposer
-from backend.method1.search_methods import (
-    _sg_to_crystal_system,
-    _validated_single_irrep_count,
-)
 from backend.method2 import DistortionMapper, verify_mapped_microscopic_columns
 from backend.method3 import (
     FiniteGroup,
@@ -141,393 +127,10 @@ from backend.method4 import (
 )
 from backend.messages import t
 
-_EXPORT_BATCH_SCHEMA = "isodistort.export-batch.v1"
-_EXPORT_BATCH_PREFIX = ".isodistort-batch-v1-"
-_EXPORT_BATCH_READY_SUFFIX = ".ready"
-_EXPORT_BATCH_MANIFEST = ".isodistort-batch.json"
-_EXPORT_PUBLISH_THREAD_LOCK = threading.Lock()
 
-
-@contextmanager
-def _export_publish_lock(folder_root: Path):
-    """Serialize the final namespace commit across threads and processes.
-
-    The OS byte-range lock is released automatically if a writer process
-    exits.  A process-local lock is also required because Windows byte-range
-    locks are process scoped and therefore do not serialize sibling threads.
-    The stable sibling lock file is intentionally retained so waiting writers
-    always refer to the same filesystem object.
-    """
-
-    identity = str(folder_root.resolve(strict=False)).casefold().encode("utf-8")
-    token = hashlib.sha256(identity).hexdigest()[:16]
-    lock_path = folder_root.parent / f".isodistort-publish-{token}.lock"
-    with _EXPORT_PUBLISH_THREAD_LOCK, lock_path.open("a+b") as handle:
-        handle.seek(0, 2)
-        if handle.tell() == 0:
-            handle.write(b"\0")
-            handle.flush()
-        handle.seek(0)
-        if os.name == "nt":
-            import msvcrt  # noqa: PLC0415
-
-            msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
-            try:
-                yield
-            finally:
-                handle.seek(0)
-                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
-        else:
-            import fcntl  # noqa: PLC0415
-
-            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
-            try:
-                yield
-            finally:
-                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
-
-
-def _export_batch_manifest(
-    method: int,
-    rendered_batch: list[
-        tuple[SubgroupExportSpec, tuple[tuple[str, bytes], ...]]
-    ],
-    folders: list[str],
-    root_payloads: tuple[tuple[str, bytes], ...] = (),
-) -> bytes:
-    """Build the immutable manifest stored inside one committed disk batch."""
-
-    payload = {
-        "schema": _EXPORT_BATCH_SCHEMA,
-        "method": int(method),
-        "candidates": [
-            {
-                "folder": folder,
-                "files": [
-                    {
-                        "name": str(filename),
-                        "size": len(contents),
-                        "sha256": hashlib.sha256(contents).hexdigest(),
-                    }
-                    for filename, contents in files
-                ],
-            }
-            for (_spec, files), folder in zip(
-                rendered_batch,
-                folders,
-                strict=True,
-            )
-        ],
-        "root_files": [
-            {
-                "name": str(filename),
-                "size": len(contents),
-                "sha256": hashlib.sha256(contents).hexdigest(),
-            }
-            for filename, contents in root_payloads
-        ],
-    }
-    return (
-        json.dumps(payload, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
-        + "\n"
-    ).encode("utf-8")
-
-
-def _ready_export_batch_name(manifest: bytes) -> str:
-    """Return the short content-addressed name used for one committed batch."""
-
-    digest = hashlib.sha256(manifest).hexdigest()[:16]
-    return f"{_EXPORT_BATCH_PREFIX}{digest}{_EXPORT_BATCH_READY_SUFFIX}"
-
-
-def _ready_export_batch_folders(batch_root: Path) -> set[str]:
-    """Validate one ready manifest and return its logical candidate folders."""
-
-    if not batch_root.is_dir() or batch_root.is_symlink():
-        raise ValueError(f"committed export batch is not a directory: {batch_root}")
-    manifest_path = batch_root / _EXPORT_BATCH_MANIFEST
-    manifest = manifest_path.read_bytes()
-    expected_name = _ready_export_batch_name(manifest)
-    if batch_root.name != expected_name:
-        raise ValueError(
-            "committed export batch manifest does not match its version directory: "
-            f"{batch_root}"
-        )
-    try:
-        decoded = json.loads(manifest.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise ValueError(f"invalid committed export batch manifest: {batch_root}") from exc
-    if decoded.get("schema") != _EXPORT_BATCH_SCHEMA:
-        raise ValueError(f"unsupported committed export batch manifest: {batch_root}")
-    candidates = decoded.get("candidates")
-    if not isinstance(candidates, list):
-        raise ValueError(f"invalid committed export batch candidates: {batch_root}")
-
-    folders: set[str] = set()
-    occupied: set[str] = set()
-    root_files = decoded.get("root_files", [])
-    if not isinstance(root_files, list):
-        raise ValueError(f"invalid committed export root file list: {batch_root}")
-    for file_record in root_files:
-        if not isinstance(file_record, dict):
-            raise ValueError(f"invalid committed export root file: {batch_root}")
-        name = file_record.get("name")
-        if not isinstance(name, str) or not name or Path(name).name != name:
-            raise ValueError(f"unsafe committed export root filename: {name!r}")
-        folded_name = name.casefold()
-        if folded_name in occupied or folded_name == _EXPORT_BATCH_MANIFEST.casefold():
-            raise ValueError(f"duplicate committed export root filename: {name!r}")
-        path = batch_root / name
-        if not path.is_file() or path.is_symlink():
-            raise ValueError(f"committed export root file is missing: {path}")
-        expected_size = file_record.get("size")
-        expected_sha256 = file_record.get("sha256")
-        contents = path.read_bytes()
-        if (
-            not isinstance(expected_size, int)
-            or isinstance(expected_size, bool)
-            or expected_size < 0
-            or not isinstance(expected_sha256, str)
-            or re.fullmatch(r"[0-9a-f]{64}", expected_sha256) is None
-            or len(contents) != expected_size
-            or hashlib.sha256(contents).hexdigest() != expected_sha256
-        ):
-            raise ValueError(f"committed export root file digest changed: {path}")
-        occupied.add(folded_name)
-    for candidate in candidates:
-        if not isinstance(candidate, dict):
-            raise ValueError(f"invalid committed export batch candidate: {batch_root}")
-        folder = candidate.get("folder")
-        if not isinstance(folder, str) or not folder or Path(folder).name != folder:
-            raise ValueError(f"unsafe committed export candidate folder: {folder!r}")
-        folded = folder.casefold()
-        if folded in occupied:
-            raise ValueError(
-                f"duplicate committed export candidate folder: {folder!r}"
-            )
-        candidate_root = batch_root / folder
-        if not candidate_root.is_dir() or candidate_root.is_symlink():
-            raise ValueError(
-                f"committed export candidate directory is missing: {candidate_root}"
-            )
-        files = candidate.get("files")
-        if not isinstance(files, list):
-            raise ValueError(
-                f"invalid committed export candidate file list: {candidate_root}"
-            )
-        file_names: set[str] = set()
-        for file_record in files:
-            if not isinstance(file_record, dict):
-                raise ValueError(
-                    f"invalid committed export candidate file: {candidate_root}"
-                )
-            name = file_record.get("name")
-            if not isinstance(name, str) or not name or Path(name).name != name:
-                raise ValueError(f"unsafe committed export filename: {name!r}")
-            folded_name = name.casefold()
-            if folded_name in file_names:
-                raise ValueError(f"duplicate committed export filename: {name!r}")
-            path = candidate_root / name
-            if not path.is_file() or path.is_symlink():
-                raise ValueError(f"committed export file is missing: {path}")
-            expected_size = file_record.get("size")
-            expected_sha256 = file_record.get("sha256")
-            if (
-                not isinstance(expected_size, int)
-                or isinstance(expected_size, bool)
-                or expected_size < 0
-                or not isinstance(expected_sha256, str)
-                or re.fullmatch(r"[0-9a-f]{64}", expected_sha256) is None
-            ):
-                raise ValueError(f"invalid committed export file digest: {path}")
-            contents = path.read_bytes()
-            if len(contents) != expected_size:
-                raise ValueError(f"committed export file size changed: {path}")
-            if hashlib.sha256(contents).hexdigest() != expected_sha256:
-                raise ValueError(f"committed export file hash changed: {path}")
-            file_names.add(folded_name)
-        occupied.add(folded)
-        folders.add(folder)
-    return folders
-
-
-def _published_export_folder_names(folder_root: Path) -> set[str]:
-    """Collect candidate names from legacy roots and committed version batches."""
-
-    if (
-        not folder_root.exists()
-        or not folder_root.is_dir()
-        or folder_root.is_symlink()
-    ):
-        return set()
-    reserved: set[str] = set()
-    for entry in folder_root.iterdir():
-        name = entry.name
-        if name.startswith(_EXPORT_BATCH_PREFIX) and name.endswith(
-            _EXPORT_BATCH_READY_SUFFIX
-        ):
-            reserved.update(_ready_export_batch_folders(entry))
-        else:
-            # Preserve the historical rule: any existing root entry reserves
-            # its case-insensitive name, regardless of its filesystem type.
-            reserved.add(name)
-    return reserved
-
-
-@dataclass(frozen=True)
-class ExportCandidateFailure:
-    """One candidate that failed calculation, preparation, or writer preflight."""
-
-    position: int
-    candidate_index: int
-    subgroup_index: int
-    parent_space_group_number: int
-    k_point_label: str
-    k_coordinates: tuple[str, ...]
-    k_parameters: tuple[str, ...]
-    irrep_label: str
-    opd_symbol: str
-    space_group_number: int
-    basis_vectors: tuple[tuple[str, ...], ...]
-    origin: tuple[str, ...]
-    embedding_id: str
-    error_type: str
-    message: str
-
-
-@dataclass(frozen=True)
-class ModeIdentityFailure:
-    """One emitted displacement column whose scientific identity is unresolved."""
-
-    amplitude_key: str
-    orbit_id: str
-    global_irrep: str
-    k_coordinates: tuple[str, ...]
-    reason: str
-
-
-class UnresolvedModeIdentityError(IsodistortError):
-    """A candidate has numerical columns but cannot enter authoritative writers."""
-
-    def __init__(self, failures: list[ModeIdentityFailure]) -> None:
-        if not failures:
-            raise ValueError("unresolved mode identity error requires failures")
-        self.failures = tuple(failures)
-        details = "; ".join(
-            (
-                f"mode={failure.amplitude_key} orbit={failure.orbit_id or '<missing>'} "
-                f"IR={failure.global_irrep or '<missing>'} "
-                f"k=({','.join(failure.k_coordinates)}) "
-                f"criterion={failure.reason}"
-            )
-            for failure in self.failures
-        )
-        super().__init__(
-            "displacement modes lack verified ISO microscopic identities: " + details
-        )
-
-
-class ExportCancelledError(IsodistortError):
-    """A batch stopped at a candidate boundary after a user cancellation."""
-
-
-@dataclass(frozen=True)
-class ExportBatchPlan:
-    """Prepared candidates plus explicitly ineligible identity failures."""
-
-    specs: tuple[SubgroupExportSpec, ...]
-    skipped: tuple[ExportCandidateFailure, ...]
-
-
-def _export_failure_report_payloads(
-    method: int,
-    requested_count: int,
-    successful_count: int,
-    failures: tuple[ExportCandidateFailure, ...],
-) -> tuple[tuple[str, bytes], ...]:
-    """Build root-level human and machine status records for every batch."""
-    cancelled_count = sum(
-        failure.error_type == "ExportCancelledError" for failure in failures
-    )
-    unresolved_count = sum(
-        failure.error_type == "UnresolvedModeIdentityError" for failure in failures
-    )
-    payload = {
-        "schema": "isodistort.export-candidate-status.v1",
-        "method": int(method),
-        "requested_candidate_count": int(requested_count),
-        "successful_candidate_count": int(successful_count),
-        "ineligible_candidate_count": len(failures),
-        "unresolved_identity_candidate_count": unresolved_count,
-        "cancelled_candidate_count": cancelled_count,
-        "status": (
-            "success"
-            if not failures
-            else "cancelled_partial_success"
-            if cancelled_count and successful_count
-            else "cancelled"
-            if cancelled_count
-            else "partial_success"
-            if successful_count
-            else "no_eligible_candidates"
-        ),
-        "failures": [asdict(failure) for failure in failures],
-    }
-    machine = (
-        json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
-    ).encode("utf-8")
-    lines = [
-        f"Method {int(method)} export candidate status",
-        f"requested={int(requested_count)} successful={int(successful_count)} "
-        f"ineligible={len(failures)}",
-        "",
-    ]
-    for failure in failures:
-        lines.extend((
-            (
-                f"#{failure.position} candidate_index={failure.candidate_index} "
-                f"{failure.k_point_label}{failure.k_coordinates}/"
-                f"{failure.k_parameters}/{failure.irrep_label}/"
-                f"{failure.opd_symbol}/SG{failure.space_group_number}"
-            ),
-            f"  {failure.error_type}: {failure.message}",
-        ))
-    human = ("\n".join(lines).rstrip() + "\n").encode("utf-8")
-    return (
-        ("export_candidate_status.json", machine),
-        ("export_candidate_status.txt", human),
-    )
-
-
-class ExportPreparationError(IsodistortError):
-    """Batch export failed before publication because candidates were not ready."""
-
-    def __init__(
-        self,
-        method: int,
-        failures: list[ExportCandidateFailure],
-    ) -> None:
-        self.method = int(method)
-        self.failures = tuple(failures)
-        details = "; ".join(
-            (
-                f"#{failure.position} candidate_index={failure.candidate_index} "
-                f"subgroup_index={failure.subgroup_index} "
-                f"parent_SG={failure.parent_space_group_number} "
-                f"{failure.k_point_label}{failure.k_coordinates}/"
-                f"{failure.k_parameters}/{failure.irrep_label}/"
-                f"{failure.opd_symbol}/SG{failure.space_group_number} "
-                f"basis={failure.basis_vectors} origin={failure.origin} "
-                f"embedding={failure.embedding_id}: "
-                f"{failure.error_type}: {failure.message}"
-            )
-            for failure in self.failures
-        )
-        super().__init__(
-            f"Method {self.method} batch export preparation failed for "
-            f"{len(self.failures)} candidate(s): {details}"
-        )
-
+from .contracts import (DisplacementColumn, DisplacementSnapshot, ExportCandidateFailure, ModeIdentityFailure, UnresolvedModeIdentityError, ExportCancelledError, ExportBatchPlan, ExportPreparationError)
+from .publication import render_export_batch, publish_export_batch, _export_failure_report_payloads, _published_export_folder_names
+from backend.export import exact_child_operations
 
 class IsoDistort:
     """
@@ -541,96 +144,132 @@ class IsoDistort:
     """
 
     def __init__(self) -> None:
-        self.cfg = get_config()
+        # Construction can fail after an earlier wrapper already owns staging.
+        self._iso = self._findsym = self._smodes = None
+        try:
+            self.cfg = get_config()
 
-        # 底层封装
-        self._iso = IsoWrapper()
-        self._findsym: FindsymWrapper | None = None
+            # 底层封装
+            self._iso = IsoWrapper()
+            self._findsym: FindsymWrapper | None = None
 
-        # 业务层
-        self._sym_val = SymmetryValidator()
-        self._dist_mapper = DistortionMapper()
-        self._dist_engine = DistortionEngine(self._dist_mapper)
-        self._domain_gen = DomainGenerator(self._iso)
-        self._search = IsoSearchEngine(self._iso)
+            # 业务层
+            self._sym_val = SymmetryValidator()
+            self._dist_mapper = DistortionMapper()
+            self._dist_engine = DistortionEngine(self._dist_mapper)
+            self._domain_gen = DomainGenerator(self._iso)
+            self._method1 = Method1Solver(self._iso)
+            self._method2 = Method2Solver(self._iso)
+            self._method3 = Method3Solver(self._iso)
 
-        # 输出层
-        self._exporter = StructureExporter()
+            # 输出层
+            self._exporter = StructureExporter()
 
-        # 状态
-        self.structure: Structure | None = None
-        self.symmetry_info: dict | None = None
-        self.structure_path: Path | None = None
-        self.subgroups: list[SubgroupInfo] = []
-        # Affine-only Method-3 diagnostics must survive copying/rehydration of
-        # ``SubgroupInfo`` objects.  Python ``id(...)`` is a process-local
-        # memory address and can be reused, so track the deterministic path
-        # exact content-addressed Seitz embedding ID (with an exact path-key
-        # compatibility fallback) instead.
-        self._unresolved_method3_embedding_keys: set[tuple] = set()
-        # 当前已计算模式所对应的完整子群对象。不能只保存 ``index``：
-        # Method 1/2/3 的候选池都会从 0 编号，同号不代表同一个子群。
-        self._selected_subgroup: SubgroupInfo | None = None
-        self.phase_path: PhasePath | None = None
-        self.distortion_modes: list[DistortionMode] = []
-        self.mode_displacements: dict = {}
-        self.mode_occupancies: dict = {}          # occupational 模式（占据率调制）
-        self.mode_displacements_sc: dict = {}     # parametric complete modes on supercell
-        self._mode_label_overrides: dict[str, str] = {}
-        self.number_of_independent_modulations: int = 0
-        self.distorted_structure: Structure | None = None
-        # The arrays above are a cache, not timeless session state.  Bind them
-        # to the complete scientific calculation context so changing a Types
-        # checkbox, species scope, nmod, or affine embedding cannot silently
-        # reuse an incompatible mode basis or generated final structure.
-        self._mode_cache_key: tuple | None = None
-        self._generated_structure_cache_key: tuple | None = None
+            # 状态
+            self.structure: Structure | None = None
+            self.symmetry_info: dict | None = None
+            self.structure_path: Path | None = None
+            self.subgroups: list[SubgroupInfo] = []
+            # Affine-only Method-3 diagnostics must survive copying/rehydration of
+            # ``SubgroupInfo`` objects.  Python ``id(...)`` is a process-local
+            # memory address and can be reused, so track the deterministic path
+            # exact content-addressed Seitz embedding ID (with an exact path-key
+            # compatibility fallback) instead.
+            self._unresolved_method3_embedding_keys: set[tuple] = set()
+            # 当前已计算模式所对应的完整子群对象。不能只保存 ``index``：
+            # Method 1/2/3 的候选池都会从 0 编号，同号不代表同一个子群。
+            self._selected_subgroup: SubgroupInfo | None = None
+            self.phase_path: PhasePath | None = None
+            self.distortion_modes: list[DistortionMode] = []
+            self.mode_displacements: dict = {}
+            self.mode_occupancies: dict = {}          # occupational 模式（占据率调制）
+            self.mode_displacements_sc: dict = {}     # parametric complete modes on supercell
+            self._mode_label_overrides: dict[str, str] = {}
+            self.number_of_independent_modulations: int = 0
+            self.distorted_structure: Structure | None = None
+            # The arrays above are a cache, not timeless session state.  Bind them
+            # to the complete scientific calculation context so changing a Types
+            # checkbox, species scope, nmod, or affine embedding cannot silently
+            # reuse an incompatible mode basis or generated final structure.
+            self._mode_cache_key: tuple | None = None
+            self._generated_structure_cache_key: tuple | None = None
 
-        # 畸变类型作用域（对齐官网 per-species 复选框）：type -> 物种列表（"*"=全部）
-        self.distortion_scope: dict[str, list[str]] = {}
-        self.distortion_types: list[str] = DEFAULT_DISTORTION_TYPES.copy()
-        self._smodes = SmodesWrapper()
-        self._special_subgroups_cache: list | None = None
-        self._special_subgroups_lock = threading.Lock()
-        self._conv_to_prim_cache: np.ndarray | None = None
-        self._parent_rotations_cache: list[np.ndarray] | None = None
-        self._strain_representation_cache = None
-        self._lattice_standardization_cache: dict[tuple, tuple[np.ndarray, np.ndarray]] = {}
+            # 畸变类型作用域（对齐官网 per-species 复选框）：type -> 物种列表（"*"=全部）
+            self.distortion_scope: dict[str, list[str]] = {}
+            self.distortion_types: list[str] = DEFAULT_DISTORTION_TYPES.copy()
+            self._smodes = SmodesWrapper()
+            self._special_subgroups_cache: list | None = None
+            self._special_subgroups_lock = threading.Lock()
+            self._conv_to_prim_cache: np.ndarray | None = None
+            self._parent_rotations_cache: list[np.ndarray] | None = None
+            self._strain_representation_cache = None
+            self._lattice_standardization_cache: dict[tuple, tuple[np.ndarray, np.ndarray]] = {}
+        except BaseException as exc:
+            try:
+                self.close()
+            except Exception as cleanup_error:
+                raise exc from cleanup_error
+            raise
+
+    # Runtime resources are reconstructed, never copied between workers.
+    # Everything else is session data, copied in ONE operation so aliases
+    # (selected subgroup / candidate / phase path) remain internally coherent.
+    _RUNTIME_FIELDS = frozenset({
+        "cfg", "_iso", "_findsym", "_sym_val", "_dist_mapper", "_dist_engine",
+        "_domain_gen", "_method1", "_method2", "_method3", "_exporter", "_smodes", "_special_subgroups_lock",
+    })
+
+    def snapshot_for_action(self) -> "IsoDistort":
+        """Create an isolated worker, including for an empty session.
+
+        Callers own synchronization and publish this worker only after the
+        complete action succeeds. New scientific state fields are included
+        automatically; resources must be registered in ``_RUNTIME_FIELDS``.
+        This is state copying, not a change of basis or a recalculation.
+        """
+        state = copy.deepcopy({
+            name: value for name, value in vars(self).items()
+            if name not in self._RUNTIME_FIELDS
+        })
+        worker = type(self)()
+        try:
+            for name in ("_iso", "_smodes", "_findsym"):
+                source = getattr(self, name)
+                if source is None:
+                    continue
+                target = getattr(worker, name)
+                if target is None:
+                    target = FindsymWrapper()
+                    setattr(worker, name, target)
+                target.clone_runtime_from(source)
+            worker.__dict__.update(state)
+        except BaseException as exc:
+            try:
+                worker.close()
+            except Exception as cleanup_error:
+                raise exc from cleanup_error
+            raise
+        return worker
 
     def snapshot_for_export(self) -> "IsoDistort":
-        """Return an independent export worker for the current committed state.
-
-        Batch preparation mutates Method-2 mode caches candidate by candidate.
-        A web request must therefore not run it on the shared interactive
-        session after releasing the session lock.  This snapshot owns fresh
-        backend wrappers and deep-copies every mutable scientific/session fact
-        needed by the export path, so other tabs can keep reading or changing
-        the live session without mixing states into the batch.
-        """
-
+        """Create a worker for a loaded, committed parent and candidate set."""
         if self.structure is None or self.symmetry_info is None:
             raise RuntimeError("parent structure is not loaded")
-        worker = type(self)()
-        worker.structure = self.structure.copy()
-        worker.symmetry_info = copy.deepcopy(self.symmetry_info)
-        worker.structure_path = self.structure_path
-        worker.subgroups = copy.deepcopy(self.subgroups)
-        worker._unresolved_method3_embedding_keys = copy.deepcopy(
-            self._unresolved_method3_embedding_keys
-        )
-        worker.distortion_types = list(self.distortion_types)
-        worker.distortion_scope = self._copy_distortion_scope(self.distortion_scope)
-        worker._restore_distortion_state(copy.deepcopy(self._snapshot_distortion_state()))
-        worker._special_subgroups_cache = copy.deepcopy(self._special_subgroups_cache)
-        worker._conv_to_prim_cache = copy.deepcopy(self._conv_to_prim_cache)
-        worker._parent_rotations_cache = copy.deepcopy(self._parent_rotations_cache)
-        worker._strain_representation_cache = copy.deepcopy(
-            self._strain_representation_cache
-        )
-        worker._lattice_standardization_cache = copy.deepcopy(
-            self._lattice_standardization_cache
-        )
-        return worker
+        return self.snapshot_for_action()
+
+    def close(self) -> None:
+        """Release every owned wrapper, even when one cleanup fails."""
+        failures = []
+        for name in ("_iso", "_findsym", "_smodes"):
+            wrapper = getattr(self, name, None)
+            if wrapper is not None:
+                try:
+                    wrapper.close()
+                except Exception as exc:
+                    failures.append(exc)
+        if failures:
+            details = "; ".join(f"{type(exc).__name__}: {exc}" for exc in failures)
+            raise RuntimeError(f"Could not close all session wrappers: {details}") from failures[0]
 
     # ================================================================
     # 阶段一：结构输入与对称识别
@@ -965,11 +604,11 @@ class IsoDistort:
         never as a display index or rounded float.
         """
         embedding_id = str(
-            getattr(subgroup, "_method3_embedding_id", "") or ""
+            getattr(subgroup, "method3_embedding_id", "") or ""
         ).strip()
         context_kind = (
             "exact_fixed_space"
-            if str(getattr(subgroup, "_method3_route_resolution", ""))
+            if str(getattr(subgroup, "method3_route_resolution", ""))
             == "exact_fixed_space"
             else "single_irrep"
         )
@@ -1429,7 +1068,7 @@ class IsoDistort:
             if want_strain:
                 probe = Method1ResultItem(
                     subgroup=route,
-                    crystal_system=_sg_to_crystal_system(route.space_group_number),
+                    crystal_system=crystal_system_for_number(route.space_group_number),
                     is_maximal=route.is_maximal,
                 )
                 if self._keep_strain_only_irrep(probe, parent_sg):
@@ -1680,7 +1319,7 @@ class IsoDistort:
         items = [
             Method1ResultItem(
                 subgroup=sg,
-                crystal_system=_sg_to_crystal_system(sg.space_group_number),
+                crystal_system=crystal_system_for_number(sg.space_group_number),
                 is_maximal=sg.is_maximal,
             )
             for sg in raw
@@ -2171,88 +1810,17 @@ class IsoDistort:
 
     def select_path(self, subgroup_idx: int,
                     distortion_type: str | list[str] | None = None) -> PhasePath:
+        """Select and calculate one path through the Method 2 session contract.
+
+        This convenience entry preserves the session's current modulation
+        count and species scope. Candidate checks, mode calculation and state
+        publication are shared with :meth:`search_method_2`.
         """
-        步骤5-6：选择相变路径，计算畸变模式（Mode Basis）。
-
-        Args:
-            subgroup_idx: 子群序号（来自 Method 1 候选）
-            distortion_type: 畸变类型（单个或列表，默认 displacive/strain；
-                按 self.distortion_scope 限定物种作用域）
-
-        Returns:
-            PhasePath
-        """
-        if self.structure is None:
-            raise RuntimeError("请先加载结构 (load_structure)")
-        self._require_verified_parent_setting()
-        if not self.subgroups:
-            self.list_subgroups(distortion_type)
-
-        if distortion_type is None:
-            distortion_type = getattr(
-                self,
-                "distortion_types",
-                DEFAULT_DISTORTION_TYPES,
-            )
-
-        target = next((sg for sg in self.subgroups if sg.index == subgroup_idx), None)
-        if target is None:
-            raise ValueError(t("subgroup.not_found", idx=subgroup_idx))
-
-        types = normalize_distortion_types(
-            getattr(self, "distortion_types", None)
-            if distortion_type is None
-            else distortion_type
+        self.search_method_2(
+            subgroup_idx,
+            distortion_type=distortion_type,
+            number_of_independent_modulations=self.number_of_independent_modulations,
         )
-        require_supported_physical_types(types)
-        active_scope = self._copy_distortion_scope(
-            getattr(self, "distortion_scope", {})
-        )
-        self.phase_path = PhasePath.from_subgroup(
-            self.symmetry_info["space_group_number"],
-            target,
-            types,
-        )
-        # 解析 k 点坐标（Bloch 相位调制用；仅特殊 k 点可直接求值）。
-        # 与 search_method_2 保持一致，避免同一子群经不同入口产出的
-        # 畸变结构因 k_vector 缺失而把非 Γ k 点当 Γ 点处理。
-        self.phase_path.k_vector = self._resolve_k_vector(
-            target.k_point_label, list(target.k_parameters or []),
-        )
-        self.phase_path.validate()
-        self._selected_subgroup = target
-
-        print(t("path.selected", desc=self.phase_path.describe()))
-
-        # 计算畸变模式（按类型 + 物种作用域）
-        self.distortion_modes = self._compute_scoped_modes(
-            self.symmetry_info["space_group_number"],
-            target,
-            types,
-            distortion_scope=active_scope,
-        )
-
-        print(t("modes.found", n=len(self.distortion_modes)
-                + len(self.mode_occupancies)))
-        for m in self.distortion_modes:
-            n_sites = len({b.wyckoff_letter for b in m.bush_modes})
-            print(t("mode.sites", irrep=m.irrep_label, opd=m.opd_symbol, n=n_sites))
-
-        # 映射到原子位移；轴矢量类型不由位移表示替代。
-        # Parent entries are projected from complete child columns below.
-        # A sparse BUSH row does not authorize parent-orbit displacement filling.
-        self.mode_displacements = {}
-        self._install_special_bush_supercell_modes(target)
-        self._sync_parametric_session_keys()
-        self._mode_cache_key = self._mode_context_key(
-            target,
-            getattr(self, "number_of_independent_modulations", 0),
-            types,
-            active_scope,
-        )
-        self.distorted_structure = None
-        self._generated_structure_cache_key = None
-
         return self.phase_path
 
     def _union_scope_species(
@@ -2272,82 +1840,6 @@ class IsoDistort:
                 scoped |= self._scope_species(tp, scope=distortion_scope)
         return scoped
 
-    def _calc_displacive_modes(
-        self,
-        parent_sg: int,
-        target: SubgroupInfo,
-        letters: list[str],
-        *,
-        nmod: int | None = None,
-        allowed_orbit_ids: list[str] | None = None,
-    ) -> list[DistortionMode]:
-        """Compute the complete child-fixed displacement representation.
-
-        At a special k, ISO BUSH remains authoritative on every Wyckoff orbit
-        carrying a primary/root mode.  A wholly rootless orbit is completed by
-        the same Reynolds-projected child fixed-space engine used for
-        commensurate parameter-k lock-ins.  This distinction matters because
-        the official Complete modes page contains symmetry-allowed secondary
-        modes even when BUSH says ``There is no root mode`` for that orbit.
-        """
-        self._require_verified_parent_setting()
-        from backend.method2.superspace import (  # noqa: PLC0415
-            compute_parametric_modes,
-            compute_special_modes_with_rootless_supplement,
-        )
-
-        nmod_val = (
-            self.number_of_independent_modulations if nmod is None else int(nmod)
-        )
-        kpoints = []
-        try:
-            kpoints = self._iso.list_k_points(parent_sg)
-        except Exception:  # noqa: BLE001
-            kpoints = []
-        if getattr(target, "_method3_route_resolution", "") == "exact_fixed_space":
-            result = compute_parametric_modes(
-                self.structure,
-                self.symmetry_info or {},
-                target,
-                letters,
-                self._smodes,
-                iso=self._iso,
-                kpoints=kpoints,
-                nmod=0,
-                wyckoff_orbit_ids=allowed_orbit_ids,
-            )
-        elif getattr(target, "k_parameters", None):
-            result = compute_parametric_modes(
-                self.structure,
-                self.symmetry_info or {},
-                target,
-                letters,
-                self._smodes,
-                iso=self._iso,
-                kpoints=kpoints,
-                nmod=nmod_val,
-                wyckoff_orbit_ids=allowed_orbit_ids,
-            )
-        else:
-            result = compute_special_modes_with_rootless_supplement(
-                self.structure,
-                self.symmetry_info or {},
-                target,
-                letters,
-                self._iso,
-                self._smodes,
-                kpoints=kpoints,
-                wyckoff_orbit_ids=allowed_orbit_ids,
-            )
-        if result is not None:
-            self._install_parametric_result(result)
-            return result.modes
-        return []
-
-    def _install_parametric_result(self, result) -> None:
-        self.mode_displacements_sc = dict(result.supercell_displacements or {})
-        self._mode_label_overrides = dict(result.labels or {})
-
     def _install_special_bush_supercell_modes(self, target: SubgroupInfo) -> None:
         """Install exact BUSH roots and merge any rootless fixed-space modes.
 
@@ -2358,7 +1850,7 @@ class IsoDistort:
         """
         if getattr(target, "k_parameters", None):
             return
-        if getattr(target, "_method3_route_resolution", "") == "exact_fixed_space":
+        if getattr(target, "method3_route_resolution", "") == "exact_fixed_space":
             return
         precomputed = dict(self.mode_displacements_sc or {})
         precomputed_labels = dict(self._mode_label_overrides or {})
@@ -2409,6 +1901,65 @@ class IsoDistort:
 
     def _mode_session_key(self, mode: DistortionMode) -> str:
         return str(getattr(mode, "amplitude_key", "") or mode.irrep_label)
+
+    def displacement_snapshot(self) -> DisplacementSnapshot:
+        """Capture selected, qualified modes without exposing mutable caches.
+
+        This copies an already computed result. It performs no search, fitting,
+        sign selection, mode sorting or change of normalization.
+        """
+        from backend.export import subgroup_identity
+
+        selected = self._selected_subgroup
+        context = self._mode_cache_key
+        if selected is None or context is None or not self.mode_displacements_sc:
+            raise RuntimeError("No committed supercell displacement result")
+        current_context = self._mode_context_key(
+            selected, self.number_of_independent_modulations,
+            self.distortion_types, self.distortion_scope,
+        )
+        if context != current_context:
+            raise RuntimeError("Scientific context changed after mode calculation")
+        modes = [mode for mode in self.distortion_modes
+                 if self._mode_session_key(mode) in self.mode_displacements_sc]
+        failures = self._mode_identity_failures(modes)
+        if failures:
+            raise UnresolvedModeIdentityError(failures)
+        keys = [self._mode_session_key(mode) for mode in modes]
+        if len(keys) != len(set(keys)) or set(keys) != set(self.mode_displacements_sc):
+            raise RuntimeError("Displacement columns lack unique declared mode identities")
+        supercell = self._supercell_for_subgroup(selected)
+        for key in keys:
+            raw = np.asarray(self.mode_displacements_sc[key], dtype=float)
+            if raw.shape != (len(supercell), 3) or not np.isfinite(raw).all():
+                raise ValueError("Mode snapshot requires finite matching three-vector rows")
+            square_norm = float(np.sum((raw @ supercell.lattice.matrix) ** 2))
+            if not np.isfinite(square_norm) or square_norm <= 0:
+                raise ValueError(f"Displacement column {key} must have a positive finite Cartesian norm")
+
+        def rows(value, count):
+            array = np.asarray(value, dtype=float)
+            if array.shape != (count, 3) or not np.isfinite(array).all():
+                raise ValueError("Mode snapshot requires finite matching three-vector rows")
+            return tuple(tuple(float(v) for v in row) for row in array)
+
+        info = self.symmetry_info or {}
+        return DisplacementSnapshot(
+            schema="isodistort.displacement-snapshot.v1",
+            candidate_identity_json=json.dumps(subgroup_identity(selected), sort_keys=True),
+            calculation_context=copy.deepcopy(context),
+            nmod=int(self.number_of_independent_modulations),
+            parent_space_group_number=int(info.get("space_group_number") or 0),
+            parent_space_group_symbol=str(info.get("space_group_symbol") or ""),
+            child_space_group_symbol=str(selected.space_group_symbol),
+            lattice_angstrom=rows(supercell.lattice.matrix, 3),
+            fractional_coordinates=rows(supercell.frac_coords, len(supercell)),
+            species=tuple(site.species_string for site in supercell),
+            columns=tuple(DisplacementColumn(
+                key, self._mode_label_overrides.get(key) or key,
+                rows(self.mode_displacements_sc[key], len(supercell)),
+            ) for key in keys),
+        )
 
     def _mode_identity_failures(
         self,
@@ -2521,16 +2072,16 @@ class IsoDistort:
 
     def _compute_scoped_modes(
         self,
-        parent_sg: int,
-        target: SubgroupInfo,
         types: list[str],
-        raw_modes: list[DistortionMode] | None = None,
+        raw_modes: list[DistortionMode],
         *,
         distortion_scope: dict | None = None,
     ) -> list[DistortionMode]:
         """
-        按物种作用域整理经证明的位移模式。应变走独立张量合同；
-        occupational / rotational / magnetic 尚无对应表示，明确拒绝。
+        Filter solver-produced displacement modes by physical species scope.
+
+        This function never calculates missing modes. Strain has a separate
+        tensor contract; unsupported physical types are rejected explicitly.
         """
         self._require_verified_parent_setting()
         require_supported_physical_types(types)
@@ -2538,20 +2089,6 @@ class IsoDistort:
         bush_types = [tp for tp in types if tp == "displacive"]
 
         modes: list[DistortionMode] = []
-        if raw_modes is None and bush_types:
-            scoped_species = self._union_scope_species(
-                bush_types,
-                distortion_scope=distortion_scope,
-            )
-            letters = self._letters_for_species(scoped_species)
-            allowed_orbit_ids = self._orbit_ids_for_species(scoped_species)
-            if letters:
-                raw_modes = self._calc_displacive_modes(
-                    parent_sg,
-                    target,
-                    letters,
-                    allowed_orbit_ids=allowed_orbit_ids or None,
-                )
         if raw_modes:
             allowed_letters: set[str] = set()
             allowed_orbit_ids: set[str] = set()
@@ -2910,7 +2447,7 @@ class IsoDistort:
             str(value) for value in (getattr(subgroup, "origin", None) or ())
         )
         embedding_id = str(
-            getattr(subgroup, "_method3_embedding_id", "") or ""
+            getattr(subgroup, "method3_embedding_id", "") or ""
         ).strip()
         if not embedding_id:
             embedding_id = repr(self._method3_embedding_guard_key(subgroup))
@@ -3151,110 +2688,6 @@ class IsoDistort:
         )
         return lifted
 
-    @staticmethod
-    def _exact_child_operations(
-        subgroup: SubgroupInfo,
-        affine_child,
-    ) -> tuple[ExactSeitzOperation, ...]:
-        """Conjugate the proven affine subgroup into the emitted child frame.
-
-        ``AffineEmbedding.operations`` live in parent fractional axes and are
-        represented modulo the child's primitive translation lattice.  The
-        CIF model instead needs every conventional-cell Seitz operation in the
-        exact frame ``x_parent = B^T x_child + q``.  Recover that frame first,
-        then expand the conventional centering cosets.  The Hall database is
-        used only as an independent exact-setting cross-check.
-        """
-
-        if affine_child.hall_number is None:
-            raise ValueError("subgroup embedding has no exact Hall setting")
-        basis = rational_matrix(subgroup.basis_vectors or identity_matrix())
-        parent_from_child = transpose(basis)
-        child_from_parent = inverse(parent_from_child)
-        origin_values = tuple(
-            as_fraction(value) for value in (subgroup.origin or (0, 0, 0))
-        )
-        if len(origin_values) != 3:
-            raise ValueError("subgroup origin must contain three exact coordinates")
-        origin = origin_values
-
-        def matrix_vector(matrix, vector):
-            return tuple(
-                sum(matrix[row][column] * vector[column] for column in range(3))
-                for row in range(3)
-            )
-
-        def add(left, right):
-            return tuple(left[index] + right[index] for index in range(3))
-
-        def subtract(left, right):
-            return tuple(left[index] - right[index] for index in range(3))
-
-        hall_type = spglib.get_spacegroup_type(int(affine_child.hall_number))
-        if hall_type is None:
-            raise ValueError(
-                f"no space-group type for Hall number {affine_child.hall_number}"
-            )
-        hall_symbol = str(hall_type.hall_symbol or "")
-        centering = next(
-            (character for character in hall_symbol.upper() if character in "PABCIFR"),
-            None,
-        )
-        if centering is None:
-            raise ValueError("target Hall symbol has no conventional centering")
-        centering_translations = translation_cosets(
-            centering_primitive_matrix(centering),
-            identity_matrix(),
-        )
-
-        operations: list[ExactSeitzOperation] = []
-        for operation in affine_child.operations:
-            child_rotation = multiply(
-                multiply(child_from_parent, operation.rotation),
-                parent_from_child,
-            )
-            parent_translation_about_origin = subtract(
-                add(matrix_vector(operation.rotation, origin), operation.translation),
-                origin,
-            )
-            child_translation = matrix_vector(
-                child_from_parent,
-                parent_translation_about_origin,
-            )
-            for centering_translation in centering_translations:
-                operations.append(
-                    ExactSeitzOperation.from_values(
-                        child_rotation,
-                        add(child_translation, centering_translation),
-                    )
-                )
-
-        exact_by_key = {operation.key: operation for operation in operations}
-        if len(exact_by_key) != len(operations):
-            raise ValueError(
-                "affine subgroup expansion produced duplicate conventional operations"
-            )
-        database = spglib.get_symmetry_from_database(int(affine_child.hall_number))
-        if database is None:
-            raise ValueError(
-                f"no symmetry database entry for Hall number {affine_child.hall_number}"
-            )
-        database_operations = tuple(
-            ExactSeitzOperation.from_values(
-                rotation.tolist(),
-                tuple(as_fraction(float(value)) for value in translation),
-            )
-            for rotation, translation in zip(
-                database["rotations"],
-                database["translations"],
-                strict=True,
-            )
-        )
-        if set(exact_by_key) != {operation.key for operation in database_operations}:
-            raise ValueError(
-                "conjugated affine subgroup disagrees with its target Hall setting"
-            )
-        return tuple(exact_by_key[key] for key in sorted(exact_by_key))
 
     def _exact_displacive_child(
         self,
@@ -3505,7 +2938,7 @@ class IsoDistort:
         affine_child = embedding_from_identity(subgroup, parent_group)
         if affine_child.hall_number is None:
             raise ValueError("subgroup embedding has no exact Hall setting")
-        operations = self._exact_child_operations(subgroup, affine_child)
+        operations = exact_child_operations(subgroup, affine_child)
         reference, atoms, representatives, mappings, orbit_types = (
             self._exact_displacive_child(subgroup, operations)
         )
@@ -3726,7 +3159,7 @@ class IsoDistort:
             )
 
         embedding_id = str(
-            getattr(subgroup, "_method3_embedding_id", "") or ""
+            getattr(subgroup, "method3_embedding_id", "") or ""
         ).strip()
         embedding = ExactParentChildEmbedding(
             self.structure,
@@ -3747,7 +3180,7 @@ class IsoDistort:
         }
         expected_context = (
             "exact_fixed_space"
-            if str(getattr(subgroup, "_method3_route_resolution", ""))
+            if str(getattr(subgroup, "method3_route_resolution", ""))
             == "exact_fixed_space"
             else "single_irrep"
         )
@@ -3911,7 +3344,7 @@ class IsoDistort:
         export_nmod = (
             snap["number_of_independent_modulations"]
             if number_of_independent_modulations is None
-            else int(number_of_independent_modulations)
+            else validate_modulation_count(number_of_independent_modulations)
         )
         if export_nmod < 0:
             raise ValueError("number_of_independent_modulations must be >= 0")
@@ -4120,266 +3553,6 @@ class IsoDistort:
             return ExportBatchPlan(tuple(specs), tuple(skipped))
         return specs
 
-    def _render_export_batch(
-        self,
-        method: int,
-        specs: list[SubgroupExportSpec],
-        formats: list[str],
-    ) -> list[tuple[SubgroupExportSpec, tuple[tuple[str, bytes], ...]]]:
-        """Pre-render an entire disk batch before any candidate is published."""
-
-        rendered: list[
-            tuple[SubgroupExportSpec, tuple[tuple[str, bytes], ...]]
-        ] = []
-        failures: list[ExportCandidateFailure] = []
-        for position, spec in enumerate(specs, start=1):
-            try:
-                payloads = render_subgroup_files(spec, formats)
-            except Exception as exc:  # noqa: BLE001 - aggregate before publication
-                failures.append(
-                    self._export_candidate_failure(position, spec.subgroup, exc)
-                )
-            else:
-                rendered.append((spec, payloads))
-        if failures:
-            raise ExportPreparationError(method, failures)
-        return rendered
-
-    def _publish_export_batch(
-        self,
-        method: int,
-        folder_root: Path,
-        rendered_batch: list[
-            tuple[SubgroupExportSpec, tuple[tuple[str, bytes], ...]]
-        ],
-        root_payloads: tuple[tuple[str, bytes], ...] = (),
-    ) -> list[Path]:
-        """Stage and transactionally publish a complete disk export batch.
-
-        A new or pre-created empty root keeps the legacy direct layout and is
-        exposed as a complete root.  An existing non-empty root gets one
-        immutable, content-addressed ``*.ready`` version directory, exposed by
-        a single rename.  Readers following the ready-manifest protocol never
-        observe only a prefix of a batch, including if the producer process
-        exits before or after the commit rename.  Existing files are never
-        overwritten.
-        """
-
-        parent = folder_root.parent
-        parent_existed = parent.exists()
-        parent.mkdir(parents=True, exist_ok=True)
-        # Windows can reject a directory move from the destination's parent
-        # into an already-existing child directory under restrictive ACLs.
-        # Stage appends inside that existing root, under a non-ready name that
-        # discovery deliberately ignores, so the commit rename stays within
-        # one directory and remains atomic.
-        root_was_directory = (
-            folder_root.exists()
-            and folder_root.is_dir()
-            and not folder_root.is_symlink()
-        )
-        root_was_empty = root_was_directory and not any(folder_root.iterdir())
-        staging_parent = (
-            folder_root if root_was_directory and not root_was_empty else parent
-        )
-        staging = Path(
-            tempfile.mkdtemp(prefix=".isodistort-batch-", dir=staging_parent)
-        )
-        active: tuple[int, SubgroupExportSpec] | None = None
-        published_root = folder_root
-        publish_guard = None
-
-        def failure_for(
-            position: int,
-            spec: SubgroupExportSpec,
-            exc: Exception,
-        ) -> ExportPreparationError:
-            return ExportPreparationError(
-                method,
-                [self._export_candidate_failure(position, spec.subgroup, exc)],
-            )
-
-        try:
-            folders: list[str] = []
-            for position, (spec, payloads) in enumerate(rendered_batch, start=1):
-                active = (position, spec)
-                folder = str(spec.folder_name or subgroup_label(spec.subgroup))
-                if not folder or Path(folder).name != folder:
-                    raise ValueError(
-                        f"unsafe candidate export folder component: {folder!r}"
-                    )
-                if folder.casefold() in {value.casefold() for value in folders}:
-                    raise ValueError(
-                        f"duplicate candidate export folder: {folder!r}"
-                    )
-                folders.append(folder)
-                staged_folder = staging / folder
-                staged_folder.mkdir()
-                for filename, payload in payloads:
-                    name = str(filename)
-                    if not name or Path(name).name != name:
-                        raise ValueError(
-                            f"unsafe export filename component: {name!r}"
-                        )
-                    (staged_folder / name).write_bytes(bytes(payload))
-
-            root_names: list[str] = []
-            for filename, payload in root_payloads:
-                name = str(filename)
-                if (
-                    not name
-                    or Path(name).name != name
-                    or name.casefold() == _EXPORT_BATCH_MANIFEST.casefold()
-                    or name.casefold() in {folder.casefold() for folder in folders}
-                    or name.casefold() in {value.casefold() for value in root_names}
-                ):
-                    raise ValueError(
-                        f"unsafe or duplicate export root filename: {name!r}"
-                    )
-                root_names.append(name)
-                (staging / name).write_bytes(bytes(payload))
-
-            guard = _export_publish_lock(folder_root)
-            guard.__enter__()
-            publish_guard = guard
-            if folder_root.exists() or folder_root.is_symlink():
-                if not folder_root.is_dir() or folder_root.is_symlink():
-                    first_position, first_spec = active or (1, rendered_batch[0][0])
-                    raise failure_for(
-                        first_position,
-                        first_spec,
-                        FileExistsError(
-                            f"export root is not a directory: {folder_root}"
-                        ),
-                    )
-                # A caller commonly supplies a pre-created empty output
-                # directory.  It has no prior state to retain, so publish the
-                # original direct candidate layout by replacing that empty
-                # placeholder with the fully staged root.  Observers still see
-                # only zero or all candidates; a failed rename recreates the
-                # empty placeholder.
-                if not any(folder_root.iterdir()):
-                    folder_root.rmdir()
-                    try:
-                        staging.rename(folder_root)
-                    except Exception as exc:
-                        folder_root.mkdir(exist_ok=True)
-                        failures = [
-                            self._export_candidate_failure(
-                                position,
-                                spec.subgroup,
-                                exc,
-                            )
-                            for position, (spec, _payloads) in enumerate(
-                                rendered_batch,
-                                start=1,
-                            )
-                        ]
-                        raise ExportPreparationError(method, failures) from exc
-                else:
-                    reserved = {
-                        name.casefold()
-                        for name in _published_export_folder_names(folder_root)
-                    }
-                    conflicts: list[ExportCandidateFailure] = []
-                    for position, ((spec, _payloads), folder) in enumerate(
-                        zip(rendered_batch, folders, strict=True),
-                        start=1,
-                    ):
-                        if folder.casefold() in reserved:
-                            conflicts.append(
-                                self._export_candidate_failure(
-                                    position,
-                                    spec.subgroup,
-                                    FileExistsError(
-                                        "target candidate directory exists in a "
-                                        f"committed batch: {folder_root / folder}"
-                                    ),
-                                )
-                            )
-                    if conflicts:
-                        raise ExportPreparationError(method, conflicts)
-
-                    manifest = _export_batch_manifest(
-                        method,
-                        rendered_batch,
-                        folders,
-                        root_payloads,
-                    )
-                    (staging / _EXPORT_BATCH_MANIFEST).write_bytes(manifest)
-                    published_root = folder_root / _ready_export_batch_name(manifest)
-                    if published_root.exists() or published_root.is_symlink():
-                        failures = [
-                            self._export_candidate_failure(
-                                position,
-                                spec.subgroup,
-                                FileExistsError(
-                                    f"committed export batch exists: {published_root}"
-                                ),
-                            )
-                            for position, (spec, _payloads) in enumerate(
-                                rendered_batch,
-                                start=1,
-                            )
-                        ]
-                        raise ExportPreparationError(method, failures)
-                    try:
-                        # This is the sole visibility transition for an append
-                        # to an existing non-empty root.  The manifest and
-                        # every candidate are already closed and complete.
-                        staging.rename(published_root)
-                    except Exception as exc:
-                        failures = [
-                            self._export_candidate_failure(
-                                position,
-                                spec.subgroup,
-                                exc,
-                            )
-                            for position, (spec, _payloads) in enumerate(
-                                rendered_batch,
-                                start=1,
-                            )
-                        ]
-                        raise ExportPreparationError(method, failures) from exc
-            else:
-                try:
-                    staging.rename(folder_root)
-                except Exception as exc:
-                    failures = [
-                        self._export_candidate_failure(position, spec.subgroup, exc)
-                        for position, (spec, _payloads) in enumerate(
-                            rendered_batch,
-                            start=1,
-                        )
-                    ]
-                    raise ExportPreparationError(method, failures) from exc
-
-            return [
-                published_root / folder / filename
-                for (spec, payloads), folder in zip(
-                    rendered_batch,
-                    folders,
-                    strict=True,
-                )
-                for filename, _payload in payloads
-            ] + [published_root / name for name in root_names]
-        except ExportPreparationError:
-            raise
-        except Exception as exc:
-            if active is None:
-                raise
-            position, spec = active
-            raise failure_for(position, spec, exc) from exc
-        finally:
-            if publish_guard is not None:
-                publish_guard.__exit__(None, None, None)
-            if staging.exists():
-                shutil.rmtree(staging, ignore_errors=True)
-            if not parent_existed and parent.exists():
-                try:
-                    parent.rmdir()
-                except OSError:
-                    pass
 
     def export_subgroups(
         self,
@@ -4451,11 +3624,12 @@ class IsoDistort:
             len(specs),
             tuple(skipped),
         )
-        rendered_batch = self._render_export_batch(method, specs, fmts)
-        paths = self._publish_export_batch(
+        rendered_batch = render_export_batch(method, specs, fmts, self._export_candidate_failure)
+        paths = publish_export_batch(
             method,
             folder_root,
             rendered_batch,
+            self._export_candidate_failure,
             root_payloads,
         )
         print(t("export.done", n=len(paths)))
@@ -4512,7 +3686,7 @@ class IsoDistort:
         effective_wrapping = wrapping
         if method == 3 and not effective_wrapping:
             effective_wrapping = method3_case_folder(items, stable_case_id)
-        rendered_batch = self._render_export_batch(method, specs, fmts)
+        rendered_batch = render_export_batch(method, specs, fmts, self._export_candidate_failure)
         root_payloads = _export_failure_report_payloads(
             method,
             len(items),
@@ -4595,7 +3769,7 @@ class IsoDistort:
             ],
         )
         parent_sg = self.symmetry_info["space_group_number"]
-        result = self._search.method_1_search(
+        result = self._method1.search(
             parent_sg, query, subgroups=self._ensure_special_subgroups()
         )
         result = self._filter_method1_by_types(
@@ -4656,7 +3830,8 @@ class IsoDistort:
             raise RuntimeError("请先加载结构 (load_structure)")
         self._require_verified_parent_setting()
 
-        requested_nsup = _validated_single_irrep_count(
+        number_of_independent_modulations = validate_modulation_count(number_of_independent_modulations)
+        requested_nsup = validate_single_irrep_count(
             number_of_superposed_irreps
         )
 
@@ -4692,7 +3867,7 @@ class IsoDistort:
             self._method3_embedding_guard_key(selected_candidate) in getattr(
                 self, "_unresolved_method3_embedding_keys", set()
             )
-            or getattr(selected_candidate, "_method3_route_resolution", "")
+            or getattr(selected_candidate, "method3_route_resolution", "")
             == "affine_only_unresolved_coupled_route"
         ):
             raise RuntimeError(
@@ -4700,8 +3875,8 @@ class IsoDistort:
                 "second-stage route; Method 2 mode calculation is not implemented"
             )
 
-        self.number_of_independent_modulations = int(
-            number_of_independent_modulations or 0
+        self.number_of_independent_modulations = validate_modulation_count(
+            number_of_independent_modulations
         )
         query = Method2Query(
             subgroup_idx=subgroup_idx,
@@ -4726,7 +3901,7 @@ class IsoDistort:
                 kpoints = iso_backend.list_k_points(parent_sg)
         except Exception:  # noqa: BLE001
             kpoints = []
-        result = self._search.method_2_search(
+        result = self._method2.search(
             parent_sg, candidate_pool, query,
             wyckoff_letters=scoped_letters,
             wyckoff_orbit_ids=scoped_orbit_ids or None,
@@ -4763,8 +3938,6 @@ class IsoDistort:
         self.phase_path.validate()
         self._selected_subgroup = result.subgroup
         self.distortion_modes = self._compute_scoped_modes(
-            parent_sg,
-            result.subgroup,
             types,
             raw_modes=result.modes,
             distortion_scope=active_scope,
@@ -4792,8 +3965,10 @@ class IsoDistort:
             asdict(failure) for failure in identity_failures
         ]
         result.metadata["export_ready"] = not identity_failures
-        result.subgroup._mode_identity_status = identity_status
-        result.subgroup._mode_identity_failures = tuple(identity_failures)
+        result.subgroup.mode_identity_status = identity_status
+        result.subgroup.mode_identity_failures = tuple(identity_failures)
+        self.distortion_types = list(types)
+        self.distortion_scope = self._copy_distortion_scope(active_scope)
         self._mode_cache_key = self._mode_context_key(
             result.subgroup,
             self.number_of_independent_modulations,
@@ -4873,7 +4048,7 @@ class IsoDistort:
             displacive_species=displacive_species,
         )
         parent_sg = self.symmetry_info["space_group_number"]
-        result = self._search.method_3_search(parent_sg, query)
+        result = self._method3.search(parent_sg, query)
 
         result = self._filter_method3_routes_by_types(
             result, query.distortion_types or self.distortion_types
@@ -4883,10 +4058,10 @@ class IsoDistort:
         self._unresolved_method3_embedding_keys = set()
         for item in result:
             resolution = getattr(item, "route_resolution", "known_single_ir")
-            item.subgroup._method3_route_resolution = resolution
+            item.subgroup.method3_route_resolution = resolution
             embedding_id = str(getattr(item, "embedding_id", "") or "").strip()
             if embedding_id:
-                item.subgroup._method3_embedding_id = embedding_id
+                item.subgroup.method3_embedding_id = embedding_id
             if resolution == "affine_only_unresolved_coupled_route":
                 key = self._method3_embedding_guard_key(item.subgroup)
                 self._unresolved_method3_embedding_keys.add(key)

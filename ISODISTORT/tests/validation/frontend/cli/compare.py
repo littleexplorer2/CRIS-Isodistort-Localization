@@ -8,7 +8,7 @@ import sys
 from dataclasses import asdict
 
 from ...application import workspace as cpaths
-from ...application.single import ComparisonResult, compare_cif
+from ...application.single import ComparisonResult, VerificationDecision, VerificationPolicy, compare_cif
 from ...application.workspace import default_relative_path, get_config
 
 
@@ -45,7 +45,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--strict",
         action=argparse.BooleanOptionalAction,
         default=cfg.strict,
-        help="require byte-identical files in addition to semantic equality",
+        help="require semantic equality, a trusted reference SHA-256, and byte-identical files",
     )
     parser.add_argument(
         "--structure-only",
@@ -56,7 +56,7 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _print_result(result: ComparisonResult, strict: bool) -> None:
+def _print_result(result: ComparisonResult, decision: VerificationDecision) -> None:
     print("=" * 72)
     print("CIF 比对结果")
     print(f"本地文件: {result.local_path}")
@@ -79,12 +79,12 @@ def _print_result(result: ComparisonResult, strict: bool) -> None:
     print(f"  磁矩一致: {details['magnetic_moments_equal']}")
     print(f"  空间群声明一致: {details['declared_space_group_equal']}")
     print(f"  spglib 推断一致: {details['inferred_space_group_equal']}")
-    if details["issues"]:
+    issues = list(dict.fromkeys([*details["issues"], *decision.issues]))
+    if issues:
         print("差异原因:")
-        for issue in details["issues"]:
+        for issue in issues:
             print(f"  - {issue}")
-    passed = result.passed and (not strict or result.byte_exact)
-    print("结论: " + ("PASS" if passed else "FAIL"))
+    print("结论: " + decision.status.upper())
     if result.structure_equal and not result.byte_exact:
         print("提示: 结构和关键元数据一致，但 CIF 排版或非关键文本不同。")
 
@@ -114,11 +114,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"错误: {exc}", file=sys.stderr)
         return 2
 
-    passed = result.passed and (not args.strict or result.byte_exact)
+    decision = VerificationPolicy(strict=args.strict).evaluate(result)
     if args.json:
         payload = asdict(result)
-        payload["passed"] = passed
+        payload["passed"] = decision.passed
+        payload["verification"] = asdict(decision)
         print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
-        _print_result(result, args.strict)
-    return 0 if passed else 1
+        _print_result(result, decision)
+    return 0 if decision.passed else 1

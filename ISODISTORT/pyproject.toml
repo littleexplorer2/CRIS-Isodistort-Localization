@@ -63,7 +63,7 @@ ignore = ["RUF001", "RUF002", "RUF003", "PLR"]
 
 [tool.ruff.lint.per-file-ignores]
 # 测试文件使用 assert 断言属正常用法（开发者端 tests/ 目录）
-"**/tests/*.py" = ["S101", "PLC0415"]
+"tests/**/*.py" = ["S101", "PLC0415"]
 
 [tool.ruff.lint.isort]
 # 本仓库包名（backend/application/frontend）为 first-party，保证导入排序一致

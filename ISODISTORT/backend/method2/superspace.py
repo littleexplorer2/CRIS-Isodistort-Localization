@@ -25,6 +25,7 @@ instances of the same representation calculation.
 """
 
 from __future__ import annotations
+from backend.models.phase_path import validate_modulation_count
 
 import math
 import re
@@ -82,10 +83,7 @@ from backend.wrappers.iso_wrapper import (
 )
 from backend.wrappers.smodes_wrapper import SmodesAtom, SmodesModeBlock, SmodesWrapper
 from backend.input_cif import build_supercell, map_supercell_sites
-from backend.method1.search_methods import (
-    _k_compatible_with_supercell,
-    _param_value_candidates,
-)
+from backend.utils.k_lattice import k_compatible_with_supercell, param_value_candidates
 
 
 @dataclass
@@ -1663,10 +1661,7 @@ def _canonicalize_rootless_supplement(
 ) -> ParametricModeResult:
     """Map ISO rootless columns into the SMODES child frame and prove equality."""
 
-    from backend.method1.affine_embeddings import (  # noqa: PLC0415
-        embedding_from_identity,
-        parent_affine_group,
-    )
+    from backend.utils.affine_embeddings import embedding_from_identity, parent_affine_group
     from backend.method2.distortion_mapper import DistortionMapper  # noqa: PLC0415
 
     sites = list(symmetry_info.get("wyckoff_sites") or [])
@@ -2326,7 +2321,7 @@ def folding_k_candidates(
     # class; omitting it made the early-stop count consume LD 5/6.
     for numerators in product(range(det + 1), repeat=3):
         trial = np.asarray(numerators, dtype=float) / float(det)
-        if not _k_compatible_with_supercell(trial, m):
+        if not k_compatible_with_supercell(trial, m):
             continue
         arm = _canonical_arm(trial)
         opposite = _canonical_arm(-arm)
@@ -2339,7 +2334,7 @@ def folding_k_candidates(
         if target_real_k_count and len(seen) >= target_real_k_count:
             return
         for arm, rot in _star_arms(cand.coords):
-            if not _k_compatible_with_supercell(arm, m):
+            if not k_compatible_with_supercell(arm, m):
                 continue
             arm_key = tuple(format_k_token(x) for x in arm)
             opposite_key = tuple(format_k_token(x) for x in _canonical_arm(-arm))
@@ -2359,7 +2354,7 @@ def folding_k_candidates(
             if target_real_k_count and len(seen) >= target_real_k_count:
                 break
 
-    param_vals = _param_value_candidates(relative_primitive)
+    param_vals = param_value_candidates(relative_primitive)
     extra = {Fraction(n, det) for n in range(1, det) if det % n == 0 or n <= det}
     param_vals = sorted(
         {Fraction(0)} | set(param_vals) | extra,
@@ -3501,6 +3496,7 @@ def compute_parametric_modes(
     wyckoff_orbit_ids: Sequence[str] | None = None,
 ) -> ParametricModeResult:
     """Complete displacive modes for a parametric-k isotropy subgroup."""
+    nmod = validate_modulation_count(nmod)
     parent_sg = int(symmetry_info.get("space_group_number") or subgroup.parent_sg or 0)
     wyckoff_sites = list(symmetry_info.get("wyckoff_sites") or [])
     basis = np.asarray(
@@ -3530,7 +3526,7 @@ def compute_parametric_modes(
         break
     if displacement_actions is None:
         return ParametricModeResult(
-            modes=[], supercell_displacements={}, labels={}, nmod=max(int(nmod), 0),
+            modes=[], supercell_displacements={}, labels={}, nmod=nmod,
             note="child space-group operations do not act completely on the supercell",
     )
     requested_letters = tuple(dict.fromkeys(
@@ -3557,8 +3553,6 @@ def compute_parametric_modes(
         and (not requested_orbits or orbit_id in requested_orbits)
     }
     primary = _primary_candidate(subgroup, parent_sg)
-    nmod = max(int(nmod), 0)
-
     if kpoints is None:
         kpoints = []
     child_symbol = str(subgroup.space_group_symbol or "P").strip()
@@ -3837,7 +3831,7 @@ def compute_parametric_modes(
         nmod=nmod,
     )
     exact_fixed_space = (
-        str(getattr(subgroup, "_method3_route_resolution", ""))
+        str(getattr(subgroup, "method3_route_resolution", ""))
         == "exact_fixed_space"
     )
     microscopic_method = (

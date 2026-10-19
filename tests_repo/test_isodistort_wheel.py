@@ -46,7 +46,9 @@ from frontend.web.server import WEB_DIR
 from application import workflows
 assert Path(core_api.__file__).is_relative_to(installed)
 assert callable(cart_normalized_mode_matrix)
-for retired in ('features', 'frontend/i18n', 'backend/api', 'tests'):
+for retired in ('features', 'frontend/i18n', 'backend/api', 'tests',
+                'backend/method1/search_methods.py', 'backend/method1/affine_embeddings.py',
+                'backend/method1/phase_path.py'):
     assert not (installed / retired).exists()
 assert CONFIG_PATH == installed / 'resources/config/settings.yaml'
 assert get_config().iso_bin.is_file()

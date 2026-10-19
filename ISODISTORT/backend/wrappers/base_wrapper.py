@@ -19,14 +19,66 @@ Windows 下必须通过 WSL 运行。实测发现两个关键约束：
 from __future__ import annotations
 
 import os
+import re
 import shlex
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
+import weakref
 from pathlib import Path
 
 from backend.utils import WrapperRunError, WrapperTimeoutError, get_config
+
+
+_WSL_WORKSPACE_RE = re.compile(r"/var/tmp/id-[A-Za-z0-9]{8}\Z")
+
+
+def _run_captured_command(args: list[str], *, timeout: float) -> subprocess.CompletedProcess[bytes]:
+    """Capture a process without waiting for descendants to close output pipes.
+
+    Windows ``run(PIPE, timeout=...)`` calls an unbounded ``communicate`` after
+    killing the parent. A descendant can retain those pipe handles forever.
+    Regular files need no reader threads or EOF handshake. Reaping only the
+    process created here gets a separate one-second bound; no process tree or
+    unrelated WSL process is killed. Process creation itself is an OS call,
+    outside the wait timeout. Inherited temporary files may be deleted later
+    when their last handle closes; their disappearance is never awaited.
+    """
+    with tempfile.TemporaryFile(mode="w+b") as stdout, tempfile.TemporaryFile(mode="w+b") as stderr:
+        process = subprocess.Popen(  # noqa: S603 - caller constructs the argv
+            args, stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr,
+        )
+        try:
+            returncode = process.wait(timeout=timeout)
+        except BaseException as exc:
+            try:
+                process.kill()
+                process.wait(timeout=1.0)
+            except (OSError, subprocess.TimeoutExpired) as cleanup_error:
+                raise exc from cleanup_error
+            raise
+        # Snapshot a finite length: descendants may still append after the
+        # primary process exits, so an unbounded read could chase their writes.
+        captured = []
+        for stream in (stdout, stderr):
+            length = os.fstat(stream.fileno()).st_size
+            stream.seek(0)
+            captured.append(stream.read(length))
+        return subprocess.CompletedProcess(args, returncode, *captured)
+
+
+def _remove_wsl_workspace(path: str, timeout: float) -> None:
+    """Remove only one mktemp-owned short directory, never its symlink targets."""
+    if not _WSL_WORKSPACE_RE.fullmatch(path):
+        raise ValueError(f"Refusing to remove an unowned WSL workspace: {path!r}")
+    result = _run_captured_command(
+        ["wsl.exe", "-e", "sh", "-c", f"rm -rf -- {shlex.quote(path)}"],
+        timeout=timeout,
+    )
+    if result.returncode != 0:
+        raise WrapperRunError("wsl", result.returncode, _decode_process_output(result.stderr))
 
 
 def _decode_process_output(raw: bytes) -> str:
@@ -78,28 +130,116 @@ class BaseWrapper:
     4. 统一的超时与错误处理
     """
 
-    #: 在 WSL 用户主目录下创建的私有工作目录名（必须短：findsym 输入文件路径
-    #: 缓冲区仅约 48 字符，超长会被截断导致崩溃）
-    _WSL_DIR_NAME = ".id"
-    #: 暂存目录名（短）
-    _WSL_TMP_NAME = "tmp"
-    #: ISODATA 符号链接名（短）
-    _WSL_DATA_LINK = "data"
-    #: 暂存文件保留时间（秒），超过则清理
-    _STALE_SECONDS = 7 * 24 * 3600
-
     def __init__(self) -> None:
+        self._init_runtime_state()
         self.cfg = get_config()
         self._mode = self._detect_mode()
+        try:
+            if self._mode == "wsl":
+                self._init_wsl_environment()
+            else:
+                self._init_native_environment()
+        except Exception as exc:
+            try:
+                self.close()
+            except Exception as cleanup_error:
+                # Explicit chaining retains both errors on Python 3.10 too;
+                # failed cleanup must not replace the initialization error.
+                raise exc from cleanup_error
+            raise
+
+    def _init_runtime_state(self) -> None:
+        self._runtime_lock = threading.RLock()
+        self._closed = False
+        self._runtime_used = False
         self._runtime_isodata = None
-        self._wsl_home: str = ""
-        self._stage_dir: str = ""
-        self._isodata_link: str = ""
-        self._binary_dir_wsl: str = ""
-        if self._mode == "wsl":
-            self._init_wsl_environment()
-        else:
-            self._init_native_environment()
+        self._native_stage = None
+        self._wsl_cleanup = None
+        self._stage_dir = ""
+        self._isodata_link = ""
+
+    def _require_open(self) -> None:
+        if self._closed:
+            raise RuntimeError("Binary wrapper is closed")
+
+    def close(self) -> None:
+        """Release this instance's generated data and staging, after active calls."""
+        with self._runtime_lock:
+            if self._closed:
+                return
+            self._closed = True
+            try:
+                if self._wsl_cleanup is not None:
+                    self._wsl_cleanup()
+                if self._native_stage is not None:
+                    self._native_stage.cleanup()
+            finally:
+                if self._runtime_isodata is not None:
+                    self._runtime_isodata.cleanup()
+
+    def __enter__(self):
+        self._require_open()
+        return self
+
+    def __exit__(self, *_exc) -> None:
+        self.close()
+
+    def clone_runtime_from(self, source: BaseWrapper) -> None:
+        """Give a fresh wrapper an independent copy of generated runtime state.
+
+        Transaction snapshots must retain locally generated ISO tables after
+        the preceding session closes. Only a generated private ISODATA and
+        numeric ``i*.iso`` working-directory caches are copied. Packaged data
+        is still read through this wrapper's own source link. No directories
+        or mutable links are shared with the source instance.
+        """
+        if source is self:
+            raise ValueError("Runtime cloning requires two distinct wrappers")
+        # A fixed lock ordering prevents A<-B and B<-A deadlock. Object IDs
+        # order infrastructure locks only; they never identify a candidate.
+        first, second = sorted((self, source), key=id)
+        with first._runtime_lock, second._runtime_lock:
+            try:
+                self._require_open()
+                source._require_open()
+                if self._mode != source._mode:
+                    raise ValueError("Runtime cloning requires matching execution modes")
+                if self._runtime_used or self._runtime_isodata is not None:
+                    raise ValueError("Runtime cloning requires a fresh destination wrapper")
+                if source._runtime_isodata is not None:
+                    self._copy_writable_isodata(Path(source._runtime_isodata.name))
+                self._copy_runtime_cache_from(source)
+                self._runtime_used = True
+            except Exception as exc:
+                try:
+                    self.close()
+                except Exception as cleanup_error:
+                    raise exc from cleanup_error
+                raise
+
+    def _copy_runtime_cache_from(self, source: BaseWrapper) -> None:
+        if self._mode == "native":
+            for cache in Path(source._stage_dir).iterdir():
+                if not re.fullmatch(r"i\d+\.iso", cache.name, re.IGNORECASE):
+                    continue
+                if cache.is_symlink() or not cache.is_file():
+                    raise ValueError(f"Generated ISO cache is not a regular file: {cache}")
+                destination = Path(self._stage_dir) / cache.name
+                if destination.exists():
+                    raise ValueError(f"Runtime cache destination already exists: {destination}")
+                shutil.copy2(cache, destination)
+            return
+        command = (
+            f"for f in {shlex.quote(source._stage_dir)}/i*.iso; do "
+            '[ -e "$f" ] || continue; name=${f##*/}; digits=${name#i}; '
+            'digits=${digits%.iso}; case "$digits" in ""|*[!0-9]*) continue;; esac; '
+            '[ -f "$f" ] && [ ! -L "$f" ] || exit 2; '
+            f'dst={shlex.quote(self._stage_dir)}/"$name"; '
+            '[ ! -e "$dst" ] || exit 3; cp -- "$f" "$dst" || exit; done'
+        )
+        result = self._wsl(command)
+        if result.returncode != 0:
+            raise WrapperRunError("wsl", result.returncode, "Cannot clone generated ISO cache: " + result.stderr)
 
     # ================================================================
     # 平台与环境初始化
@@ -118,19 +258,31 @@ class BaseWrapper:
         )
 
     def _init_wsl_environment(self) -> None:
-        """探测 WSL 用户主目录，建立短路径暂存目录与 ISODATA 符号链接。"""
-        home = self._wsl_get_home()
-        if not home:
-            raise WrapperRunError(
-                "wsl", 1, "无法获取 WSL 用户主目录，请确认已安装 WSL 并可用。"
-            )
-        self._wsl_home = home
-        base = f"{home}/{self._WSL_DIR_NAME}"
-        self._stage_dir = f"{base}/{self._WSL_TMP_NAME}"
-        self._isodata_link = f"{base}/{self._WSL_DATA_LINK}"
+        """Allocate an owner-only short directory for this wrapper instance.
 
-        self._wsl_mkdir(self._stage_dir)
-        self._wsl_cleanup_stale(self._stage_dir)
+        The 20-byte directory plus a staged input name stays below FINDSYM's
+        approximately 48-byte filename buffer, independently of the username.
+        /tmp may be tmpfs: natural WSL distro shutdown can erase it while the
+        Windows owner is still alive. /var/tmp retains this private workspace
+        across that idle lifecycle; no instance can retarget another's link.
+        """
+        self._require_open()
+        result = self._wsl("umask 077; mktemp -d /var/tmp/id-XXXXXXXX")
+        if result.returncode != 0:
+            detail = _wsl_result_detail(result)
+            if _is_wsl_access_denied(detail):
+                detail = f"{detail}\n{_wsl_access_denied_hint()}"
+            raise WrapperRunError(
+                "wsl", result.returncode, detail or "Cannot create private WSL workspace"
+            )
+        stage = result.stdout.strip()
+        if not _WSL_WORKSPACE_RE.fullmatch(stage):
+            raise WrapperRunError("wsl", 1, f"Invalid private WSL workspace: {stage!r}")
+        self._stage_dir = stage
+        self._isodata_link = f"{stage}/data"
+        self._wsl_cleanup = weakref.finalize(
+            self, _remove_wsl_workspace, stage, float(self.cfg.timeout)
+        )
         self._wsl_link_isodata()
 
     def _init_native_environment(self) -> None:
@@ -194,18 +346,15 @@ class BaseWrapper:
         Returns:
             subprocess.CompletedProcess
         """
+        self._require_open()
         timeout = timeout if timeout is not None else float(self.cfg.timeout)
         try:
             if self._mode == "wsl":
                 # 不使用 check=True：调用方需读取 returncode 决定如何处理。
                 # S603/S607：命令由内部构造，路径均经 shlex.quote 转义；
                 # 依赖 PATH 定位 wsl.exe 是刻意行为。
-                raw_result = subprocess.run(  # noqa: PLW1510, S603
+                raw_result = _run_captured_command(
                     ["wsl.exe", "-e", "sh", "-c", command],  # noqa: S607
-                    capture_output=True,
-                    # 关键：子进程不得继承父进程 stdin，否则会吞掉交互输入
-                    # （脚本化/管道输入时会导致父进程 input() 直接 EOF）
-                    stdin=subprocess.DEVNULL,
                     timeout=timeout,
                 )
                 result = subprocess.CompletedProcess(
@@ -215,50 +364,31 @@ class BaseWrapper:
                     stderr=_decode_process_output(raw_result.stderr or b""),
                 )
             else:
-                result = subprocess.run(  # noqa: PLW1510, S603
+                raw_result = _run_captured_command(
                     ["sh", "-c", command],  # noqa: S607
-                    capture_output=True,
-                    text=True,
-                    encoding="utf-8",
-                    errors="replace",
-                    stdin=subprocess.DEVNULL,
                     timeout=timeout,
+                )
+                result = subprocess.CompletedProcess(
+                    args=raw_result.args,
+                    returncode=raw_result.returncode,
+                    stdout=raw_result.stdout.decode("utf-8", errors="replace").replace("\r\n", "\n").replace("\r", "\n"),
+                    stderr=raw_result.stderr.decode("utf-8", errors="replace").replace("\r\n", "\n").replace("\r", "\n"),
                 )
         except subprocess.TimeoutExpired as exc:
             name = command.split(maxsplit=1)[0] if command else "wsl"
-            raise WrapperTimeoutError(name, timeout) from exc
+            timeout_error = WrapperTimeoutError(name, timeout)
+            # Killing wsl.exe does not prove every Linux descendant stopped.
+            # Retire its private runtime before any future query/cache access.
+            try:
+                self.close()
+            except Exception as cleanup_error:
+                raise timeout_error from cleanup_error
+            raise timeout_error from exc
         except FileNotFoundError as exc:
             raise WrapperRunError(
                 "wsl", 1, "未找到 wsl.exe，请先安装并初始化 WSL。"
             ) from exc
         return result
-
-    def _wsl_get_home(self) -> str:
-        result = self._wsl("echo $HOME")
-        if result.returncode != 0:
-            detail = _wsl_result_detail(result)
-            if _is_wsl_access_denied(detail):
-                detail = f"{detail}\n{_wsl_access_denied_hint()}"
-            raise WrapperRunError(
-                "wsl",
-                result.returncode,
-                detail or "无法获取 WSL 用户主目录，请确认默认发行版可用。",
-            )
-        return result.stdout.strip()
-
-    def _wsl_mkdir(self, path: str) -> None:
-        result = self._wsl(f"mkdir -p {shlex.quote(path)}")
-        if result.returncode != 0:
-            raise WrapperRunError("wsl", result.returncode, result.stderr)
-
-    def _wsl_cleanup_stale(self, stage_dir: str) -> None:
-        """清理超过保留期的暂存文件，避免长期堆积。"""
-        days = self._STALE_SECONDS // 86400
-        result = self._wsl(
-            f"find {shlex.quote(stage_dir)} -maxdepth 1 -type f "
-            f"-mtime +{days} -delete 2>/dev/null || true"
-        )
-        _ = result  # 清理失败不影响主流程
 
     def _wsl_link_isodata(self, data_dir_win: str | None = None) -> None:
         """在 WSL 侧创建到 isobyu 数据目录的短符号链接（幂等）。
@@ -289,11 +419,17 @@ class BaseWrapper:
         scientific result or answer database.
         """
 
-        if getattr(self, "_runtime_isodata", None) is not None:
+        with self._runtime_lock:
+            self._require_open()
+            self._copy_writable_isodata()
+
+    def _copy_writable_isodata(self, source: Path | None = None) -> None:
+        if self._runtime_isodata is not None:
             return
-        source = Path(
-            self.cfg.resolve_path(self.cfg._cfg["isobyu"]["data_dir"])
-        ).resolve()
+        if source is None:
+            source = Path(
+                self.cfg.resolve_path(self.cfg._cfg["isobyu"]["data_dir"])
+            ).resolve()
         if not source.is_dir():
             raise WrapperRunError(
                 "iso",
@@ -312,7 +448,7 @@ class BaseWrapper:
             if self._mode == "wsl":
                 self._wsl_link_isodata(str(destination))
             self._runtime_isodata = holder
-        except OSError as exc:
+        except (OSError, WrapperRunError, WrapperTimeoutError) as exc:
             if holder is not None:
                 holder.cleanup()
             raise WrapperRunError(
@@ -334,16 +470,12 @@ class BaseWrapper:
         abs_path = os.path.abspath(win_path)
         try:
             # 依赖 PATH 定位 wsl.exe；参数为绝对路径，无注入面
-            result = subprocess.run(  # noqa: S603
+            result = _run_captured_command(
                 ["wsl.exe", "wslpath", "-a", abs_path],  # noqa: S607
-                capture_output=True,
-                text=True,
-                check=True,
-                stdin=subprocess.DEVNULL,
                 timeout=30,
             )
-            wsl_path = result.stdout.strip()
-            if wsl_path:
+            wsl_path = _decode_process_output(result.stdout)
+            if result.returncode == 0 and wsl_path:
                 return wsl_path
         except (subprocess.SubprocessError, OSError):
             pass
@@ -379,7 +511,7 @@ class BaseWrapper:
         """
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".in", prefix=f"{prefix}_", delete=False,
-            dir=str(self.cfg.temp_dir),
+            dir=str(self.cfg.temp_dir), encoding="utf-8", newline="\n",
         ) as f_in:
             f_in.write(text)
             win_path = f_in.name
@@ -425,6 +557,17 @@ class BaseWrapper:
         Returns:
             str: 程序标准输出
         """
+        with self._runtime_lock:
+            self._require_open()
+            self._runtime_used = True
+            return self._run_program_locked(
+                binary_path, input_text, input_via_stdin, extra_args, timeout
+            )
+
+    def _run_program_locked(self, binary_path: Path, input_text: str,
+                            input_via_stdin: bool,
+                            extra_args: list[str] | None,
+                            timeout: float | None) -> str:
         extra_args = extra_args or []
         wsl_bin = self._wsl_bin_path(binary_path)
 

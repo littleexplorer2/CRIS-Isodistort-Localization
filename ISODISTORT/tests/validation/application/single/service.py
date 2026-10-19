@@ -5,9 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 from math import isfinite
 
-from ...backend.cif import parse_structure, read_block, read_text, sha256
+from ...backend.cif import parse_structure, read_block
 from ...backend.comparison import compare_structures
 from ...backend.results import ComparisonResult
+from ...backend.provenance import FileSnapshot
 from ...backend.config import get_config
 
 
@@ -35,14 +36,14 @@ def compare_cif(
            (lattice_tolerance, coordinate_tolerance, scalar_tolerance)):
         raise ValueError("tolerances must be finite and non-negative")
 
-    local_bytes = local.read_bytes()
-    reference_bytes = reference.read_bytes()
-    local_sha = sha256(local)
-    reference_sha = sha256(reference)
-    local_structure = parse_structure(local)
-    reference_structure = parse_structure(reference)
-    local_block = read_block(local)
-    reference_block = read_block(reference)
+    local_snapshot = FileSnapshot.capture(local)
+    reference_snapshot = local_snapshot if local == reference else FileSnapshot.capture(reference)
+    local_sha = local_snapshot.sha256
+    reference_sha = reference_snapshot.sha256
+    local_structure = parse_structure(local_snapshot)
+    reference_structure = parse_structure(reference_snapshot)
+    local_block = read_block(local_snapshot)
+    reference_block = read_block(reference_snapshot)
     structure_equal, details = compare_structures(
         local_structure,
         reference_structure,
@@ -60,8 +61,8 @@ def compare_cif(
     return ComparisonResult(
         local_path=str(local),
         reference_path=str(reference),
-        byte_exact=local_bytes == reference_bytes,
-        text_exact=read_text(local) == read_text(reference),
+        byte_exact=local_snapshot.content == reference_snapshot.content,
+        text_exact=local_snapshot.text == reference_snapshot.text,
         structure_equal=structure_equal,
         reference_hash_valid=hash_valid,
         local_sha256=local_sha,

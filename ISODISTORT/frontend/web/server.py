@@ -152,7 +152,7 @@ class IsoHandler(BaseHTTPRequestHandler):
         sys.stdout.write("[web] " + fmt % args + "\n")
 
     def _send_json(self, data: dict, status: int = 200) -> None:
-        body = json.dumps(data, ensure_ascii=False, default=str).encode("utf-8")
+        body = workflows.encode_json(data)
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
@@ -162,10 +162,15 @@ class IsoHandler(BaseHTTPRequestHandler):
 
     def _read_json(self) -> dict:
         length = int(self.headers.get("Content-Length", 0))
-        if length <= 0:
+        if length < 0:
+            raise ValueError("Content-Length must be non-negative")
+        if length == 0:
             return {}
         raw = self.rfile.read(length)
-        return json.loads(raw.decode("utf-8"))
+        data = json.loads(raw.decode("utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError("request body must be a JSON object")
+        return data
 
     def _run(self, action: str, data: dict | None = None, *, revision=None) -> None:
         try:
@@ -247,7 +252,11 @@ class IsoHandler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
-        data = self._read_json()
+        try:
+            data = self._read_json()
+        except (ValueError, UnicodeDecodeError) as exc:
+            self._send_json({"ok": False, "error": str(exc)}, 400)
+            return
 
         if path == "/api/shutdown":
             # 网页关闭/用户点击“停止服务”：先应答，再由守护线程关闭服务释放端口
@@ -255,7 +264,7 @@ class IsoHandler(BaseHTTPRequestHandler):
             self._send_json({"ok": True, "shutdown": True})
             return
         if path == "/api/export_cancel":
-            requested = workflows.cancel_export()
+            requested = workflows.cancel_export(data.get("job_id"))
             self._send_json({"ok": True, "cancellation_requested": requested})
             return
         if path == "/api/client/close":
@@ -342,10 +351,15 @@ class IsoHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _send_download(self, download: workflows.Download, content_type: str) -> None:
+        status_header = None
+        if download.export_status is not None:
+            status_header = urllib.parse.quote_from_bytes(workflows.encode_json(download.export_status))
         self.send_response(200)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Disposition", f'attachment; filename="{download.filename}"')
         self.send_header("Content-Length", str(len(download.body)))
+        if status_header is not None:
+            self.send_header("X-ISODISTORT-Export", status_header)
         self.end_headers()
         self.wfile.write(download.body)
 
@@ -362,7 +376,9 @@ class IsoHandler(BaseHTTPRequestHandler):
         self._send_download(download, "application/octet-stream")
 
     def _serve_download_all(self) -> None:
-        values = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+        values = urllib.parse.parse_qs(
+            urllib.parse.urlparse(self.path).query, keep_blank_values=True,
+        )
         try:
             download = workflows.export_archive(values)
         except workflows.StaleContextError as exc:
@@ -371,7 +387,7 @@ class IsoHandler(BaseHTTPRequestHandler):
                 "state": workflows.state_summary(),
             }, 409)
             return
-        except ValueError as exc:
+        except (ValueError, NotImplementedError) as exc:
             self._send_json({"ok": False, "error": str(exc)}, 400)
             return
         except FileNotFoundError as exc:
@@ -399,7 +415,11 @@ def _bind_server(host: str, preferred_port: int) -> ThreadingHTTPServer | None:
     candidates.append(0)  # 交给系统分配空闲端口，兜底保证可启动
     for port in candidates:
         try:
-            return ThreadingHTTPServer((host, port), IsoHandler)
+            server = ThreadingHTTPServer((host, port), IsoHandler)
+            # server_close waits for accepted actions/exports before the live
+            # session and its uploaded input are released in main's finally.
+            server.daemon_threads = False
+            return server
         except OSError:
             continue
     return None
@@ -492,8 +512,10 @@ def main() -> int:
     except KeyboardInterrupt:
         print("\n服务已停止 / Server stopped.")
     finally:
-        server.server_close()
-        workflows.cleanup_uploads()
+        try:
+            server.server_close()
+        finally:
+            workflows.close_session()
     print("已退出并释放端口 / Exited, port released.", flush=True)
     return 0
 

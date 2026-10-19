@@ -1,0 +1,43 @@
+{
+  "schema": "cris-reset/v1",
+  "batch_id": "20261019-official-rebuild-v1",
+  "date": "2026-10-19",
+  "authority": [
+    "user approved recoverable archive then removal of old records",
+    "user requested deletion of local program outputs",
+    "user confirmed full k point nmod0/1 scope",
+    "user clarified preserve and consistently place every official output"
+  ],
+  "old_freezes": "revoked, including old frozen-empty scopes",
+  "records_archive": {
+    "path": "ISODISTORT/docs/history/reset-records-20261019.zip",
+    "sha256": "99a5b7d990cd44359e8b96d62c7e6752e80cfc0424ce12cbd0b6a774ae0c0ce0",
+    "bytes": 208234,
+    "verified_entries": 20,
+    "verification": "every decompressed byte rehashed; CRC checked",
+    "restore": "Extract to a separate empty directory with Python zipfile; compare _RESET_SHA256.json; never overwrite live files."
+  },
+  "local_outputs_archive": {
+    "path": "ISODISTORT/docs/history/reset-local-outputs-20261019.zip",
+    "sha256": "6fe92e6d070a8f200bf62633a4c0b7a0fce3eac9723a89d11b75d67ac989f939",
+    "bytes": 765015040,
+    "verified_entries": 14754,
+    "verification": "every decompressed byte rehashed; CRC checked",
+    "restore": "Extract to a separate empty directory with Python zipfile; compare _RESET_SHA256.json; never overwrite live files."
+  },
+  "removed_old_working_files_before_reference_recovery": 14754,
+  "recovered_files": 100,
+  "net_removed_old_files": 14654,
+  "net_removed_old_bytes": 3582252350,
+  "recovery": "97 historical webpage variant/resource files and 3 uploaded inputs recovered from verified archive into retained locations",
+  "official_material": "primary official source trees preserved; 740 files relocated, all bytes verified",
+  "preserved_inputs": [
+    "experiment_data",
+    "ISOVIZ_INPUT/input_content",
+    "ISODISTORT/output/validation/method4_inputs",
+    "ISODISTORT/output/validation/rebuild_20261019/preserved_user_uploads"
+  ],
+  "current_download_manifest": "ISODISTORT/docs/manifests/official_output_download_manifest.json",
+  "current_validation_checklist": "ISODISTORT/docs/manifests/validation_checklist_20261019.json",
+  "scientific_results": "reset to not_run; file inventory does not certify numerical correctness"
+}

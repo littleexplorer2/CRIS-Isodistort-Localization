@@ -40,6 +40,8 @@ from backend.models.iso_mode_models import (
     MicroscopicVectorBlock,
     MicroscopicVectorRow,
     ModeIdentity,
+    ModeIdentityFailure,
+    ModeIdentityStatus,
     OrientedSiteCharacterTable,
     SiteIrrepCharacter,
     SiteOperation,
@@ -154,6 +156,13 @@ class SubgroupInfo:
     basis_raw: str = ""              # iso 基矢原文，如 (1,0,0),(0,1,0),(0,0,1)
     origin_raw: str = ""             # iso 原点原文，如 (0,0,0)
     k_active_raw: str = ""           # 官网 k-active 列表（含前导空格）
+
+    # One declared source of Method 3 route qualification/identity. Result
+    # views delegate to these fields; export and copied candidates retain them.
+    method3_route_resolution: str = "known_single_ir"
+    method3_embedding_id: str | None = None
+    mode_identity_status: ModeIdentityStatus = "not_checked"
+    mode_identity_failures: tuple[ModeIdentityFailure, ...] = ()
 
     def describe(self) -> str:
         return (
@@ -2195,7 +2204,7 @@ class IsoWrapper(BaseWrapper):
         direction is introduced into the resulting provenance.
         """
 
-        if str(getattr(subgroup, "_method3_route_resolution", "")) != (
+        if str(getattr(subgroup, "method3_route_resolution", "")) != (
             "exact_fixed_space"
         ):
             raise ValueError(
@@ -2790,7 +2799,7 @@ def validate_microscopic_distortion_mode_source(
                 "microscopic mode OPD differs from source subgroup context"
             )
     elif (
-        str(getattr(subgroup, "_method3_route_resolution", ""))
+        str(getattr(subgroup, "method3_route_resolution", ""))
         != "exact_fixed_space"
         or any((
             str(subgroup.k_point_label or "").strip(),

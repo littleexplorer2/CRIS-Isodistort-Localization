@@ -17,5 +17,5 @@ def test_settings_yaml_defines_input_paths() -> None:
     assert "ISOVIZ" in cfg.isoviz_env_vars
     assert "ISOViz.lnk" in cfg.launcher_names
     assert cfg.launcher_search_dirs == [
-        cfg.project_root.parent / "local_tools" / "launchers"
+        cfg.project_root.parent / "launchers"
     ]

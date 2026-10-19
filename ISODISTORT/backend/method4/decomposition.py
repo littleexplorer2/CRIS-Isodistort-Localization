@@ -1,7 +1,7 @@
 """Method 4 decomposition: Cartesian least squares, atom matching and strain.
 
 Scientific implementation moved without changing formulas or conventions.
-The Method 1 search facade inherits this implementation for existing callers.
+Application sessions compose this solver alongside the independent Method 1-3 services.
 """
 from __future__ import annotations
 

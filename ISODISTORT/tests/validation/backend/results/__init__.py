@@ -2,6 +2,8 @@
 
 from .model import (
     ComparisonResult,
+    VerificationDecision,
+    VerificationPolicy,
 )
 
-__all__ = ["ComparisonResult"]
+__all__ = ["ComparisonResult", "VerificationDecision", "VerificationPolicy"]

@@ -1,0 +1,262 @@
+{
+  "schema": "cris-checklist-freeze/v1",
+  "status": "frozen",
+  "batch_id": "20261019-official-rebuild-v1",
+  "frozen_at_utc": "2026-10-19T16:29:25.363000+00:00",
+  "scope": "Download tasks, existing official reference identity, verification gates and supporting records",
+  "runtime_execution_status": "unfrozen_pending_independent_inputs_and_runtime_signature",
+  "scientific_acceptance": "not_run_for_new_batch",
+  "method2_scope": {
+    "queries": 102,
+    "missing_page_sets": 99,
+    "partial_page_sets": 2,
+    "complete_page_sets": 1,
+    "known_missing_result_pages": 5,
+    "existing_candidates": 94
+  },
+  "files": [
+    {
+      "path": "ISODISTORT/docs/manifests/official_output_download_manifest.json",
+      "bytes": 35586,
+      "sha256": "6224a8ecd8e08d1b4942c61c0590f2e592d4b774a8ee7e6911d745739856212f"
+    },
+    {
+      "path": "ISODISTORT/docs/manifests/official_result_list_stage_20261019.json",
+      "bytes": 149616,
+      "sha256": "b99f0fada8532ea094e28d4f4198a6e0278f04dba01c66cb53c3765b39e29755"
+    },
+    {
+      "path": "ISODISTORT/docs/manifests/official_archive_reuse_20261019.json",
+      "bytes": 1937452,
+      "sha256": "bd814e541bd48631f66675ae94e4467c92ba46a1fb465da05f633f9bab07c41e"
+    },
+    {
+      "path": "ISODISTORT/docs/manifests/official_archive_reuse_known_method2.json",
+      "bytes": 143766,
+      "sha256": "5d9551d2d5c832a3350769d60c9ac496f6399d9ad7770e3fd2568c1c3ead086e"
+    },
+    {
+      "path": "ISODISTORT/docs/manifests/validation_checklist_20261019.json",
+      "bytes": 91355,
+      "sha256": "9a5f840c4aa4f9df9f74224901cd4b836b530d03a8e3dc3dca30e3946c4c73c7"
+    },
+    {
+      "path": "ISODISTORT/docs/manifests/validation_reset_20261019.json",
+      "bytes": 2267,
+      "sha256": "8ae7e5004255f44b8ccfd877207abdd06c33a289073a812828265ce2d25a2ae4"
+    },
+    {
+      "path": "ISODISTORT/docs/manifests/method3_download_manifest.json",
+      "bytes": 385,
+      "sha256": "317bdb51caeb7073e470c10de3388700982f2427ccd0e7253b459b2c4cd8246b"
+    },
+    {
+      "path": "ISODISTORT/docs/manifests/method4_download_manifest.json",
+      "bytes": 385,
+      "sha256": "f99c2e09653e764465acdc81f5ff04fe98f4fbf899e65692f20db2352718177b"
+    },
+    {
+      "path": "ISODISTORT/docs/manifests/local_web_output_refresh_manifest.json",
+      "bytes": 415,
+      "sha256": "5c1b1ef4da0c35aeb18eb930af456146e7ee32a0a3d0bfa5a59acee185ab3cbd"
+    },
+    {
+      "path": "ISODISTORT/docs/manifests/local_web_output_refresh_runtime_revision_20261015.json",
+      "bytes": 840,
+      "sha256": "6c761c326a7936cae7eea3da7be225372772acad6b4301dea7c72d9963508e97"
+    },
+    {
+      "path": "ISODISTORT/docs/DOWNLOAD_CHECKLIST.md",
+      "bytes": 26293,
+      "sha256": "5e9236bf401bf175b3b49be0158692992f97fcad0b08482be1c2a485fb1b0adb"
+    },
+    {
+      "path": "ISODISTORT/docs/BUGFIX_VALIDATION_REPORT.md",
+      "bytes": 26057,
+      "sha256": "5081c7e46e31821c09355b7cbd96ffafefa9ed9db463a784152bad1f0e5edbd3"
+    },
+    {
+      "path": "ISODISTORT/docs/MANUAL_VALIDATION.md",
+      "bytes": 5696,
+      "sha256": "c7a9ed20d34c7dd9a0a382908d9333485f36f6e13c4a63d18716014ba673b2c4"
+    },
+    {
+      "path": "ISODISTORT/docs/DEVELOPMENT_PLAN.md",
+      "bytes": 3182,
+      "sha256": "75847148256a5ed497703b2869c55af0721132cdba17fa56ed5a22cc28246569"
+    },
+    {
+      "path": "ISODISTORT/docs/history/README.md",
+      "bytes": 9219,
+      "sha256": "9805512d3010c523701a54bd4caa3fd72b7808aa8c0d14b8a75a0e1dc6e52bce"
+    },
+    {
+      "path": "webpage_info/_PAGE_INDEX.json",
+      "bytes": 436358,
+      "sha256": "8b170f4646a5d7eea55fdba5e23590d5fca1da4910ebe8a4527df20120dae072"
+    },
+    {
+      "path": "output_compare/_FOLDER_NAME_MAP.json",
+      "bytes": 342744,
+      "sha256": "42a1b82ef1ad194a7581b9c93c60e55a502c802966df976b3dbbc74cc802ccca"
+    },
+    {
+      "path": "ISODISTORT/resources/config/settings.yaml",
+      "bytes": 2054,
+      "sha256": "8bd69f38b30adcc0a42c0939297b6aa50e2ee7dd5f6caf40ecff8c3e0050393d"
+    },
+    {
+      "path": "ISODISTORT/requirements.txt",
+      "bytes": 633,
+      "sha256": "aafe76a14cc6162b25d75e2b369e3641007d26a470f158e3db3fa22b1dccbded"
+    },
+    {
+      "path": "ISODISTORT/requirements-dev.txt",
+      "bytes": 123,
+      "sha256": "47560e5068c0f994131e887f52fe23e7efb85fb0d5a3405066c2c13027f25343"
+    },
+    {
+      "path": "ISODISTORT/tests/register_official_archive_reuse.py",
+      "bytes": 21029,
+      "sha256": "4729381508929d46c6a5f2cdff9f2380b6f2189102c859bac44a008e8fe07ace"
+    },
+    {
+      "path": "ISODISTORT/tests/audit_method12_numeric_semantics.py",
+      "bytes": 138658,
+      "sha256": "f36caecaacaedcf435a9b148a24af67177ae3d1ec8a6e15669f6fa42bf9ea2fc"
+    },
+    {
+      "path": "ISODISTORT/tests/test_audit_method3_stage_b_feasibility.py",
+      "bytes": 3154,
+      "sha256": "45e30f518bded281aa138bc14f4c72c5c85d11d9266a1b6adb0201acf2d109c5"
+    },
+    {
+      "path": "ISODISTORT/tests/verify_parametric_k_grid.py",
+      "bytes": 12795,
+      "sha256": "1b4ade605f0f6c09c1ec882a3dacb5a7807b56350b0f74ed42f9d8434703f384"
+    },
+    {
+      "path": "experiment_data/EuAl4 Parent.cif",
+      "bytes": 1839,
+      "sha256": "2a01942bff7aa74d6156e4907de207ff864b134ccdc85f38f88d53e2d6ebf5e7"
+    },
+    {
+      "path": "experiment_data/NdNiO2 own.cif",
+      "bytes": 1165,
+      "sha256": "11f9c18a976691e8306b268cdd99a1d666d73c218ec45604b4c35539dd8da5c3"
+    },
+    {
+      "path": "experiment_data/4310_tetra.cif",
+      "bytes": 18207,
+      "sha256": "13dd94f3694fb89de3d137f23ebed74c9ea4dd5bd5a85b576cdfa97d36687b8d"
+    },
+    {
+      "path": "ISODISTORT/output/validation/rebuild_20261019/official_conservation.json",
+      "bytes": 340,
+      "sha256": "3c46003f933077eb0b0146e0375ac74de1529cece10115bb62ba458504135785"
+    },
+    {
+      "path": "ISODISTORT/output/validation/rebuild_20261019/final_file_verification.json",
+      "bytes": 395,
+      "sha256": "c76a39a98cb22997c62c271d4a7d112765127945faf2e163538951e8af02d69d"
+    },
+    {
+      "path": "ISODISTORT/output/validation/rebuild_20261019/grid-report.json",
+      "bytes": 27028,
+      "sha256": "9d6627325342d45bac5e1ae1cc6b6f1d3f0c0eecd19602ddd17ccb01daeda5f8"
+    },
+    {
+      "path": "ISODISTORT/output/validation/rebuild_20261019/preserved_method4_inputs.json",
+      "bytes": 7881,
+      "sha256": "1f1017013e06e2346c1488a07b60d4cb721148d45ddd864e2cc5c72051e12bfd"
+    },
+    {
+      "path": "ISODISTORT/output/validation/rebuild_20261019/verification_output_cleanup.json",
+      "bytes": 1769,
+      "sha256": "622ce8360ecee5ce2c227ea273123c9a7980782b1f184d09e568f19bac9b1d17"
+    },
+    {
+      "path": "ISODISTORT/output/validation/rebuild_20261019/full-suite-verified.log",
+      "bytes": 18248,
+      "sha256": "baf1271c2639ff5d2afb6c643be7b2b4e80ebadb9f1488735939ee41b368dab1"
+    },
+    {
+      "path": "ISODISTORT/output/validation/rebuild_20261019/final-targeted.log",
+      "bytes": 194,
+      "sha256": "1dedb83a858d1dac187ae7528a7bffa10d0f40e97deb6db573f217107de5d61b"
+    },
+    {
+      "path": "ISODISTORT/output/validation/rebuild_20261019/repo-suite.log",
+      "bytes": 102,
+      "sha256": "aab4106b1c2751039238e394734999013f7b48141e01f61d6201c8de7f175b91"
+    }
+  ],
+  "invalidation_rule": "Any changed listed file requires review and an explicit successor freeze; no inherited scientific pass.",
+  "freeze_revision": 4,
+  "supersedes": {
+    "previous_freeze_revision": 3,
+    "previous_frozen_at_utc": "2026-10-19T15:30:22.081809+00:00",
+    "previous_freeze_sha256": "b2dccaab043c6ba1849ee136b8c36d3b34217ed188990ea46110e1aeb7f6d5f1",
+    "archive": "ISODISTORT/docs/history/launcher-before-20261019.zip",
+    "archive_sha256": "5342bfbe223e32e976e708ba8e807d3b08e89cdfa5fa48b364b4fec21c7c194b",
+    "archive_entry": "ISODISTORT/docs/manifests/checklist_freeze_20261019.json"
+  },
+  "support_revision": {
+    "reviewed_at_utc": "2026-10-19T16:29:25.363000+00:00",
+    "reason": "Installer and launcher engineering repairs, download scope/order clarification, and current verification records.",
+    "scope": "Supporting records only; download scope, official reference identity, independent inputs and scientific acceptance are unchanged.",
+    "changed_files": [
+      {
+        "previous": {
+          "path": "ISODISTORT/docs/DOWNLOAD_CHECKLIST.md",
+          "bytes": 25393,
+          "sha256": "7a936449ac7dbc6c05f64eaa2ed2ce5d980ae07c706e3e2d3c7b35da9542da47"
+        },
+        "current": {
+          "path": "ISODISTORT/docs/DOWNLOAD_CHECKLIST.md",
+          "bytes": 26293,
+          "sha256": "5e9236bf401bf175b3b49be0158692992f97fcad0b08482be1c2a485fb1b0adb"
+        }
+      },
+      {
+        "previous": {
+          "path": "ISODISTORT/docs/BUGFIX_VALIDATION_REPORT.md",
+          "bytes": 19876,
+          "sha256": "3d871690b24f05967fc2bc7e44fad9eb987069f04821d722719d5cd358ffc79c"
+        },
+        "current": {
+          "path": "ISODISTORT/docs/BUGFIX_VALIDATION_REPORT.md",
+          "bytes": 26057,
+          "sha256": "5081c7e46e31821c09355b7cbd96ffafefa9ed9db463a784152bad1f0e5edbd3"
+        }
+      },
+      {
+        "previous": {
+          "path": "ISODISTORT/docs/DEVELOPMENT_PLAN.md",
+          "bytes": 3790,
+          "sha256": "5118b02776650eb93380dccc7acca0f113777eb8194e3a7ef102327782561b40"
+        },
+        "current": {
+          "path": "ISODISTORT/docs/DEVELOPMENT_PLAN.md",
+          "bytes": 3182,
+          "sha256": "75847148256a5ed497703b2869c55af0721132cdba17fa56ed5a22cc28246569"
+        }
+      },
+      {
+        "previous": {
+          "path": "ISODISTORT/docs/history/README.md",
+          "bytes": 8519,
+          "sha256": "53555792f669780f66b1f395fe876c75ff202ace5cd7dbddedb04f0345e735ee"
+        },
+        "current": {
+          "path": "ISODISTORT/docs/history/README.md",
+          "bytes": 9219,
+          "sha256": "9805512d3010c523701a54bd4caa3fd72b7808aa8c0d14b8a75a0e1dc6e52bce"
+        }
+      }
+    ],
+    "unchanged_listed_files": 31,
+    "old_runtime_signatures_reusable": false,
+    "prior_content_recovery": "The exact predecessor freeze and all changed predecessor files are recoverable from the linked verified ZIP."
+  }
+}

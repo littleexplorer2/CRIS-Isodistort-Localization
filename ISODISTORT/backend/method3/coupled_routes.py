@@ -19,15 +19,7 @@ from dataclasses import dataclass
 from fractions import Fraction
 
 from backend.wrappers.iso_wrapper import SubgroupInfo
-from backend.method1.affine_embeddings import (
-    AffineEmbedding,
-    AffineOperation,
-    AffineQuotient,
-    ParentAffineGroup,
-    build_affine_quotient,
-    locate_embedding_subgroup,
-    translation_cosets,
-)
+from backend.utils.affine_embeddings import AffineEmbedding, AffineOperation, AffineQuotient, ParentAffineGroup, build_affine_quotient, locate_embedding_subgroup, translation_cosets
 
 
 @dataclass(frozen=True)

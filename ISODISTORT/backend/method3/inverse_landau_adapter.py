@@ -28,7 +28,7 @@ from typing import TypeAlias
 import numpy as np
 from pymatgen.core import Lattice, Structure
 
-from backend.method1.phase_path import TYPE_ALIASES, UNSUPPORTED_PHYSICAL_TYPES
+from backend.models.phase_path import TYPE_ALIASES, UNSUPPORTED_PHYSICAL_TYPES
 
 from backend.utils.config_loader import get_config
 from backend.utils.lattice import (
@@ -39,15 +39,7 @@ from backend.utils.lattice import (
     rational_matrix,
     same_lattice,
 )
-from backend.method1.affine_embeddings import (
-    AffineEmbedding,
-    AffineOperation,
-    AffineQuotient,
-    ParentAffineGroup,
-    build_affine_quotient,
-    locate_embedding_subgroup,
-    translation_cosets,
-)
+from backend.utils.affine_embeddings import AffineEmbedding, AffineOperation, AffineQuotient, ParentAffineGroup, build_affine_quotient, locate_embedding_subgroup, translation_cosets
 from backend.method3.inverse_landau import (
     ExactCharacterRepresentation,
     FiniteGroup,

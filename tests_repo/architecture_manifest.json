@@ -5,11 +5,6 @@
       "root": "ISODISTORT",
       "namespace": "",
       "legacy_scientific_interfaces": [
-        "backend.export.isodistort_cif._hall_for_number",
-        "backend.method1.search_methods._k_compatible_with_supercell",
-        "backend.method1.search_methods._param_value_candidates",
-        "backend.method1.search_methods._sg_to_crystal_system",
-        "backend.method1.search_methods._validated_single_irrep_count",
         "backend.method2.superspace._periodic_species_bijection",
         "backend.utils.opd_format._centering_letter",
         "backend.wrappers.iso_wrapper._component_label"
@@ -23,7 +18,8 @@
           "smodes_wrapper"
         ],
         "backend.models": [
-          "iso_mode_models"
+          "iso_mode_models",
+          "phase_path"
         ],
         "backend.tables": [
           "irreps_cdml",
@@ -31,6 +27,8 @@
           "spacegroup_meta"
         ],
         "backend.utils": [
+          "affine_embeddings",
+          "k_lattice",
           "config_loader",
           "exceptions",
           "lattice",
@@ -46,18 +44,18 @@
           "symmetry_validator"
         ],
         "backend.method1": [
-          "affine_embeddings",
           "domain_generator",
           "occupational_modes",
-          "phase_path",
-          "search_methods"
+          "search"
         ],
         "backend.method2": [
           "distortion_mapper",
+          "search",
           "superspace"
         ],
         "backend.method3": [
           "coupled_routes",
+          "search",
           "inverse_landau",
           "inverse_landau_adapter"
         ],
@@ -103,20 +101,32 @@
       "retired_imports": [
         "backend.api",
         "features",
-        "frontend.i18n"
+        "frontend.i18n",
+        "backend.method1.search_methods",
+        "backend.method1.affine_embeddings",
+        "backend.method1.phase_path"
       ]
     },
     {
       "root": "ISODISTORT/tests/validation",
       "namespace": "tests.validation",
       "role": "test_support",
+      "forbidden_imports": [
+        "backend",
+        "application",
+        "frontend",
+        "ISODISTORT.backend",
+        "ISODISTORT.application",
+        "ISODISTORT.frontend"
+      ],
       "modules": {
         "backend": [
           "config",
           "paths",
           "cif",
           "comparison",
-          "results"
+          "results",
+          "provenance"
         ],
         "application": [
           "single",
@@ -159,6 +169,16 @@
         "launcher.py",
         "config_loader.py"
       ]
+    }
+  ],
+  "external_consumers": [
+    {
+      "path": "../GD/isodistort_to_gd.py",
+      "required": false,
+      "session_factories": [
+        "application.session.IsoDistort"
+      ],
+      "forbid_private_session_members": true
     }
   ]
 }

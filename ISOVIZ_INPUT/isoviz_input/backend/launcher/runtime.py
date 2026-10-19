@@ -82,7 +82,7 @@ def open_isoviz(isoviz_file: Path, *, launcher: Path | None = None) -> None:
             return
         raise RuntimeError(
             "Windows could not open the .isoviz file. Associate it with IsoVIZ, "
-            "or place ISOViz.lnk in CRIS/local_tools/launchers, or set "
+            "or place ISOViz.lnk in CRIS/launchers, or set "
             "ISOVIZ / ISOVIZ_JAR."
         )
     if app is not None:

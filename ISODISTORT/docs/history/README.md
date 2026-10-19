@@ -29,7 +29,7 @@
 
 用户要求先完成官网三母相有限全量输出的下载、再重新开始验证与 debug，因此旧的冻结范围与其
 批次产物整体作废并归档。重置记录见
-[validation_reset_20261016.json](../manifests/validation_reset_20261016.json)。
+[2026-10-16 重置记录（已归档）](reset-records-20261019.zip)。
 
 - [local-web-output-refresh-20261009.zip](local-web-output-refresh-20261009.zip)：
   11,335,017 字节，2,150 个条目。
@@ -48,6 +48,17 @@
 import zipfile
 zipfile.ZipFile(r"ISODISTORT/docs/history/local-web-output-refresh-20261009.zip").extractall(r"<目标目录>")
 ```
+
+## 2026-10-17：下载清单 v1 原文
+
+下载目标迁移到既有 `output_compare` 树并补正 nmod 覆盖前，v1 官网下载清单的冻结字节归档为
+[official-download-manifest-20261016.zip](official-download-manifest-20261016.zip)：9,230 字节，
+条目 `ISODISTORT/docs/manifests/official_output_download_manifest.json`。
+清单原文 SHA-256：`879c72e98ccdffe982857723b799e69a14b5841cd4734ac47d8778d2cc20a211`；
+ZIP SHA-256：`0d5f55a3b2856db3fe2f0d713bfd35c59ffa3b77d69c915e269d4ad9ea846e14`。
+创建后已解压到独立临时目录核对条目 SHA-256，CRC 自检通过。该 v1 清单从未执行下载，
+只用于追溯范围与计数差异；现行清单见
+[official_output_download_manifest.json](../manifests/official_output_download_manifest.json)。
 
 ## 查看或恢复
 
@@ -74,3 +85,55 @@ $restoreDir
 创建后逐条解码并重新计算 SHA-256，全部匹配；CRC 自检通过。
 按上文 Python 方法解压到独立目录，再对照 SHA256.json；不能覆盖当前文件或恢复旧 checkpoint。
 这些内容是**已失效的历史证据**，不是当前计算或下载范围的依据。
+
+## 2026-10-19：全部旧工作记录与本地产物重置
+
+- [旧记录原文](reset-records-20261019.zip)：20 个原始文件，SHA-256 `99a5b7d990cd44359e8b96d62c7e6752e80cfc0424ce12cbd0b6a774ae0c0ce0`。
+- [旧本地产物](reset-local-outputs-20261019.zip)：14,754 个原始文件，SHA-256 `6fe92e6d070a8f200bf62633a4c0b7a0fce3eac9723a89d11b75d67ac989f939`。
+- 两份 ZIP 均含 `_RESET_SHA256.json`，按仓库相对路径记录原文件名、大小和 SHA-256。
+  创建后逐条解压读取、复算全部字节哈希，并通过 ZIP CRC 检查，之后才清理工作文件。
+- 归档只作恢复，不是当前检验通过证据。后续从输出 ZIP 恢复了历史官网网页修复副本与上传输入，
+  记录见 `output/validation/rebuild_20261019/recovered_references.json`；没有删除主官网原件。
+- 旧冻结、checkpoint 和 debug 结论不得用于新批次；输入和理论资料的科学限制仍有效。
+
+恢复到新的空目录（不能覆盖当前文件）：
+
+```python
+import zipfile
+with zipfile.ZipFile(r"E:\CRIS\ISODISTORT\docs\history\reset-records-20261019.zip") as archive:
+    archive.extractall(r"<新的空目录>")
+```
+
+按 `_RESET_SHA256.json` 校验后再选择需要的历史文件。产物 ZIP 同理。当前事实入口为
+[新下载清单](../DOWNLOAD_CHECKLIST.md)、[新检验任务](../manifests/validation_checklist_20261019.json)。
+
+## 2026-10-19：架构调整前的说明与冻结记录
+
+[architecture-before-20261019.zip](architecture-before-20261019.zip) 保存当时的验证报告、
+开发计划、手工操作、历史索引、ISODISTORT README 和 checklist_freeze_20261019.json，
+共六份原始文件，另含 `_SHA256.json`。
+ZIP SHA-256：`60a08de0f8cabea5aec31754ea7fb113110dd904c35156a28c6364c22e94f3ca`。
+创建后逐条读取解压字节核对 SHA-256，全部一致；ZIP CRC 检查通过。
+条目名即仓库相对路径，按上文 Python 方法解压到新的空目录，再按 `_SHA256.json` 复核。
+旧冻结记录可恢复；架构调整只修订支撑文档/工具指纹，下载任务及原件身份继续使用现行冻结。
+旧报告的全量测试中断/失败记录保留，不改写成当前通过证据。
+
+## 2026-10-19：测试整合前的源码、说明和冻结记录
+
+[test-layout-before-20261019.zip](test-layout-before-20261019.zip) 保存测试/审计源码、当前说明、
+能力映射、规则和冻结记录等 145 个文件，另含 `_SHA256.json`。
+ZIP SHA-256：`495c76d18c76294a3452554b2ee5ab3e042382213802335c074ff412cfe5e1d6`。
+创建时逐文件读取解压字节、比对 SHA-256，并通过 ZIP CRC 检查；条目名就是原仓库相对路径。
+恢复时按本页方法解压到新的空目录并检查 `_SHA256.json`，不得覆盖当前源码或恢复旧 checkpoint。
+历史报告、code_context.json 和既有复用登记中的 generator 路径保留当时含义；当前脚本入口
+以 `tests/README.md`、能力映射和新版冻结记录为准。位置迁移不会使历史科学结果获得新验证。
+
+## 2026-10-19：安装入口和启动器目录修复前快照
+
+[launcher-before-20261019.zip](launcher-before-20261019.zip) 保存 14 个改动前的源码、配置、
+说明和第 3 版冻结记录，另含 `_SHA256.json`。ZIP SHA-256：
+`5342bfbe223e32e976e708ba8e807d3b08e89cdfa5fa48b364b4fec21c7c194b`。
+已通过 CRC 和逐项解压字节哈希核查；按原相对路径解压到新的空目录恢复，不覆盖当前文件。
+
+`reset-local-outputs-20261019.zip` 是本机的大型派生产物恢复包，由 Git 忽略并保留在原位置；
+远程源码仓库不包含该包、官网原件、实验输入或本机启动器。下载源码不能代替备份这些本地材料。

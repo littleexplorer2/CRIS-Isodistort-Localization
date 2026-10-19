@@ -1,38 +1,48 @@
-"""Regression checks for the post-migration package and resource layout."""
-
+"""Tests for test_architecture; migrated without changing scientific expectations."""
 from __future__ import annotations
 
+from backend.method4 import ModeDecomposer
+from backend.tables import irreps_cdml
+from backend.utils.config_loader import CONFIG_PATH
+from backend.utils.config_loader import PROJECT_ROOT
+from backend.utils.config_loader import get_config
+from backend.wrappers import SubgroupInfo
+from collections import Counter
+from pathlib import Path
+from pathlib import PurePosixPath
+from tests.support_paths import TESTS_ROOT
 import ast
+import importlib
 import os
+import pytest
 import shutil
 import subprocess
 import sys
-from collections import Counter
-from pathlib import Path, PurePosixPath
+
+
+# Original coverage: test_architecture.py.
 
 try:
     import tomllib
 except ModuleNotFoundError:  # pragma: no cover - Python 3.10 compatibility
     import tomli as tomllib
 
-import pytest
+CRIS_ROOT = TESTS_ROOT.parent.parent
 
-from backend.tables import irreps_cdml
-from backend.utils.config_loader import CONFIG_PATH, PROJECT_ROOT, get_config
+ISODISTORT_ROOT = TESTS_ROOT.parent
 
-CRIS_ROOT = Path(__file__).resolve().parents[2]
-ISODISTORT_ROOT = Path(__file__).resolve().parents[1]
 PYPROJECT_PATH = ISODISTORT_ROOT / "pyproject.toml"
+
 ROOT_PLACED_FILES = {
     ".gitignore",
     "README.md",
     "agent.md",
     "main_web.py",
+    "main_requirement.py",
     "pyproject.toml",
     "requirements-dev.txt",
     "requirements.txt",
 }
-
 
 def test_production_modules_do_not_silently_overwrite_top_level_definitions():
     """A duplicate helper definition can reverse an existing scientific API."""
@@ -56,6 +66,7 @@ FRONTEND_PACKAGE_DATA = {
     "static/docs.css",
     "static/help.jpg",
 }
+
 RESOURCE_PACKAGE_DATA = {
     "config/settings.yaml",
     "isobyu/comsubs",
@@ -82,11 +93,9 @@ RESOURCE_PACKAGE_DATA = {
     "isobyu/smodes_sample.in",
 }
 
-
 def _load_pyproject() -> dict:
     with PYPROJECT_PATH.open("rb") as stream:
         return tomllib.load(stream)
-
 
 def _matched_package_files(package_root: Path, patterns: list[str]) -> set[str]:
     return {
@@ -96,11 +105,9 @@ def _matched_package_files(package_root: Path, patterns: list[str]) -> set[str]:
         if path.is_file()
     }
 
-
 def _matches_any_package_pattern(relative_path: str, patterns: list[str]) -> bool:
     path = PurePosixPath(relative_path)
     return any(path.match(pattern) for pattern in patterns)
-
 
 def test_reorganized_resource_roots_resolve_to_existing_project_paths() -> None:
     assert PROJECT_ROOT == ISODISTORT_ROOT
@@ -109,7 +116,8 @@ def test_reorganized_resource_roots_resolve_to_existing_project_paths() -> None:
         ISODISTORT_ROOT / "resources" / "isobyu" / "data_irreps.txt"
     )
     assert irreps_cdml._ISO_DATA.is_file()
-    # Golden inputs and website archives are independent test evidence,
+
+# Golden inputs and website archives are independent test evidence,
     # not application runtime resources.
 
 
@@ -122,7 +130,6 @@ def test_root_placed_files_stay_in_the_project_root() -> None:
     assert not missing, missing
     assert not (ISODISTORT_ROOT / "scripts" / "main_web.py").exists()
 
-
 def test_output_paths_remain_outside_read_only_resources() -> None:
     cfg = get_config()
     assert cfg.resolve_path(cfg._cfg["runtime"]["output_dir"]) == (
@@ -131,7 +138,6 @@ def test_output_paths_remain_outside_read_only_resources() -> None:
     assert cfg.resolve_path(cfg._cfg["runtime"]["temp_dir"]) == (
         ISODISTORT_ROOT / "output" / "tmp"
     )
-
 
 @pytest.mark.parametrize(
     "module",
@@ -155,7 +161,6 @@ def test_cross_feature_modules_import_first_in_a_clean_interpreter(module: str) 
     )
     assert completed.returncode == 0, completed.stderr
 
-
 def test_method1_public_api_does_not_reexport_other_feature_packages() -> None:
     import backend.method1 as method1
     from backend.method2 import DistortionMapper, ParametricModeResult
@@ -171,7 +176,6 @@ def test_method1_public_api_does_not_reexport_other_feature_packages() -> None:
     assert DistortionEngine.__module__ == "backend.method4.distortion_engine"
     assert HomogeneousStrainMode.__module__ == "backend.method4.strain_modes"
 
-
 def test_canonical_modules_have_no_retired_architecture_packages():
     import inspect
     from application.session import IsoDistort
@@ -181,7 +185,6 @@ def test_canonical_modules_have_no_retired_architecture_packages():
     assert callable(cart_normalized_mode_matrix)
     for relative in ("features", "backend/api", "frontend/i18n"):
         assert not (ISODISTORT_ROOT / relative).exists()
-
 
 def test_setuptools_package_data_contract_is_complete_and_explicit() -> None:
     pyproject = _load_pyproject()
@@ -210,7 +213,6 @@ def test_setuptools_package_data_contract_is_complete_and_explicit() -> None:
         "output/generated.cif",
     ):
         assert not _matches_any_package_pattern(excluded, resource_patterns)
-
 
 def test_equivalent_installed_layout_resolves_packaged_runtime_assets(tmp_path: Path) -> None:
     """Exercise the package-data contract without requiring a network build backend."""
@@ -291,3 +293,55 @@ assert not (site_packages / "resources" / "output").exists()
         timeout=60,
     )
     assert completed.returncode == 0, completed.stderr
+
+# Original coverage: test_pipeline_contracts.py.
+
+def test_method_solvers_have_independent_owners():
+    from backend.method1 import Method1Solver
+    from backend.method2 import Method2Solver
+    from backend.method3 import Method3Solver
+    for solver in (Method1Solver, Method2Solver, Method3Solver):
+        assert not issubclass(solver, ModeDecomposer)
+        assert not hasattr(solver, "method_4_decompose")
+
+# Original coverage: test_robustness.py.
+
+def test_removed_compatibility_namespace_stays_removed():
+    """The retired ``isodistort`` alias package must not come back.
+
+    The project exposes three layers (``backend`` / ``application`` /
+    ``frontend``) and shared resources.  A resurrected alias package would load a
+    second copy of the data classes and break identity comparisons.
+    """
+    canonical = importlib.import_module("backend.wrappers.iso_wrapper")
+    assert canonical.SubgroupInfo is SubgroupInfo
+    for retired in ("isodistort", "isocore", "web", "features", "backend.api", "frontend.i18n"):
+        with pytest.raises(ModuleNotFoundError):
+            importlib.import_module(retired)
+
+
+def test_candidate_diagnostic_help_imports_without_initializing_wsl():
+    """The relocated diagnostic CLI must resolve its shared mapping dependency."""
+    project = TESTS_ROOT.parent
+    script = TESTS_ROOT / "diagnose_candidate_modes.py"
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(project), env.get("PYTHONPATH", "")]
+    ).rstrip(os.pathsep)
+    probe = """
+import runpy
+import sys
+from backend.wrappers.base_wrapper import BaseWrapper
+
+def forbidden(self):
+    raise AssertionError("--help must not initialize WSL")
+BaseWrapper._init_wsl_environment = forbidden
+sys.argv = [sys.argv[1], "--help"]
+runpy.run_path(sys.argv[0], run_name="__main__")
+"""
+    result = subprocess.run(
+        [sys.executable, "-B", "-c", probe, str(script)],
+        cwd=project.parent, env=env, capture_output=True, text=True, timeout=30,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "usage:" in result.stdout.lower()

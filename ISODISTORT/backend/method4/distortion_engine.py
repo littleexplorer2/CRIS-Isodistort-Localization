@@ -28,8 +28,8 @@ from backend.utils.lattice import (
     wavevector_translation_phases,
 )
 from backend.input_cif import build_supercell, map_supercell_sites, wrap_to_unit_cell
-from backend.method1.affine_embeddings import parent_affine_group
-from backend.method1 import require_supported_physical_types
+from backend.utils.affine_embeddings import parent_affine_group
+from backend.models.phase_path import require_supported_physical_types
 from backend.method2.distortion_mapper import DistortionMapper
 
 SupercellSpec = Sequence[int] | Sequence[Sequence[float]] | None

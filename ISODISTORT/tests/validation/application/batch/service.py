@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import json
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Protocol
 
 from ...backend import paths as cpaths
-from ..single import compare_cif
+from ..single import VerificationPolicy, compare_cif
 
 
 class BatchRequest(Protocol):
@@ -45,6 +46,7 @@ def run_batch(args: BatchRequest) -> tuple[list[dict[str, Any]], int]:
     reference_relative = {path.relative_to(reference_dir).as_posix(): path for path in reference_files}
     results: list[dict[str, Any]] = []
     failed = 0
+    policy = VerificationPolicy(strict=args.strict)
 
     for relative_path in sorted(set(local_relative) | set(reference_relative)):
         local_path = local_relative.get(relative_path)
@@ -63,14 +65,16 @@ def run_batch(args: BatchRequest) -> tuple[list[dict[str, Any]], int]:
                 args.ignore_atom_order,
                 expected_hash,
             )
-            passed = comparison.passed and (not args.strict or comparison.byte_exact)
+            decision = policy.evaluate(comparison)
+            passed = decision.passed
             result = {
                 "relative_path": relative_path,
                 "passed": passed,
                 "byte_exact": comparison.byte_exact,
                 "structure_equal": comparison.structure_equal,
                 "reference_hash_valid": comparison.reference_hash_valid,
-                "issues": comparison.details["issues"],
+                "issues": list(dict.fromkeys([*comparison.details["issues"], *decision.issues])),
+                "verification": asdict(decision),
                 "local_sha256": comparison.local_sha256,
                 "reference_sha256": comparison.reference_sha256,
             }

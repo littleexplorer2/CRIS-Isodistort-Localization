@@ -34,9 +34,9 @@ isoviz:
     - IsoViz.jar
     - ISOViz.jar
     - isoviz.jar
-  # 唯一默认查找目录：CRIS/local_tools/launchers（本机文件，不入库）
+  # 唯一默认查找目录：CRIS/launchers（本机文件，不入库）
   launcher_search_dirs:
-    - "../../local_tools/launchers"
+    - "../../launchers"
 
 runtime:
   python_min: "3.10"

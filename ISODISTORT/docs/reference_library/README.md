@@ -22,6 +22,8 @@ IUCr 标准复核。检索平台的摘要或回答本身不作为数学依据。
 
 ## 查找与审核
 
+- [架构迁移合同与证明](notes/ARCHITECTURE_CONTRACTS_20261019.md)：行/列基、Seitz 共轭、GD 倒易变换反例、不可变模式快照、归一化适用域和事务/证据不变量。
+
 - [注释书目](notes/ANNOTATED_SOURCES.md)：逐条说明支持内容、实际核验材料及限制。
 - [能力覆盖清单](coverage.json)：26 个主题与来源、证明标签、本地模块的对应关系。
 - [信源和数学审核](audit/QUALITY_REVIEW.md)：来源取舍、冲突处理、未解决的证明义务。

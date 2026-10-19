@@ -13,7 +13,7 @@ import numpy as np
 from pymatgen.core import Structure
 
 from backend.utils import get_config
-from .phase_path import require_supported_physical_types
+from backend.models.phase_path import require_supported_physical_types
 
 
 @dataclass

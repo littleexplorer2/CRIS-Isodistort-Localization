@@ -1,9 +1,9 @@
 """List / delete iso-generated isotropy-subgroup database files (``i*.iso``).
 
 When Method 2 generates a missing parametric-k database, ``iso`` writes files
-like ``i0665800.iso`` into the WSL staging directory (``~/.id/tmp``) after
-``cd`` there. These are reusable caches, not the read-only ``resources/isobyu/data_*.txt``
-suite databases.
+like ``i0665800.iso`` into that wrapper's private staging directory after
+``cd`` there. These caches belong to one wrapper lifetime; they are not the
+read-only ``resources/isobyu/data_*.txt`` suite databases.
 """
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 _ISO_NAME_RE = re.compile(r"^i\d+\.iso$", re.I)
 _HEADER_RE = re.compile(
-    r"Space\s+Group\s+(\d+)\s*,\s*Irrep\s+(\S+)(?:\s*,\s*kparam\s+(\S+))?",
+    r"Space\s+Group\s+(\d+)\s*,\s*Irrep\s+([^,\s]+)(?:\s*,\s*kparam\s+(\S+))?",
     re.I,
 )
 
@@ -48,10 +48,7 @@ class IsotropyCacheEntry:
 
 
 def _stage_tmp(wrapper: BaseWrapper) -> str:
-    if not getattr(wrapper, "_stage_dir", ""):
-        # Ensure WSL staging exists (lazy init for callers that only manage cache).
-        if hasattr(wrapper, "_init_wsl_environment") and wrapper._mode == "wsl":
-            wrapper._init_wsl_environment()
+    wrapper._require_open()
     stage = getattr(wrapper, "_stage_dir", "") or ""
     if not stage:
         raise RuntimeError("WSL/native staging directory is not available")
@@ -65,11 +62,11 @@ def list_isotropy_cache(wrapper: BaseWrapper) -> list[IsotropyCacheEntry]:
     cmd = (
         f"cd {shlex.quote(stage)} && "
         r"for f in i*.iso; do "
-        r"[ -f \"$f\" ] || continue; "
-        r"sz=$(wc -c < \"$f\" | tr -d ' '); "
-        r"mt=$(stat -c %Y \"$f\" 2>/dev/null || stat -f %m \"$f\"); "
-        r"hd=$(head -n 1 \"$f\" | tr '\t' ' '); "
-        r"printf '%s\t%s\t%s\t%s\n' \"$f\" \"$sz\" \"$mt\" \"$hd\"; "
+        '[ -f "$f" ] || continue; '
+        'sz=$(wc -c < "$f" | tr -d " "); '
+        'mt=$(stat -c %Y "$f" 2>/dev/null || stat -f %m "$f"); '
+        'hd=$(head -n 1 "$f" | tr "\\t" " "); '
+        'printf "%s\\t%s\\t%s\\t%s\\n" "$f" "$sz" "$mt" "$hd"; '
         r"done"
     )
     result = wrapper._wsl(cmd)

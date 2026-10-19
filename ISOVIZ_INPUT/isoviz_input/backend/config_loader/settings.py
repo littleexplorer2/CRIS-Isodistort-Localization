@@ -100,7 +100,7 @@ class Config:
     @property
     def launcher_search_dirs(self) -> list[Path]:
         values = self._cfg.get("isoviz", {}).get("launcher_search_dirs") or [
-            "../../local_tools/launchers"
+            "../../launchers"
         ]
         return [self.resolve_path(str(item)) for item in values]
 

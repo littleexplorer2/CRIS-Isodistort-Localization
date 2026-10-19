@@ -1,15 +1,14 @@
+"""Tests for test_official_html_resolver; migrated without changing scientific expectations."""
 from __future__ import annotations
 
 from pathlib import Path
-
+from tests.official_html_resolver import OfficialHtmlResolutionError
+from tests.official_html_resolver import classify_official_html
+from tests.official_html_resolver import scan_official_html
 import pytest
 
-from tests.manual.official_html_resolver import (
-    OfficialHtmlResolutionError,
-    classify_official_html,
-    scan_official_html,
-)
 
+# Original coverage: test_official_html_resolver.py.
 
 def _form(*inputs: tuple[str, str]) -> str:
     controls = "".join(
@@ -17,10 +16,8 @@ def _form(*inputs: tuple[str, str]) -> str:
     )
     return f'<form method="POST" action="isodistortform.php">{controls}</form>'
 
-
 def _page(title: str, body: str) -> str:
     return f"<html><head><title>{title}</title></head><body><h1>{title}</h1>{body}</body></html>"
-
 
 @pytest.mark.parametrize(
     ("title", "body", "expected_role"),
@@ -64,7 +61,6 @@ def test_classifies_pages_from_normalized_content(
     assert page.raw_html == page.text
     assert page.evidence
 
-
 @pytest.mark.parametrize(
     "body",
     [
@@ -80,7 +76,6 @@ def test_link_text_alone_never_classifies_page(tmp_path: Path, body: str) -> Non
 
     assert classify_official_html(path).role == "unknown"
 
-
 def test_title_without_required_structure_is_unknown(tmp_path: Path) -> None:
     path = tmp_path / "complete modes details.html"
     path.write_text(
@@ -89,7 +84,6 @@ def test_title_without_required_structure_is_unknown(tmp_path: Path) -> None:
     )
 
     assert classify_official_html(path).role == "unknown"
-
 
 def test_distortion_rejection_page_without_result_form_is_classified(tmp_path: Path) -> None:
     path = tmp_path / "server-rejection.HTML"
@@ -105,7 +99,6 @@ def test_distortion_rejection_page_without_result_form_is_classified(tmp_path: P
 
     assert page.role == "distortion_result"
     assert "result_form:absent_expected_rejection_shape" in page.evidence
-
 
 def test_scan_scope_and_suffixes_are_explicit(tmp_path: Path) -> None:
     direct = tmp_path / "renamed.HTML"
@@ -130,7 +123,6 @@ def test_scan_scope_and_suffixes_are_explicit(tmp_path: Path) -> None:
         == nested
     )
 
-
 def test_directory_unique_resolution_never_leaks_descendant_pages(
     tmp_path: Path,
 ) -> None:
@@ -147,7 +139,6 @@ def test_directory_unique_resolution_never_leaks_descendant_pages(
     assert inventory.require_unique_in_directory("distortion_result", tmp_path).path == primary
     assert inventory.require_unique_in_directory("distortion_result", child).path == auxiliary
 
-
 def test_require_unique_missing_error_lists_inspected_paths(tmp_path: Path) -> None:
     unknown = tmp_path / "unknown.html"
     unknown.write_text(_page("Unrelated", ""), encoding="utf-8")
@@ -161,7 +152,6 @@ def test_require_unique_missing_error_lists_inspected_paths(tmp_path: Path) -> N
     assert error.matched_paths == ()
     assert error.inspected_paths == (unknown,)
     assert str(unknown) in str(error)
-
 
 def test_require_unique_ambiguous_error_lists_every_match(tmp_path: Path) -> None:
     html = _page("ISODISTORT: distortion", _form(("input", "displaydistort")))
@@ -178,7 +168,6 @@ def test_require_unique_ambiguous_error_lists_every_match(tmp_path: Path) -> Non
     assert error.matched_paths == paths
     assert all(str(path) in str(error) for path in paths)
 
-
 def test_signature_and_parsing_share_captured_content(tmp_path: Path) -> None:
     path = tmp_path / "download.html"
     original = _page("ISODISTORT: distortion", _form(("input", "displaydistort")))
@@ -191,7 +180,6 @@ def test_signature_and_parsing_share_captured_content(tmp_path: Path) -> None:
     assert captured.raw_html == original
     assert captured.role == "distortion_result"
     assert inventory.require_unique("distortion_result") is captured
-
 
 def test_signature_ignores_basename_but_tracks_content_and_parent(tmp_path: Path) -> None:
     html = _page("ISODISTORT: distortion", _form(("input", "displaydistort")))
@@ -215,7 +203,6 @@ def test_signature_ignores_basename_but_tracks_content_and_parent(tmp_path: Path
     after_change = scan_official_html(tmp_path, recursive=True)
     assert after_change.signature != after_move.signature
 
-
 def test_unknown_pages_and_duplicates_contribute_to_signature(tmp_path: Path) -> None:
     known = tmp_path / "known.html"
     unknown = tmp_path / "unknown.html"
@@ -232,7 +219,6 @@ def test_unknown_pages_and_duplicates_contribute_to_signature(tmp_path: Path) ->
     duplicate.write_text(html, encoding="utf-8")
     with_duplicate = scan_official_html(tmp_path, recursive=False)
     assert with_duplicate.signature != changed_unknown.signature
-
 
 def test_non_html_file_and_invalid_root_fail_closed(tmp_path: Path) -> None:
     text_file = tmp_path / "page.txt"

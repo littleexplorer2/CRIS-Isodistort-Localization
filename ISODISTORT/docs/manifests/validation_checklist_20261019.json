@@ -1,0 +1,2108 @@
+{
+  "schema": "cris-validation-checklist/v1",
+  "status": "frozen",
+  "batch_id": "20261019-official-rebuild-v1",
+  "frozen_object": "tasks, gates and reference scope; not execution success and not unresolved inputs",
+  "all_previous_results": "invalidated_for_current_acceptance",
+  "tasks": [
+    {
+      "parent": "EuAl4 Parent.cif",
+      "method": 1,
+      "status": "not_run",
+      "inputs": [
+        {
+          "path": "experiment_data/EuAl4 Parent.cif",
+          "sha256": "2a01942bff7aa74d6156e4907de207ff864b134ccdc85f38f88d53e2d6ebf5e7",
+          "space_group_type": 139,
+          "space_group_symbol": "I4/mmm",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "displacive_scope": [
+            "*"
+          ]
+        }
+      ],
+      "reference_candidates": [
+        "output_compare/EuAl4 Parent.cif/官网/Method1/GM1+_P1_SG139",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/GM2+_P1_SG71",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/GM3-_P1_SG107",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/GM4+_P1_SG69",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/GM5+_C1_SG2",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/GM5+_P1_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/GM5+_P3_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/GM5-_C1_SG8",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/GM5-_P1_SG44",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/GM5-_P3_SG42",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/M1+_P1_SG123",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/M3-_P1_SG129",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/M4-_P1_SG137",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/M5+_C1_SG14",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/M5+_P1_SG64",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/M5+_P3_SG58",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/M5-_C1_SG11",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/M5-_P1_SG63",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/M5-_P3_SG59",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1+_4D1_SG2",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1+_C10_SG15",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1+_C12_SG2",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1+_C1_SG71",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1+_C2_SG74",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1+_C3_SG10",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1+_C8_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1+_P11_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1+_P1_SG65",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1+_P3_SG139",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1+_P4_SG141",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1+_P5_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1+_S1_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1-_4D1_SG2",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1-_C10_SG15",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1-_C12_SG2",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1-_C1_SG72",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1-_C2_SG73",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1-_C3_SG13",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1-_C8_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1-_P11_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1-_P1_SG67",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1-_P3_SG140",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1-_P4_SG142",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1-_P5_SG15",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N1-_S1_SG15",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2+_4D1_SG2",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2+_C10_SG15",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2+_C12_SG2",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2+_C1_SG72",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2+_C2_SG73",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2+_C3_SG13",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2+_C8_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2+_P11_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2+_P1_SG67",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2+_P3_SG140",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2+_P4_SG142",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2+_P5_SG15",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2+_S1_SG15",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2-_4D1_SG2",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2-_C10_SG15",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2-_C12_SG2",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2-_C1_SG71",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2-_C2_SG74",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2-_C3_SG10",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2-_C8_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2-_P11_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2-_P1_SG65",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2-_P3_SG139",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2-_P4_SG141",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2-_P5_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/N2-_S1_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P1_C1_SG119",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P1_P1_SG141",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P1_P3_SG139",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P2_C1_SG120",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P2_P1_SG142",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P2_P3_SG140",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P3_C1_SG119",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P3_P1_SG141",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P3_P3_SG139",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P4_C1_SG120",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P4_P1_SG142",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P4_P3_SG140",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_4D1_SG5",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_C10_SG42",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_C11_SG23",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_C12_SG12",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_C13_SG46",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_C1_SG43",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_C2_SG82",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_C3_SG24",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_C8_SG22",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_C9_SG15",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_P11_SG69",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_P12_SG72",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_P1_SG122",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_P3_SG70",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_P4_SG121",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/P5_P5_SG74",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X1+_C1_SG47",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X1+_P1_SG123",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X1+_P3_SG65",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X1-_C1_SG50",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X1-_P1_SG125",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X1-_P3_SG68",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X2+_C1_SG55",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X2+_P1_SG127",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X2+_P3_SG64",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X2-_C1_SG59",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X2-_P1_SG129",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X2-_P3_SG63",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X3+_C1_SG56",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X3+_P1_SG138",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X3+_P3_SG64",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X3-_C1_SG58",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X3-_P1_SG136",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X3-_P3_SG63",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X4+_C1_SG48",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X4+_P1_SG134",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X4+_P3_SG66",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X4-_C1_SG49",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X4-_P1_SG132",
+        "output_compare/EuAl4 Parent.cif/官网/Method1/X4-_P3_SG67"
+      ],
+      "checks": [
+        "independent local full candidate enumeration",
+        "freeze local output before reading references",
+        "compare full identity multiset and four formats"
+      ]
+    },
+    {
+      "parent": "NdNiO2 own.cif",
+      "method": 1,
+      "status": "not_run",
+      "inputs": [
+        {
+          "path": "experiment_data/NdNiO2 own.cif",
+          "sha256": "11f9c18a976691e8306b268cdd99a1d666d73c218ec45604b4c35539dd8da5c3",
+          "space_group_type": 123,
+          "space_group_symbol": "P4/mmm",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "displacive_scope": [
+            "*"
+          ]
+        }
+      ],
+      "reference_candidates": [
+        "output_compare/NdNiO2 own.cif/官网/Method1/A1+_P1_SG139",
+        "output_compare/NdNiO2 own.cif/官网/Method1/A2+_P1_SG140",
+        "output_compare/NdNiO2 own.cif/官网/Method1/A3+_P1_SG140",
+        "output_compare/NdNiO2 own.cif/官网/Method1/A3-_P1_SG139",
+        "output_compare/NdNiO2 own.cif/官网/Method1/A4+_P1_SG139",
+        "output_compare/NdNiO2 own.cif/官网/Method1/A5+_C1_SG12",
+        "output_compare/NdNiO2 own.cif/官网/Method1/A5+_P1_SG74",
+        "output_compare/NdNiO2 own.cif/官网/Method1/A5+_P3_SG69",
+        "output_compare/NdNiO2 own.cif/官网/Method1/A5-_C1_SG12",
+        "output_compare/NdNiO2 own.cif/官网/Method1/A5-_P1_SG74",
+        "output_compare/NdNiO2 own.cif/官网/Method1/A5-_P3_SG69",
+        "output_compare/NdNiO2 own.cif/官网/Method1/GM1+_P1_SG123",
+        "output_compare/NdNiO2 own.cif/官网/Method1/GM2+_P1_SG47",
+        "output_compare/NdNiO2 own.cif/官网/Method1/GM3-_P1_SG99",
+        "output_compare/NdNiO2 own.cif/官网/Method1/GM4+_P1_SG65",
+        "output_compare/NdNiO2 own.cif/官网/Method1/GM4-_P1_SG115",
+        "output_compare/NdNiO2 own.cif/官网/Method1/GM5+_C1_SG2",
+        "output_compare/NdNiO2 own.cif/官网/Method1/GM5+_P1_SG10",
+        "output_compare/NdNiO2 own.cif/官网/Method1/GM5+_P3_SG12",
+        "output_compare/NdNiO2 own.cif/官网/Method1/GM5-_C1_SG6",
+        "output_compare/NdNiO2 own.cif/官网/Method1/GM5-_P1_SG25",
+        "output_compare/NdNiO2 own.cif/官网/Method1/GM5-_P3_SG38",
+        "output_compare/NdNiO2 own.cif/官网/Method1/M1+_P1_SG123",
+        "output_compare/NdNiO2 own.cif/官网/Method1/M2+_P1_SG127",
+        "output_compare/NdNiO2 own.cif/官网/Method1/M2-_P1_SG129",
+        "output_compare/NdNiO2 own.cif/官网/Method1/M3+_P1_SG127",
+        "output_compare/NdNiO2 own.cif/官网/Method1/M3-_P1_SG129",
+        "output_compare/NdNiO2 own.cif/官网/Method1/M4+_P1_SG123",
+        "output_compare/NdNiO2 own.cif/官网/Method1/M5+_C1_SG13",
+        "output_compare/NdNiO2 own.cif/官网/Method1/M5+_P1_SG53",
+        "output_compare/NdNiO2 own.cif/官网/Method1/M5+_P3_SG67",
+        "output_compare/NdNiO2 own.cif/官网/Method1/M5-_C1_SG10",
+        "output_compare/NdNiO2 own.cif/官网/Method1/M5-_P1_SG51",
+        "output_compare/NdNiO2 own.cif/官网/Method1/M5-_P3_SG65",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R1+_C1_SG71",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R1+_P1_SG139",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R1+_P3_SG65",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R1-_C1_SG72",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R1-_P1_SG140",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R1-_P3_SG67",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R2+_C1_SG72",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R2+_P1_SG140",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R2+_P3_SG67",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R2-_C1_SG71",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R2-_P1_SG139",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R2-_P3_SG65",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R3+_C1_SG71",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R3+_P1_SG139",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R3+_P3_SG65",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R3-_C1_SG72",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R3-_P1_SG140",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R3-_P3_SG67",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R4-_C1_SG71",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R4-_P1_SG139",
+        "output_compare/NdNiO2 own.cif/官网/Method1/R4-_P3_SG65",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X1+_C1_SG47",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X1+_P1_SG123",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X1+_P3_SG47",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X2+_C1_SG55",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X2+_P1_SG127",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X2+_P3_SG51",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X2-_C1_SG59",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X2-_P1_SG129",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X2-_P3_SG51",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X3+_C1_SG59",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X3+_P1_SG129",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X3+_P3_SG51",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X3-_C1_SG55",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X3-_P1_SG127",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X3-_P3_SG51",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X4-_C1_SG47",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X4-_P1_SG123",
+        "output_compare/NdNiO2 own.cif/官网/Method1/X4-_P3_SG47",
+        "output_compare/NdNiO2 own.cif/官网/Method1/Z1+_P1_SG123",
+        "output_compare/NdNiO2 own.cif/官网/Method1/Z3-_P1_SG123",
+        "output_compare/NdNiO2 own.cif/官网/Method1/Z4-_P1_SG131",
+        "output_compare/NdNiO2 own.cif/官网/Method1/Z5+_C1_SG11",
+        "output_compare/NdNiO2 own.cif/官网/Method1/Z5+_P1_SG63",
+        "output_compare/NdNiO2 own.cif/官网/Method1/Z5+_P3_SG51",
+        "output_compare/NdNiO2 own.cif/官网/Method1/Z5-_C1_SG11",
+        "output_compare/NdNiO2 own.cif/官网/Method1/Z5-_P1_SG63",
+        "output_compare/NdNiO2 own.cif/官网/Method1/Z5-_P3_SG51"
+      ],
+      "checks": [
+        "independent local full candidate enumeration",
+        "freeze local output before reading references",
+        "compare full identity multiset and four formats"
+      ]
+    },
+    {
+      "parent": "4310_tetra.cif",
+      "method": 1,
+      "status": "not_run",
+      "inputs": [
+        {
+          "path": "experiment_data/4310_tetra.cif",
+          "sha256": "13dd94f3694fb89de3d137f23ebed74c9ea4dd5bd5a85b576cdfa97d36687b8d",
+          "space_group_type": 139,
+          "space_group_symbol": "I4/mmm",
+          "distortion_types": [
+            "strain",
+            "displacive"
+          ],
+          "displacive_scope": [
+            "*"
+          ]
+        }
+      ],
+      "reference_candidates": [
+        "output_compare/4310_tetra.cif/官网/Method1/GM1+_P1_SG139",
+        "output_compare/4310_tetra.cif/官网/Method1/GM2+_P1_SG71",
+        "output_compare/4310_tetra.cif/官网/Method1/GM3-_P1_SG107",
+        "output_compare/4310_tetra.cif/官网/Method1/GM4+_P1_SG69",
+        "output_compare/4310_tetra.cif/官网/Method1/GM4-_P1_SG119",
+        "output_compare/4310_tetra.cif/官网/Method1/GM5+_C1_SG2",
+        "output_compare/4310_tetra.cif/官网/Method1/GM5+_P1_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/GM5+_P3_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/GM5-_C1_SG8",
+        "output_compare/4310_tetra.cif/官网/Method1/GM5-_P1_SG44",
+        "output_compare/4310_tetra.cif/官网/Method1/GM5-_P3_SG42",
+        "output_compare/4310_tetra.cif/官网/Method1/M1+_P1_SG123",
+        "output_compare/4310_tetra.cif/官网/Method1/M2+_P1_SG131",
+        "output_compare/4310_tetra.cif/官网/Method1/M3-_P1_SG129",
+        "output_compare/4310_tetra.cif/官网/Method1/M4-_P1_SG137",
+        "output_compare/4310_tetra.cif/官网/Method1/M5+_C1_SG14",
+        "output_compare/4310_tetra.cif/官网/Method1/M5+_P1_SG64",
+        "output_compare/4310_tetra.cif/官网/Method1/M5+_P3_SG58",
+        "output_compare/4310_tetra.cif/官网/Method1/M5-_C1_SG11",
+        "output_compare/4310_tetra.cif/官网/Method1/M5-_P1_SG63",
+        "output_compare/4310_tetra.cif/官网/Method1/M5-_P3_SG59",
+        "output_compare/4310_tetra.cif/官网/Method1/N1+_4D1_SG2",
+        "output_compare/4310_tetra.cif/官网/Method1/N1+_C10_SG15",
+        "output_compare/4310_tetra.cif/官网/Method1/N1+_C12_SG2",
+        "output_compare/4310_tetra.cif/官网/Method1/N1+_C1_SG71",
+        "output_compare/4310_tetra.cif/官网/Method1/N1+_C2_SG74",
+        "output_compare/4310_tetra.cif/官网/Method1/N1+_C3_SG10",
+        "output_compare/4310_tetra.cif/官网/Method1/N1+_C8_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/N1+_P11_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/N1+_P1_SG65",
+        "output_compare/4310_tetra.cif/官网/Method1/N1+_P3_SG139",
+        "output_compare/4310_tetra.cif/官网/Method1/N1+_P4_SG141",
+        "output_compare/4310_tetra.cif/官网/Method1/N1+_P5_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/N1+_S1_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/N1-_4D1_SG2",
+        "output_compare/4310_tetra.cif/官网/Method1/N1-_C10_SG15",
+        "output_compare/4310_tetra.cif/官网/Method1/N1-_C12_SG2",
+        "output_compare/4310_tetra.cif/官网/Method1/N1-_C1_SG72",
+        "output_compare/4310_tetra.cif/官网/Method1/N1-_C2_SG73",
+        "output_compare/4310_tetra.cif/官网/Method1/N1-_C3_SG13",
+        "output_compare/4310_tetra.cif/官网/Method1/N1-_C8_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/N1-_P11_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/N1-_P1_SG67",
+        "output_compare/4310_tetra.cif/官网/Method1/N1-_P3_SG140",
+        "output_compare/4310_tetra.cif/官网/Method1/N1-_P4_SG142",
+        "output_compare/4310_tetra.cif/官网/Method1/N1-_P5_SG15",
+        "output_compare/4310_tetra.cif/官网/Method1/N1-_S1_SG15",
+        "output_compare/4310_tetra.cif/官网/Method1/N2+_4D1_SG2",
+        "output_compare/4310_tetra.cif/官网/Method1/N2+_C10_SG15",
+        "output_compare/4310_tetra.cif/官网/Method1/N2+_C12_SG2",
+        "output_compare/4310_tetra.cif/官网/Method1/N2+_C1_SG72",
+        "output_compare/4310_tetra.cif/官网/Method1/N2+_C2_SG73",
+        "output_compare/4310_tetra.cif/官网/Method1/N2+_C3_SG13",
+        "output_compare/4310_tetra.cif/官网/Method1/N2+_C8_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/N2+_P11_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/N2+_P1_SG67",
+        "output_compare/4310_tetra.cif/官网/Method1/N2+_P3_SG140",
+        "output_compare/4310_tetra.cif/官网/Method1/N2+_P4_SG142",
+        "output_compare/4310_tetra.cif/官网/Method1/N2+_P5_SG15",
+        "output_compare/4310_tetra.cif/官网/Method1/N2+_S1_SG15",
+        "output_compare/4310_tetra.cif/官网/Method1/N2-_4D1_SG2",
+        "output_compare/4310_tetra.cif/官网/Method1/N2-_C10_SG15",
+        "output_compare/4310_tetra.cif/官网/Method1/N2-_C12_SG2",
+        "output_compare/4310_tetra.cif/官网/Method1/N2-_C1_SG71",
+        "output_compare/4310_tetra.cif/官网/Method1/N2-_C2_SG74",
+        "output_compare/4310_tetra.cif/官网/Method1/N2-_C3_SG10",
+        "output_compare/4310_tetra.cif/官网/Method1/N2-_C8_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/N2-_P11_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/N2-_P1_SG65",
+        "output_compare/4310_tetra.cif/官网/Method1/N2-_P3_SG139",
+        "output_compare/4310_tetra.cif/官网/Method1/N2-_P4_SG141",
+        "output_compare/4310_tetra.cif/官网/Method1/N2-_P5_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/N2-_S1_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/P1_C1_SG119",
+        "output_compare/4310_tetra.cif/官网/Method1/P1_P1_SG141",
+        "output_compare/4310_tetra.cif/官网/Method1/P1_P3_SG139",
+        "output_compare/4310_tetra.cif/官网/Method1/P2_C1_SG120",
+        "output_compare/4310_tetra.cif/官网/Method1/P2_P1_SG142",
+        "output_compare/4310_tetra.cif/官网/Method1/P2_P3_SG140",
+        "output_compare/4310_tetra.cif/官网/Method1/P3_C1_SG119",
+        "output_compare/4310_tetra.cif/官网/Method1/P3_P1_SG141",
+        "output_compare/4310_tetra.cif/官网/Method1/P3_P3_SG139",
+        "output_compare/4310_tetra.cif/官网/Method1/P4_C1_SG120",
+        "output_compare/4310_tetra.cif/官网/Method1/P4_P1_SG142",
+        "output_compare/4310_tetra.cif/官网/Method1/P4_P3_SG140",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_4D1_SG5",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_C10_SG42",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_C11_SG23",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_C12_SG12",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_C13_SG46",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_C1_SG43",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_C2_SG82",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_C3_SG24",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_C8_SG22",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_C9_SG15",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_P11_SG69",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_P12_SG72",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_P1_SG122",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_P3_SG70",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_P4_SG121",
+        "output_compare/4310_tetra.cif/官网/Method1/P5_P5_SG74",
+        "output_compare/4310_tetra.cif/官网/Method1/X1+_C1_SG47",
+        "output_compare/4310_tetra.cif/官网/Method1/X1+_P1_SG123",
+        "output_compare/4310_tetra.cif/官网/Method1/X1+_P3_SG65",
+        "output_compare/4310_tetra.cif/官网/Method1/X1-_C1_SG50",
+        "output_compare/4310_tetra.cif/官网/Method1/X1-_P1_SG125",
+        "output_compare/4310_tetra.cif/官网/Method1/X1-_P3_SG68",
+        "output_compare/4310_tetra.cif/官网/Method1/X2+_C1_SG55",
+        "output_compare/4310_tetra.cif/官网/Method1/X2+_P1_SG127",
+        "output_compare/4310_tetra.cif/官网/Method1/X2+_P3_SG64",
+        "output_compare/4310_tetra.cif/官网/Method1/X2-_C1_SG59",
+        "output_compare/4310_tetra.cif/官网/Method1/X2-_P1_SG129",
+        "output_compare/4310_tetra.cif/官网/Method1/X2-_P3_SG63",
+        "output_compare/4310_tetra.cif/官网/Method1/X3+_C1_SG56",
+        "output_compare/4310_tetra.cif/官网/Method1/X3+_P1_SG138",
+        "output_compare/4310_tetra.cif/官网/Method1/X3+_P3_SG64",
+        "output_compare/4310_tetra.cif/官网/Method1/X3-_C1_SG58",
+        "output_compare/4310_tetra.cif/官网/Method1/X3-_P1_SG136",
+        "output_compare/4310_tetra.cif/官网/Method1/X3-_P3_SG63",
+        "output_compare/4310_tetra.cif/官网/Method1/X4+_C1_SG48",
+        "output_compare/4310_tetra.cif/官网/Method1/X4+_P1_SG134",
+        "output_compare/4310_tetra.cif/官网/Method1/X4+_P3_SG66",
+        "output_compare/4310_tetra.cif/官网/Method1/X4-_C1_SG49",
+        "output_compare/4310_tetra.cif/官网/Method1/X4-_P1_SG132",
+        "output_compare/4310_tetra.cif/官网/Method1/X4-_P3_SG67"
+      ],
+      "checks": [
+        "independent local full candidate enumeration",
+        "freeze local output before reading references",
+        "compare full identity multiset and four formats"
+      ]
+    },
+    {
+      "id": "M2F-EU-GM-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-EU-GM-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-EU-GM-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-EU-GM-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-EU-X-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-EU-X-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-EU-X-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-EU-X-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-EU-M-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-EU-M-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-EU-M-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-EU-M-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-EU-N-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-EU-N-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-EU-N-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-EU-N-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-EU-P-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-EU-P-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-EU-P-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-EU-P-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-ND-GM-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-ND-GM-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-ND-GM-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-ND-GM-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-ND-M-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-ND-M-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-ND-M-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-ND-M-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-ND-X-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-ND-X-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-ND-X-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-ND-X-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-ND-A-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-ND-A-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-ND-A-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-ND-A-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-ND-R-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-ND-R-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-ND-R-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-ND-R-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-ND-Z-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-ND-Z-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-ND-Z-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-ND-Z-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-C4310-GM-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-C4310-GM-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-C4310-GM-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-C4310-GM-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-C4310-X-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-C4310-X-NMOD0",
+      "reference_state": "complete",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-C4310-X-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-C4310-X-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-C4310-M-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-C4310-M-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-C4310-M-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-C4310-M-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-C4310-N-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-C4310-N-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-C4310-N-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-C4310-N-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-C4310-P-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-C4310-P-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2F-C4310-P-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2F-C4310-P-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-A-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-A-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-A-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-A-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-B-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-B-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-B-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-B-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-C-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-C-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-C-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-C-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-DT-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-DT-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-DT-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-DT-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-GP-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-GP-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-GP-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-GP-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-Q-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-Q-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-Q-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-Q-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-SM-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-SM-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-SM-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-SM-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-W-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-W-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-W-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-W-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-Y-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-Y-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-Y-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-Y-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-LD-NMOD0",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-LD-NMOD0",
+      "reference_state": "partial",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-EU-LD-NMOD1",
+      "parent": "EuAl4 Parent.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-EU-LD-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-A-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-A-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-A-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-A-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-B-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-B-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-B-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-B-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-C-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-C-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-C-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-C-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-DT-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-DT-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-DT-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-DT-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-GP-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-GP-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-GP-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-GP-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-LD-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-LD-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-LD-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-LD-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-Q-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-Q-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-Q-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-Q-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-SM-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-SM-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-SM-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-SM-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-W-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-W-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-W-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-W-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-Y-NMOD0",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-Y-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-C4310-Y-NMOD1",
+      "parent": "4310_tetra.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-C4310-Y-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-B-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-B-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-B-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-B-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-C-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-C-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-C-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-C-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-D-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-D-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-D-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-D-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-DT-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-DT-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-DT-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-DT-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-E-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-E-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-E-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-E-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-F-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-F-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-F-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-F-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-GP-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-GP-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-GP-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-GP-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-LD-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-LD-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-LD-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-LD-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-S-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-S-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-S-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-S-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-SM-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-SM-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-SM-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-SM-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-T-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-T-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-T-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-T-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-U-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-U-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-U-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-U-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-V-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-V-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-V-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-V-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-W-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-W-NMOD0",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-W-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-W-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-Y-NMOD0",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-Y-NMOD0",
+      "reference_state": "partial",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "id": "M2P-ND-Y-NMOD1",
+      "parent": "NdNiO2 own.cif",
+      "method": 2,
+      "status": "not_run",
+      "input_query": "M2P-ND-Y-NMOD1",
+      "reference_state": "missing",
+      "checks": [
+        "complete all IR lists",
+        "retain already downloaded candidate files",
+        "independent local run from approved parent/k/nmod/types",
+        "freeze outputs and source/dependency hashes",
+        "read-only candidate identity/structure/mode/export comparison; record unsupported/inconclusive explicitly"
+      ]
+    },
+    {
+      "parent": "EuAl4 Parent.cif",
+      "method": 3,
+      "status": "blocked_independent_input_provenance",
+      "reference_cases": [
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-01",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-02",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-03",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-04",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-05",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-06",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-07",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-08",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-09",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-10",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-11",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-12",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-13",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-14",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-15",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-16",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-17",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-18",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-19",
+        "output_compare/EuAl4 Parent.cif/官网/Method3/M3-EU-20"
+      ],
+      "old_empty_freeze": "revoked",
+      "checks": [
+        "preserve all official files",
+        "audit independently recorded input provenance before any local run",
+        "define finite input scope without deriving it from official outputs",
+        "do not carry over old pass/checkpoint status"
+      ]
+    },
+    {
+      "parent": "EuAl4 Parent.cif",
+      "method": 4,
+      "status": "blocked_independent_input_provenance",
+      "reference_cases": [
+        "output_compare/EuAl4 Parent.cif/官网/Method4/F01",
+        "output_compare/EuAl4 Parent.cif/官网/Method4/F02",
+        "output_compare/EuAl4 Parent.cif/官网/Method4/F03",
+        "output_compare/EuAl4 Parent.cif/官网/Method4/G01",
+        "output_compare/EuAl4 Parent.cif/官网/Method4/G02",
+        "output_compare/EuAl4 Parent.cif/官网/Method4/G03",
+        "output_compare/EuAl4 Parent.cif/官网/Method4/G04",
+        "output_compare/EuAl4 Parent.cif/官网/Method4/G05",
+        "output_compare/EuAl4 Parent.cif/官网/Method4/G06",
+        "output_compare/EuAl4 Parent.cif/官网/Method4/P01",
+        "output_compare/EuAl4 Parent.cif/官网/Method4/P02",
+        "output_compare/EuAl4 Parent.cif/官网/Method4/P03"
+      ],
+      "old_empty_freeze": "revoked",
+      "checks": [
+        "preserve all official files",
+        "audit independently recorded input provenance before any local run",
+        "define finite input scope without deriving it from official outputs",
+        "do not carry over old pass/checkpoint status"
+      ]
+    },
+    {
+      "parent": "NdNiO2 own.cif",
+      "method": 3,
+      "status": "blocked_independent_input_provenance",
+      "reference_cases": [
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-01",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-02",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-03",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-04",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-05",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-06",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-07",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-08",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-09",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-10",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-11",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-12",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-13",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-14",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-15",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-16",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-17",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-18",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-19",
+        "output_compare/NdNiO2 own.cif/官网/Method3/M3-ND-20"
+      ],
+      "old_empty_freeze": "revoked",
+      "checks": [
+        "preserve all official files",
+        "audit independently recorded input provenance before any local run",
+        "define finite input scope without deriving it from official outputs",
+        "do not carry over old pass/checkpoint status"
+      ]
+    },
+    {
+      "parent": "NdNiO2 own.cif",
+      "method": 4,
+      "status": "blocked_independent_input_provenance",
+      "reference_cases": [
+        "output_compare/NdNiO2 own.cif/官网/Method4/F01",
+        "output_compare/NdNiO2 own.cif/官网/Method4/F02",
+        "output_compare/NdNiO2 own.cif/官网/Method4/F03",
+        "output_compare/NdNiO2 own.cif/官网/Method4/G01",
+        "output_compare/NdNiO2 own.cif/官网/Method4/G02",
+        "output_compare/NdNiO2 own.cif/官网/Method4/G03",
+        "output_compare/NdNiO2 own.cif/官网/Method4/G04",
+        "output_compare/NdNiO2 own.cif/官网/Method4/G05",
+        "output_compare/NdNiO2 own.cif/官网/Method4/G06",
+        "output_compare/NdNiO2 own.cif/官网/Method4/P01",
+        "output_compare/NdNiO2 own.cif/官网/Method4/P02",
+        "output_compare/NdNiO2 own.cif/官网/Method4/P03"
+      ],
+      "old_empty_freeze": "revoked",
+      "checks": [
+        "preserve all official files",
+        "audit independently recorded input provenance before any local run",
+        "define finite input scope without deriving it from official outputs",
+        "do not carry over old pass/checkpoint status"
+      ]
+    },
+    {
+      "parent": "4310_tetra.cif",
+      "method": 3,
+      "status": "blocked_independent_input_provenance",
+      "reference_cases": [],
+      "old_empty_freeze": "revoked",
+      "checks": [
+        "preserve all official files",
+        "audit independently recorded input provenance before any local run",
+        "define finite input scope without deriving it from official outputs",
+        "do not carry over old pass/checkpoint status"
+      ]
+    },
+    {
+      "parent": "4310_tetra.cif",
+      "method": 4,
+      "status": "blocked_independent_input_provenance",
+      "reference_cases": [],
+      "old_empty_freeze": "revoked",
+      "checks": [
+        "preserve all official files",
+        "audit independently recorded input provenance before any local run",
+        "define finite input scope without deriving it from official outputs",
+        "do not carry over old pass/checkpoint status"
+      ]
+    }
+  ],
+  "numerical_tolerances": "not redefined; each future run must cite applicable existing theoretical contract and numerical/physical scale; no tolerance tuning from reference matches",
+  "identity_comparison": "exact rational SG/basis/origin/s/i in inventory, zero numerical tolerance; not space-group-equivalence proof",
+  "formula_conventions": "unchanged; reciprocal phase exp(2*pi*i*k^T*t), primitive direct row basis P, reciprocal equivalence P*delta integer",
+  "theory_sources": [
+    "ISODISTORT/docs/reference_library/coverage.json",
+    "ISODISTORT/docs/reference_library/latex/unsupported_algorithm_proofs.tex#sec:grid-duality"
+  ],
+  "remaining_gaps": [
+    "new official lists absent",
+    "full independent local regeneration not run",
+    "Method3/4 independent scope not approved"
+  ]
+}

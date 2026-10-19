@@ -24,6 +24,9 @@
 ## 实现边界
 
 - 新输出必须写到约定的本地结果/验证目录；官网数据隔离执行根规则，不设子项目例外。
+  官网结果列表页只写入 `webpage_info/<母相>/` 页面存档（命名见 `webpage_info/README.md`，
+  改名/哈希登记在 `_PAGE_INDEX.json`）；`output_compare/` 的查询/候选目录只按真实列表行
+  建立，未知列表保持空白，禁止用本地网页版输出补，也禁止覆盖既有归档或复制进计算输入。
 - 网页和 Python API 共用 `application/session/` 的计算与导出协调，交互工作流统一由
   `application/workflows/` 提供；网页只处理传输、呈现和浏览器生命周期。
   共享英文文案统一由 `backend/messages/` 提供，前端通过应用层取得。
@@ -37,11 +40,11 @@
 `tests_repo/architecture_manifest.json` 为准。本子项目职责细分如下：
 
 - `backend/wrappers/`：iso/findsym/smodes 调用、WSL 暂存与 ISO 缓存；
-  `models/`：模式及来源领域模型；`tables/`：CDML、Kovalev、k 点与空间群表；
-  `utils/`：精确晶格、解析、配置、异常、自检；`messages/`：共享英文消息。
+  `models/`：模式、来源与共享物理类型/相路径合同；`tables/`：CDML、Kovalev、k 点与空间群/Hall 表；
+  `utils/`：精确晶格、仿射嵌入、k/格相容、解析、配置、异常、自检；`messages/`：共享英文消息。
 - `backend/input_cif/`：CIF 读取、坐标变换与对称性验证；
-  `method1/`：搜索引擎、affine embedding、相路径、畴与 occupational；
-  `method2/`：superspace 与母相到子胞映射；`method3/`：Inverse Landau/COPL 与
+  `method1/`：特殊 k 搜索、畴与 occupational 边界；
+  `method2/`：指定候选求解、superspace 与母相到子胞映射；`method3/`：任意 k/格搜索、Inverse Landau/COPL 与
   coupled 见证；`method4/`：模式分解（`decomposition.py`）、应变和生成回代；
   `export/`：格式合同与 writer。
 - `application/session/`：唯一 `IsoDistort` 会话 API、计算调用与批量发布协调；
@@ -50,7 +53,7 @@
 
 另设“根目录保留文件”这一位置优先类别：不论文件在语义上属于入口、配置、依赖、文档
 还是规则，都固定直接放在 `ISODISTORT/`，不得按功能移入上述目录。当前成员为
-`.gitignore`、`agent.md`、`main_web.py`、`pyproject.toml`、`README.md`、
+`.gitignore`、`agent.md`、`main_requirement.py`、`main_web.py`、`pyproject.toml`、`README.md`、
 `requirements-dev.txt`、`requirements.txt`。
 
 ## 科研与验收
@@ -78,7 +81,7 @@
 ## 架构与验收
 
 - 跨模块使用绝对导入，同模块内部可相对导入；模块目录及入口变更须同步
-  `tests/manual/` 的源码指纹，不能让报告只签名兼容壳而遗漏实际实现。
+  `tests/` 根目录审计脚本的源码指纹，不能让报告只签名兼容壳而遗漏实际实现。
 - 状态必须显式传递；候选身份不能只靠目录名、列表下标或对象 `id()`；对照与
   导出须使用各 Method 适用的完整科学身份和查询上下文。并发变更须遵守
   session lock/revision，不复用不兼容的模式缓存。

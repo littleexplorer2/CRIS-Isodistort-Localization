@@ -9,7 +9,7 @@
 """
 
 from backend.wrappers import DomainInfo, IsoWrapper, SubgroupInfo
-from backend.method1.phase_path import PhasePath
+from backend.models.phase_path import PhasePath
 
 
 class DomainGenerator:

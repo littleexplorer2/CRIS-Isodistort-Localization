@@ -385,6 +385,7 @@ function showError(el, msg) { el.innerHTML = `<div class="alert alert-error">${e
 function showOk(el, msg) { el.innerHTML = `<div class="alert alert-success">${esc(msg)}</div>`; }
 function showInfo(el, msg) { el.innerHTML = `<div class="info">${esc(msg)}</div>`; }
 let exportingZip = false;
+let activeExportJobId = null;
 
 /* ================= Busy progress (timer + striped bar) ================= */
 function fmtElapsed(sec) {
@@ -1516,6 +1517,8 @@ async function downloadAll() {
     href += `&indices=${encodeURIComponent(idxs.join(","))}`;
   }
   exportingZip = true;
+  const jobId = crypto.randomUUID();
+  activeExportJobId = jobId;
   const waitMsg = (hasParam && needModes)
     ? `${t("dist.zipWait")} ${t("dist.zipParamNote")}`
     : t("dist.zipWait");
@@ -1529,29 +1532,34 @@ async function downloadAll() {
   cancelBtn.disabled = false;
   progressNode.style.display = "block";
   progressNode.textContent = "Preparing export snapshot…";
-  let latestExportProgress = {};
+  let finalExportProgress = null;
+  const renderProgress = (p) => {
+    const current = p.position ? ` · candidate ${p.position}/${p.total}` : "";
+    const identity = p.irrep_label
+      ? ` · ${p.irrep_label}/${p.opd_symbol || "-"}`
+      : "";
+    const remaining = Number.isFinite(p.estimated_remaining_seconds)
+      ? ` · estimated ${Math.max(0, Math.round(p.estimated_remaining_seconds))} s remaining`
+      : " · estimate pending first completed candidate";
+    progressNode.textContent = `${p.phase || "preparing"}${current}${identity}`
+      + ` · ready ${p.successful || 0} · ineligible ${p.ineligible || 0}`
+      + ` · failed ${p.failed || 0}${remaining}`;
+  };
   const pollProgress = async () => {
     try {
       const r = await fetch("/api/export_status", { cache: "no-store" });
       const d = await r.json();
       const p = d.export || {};
-      latestExportProgress = p;
-      const current = p.position ? ` · candidate ${p.position}/${p.total}` : "";
-      const identity = p.irrep_label
-        ? ` · ${p.irrep_label}/${p.opd_symbol || "-"}`
-        : "";
-      const remaining = Number.isFinite(p.estimated_remaining_seconds)
-        ? ` · estimated ${Math.max(0, Math.round(p.estimated_remaining_seconds))} s remaining`
-        : " · estimate pending first completed candidate";
-      progressNode.textContent = `${p.phase || "preparing"}${current}${identity}`
-        + ` · ready ${p.successful || 0} · ineligible ${p.ineligible || 0}`
-        + ` · failed ${p.failed || 0}${remaining}`;
+      if (finalExportProgress || p.job_id !== jobId || activeExportJobId !== jobId) return;
+      renderProgress(p);
     } catch (_err) { /* the download request remains authoritative */ }
   };
   const progressTimer = setInterval(pollProgress, 1000);
   pollProgress();
   try {
-    const r = await fetch(href);
+    const exportUrl = new URL(href, window.location.href);
+    exportUrl.searchParams.set("job_id", jobId);
+    const r = await fetch(exportUrl);
     const ct = (r.headers.get("content-type") || "").toLowerCase();
     if (!r.ok || ct.includes("application/json")) {
       let msg = t("dist.zipFail");
@@ -1563,6 +1571,16 @@ async function downloadAll() {
       showError(out, msg);
       return;
     }
+    const status = JSON.parse(decodeURIComponent(r.headers.get("X-ISODISTORT-Export") || "null"));
+    if (!status || status.job_id !== jobId || status.active !== false
+        || !["complete", "cancelled"].includes(status.phase)
+        || !["successful", "total", "ineligible", "failed"].every(
+          (key) => Number.isInteger(status[key]) && status[key] >= 0,
+        )) {
+      throw new Error("Export response is missing its matching final status.");
+    }
+    finalExportProgress = status;
+    renderProgress(status);
     const blob = await r.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -1572,11 +1590,10 @@ async function downloadAll() {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    await pollProgress();
-    const ready = Number(latestExportProgress.successful || 0);
-    const requested = Number(latestExportProgress.total || idxs.length);
-    const partial = Number(latestExportProgress.ineligible || 0) > 0
-      || latestExportProgress.phase === "cancelled";
+    const ready = status.successful;
+    const requested = status.total;
+    const partial = ready < requested || status.ineligible > 0 || status.failed > 0
+      || status.phase === "cancelled";
     showOk(
       out,
       partial
@@ -1587,10 +1604,12 @@ async function downloadAll() {
     showError(out, (err && err.message) ? err.message : t("dist.zipFail"));
   } finally {
     clearInterval(progressTimer);
-    await pollProgress();
+    if (finalExportProgress) renderProgress(finalExportProgress);
+    else await pollProgress();
     cancelBtn.style.display = "none";
     busy.stop();
     exportingZip = false;
+    if (activeExportJobId === jobId) activeExportJobId = null;
   }
 }
 async function cancelExport() {
@@ -1598,7 +1617,11 @@ async function cancelExport() {
   const progressNode = document.getElementById("exportProgress");
   button.disabled = true;
   try {
-    const response = await fetch("/api/export_cancel", { method: "POST" });
+    const response = await fetch("/api/export_cancel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ job_id: activeExportJobId }),
+    });
     const data = await response.json();
     progressNode.textContent = data.cancellation_requested
       ? "Cancellation requested; the current candidate will finish safely before the partial ZIP is published."

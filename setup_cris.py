@@ -942,7 +942,7 @@ def _check_isoviz(report: DoctorReport, python: Path) -> None:
             "launcher",
             "fail",
             "no configured .lnk, .exe, or .jar was found",
-            "Place ISOViz.lnk in CRIS/local_tools/launchers, or set "
+            "Place ISOViz.lnk in CRIS/launchers, or set "
             "ISOVIZ/ISOVIZ_JAR.",
         )
 
