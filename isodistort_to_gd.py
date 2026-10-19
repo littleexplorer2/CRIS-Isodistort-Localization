@@ -27,6 +27,7 @@ import re
 import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
+from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
@@ -80,6 +81,18 @@ def _py_float_array(name: str, arr: np.ndarray, indent: str = "") -> str:
     )
 
 
+def _reciprocal_lattice(lattice: np.ndarray) -> np.ndarray:
+    """Evaluate the existing row-lattice reciprocal in the GD storage dtype."""
+    try:
+        with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
+            reciprocal = 2.0 * math.pi * np.linalg.inv(lattice).T
+    except np.linalg.LinAlgError as exc:
+        raise ValueError("lattice must be nonsingular in float32") from exc
+    if not np.isfinite(reciprocal).all():
+        raise ValueError("reciprocal lattice must be finite in float32")
+    return reciprocal
+
+
 def render_alris_functions(
     *,
     names: Sequence[str],
@@ -108,8 +121,7 @@ def render_alris_functions(
         raise ValueError(f"{len(names)} names vs {n_modes} mode vectors")
     if len(species) != n_atoms:
         raise ValueError(f"{len(species)} species vs {n_atoms} atoms")
-    inv_lat = np.linalg.inv(lattice)
-    reciprocal = 2.0 * math.pi * inv_lat.T
+    reciprocal = _reciprocal_lattice(lattice)
     header = f'''"""TensorFlow structure-factor helpers generated from ISODISTORT.
 
 Parent: {parent_symbol}   IR: {irrep}   OPD: {opd}
@@ -260,7 +272,9 @@ def write_gd_bundle(
     install_alris: Path | None = None,
 ) -> dict[str, Path]:
     """Write notebook inputs.  Returns the paths that were created."""
-    out_dir.mkdir(parents=True, exist_ok=True)
+    errors = check_bundle(bundle)
+    if errors:
+        raise ValueError("Invalid GD float32 bundle: " + "; ".join(errors))
     stem = out_dir / prefix
     written = {
         "mario_mode_names": Path(f"{stem}_mario_mode_names.txt"),
@@ -270,10 +284,6 @@ def write_gd_bundle(
         "alris_functions": out_dir / f"{prefix}_alris_functions.py",
         "metadata": out_dir / "metadata.json",
     }
-    write_mario_mode_names(written["mario_mode_names"], bundle.names)
-    write_comma_row(written["norm_factors"], bundle.norm_factors)
-    write_comma_row(written["max_bound_vectors"], bundle.max_bounds)
-    write_displacive_modes(written["displacive_modes"], bundle.names)
     alris = render_alris_functions(
         names=bundle.names,
         species=bundle.species,
@@ -285,11 +295,16 @@ def write_gd_bundle(
         irrep=bundle.irrep,
         opd=bundle.opd,
     )
+    metadata = json.dumps(bundle.metadata, indent=2, ensure_ascii=False) + "\n"
+    # All validation and rendering precede publication; invalid values must not
+    # leave a partially refreshed set of notebook input files.
+    out_dir.mkdir(parents=True, exist_ok=True)
+    write_mario_mode_names(written["mario_mode_names"], bundle.names)
+    write_comma_row(written["norm_factors"], bundle.norm_factors)
+    write_comma_row(written["max_bound_vectors"], bundle.max_bounds)
+    write_displacive_modes(written["displacive_modes"], bundle.names)
     written["alris_functions"].write_text(alris, encoding="utf-8")
-    written["metadata"].write_text(
-        json.dumps(bundle.metadata, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
+    written["metadata"].write_text(metadata, encoding="utf-8")
     if install_alris is not None:
         install_alris.parent.mkdir(parents=True, exist_ok=True)
         install_alris.write_text(alris, encoding="utf-8")
@@ -298,31 +313,53 @@ def write_gd_bundle(
 
 
 def check_bundle(bundle: GdBundle) -> list[str]:
-    """Cheap numpy sanity checks (no TensorFlow)."""
+    """Validate the actual float32 storage domain, without changing the bundle.
+
+    These checks impose no tolerance on the scientific normalization. Finite
+    float64 input does not imply finite, nonzero float32 notebook output.
+    """
     errors: list[str] = []
-    n_modes = int(bundle.mode_frac.shape[0])
-    n_atoms = int(bundle.mode_frac.shape[1])
-    if n_modes != len(bundle.names):
-        errors.append(f"mode count {n_modes} != names {len(bundle.names)}")
-    if bundle.base_frac.shape != (n_atoms, 3):
-        errors.append(f"base_frac shape {bundle.base_frac.shape}")
-    if len(bundle.species) != n_atoms:
-        errors.append("species length mismatch")
-    if int(bundle.norm_factors.shape[0]) != n_modes:
-        errors.append("norm_factors length mismatch")
-    if int(bundle.max_bounds.shape[0]) != n_modes:
-        errors.append("max_bounds length mismatch")
+    n_modes, n_atoms = len(bundle.names), len(bundle.species)
     if n_modes == 0:
         errors.append("no displacive modes")
-        return errors
-    recovered = bundle.base_frac + np.tensordot(
-        np.zeros(n_modes, dtype=np.float32), bundle.mode_frac, axes=(0, 0)
-    )
-    if float(np.max(np.abs(recovered - bundle.base_frac))) > 1e-6:
-        errors.append("zero amplitudes do not recover the base cell")
-    moved = float(np.max(np.abs(bundle.mode_frac[0])))
-    if moved < 1e-12:
-        errors.append("first mode vector is identically zero")
+    if n_atoms == 0:
+        errors.append("no atoms")
+    shapes = {
+        "mode_frac": (n_modes, n_atoms, 3), "base_frac": (n_atoms, 3),
+        "norm_factors": (n_modes,), "max_bounds": (n_modes,),
+        "lattice": (3, 3), "hkl_transform": (3, 3),
+    }
+    arrays: dict[str, np.ndarray] = {}
+    for name, shape in shapes.items():
+        value = getattr(bundle, name)
+        try:
+            if np.iscomplexobj(value):
+                raise ValueError("complex values")
+            with np.errstate(over="ignore", invalid="ignore", under="ignore"):
+                array = np.asarray(value, dtype=np.float32)
+        except (TypeError, ValueError, OverflowError):
+            errors.append(f"{name} must contain real float32 values")
+            continue
+        if array.shape != shape:
+            errors.append(f"{name} shape {array.shape} != {shape}")
+            continue
+        if not np.isfinite(array).all():
+            errors.append(f"{name} must be finite in float32")
+            continue
+        arrays[name] = array
+    for name in ("norm_factors", "max_bounds"):
+        if name in arrays and np.any(arrays[name] <= 0):
+            errors.append(f"{name} must be positive in float32")
+    for index, column in enumerate(arrays.get("mode_frac", ())):
+        if not np.any(column):
+            errors.append(f"mode vector {index} is identically zero in float32")
+    if "hkl_transform" in arrays and np.linalg.slogdet(arrays["hkl_transform"].astype(float))[0] == 0:
+        errors.append("hkl_transform must be nonsingular in float32")
+    if "lattice" in arrays:
+        try:
+            _reciprocal_lattice(arrays["lattice"])
+        except ValueError as exc:
+            errors.append(str(exc))
     return errors
 
 
@@ -347,20 +384,28 @@ def _load_isodistort_components(cris_root: Path):
     return IsoDistort, cart_normalized_mode_matrix
 
 
-def _hkl_transform_from_basis(basis: Sequence[Sequence[float]] | None) -> np.ndarray:
-    mat = np.eye(3, dtype=np.float32)
-    if not basis:
-        return mat
+def _hkl_transform_from_basis(basis: Sequence[Sequence[float]]) -> np.ndarray:
+    """Dual map: A_child=B A_parent, x_parent=x_child B, h_child=h_parent B^T."""
     arr = np.asarray(basis, dtype=np.float32)
-    if arr.shape == (3, 3):
-        return arr
-    return mat
+    if arr.shape != (3, 3) or not np.isfinite(arr).all() or np.linalg.det(arr) == 0:
+        raise ValueError("Basis must be a finite nonsingular 3x3 matrix")
+    return arr.T.copy()
 
 
-def _parent_cell_count(basis: np.ndarray) -> int:
-    det = abs(float(np.linalg.det(np.asarray(basis, dtype=float))))
-    n = round(det)
-    return max(n, 1)
+def _parent_cell_count(basis: Sequence[Sequence[float | str]]) -> int:
+    """Exact represented-parent-cell index; this converter requires an integer."""
+    matrix = tuple(tuple(Fraction(str(v)) for v in row) for row in basis)
+    if len(matrix) != 3 or any(len(row) != 3 for row in matrix):
+        raise ValueError("Basis must contain three rows of three exact coordinates")
+    a, b, c = matrix
+    determinant = abs(a[0] * (b[1]*c[2] - b[2]*c[1])
+                      - a[1] * (b[0]*c[2] - b[2]*c[0])
+                      + a[2] * (b[0]*c[1] - b[1]*c[0]))
+    if determinant == 0:
+        raise ValueError("Basis must be nonsingular")
+    if determinant.denominator != 1:
+        raise NotImplementedError("GD normalization requires an integer represented-parent-cell index")
+    return determinant.numerator
 
 
 def compute_gd_bundle(
@@ -380,80 +425,89 @@ def compute_gd_bundle(
         raise FileNotFoundError(cif)
 
     iso = IsoDistort()
-    iso.set_distortion_types(["strain", "displacive"])
-    iso.set_distortion_scope({
-        "displacive": ["*"],
-        "occupational": [],
-        "strain": [],
-        "magnetic": [],
-        "rotational": [],
-    })
-    iso.load_structure(cif)
-    subs = iso.list_subgroups_at(
-        k_label, irrep, k_parameters=list(k_params), generate_if_missing=False,
-    )
-    target = next(
-        (
-            s for s in subs
-            if s.irrep_label == irrep and str(s.opd_symbol).upper() == opd.upper()
-        ),
-        None,
-    )
-    if target is None:
-        available = sorted({f"{s.irrep_label}:{s.opd_symbol}" for s in subs})
-        raise RuntimeError(
-            f"{irrep} {opd} not in Method-2 list at {k_label} "
-            f"{k_params}; have {available[:20]}"
+    try:
+        iso.set_distortion_types(["strain", "displacive"])
+        iso.set_distortion_scope({
+            "displacive": ["*"], "occupational": [], "strain": [],
+            "magnetic": [], "rotational": [],
+        })
+        iso.load_structure(cif)
+        subs = iso.list_subgroups_at(
+            k_label, irrep, k_parameters=list(k_params), generate_if_missing=False,
         )
-    iso.search_method_2(
-        target.index,
-        candidates=subs,
-        number_of_independent_modulations=int(nmod),
+        matches = [s for s in subs
+                   if s.irrep_label == irrep and str(s.opd_symbol).upper() == opd.upper()]
+        if len(matches) != 1:
+            raise RuntimeError(
+                f"Expected one {irrep}/{opd} candidate at {k_label} {k_params}; "
+                f"found {len(matches)}. Select an unambiguous scientific identity."
+            )
+        iso.search_method_2(
+            matches[0].index, candidates=subs,
+            number_of_independent_modulations=nmod,
+        )
+        snapshot = iso.displacement_snapshot()
+    finally:
+        iso.close()
+    return bundle_from_displacement_snapshot(
+        snapshot, cart_normalized_mode_matrix, cif=cif,
     )
-    sc = iso._supercell_for_subgroup(target)
-    disp_map = dict(getattr(iso, "mode_displacements_sc", None) or {})
-    labels = dict(getattr(iso, "_mode_label_overrides", None) or {})
-    ordered_keys: list[str] = []
-    for mode in iso.distortion_modes or []:
-        key = iso._mode_session_key(mode)
-        if key in disp_map and key not in ordered_keys:
-            ordered_keys.append(key)
-    for key in disp_map:
-        if key not in ordered_keys:
-            ordered_keys.append(key)
-    if not ordered_keys:
-        raise RuntimeError("Method 2 returned no supercell displacive modes")
 
-    n_cells = _parent_cell_count(target.basis_vectors or np.eye(3))
+
+def bundle_from_displacement_snapshot(
+    snapshot, normalizer, *, cif: Path,
+) -> GdBundle:
+    """Convert the public immutable result; preserve row, mode and sign order."""
+    if (snapshot.schema != "isodistort.displacement-snapshot.v1"
+            or snapshot.coordinate_convention != "row_fractional_basis_supercell_before_origin_shift"
+            or snapshot.normalization != "raw_calculated_supercell_columns"):
+        raise ValueError("Unsupported ISODISTORT displacement result contract")
+    identity = json.loads(snapshot.candidate_identity_json)
+    # Output identity has one source: the calculated result, never caller labels.
+    k_label = identity["k_point_label"]
+    irrep = identity["irrep_label"]
+    opd = identity["opd_symbol"]
+    k_params = list(identity["k_parameters"])
+    nmod = snapshot.nmod
+    basis = [[float(Fraction(str(v))) for v in row] for row in identity["basis_vectors"]]
+    origin = [float(Fraction(str(v))) for v in identity["origin"]]
+    if not snapshot.columns:
+        raise RuntimeError("Method 2 returned no supercell displacive modes")
+    n_cells = _parent_cell_count(identity["basis_vectors"])
     names: list[str] = []
     vectors: list[np.ndarray] = []
     norms: list[float] = []
     bounds: list[float] = []
-    lattice = np.asarray(sc.lattice.matrix, dtype=float)
-    for key in ordered_keys:
-        raw = np.asarray(disp_map[key], dtype=float)
-        if raw.shape != (len(sc), 3):
+    lattice = np.asarray(snapshot.lattice_angstrom, dtype=float)
+    for column in snapshot.columns:
+        raw = np.asarray(column.fractional_vectors, dtype=float)
+        if raw.shape != (len(snapshot.species), 3):
             raise RuntimeError(
-                f"mode {key} has shape {raw.shape}, supercell has {len(sc)} atoms"
+                f"mode {column.key} has shape {raw.shape}, supercell has {len(snapshot.species)} atoms"
             )
-        scaled, maxamp = cart_normalized_mode_matrix(
+        square_norm = float(np.sum((raw @ lattice) ** 2))
+        if not np.isfinite(raw).all() or not np.isfinite(square_norm) or square_norm <= 0:
+            raise ValueError(f"mode {column.key} must have a positive finite Cartesian norm")
+        scaled, maxamp = normalizer(
             raw, lattice, centering_mult=n_cells
         )
-        names.append(labels.get(key) or key)
-        vectors.append(np.asarray(scaled, dtype=np.float32))
-        # cart-normalized vectors already have primitive Cartesian RMS = 1 Å
-        # per unit amplitude, so the notebook's extra scale is identity.
+        if not np.isfinite(scaled).all() or not math.isfinite(maxamp) or maxamp <= 0:
+            raise ValueError(f"mode {column.key} normalization produced invalid values")
+        names.append(column.label)
+        with np.errstate(over="ignore", invalid="ignore", under="ignore"):
+            vectors.append(np.asarray(scaled, dtype=np.float32))
+        # The summed squared Cartesian displacement divided by the number of
+        # represented parent cells is 1 Å². This is not a claim about an ISO
+        # primitive-cell amplitude convention when the parent is centered.
         norms.append(1.0)
         bounds.append(float(maxamp))
 
     mode_frac = np.stack(vectors, axis=0)
-    base_frac = np.asarray(sc.frac_coords, dtype=np.float32)
-    species = [str(site.species_string) for site in sc]
-    parent_sg = int((iso.symmetry_info or {}).get("space_group_number") or 0)
-    parent_sym = str(
-        (iso.symmetry_info or {}).get("space_group_symbol") or parent_sg
-    )
-    hkl_t = _hkl_transform_from_basis(target.basis_vectors)
+    base_frac = np.asarray(snapshot.fractional_coordinates, dtype=np.float32)
+    species = list(snapshot.species)
+    parent_sg = snapshot.parent_space_group_number
+    parent_sym = snapshot.parent_space_group_symbol or str(parent_sg)
+    hkl_t = _hkl_transform_from_basis(basis)
     meta = {
         "cif": str(cif),
         "k_label": k_label,
@@ -463,33 +517,41 @@ def compute_gd_bundle(
         "nmod": int(nmod),
         "parent_sg": parent_sg,
         "parent_symbol": parent_sym,
-        "child_sg": int(target.space_group_number or 0),
-        "child_symbol": str(target.space_group_symbol or ""),
-        "basis": [list(map(float, row)) for row in (target.basis_vectors or [])],
-        "origin": list(map(float, target.origin or [0, 0, 0])),
+        "child_sg": int(identity["space_group_number"]),
+        "child_symbol": snapshot.child_space_group_symbol,
+        "basis": basis,
+        "origin": origin,
+        "result_contract": snapshot.schema,
+        "candidate_identity": identity,
         "n_modes": len(names),
         "n_atoms": len(species),
         "parent_cells_in_supercell": n_cells,
         "maxamp_convention": (
-            "inverse maximum Cartesian displacement at As=1; "
+            "inverse maximum Cartesian displacement at unit GD coefficient; "
             "bound times dmax equals 1 Angstrom"
         ),
+        "normalization_convention": "sum squared Cartesian displacement / represented parent cells = 1 Angstrom^2 at unit GD coefficient",
         "norm_factors": "1 (mode vectors already cart-normalized)",
     }
-    return GdBundle(
-        names=names,
-        norm_factors=np.asarray(norms, dtype=np.float32),
-        max_bounds=np.asarray(bounds, dtype=np.float32),
-        species=species,
-        base_frac=base_frac,
-        mode_frac=mode_frac,
-        lattice=np.asarray(lattice, dtype=np.float32),
-        hkl_transform=hkl_t,
-        parent_symbol=parent_sym,
-        irrep=irrep,
-        opd=opd,
-        metadata=meta,
-    )
+    with np.errstate(over="ignore", invalid="ignore", under="ignore"):
+        bundle = GdBundle(
+            names=names,
+            norm_factors=np.asarray(norms, dtype=np.float32),
+            max_bounds=np.asarray(bounds, dtype=np.float32),
+            species=species,
+            base_frac=base_frac,
+            mode_frac=mode_frac,
+            lattice=np.asarray(lattice, dtype=np.float32),
+            hkl_transform=hkl_t,
+            parent_symbol=parent_sym,
+            irrep=irrep,
+            opd=opd,
+            metadata=meta,
+        )
+    errors = check_bundle(bundle)
+    if errors:
+        raise ValueError("Invalid GD float32 bundle: " + "; ".join(errors))
+    return bundle
 
 
 def build_parser() -> argparse.ArgumentParser:
