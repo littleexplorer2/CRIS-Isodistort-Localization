@@ -1,0 +1,199 @@
+{
+  "status": "validated_local_subspace",
+  "validation": {
+    "tolerance": 8.526512829121202e-13,
+    "cell_condition": 1.0,
+    "rotation_orthogonality": 2.4492935982947064e-16,
+    "mode_invariance": 0.0,
+    "orthonormality": 5.551115123125783e-16,
+    "displacement_projector": {
+      "symmetry": 1.2246467991473532e-16,
+      "idempotence": 0.0,
+      "trace_integer": 0.0,
+      "trace_agreement": 0.0
+    },
+    "translation_projector": {
+      "symmetry": 1.2246467991473532e-16,
+      "idempotence": 0.0,
+      "trace_integer": 0.0,
+      "trace_agreement": 0.0
+    },
+    "strain_projector": {
+      "symmetry": 1.7319121124709866e-16,
+      "idempotence": 9.912375278693799e-33,
+      "trace_integer": 0.0,
+      "trace_agreement": 0.0
+    },
+    "character_dimension": 4,
+    "group_order": 8,
+    "group_index": 6,
+    "primitive_size": 1,
+    "exact_group_closure": true,
+    "exact_permutation_composition": true,
+    "complete_in_declared_H_fixed_space": true
+  },
+  "scope": "Complete H-invariant polar displacement and homogeneous symmetric strain spaces on the stated finite cell; columns are not parent-IR-resolved.",
+  "normalization": {
+    "displacement": "sum over all atoms in subgroup conventional cell of |e_i|^2 = 1",
+    "amplitude_unit": "angstrom; unstrained Cartesian RSS",
+    "mass_weighted": false,
+    "parent_primitive_cells_in_export_cell": 1,
+    "rss_per_parent_primitive_cell": "norm(amplitudes)/sqrt(parent_primitive_cells_in_export_cell)",
+    "strain": "Kelvin/Frobenius orthonormal; dimensionless; F=I+E positive definite",
+    "website_column_equivalence": "not established"
+  },
+  "provenance": {
+    "workflow_id": "f16a051f-ab7e-456a-a3a5-f65f6bab51b3",
+    "started_utc": "2026-10-20T14:51:23.598775+00:00",
+    "status": "preparing",
+    "directory": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\f16a051f-ab7e-456a-a3a5-f65f6bab51b3",
+    "input": {
+      "sha256": "8bd7d4afaefcde08c6666a1467f24da4aa25659709bc3e38a8fbc3eff33e602a",
+      "bytes": 802
+    },
+    "request": {
+      "irrep": "GM4-",
+      "opd": "P1",
+      "k_values": [],
+      "amplitudes": null,
+      "strain_amplitudes": null
+    },
+    "binary_runs": [
+      {
+        "role": "parent",
+        "run_id": "777b4027-6c58-4780-8e6c-4be2d94e4d33",
+        "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\777b4027-6c58-4780-8e6c-4be2d94e4d33\\evidence.json"
+      },
+      {
+        "role": "subgroup",
+        "run_id": "4bdb3843-5f5f-49cc-b7d8-f144d72eb271",
+        "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\4bdb3843-5f5f-49cc-b7d8-f144d72eb271\\evidence.json"
+      },
+      {
+        "role": "subgroup_lattice",
+        "run_id": "dd2dbbac-6d78-4b62-a7fa-04566f3ccf05",
+        "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\dd2dbbac-6d78-4b62-a7fa-04566f3ccf05\\evidence.json"
+      },
+      {
+        "role": "compatible_irreps",
+        "run_id": "7b042782-f45a-4db6-a48b-974c29a56a46",
+        "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\7b042782-f45a-4db6-a48b-974c29a56a46\\evidence.json"
+      }
+    ],
+    "versions": {
+      "python": "3.12.5",
+      "numpy": "2.5.3"
+    },
+    "external_resources": "Only vendor/isobyu generic programs/databases; no reference-result reads.",
+    "source_code": {
+      "cris_rea\\__init__.py": {
+        "sha256": "e836f5d79c5ed1932608fd8ad0826fdbcef57a1d75fa074182a30bb8be3ea557",
+        "bytes": 101
+      },
+      "cris_rea\\__main__.py": {
+        "sha256": "6576ee3f162e194413661c9b79274cf1d1db2c3f57a7a325218a849a8859bf37",
+        "bytes": 53
+      },
+      "cris_rea\\application\\__init__.py": {
+        "sha256": "74f2d27090d636457682ee21328c79ab3320d72fa2f17e121e7d036cae461351",
+        "bytes": 110
+      },
+      "cris_rea\\application\\locking.py": {
+        "sha256": "567a7fb83af98fb01bc344cf037960e1ef9d1e967810de9aab1a5c2e5b505837",
+        "bytes": 294
+      },
+      "cris_rea\\application\\modes.py": {
+        "sha256": "943b7bbb80038a4640328a0792993762eac725c645fa11d451ad1dfea931ae3e",
+        "bytes": 7706
+      },
+      "cris_rea\\application\\service.py": {
+        "sha256": "39b0986e2057917438978b09ab88898976b74190e2c5b7d892884747738fbf8e",
+        "bytes": 2695
+      },
+      "cris_rea\\backend\\__init__.py": {
+        "sha256": "2e53d8de15b5940a2778cc093a94b1fc541d0ce412435bf1c871d35fd9b6d4e2",
+        "bytes": 449
+      },
+      "cris_rea\\backend\\iso_protocol.py": {
+        "sha256": "ea14996884d5864afc165d4ecbbca8b15976d074e760eafae6b1189f8103d117",
+        "bytes": 11485
+      },
+      "cris_rea\\backend\\iso_query.py": {
+        "sha256": "24129de4b16b2d723b5563af4e1b628d1249b22aebf2be953983eeffd794be67",
+        "bytes": 1662
+      },
+      "cris_rea\\backend\\modes\\__init__.py": {
+        "sha256": "c525c4ef0d427c9cda682e0d894bac080b5066a4daa96ea192969a073f61062f",
+        "bytes": 230
+      },
+      "cris_rea\\backend\\modes\\core.py": {
+        "sha256": "2f2c64a2692dff18d3316d4e9153683f43ad5ca683ebf1f140eab6a24c96b095",
+        "bytes": 16661
+      },
+      "cris_rea\\backend\\modes\\export.py": {
+        "sha256": "fd8d31f59c4cbf58c01ddbda9eaebcc8eedaf1fa458f72475b8c8a192140c00c",
+        "bytes": 6711
+      },
+      "cris_rea\\backend\\runtime.py": {
+        "sha256": "61813050b3d2a5b18cd95cad96ee7caae4a8852299634bd0bb6b79ef2ca3897b",
+        "bytes": 14405
+      },
+      "cris_rea\\backend\\structure\\__init__.py": {
+        "sha256": "9ba3265a9c6180149c80ce584169708896fd4e8f116e22befd5c9f98eced9ce9",
+        "bytes": 604
+      },
+      "cris_rea\\backend\\structure\\cif.py": {
+        "sha256": "1f4abc47ffd3a9a6485238c03d1b1b1b5c30134b6a360678f15b70657dc3749b",
+        "bytes": 13482
+      },
+      "cris_rea\\backend\\structure\\model.py": {
+        "sha256": "27c2662affb13ae6c82c86a3905de45e93f48b732351a4449bf571726ab10b1c",
+        "bytes": 15114
+      },
+      "cris_rea\\backend\\structure\\symmetry.py": {
+        "sha256": "d14103f284538d7c0d3799adc945d318b9a9921e009cf269057ed0c6d0965d2a",
+        "bytes": 3956
+      },
+      "cris_rea\\backend\\worker.py": {
+        "sha256": "e7db6b0e28e50c2865004c0a27ed6c1996003273621af62a6d90c3e21359c23b",
+        "bytes": 3483
+      },
+      "cris_rea\\frontend\\__init__.py": {
+        "sha256": "11acc8367354a18c9c8e6178f8672ad6c4b229f81ca0be9b849799197ccdf06d",
+        "bytes": 123
+      },
+      "cris_rea\\frontend\\cli.py": {
+        "sha256": "86226359ca54d8cccbb2278a071cc02666c874d78b574fe93713ac5f56990ae3",
+        "bytes": 5037
+      },
+      "cris_rea\\frontend\\web.py": {
+        "sha256": "0c5f819ebe45d94f80dab65564c733a09ad7ab6354c1a27fc2465b49b388a668",
+        "bytes": 10422
+      },
+      "cris_rea\\frontend\\webpage.py": {
+        "sha256": "14942bfaa7860a4b04072a3f609f481d44ec04ee0021c2cfc7447fd55a53ebca",
+        "bytes": 18802
+      }
+    },
+    "compatible_irreps_note": "Official DISPLAY DIRECTION raw listing saved; rounded vectors never enter the basis.",
+    "structure_notices": [],
+    "summary": {
+      "parent": 221,
+      "subgroup": 99,
+      "subgroup_symbol": "P4mm",
+      "atoms": 5,
+      "displacement_modes": 4,
+      "rigid_translations": 1,
+      "strain_modes": 2,
+      "basis_convention": "CRIS_REA_H_invariant_Cartesian_orthonormal_v1",
+      "compatible_irreps_raw": "Isotropy, Version 9.6.1, Jan 2022\nHarold T. Stokes, Dorian M. Hatch, and Branton J. Campbell\nBrigham Young University\nCurrent setting is International (new ed.) with conventional basis vectors.\n************Irrep (ML) k vector Dir        Subgroup   Size\nGM1+       (0,0,0)  (a)        221 Pm-3m  1\nGM3+       (0,0,0)  (a,1.732a) 123 P4/mmm 1\nGM4-       (0,0,0)  (a,0,0)    99 P4mm    1\n*"
+    }
+  },
+  "limitations": [
+    "No parent-IR-resolved columns or ISODISTORT column matching.",
+    "No phonon frequencies, force constants, or mass-weighted normal modes.",
+    "No magnetic, occupational, incommensurate or modulated input.",
+    "Subgroup setting must match the official ISO conventional setting.",
+    "Declared H is preserved; maximal symmetry at special amplitudes is not identified."
+  ]
+}

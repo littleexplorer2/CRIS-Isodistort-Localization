@@ -1,0 +1,161 @@
+rotation
+modes
+of
+the
+three-dimensional
+order
+parameter
+Rþ
+4 ða; b; cÞ½O : dEu of cubic ABO3 perovskite corresponding to
+branches ‘a’, ‘b’, and ‘c’, respectively.
+4.5. Order-parameter types and tensors
+There are numerous distinct classes of physical order parameters
+(e.g. displacive, order–disorder, lattice strain, magnetic, etc.) that can
+be associated with isotropy subgroups of the parent space-group
+symmetry. These classes can be best described in terms of their
+tensorial properties. Atomic displacement modes, for example, have
+order parameters that transform like polar ﬁrst-rank tensors under
+the matrix operations of the irrep, whereas macroscopic strain modes
+(i.e. lattice parameter changes) have polar symmetrized second-rank
+tensor order parameters, and order–disorder modes have scalar order
+parameters. While ISODISPLACE was originally intended only for
+the exploration of displacive transitions, the current version imple-
+ments macroscopic strains and allows order–disorder transitions with
+some restrictions.
+Because many distortion symmetries only have order parameters
+that are not of the displacive, strain, or order–disorder types,
+ISODISPLACE avoids time-consuming ‘dead-end’ searches by
+ﬁltering out the irreps that induce them. When a particular k-point is
+considered, the program begins by checking each of the associated
+primary irreps individually and only returns those that are capable of
+atomic displacements, strains, or order–disorder. Later, when a
+speciﬁc distortion symmetry is selected, it identiﬁes any secondary
+irreps capable of atomic displacements or strains, and outputs their
+respective distortion modes.
+In contrast to the displacive and strain cases, ISODISPLACE does
+not classify order–disorder modes according to irrep, or even attempt
+to compute them at all. There are, for example, no ‘site occupancy’
+slider bars. While these could be implemented, they would add
+complexity that does not seem necessary at the present time. Instead,
+ISODISPLACE provides a color scheme and a series of checkboxes
+that allow the user to individually highlight unique daughter sites in
+the low-symmetry phase which have split from the same parent site.
+In cubic ABO3 perovskite for example, þ
+3 ða; bÞ splits the parent
+oxygen site into three distinct daughter sites, any of which can be
+distinguished by using the appropriate checkbox. ISODISPLACE
+searches explicitly for irreps with order–disorder parameters in order
+to avoid missing transitions like this one which have no displacive
+modes.
+Irrep subduction frequencies are used to determine whether or not
+an irrep can yield order parameters of a particular tensorial form. A
+detailed explanation of subduction frequencies can be found in the
+book by Bradley & Cracknell (1972). We will digress only brieﬂy here
+to be concise regarding the method used. For microscopic atomic
+displacements, ISODISPLACE calculates the subduction frequency
+nijh ¼ 1
+jHj
+X
+x2H
+½G
+i ðxÞ½H
+j ðxÞ;
+where ½ðxÞ refers to the character of matrix ðxÞ in the image of
+irrep , G
+i is the ith irrep of parent space group G, H
+j is the jth
+irrep of the point group H of parent Wyckoff site h, |H| indicates the
+order of the image of H
+j , and x is summed over the elements of H. If
+there is an occupied Wyckoff site h in the parent structure with a
+point-group irrep H
+j that has ﬁrst-rank polar order parameters, then
+nijh > 0 implies that all isotropy subgroups induced by irrep G
+i will
+have displacive order parameters. The requisite tensorial properties
+of the order parameters of point-group irreps are simply extracted
+from a pre-tabulated database.
+For order–disorder parameters, H
+j is replaced in the subduction
+frequency formula above by EH, the identity irrep of point group H. If
+there is a Wyckoff site h in the parent structure such that nih > 0 and
+G
+i
+6¼ EH, then all of the isotropy subgroups induced by irrep G
+i
+will have order–disorder parameters.
+Macroscopic strains, which can only be induced by -point irreps
+of G, are treated somewhat differently. Any -point irrep G
+i that
+arises at a given k-point is tested directly for polar symmetrized
+second-rank tensor order parameters. If G
+i is found to possess them,
+any isotropy subgroups induced by G
+i will have strain order para-
+meters.
+Once the primary irreps that induce a speciﬁc isotropy subgroup S
+of G have been identiﬁed, ISODISPLACE identiﬁes secondary
+irreps by calculating the following subduction frequency for each
+candidate:
+nj ¼ 1
+jSj
+X
+x2S
+½G
+j ðxÞ;
+where x is summed over the distinct matrices in the image of G
+j that
+belong to S. If nj > 0, then G
+j must be either a primary or secondary
+irrep of the transition that induces isotropy subgroup S. Secondary
+irreps identiﬁed in this way are then checked to make sure that they
+are capable of displacements, strains or order–disorder, as described
+above.
+4.6. Coupled primary order parameters
+Some distortions cannot be generated by a single primary order
+parameter, yet are still possible via the simultaneous application (i.e.
+‘coupling’) of multiple primary order parameters. This process does
+not lead to new distortion modes, but rather combines existing
+distortion modes from different irreps to achieve more complex
+distortions. Because each contributing distortion mode is associated
+with a speciﬁc OPD and irrep, common expressions that arise include
+‘coupled modes’, ‘coupled order parameters’ and ‘coupled irreps’.
+In ISODISPLACE, a user ﬁrst speciﬁes the primary irreps
+(including k-points) to be coupled, after which a drop-down menu
+appears with a list of possible OPD combinations, each of which
+identiﬁes a distortion symmetry. Within a given distortion symmetry,
+the user can then manually couple the mode amplitudes from
+different irreps. Because coupled primary irreps involve a much
+larger
+parameter
+space,
+ISODISPLACE
+allows
+the
+user
+to
+enumerate all of the possibilities that might lead to a given supercell
+or space-group symmetry. Because ISODISPLACE automatically
+couples the primary irrep to any relevant secondary irreps, they do
+not need to be explicitly coupled in by the user.
+Different domains of a single order parameter are energetically
+and physically equivalent, meaning that they are related by some
+operation of the parent space group (such as a rotation or inversion)
+that is lost in the transition. For example, a tetragonal strain can be
+oriented along any one of three equivalent cubic [100] directions.
+Rather than treating equivalent domains as distinct distortion
+symmetries, ISODISPLACE selects one representative domain in
+each case by internal convention, which may appear arbitrary to the
+user. In general, the choice of domain can be made using any
+reasonable convention without obviously changing the intrinsic
+appearance of the distortion modes. When a pair of order parameters
+are coupled, one domain must be selected from each of the contri-
+buting order parameters. In such cases, it is useful to realise that
+different combinations of the contributing domains may lead to
+entirely different ﬁnal distortion symmetries.
+computer programs
+J. Appl. Cryst. (2006). 39, 607–614
+Branton J. Campbell et al.
+ ISODISPLACE
+611
+electronic reprint

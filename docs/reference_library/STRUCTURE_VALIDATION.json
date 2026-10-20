@@ -1,0 +1,79 @@
+{
+  "started_utc": "2026-10-20T14:40:38.121303+00:00",
+  "finished_utc": "2026-10-20T14:40:38.478775+00:00",
+  "command": [
+    "E:\\CRIS\\.venv\\Scripts\\python.exe",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_structure.py",
+    "-v"
+  ],
+  "cwd": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA",
+  "python": "3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "test_centering_orbit_and_covariance (test_structure.StructureTests.test_centering_orbit_and_covariance) ... ok\ntest_cif_case_quotes_comments_and_multiline_metadata (test_structure.StructureTests.test_cif_case_quotes_comments_and_multiline_metadata) ... ok\ntest_declared_group_is_metadata_not_lookup (test_structure.StructureTests.test_declared_group_is_metadata_not_lookup) ... ok\ntest_exact_group_and_decimal_translation_diagnostic (test_structure.StructureTests.test_exact_group_and_decimal_translation_diagnostic) ... ok\ntest_exact_numbers_and_uncertainty_exponent (test_structure.StructureTests.test_exact_numbers_and_uncertainty_exponent) ... ok\ntest_hexagonal_metric_and_wrong_orthogonal_cell_counterexample (test_structure.StructureTests.test_hexagonal_metric_and_wrong_orthogonal_cell_counterexample) ... ok\ntest_invalid_and_ambiguous_cif (test_structure.StructureTests.test_invalid_and_ambiguous_cif) ... ok\ntest_invalid_cells (test_structure.StructureTests.test_invalid_cells) ... ok\ntest_known_independent_converter_input (test_structure.StructureTests.test_known_independent_converter_input) ... ok\ntest_lattice_cartesian_and_gram (test_structure.StructureTests.test_lattice_cartesian_and_gram) ... ok\ntest_legacy_operation_alias (test_structure.StructureTests.test_legacy_operation_alias) ... ok\ntest_magnetic_modulated_disordered_and_missing_coordinates_rejected (test_structure.StructureTests.test_magnetic_modulated_disordered_and_missing_coordinates_rejected) ... ok\ntest_metrics_use_explicit_bounded_tolerance (test_structure.StructureTests.test_metrics_use_explicit_bounded_tolerance) ... ok\ntest_missing_ops_even_with_group_one (test_structure.StructureTests.test_missing_ops_even_with_group_one) ... ok\ntest_mixed_or_overlapping_representatives_rejected (test_structure.StructureTests.test_mixed_or_overlapping_representatives_rejected) ... ok\ntest_modern_and_legacy_multiplicity_are_traceable (test_structure.StructureTests.test_modern_and_legacy_multiplicity_are_traceable) ... ok\ntest_no_eval_and_nonlinear_or_nonlattice_operation (test_structure.StructureTests.test_no_eval_and_nonlinear_or_nonlattice_operation) ... ok\ntest_numeric_uncertainty_is_retained_not_used_for_snapping (test_structure.StructureTests.test_numeric_uncertainty_is_retained_not_used_for_snapping) ... ok\ntest_orbit_stabilizer_and_declared_multiplicity (test_structure.StructureTests.test_orbit_stabilizer_and_declared_multiplicity) ... ok\ntest_parse_p1_preserves_input_and_metadata (test_structure.StructureTests.test_parse_p1_preserves_input_and_metadata) ... ok\ntest_public_objects_accept_exact_inputs_and_do_not_mutate (test_structure.StructureTests.test_public_objects_accept_exact_inputs_and_do_not_mutate) ... ok\ntest_symmetry_composition_and_exact_involution (test_structure.StructureTests.test_symmetry_composition_and_exact_involution) ... ok\n\n----------------------------------------------------------------------\nRan 22 tests in 0.018s\n\nOK\n",
+  "source_sha256": {
+    "cris_rea/backend/structure/__init__.py": "9ba3265a9c6180149c80ce584169708896fd4e8f116e22befd5c9f98eced9ce9",
+    "cris_rea/backend/structure/cif.py": "1f4abc47ffd3a9a6485238c03d1b1b1b5c30134b6a360678f15b70657dc3749b",
+    "cris_rea/backend/structure/model.py": "27c2662affb13ae6c82c86a3905de45e93f48b732351a4449bf571726ab10b1c",
+    "cris_rea/backend/structure/symmetry.py": "d14103f284538d7c0d3799adc945d318b9a9921e009cf269057ed0c6d0965d2a",
+    "tests/test_structure.py": "6a8c587c0bab3c5d8158ff2062dbaecf20f55f5cd53779adb207013305cec3a2"
+  },
+  "source_hashes_unchanged": true,
+  "ast_parse": "passed",
+  "trailing_whitespace": "none",
+  "document_relative_links": [
+    "../../evidence/native/cif-converter-positive/synthetic_p1.cif",
+    "STRUCTURE_VALIDATION.json"
+  ],
+  "scope": "Targeted structure contract tests only; exact symmetry/coordinate and finite Cartesian invariants. Not original CRIS regression or full scientific/website acceptance.",
+  "input_isolation": "Only independent synthetic test strings and previously frozen independent synthetic_p1.cif. No website answers or original CRIS data read by calculations.",
+  "dependencies": "Python standard library only",
+  "prior_attempts": [
+    {
+      "started_utc": "2026-10-20T14:39:06.926341+00:00",
+      "finished_utc": "2026-10-20T14:39:07.264528+00:00",
+      "command": [
+        "E:\\CRIS\\.venv\\Scripts\\python.exe",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_structure.py",
+        "-v"
+      ],
+      "cwd": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA",
+      "python": "3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)]",
+      "platform": "Windows-11-10.0.26300-SP0",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "test_centering_orbit_and_covariance (test_structure.StructureTests.test_centering_orbit_and_covariance) ... ok\ntest_cif_case_quotes_comments_and_multiline_metadata (test_structure.StructureTests.test_cif_case_quotes_comments_and_multiline_metadata) ... ok\ntest_declared_group_is_metadata_not_lookup (test_structure.StructureTests.test_declared_group_is_metadata_not_lookup) ... ok\ntest_exact_group_and_decimal_translation_diagnostic (test_structure.StructureTests.test_exact_group_and_decimal_translation_diagnostic) ... ok\ntest_exact_numbers_and_uncertainty_exponent (test_structure.StructureTests.test_exact_numbers_and_uncertainty_exponent) ... ok\ntest_hexagonal_metric_and_wrong_orthogonal_cell_counterexample (test_structure.StructureTests.test_hexagonal_metric_and_wrong_orthogonal_cell_counterexample) ... ok\ntest_invalid_and_ambiguous_cif (test_structure.StructureTests.test_invalid_and_ambiguous_cif) ... ok\ntest_invalid_cells (test_structure.StructureTests.test_invalid_cells) ... ok\ntest_known_independent_converter_input (test_structure.StructureTests.test_known_independent_converter_input) ... ok\ntest_lattice_cartesian_and_gram (test_structure.StructureTests.test_lattice_cartesian_and_gram) ... ok\ntest_legacy_operation_alias (test_structure.StructureTests.test_legacy_operation_alias) ... ok\ntest_magnetic_modulated_disordered_and_missing_coordinates_rejected (test_structure.StructureTests.test_magnetic_modulated_disordered_and_missing_coordinates_rejected) ... ok\ntest_metrics_use_explicit_bounded_tolerance (test_structure.StructureTests.test_metrics_use_explicit_bounded_tolerance) ... FAIL\ntest_missing_ops_even_with_group_one (test_structure.StructureTests.test_missing_ops_even_with_group_one) ... ok\ntest_mixed_or_overlapping_representatives_rejected (test_structure.StructureTests.test_mixed_or_overlapping_representatives_rejected) ... ok\ntest_modern_and_legacy_multiplicity_are_traceable (test_structure.StructureTests.test_modern_and_legacy_multiplicity_are_traceable) ... ok\ntest_no_eval_and_nonlinear_or_nonlattice_operation (test_structure.StructureTests.test_no_eval_and_nonlinear_or_nonlattice_operation) ... ok\ntest_numeric_uncertainty_is_retained_not_used_for_snapping (test_structure.StructureTests.test_numeric_uncertainty_is_retained_not_used_for_snapping) ... ok\ntest_orbit_stabilizer_and_declared_multiplicity (test_structure.StructureTests.test_orbit_stabilizer_and_declared_multiplicity) ... ok\ntest_parse_p1_preserves_input_and_metadata (test_structure.StructureTests.test_parse_p1_preserves_input_and_metadata) ... ok\ntest_public_objects_accept_exact_inputs_and_do_not_mutate (test_structure.StructureTests.test_public_objects_accept_exact_inputs_and_do_not_mutate) ... ok\ntest_symmetry_composition_and_exact_involution (test_structure.StructureTests.test_symmetry_composition_and_exact_involution) ... ok\n\n======================================================================\nFAIL: test_metrics_use_explicit_bounded_tolerance (test_structure.StructureTests.test_metrics_use_explicit_bounded_tolerance)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\tests\\test_structure.py\", line 232, in test_metrics_use_explicit_bounded_tolerance\n    self.error(\"symmetry_metric_mismatch\", lambda: validate_symmetry_operations(operations, cell))\n  File \"C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\tests\\test_structure.py\", line 30, in error\n    with self.assertRaises(StructureError) as raised:\nAssertionError: StructureError not raised\n\n----------------------------------------------------------------------\nRan 22 tests in 0.018s\n\nFAILED (failures=1)\n",
+      "source_sha256": {
+        "cris_rea/backend/structure/__init__.py": "9ba3265a9c6180149c80ce584169708896fd4e8f116e22befd5c9f98eced9ce9",
+        "cris_rea/backend/structure/cif.py": "1f4abc47ffd3a9a6485238c03d1b1b1b5c30134b6a360678f15b70657dc3749b",
+        "cris_rea/backend/structure/model.py": "06ba8544e70a152a24363179272ff110325bd7feba0ba78ee6631bce832b7443",
+        "cris_rea/backend/structure/symmetry.py": "d14103f284538d7c0d3799adc945d318b9a9921e009cf269057ed0c6d0965d2a",
+        "tests/test_structure.py": "a0d13a8c95b7a9e818b1ce7df8d8398dd6762000aa4109b2c63144f9b82487e0"
+      },
+      "source_hashes_unchanged": true,
+      "ast_parse": "passed",
+      "trailing_whitespace": "none",
+      "document_relative_links": [
+        "../../evidence/native/cif-converter-positive/synthetic_p1.cif",
+        "STRUCTURE_VALIDATION.json"
+      ],
+      "scope": "Targeted structure contract tests only; exact symmetry/coordinate and finite Cartesian invariants. Not original CRIS regression or full scientific/website acceptance.",
+      "input_isolation": "Only independent synthetic test strings and the previously frozen independent synthetic_p1.cif. No website answers or original CRIS data read by calculations.",
+      "dependencies": "Python standard library only"
+    }
+  ],
+  "change_since_prior_attempt": "Replaced global-max Gram residual scaling with D^-1 (R^T G R - G) D^-1, D=diag(a,b,c), so a long axis cannot mask shorter-axis isometry violations; added strongly anisotropic counterexample. No input snapping or tolerance relaxation."
+}

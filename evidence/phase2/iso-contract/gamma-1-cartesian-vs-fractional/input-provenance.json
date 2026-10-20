@@ -1,0 +1,11 @@
+{
+  "case": "gamma-1-cartesian-vs-fractional",
+  "created_utc": "2026-10-20T14:36:53.320310+00:00",
+  "source": "Independent synthetic crystallographic inputs; official ISO manual syntax",
+  "manual": "evidence/database/official/isotropy_doc.php.html",
+  "manual_sha256": "76056531867ae85e3d884890db19347d6bf7f6e0d14d2f2d42142c6abc63bb77",
+  "probe_script_sha256": "af76d1b7f014e22c0e5a2eb8cbac1a448c9bef0d80f5c9416d54f14b0606b878",
+  "input_sha256": "7443f8c5d063e8606334f5f1ea3ca2fc30086cdebd31b989fb6b1e14b219e4fc",
+  "website_case_answers_read": false,
+  "acceptance": "Research probe; no general scientific validation implied"
+}

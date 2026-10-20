@@ -8,6 +8,7 @@ import hashlib
 import json
 from pathlib import Path
 import subprocess
+import argparse
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "evidence" / "environment"
@@ -18,6 +19,13 @@ def sha(path):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", type=Path)
+    args = parser.parse_args()
+    destination = args.output.resolve() if args.output else OUT
+    if not destination.is_relative_to(ROOT):
+        raise ValueError("Evidence destination must remain inside CRIS_REA.")
+    destination.mkdir(parents=True, exist_ok=True)
     manifest = json.loads((OUT / "source_manifest.json").read_text(encoding="utf-8-sig"))
     results = []
     for item in manifest:
@@ -36,7 +44,7 @@ def main():
         ["git", "-C", str(source_root), "status", "--porcelain=v1"],
         capture_output=True, check=True, encoding="utf-8",
     ).stdout
-    (OUT / "source_git_status_after.txt").write_text(status, encoding="utf-8")
+    (destination / "source_git_status_after.txt").write_text(status, encoding="utf-8")
     before = (OUT / "source_git_status_before.txt").read_text(encoding="utf-8-sig")
     counter = source_root / ".regression_validation_counter.json"
     frozen_counter = OUT / "source_counter_readonly.json"
@@ -54,7 +62,7 @@ def main():
         "source_counter_semantically_unchanged": counter_equal,
         "scope": "Resource byte identity and status/counter comparison, not a hash of every source-worktree file.",
     }
-    target = OUT / "source_preservation.json"
+    target = destination / "source_preservation.json"
     target.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
     passed = all(x["matches_frozen_source_and_copy"] for x in results)
     print(json.dumps({

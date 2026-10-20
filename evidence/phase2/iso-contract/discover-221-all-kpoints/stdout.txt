@@ -1,0 +1,20 @@
+Isotropy, Version 9.6.1, Jan 2022
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell
+Brigham Young University
+Current setting is International (new ed.) with conventional basis vectors.
+********Parent        k vector      k degree
+221 Pm-3m GM  (0,0,0)       0
+221 Pm-3m DT  (0,a,0)       1
+221 Pm-3m LD  (a,a,a)       1
+221 Pm-3m SM  (a,a,0)       1
+221 Pm-3m R   (1/2,1/2,1/2) 0
+221 Pm-3m X   (0,1/2,0)     0
+221 Pm-3m M   (1/2,1/2,0)   0
+221 Pm-3m S   (a,1/2,a)     1
+221 Pm-3m T   (1/2,1/2,a)   1
+221 Pm-3m Z   (a,1/2,0)     1
+221 Pm-3m C   (a,a,b)       2
+221 Pm-3m A   (a,b,0)       2
+221 Pm-3m B   (a,1/2,b)     2
+221 Pm-3m GP  (a,b,g)       3
+*

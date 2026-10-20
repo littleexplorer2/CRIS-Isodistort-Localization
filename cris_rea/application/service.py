@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 import re
-import threading
+from .locking import project_lock
 
 from ..backend import PROGRAMS, InputError, build_iso_query, execute_program, inspect_runtime
 
@@ -11,7 +11,7 @@ RUN_ID = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-
 class RunService:
     def __init__(self, project_root):
         self.root = Path(project_root).resolve()
-        self._run_lock = threading.Lock()
+        self._run_lock = project_lock(self.root)
 
     def programs(self):
         return {name: dict(details) for name, details in PROGRAMS.items()}

@@ -1,0 +1,39 @@
+ M .gitignore
+ M AGENTS.md
+ M ISODISTORT/README.md
+ M ISODISTORT/agent.md
+ M ISODISTORT/application/session/core_api.py
+ M ISODISTORT/application/workflows/service.py
+ M ISODISTORT/backend/utils/config_loader.py
+ M ISODISTORT/backend/wrappers/base_wrapper.py
+ M ISODISTORT/docs/BUGFIX_VALIDATION_REPORT.md
+ M ISODISTORT/docs/DEVELOPMENT_PLAN.md
+ M ISODISTORT/docs/DOWNLOAD_CHECKLIST.md
+ M ISODISTORT/docs/MANUAL_VALIDATION.md
+ M ISODISTORT/docs/history/README.md
+ M ISODISTORT/docs/manifests/checklist_freeze_20261019.json
+ M ISODISTORT/docs/manifests/official_archive_reuse_20261019.json
+ M ISODISTORT/docs/manifests/official_output_download_manifest.json
+ M ISODISTORT/docs/manifests/official_result_list_stage_20261019.json
+ M ISODISTORT/docs/manifests/validation_checklist_20261019.json
+ M ISODISTORT/docs/reference_library/audit/implementation_audit.json
+ M ISODISTORT/docs/reference_library/coverage.json
+ M ISODISTORT/docs/reference_library/notes/ARCHITECTURE_CONTRACTS_20261019.md
+ M ISODISTORT/frontend/web/index.html
+ M ISODISTORT/tests/application/test_session.py
+ M ISODISTORT/tests/application/test_workflows.py
+ M ISODISTORT/tests/backend/test_utils.py
+ M ISODISTORT/tests/backend/test_wrappers.py
+ M ISODISTORT/tests/frontend/test_web.py
+ M ISODISTORT/tests/support_frontend_web.py
+ M ISODISTORT/tests/test_verify_parametric_k_grid.py
+ M ISODISTORT/tests/verify_parametric_k_grid.py
+ M ISOVIZ_INPUT/agent.md
+?? ISODISTORT/docs/history/architecture-bugs-before-20261020.zip
+?? ISODISTORT/docs/history/architecture-followup-before-20261020.zip
+?? ISODISTORT/docs/history/architecture-loop-before-20261020.zip
+?? ISODISTORT/docs/history/method2-context-before-20261020.zip
+?? ISODISTORT/docs/history/method2-query-before-20261020.zip
+?? ISODISTORT/docs/history/method2-targeted-before-20261020.zip
+?? ISODISTORT/docs/manifests/method2_algorithm_coverage_20261020.json
+?? ISODISTORT/docs/reference_library/notes/METHOD2_TARGETED_EVIDENCE_20261020.md

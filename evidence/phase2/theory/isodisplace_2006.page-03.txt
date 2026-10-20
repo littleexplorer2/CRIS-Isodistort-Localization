@@ -1,0 +1,142 @@
+be chosen to be orthogonal to one another and to those of other
+irreps (Eyring et al., 1944). They not only form a complete basis, but
+also provide for a unique description of any distortion.
+The reciprocal-space k-point or wavevector of a phase transition
+indicates the location of any superlattice diffraction peaks that may
+arise in the low-symmetry phase. The set of distinct k vectors related
+by the symmetries of the space group are referred to collectively as
+the ‘star’ of k. As is typical, we use the term ‘k-point’ to refer to the
+entire star of k. ‘Special k-points’ are those that lie on points of
+symmetry in reciprocal space. The k-points that lie along special lines
+(i.e. lines of symmetry) or within special planes (i.e. planes of
+symmetry), but which are not points of symmetry are called ‘non-
+special k-points’. One typically groups non-special k-points of the
+same type (i.e. same line or plane of symmetry) and refers to them
+with a common k-point label. Similarly, all fully general k-points
+share a common label ‘GP’.
+ISODISPLACE uses the subroutines of the ISOTROPY software
+suite to generate atomic displacement patterns induced by repre-
+sentations of the parent space-group symmetry at reciprocal-space k-
+points. In general, space-group irreps are deﬁned relative to speciﬁc
+k-points. A space-group irrep of the parent structure can only induce
+distortions that produce the reciprocal superlattice deﬁned by its k-
+point. In the case of cubic Pm3m ABO3 perovskite, ISODISPLACE
+lists six irreps for the special R-point (k = ½1
+2; 1
+2; 1
+2), Rþ
+1 , Rþ
+3 , Rþ
+4 , Rþ
+5 , R
+2
+and R
+4 , and four irreps for the non-special -point (k = ½a; a; 0),
+1; 2, 3 and 4. Even for distinct k-points with the same label, the
+irreps deﬁned at those points are distinct (e.g. ½1
+3; 1
+3; 01 versus
+½1
+4; 1
+4; 01). While many phase transitions can be described in terms of
+the basis vectors of a single irrep, some require reducible repre-
+sentations that couple multiple irreps (Hatch & Stokes, 1991).
+2.2. Isotropy subgroups (distortion symmetries)
+When a crystal experiences a symmetry-lowering structural
+distortion, some of the symmetry elements of the parent space group
+are lost, while others persist in the resulting superstructure. Those
+elements that persist form the space-group symmetry of the low-
+symmetry phase, which is called an ‘isotropy subgroup’ of the parent
+space group (Stokes & Hatch, 1987). Within a given isotropy
+subgroup, many distinct distortions can be achieved by arbitrarily
+choosing the values of the new degrees of freedom available. The
+isotropy subgroup simply deﬁnes the common symmetry that each
+such distortion will possess, and can be more intuitively referred to as
+the ‘distortion symmetry’. Hereafter, we will use the terms ‘isotropy
+subgroup’ and ‘distortion symmetry’ interchangeably.
+A distortion will not possess all of the parent space-group
+symmetry operations; yet it must, by deﬁnition, possess the subgroup
+symmetries that persist in the superstructure. In other words, the
+distortion vector is left invariant by the subgroup symmetry opera-
+tions. It follows that the set of all possible distortion vectors sharing
+the same distortion symmetry forms an ‘invariant subspace’ of the
+carrier space (Bradley & Cracknell, 1972).
+It is impossible to tabulate all possible distortion symmetries of a
+parent space-group symmetry simply because there are an inﬁnite
+number of them. While there are only a ﬁnite number of distortion
+symmetries for a given k-point, there are an inﬁnite number of
+possible k-points in continuous reciprocal space. Stokes & Hatch
+(1987) have tabulated all of the isotropy subgroups of each of the 230
+crystallographic space groups induced at special k-points by a single
+irrep of the parent. ISOTROPY and ISODISPLACE further permit
+one to explore those associated with non-special k-points and
+coupled irreps.
+2.3. Irrep kernels
+Because an irrep mapping is homomorphic rather than isomorphic,
+it is possible for many group elements (even an inﬁnite number) to be
+mapped onto the same matrix operator. The group of all symmetry
+operators that are mapped by a representation onto the identity
+matrix is called the ‘kernel’ of the representation. In the case of cubic
+ABO3 perovskite, the kernel of the two-dimensional Rþ
+3 irrep has
+space-group symmetry Fmmm, and the kernel of the three-dimen-
+sional Rþ
+4 irrep has space-group symmetry P1. In either case, the
+identity matrix represents each element of the kernel, so that the
+kernel leaves all distortions in the entire carrier space of the irrep
+invariant. Thus, the kernel of an irrep is an isotropy subgroup (i.e.
+distortion symmetry) of the parent space-group symmetry and also
+corresponds to the largest invariant subspace (i.e. the whole carrier
+space) belonging to that irrep.
+2.4. Order parameters and order-parameter directions
+Only three things are required to specify a given distortion
+symmetry uniquely: a k-point, an irrep and one of its order-parameter
+directions. The term ‘order-parameter direction’ (OPD) refers to a
+direction, or rather a subspace, in the carrier space of the irrep. Each
+distinct vector within such a subspace will correspond to a different
+distortion. More speciﬁcally, the OPD identiﬁes the invariant
+subspace containing all of the distortion vectors that possess the
+corresponding distortion symmetry. For a given irrep, the kernel will
+always be the distortion symmetry with the most general OPD. For a
+three-dimensional irrep, we express the OPD of the kernel with three
+variable components (a, b, c) to indicate that any vector in the three-
+dimensional carrier space is permitted.
+Many irreps also induce intermediate distortion symmetries that
+contain the kernel as a subgroup. These intermediate distortion
+symmetries have smaller invariant subspaces, lower-dimensional
+OPDs, higher space-group symmetries, and fewer degrees of freedom
+than the kernel. For example, (a, a, 0) is a one-dimensional OPD of a
+three-dimensional irrep, and refers to a more restrictive one-dimen-
+sional subspace of (a, b, c). ISODISPLACE lists the OPDs of all
+intermediate distortion symmetries. The list will tend (but not strictly)
+towards lower symmetry from top to bottom, with the general OPD
+appearing at the bottom. For cubic ABO3 perovskite, the three-
+dimensional Rþ
+4 irrep of Pm3m yields six OPDs: (a, 0, 0), (a, a, 0),
+(a, a, a), (a, b, 0), (a, a, b) and (a, b, c).
+When working within the kernel distortion symmetry of an irrep,
+each structural degree of freedom provided by ISODISPLACE is a
+vector component (i.e. amplitude) that corresponds to exactly one of
+the irrep basis vectors. However, when working within an inter-
+mediate distortion symmetry, one structural degree of freedom may
+instead activate a symmetry-adapted linear combination of several
+irrep basis vectors that takes advantage of the higher space-group
+symmetry. In general, we will call these symmetry-adapted linear
+combinations ‘distortion modes’. In the context of phase transitions,
+the mode amplitudes are referred to as ‘order-parameter compo-
+nents’. An arbitrary distortion can be thus decomposed into distor-
+tion modes, one for each structural degree of freedom. Each
+amplitude then determines how much of its corresponding mode to
+mix into the overall atomic displacement pattern.
+The precise deﬁnition of ‘order parameter’ is somewhat difﬁcult to
+organize here because the term is commonly used in different ways in
+the context of phase transitions. When a transition involving multiple
+irreps and OPDs gives rise to a distortion vector, one might deﬁne the
+order parameter to be the complete set of its vector components over
+the multi-irrep basis, where components within the same mode may
+computer programs
+608
+Branton J. Campbell et al.
+ ISODISPLACE
+J. Appl. Cryst. (2006). 39, 607–614
+electronic reprint

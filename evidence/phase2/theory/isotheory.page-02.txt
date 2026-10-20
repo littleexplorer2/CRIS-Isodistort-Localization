@@ -1,0 +1,41 @@
+which spans an n-dimensional subspace S′ of S. All linear combinations of these vectors
+belong to S′. Furthermore, S′ is closed under all operations g in G, i.e., the operation of
+g on any vector in S′ produces a vector also in S′.
+Let us deﬁne a set of n basis vectors φi of S′ such that any vector in S′ can written
+as a linear combination of the basis vectors. An operation g on any one of the basis
+vectors results in some vector in S′ which can, of course, be expressed as a linear
+combination of the basis vectors:
+gφi =
+n
+X
+j=1
+φjDji(g),
+(1)
+where the n-dimensional matrix D(g) is generally diﬀerent for diﬀerent operators g.
+From Eq. (1), it follows that D(gi)D(gj) = D(gigj) so that the matrices D(g) have the
+same multiplication table as the operators g, and therefore the homomorphic mapping of
+g onto D(g) is a group representation of G.
+If we now choose some vector φ orthogonal to every vector in S′, we can repeat the
+above procedure, obtaining a collection of vectors {gφ} which spans another subspace S′′
+of S. The subspaces S′ and S′′ do not overlap. Every vector in S′′ is orthogonal to every
+vector in S′.
+We repeat this process until S is completely decomposed into subspaces. The sum of
+the dimensions of these subspaces is equal to 3N. The 3N basis vectors of these
+subspaces constitute a complete set of orthogonal basis vectors of S.
+Irreducible Subspaces and Representations
+Let us return to the n-dimensional subspace S′. Suppose that we can ﬁnd some vector φ′
+in S′ such that the vectors {gφ′} span a subspace of dimension less than n. In this case,
+the subspace S′ is reducible and can be further decomposed into subspaces. The
+representation D(g) is said to be reducible. Mathematically, this means that there exists
+a similarity transformation T such that TD(g)T −1 is a block-diagonal matrix for every g
+in G.
+We can repeatedly decompose every subspace into subspaces of smaller dimensions
+until they can be decomposed no further. These subspaces are irreducible. For each such
+subspace, we choose basis vectors and, through operations similar to those in Eq. (1), we
+obtain a set of matrices D(g) called an irreducible representation (IR) of G. Every
+subspace is associated with an IR.
+Some subspaces can be further decomposed into subspaces of smaller dimensions if
+we are allowed to consider complex vectors. In these cases, a complex transformation T
+is required to bring the matrices D(g) into block-diagonal form. Since displacements in
+the physical world are real, we require the vectors and the representations to be real. We
+2

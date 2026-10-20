@@ -1,0 +1,19 @@
+{
+  "command": [
+    "python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_iso_protocol.py",
+    "-v"
+  ],
+  "cwd": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA",
+  "finished_utc": "2026-10-20T14:57:39.9303109Z",
+  "exit_code": 0,
+  "source_sha256": "6A0330D78B4A9675E75593A91E3D24242E00E71F4C3EC9FDA32C37103F93560C",
+  "tests_sha256": "83CC320DDB9621E3D6D82A02994E3F326BEC7EE07A485FF9DCB7F3F36B073C96",
+  "log_sha256": "7950B4963459FFA7CE7C8256C8A19D83768B1697A6EDC17E307A8B26E7F6ED10"
+}

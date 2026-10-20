@@ -1,0 +1,114 @@
+{
+  "label": "get-irrep4-ssgn",
+  "at_utc": "2026-10-20T14:32:02.512350+00:00",
+  "elapsed_seconds": 0.051422130999981164,
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 9,
+    "method": "tools/call",
+    "params": {
+      "name": "procedure_pseudo_code",
+      "arguments": {
+        "procedure": "get_irrep4_ssgn_"
+      }
+    }
+  },
+  "response": {
+    "result": {
+      "_meta": {
+        "provenance": {
+          "untrusted_content": true,
+          "source": "analysis_target"
+        }
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"evidence_id\":\"ev_73e7c753967d8a7082521477790ca55cb51747b26a12116a46af85a043aa0fd2\",\"subject\":{\"name\":\"iso\",\"digest\":{\"sha256\":\"242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8\"},\"local_path\":\"/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso\",\"format\":\"elf\",\"architecture\":\"x86_64\"},\"provider\":{\"id\":\"ghidra\",\"name\":\"Ghidra\",\"version\":\"12.1.3\"},\"analysis_profile\":{\"provider\":{\"id\":\"ghidra\",\"name\":\"Ghidra\",\"version\":\"12.1.3\"},\"parameters\":{\"target_kind\":\"executable\",\"target_format\":\"elf\",\"architecture\":\"x86_64\",\"available_architectures\":[\"x86_64\"],\"import_mode\":\"ephemeral-source-immutable\",\"annotation_policy\":\"atomic-function-entry-metadata-v1\",\"load_image_observations\":\"source-mappings-entry-context-v2\",\"function_body_evidence\":\"complete-inclusive-ranges-v1\",\"function_references\":\"complete-body-and-entry-reference-manager-v2\",\"call_relationship_coverage\":\"function-body-call-coverage-v5\",\"function_dossier_coverage\":\"observed-facets-and-call-relationships-v1\",\"string_inventory_evidence\":\"defined-data-coverage-v1\",\"location_resolution\":\"explicit-address-exact-entry-symbol-first-v3\",\"procedure_file_offset_resolution\":\"address-first-unique-target-source-mapping-v2\",\"instruction_flow_evidence\":\"decoded-return-pcode-v1\",\"instruction_references\":\"exact-address-incoming-without-synthetic-entry-v2\",\"function_boundary_observations\":\"ghidra-function-boundary-limitations-v4\",\"no_return_repair\":\"returning-imports-decoded-return-v2\",\"process_launch\":\"inspected-jvm-launch-support-v1\",\"jump_table_evidence\":\"typed-case-default-blocks-v1\",\"decompiler_jump_loads\":true,\"loader\":\"auto-from-header\",\"language_id\":\"auto-from-header\",\"compiler_spec_id\":\"auto-default\",\"analyzer_preset\":\"ghidra-default\"},\"digest\":\"925fa33731c67bdc2c9882788b5c8efec77d0e3e564e9481ba43dd06334888ff\"},\"predicate_type\":\"rea.analysis\",\"operation\":\"procedure_pseudo_code\",\"parameters\":{\"procedure\":\"get_irrep4_ssgn_\"},\"raw_result\":{\"value\":\"\\nvoid get_irrep4_ssgn_(int *param_1,long param_2,undefined8 param_3,long param_4,undefined4 *param_5)\\n\\n{\\n  char cVar1;\\n  char cVar2;\\n  short sVar3;\\n  int iVar4;\\n  int iVar5;\\n  long lVar6;\\n  long lVar7;\\n  int *piVar8;\\n  char *pcVar9;\\n  long lVar10;\\n  undefined8 *puVar11;\\n  bool bVar12;\\n  byte bVar13;\\n  undefined8 uVar14;\\n  undefined1 local_4c08 [18436];\\n  int local_404;\\n  int local_400;\\n  int local_3fc;\\n  undefined1 local_3f8 [16];\\n  int local_3e8 [238];\\n  \\n  bVar13 = 0;\\n  *param_5 = 0;\\n  sVar3 = *(short *)(common_little_ + (long)*param_1 * 2 + 0x2d6f6e);\\n  if (sVar3 != ispace_5) {\\n    latt_4 = (int)(char)(&DAT_00e74de3)[sVar3];\\n    ispace_5 = (int)sVar3;\\n    generate_space_group_(&ispace_5,&local_404,local_3f8);\\n    puVar11 = &mapop_3;\\n    for (lVar6 = 0x24; lVar6 != 0; lVar6 = lVar6 + -1) {\\n      *puVar11 = 0;\\n      puVar11 = puVar11 + (ulong)bVar13 * -2 + 1;\\n    }\\n    if (0 < local_404) {\\n      piVar8 = local_3e8;\\n      iVar5 = 1;\\n      do {\\n        *(int *)(&DAT_00e0b4fc + (long)*piVar8 * 4) = iVar5;\\n        iVar5 = iVar5 + 1;\\n        piVar8 = piVar8 + 5;\\n      } while (local_404 + 1 != iVar5);\\n    }\\n  }\\n  iVar5 = *param_1;\\n  if (iVar5 != irrpointersave_2) {\\n    sVar3 = *(short *)(common_little_ +\\n                      ((long)(char)common_little_[(long)iVar5 + 0x36c333] + 0x16f281 +\\n                      (long)ispace_5 * 0x1b) * 2);\\n    nmod_1 = (int)sVar3;\\n    irrpointersave_2 = iVar5;\\n    if (*(char *)((long)(char)common_little_[(long)iVar5 + 0x36c333] +\\n                 (long)latt_4 * 0x1b + 0x119db56) == '\\\\0') {\\n      if (0 < sVar3) {\\n        lVar6 = 0;\\n        do {\\n          lVar10 = lVar6;\\n          lVar6 = lVar10 + 1;\\n        } while (sVar3 != lVar6);\\n        lVar6 = 0;\\n        do {\\n          bVar12 = lVar10 != lVar6;\\n          lVar6 = lVar6 + 1;\\n        } while (bVar12);\\n      }\\n    }\\n    else if (0 < sVar3) {\\n      lVar6 = 0;\\n      do {\\n        lVar6 = lVar6 + 1;\\n      } while (sVar3 != lVar6);\\n    }\\n  }\\n  cVar1 = common_little_[(long)iVar5 + 0x369af7];\\n  local_400 = (int)cVar1;\\n  if ('\\\\0' < cVar1) {\\n    lVar10 = -1;\\n    lVar6 = param_4;\\n    do {\\n      lVar7 = 0;\\n      do {\\n        *(undefined8 *)(lVar6 + lVar7 * 8) = 0;\\n        lVar7 = lVar7 + 1;\\n      } while (cVar1 != lVar7);\\n      lVar10 = lVar10 + 0x30;\\n      lVar6 = lVar6 + 0x180;\\n    } while ((long)cVar1 * 0x30 + -1 != lVar10);\\n  }\\n  iVar5 = *(int *)(common_little_ + ((long)iVar5 + -1) * 4 + 0x1c9238);\\n  iVar4 = *(int *)(&DAT_00e0b4fc + (long)*(int *)(param_2 + 0x10) * 4);\\n  if (iVar4 == 0) {\\n    bomb2_(\\\"get_irrep4_ssgn 71\\\",0x12);\\n  }\\n  iVar5 = iVar5 + iVar4;\\n  iVar4 = *(int *)(common_little_ + (long)(iVar5 + -1) * 4 + 0x1d3324);\\n  iVar5 = *(int *)(common_little_ + (long)iVar5 * 4 + 0x1d3324);\\n  if (iVar4 < iVar5) {\\n    pcVar9 = common_little_ + (long)iVar4 * 3 + 0x3ea2d1;\\n    do {\\n      cVar1 = *pcVar9;\\n      cVar2 = pcVar9[1];\\n      local_3fc = (int)pcVar9[2];\\n      uVar14 = constant_(&local_3fc);\\n      *(undefined8 *)(param_4 + ((long)cVar1 + -0x31 + (long)cVar2 * 0x30) * 8) = uVar14;\\n      pcVar9 = pcVar9 + 3;\\n    } while (common_little_ + ((ulong)(uint)((iVar5 + -1) - iVar4) + (long)iVar4) * 3 + 0x3ea2d4 !=\\n             pcVar9);\\n  }\\n  get_irreps_ssg_phase_(&local_400,&nmod_1,param_3,local_4c08,&DAT_005b08fc);\\n  xmatmlt_(local_4c08,param_4,param_4,&local_400,&local_400,&local_400,&DAT_005b08fc,&DAT_005b08fc,\\n           &DAT_005b08fc);\\n  return;\\n}\\n\\n\",\"limitations\":[]},\"normalized_result\":\"\\nvoid get_irrep4_ssgn_(int *param_1,long param_2,undefined8 param_3,long param_4,undefined4 *param_5)\\n\\n{\\n  char cVar1;\\n  char cVar2;\\n  short sVar3;\\n  int iVar4;\\n  int iVar5;\\n  long lVar6;\\n  long lVar7;\\n  int *piVar8;\\n  char *pcVar9;\\n  long lVar10;\\n  undefined8 *puVar11;\\n  bool bVar12;\\n  byte bVar13;\\n  undefined8 uVar14;\\n  undefined1 local_4c08 [18436];\\n  int local_404;\\n  int local_400;\\n  int local_3fc;\\n  undefined1 local_3f8 [16];\\n  int local_3e8 [238];\\n  \\n  bVar13 = 0;\\n  *param_5 = 0;\\n  sVar3 = *(short *)(common_little_ + (long)*param_1 * 2 + 0x2d6f6e);\\n  if (sVar3 != ispace_5) {\\n    latt_4 = (int)(char)(&DAT_00e74de3)[sVar3];\\n    ispace_5 = (int)sVar3;\\n    generate_space_group_(&ispace_5,&local_404,local_3f8);\\n    puVar11 = &mapop_3;\\n    for (lVar6 = 0x24; lVar6 != 0; lVar6 = lVar6 + -1) {\\n      *puVar11 = 0;\\n      puVar11 = puVar11 + (ulong)bVar13 * -2 + 1;\\n    }\\n    if (0 < local_404) {\\n      piVar8 = local_3e8;\\n      iVar5 = 1;\\n      do {\\n        *(int *)(&DAT_00e0b4fc + (long)*piVar8 * 4) = iVar5;\\n        iVar5 = iVar5 + 1;\\n        piVar8 = piVar8 + 5;\\n      } while (local_404 + 1 != iVar5);\\n    }\\n  }\\n  iVar5 = *param_1;\\n  if (iVar5 != irrpointersave_2) {\\n    sVar3 = *(short *)(common_little_ +\\n                      ((long)(char)common_little_[(long)iVar5 + 0x36c333] + 0x16f281 +\\n                      (long)ispace_5 * 0x1b) * 2);\\n    nmod_1 = (int)sVar3;\\n    irrpointersave_2 = iVar5;\\n    if (*(char *)((long)(char)common_little_[(long)iVar5 + 0x36c333] +\\n                 (long)latt_4 * 0x1b + 0x119db56) == '\\\\0') {\\n      if (0 < sVar3) {\\n        lVar6 = 0;\\n        do {\\n          lVar10 = lVar6;\\n          lVar6 = lVar10 + 1;\\n        } while (sVar3 != lVar6);\\n        lVar6 = 0;\\n        do {\\n          bVar12 = lVar10 != lVar6;\\n          lVar6 = lVar6 + 1;\\n        } while (bVar12);\\n      }\\n    }\\n    else if (0 < sVar3) {\\n      lVar6 = 0;\\n      do {\\n        lVar6 = lVar6 + 1;\\n      } while (sVar3 != lVar6);\\n    }\\n  }\\n  cVar1 = common_little_[(long)iVar5 + 0x369af7];\\n  local_400 = (int)cVar1;\\n  if ('\\\\0' < cVar1) {\\n    lVar10 = -1;\\n    lVar6 = param_4;\\n    do {\\n      lVar7 = 0;\\n      do {\\n        *(undefined8 *)(lVar6 + lVar7 * 8) = 0;\\n        lVar7 = lVar7 + 1;\\n      } while (cVar1 != lVar7);\\n      lVar10 = lVar10 + 0x30;\\n      lVar6 = lVar6 + 0x180;\\n    } while ((long)cVar1 * 0x30 + -1 != lVar10);\\n  }\\n  iVar5 = *(int *)(common_little_ + ((long)iVar5 + -1) * 4 + 0x1c9238);\\n  iVar4 = *(int *)(&DAT_00e0b4fc + (long)*(int *)(param_2 + 0x10) * 4);\\n  if (iVar4 == 0) {\\n    bomb2_(\\\"get_irrep4_ssgn 71\\\",0x12);\\n  }\\n  iVar5 = iVar5 + iVar4;\\n  iVar4 = *(int *)(common_little_ + (long)(iVar5 + -1) * 4 + 0x1d3324);\\n  iVar5 = *(int *)(common_little_ + (long)iVar5 * 4 + 0x1d3324);\\n  if (iVar4 < iVar5) {\\n    pcVar9 = common_little_ + (long)iVar4 * 3 + 0x3ea2d1;\\n    do {\\n      cVar1 = *pcVar9;\\n      cVar2 = pcVar9[1];\\n      local_3fc = (int)pcVar9[2];\\n      uVar14 = constant_(&local_3fc);\\n      *(undefined8 *)(param_4 + ((long)cVar1 + -0x31 + (long)cVar2 * 0x30) * 8) = uVar14;\\n      pcVar9 = pcVar9 + 3;\\n    } while (common_little_ + ((ulong)(uint)((iVar5 + -1) - iVar4) + (long)iVar4) * 3 + 0x3ea2d4 !=\\n             pcVar9);\\n  }\\n  get_irreps_ssg_phase_(&local_400,&nmod_1,param_3,local_4c08,&DAT_005b08fc);\\n  xmatmlt_(local_4c08,param_4,param_4,&local_400,&local_400,&local_400,&DAT_005b08fc,&DAT_005b08fc,\\n           &DAT_005b08fc);\\n  return;\\n}\\n\\n\",\"confidence\":\"observed\",\"authority\":\"shipped-artifact\",\"environment\":null,\"limitations\":[\"The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.\",\"The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.\",\"Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.\",\"Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.\",\"Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.\",\"External functions and functions without an analyzable body return null; other decompiler failures remain explicit.\",\"This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported.\"],\"relationship_coverage\":null,\"locations\":[],\"evidence_links\":[]}"
+        }
+      ],
+      "structuredContent": {
+        "evidence_id": "ev_73e7c753967d8a7082521477790ca55cb51747b26a12116a46af85a043aa0fd2",
+        "subject": {
+          "name": "iso",
+          "digest": {
+            "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+          },
+          "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+          "format": "elf",
+          "architecture": "x86_64"
+        },
+        "provider": {
+          "id": "ghidra",
+          "name": "Ghidra",
+          "version": "12.1.3"
+        },
+        "analysis_profile": {
+          "provider": {
+            "id": "ghidra",
+            "name": "Ghidra",
+            "version": "12.1.3"
+          },
+          "parameters": {
+            "target_kind": "executable",
+            "target_format": "elf",
+            "architecture": "x86_64",
+            "available_architectures": [
+              "x86_64"
+            ],
+            "import_mode": "ephemeral-source-immutable",
+            "annotation_policy": "atomic-function-entry-metadata-v1",
+            "load_image_observations": "source-mappings-entry-context-v2",
+            "function_body_evidence": "complete-inclusive-ranges-v1",
+            "function_references": "complete-body-and-entry-reference-manager-v2",
+            "call_relationship_coverage": "function-body-call-coverage-v5",
+            "function_dossier_coverage": "observed-facets-and-call-relationships-v1",
+            "string_inventory_evidence": "defined-data-coverage-v1",
+            "location_resolution": "explicit-address-exact-entry-symbol-first-v3",
+            "procedure_file_offset_resolution": "address-first-unique-target-source-mapping-v2",
+            "instruction_flow_evidence": "decoded-return-pcode-v1",
+            "instruction_references": "exact-address-incoming-without-synthetic-entry-v2",
+            "function_boundary_observations": "ghidra-function-boundary-limitations-v4",
+            "no_return_repair": "returning-imports-decoded-return-v2",
+            "process_launch": "inspected-jvm-launch-support-v1",
+            "jump_table_evidence": "typed-case-default-blocks-v1",
+            "decompiler_jump_loads": true,
+            "loader": "auto-from-header",
+            "language_id": "auto-from-header",
+            "compiler_spec_id": "auto-default",
+            "analyzer_preset": "ghidra-default"
+          },
+          "digest": "925fa33731c67bdc2c9882788b5c8efec77d0e3e564e9481ba43dd06334888ff"
+        },
+        "predicate_type": "rea.analysis",
+        "operation": "procedure_pseudo_code",
+        "parameters": {
+          "procedure": "get_irrep4_ssgn_"
+        },
+        "raw_result": {
+          "value": "\nvoid get_irrep4_ssgn_(int *param_1,long param_2,undefined8 param_3,long param_4,undefined4 *param_5)\n\n{\n  char cVar1;\n  char cVar2;\n  short sVar3;\n  int iVar4;\n  int iVar5;\n  long lVar6;\n  long lVar7;\n  int *piVar8;\n  char *pcVar9;\n  long lVar10;\n  undefined8 *puVar11;\n  bool bVar12;\n  byte bVar13;\n  undefined8 uVar14;\n  undefined1 local_4c08 [18436];\n  int local_404;\n  int local_400;\n  int local_3fc;\n  undefined1 local_3f8 [16];\n  int local_3e8 [238];\n  \n  bVar13 = 0;\n  *param_5 = 0;\n  sVar3 = *(short *)(common_little_ + (long)*param_1 * 2 + 0x2d6f6e);\n  if (sVar3 != ispace_5) {\n    latt_4 = (int)(char)(&DAT_00e74de3)[sVar3];\n    ispace_5 = (int)sVar3;\n    generate_space_group_(&ispace_5,&local_404,local_3f8);\n    puVar11 = &mapop_3;\n    for (lVar6 = 0x24; lVar6 != 0; lVar6 = lVar6 + -1) {\n      *puVar11 = 0;\n      puVar11 = puVar11 + (ulong)bVar13 * -2 + 1;\n    }\n    if (0 < local_404) {\n      piVar8 = local_3e8;\n      iVar5 = 1;\n      do {\n        *(int *)(&DAT_00e0b4fc + (long)*piVar8 * 4) = iVar5;\n        iVar5 = iVar5 + 1;\n        piVar8 = piVar8 + 5;\n      } while (local_404 + 1 != iVar5);\n    }\n  }\n  iVar5 = *param_1;\n  if (iVar5 != irrpointersave_2) {\n    sVar3 = *(short *)(common_little_ +\n                      ((long)(char)common_little_[(long)iVar5 + 0x36c333] + 0x16f281 +\n                      (long)ispace_5 * 0x1b) * 2);\n    nmod_1 = (int)sVar3;\n    irrpointersave_2 = iVar5;\n    if (*(char *)((long)(char)common_little_[(long)iVar5 + 0x36c333] +\n                 (long)latt_4 * 0x1b + 0x119db56) == '\\0') {\n      if (0 < sVar3) {\n        lVar6 = 0;\n        do {\n          lVar10 = lVar6;\n          lVar6 = lVar10 + 1;\n        } while (sVar3 != lVar6);\n        lVar6 = 0;\n        do {\n          bVar12 = lVar10 != lVar6;\n          lVar6 = lVar6 + 1;\n        } while (bVar12);\n      }\n    }\n    else if (0 < sVar3) {\n      lVar6 = 0;\n      do {\n        lVar6 = lVar6 + 1;\n      } while (sVar3 != lVar6);\n    }\n  }\n  cVar1 = common_little_[(long)iVar5 + 0x369af7];\n  local_400 = (int)cVar1;\n  if ('\\0' < cVar1) {\n    lVar10 = -1;\n    lVar6 = param_4;\n    do {\n      lVar7 = 0;\n      do {\n        *(undefined8 *)(lVar6 + lVar7 * 8) = 0;\n        lVar7 = lVar7 + 1;\n      } while (cVar1 != lVar7);\n      lVar10 = lVar10 + 0x30;\n      lVar6 = lVar6 + 0x180;\n    } while ((long)cVar1 * 0x30 + -1 != lVar10);\n  }\n  iVar5 = *(int *)(common_little_ + ((long)iVar5 + -1) * 4 + 0x1c9238);\n  iVar4 = *(int *)(&DAT_00e0b4fc + (long)*(int *)(param_2 + 0x10) * 4);\n  if (iVar4 == 0) {\n    bomb2_(\"get_irrep4_ssgn 71\",0x12);\n  }\n  iVar5 = iVar5 + iVar4;\n  iVar4 = *(int *)(common_little_ + (long)(iVar5 + -1) * 4 + 0x1d3324);\n  iVar5 = *(int *)(common_little_ + (long)iVar5 * 4 + 0x1d3324);\n  if (iVar4 < iVar5) {\n    pcVar9 = common_little_ + (long)iVar4 * 3 + 0x3ea2d1;\n    do {\n      cVar1 = *pcVar9;\n      cVar2 = pcVar9[1];\n      local_3fc = (int)pcVar9[2];\n      uVar14 = constant_(&local_3fc);\n      *(undefined8 *)(param_4 + ((long)cVar1 + -0x31 + (long)cVar2 * 0x30) * 8) = uVar14;\n      pcVar9 = pcVar9 + 3;\n    } while (common_little_ + ((ulong)(uint)((iVar5 + -1) - iVar4) + (long)iVar4) * 3 + 0x3ea2d4 !=\n             pcVar9);\n  }\n  get_irreps_ssg_phase_(&local_400,&nmod_1,param_3,local_4c08,&DAT_005b08fc);\n  xmatmlt_(local_4c08,param_4,param_4,&local_400,&local_400,&local_400,&DAT_005b08fc,&DAT_005b08fc,\n           &DAT_005b08fc);\n  return;\n}\n\n",
+          "limitations": []
+        },
+        "normalized_result": "\nvoid get_irrep4_ssgn_(int *param_1,long param_2,undefined8 param_3,long param_4,undefined4 *param_5)\n\n{\n  char cVar1;\n  char cVar2;\n  short sVar3;\n  int iVar4;\n  int iVar5;\n  long lVar6;\n  long lVar7;\n  int *piVar8;\n  char *pcVar9;\n  long lVar10;\n  undefined8 *puVar11;\n  bool bVar12;\n  byte bVar13;\n  undefined8 uVar14;\n  undefined1 local_4c08 [18436];\n  int local_404;\n  int local_400;\n  int local_3fc;\n  undefined1 local_3f8 [16];\n  int local_3e8 [238];\n  \n  bVar13 = 0;\n  *param_5 = 0;\n  sVar3 = *(short *)(common_little_ + (long)*param_1 * 2 + 0x2d6f6e);\n  if (sVar3 != ispace_5) {\n    latt_4 = (int)(char)(&DAT_00e74de3)[sVar3];\n    ispace_5 = (int)sVar3;\n    generate_space_group_(&ispace_5,&local_404,local_3f8);\n    puVar11 = &mapop_3;\n    for (lVar6 = 0x24; lVar6 != 0; lVar6 = lVar6 + -1) {\n      *puVar11 = 0;\n      puVar11 = puVar11 + (ulong)bVar13 * -2 + 1;\n    }\n    if (0 < local_404) {\n      piVar8 = local_3e8;\n      iVar5 = 1;\n      do {\n        *(int *)(&DAT_00e0b4fc + (long)*piVar8 * 4) = iVar5;\n        iVar5 = iVar5 + 1;\n        piVar8 = piVar8 + 5;\n      } while (local_404 + 1 != iVar5);\n    }\n  }\n  iVar5 = *param_1;\n  if (iVar5 != irrpointersave_2) {\n    sVar3 = *(short *)(common_little_ +\n                      ((long)(char)common_little_[(long)iVar5 + 0x36c333] + 0x16f281 +\n                      (long)ispace_5 * 0x1b) * 2);\n    nmod_1 = (int)sVar3;\n    irrpointersave_2 = iVar5;\n    if (*(char *)((long)(char)common_little_[(long)iVar5 + 0x36c333] +\n                 (long)latt_4 * 0x1b + 0x119db56) == '\\0') {\n      if (0 < sVar3) {\n        lVar6 = 0;\n        do {\n          lVar10 = lVar6;\n          lVar6 = lVar10 + 1;\n        } while (sVar3 != lVar6);\n        lVar6 = 0;\n        do {\n          bVar12 = lVar10 != lVar6;\n          lVar6 = lVar6 + 1;\n        } while (bVar12);\n      }\n    }\n    else if (0 < sVar3) {\n      lVar6 = 0;\n      do {\n        lVar6 = lVar6 + 1;\n      } while (sVar3 != lVar6);\n    }\n  }\n  cVar1 = common_little_[(long)iVar5 + 0x369af7];\n  local_400 = (int)cVar1;\n  if ('\\0' < cVar1) {\n    lVar10 = -1;\n    lVar6 = param_4;\n    do {\n      lVar7 = 0;\n      do {\n        *(undefined8 *)(lVar6 + lVar7 * 8) = 0;\n        lVar7 = lVar7 + 1;\n      } while (cVar1 != lVar7);\n      lVar10 = lVar10 + 0x30;\n      lVar6 = lVar6 + 0x180;\n    } while ((long)cVar1 * 0x30 + -1 != lVar10);\n  }\n  iVar5 = *(int *)(common_little_ + ((long)iVar5 + -1) * 4 + 0x1c9238);\n  iVar4 = *(int *)(&DAT_00e0b4fc + (long)*(int *)(param_2 + 0x10) * 4);\n  if (iVar4 == 0) {\n    bomb2_(\"get_irrep4_ssgn 71\",0x12);\n  }\n  iVar5 = iVar5 + iVar4;\n  iVar4 = *(int *)(common_little_ + (long)(iVar5 + -1) * 4 + 0x1d3324);\n  iVar5 = *(int *)(common_little_ + (long)iVar5 * 4 + 0x1d3324);\n  if (iVar4 < iVar5) {\n    pcVar9 = common_little_ + (long)iVar4 * 3 + 0x3ea2d1;\n    do {\n      cVar1 = *pcVar9;\n      cVar2 = pcVar9[1];\n      local_3fc = (int)pcVar9[2];\n      uVar14 = constant_(&local_3fc);\n      *(undefined8 *)(param_4 + ((long)cVar1 + -0x31 + (long)cVar2 * 0x30) * 8) = uVar14;\n      pcVar9 = pcVar9 + 3;\n    } while (common_little_ + ((ulong)(uint)((iVar5 + -1) - iVar4) + (long)iVar4) * 3 + 0x3ea2d4 !=\n             pcVar9);\n  }\n  get_irreps_ssg_phase_(&local_400,&nmod_1,param_3,local_4c08,&DAT_005b08fc);\n  xmatmlt_(local_4c08,param_4,param_4,&local_400,&local_400,&local_400,&DAT_005b08fc,&DAT_005b08fc,\n           &DAT_005b08fc);\n  return;\n}\n\n",
+        "confidence": "observed",
+        "authority": "shipped-artifact",
+        "environment": null,
+        "limitations": [
+          "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+          "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+          "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+          "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+          "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+          "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+          "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+        ],
+        "relationship_coverage": null,
+        "locations": [],
+        "evidence_links": []
+      }
+    },
+    "jsonrpc": "2.0",
+    "id": 9
+  },
+  "notifications": []
+}

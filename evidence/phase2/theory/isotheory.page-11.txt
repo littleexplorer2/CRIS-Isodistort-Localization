@@ -1,0 +1,12 @@
+C. J. Howard and H. T. Stokes, “Group Theoretical Analysis of Octahedral Tilting in
+Perovskites,” Acta Cryst. B 54, 782–789 (1998). Erratum in Acta Cryst. B 58, 565
+(2002).
+H. T. Stokes, E. H. Kisi, D. M. Hatch, and C. J. Howard, “Group Theoretical Analysis of
+Octahedral Tilting in Ferroelectric Perovskites.” Acta Cryst. B 58, 934–936 (2002).
+C. J. Howard and H. T. Stokes, “Octahedral Tilting in Cation-Ordered Perovskites—a
+Group-Theoretical Analysis.” Acta Cryst. B 60, 674–684 (2004).
+C. J. Howard and H. T. Stokes, “Structures and Phase Transitions in Perovskites—a
+Group-Theoretical Approach.” Acta Cryst. A 61, 93–111 (2005).
+These four papers give good examples of using the isotropy software to ﬁnd symmetry
+changes in certain kinds of phase transitions.
+11

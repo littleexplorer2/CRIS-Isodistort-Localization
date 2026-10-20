@@ -1,0 +1,11 @@
+{
+  "case": "builder-direction-twelve-cell-default-setting",
+  "created_utc": "2026-10-20T14:46:50.793178+00:00",
+  "source": "Independent synthetic crystallographic inputs; official ISO manual syntax",
+  "manual": "evidence/database/official/isotropy_doc.php.html",
+  "manual_sha256": "76056531867ae85e3d884890db19347d6bf7f6e0d14d2f2d42142c6abc63bb77",
+  "probe_script_sha256": "f9e28a5edd48c9d5dae997f6e3d7e09b6ac0e4cc029f0b78e0d194ccb10bb074",
+  "input_sha256": "729ff19373a59cad1f988531dce5e7d2fe73c821b4202406e808057eb7969f98",
+  "website_case_answers_read": false,
+  "acceptance": "Research probe; no general scientific validation implied"
+}

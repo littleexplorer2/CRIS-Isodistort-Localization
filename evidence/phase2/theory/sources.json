@@ -1,0 +1,115 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "id": "isodisplace_2006.pdf",
+      "url": "https://iso.byu.edu/jac39_607reprint.pdf",
+      "final_url": "https://iso.byu.edu/jac39_607reprint.pdf",
+      "retrieved_at_utc": "2026-10-20T14:29:18.788352+00:00",
+      "status": 200,
+      "media_type": "application/pdf",
+      "etag": "\"419b1-655f9aa5f942d\"",
+      "last_modified": "Mon, 06 Jul 2026 23:30:53 GMT",
+      "path": "evidence/phase2/theory/isodisplace_2006.pdf",
+      "bytes": 268721,
+      "sha256": "8a1d3e295055da79a2d243167d6b735fd2a743fa9ce12023040e1c0cbed889f4",
+      "title": "Campbell et al. J. Appl. Cryst. 39, 607-614 (2006)",
+      "intended_read_scope": "Sections 2.1-2.4, 4.3-4.5; historical method, not current normalization",
+      "role": "public_definition_or_method_source_not_case_answer"
+    },
+    {
+      "id": "isotheory.pdf",
+      "url": "https://iso.byu.edu/isotheory.pdf",
+      "final_url": "https://iso.byu.edu/isotheory.pdf",
+      "retrieved_at_utc": "2026-10-20T14:29:21.009472+00:00",
+      "status": 200,
+      "media_type": "application/pdf",
+      "etag": "\"19485-655f9aa5f848d\"",
+      "last_modified": "Mon, 06 Jul 2026 23:30:53 GMT",
+      "path": "evidence/phase2/theory/isotheory.pdf",
+      "bytes": 103557,
+      "sha256": "2e66e1f42d4fbb758e2518a0562d1f8543e735aff15cb72f3840c32c2bd71956",
+      "title": "Stokes and Hatch, Introduction to Isotropy Subgroups and Displacive Phase Transitions",
+      "intended_read_scope": "Definitions of representations, displacement space and stabilizer; no case-result reuse",
+      "role": "public_definition_or_method_source_not_case_answer"
+    },
+    {
+      "id": "versions.html",
+      "url": "https://landau3.byu.edu/isodistortversions.php",
+      "final_url": "https://landau3.byu.edu/isodistortversions.php",
+      "retrieved_at_utc": "2026-10-20T14:29:22.810066+00:00",
+      "status": 200,
+      "media_type": "text/html; charset=UTF-8",
+      "etag": null,
+      "last_modified": null,
+      "path": "evidence/phase2/theory/versions.html",
+      "bytes": 26130,
+      "sha256": "45ad229cc67face587c7e146a0dce4ec3ac33e46483ceed0b61d1873bfa87883",
+      "title": "ISODISTORT version history",
+      "intended_read_scope": "6.1 orthogonality; 5.5 strain normalization; 5.6 strain mapping",
+      "role": "public_definition_or_method_source_not_case_answer"
+    },
+    {
+      "id": "gsas2_G2phase_CIF.py",
+      "url": "https://raw.githubusercontent.com/AdvancedPhotonSource/GSAS-II/main/GSASII/imports/G2phase_CIF.py",
+      "final_url": "https://raw.githubusercontent.com/AdvancedPhotonSource/GSAS-II/main/GSASII/imports/G2phase_CIF.py",
+      "retrieved_at_utc": "2026-10-20T14:29:24.309980+00:00",
+      "status": 200,
+      "media_type": "text/plain; charset=utf-8",
+      "etag": "\"b7a608e30c5661eacc92de2a045486911528f5b805bf7deb1db15553c114caa6\"",
+      "last_modified": null,
+      "path": "evidence/phase2/theory/gsas2_G2phase_CIF.py",
+      "bytes": 84365,
+      "sha256": "51898d9891850e14d88fbd08f198125c47d30e8917ce998fb07d84a0b5b3ba82",
+      "title": "GSAS-II author-maintained CIF consumer source",
+      "intended_read_scope": "Only ISODISTORT parsing routine; third-party interoperability, not official BYU contract",
+      "role": "public_definition_or_method_source_not_case_answer"
+    },
+    {
+      "id": "isodistorthelp.php",
+      "url": "https://landau3.byu.edu/isodistorthelp.php",
+      "path": "evidence/web/isodistorthelp.php",
+      "bytes": 66479,
+      "sha256": "93bb70d6eafd98a5d657229456889077a645a00cae9ab35b4f4816de35b79d2c",
+      "role": "existing_public_help_archive_not_case_answer",
+      "original_capture_ledger": "evidence/web/public_pages_manifest.json"
+    },
+    {
+      "id": "isodistorthelp.php.txt",
+      "url": "https://landau3.byu.edu/isodistorthelp.php",
+      "path": "evidence/web/isodistorthelp.php.txt",
+      "bytes": 63761,
+      "sha256": "03aa254dcd2409f857949feb9fd96b71e6f0ca366204c3678b12b6a306b984f2",
+      "role": "existing_public_help_archive_not_case_answer",
+      "original_capture_ledger": "evidence/web/public_pages_manifest.json"
+    },
+    {
+      "id": "isoman.pdf",
+      "url": "https://iso.byu.edu/isoman.pdf",
+      "final_url": "https://iso.byu.edu/isoman.pdf",
+      "status": 200,
+      "retrieved_at_utc": "2026-10-20T14:30:47.986942+00:00",
+      "path": "evidence/phase2/theory/isoman.pdf",
+      "bytes": 219490,
+      "sha256": "c8c116c0c3876f1406a0490d7e76c9b562e81aefb0eb7ff83a512e7c2be86793",
+      "role": "public_command_definition_not_case_answer",
+      "intended_read_scope": "DISPLAY ISOTROPY SUBGROUP, DISPLAY DISTORTION, SUBDUCTION, subgroup membership/operations"
+    },
+    {
+      "id": "isotropy_html_manual",
+      "url": "https://iso.byu.edu/isotropy_doc.php",
+      "path": "evidence/database/official/isotropy_doc.php.html",
+      "bytes": 101279,
+      "sha256": "76056531867ae85e3d884890db19347d6bf7f6e0d14d2f2d42142c6abc63bb77",
+      "role": "public_command_definition_not_case_answer",
+      "original_capture_ledger": "evidence/database/official/sources.json",
+      "version_note": "current hosted HTML has no explicit version label; /isoman.pdf is old v9.3 Jan2013"
+    }
+  ],
+  "source_retrieval_failures": [
+    {
+      "url": "https://iso.byu.edu/iso/isoman.pdf",
+      "observed": "HTTP 404 from urllib on 2026-10-20; search index advertised v9.5 Sep2021; indexed metadata not treated as fetched source"
+    }
+  ]
+}

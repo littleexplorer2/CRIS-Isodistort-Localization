@@ -1,0 +1,137 @@
+
+void newlat_order_(int *param_1,undefined8 param_2,undefined8 param_3,undefined8 param_4,
+                  int *param_5)
+
+{
+  int iVar1;
+  int iVar2;
+  int iVar3;
+  long lVar4;
+  int *piVar5;
+  int iVar6;
+  int iVar7;
+  int iVar8;
+  int *piVar9;
+  int iVar10;
+  long lVar11;
+  undefined1 local_4888 [18444];
+  undefined1 local_7c [4];
+  int local_78;
+  int local_74 [7];
+  int local_58 [7];
+  int local_3c [3];
+  
+  local_74[6] = (int)*(short *)(common_little_ + (long)*param_1 * 2 + 0x2d6f6e);
+  local_58[3] = 1;
+  local_58[4] = identity_op_(local_74 + 6);
+  local_78 = (int)(char)common_little_[(long)*param_1 + 0x369af7];
+  piVar5 = local_74 + 7;
+  lVar11 = 0;
+  do {
+    local_58[0] = 0;
+    local_58[1] = 0;
+    local_58[2] = 0;
+    do {
+      *piVar5 = *piVar5 + 1;
+      get_irreps_(&DAT_005b0ffc,param_1,&DAT_005b0ff8,local_74 + 7,param_2,local_7c,local_4888,
+                  &DAT_005b1000,local_3c);
+      if (local_3c[0] != 0) {
+        bomb2_("newlat_order 47",0xf);
+      }
+      iVar1 = orderparam_check_(&local_78,param_4,local_4888,param_3);
+    } while (iVar1 == 0);
+    local_74[lVar11] = local_74[lVar11 + 7];
+    lVar11 = lVar11 + 1;
+    piVar5 = piVar5 + 1;
+  } while (lVar11 != 3);
+  lVar11 = 1;
+  piVar5 = param_5;
+  do {
+    local_58[0] = 0;
+    local_58[1] = 0;
+    local_58[2] = 0;
+    local_74[lVar11 + 6] = 1;
+    do {
+      do {
+        do {
+          get_irreps_(&DAT_005b0ffc,param_1,&DAT_005b0ff8,local_74 + 7,param_2,local_7c,local_4888,
+                      &DAT_005b1000,local_3c);
+          if (local_3c[0] != 0) {
+            bomb2_("newlat_order 65",0xf);
+          }
+          iVar1 = orderparam_check_(&local_78,param_4,local_4888,param_3);
+          if (iVar1 != 0) goto LAB_004b460e;
+          iVar1 = (int)lVar11;
+          if (iVar1 < 1) goto LAB_004b45fd;
+          local_58[0] = local_58[0] + 1;
+        } while ((local_74[0] != local_58[0]) || (iVar1 == 1));
+        local_58[0] = 0;
+        local_58[1] = local_58[1] + 1;
+      } while ((local_74[1] != local_58[1]) || (iVar1 == 2));
+      local_58[1] = 0;
+      local_58[2] = local_58[2] + 1;
+    } while ((local_74[2] != local_58[2]) || (iVar1 == 3));
+    local_58[2] = 0;
+LAB_004b45fd:
+    bomb2_("newlat_order 83",0xf);
+LAB_004b460e:
+    *piVar5 = local_58[0];
+    piVar5[1] = local_58[1];
+    piVar5[2] = local_58[2];
+    lVar11 = lVar11 + 1;
+    piVar5 = piVar5 + 3;
+    if (lVar11 == 4) {
+      iVar1 = 3;
+      do {
+        lVar11 = 1;
+        piVar5 = param_5 + 3;
+        do {
+          iVar10 = 1;
+          piVar9 = param_5 + 3;
+          do {
+            if (iVar10 != (int)lVar11) {
+              iVar8 = -1;
+              do {
+                lVar4 = 0;
+                iVar6 = 0;
+                iVar7 = 0;
+                do {
+                  iVar3 = *(int *)((long)piVar5 + lVar4 + -0xc);
+                  iVar2 = -iVar3;
+                  if (-iVar3 < 0) {
+                    iVar2 = iVar3;
+                  }
+                  if (iVar7 < iVar2) {
+                    iVar7 = iVar2;
+                  }
+                  iVar3 = iVar8 * *(int *)((long)piVar9 + lVar4 + -0xc) + iVar3;
+                  *(int *)((long)local_74 + lVar4 + 0xc) = iVar3;
+                  if (-1 < -iVar3) {
+                    iVar3 = -iVar3;
+                  }
+                  if (iVar6 < iVar3) {
+                    iVar6 = iVar3;
+                  }
+                  lVar4 = lVar4 + 4;
+                } while (lVar4 != 0xc);
+                if (iVar6 < iVar7) {
+                  piVar5[-3] = local_74[3];
+                  piVar5[-2] = local_74[4];
+                  piVar5[-1] = local_74[5];
+                }
+                iVar8 = iVar8 + 2;
+              } while (iVar8 != 3);
+            }
+            iVar10 = iVar10 + 1;
+            piVar9 = piVar9 + 3;
+          } while (iVar10 != 4);
+          lVar11 = lVar11 + 1;
+          piVar5 = piVar5 + 3;
+        } while (lVar11 != 4);
+        iVar1 = iVar1 + -1;
+      } while (iVar1 != 0);
+      return;
+    }
+  } while( true );
+}
+

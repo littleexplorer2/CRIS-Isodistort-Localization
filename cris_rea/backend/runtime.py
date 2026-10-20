@@ -195,7 +195,7 @@ def _output_diagnostics(run_dir):
             r"^\s*(?:Fortran runtime error:|forrtl: severe).*", re.IGNORECASE
         )),
         ("explicit_error", re.compile(r"^\s*(?:\*\s*)*Error(?:\s|:).*$", re.IGNORECASE)),
-        ("program_bombed", re.compile(r"^\s*This program has bombed:.*$", re.IGNORECASE)),
+        ("program_bombed", re.compile(r"^\s*(?:\*\s*)*This program has bombed:.*$", re.IGNORECASE)),
     )
     diagnostics = []
     for name in ("stdout.txt", "stderr.txt"):

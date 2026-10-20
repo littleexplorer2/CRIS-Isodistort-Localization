@@ -1,0 +1,96 @@
+{
+  "input_origin": "Authored mathematical test structures; not experimental data.",
+  "input_recipe_sha256": "35fbca96868d4bdf571f2106706823e5f5b7bb79037cfd7966a7e6e44c4cd9ea",
+  "reference_case_reads": [],
+  "cases": [
+    {
+      "name": "cubic_polar_axis",
+      "parent_generic_table_run": "b20f3546-0d26-49b0-b61c-0386fe442f9a",
+      "input_sha256": "fdd308253b15c4e700a15cc0f9eee50339f4a8a71dbcabff9a247b648cf6a173",
+      "status": "failed",
+      "error": "StructureError: Expected a finite CIF number; missing values and fractions are not numeric CIF tokens."
+    },
+    {
+      "name": "cubic_rhombohedral_centered",
+      "parent_generic_table_run": "b20f3546-0d26-49b0-b61c-0386fe442f9a",
+      "input_sha256": "3038b8eb61c73f535285272320f67a52fcaa97062beaff9237129c98f868836b",
+      "status": "failed",
+      "error": "StructureError: Expected a finite CIF number; missing values and fractions are not numeric CIF tokens."
+    },
+    {
+      "name": "face_centered_parent",
+      "parent_generic_table_run": "f900a426-af05-4f19-bd66-0f132dbd3363",
+      "input_sha256": "de6821fa539353c508c31d9217f699eab41468c147c57e10d312d2fc3f49caa1",
+      "status": "failed",
+      "error": "StructureError: Expected a finite CIF number; missing values and fractions are not numeric CIF tokens."
+    },
+    {
+      "name": "quarter_k_supercell",
+      "parent_generic_table_run": "b20f3546-0d26-49b0-b61c-0386fe442f9a",
+      "input_sha256": "c2a2d87722e26532715a3deda3b1d201975d912ac31d2c3081c449469b0fe10f",
+      "status": "failed",
+      "error": "StructureError: Expected a finite CIF number; missing values and fractions are not numeric CIF tokens."
+    },
+    {
+      "name": "triclinic_general_rational_k",
+      "parent_generic_table_run": "a82d2386-603b-43ac-b65b-d4745bfad931",
+      "input_sha256": "dda94cde6d4dfa20ce8612894c8713a26c0f24144f01ebf64ef69fd7883294fe",
+      "workflow_id": "43154034-c5c7-4135-b9d9-a3aac5aae262",
+      "frozen_exports": {
+        "distorted.cif": "a8dfd20ba63dfdccec9bace65cb7000557cb8f81b661379e06e64b2d9ff5e408",
+        "modes.csv": "620d552569fbc11704ef601d8c26e7f1e3e453d6e40e0561fb729dd9d68c0fad",
+        "modes.json": "d8a1af42a45320771ffe1fe5663e2af79a80eb9d8fe6df7bc4c435064fccf3c4",
+        "reference.cif": "62f7f56d0b5965d9a627532bc4fcb72314547b9a659e45c50b2bec56ef4f48fe",
+        "report.json": "fec29462a1cc275aebe22ad437f93f2599c16ae53a58d01d4265fd9f8ec54e71"
+      },
+      "roundtrip_atom_count": 24,
+      "summary": {
+        "parent": 1,
+        "subgroup": 1,
+        "subgroup_symbol": "P1",
+        "atoms": 24,
+        "displacement_modes": 72,
+        "rigid_translations": 3,
+        "strain_modes": 6,
+        "basis_convention": "CRIS_REA_H_invariant_Cartesian_orthonormal_v1",
+        "compatible_irreps_raw": "Isotropy, Version 9.6.1, Jan 2022\nHarold T. Stokes, Dorian M. Hatch, and Branton J. Campbell\nBrigham Young University\nCurrent setting is International (new ed.) with conventional basis vectors.\n************Irrep (ML) k params   k vector     Dir   Subgroup Size\nGM1                   (0,0,0)      (a)   1 P1     1\nY1                    (0,1/2,0)    (a)   1 P1     2\nGP1GQ1     1/3,0,0    (1/3,0,0)    (a,b) 1 P1     3\nGP1GQ1     0,1/4,0    (0,1/4,0)    (a,b) 1 P1     4\nGP1GQ1     1/3,-1/4,0 (1/3,-1/4,0) (a,b) 1 P1     12\nGP1GQ1     1/3,1/4,0  (1/3,1/4,0)  (a,b) 1 P1     12\nGP1GQ1     1/3,1/2,0  (1/3,1/2,0)  (a,b) 1 P1     6\n*"
+      },
+      "validation": {
+        "tolerance": 4.8958448205589325e-11,
+        "cell_condition": 3.4586568709677046,
+        "rotation_orthogonality": 1.5563314613023076e-17,
+        "mode_invariance": 1.018919334710184e-17,
+        "orthonormality": 8.881784197001252e-16,
+        "displacement_projector": {
+          "symmetry": 1.5563314613023076e-17,
+          "idempotence": 1.0408340855860843e-17,
+          "trace_integer": 0.0,
+          "trace_agreement": 0.0
+        },
+        "translation_projector": {
+          "symmetry": 1.5563314613023076e-17,
+          "idempotence": 1.0408340855860843e-17,
+          "trace_integer": 0.0,
+          "trace_agreement": 0.0
+        },
+        "strain_projector": {
+          "symmetry": 3.4594207357483014e-17,
+          "idempotence": 2.376079195380544e-16,
+          "trace_integer": 0.0,
+          "trace_agreement": 0.0
+        },
+        "character_dimension": 72,
+        "group_order": 1,
+        "group_index": 12,
+        "primitive_size": 12,
+        "exact_group_closure": true,
+        "exact_permutation_composition": true,
+        "complete_in_declared_H_fixed_space": true
+      },
+      "status": "passed_local_contract"
+    }
+  ],
+  "started_utc": "20261020T144948284595Z",
+  "finished_utc": "2026-10-20T14:50:09.372775+00:00",
+  "status": "failed"
+}

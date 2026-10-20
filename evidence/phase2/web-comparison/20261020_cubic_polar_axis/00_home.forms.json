@@ -1,0 +1,57 @@
+[
+  {
+    "attributes": {
+      "action": "isodistortuploadfile.php",
+      "method": "POST",
+      "enctype": "multipart/form-data"
+    },
+    "inputs": [
+      {
+        "type": "hidden",
+        "name": "input",
+        "value": "uploadparentcif"
+      },
+      {
+        "class": "btn btn-primary",
+        "type": "submit",
+        "value": "OK"
+      },
+      {
+        "name": "toProcess",
+        "type": "file",
+        "size": "30"
+      }
+    ],
+    "selects": []
+  },
+  {
+    "attributes": {
+      "action": "isodistortuploadfile.php",
+      "method": "POST",
+      "enctype": "multipart/form-data"
+    },
+    "inputs": [
+      {
+        "type": "hidden",
+        "name": "input",
+        "value": "distort"
+      },
+      {
+        "type": "hidden",
+        "name": "origintype",
+        "value": "dfile"
+      },
+      {
+        "class": "btn btn-primary",
+        "type": "submit",
+        "value": "OK"
+      },
+      {
+        "name": "toProcess",
+        "type": "file",
+        "size": "30"
+      }
+    ],
+    "selects": []
+  }
+]

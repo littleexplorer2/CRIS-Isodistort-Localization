@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "C:\Users\devou\OneDrive\Desktop\CRIS_REA\tools\validate_mode_workflow.py", line 116, in main
+    parsed = parse_cif((dest / "exports" / "reference.cif").read_bytes())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\devou\OneDrive\Desktop\CRIS_REA\cris_rea\backend\structure\cif.py", line 263, in parse_cif
+    expand_structure(result, metric_relative_tolerance=metric_relative_tolerance)
+  File "C:\Users\devou\OneDrive\Desktop\CRIS_REA\cris_rea\backend\structure\model.py", line 297, in expand_structure
+    raise StructureError("multiplicity_mismatch", message, label=site.label,
+cris_rea.backend.structure.model.StructureError: Declared multiplicity differs from the exact orbit size.

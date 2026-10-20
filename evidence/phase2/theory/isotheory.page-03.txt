@@ -1,0 +1,38 @@
+say that this real representation is “physically irreducible”. It is actually reducible under
+complex numbers and is equivalent to the direct sum of a complex IR and its complex
+conjugate. Real IRs are called type 1. A complex IR which is equivalent to its complex
+conjugate is called type 2. A complex IR which is not equivalent to its complex conjugate
+is called type 3. From this point, we will simply refer to all physically irreducible
+representations as IRs without distinction between actual type-1 real IRs and those
+containing type-2 and type-3 complex IRs.
+Two subspaces are associated with the same IR if basis vectors can be chosen such
+the operations in Eq. (1) generate the same set of matrices D(g). Mathematically, two
+IRs D(g) and D′(g) are equivalent if there exists a similarity transformation T such that
+TD′(g)T −1 = D(g) for every g in G. We assume that we always choose basis vectors so
+that the resulting matrices D(g) are identical in every subspace associated with the
+same IR.
+Two vectors in diﬀerent subspaces which are associated with nonequivalent IRs are
+always orthogonal to each other. Subspaces associated with equivalent IRs can be chosen
+so that vectors in one subspace are orthogonal to vectors in the other subspaces. Finally,
+if we choose the basis vectors of each subspace to be orthogonal to each other, the basis
+vectors of all of the irreducible subspaces of S together form a set of 3N orthogonal basis
+vectors of S. Any set of atomic displacements in the crystal can be written as a linear
+combination of these basis vectors.
+Symmetry of Distortions
+Consider a general vector φ in S. The vector φ denotes a set of atomic displacements
+and, in general, these displacements lower the space-group symmetry of the crystal. The
+new space-group symmetry G′ is a subgroup of G and consists of all operators g in G
+which leave φ invariant, i.e., gφ = φ.
+For the moment, let us conﬁne our considerations to vectors contained in a single
+subspace S′ associated with an IR which maps g onto D(g). Every vector in S′ lowers
+the symmetry of the crystal from G to some subgroup G′. (Actually, one of the IRs, the
+“identity” IR, maps every g onto 1 so that the vectors in S′ do not lower the symmetry
+of the crystal, i.e., G′ = G.) If we collect all of the distinct subgroups that we can obtain
+by considering every possible vector in S′, we obtain a ﬁnite list of subgroups. If we
+consider these subgroups one at a time, the vectors in S′ that lower the crystal symmetry
+to that subgroup symmetry deﬁne a subspace S′′ of S′. Every vector in S′′ is invariant
+under every operation g in the subgroup. Thus, the subgroup symmetries deﬁne a
+decomposition of S′ into invariant subspaces (which are generally non-orthogonal), each
+of which contain vectors that are invariant under operations g in some subgroup of G.
+These subgroups are called isotropy subgroups belonging to the IR associated with S′.
+3

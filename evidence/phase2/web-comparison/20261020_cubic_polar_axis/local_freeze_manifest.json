@@ -1,0 +1,82 @@
+{
+  "frozen_at_utc": "2026-10-20T14:56:02.281431+00:00",
+  "role": "Independent completed local calculation frozen before this website comparison",
+  "input_origin": "Independently constructed cubic BaTiO3 geometry, a=4 angstrom; not experimental",
+  "requested_inputs": {
+    "irrep": "GM4-",
+    "opd": "P1",
+    "k": [
+      0,
+      0,
+      0
+    ]
+  },
+  "local_directory": "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis",
+  "files": {
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/compatible_irreps.in": {
+      "bytes": 231,
+      "sha256": "8d14d5a68bab57e09f5e6ce0b11f6cd4617991a86e036e7aa0399443aa39f555"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/compatible_irreps.out": {
+      "bytes": 386,
+      "sha256": "6b7378b9d9c29b62f2cb8d9e6d8e5cdf80c9c59a7f2f5772a55e7c487a3a08c4"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/exports/distorted.cif": {
+      "bytes": 767,
+      "sha256": "08f397121094d7fc926214706e659c49240bde2b3ec0b3a00f04cb62c8f3da2d"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/exports/modes.csv": {
+      "bytes": 1670,
+      "sha256": "adeb5e1e69d5ccb79581f4dbdb237b80e87cf4d9a7d522fcee0aff21c6461044"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/exports/modes.json": {
+      "bytes": 13934,
+      "sha256": "0af01b06c2b64add5620818e40928df3d309a2e79a3ce8f18a2968f9823dc55b"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/exports/reference.cif": {
+      "bytes": 767,
+      "sha256": "52125ebe63f34804fbadbd8d209ad0424055dab13408082f801b0c055073a2b5"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/exports/report.json": {
+      "bytes": 8331,
+      "sha256": "ed861ab74443788b609f9ebe87d4454a4915193f8d75c30c00e8e3fd3e94380a"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/parent.cif": {
+      "bytes": 802,
+      "sha256": "8bd7d4afaefcde08c6666a1467f24da4aa25659709bc3e38a8fbc3eff33e602a"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/parent.in": {
+      "bytes": 153,
+      "sha256": "5c6b8965b81848eb248df939802a5d9881a1ad0dc72b43650272205dd3dd3049"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/parent.out": {
+      "bytes": 784,
+      "sha256": "3909d67c986d23e9214f21b6c37bdef77c2fb6dd77667ecf0b3f3dcf7a280592"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/subgroup.in": {
+      "bytes": 272,
+      "sha256": "44baf14728502a6c56d4b49837c4d0ddedafba99624e17032d97ac7a7a521902"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/subgroup.out": {
+      "bytes": 471,
+      "sha256": "62c6b8d428b17bfa1e9cf3ccf90bb4d65c444a8de5ace503976e2a306eacf4e1"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/subgroup_lattice.in": {
+      "bytes": 152,
+      "sha256": "15d096826900b67b5a64dfc9aa018a01edf7079f3ad1d6c67b92cb220fa3e6b3"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/subgroup_lattice.out": {
+      "bytes": 356,
+      "sha256": "e8622ad735b2552f48325ca3de5c6dd946a082d0882774eb91091adc0155b926"
+    },
+    "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/workflow.json": {
+      "bytes": 8391,
+      "sha256": "05535df64d6473fcc350e13dc7dc6ad827728173de53ea69a0fd4695751cd504"
+    }
+  },
+  "capture_script": {
+    "bytes": 6863,
+    "sha256": "5bb6349f480d59992927771ba315be2817bc7b9a5512552ff8c7370f097a6bcb"
+  },
+  "reference_role": "comparison_only_never_read_by_local_calculation"
+}

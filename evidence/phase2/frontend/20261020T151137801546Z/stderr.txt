@@ -1,0 +1,18 @@
+test_mode_file_races_dispatch_and_download_names (test_modes_frontend.ModesBrowserContractTests.test_mode_file_races_dispatch_and_download_names) ... ok
+test_scientific_scope_is_present_and_old_console_preserved (test_modes_frontend.ModesBrowserContractTests.test_scientific_scope_is_present_and_old_console_preserved) ... ok
+test_cli_missing_or_oversize_input_does_not_start (test_modes_frontend.ModesCliTests.test_cli_missing_or_oversize_input_does_not_start) ... ok
+test_comma_k_parameters_preserve_order_and_reject_empty_entries (test_modes_frontend.ModesCliTests.test_comma_k_parameters_preserve_order_and_reject_empty_entries) ... ok
+test_mode_bytes_parameters_and_status (test_modes_frontend.ModesCliTests.test_mode_bytes_parameters_and_status) ... ok
+test_nonfinite_cli_amplitudes_rejected (test_modes_frontend.ModesCliTests.test_nonfinite_cli_amplitudes_rejected) ... ok
+test_application_rejection_or_exception_is_not_success (test_modes_frontend.ModesHttpTests.test_application_rejection_or_exception_is_not_success) ... ok
+test_bad_shape_and_nonfinite_requests_never_dispatch (test_modes_frontend.ModesHttpTests.test_bad_shape_and_nonfinite_requests_never_dispatch) ... ok
+test_cif_file_bytes_and_optional_values_reach_workflow (test_modes_frontend.ModesHttpTests.test_cif_file_bytes_and_optional_values_reach_workflow) ... ok
+test_downloads_are_authenticated_and_exact (test_modes_frontend.ModesHttpTests.test_downloads_are_authenticated_and_exact) ... ok
+test_text_and_default_values_reach_workflow (test_modes_frontend.ModesHttpTests.test_text_and_default_values_reach_workflow) ... ok
+test_token_origin_and_host_still_apply (test_modes_frontend.ModesHttpTests.test_token_origin_and_host_still_apply) ... ok
+test_traversal_and_unknown_artifacts_rejected (test_modes_frontend.ModesHttpTests.test_traversal_and_unknown_artifacts_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 3.962s
+
+OK

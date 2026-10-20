@@ -1,0 +1,67 @@
+data_cubic_rhombohedral_centered
+_space_group_IT_number 221
+_cell_length_a 4
+_cell_length_b 4
+_cell_length_c 4
+_cell_angle_alpha 90
+_cell_angle_beta 90
+_cell_angle_gamma 90
+loop_
+_space_group_symop_operation_xyz
+'x,y,z'
+'x,-y,-z'
+'-x,y,-z'
+'-x,-y,z'
+'y,z,x'
+'y,-z,-x'
+'-y,z,-x'
+'-y,-z,x'
+'z,x,y'
+'z,-x,-y'
+'-z,x,-y'
+'-z,-x,y'
+'-y,-x,-z'
+'-y,x,z'
+'y,-x,z'
+'y,x,-z'
+'-x,-z,-y'
+'-x,z,y'
+'x,-z,y'
+'x,z,-y'
+'-z,-y,-x'
+'-z,y,x'
+'z,-y,x'
+'z,y,-x'
+'-x,-y,-z'
+'-x,y,z'
+'x,-y,z'
+'x,y,-z'
+'-y,-z,-x'
+'-y,z,x'
+'y,-z,x'
+'y,z,-x'
+'-z,-x,-y'
+'-z,x,y'
+'z,-x,y'
+'z,x,-y'
+'y,x,z'
+'y,-x,-z'
+'-y,x,-z'
+'-y,-x,z'
+'x,z,y'
+'x,-z,-y'
+'-x,z,-y'
+'-x,-z,y'
+'z,y,x'
+'z,-y,-x'
+'-z,y,-x'
+'-z,-y,x'
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+A Ba 0 0 0
+B Ti 0.5 0.5 0.5
+O O 0 0.5 0.5

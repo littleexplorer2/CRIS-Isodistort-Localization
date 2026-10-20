@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "C:\Users\devou\OneDrive\Desktop\CRIS_REA\tools\validate_mode_workflow.py", line 97, in main
+    result = ModeWorkflow(ROOT).run(cif, case["irrep"], case["opd"], case["k"], timeout=90)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\devou\OneDrive\Desktop\CRIS_REA\cris_rea\application\modes.py", line 42, in run
+    return self._run(cif_bytes, irrep, opd, k_values, amplitudes, strain_amplitudes, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\devou\OneDrive\Desktop\CRIS_REA\cris_rea\application\modes.py", line 80, in _run
+    structure = parse_cif(cif_bytes)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\devou\OneDrive\Desktop\CRIS_REA\cris_rea\backend\structure\cif.py", line 228, in parse_cif
+    coords = [_numeric(atoms["_atom_site_fract_" + axis][row], "_atom_site_fract_" + axis) for axis in "xyz"]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\devou\OneDrive\Desktop\CRIS_REA\cris_rea\backend\structure\cif.py", line 155, in _numeric
+    return parse_cif_number(token.text)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\devou\OneDrive\Desktop\CRIS_REA\cris_rea\backend\structure\cif.py", line 30, in parse_cif_number
+    raise StructureError("invalid_number", "Expected a finite CIF number; missing values and fractions are not numeric CIF tokens.",
+cris_rea.backend.structure.model.StructureError: Expected a finite CIF number; missing values and fractions are not numeric CIF tokens.

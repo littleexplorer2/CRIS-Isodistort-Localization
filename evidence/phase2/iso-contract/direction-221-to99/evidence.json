@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "run_id": "abad27c0-06c1-49c9-b5a3-a244729c9006",
+  "program": "iso",
+  "created_at_utc": "2026-10-20T14:32:05.179439+00:00",
+  "status": "completed_uninterpreted",
+  "scientific_validation": "not_performed",
+  "input": {
+    "path": "input.dat",
+    "bytes": 214,
+    "sha256": "bc22fc6a6d3e72b34042ae92aeb0349c5b976895459923d126c1aacbd804583c"
+  },
+  "input_transformation": "none; original bytes",
+  "timeout_seconds": 60,
+  "max_output_bytes": 20971520,
+  "host": {
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]"
+  },
+  "source_code": {
+    "cris_rea/__init__.py": {
+      "bytes": 101,
+      "sha256": "e836f5d79c5ed1932608fd8ad0826fdbcef57a1d75fa074182a30bb8be3ea557"
+    },
+    "cris_rea/__main__.py": {
+      "bytes": 53,
+      "sha256": "6576ee3f162e194413661c9b79274cf1d1db2c3f57a7a325218a849a8859bf37"
+    },
+    "cris_rea/application/__init__.py": {
+      "bytes": 110,
+      "sha256": "74f2d27090d636457682ee21328c79ab3320d72fa2f17e121e7d036cae461351"
+    },
+    "cris_rea/application/service.py": {
+      "bytes": 2671,
+      "sha256": "6d2f8ef97f6932ad80ba54d2b595ece734c3182f04bf7d21e6a7c873af404672"
+    },
+    "cris_rea/backend/__init__.py": {
+      "bytes": 449,
+      "sha256": "2e53d8de15b5940a2778cc093a94b1fc541d0ce412435bf1c871d35fd9b6d4e2"
+    },
+    "cris_rea/backend/iso_query.py": {
+      "bytes": 1662,
+      "sha256": "24129de4b16b2d723b5563af4e1b628d1249b22aebf2be953983eeffd794be67"
+    },
+    "cris_rea/backend/runtime.py": {
+      "bytes": 14395,
+      "sha256": "1fd8c8eebb72410db30cc88e105827c8749f2e60ec608862681d2278a8af2a9e"
+    },
+    "cris_rea/backend/structure/__init__.py": {
+      "bytes": 604,
+      "sha256": "9ba3265a9c6180149c80ce584169708896fd4e8f116e22befd5c9f98eced9ce9"
+    },
+    "cris_rea/backend/structure/cif.py": {
+      "bytes": 12943,
+      "sha256": "bfb16ad305d8c0d3eb5030895b2cb873ccf976acc7cf0e65940065b5ad00df66"
+    },
+    "cris_rea/backend/structure/model.py": {
+      "bytes": 13281,
+      "sha256": "c8e536c7b17bbbcff64e7655a63e7e84745bcffddb566f062ac679a7d9c30c33"
+    },
+    "cris_rea/backend/structure/symmetry.py": {
+      "bytes": 3688,
+      "sha256": "43f8e73d598b84e2ea8bf94a486b0a9680a42dcf89d2b5b780b63cb77257c814"
+    },
+    "cris_rea/backend/worker.py": {
+      "bytes": 3483,
+      "sha256": "e7db6b0e28e50c2865004c0a27ed6c1996003273621af62a6d90c3e21359c23b"
+    },
+    "cris_rea/frontend/__init__.py": {
+      "bytes": 123,
+      "sha256": "11acc8367354a18c9c8e6178f8672ad6c4b229f81ca0be9b849799197ccdf06d"
+    },
+    "cris_rea/frontend/cli.py": {
+      "bytes": 2843,
+      "sha256": "de6091fc2436c68920e175f1c723c4e557e0034ec9ff589bd79c3fc3e106209b"
+    },
+    "cris_rea/frontend/web.py": {
+      "bytes": 6299,
+      "sha256": "ab9776f47c488b40eebaaffb671df15caa99a244ca281ab5becaa0e795b6aed1"
+    },
+    "cris_rea/frontend/webpage.py": {
+      "bytes": 10829,
+      "sha256": "8547a2d015989a77403d4ccfffdd7acaf54df1f3dfa8f6d3ad305495ee934904"
+    }
+  },
+  "resource_role": "official generic executable and databases; no website answers",
+  "vendor_resources_before": {
+    "iso": {
+      "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+      "bytes": 2252880,
+      "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+    },
+    "const.dat": {
+      "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/const.dat",
+      "bytes": 3220,
+      "sha256": "5b5cd037a04af62dad280cde6d9dda48ec4752b17a0dd46f9d92b7b88c7d0d8b"
+    },
+    "data_diperiodic.txt": {
+      "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_diperiodic.txt",
+      "bytes": 10994,
+      "sha256": "2aacea5bdd2a439f5b0e8a875c1ca6d85a3409197c1229cd3547b159b9154255"
+    },
+    "data_images.txt": {
+      "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_images.txt",
+      "bytes": 146986,
+      "sha256": "3a0f7a647ed13032ca52fabab49a5b01ad4b21c1827b3a4415c9685ab542adca"
+    },
+    "data_irreps.txt": {
+      "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_irreps.txt",
+      "bytes": 1104194,
+      "sha256": "80395779402c579e206f84b1dfb59a2216c2eba5f925d30ecec923bd41679263"
+    },
+    "data_isotropy.txt": {
+      "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_isotropy.txt",
+      "bytes": 6112902,
+      "sha256": "65512dabbbf0934690aaaa25448d59b4d8b4f5bdda5c5c5ec1834f50f6ed016a"
+    },
+    "data_little.txt": {
+      "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_little.txt",
+      "bytes": 10612956,
+      "sha256": "37ca30ed47beb6530be92c63bee7287f60b29083515777da251879f7bd387bae"
+    },
+    "data_magnetic.txt": {
+      "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_magnetic.txt",
+      "bytes": 2553677,
+      "sha256": "d060ccc8ae9bff2177959f9df08290c53529135d73dbbec4ce3c7408463d0c3c"
+    },
+    "data_space.txt": {
+      "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_space.txt",
+      "bytes": 584128,
+      "sha256": "47d8de79c643ad2f6c8e57424e179cd5702ddad669f02032296c0e3f8c2e594a"
+    },
+    "data_ssg.txt": {
+      "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_ssg.txt",
+      "bytes": 25412801,
+      "sha256": "c7a3a3987a43511b2c1dd6c75fd31665a011202a0b1af419a7cdf105678c84e2"
+    },
+    "data_ssgmag.txt": {
+      "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_ssgmag.txt",
+      "bytes": 30627646,
+      "sha256": "fd5cbd60582064d80ab49abcb7548b31d9a554e283e3b78729afb57dd79255e7"
+    },
+    "data_wyckoff.txt": {
+      "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_wyckoff.txt",
+      "bytes": 728638,
+      "sha256": "ae8b2604d5bcc9a9b90587fbf99795e74ae18c0bd8b8fa48639a30dfabb0f95a"
+    }
+  },
+  "isolation": {
+    "cwd": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/abad27c0-06c1-49c9-b5a3-a244729c9006/work",
+    "isodata": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/abad27c0-06c1-49c9-b5a3-a244729c9006/isodata",
+    "os_filesystem_sandbox": false
+  },
+  "supervisor_command": [
+    "/usr/bin/python3",
+    "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/abad27c0-06c1-49c9-b5a3-a244729c9006/worker.py",
+    "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/abad27c0-06c1-49c9-b5a3-a244729c9006/execution.json"
+  ],
+  "binary_command": [
+    "../isodata/iso"
+  ],
+  "supervisor_exit_code": 0,
+  "process": {
+    "status": "completed_uninterpreted",
+    "exit_code": 0,
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+    "command": [
+      "../isodata/iso"
+    ],
+    "cwd": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/abad27c0-06c1-49c9-b5a3-a244729c9006/work",
+    "isodata": "../isodata/",
+    "environment_overrides": {
+      "ISODATA": "../isodata/",
+      "TMPDIR": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/abad27c0-06c1-49c9-b5a3-a244729c9006/work",
+      "LC_ALL": "C"
+    },
+    "pid": 1132,
+    "duration_seconds": 1.274789
+  },
+  "finished_at_utc": "2026-10-20T14:32:09.837575+00:00",
+  "duration_seconds": 4.477713,
+  "isodata_after": {
+    "const.dat": {
+      "bytes": 3220,
+      "sha256": "5b5cd037a04af62dad280cde6d9dda48ec4752b17a0dd46f9d92b7b88c7d0d8b"
+    },
+    "data_diperiodic.txt": {
+      "bytes": 10994,
+      "sha256": "2aacea5bdd2a439f5b0e8a875c1ca6d85a3409197c1229cd3547b159b9154255"
+    },
+    "data_images.txt": {
+      "bytes": 146986,
+      "sha256": "3a0f7a647ed13032ca52fabab49a5b01ad4b21c1827b3a4415c9685ab542adca"
+    },
+    "data_irreps.txt": {
+      "bytes": 1104194,
+      "sha256": "80395779402c579e206f84b1dfb59a2216c2eba5f925d30ecec923bd41679263"
+    },
+    "data_isotropy.txt": {
+      "bytes": 6112902,
+      "sha256": "65512dabbbf0934690aaaa25448d59b4d8b4f5bdda5c5c5ec1834f50f6ed016a"
+    },
+    "data_little.txt": {
+      "bytes": 10612956,
+      "sha256": "37ca30ed47beb6530be92c63bee7287f60b29083515777da251879f7bd387bae"
+    },
+    "data_magnetic.txt": {
+      "bytes": 2553677,
+      "sha256": "d060ccc8ae9bff2177959f9df08290c53529135d73dbbec4ce3c7408463d0c3c"
+    },
+    "data_space.txt": {
+      "bytes": 584128,
+      "sha256": "47d8de79c643ad2f6c8e57424e179cd5702ddad669f02032296c0e3f8c2e594a"
+    },
+    "data_ssg.txt": {
+      "bytes": 25412801,
+      "sha256": "c7a3a3987a43511b2c1dd6c75fd31665a011202a0b1af419a7cdf105678c84e2"
+    },
+    "data_ssgmag.txt": {
+      "bytes": 30627646,
+      "sha256": "fd5cbd60582064d80ab49abcb7548b31d9a554e283e3b78729afb57dd79255e7"
+    },
+    "data_wyckoff.txt": {
+      "bytes": 728638,
+      "sha256": "ae8b2604d5bcc9a9b90587fbf99795e74ae18c0bd8b8fa48639a30dfabb0f95a"
+    },
+    "iso": {
+      "bytes": 2252880,
+      "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+    }
+  },
+  "diagnostics": [],
+  "artifacts": {
+    "execution.json": {
+      "bytes": 730,
+      "sha256": "74a4c84283eecd805db6bbb8b83867bf14e76bf963a59fb1d5aa3dbf96e33cf2"
+    },
+    "input.dat": {
+      "bytes": 214,
+      "sha256": "bc22fc6a6d3e72b34042ae92aeb0349c5b976895459923d126c1aacbd804583c"
+    },
+    "process.json": {
+      "bytes": 615,
+      "sha256": "8b6ca32db19422962f1f54f91bbeb0c8ab77575880e93f3772fa5d31b424a968"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout.txt": {
+      "bytes": 386,
+      "sha256": "6b7378b9d9c29b62f2cb8d9e6d8e5cdf80c9c59a7f2f5772a55e7c487a3a08c4"
+    },
+    "supervisor.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "supervisor.stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "work/iso.log": {
+      "bytes": 617,
+      "sha256": "67848eea0728fc24e2925c2f8ed486ac4acb62ce3c96e2fdbeb98ed0e36d6254"
+    },
+    "worker.py": {
+      "bytes": 3483,
+      "sha256": "e7db6b0e28e50c2865004c0a27ed6c1996003273621af62a6d90c3e21359c23b"
+    }
+  }
+}

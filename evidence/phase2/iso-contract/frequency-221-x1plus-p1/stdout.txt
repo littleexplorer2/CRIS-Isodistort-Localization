@@ -1,0 +1,9 @@
+Isotropy, Version 9.6.1, Jan 2022
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell
+Brigham Young University
+Current setting is International (new ed.) with conventional basis vectors.
+******************Parent    Irrep (ML) Subgroup   Index Size Dir         Basis Vectors            Origin  Elements                                                                                                                                                
+               Frequency
+221 Pm-3m X1+        123 P4/mmm 6     2    P1  (a;0;0) (1,0,0),(0,0,1),(0,-2,0) (0,0,0) (x,y,z), (x,-y,-z), (-x,-y,z), (-x,y,-z), (-z,-y,-x), (-z,y,x), (z,y,-x), (z,-y,x), (-x,-y,-z), (-x,y,z), (x,y,-z), (x,-y,z), (z,y,x), (z,-y,-x), (-z,-y
+,x), (-z,y,-x) 1 GM1+ P1(1), 1 GM3+ P1(2), 1 X1+ P1(1)
+*

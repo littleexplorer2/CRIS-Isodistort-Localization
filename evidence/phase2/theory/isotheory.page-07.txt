@@ -1,0 +1,82 @@
+Part 2. Examples
+Symmetry operators and atomic positions. We begin with an example using a
+point group instead of a space group. Consider a two-dimensional object with
+point-group symmetry G = 4. The point group contains 4 operators: (1) E, the identity
+operator, (2) C2z, 180◦rotation about the z axis, (3) C+
+4z, 90◦rotation about the z axis,
+and (4) C−
+4z, −90◦rotation about the z axis. We will consider 4 atoms in this object,
+their positions being at⃗r1 = (p, 0),⃗r2 = (0, p),⃗r3 = (¯p, 0), and⃗r4 = (0, ¯p). The operators
+in G permute the positions of these atoms. For example, C+
+4z⃗r1 =⃗r2.
+Atomic displacements and vector space. We deﬁne a displacement⃗ui of the atom
+at⃗ri. The coordinates of the atomic displacements of all 4 atoms deﬁne an 8-dimensional
+space S. Vectors in S have components (u1x, u1y, u2x, u2y, u3x, u3y, u4x, u4y). The
+operation of C+
+4z on this vector gives us (−u4y, u4x, −u1y, u1x, −u2y, u2x, −u3y, u3x).
+Subspace. Let us choose an arbitrary vector φ = (a, 0, 0, 0, 0, 0, 0, 0). The set of
+vectors {gφ} is given by
+{(a, 0, 0, 0, 0, 0, 0, 0), (0, 0, 0, a, 0, 0, 0, 0), (0, 0, 0, 0, ¯a, 0, 0, 0), (0, 0, 0, 0, 0, 0, 0, ¯a)}. These
+4 vectors span a 4-dimensional subspace S′ of S. However, S′ is reducible.
+Irreducible subspaces and representations. For example, the vector
+φ = (a, 0, 0, a, ¯a, 0, 0, ¯a) is invariant under every operation in G. It spans a 1-dimensional
+irreducible subspace of S′. Since gφ = φ for every g, we obtain the IR, D(g) = 1 for
+every g.
+The vector φ = (a, 0, 0, ¯a, ¯a, 0, 0, a) also deﬁnes a 1-dimensional irreducible subspace
+where D(E) = D(C2z) = 1 and D(C+
+4z) = D(C−
+4z) = −1.
+Physically irreducible representation. The 2 vectors, φ1 = (a, 0, 0, a, a, 0, 0, a) and
+φ2 = (a, 0, 0, ¯a, a, 0, 0, ¯a) deﬁne a 2-dimensional irreducible subspace. For example,
+C+
+4zφ1 = −φ2. The IR matrices are given by
+D(E) =
+
+1
+0
+0
+1
+
+,
+D(C2z) =
+ ¯1
+0
+0
+¯1
+
+,
+D(C+
+4z) =
+
+0
+1
+¯1
+0
+
+,
+D(C−
+4z) =
+
+0
+¯1
+1
+0
+
+.
+This subspace is actually reducible under complex numbers. If we allow complex
+displacements, the two vectors, φ3 = φ1 + iφ2 and φ4 = φ1 −iφ2 deﬁne irreducible
+1-dimensional subspaces. For example, C+
+4zφ3 = iφ3 and C+
+4zφ4 = −iφ4. The
+2-dimensional IR deﬁned by the above matrices is physically irreducible.
+Three-dimensional crystal. Now we consider a three-dimensional crystal, BaTiO3,
+with space group symmetry G = Pm¯3m. The unit cell is a cube of side a with the
+Ba atom at⃗r1 = ( 1
+2a, 1
+2a, 1
+2a), the Ti atom at⃗r2 = (0, 0, 0), and the O atoms at⃗
+r3 = ( 1
+2a, 0, 0),⃗r4 = (0, 1
+2a, 0), and⃗r5 = (0, 0, 1
+2a).
+7

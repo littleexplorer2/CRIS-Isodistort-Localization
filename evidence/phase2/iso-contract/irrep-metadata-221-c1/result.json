@@ -1,0 +1,303 @@
+{
+  "evidence": {
+    "schema_version": 1,
+    "run_id": "9634d4d5-0eae-432a-8e4a-33c2a48b33fd",
+    "program": "iso",
+    "created_at_utc": "2026-10-20T14:56:33.157865+00:00",
+    "status": "completed_uninterpreted",
+    "scientific_validation": "not_performed",
+    "input": {
+      "path": "input.dat",
+      "bytes": 180,
+      "sha256": "c18f65ecf0d3c040b655cd6d914a9b6b1dd512733e639655d59e0e4a53f53b0e"
+    },
+    "input_transformation": "none; original bytes",
+    "timeout_seconds": 60,
+    "max_output_bytes": 20971520,
+    "host": {
+      "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+      "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]"
+    },
+    "source_code": {
+      "cris_rea/__init__.py": {
+        "bytes": 101,
+        "sha256": "e836f5d79c5ed1932608fd8ad0826fdbcef57a1d75fa074182a30bb8be3ea557"
+      },
+      "cris_rea/__main__.py": {
+        "bytes": 53,
+        "sha256": "6576ee3f162e194413661c9b79274cf1d1db2c3f57a7a325218a849a8859bf37"
+      },
+      "cris_rea/application/__init__.py": {
+        "bytes": 110,
+        "sha256": "74f2d27090d636457682ee21328c79ab3320d72fa2f17e121e7d036cae461351"
+      },
+      "cris_rea/application/locking.py": {
+        "bytes": 294,
+        "sha256": "567a7fb83af98fb01bc344cf037960e1ef9d1e967810de9aab1a5c2e5b505837"
+      },
+      "cris_rea/application/modes.py": {
+        "bytes": 7706,
+        "sha256": "943b7bbb80038a4640328a0792993762eac725c645fa11d451ad1dfea931ae3e"
+      },
+      "cris_rea/application/service.py": {
+        "bytes": 2695,
+        "sha256": "39b0986e2057917438978b09ab88898976b74190e2c5b7d892884747738fbf8e"
+      },
+      "cris_rea/backend/__init__.py": {
+        "bytes": 449,
+        "sha256": "2e53d8de15b5940a2778cc093a94b1fc541d0ce412435bf1c871d35fd9b6d4e2"
+      },
+      "cris_rea/backend/iso_protocol.py": {
+        "bytes": 15392,
+        "sha256": "6a0330d78b4a9675e75593a91e3d24242e00e71f4c3ec9fda32c37103f93560c"
+      },
+      "cris_rea/backend/iso_query.py": {
+        "bytes": 1662,
+        "sha256": "24129de4b16b2d723b5563af4e1b628d1249b22aebf2be953983eeffd794be67"
+      },
+      "cris_rea/backend/modes/__init__.py": {
+        "bytes": 230,
+        "sha256": "c525c4ef0d427c9cda682e0d894bac080b5066a4daa96ea192969a073f61062f"
+      },
+      "cris_rea/backend/modes/core.py": {
+        "bytes": 16661,
+        "sha256": "2f2c64a2692dff18d3316d4e9153683f43ad5ca683ebf1f140eab6a24c96b095"
+      },
+      "cris_rea/backend/modes/export.py": {
+        "bytes": 9912,
+        "sha256": "ef572bffb99a253b82fa80dc88a520f6d7db7839b87eec71548d116059946e4c"
+      },
+      "cris_rea/backend/runtime.py": {
+        "bytes": 14405,
+        "sha256": "61813050b3d2a5b18cd95cad96ee7caae4a8852299634bd0bb6b79ef2ca3897b"
+      },
+      "cris_rea/backend/structure/__init__.py": {
+        "bytes": 604,
+        "sha256": "9ba3265a9c6180149c80ce584169708896fd4e8f116e22befd5c9f98eced9ce9"
+      },
+      "cris_rea/backend/structure/cif.py": {
+        "bytes": 13482,
+        "sha256": "1f4abc47ffd3a9a6485238c03d1b1b1b5c30134b6a360678f15b70657dc3749b"
+      },
+      "cris_rea/backend/structure/model.py": {
+        "bytes": 15114,
+        "sha256": "27c2662affb13ae6c82c86a3905de45e93f48b732351a4449bf571726ab10b1c"
+      },
+      "cris_rea/backend/structure/symmetry.py": {
+        "bytes": 3956,
+        "sha256": "d14103f284538d7c0d3799adc945d318b9a9921e009cf269057ed0c6d0965d2a"
+      },
+      "cris_rea/backend/worker.py": {
+        "bytes": 3483,
+        "sha256": "e7db6b0e28e50c2865004c0a27ed6c1996003273621af62a6d90c3e21359c23b"
+      },
+      "cris_rea/frontend/__init__.py": {
+        "bytes": 123,
+        "sha256": "11acc8367354a18c9c8e6178f8672ad6c4b229f81ca0be9b849799197ccdf06d"
+      },
+      "cris_rea/frontend/cli.py": {
+        "bytes": 5037,
+        "sha256": "86226359ca54d8cccbb2278a071cc02666c874d78b574fe93713ac5f56990ae3"
+      },
+      "cris_rea/frontend/web.py": {
+        "bytes": 10422,
+        "sha256": "0c5f819ebe45d94f80dab65564c733a09ad7ab6354c1a27fc2465b49b388a668"
+      },
+      "cris_rea/frontend/webpage.py": {
+        "bytes": 18802,
+        "sha256": "14942bfaa7860a4b04072a3f609f481d44ec04ee0021c2cfc7447fd55a53ebca"
+      }
+    },
+    "resource_role": "official generic executable and databases; no website answers",
+    "vendor_resources_before": {
+      "iso": {
+        "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "bytes": 2252880,
+        "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+      },
+      "const.dat": {
+        "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/const.dat",
+        "bytes": 3220,
+        "sha256": "5b5cd037a04af62dad280cde6d9dda48ec4752b17a0dd46f9d92b7b88c7d0d8b"
+      },
+      "data_diperiodic.txt": {
+        "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_diperiodic.txt",
+        "bytes": 10994,
+        "sha256": "2aacea5bdd2a439f5b0e8a875c1ca6d85a3409197c1229cd3547b159b9154255"
+      },
+      "data_images.txt": {
+        "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_images.txt",
+        "bytes": 146986,
+        "sha256": "3a0f7a647ed13032ca52fabab49a5b01ad4b21c1827b3a4415c9685ab542adca"
+      },
+      "data_irreps.txt": {
+        "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_irreps.txt",
+        "bytes": 1104194,
+        "sha256": "80395779402c579e206f84b1dfb59a2216c2eba5f925d30ecec923bd41679263"
+      },
+      "data_isotropy.txt": {
+        "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_isotropy.txt",
+        "bytes": 6112902,
+        "sha256": "65512dabbbf0934690aaaa25448d59b4d8b4f5bdda5c5c5ec1834f50f6ed016a"
+      },
+      "data_little.txt": {
+        "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_little.txt",
+        "bytes": 10612956,
+        "sha256": "37ca30ed47beb6530be92c63bee7287f60b29083515777da251879f7bd387bae"
+      },
+      "data_magnetic.txt": {
+        "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_magnetic.txt",
+        "bytes": 2553677,
+        "sha256": "d060ccc8ae9bff2177959f9df08290c53529135d73dbbec4ce3c7408463d0c3c"
+      },
+      "data_space.txt": {
+        "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_space.txt",
+        "bytes": 584128,
+        "sha256": "47d8de79c643ad2f6c8e57424e179cd5702ddad669f02032296c0e3f8c2e594a"
+      },
+      "data_ssg.txt": {
+        "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_ssg.txt",
+        "bytes": 25412801,
+        "sha256": "c7a3a3987a43511b2c1dd6c75fd31665a011202a0b1af419a7cdf105678c84e2"
+      },
+      "data_ssgmag.txt": {
+        "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_ssgmag.txt",
+        "bytes": 30627646,
+        "sha256": "fd5cbd60582064d80ab49abcb7548b31d9a554e283e3b78729afb57dd79255e7"
+      },
+      "data_wyckoff.txt": {
+        "source": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/data_wyckoff.txt",
+        "bytes": 728638,
+        "sha256": "ae8b2604d5bcc9a9b90587fbf99795e74ae18c0bd8b8fa48639a30dfabb0f95a"
+      }
+    },
+    "isolation": {
+      "cwd": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/9634d4d5-0eae-432a-8e4a-33c2a48b33fd/work",
+      "isodata": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/9634d4d5-0eae-432a-8e4a-33c2a48b33fd/isodata",
+      "os_filesystem_sandbox": false
+    },
+    "supervisor_command": [
+      "/usr/bin/python3",
+      "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/9634d4d5-0eae-432a-8e4a-33c2a48b33fd/worker.py",
+      "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/9634d4d5-0eae-432a-8e4a-33c2a48b33fd/execution.json"
+    ],
+    "binary_command": [
+      "../isodata/iso"
+    ],
+    "supervisor_exit_code": 0,
+    "process": {
+      "status": "completed_uninterpreted",
+      "exit_code": 0,
+      "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+      "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+      "command": [
+        "../isodata/iso"
+      ],
+      "cwd": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/9634d4d5-0eae-432a-8e4a-33c2a48b33fd/work",
+      "isodata": "../isodata/",
+      "environment_overrides": {
+        "ISODATA": "../isodata/",
+        "TMPDIR": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/9634d4d5-0eae-432a-8e4a-33c2a48b33fd/work",
+        "LC_ALL": "C"
+      },
+      "pid": 550,
+      "duration_seconds": 1.069724
+    },
+    "finished_at_utc": "2026-10-20T14:56:37.244239+00:00",
+    "duration_seconds": 3.869631,
+    "isodata_after": {
+      "const.dat": {
+        "bytes": 3220,
+        "sha256": "5b5cd037a04af62dad280cde6d9dda48ec4752b17a0dd46f9d92b7b88c7d0d8b"
+      },
+      "data_diperiodic.txt": {
+        "bytes": 10994,
+        "sha256": "2aacea5bdd2a439f5b0e8a875c1ca6d85a3409197c1229cd3547b159b9154255"
+      },
+      "data_images.txt": {
+        "bytes": 146986,
+        "sha256": "3a0f7a647ed13032ca52fabab49a5b01ad4b21c1827b3a4415c9685ab542adca"
+      },
+      "data_irreps.txt": {
+        "bytes": 1104194,
+        "sha256": "80395779402c579e206f84b1dfb59a2216c2eba5f925d30ecec923bd41679263"
+      },
+      "data_isotropy.txt": {
+        "bytes": 6112902,
+        "sha256": "65512dabbbf0934690aaaa25448d59b4d8b4f5bdda5c5c5ec1834f50f6ed016a"
+      },
+      "data_little.txt": {
+        "bytes": 10612956,
+        "sha256": "37ca30ed47beb6530be92c63bee7287f60b29083515777da251879f7bd387bae"
+      },
+      "data_magnetic.txt": {
+        "bytes": 2553677,
+        "sha256": "d060ccc8ae9bff2177959f9df08290c53529135d73dbbec4ce3c7408463d0c3c"
+      },
+      "data_space.txt": {
+        "bytes": 584128,
+        "sha256": "47d8de79c643ad2f6c8e57424e179cd5702ddad669f02032296c0e3f8c2e594a"
+      },
+      "data_ssg.txt": {
+        "bytes": 25412801,
+        "sha256": "c7a3a3987a43511b2c1dd6c75fd31665a011202a0b1af419a7cdf105678c84e2"
+      },
+      "data_ssgmag.txt": {
+        "bytes": 30627646,
+        "sha256": "fd5cbd60582064d80ab49abcb7548b31d9a554e283e3b78729afb57dd79255e7"
+      },
+      "data_wyckoff.txt": {
+        "bytes": 728638,
+        "sha256": "ae8b2604d5bcc9a9b90587fbf99795e74ae18c0bd8b8fa48639a30dfabb0f95a"
+      },
+      "iso": {
+        "bytes": 2252880,
+        "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+      }
+    },
+    "diagnostics": [],
+    "artifacts": {
+      "execution.json": {
+        "bytes": 730,
+        "sha256": "177b719dae0e61b88066e5ea0d0397b9e0a636baea8e7f57447473a186a1db0c"
+      },
+      "input.dat": {
+        "bytes": 180,
+        "sha256": "c18f65ecf0d3c040b655cd6d914a9b6b1dd512733e639655d59e0e4a53f53b0e"
+      },
+      "process.json": {
+        "bytes": 614,
+        "sha256": "8ffb5ededb0cc1d43d78e5f84fe1a974089041956b1bf55de826ff4299735413"
+      },
+      "stderr.txt": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout.txt": {
+        "bytes": 273,
+        "sha256": "36827c80572139ba75e4ee7fd7758272bab886baaef141043c24d9ea610bbfdc"
+      },
+      "supervisor.stderr.txt": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "supervisor.stdout.txt": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "work/iso.log": {
+        "bytes": 470,
+        "sha256": "484b9c7c1c06bff6daa138ae6f506042c6ac6ecc467ae29fe07646e18802dfed"
+      },
+      "worker.py": {
+        "bytes": 3483,
+        "sha256": "e7db6b0e28e50c2865004c0a27ed6c1996003273621af62a6d90c3e21359c23b"
+      }
+    }
+  },
+  "run_directory": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/9634d4d5-0eae-432a-8e4a-33c2a48b33fd",
+  "stdout": "Isotropy, Version 9.6.1, Jan 2022\nHarold T. Stokes, Dorian M. Hatch, and Branton J. Campbell\nBrigham Young University\nCurrent setting is International (new ed.) with conventional basis vectors.\n***********Parent    Irrep (ML) k vector Dim\n221 Pm-3m C1         (a,a,b)  24\n*",
+  "stdout_preview_truncated": false,
+  "stderr": "",
+  "stderr_preview_truncated": false
+}

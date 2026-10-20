@@ -1,0 +1,63 @@
+
+void get_wyckoff_all_(int *param_1,int *param_2,int *param_3,long param_4)
+
+{
+  char cVar1;
+  int iVar2;
+  int iVar3;
+  long lVar4;
+  undefined1 *puVar5;
+  long lVar6;
+  long lVar7;
+  int local_7e0;
+  int local_7dc;
+  undefined1 local_7d8 [972];
+  int local_40c;
+  undefined1 local_408 [20];
+  undefined1 local_3f4 [952];
+  int local_3c [3];
+  
+  local_7dc = (int)*(short *)(common_wyckoff_ + (long)*param_1 * 2 + 0x2fa22) + *param_2 + -1;
+  cVar1 = common_wyckoff_[(long)local_7dc + 0x559fb];
+  local_7e0 = (int)(char)(&DAT_00e74de3)[*param_1];
+  puVar5 = common_wyckoff_ + ((long)local_7dc * 4 + 1) * 4;
+  lVar6 = 4;
+  lVar7 = param_4;
+  do {
+    lVar4 = 0;
+    do {
+      *(int *)(lVar7 + lVar4 * 4) = (int)(char)puVar5[lVar4 + 0x4edb8];
+      lVar4 = lVar4 + 1;
+    } while (lVar4 != 4);
+    if (*(int *)(lVar7 + 0xc) == 0) {
+      *(undefined4 *)(lVar7 + 0xc) = 1;
+    }
+    puVar5 = puVar5 + 4;
+    lVar6 = lVar6 + 4;
+    lVar7 = lVar7 + 0x10;
+  } while (lVar6 != 0x14);
+  wyc_pg_elements_(param_1,&DAT_005a685a,&local_7dc,param_4,local_7d8,3);
+  local_3c[0] = (int)(char)(&DAT_00e748e9)[cVar1];
+  wyc_pg_cosets_(param_1,local_3c,local_7d8,&local_40c,local_408);
+  if (1 < local_40c) {
+    puVar5 = local_3f4;
+    lVar7 = 0x80;
+    iVar2 = 0;
+    do {
+      lVar6 = param_4;
+      do {
+        vrot_(&local_7e0,puVar5 + 0x10,lVar6,lVar7 + -0x40 + lVar6);
+        lVar6 = lVar6 + 0x10;
+      } while (lVar6 != param_4 + 0x40);
+      lVar6 = param_4 + -0x40 + lVar7;
+      vadd_(puVar5,lVar6,lVar6);
+      puVar5 = puVar5 + 0x14;
+      lVar7 = lVar7 + 0x40;
+      iVar3 = iVar2 + 3;
+      iVar2 = iVar2 + 1;
+    } while (iVar3 <= local_40c);
+  }
+  *param_3 = local_40c;
+  return;
+}
+

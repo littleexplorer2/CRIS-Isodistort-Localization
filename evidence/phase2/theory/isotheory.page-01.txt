@@ -1,0 +1,36 @@
+Introduction to
+Isotropy Subgroups and Displacive Phase Transitions
+Harold T. Stokes and Dorian M. Hatch
+Brigham Young University, Provo, Utah
+April 2006
+This is an introduction to the concepts of isotropy subgroups and how they are applied
+to the description of displacive phase transitions. We try to use a physically intuitive
+approach here. We begin with atomic displacements in a crystal, then show how the
+application of symmetry leads to the concepts of irreducible representations and ﬁnally
+isotropy subgroups. This paper is divided into two parts, theory and examples. They
+should be read in parallel. The theoretical principles explained in part 1 are illustrated
+by examples in part 2.
+Part 1. Theory
+Space-Group Symmetry and Atomic Displacements
+Consider a crystalline solid containing N atoms. Let⃗ri be the position of the ith atom.
+Let the space-group symmetry of the crystal be G. Operators in G have the form
+g = {R|⃗v}, a point operation R followed by a translation⃗v so that g⃗ri = R⃗ri +⃗v. The
+operator g moves an atom from position⃗ri to position⃗rj = R⃗ri +⃗v. Since each operator
+in G leaves the crystal invariant, there must be an atom at⃗rj of the same type as the
+atom at⃗ri.
+Now let us consider atomic displacements. Let⃗ui be the displacement of the atom
+at⃗ri. After the displacement, the position of the ith atom is⃗ri +⃗ui. When g operates on
+this new atomic position, we obtain g(⃗ri +⃗ui) =⃗rj + R⃗ui, where⃗rj = R⃗ri +⃗v is the
+position of that atom after the operation. We see that the displacement of the atom at⃗rj
+after the operation is now R⃗ui which may or may not be equal to its displacement⃗uj
+before the operation of g.
+Let us denote the displacements of all of the atoms in the crystal by a vector in a
+3N-dimensional space S. The 3N coordinates of the vector are given by {uiα}, where
+α = 1, 2, 3 refer to the x, y, z coordinates of⃗ui, respectively. Every possible set of atomic
+displacements in the crystal can be denoted by a vector in S. The operation of g on a
+vector in S causes a permutation of atomic positions as well as a rotation of the
+displacements, as described above.
+Subspaces and Representations
+Let φ be a vector in S. The vector φ denotes a particular set of atomic displacements in
+the crystal. If we operate on φ by every g in G, we obtain a collection of vectors {gφ}
+1

@@ -1,0 +1,199 @@
+{
+  "input_origin": "Authored mathematical test structures; not experimental data.",
+  "input_recipe_sha256": "f19430903b232d34d2fda7ee85d6236e7f8096a4834a6b515921c52b3d8327f7",
+  "reference_case_reads": [],
+  "cases": [
+    {
+      "name": "cubic_polar_axis",
+      "parent_generic_table_run": "991f82be-2fae-46c9-920f-72a3ba36c88f",
+      "input_sha256": "8bd7d4afaefcde08c6666a1467f24da4aa25659709bc3e38a8fbc3eff33e602a",
+      "workflow_id": "f16a051f-ab7e-456a-a3a5-f65f6bab51b3",
+      "frozen_exports": {
+        "distorted.cif": "08f397121094d7fc926214706e659c49240bde2b3ec0b3a00f04cb62c8f3da2d",
+        "modes.csv": "adeb5e1e69d5ccb79581f4dbdb237b80e87cf4d9a7d522fcee0aff21c6461044",
+        "modes.json": "0af01b06c2b64add5620818e40928df3d309a2e79a3ce8f18a2968f9823dc55b",
+        "reference.cif": "52125ebe63f34804fbadbd8d209ad0424055dab13408082f801b0c055073a2b5",
+        "report.json": "ed861ab74443788b609f9ebe87d4454a4915193f8d75c30c00e8e3fd3e94380a"
+      },
+      "roundtrip_atom_count": 5,
+      "summary": {
+        "parent": 221,
+        "subgroup": 99,
+        "subgroup_symbol": "P4mm",
+        "atoms": 5,
+        "displacement_modes": 4,
+        "rigid_translations": 1,
+        "strain_modes": 2,
+        "basis_convention": "CRIS_REA_H_invariant_Cartesian_orthonormal_v1",
+        "compatible_irreps_raw": "Isotropy, Version 9.6.1, Jan 2022\nHarold T. Stokes, Dorian M. Hatch, and Branton J. Campbell\nBrigham Young University\nCurrent setting is International (new ed.) with conventional basis vectors.\n************Irrep (ML) k vector Dir        Subgroup   Size\nGM1+       (0,0,0)  (a)        221 Pm-3m  1\nGM3+       (0,0,0)  (a,1.732a) 123 P4/mmm 1\nGM4-       (0,0,0)  (a,0,0)    99 P4mm    1\n*"
+      },
+      "validation": {
+        "tolerance": 8.526512829121202e-13,
+        "cell_condition": 1.0,
+        "rotation_orthogonality": 2.4492935982947064e-16,
+        "mode_invariance": 0.0,
+        "orthonormality": 5.551115123125783e-16,
+        "displacement_projector": {
+          "symmetry": 1.2246467991473532e-16,
+          "idempotence": 0.0,
+          "trace_integer": 0.0,
+          "trace_agreement": 0.0
+        },
+        "translation_projector": {
+          "symmetry": 1.2246467991473532e-16,
+          "idempotence": 0.0,
+          "trace_integer": 0.0,
+          "trace_agreement": 0.0
+        },
+        "strain_projector": {
+          "symmetry": 1.7319121124709866e-16,
+          "idempotence": 9.912375278693799e-33,
+          "trace_integer": 0.0,
+          "trace_agreement": 0.0
+        },
+        "character_dimension": 4,
+        "group_order": 8,
+        "group_index": 6,
+        "primitive_size": 1,
+        "exact_group_closure": true,
+        "exact_permutation_composition": true,
+        "complete_in_declared_H_fixed_space": true
+      },
+      "status": "passed_local_contract"
+    },
+    {
+      "name": "cubic_rhombohedral_centered",
+      "parent_generic_table_run": "991f82be-2fae-46c9-920f-72a3ba36c88f",
+      "input_sha256": "ae427bc0e355d721b0735c48dcb0fd5e7b013f1f1713ac783fd7de42038cde1e",
+      "workflow_id": "e7dd4037-51fd-41bb-b9cb-9c22ee158e5b",
+      "frozen_exports": {
+        "distorted.cif": "e00b3df8a3e92e69cd3c2256fce21e4675512d53a46ebdb2d26fce857fc67007",
+        "modes.csv": "b930cc4ab97f8dd60d423484856256c06dc21099bdd099b374f2b6867a7ad316",
+        "modes.json": "e72f46b6d17f6c726af1fc9af3e27caa170942fa7676977e467b10a770022d71",
+        "reference.cif": "350d186de9c703778493c5831ca8c20c4646522de48bc73e328b3dcc3effc518",
+        "report.json": "57767702a5ca0caedb6f8bd035eeaaf72806f77695eec7758171a87db6081653"
+      },
+      "status": "failed",
+      "error": "StructureError: Declared multiplicity differs from the exact orbit size."
+    },
+    {
+      "name": "face_centered_parent",
+      "parent_generic_table_run": "bedb1be0-6810-4136-b97f-8080153f3001",
+      "input_sha256": "28b4ef60cb34121785af5a3e0d75e977a21fcf1e0f683941761eb12c8f0089ac",
+      "workflow_id": "98d68f46-25eb-4f33-b98a-716a501202b7",
+      "frozen_exports": {
+        "distorted.cif": "0e8463d270d71fc4ef8de71cfa4bf94550809c71aa586f2f5f17c0e75e059874",
+        "modes.csv": "96e394a957a0875d9da362e6a9614583c9bdb8dbe1204c2c1531878bffd811e0",
+        "modes.json": "2f76a09c2ef281d42a995d5919fec4c7d17491b8810f8de69ec13dd4f1491009",
+        "reference.cif": "a61f6859f6cf4e2d9f7fce75307bdbadd6a59acb40d53be07c261247c776f744",
+        "report.json": "4453151bef74227f5fe71e8387845e011b53b65dbc057903c5f423acfc6fb972"
+      },
+      "roundtrip_atom_count": 4,
+      "summary": {
+        "parent": 225,
+        "subgroup": 107,
+        "subgroup_symbol": "I4mm",
+        "atoms": 4,
+        "displacement_modes": 2,
+        "rigid_translations": 1,
+        "strain_modes": 2,
+        "basis_convention": "CRIS_REA_H_invariant_Cartesian_orthonormal_v1",
+        "compatible_irreps_raw": "Isotropy, Version 9.6.1, Jan 2022\nHarold T. Stokes, Dorian M. Hatch, and Branton J. Campbell\nBrigham Young University\nCurrent setting is International (new ed.) with conventional basis vectors.\n************Irrep (ML) k vector Dir        Subgroup   Size\nGM1+       (0,0,0)  (a)        225 Fm-3m  1\nGM3+       (0,0,0)  (a,1.732a) 139 I4/mmm 1\nGM4-       (0,0,0)  (a,0,0)    107 I4mm   1\n*"
+      },
+      "validation": {
+        "tolerance": 1.818989403545857e-12,
+        "cell_condition": 1.4142135623730951,
+        "rotation_orthogonality": 2.4492935982947064e-16,
+        "mode_invariance": 0.0,
+        "orthonormality": 0.0,
+        "displacement_projector": {
+          "symmetry": 1.2246467991473532e-16,
+          "idempotence": 0.0,
+          "trace_integer": 0.0,
+          "trace_agreement": 0.0
+        },
+        "translation_projector": {
+          "symmetry": 1.2246467991473532e-16,
+          "idempotence": 0.0,
+          "trace_integer": 0.0,
+          "trace_agreement": 0.0
+        },
+        "strain_projector": {
+          "symmetry": 1.7319121124709868e-16,
+          "idempotence": 2.525029136401368e-33,
+          "trace_integer": 0.0,
+          "trace_agreement": 0.0
+        },
+        "character_dimension": 2,
+        "group_order": 16,
+        "group_index": 6,
+        "primitive_size": 1,
+        "exact_group_closure": true,
+        "exact_permutation_composition": true,
+        "complete_in_declared_H_fixed_space": true
+      },
+      "status": "passed_local_contract"
+    },
+    {
+      "name": "quarter_k_supercell",
+      "parent_generic_table_run": "991f82be-2fae-46c9-920f-72a3ba36c88f",
+      "input_sha256": "cd18e170321890565f29e18fa1a63e095201a51dfcfab440cab8bf2a44f71372",
+      "workflow_id": "ef225c03-8220-49c6-880a-cc9557563750",
+      "frozen_exports": {
+        "distorted.cif": "2c619bb6fb9b805d3bda45af0ea878c7b551a7fe32a7c6184216e680cd9ab290",
+        "modes.csv": "6b9302694c6ab93c50bb4f11b13fc60a2f1091a41697a2d731b331cdee3f7e33",
+        "modes.json": "c5a7a9b898f4b40c74d6ca6c37e395d217493b4d40244e277acfbdc59d42894b",
+        "reference.cif": "3ef88dbe81c75d12200093565b8a65cb54fdf79569365912930d8c2d901b9d60",
+        "report.json": "91586d9b5fc2636ffb4c0d6fd7cb205df3644ca808c8ed1e7ec90af54c16ad8b"
+      },
+      "roundtrip_atom_count": 20,
+      "summary": {
+        "parent": 221,
+        "subgroup": 123,
+        "subgroup_symbol": "P4/mmm",
+        "atoms": 20,
+        "displacement_modes": 6,
+        "rigid_translations": 0,
+        "strain_modes": 2,
+        "basis_convention": "CRIS_REA_H_invariant_Cartesian_orthonormal_v1",
+        "compatible_irreps_raw": "Isotropy, Version 9.6.1, Jan 2022\nHarold T. Stokes, Dorian M. Hatch, and Branton J. Campbell\nBrigham Young University\nCurrent setting is International (new ed.) with conventional basis vectors.\n************Irrep (ML) k params k vector  Dir           Subgroup   Size\nGM1+                (0,0,0)   (a)           221 Pm-3m  1\nGM3+                (0,0,0)   (a,-1.732a)   123 P4/mmm 1\nDT1        1/4      (0,1/4,0) (a,0,0,0,0,0) 123 P4/mmm 4\nX1+                 (0,1/2,0) (a,0,0)       123 P4/mmm 2\n*"
+      },
+      "validation": {
+        "tolerance": 5.4569682106375746e-11,
+        "cell_condition": 4.000000000000002,
+        "rotation_orthogonality": 2.4492935982947064e-16,
+        "mode_invariance": 1.232595164407831e-32,
+        "orthonormality": 2.220446049250313e-16,
+        "displacement_projector": {
+          "symmetry": 1.2246467991473532e-16,
+          "idempotence": 3.749399456654644e-33,
+          "trace_integer": 0.0,
+          "trace_agreement": 0.0
+        },
+        "translation_projector": {
+          "symmetry": 0.0,
+          "idempotence": 0.0,
+          "trace_integer": 0.0,
+          "trace_agreement": 0.0
+        },
+        "strain_projector": {
+          "symmetry": 1.7319121124709866e-16,
+          "idempotence": 1.3661774735348443e-32,
+          "trace_integer": 0.0,
+          "trace_agreement": 0.0
+        },
+        "character_dimension": 6,
+        "group_order": 16,
+        "group_index": 12,
+        "primitive_size": 4,
+        "exact_group_closure": true,
+        "exact_permutation_composition": true,
+        "complete_in_declared_H_fixed_space": true
+      },
+      "status": "passed_local_contract"
+    }
+  ],
+  "started_utc": "20261020T145121147627Z",
+  "finished_utc": "2026-10-20T14:52:05.895566+00:00",
+  "status": "failed"
+}

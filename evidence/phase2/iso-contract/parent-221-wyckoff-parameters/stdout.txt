@@ -1,0 +1,7 @@
+Isotropy, Version 9.6.1, Jan 2022
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell
+Brigham Young University
+Current setting is International (new ed.) with conventional basis vectors.
+********Parent    Wyckoff Points
+221 Pm-3m a (0,0,0), b (1/2,1/2,1/2), c (0,1/2,1/2), d (1/2,0,0), e (x,0,0), f (x,1/2,1/2), g (x,x,x), h (x,1/2,0), i (0,y,y), j (1/2,y,y), k (0,y,z), l (1/2,y,z), m (x,x,z), n (x,y,z)
+*

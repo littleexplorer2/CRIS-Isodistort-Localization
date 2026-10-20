@@ -1,0 +1,26 @@
+Isotropy, Version 9.6.1, Jan 2022
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell
+Brigham Young University
+*DISPLAY SETTING
+Current setting is International (new ed.) with conventional basis vectors.
+*PAGE NOBREAK
+*SCREEN 1000
+*LABEL VECTOR CONVENTIONAL
+*LABEL ELEMENT INTERNATIONAL
+*VALUE PARENT 221
+*VALUE IRREP DT1
+*VALUE KVALUE 1,1/4
+*VALUE DIRECTION P2
+*SHOW PARENT
+*SHOW IRREP
+*SHOW DIRECTION VECTOR
+*SHOW SUBGROUP
+*SHOW INDEX
+*SHOW SIZE
+*SHOW BASIS
+*SHOW ORIGIN
+*SHOW ELEMENTS
+*DISPLAY ISOTROPY
+Parent    Irrep (ML) Subgroup   Index Size Dir               Basis Vectors            Origin     Elements
+221 Pm-3m DT1        123 P4/mmm 12    4    P2  (a,a;0,0;0,0) (1,0,0),(0,0,1),(0,-4,0) (0,-1/2,0) (x,y,z), (x,-y-1,-z), (-x,-y-1,z), (-x,y,-z), (-z,-y-1,-x), (-z,y,x), (z,y,-x), (z,-y-1,x), (-x,-y-1,-z), (-x,y,z), (x,y,-z), (x,-y-1,z), (z,y,x), (z,-y-1,-x), (-z,-y-1,x), (-z,y,-x)
+*QUIT

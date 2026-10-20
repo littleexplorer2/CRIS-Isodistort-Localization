@@ -11,3 +11,5 @@ evidence/native/runtime/*/work/
 *.tmp
 evidence/validation/live-http/rea-local-browser-bundle.json
 evidence/validation/live-http/rea-local-negative-bundle.json
+# External full-text references remain local; source URLs/hashes and analysis are tracked.
+evidence/phase2/theory/*.pdf

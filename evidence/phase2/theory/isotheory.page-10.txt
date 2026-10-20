@@ -1,0 +1,30 @@
+Bibliography
+C. J. Bradley and A. P. Cracknell, The Mathematical Theory of Symmetry in Solids
+(Clarendon, Oxford, 1972).
+This book is a good source for the method of generating IRs of space groups.
+S. C. Miller and W. F. Love, Tables of Irreducible Representations of Space Groups and
+Co-Representations of Magnetic Space Groups (Pruett, Boulder, 1967).
+This is essentially the same as A. P. Cracknell, B. L. Davies, S. C. Miller, and W. F.
+Love, Kronecker Product Tables, Vol. 1 (Plenum, New York, 1979).
+These two books contain tables of IRs of space groups.
+H. T. Stokes and D. M. Hatch, “Coupled Order Parameters in the Landau Theory of
+Phase Transitions in Solids,” Phase Transitions 34, 53–67 (1991).
+This paper explains in detail the concepts of primary and secondary order parameters
+and how they couple.
+D. M. Hatch and H. T. Stokes, “The Complete Listing of Order Parameters for a
+Crystalline Phase Transition: A Solution to the Generalized Landau Problem.” Phys.
+Rev. B 65, 014113–1–4 (2002).
+This paper explains the algorithm for ﬁnding all order parameters, given the change of
+symmetry at a phase transition.
+H. T. Stokes, D. M. Hatch, and J. D. Wells, “Group-Theoretical Methods for Obtaining
+Distortions in Crystals: Applications to Vibrational Modes and Phase Transitions,”
+Phys. Rev. B 43, 11010–11018 (1991).
+This paper presents an algorithm for generating sets of atomic displacements for a given
+IR.
+H. T. Stokes and D. M. Hatch, Isotropy Subgroups of the 230 Crystallographic Space
+Groups (World Scientiﬁc, Singapore, 1988).
+This book contains tables of isotropy subgroups and IR matrices.
+stokes.byu.edu/isotropy.html. Internet URL for software packages, isotropy and
+isodisplace, which generate information about isotropy subgroup and related atomic
+displacements.
+10

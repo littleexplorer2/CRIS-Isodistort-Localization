@@ -1,0 +1,7 @@
+Isotropy, Version 9.6.1, Jan 2022
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell
+Brigham Young University
+Current setting is International (new ed.) with conventional basis vectors.
+********Parent Irrep (ML) k vector Dim
+1 P1   GP1GQ1     (a,b,g)  2
+*

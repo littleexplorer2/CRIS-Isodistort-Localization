@@ -1,0 +1,17 @@
+{
+  "url": "https://landau3.byu.edu/isodistortform.php",
+  "final_url": "https://landau3.byu.edu/isodistortform.php",
+  "method": "POST",
+  "status": 200,
+  "content_type": "text/html; charset=UTF-8",
+  "started_at_utc": "2026-10-20T14:56:57.493012+00:00",
+  "finished_at_utc": "2026-10-20T14:57:00.501502+00:00",
+  "request_sha256": "fbf104850dbc7a1d0275f8792a99b412cac5d4eca0b0fdf373720306b2cac705",
+  "response_sha256": "e87381cd606f43e86b2f7eb4e965cf44411db42355f1b935ff3f7dbe3a903c3a",
+  "request_bytes": 77,
+  "response_bytes": 48128,
+  "role": "official-reference-only",
+  "limitations": [
+    "Decoded HTTP response; no server-internal process visibility."
+  ]
+}

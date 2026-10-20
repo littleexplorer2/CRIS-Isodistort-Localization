@@ -3,9 +3,10 @@
 调查对象是本项目 `evidence/environment/source_manifest.json` 冻结的官方发行包，
 以及 2026-10-20 实际访问的 ISODISTORT 网站。全部新代码与持久化研究产物位于
 桌面 `CRIS_REA`；原 `E:\CRIS` 只作来源读取。
-`evidence/environment/source_preservation.json` 已复核 25 个原始发行包文件及本地副本
-的哈希、原工作树 Git 状态和原回归计数文件均未变化。该核查不冒充旧工作树所有文件
-的逐字节快照。
+首轮隔离核查见 `evidence/environment/source_preservation.json`。
+本轮核查见 `evidence/phase2/preservation/source_preservation.json`：25 个原始发行包及
+副本、原 Git 状态一致，旧计数文件存在其它回合的变化；本任务没有写入或回滚它。
+这些核查不冒充旧工作树所有文件的逐字节快照。
 
 ## 可以直接使用的成果
 
@@ -14,10 +15,13 @@
 保留输入、原始输出、进程状态和文件指纹。安装、运行和能力边界的唯一入口是
 [README](../README.md)，执行语义见 [LOCAL_CONTRACT](LOCAL_CONTRACT.md)。
 
-这是一套可执行的研究基础设施。当前受限表单可以提交母相空间群、IR、OPD、
-可选 Wyckoff 字母，取得官方 ISO 的子群与投影输出。它还没有实现
-“任意母相 CIF + k/IR/OPD → 完整归一化畸变模式与导出”的科学工作流。
-特别不能把单个 Wyckoff 投影、程序退出码零或与官网一个例子一致，称为完整 Method 2。
+当前已实现受支持普通三维输入的“母相 CIF + k/IR/OPD → 子群 → 完整 H 不变
+位移/对称应变空间 → 振幅施加与导出”。基采用本项目正交归一约定，尚未提供官网
+逐 IR 模式列或全部 Method 2 的等价复现。
+科学推导、五例实际运行和浏览器验收入口为
+[本轮验证](PHASE2_VALIDATION.md)；独立官网同输入对照见
+[官网比较](WEB_COMPARISON_PHASE2.md)，九个新增 REA 内核证据见
+[REA 深入分析](REA_PHASE2_ANALYSIS.md)。下文保留首轮调查的基础证据。
 
 ## 调查发现与证据入口
 

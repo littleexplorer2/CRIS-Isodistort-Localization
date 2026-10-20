@@ -1,0 +1,46 @@
+{
+  "label": "open-iso",
+  "at_utc": "2026-10-20T14:28:19.654771+00:00",
+  "elapsed_seconds": 0.6841537270000018,
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "method": "tools/call",
+    "params": {
+      "name": "open_binary",
+      "arguments": {
+        "path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "provider_id": "ghidra",
+        "snapshot_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/evidence/native/rea-iso-snapshot.json"
+      }
+    }
+  },
+  "response": {
+    "result": {
+      "_meta": {
+        "provenance": {
+          "untrusted_content": true,
+          "source": "analysis_target"
+        }
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"result\":{\"path\":\"/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso\",\"format\":\"elf\",\"kind\":\"executable\",\"sha256\":\"242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8\",\"architecture\":\"x86_64\"}}"
+        }
+      ],
+      "structuredContent": {
+        "result": {
+          "path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+          "format": "elf",
+          "kind": "executable",
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8",
+          "architecture": "x86_64"
+        }
+      }
+    },
+    "jsonrpc": "2.0",
+    "id": 3
+  },
+  "notifications": []
+}

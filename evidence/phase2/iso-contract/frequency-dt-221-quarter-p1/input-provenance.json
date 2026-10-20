@@ -1,0 +1,11 @@
+{
+  "case": "frequency-dt-221-quarter-p1",
+  "created_utc": "2026-10-20T14:35:15.224774+00:00",
+  "source": "Independent synthetic crystallographic inputs; official ISO manual syntax",
+  "manual": "evidence/database/official/isotropy_doc.php.html",
+  "manual_sha256": "76056531867ae85e3d884890db19347d6bf7f6e0d14d2f2d42142c6abc63bb77",
+  "probe_script_sha256": "e27a752e415e4c4d68d4d54ee5b3e7d7e12e2ab5198fc6253367e94bd0d63d54",
+  "input_sha256": "31663abc7b9cd9a0bab8470dea573c8be5a69c4b8bc2981c3ee5c76b74accef6",
+  "website_case_answers_read": false,
+  "acceptance": "Research probe; no general scientific validation implied"
+}

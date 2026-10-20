@@ -1,0 +1,125 @@
+Space group. The space group G = Pm¯3m contains 48 point operators with generators
+(1) C+
+4z, 90◦rotation about the z axis, (2) C+
+31, 120◦rotation about the [111] axis, and
+(3) I, the inversion which takes x, y, z to ¯x, ¯y, ¯z.
+Irreducible representations. IRs of space groups are associated with k points in the
+ﬁrst Brillouin zone. For each k point, we can generate a ﬁnite number of IRs. For
+example, the Γ point is at⃗k = (0, 0, 0). There are 10 IRs associated with the Γ point:
+4 of them are 1-dimensional (Γ+
+1 , Γ+
+2 , Γ−
+1 , Γ−
+2 ), 2 of them are 2-dimensional (Γ+
+3 , Γ−
+3 ),
+and 4 of them are 3-dimensional (Γ+
+4 , Γ+
+5 , Γ−
+4 , Γ−
+5 ).
+The IR Γ−
+4 has direct physical meaning. It maps each operator onto the rotation matrix
+corresponding to the operator. The generators are given by
+D(C+
+4z) =
+
+
+0
+¯1
+0
+1
+0
+0
+0
+0
+1
+
+,
+D(C+
+31) =
+
+
+0
+0
+1
+1
+0
+0
+0
+1
+0
+
+,
+D(I) =
+
+
+¯1
+0
+0
+0
+¯1
+0
+0
+0
+¯1
+
+.
+Invariant subspaces of representation space. There are six non-equivalent invariant
+subspaces in the 3-dimensional representation space of Γ−
+4 . They are deﬁned by the
+vectors⃗η = (a, 0, 0), (a, a, 0), (a, a, a), (a, b, 0), (a, a, b), (a, b, c), where a, b, c are arbitrary
+constants. The ﬁrst 3 are 1-dimensional, the next 2 are 2-dimensional, and the last one is
+3-dimensional and includes the entire representation space.
+Isotropy subgroups. The isotropy subgroups which correspond to each of the
+subspaces contain the operators for which D(g)⃗η =⃗η. For example, if⃗η = (a, 0, 0), there
+are eight matrices D(g) which satisfy the equation, D(g)⃗η =⃗η:
+D(g) =
+
+
+1
+0
+0
+0
+±1
+0
+0
+0
+±1
+
+
+and
+
+
+1
+0
+0
+0
+0
+±1
+0
+±1
+0
+
+.
+The operators g that Γ−
+4 maps onto these matrices are E, C+
+4x, C−
+4x, C2z, σy, σz, σdd,
+and σdf. Given these operators, we can identify the isotropy subgroup symmetry to be
+space-group P4mm. Similarly, we can identify the isotropy subgroups that correspond to
+the other invariant subspaces of representation space.
+Subspaces of S. Now, let us consider subspaces of the 3N-dimensional space S of
+atomic displacements. For the Γ-point IRs, all atomic displacements are the same in
+every unit cell, so we can designate the 3N-dimensional vectors in S with the
+15 components of the displacements {uiα} for atoms in a single unit cell.
+Only two of the Γ-point IRs, Γ−
+4 and Γ−
+5 , can generate subspaces of S. Since Γ−
+4 and Γ−
+5
+are both 3-dimensional IRs, the subspaces are also 3-dimensional. The basis vectors of
+those belonging to Γ−
+4 are (1) {u1x = 1}, {u1y = 1}, {u1z = 1}, (2) {u2x = 1}, {u2y = 1},
+{u2z = 1}, (3) {u3x = 1}, {u4y = 1}, {u5z = 1}, (4) {u4x = u5x = 1}, {u3y = u5y = 1},
+8

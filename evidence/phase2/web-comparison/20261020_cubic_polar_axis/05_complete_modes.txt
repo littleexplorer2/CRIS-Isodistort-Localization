@@ -1,0 +1,126 @@
+
+
+
+
+ISODISTORT: complete modes details
+
+
+
+
+
+
+  body {
+	padding-top: 0px;
+  }
+  div.pad {
+	padding-right: 50px;
+	padding-left: 50px;
+  }
+
+
+
+
+
+  
+
+     
+
+       
+         
+         
+	 
+       
+       ISODISTORT
+      
+
+        
+         
+SUITE
+                   
+HELP
+	         
+      
+    
+  
+
+
+
+
+ISODISTORT: complete modes details
+
+
+Parent structure (221 Pm-3m)
+a=4.00000, b=4.00000, c=4.00000, alpha=90.00000, beta=90.00000, gamma=90.00000
+atom site    x         y         z         occ   
+A    1a     0.00000   0.00000   0.00000   1.00000
+B    1b     0.50000   0.50000   0.50000   1.00000
+O    3c     0.00000   0.50000   0.50000   1.00000
+
+Subgroup details
+99 P4mm, basis={(0,1,0),(0,0,1),(1,0,0)}, origin=(0,0,0), s=1, i=6, k-active= (0,0,0)
+
+Undistorted superstructure 
+a=4.00000, b=4.00000, c=4.00000, alpha=90.00000, beta=90.00000, gamma=90.00000
+atom site    x         y         z         occ      displ  
+A_1  1a     0.00000   0.00000   0.00000   1.00000   0.00000  
+B_1  1b     0.50000   0.50000   0.50000   1.00000   0.00000  
+O_1  1b     0.50000   0.50000   0.00000   1.00000   0.00000  
+O_2  2c     0.50000   0.00000   0.50000   1.00000   0.00000  
+
+Distorted superstructure 
+a=4.00000, b=4.00000, c=4.00000, alpha=90.00000, beta=90.00000, gamma=90.00000
+atom site    x         y         z         occ      displ  
+A_1  1a     0.00000   0.00000   0.00000   1.00000   0.00000  
+B_1  1b     0.50000   0.50000   0.50000   1.00000   0.00000  
+O_1  1b     0.50000   0.50000   0.00000   1.00000   0.00000  
+O_2  2c     0.50000   0.00000   0.50000   1.00000   0.00000  
+
+Displacive mode definitions
+
+atom    x        y        z        dx      dy      dz   
+Pm-3m[0,0,0]GM4-(a,0,0)[A:a:dsp]T1u(a) normfactor =  0.25000
+A_1   0.00000  0.00000  0.00000  0.0000  0.0000  1.0000 
+
+Pm-3m[0,0,0]GM4-(a,0,0)[B:b:dsp]T1u(a) normfactor =  0.25000
+B_1   0.50000  0.50000  0.50000  0.0000  0.0000  1.0000 
+
+Pm-3m[0,0,0]GM4-(a,0,0)[O:c:dsp]A2u(a) normfactor =  0.25000
+O_1   0.50000  0.50000  0.00000  0.0000  0.0000  1.0000 
+O_2   0.50000  0.00000  0.50000  0.0000  0.0000  0.0000 
+      0.00000  0.50000  0.50000  0.0000  0.0000  0.0000 
+
+Pm-3m[0,0,0]GM4-(a,0,0)[O:c:dsp]Eu(a) normfactor =  0.17678
+O_1   0.50000  0.50000  0.00000  0.0000  0.0000  0.0000 
+O_2   0.50000  0.00000  0.50000  0.0000  0.0000  1.0000 
+      0.00000  0.50000  0.50000  0.0000  0.0000  1.0000 
+
+Displacive mode amplitudes
+
+mode                                 As        Ap       dmax
+[0,0,0]GM4-(a,0,0)[A:a:dsp]T1u(a)   0.00000   0.00000   0.00000
+[0,0,0]GM4-(a,0,0)[B:b:dsp]T1u(a)   0.00000   0.00000   0.00000
+[0,0,0]GM4-(a,0,0)[O:c:dsp]A2u(a)   0.00000   0.00000   0.00000
+[0,0,0]GM4-(a,0,0)[O:c:dsp]Eu(a)    0.00000   0.00000   0.00000
+[0,0,0]GM4-(a,0,0)  all             0.00000   0.00000
+
+Overall                             0.00000   0.00000
+
+Parent-cell strain mode definitions
+
+    e1      e2      e3      e4      e5      e6
+Pm-3m[0,0,0]GM1+(a)strain(a) normfactor =  0.57735
+  1.0000  1.0000  1.0000  0.0000  0.0000  0.0000
+Pm-3m[0,0,0]GM3+(a,1.732a)strain(a) normfactor =  0.81650
+  1.0000 -0.5000 -0.5000  0.0000  0.0000  0.0000
+
+Parent-cell strain mode amplitudes
+
+mode                            amplitude
+[0,0,0]GM1+(a)strain(a)          0.00000
+[0,0,0]GM3+(a,1.732a)strain(a)   0.00000
+
+
+
+
+
+

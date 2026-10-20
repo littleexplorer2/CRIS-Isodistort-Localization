@@ -1,0 +1,121 @@
+computer programs
+J. Appl. Cryst. (2006). 39, 607–614
+doi:10.1107/S0021889806014075
+607
+Journal of
+Applied
+Crystallography
+ISSN 0021-8898
+Received 10 February 2006
+Accepted 18 April 2006
+# 2006 International Union of Crystallography
+Printed in Great Britain – all rights reserved
+ISODISPLACE: a web-based tool for exploring
+structural distortions
+Branton J. Campbell,* Harold T. Stokes, David E. Tanner and Dorian M. Hatch
+Brigham Young University, Department of Physics and Astronomy, USA. Correspondence e-mail:
+branton_campbell@byu.edu
+ISODISPLACE is a new internet-server tool for exploring structural phase
+transitions. Given parent-phase structural information, it generates atomic
+displacement patterns induced by irreducible representations of the parent
+space-group symmetry and allows a user to visualize and manipulate
+the amplitude of each distortion mode interactively. ISODISPLACE is
+freely accessible at http://stokes.byu.edu/isodisplace.html via common internet
+browsers.
+1. Introduction
+When studying a phase transition via diffraction techniques, one
+typically needs to generate a low-symmetry structural model that can
+be tested in a reﬁnement package against experimental data. One
+may likewise want to use the model as the starting point for a
+computational energy minimization. The maximal subgroup listings
+in the International Tables of Crystallography are an invaluable tool
+for this purpose, though considerable care is required to handle the
+change of basis and origin correctly. When the symmetry of the new
+phase is not a maximal subgroup of the parent, the problem must be
+solved in multiple steps, and more than one chain of subgroups may
+be possible. The exploration of a single candidate symmetry can
+become very complicated to manage ‘by hand’; hence the need for
+computational tools such as those available in the ISOTROPY soft-
+ware suite (Stokes & Hatch, 2000; Capillas et al., 2003) and other
+packages (Kroumova et al., 2003; Kopsky´, 2003).
+The subroutines of the ISOTROPY suite are powerful tools by
+themselves and can be combined in many different ways to solve
+practical crystallographic problems that are of interest to researchers
+in physics, chemistry, biology, mechanical engineering and materials
+science. However, it is a simple fact that most researchers in these
+ﬁelds cannot afford the steep learning curve (theory, mathematics,
+jargon, command language, etc.) that will allow them to take full
+advantage of ISOTROPY’s breadth and ﬂexibility. The present
+ISODISPLACE software brings several of these tools to bear on a
+speciﬁc problem of widespread interest and provides a simple
+internet-based GUI that largely eliminates the learning curve.
+Without
+requiring
+an
+understanding
+of
+the
+group-theoretical
+methods involved, ISODISPLACE guides the user through the
+process of selecting a distortion and provides an interactive Java
+applet for graphically visualizing and interactively manipulating the
+free parameters of the corresponding low-symmetry phase.
+Applications of ISODISPLACE may include (i) the enumeration
+of possible low-symmetry distortions consistent with incomplete
+experimental evidence of a phase transition, (ii) the differentiation
+amongst possible distortions based on their physical characteristics,
+(iii) the validation of a transition obtained experimentally or
+computationally, (iv) the efﬁcient creation of distortion models that
+can be exported to other software packages for experimental or
+computational analysis, (v) the systematic theoretical exploration of a
+class of transitions such as the well studied perovskite tilting patterns
+(Glazer, 1972; Hatch & Stokes, 1987; Howard & Stokes, 1998), and
+(vi) the creation and enjoyment of beautiful distortion modes, i.e. ‘art
+for art’s sake’.
+2. Group theoretical concepts
+ISODISPLACE has been designed for use by researchers who are
+not experts in the mathematical theory of crystallographic symmetry.
+Without much mathematical rigor, we will here describe the group-
+theoretical concepts employed for those who wish to gain a better
+understanding of the nature of ISODISPLACE output. Several
+examples will be presented that involve distortions of cubic perovs-
+kite ABO3, which has space-group symmetry Pm3m and unique
+atoms
+located
+at
+Wyckoff
+sites
+A:b(1
+2; 1
+2; 1
+2),
+B:a(0; 0; 0),
+and
+O:d(1
+2; 0; 0).
+2.1. Space-group irreps and the irrep basis of distortion space
+A space-group representation is a homomorphic mapping of an
+inﬁnite number of space-group symmetry operations onto an often
+ﬁnite group of representative matrix operations called the ‘image’ of
+the representation. The abstract n-dimensional vector space in which
+the matrices of a representation operate is called the ‘carrier space’ of
+the representation. The ‘dimension’ of the representation is the
+dimension of its matrices, and the ‘order’ of the image is the number
+of its distinct matrices. An irreducible representation or ‘irrep’ is a
+representation that cannot be unitarily transformed into block-
+diagonal form. A reducible representation is one that can be unitarily
+transformed into block-diagonal form, such that each block is occu-
+pied by an instance of one of the available irreps.
+The term ‘distortion’ is an intuitive reference to the set of struc-
+tural degrees of freedom in the low-symmetry phase that results from
+a phase transition. Even users who are not well acquainted with
+representation theory will beneﬁt from an appreciation of the fact
+that any distortion can be described as a vector in the abstract carrier
+space of a representation of the parent structure, which we loosely
+refer to here as ‘distortion space’. Once a basis of a distortion space
+has been identiﬁed, one can describe any conceivable combination of
+macroscopic strain and microscopic atomic displacement patterns
+within that distortion space in terms of vector components along each
+of the basis vector directions. Irreps are extremely useful in this
+regard because they are associated with basis vectors that can always
+electronic reprint

@@ -1,0 +1,41 @@
+Let us summarize what we have done so far. In this treatment, we start with
+arbitrary sets of displacements, from which we generate subspaces, which we decompose
+into irreducible subspaces, from which we generate IRs of the space group. We used this
+approach in an attempt to give physical meaning to IRs. We do not actually use this
+approach in practice. It is much simpler to start with IRs. There exist well-known
+group-theoretical methods for generating all of the IRs of any given space group without
+reference to any atomic positions. Given an IR, we can form vectors⃗η in representation
+space and determine the possible isotropy subgroups, again without reference to any
+atomic positions. Once we specify the atomic positions, we can then use straightforward
+group-theoretical techniques to generate all subspaces of S associated with the IR. (We
+may ﬁnd none. In that case, this IR is not associated with any atomic displacements in
+the crystal.) We then use Eq. (2) to ﬁnd the sets of atomic displacements that lower the
+symmetry of the crystal to that of the isotropy subgroup determined by⃗η.
+Phase Transitions and Order Parameters
+Now we consider a structural phase transition where some set of atomic displacements
+lowers the symmetry of the crystal from G to G′. We represent the atomic displacements
+as a vector φ in S. We can always decompose φ into a linear combination of basis vectors
+from subspaces of S. The contribution from each subspace can be written as a vector⃗η
+in the representation space of the IR associated with the subspace. These vectors⃗η are
+called order parameters of the phase transition and each deﬁne some isotropy subgroup
+of G. One order parameter is called “primary”. It drives the phase transition and deﬁnes
+an isotropy subgroup with symmetry G′, i.e., its action alone can lower the symmetry
+from G to G′. The other order parameters are called “secondary”.
+In practice, we can ﬁnd the order parameters of a phase transition without reference
+to atomic positions. First, we generate a list of candidate IRs. (The generation of this
+list is based on a straightforward group-theoretical method which we will not describe
+here.) Second, for each candidate IR, we try to ﬁnd an invariant subspace of
+representation space where the vectors⃗η satisfy the equation D(g)⃗η =⃗η for every
+operator g in G′. If we are successful, we then look for additional operators g in G but
+not in G′ that also satisfy that equation. The collection of all operators that satisfy that
+equation constitutes an isotropy subgroup G′′ associated with the IR. In general, G′′ will
+be a supergroup of G′. As before, once we specify the atomic positions, we can use
+group-theoretical methods to generate all subspaces of S associated with the IR and
+hence the sets of atomic displacements belonging to that order parameter.
+In the high-symmetry state of the crystal, all of the order parameters are zero.
+During the phase transition, the primary order parameter is driven to a nonzero value.
+Secondary order parameters also become nonzero due to coupling with the primary order
+parameter.
+In some cases, none of the order parameters alone deﬁne a subgroup symmetry equal
+to G′. They all deﬁne subgroup symmetries which are supergroups of G′. In this case,
+5

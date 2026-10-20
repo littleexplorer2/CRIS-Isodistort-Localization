@@ -1,0 +1,22 @@
+Isotropy, Version 9.6.1, Jan 2022
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell
+Brigham Young University
+*DISPLAY SETTING
+Current setting is International (new ed.) with conventional basis vectors.
+*PAGE NOBREAK
+*SCREEN 240
+*LABEL VECTOR CONVENTIONAL
+*VALUE PARENT 221
+*VALUE IRREP GM4-
+*VALUE DIRECTION P1
+*SHOW PARENT
+*SHOW IRREP
+*SHOW DIRECTION VECTOR
+*SHOW SUBGROUP
+*SHOW BASIS
+*SHOW ORIGIN
+*SHOW FREQUENCY DIR
+*DISPLAY ISOTROPY
+Parent    Irrep (ML) Subgroup Dir         Basis Vectors           Origin  Frequency
+221 Pm-3m GM4-       99 P4mm  P1  (a,0,0) (0,1,0),(0,0,1),(1,0,0) (0,0,0) 1 GM1+ P1(1), 1 GM3+ P1(3), 1 GM4- P1(1)
+*QUIT

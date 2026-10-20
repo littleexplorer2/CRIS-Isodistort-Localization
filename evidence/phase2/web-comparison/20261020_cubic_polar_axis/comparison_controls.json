@@ -1,0 +1,8 @@
+{
+  "drop_one_website_mode_projector_error": 0.49999999999999994,
+  "wrong_parent_cartesian_axis_projector_error": 1.0000000000000002,
+  "acceptance_bound": 6.821210263296962e-12,
+  "scope": "Independent negative controls of the frozen finite comparison; no mutation of input or outputs",
+  "comparison_sha256": "e7991c203931941178f4a415f5d0a83cc545a0a3413df9bfd46c0f8e0c93584a",
+  "local_modes_sha256": "0af01b06c2b64add5620818e40928df3d309a2e79a3ce8f18a2968f9823dc55b"
+}

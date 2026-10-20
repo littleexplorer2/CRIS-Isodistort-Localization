@@ -1,0 +1,48 @@
+data_reference
+# H-preserving structure; special amplitudes may have higher symmetry.
+# Cartesian amplitude norm refers to the unstrained conventional subgroup cell.
+_cris_rea_preserved_subgroup_number 1
+_space_group_IT_number 1
+_space_group_name_H-M_alt 'P1'
+_cell_length_a 6
+_cell_length_b 20
+_cell_length_c 12
+_cell_angle_alpha 105
+_cell_angle_beta 95
+_cell_angle_gamma 80
+loop_
+_space_group_symop_id
+_space_group_symop_operation_xyz
+1 'x,y,z'
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_site_symmetry_multiplicity
+a1 'Si' 0.345 0.0585 0.959 1 1
+a2 'Si' 0.345 0.3085 0.959 1 1
+a3 'Si' 0.345 0.5585 0.959 1 1
+a4 'Si' 0.345 0.8085 0.959 1 1
+a5 'Si' 0.345 0.0585 0.625666666666667 1 1
+a6 'Si' 0.345 0.3085 0.625666666666667 1 1
+a7 'Si' 0.345 0.5585 0.625666666666667 1 1
+a8 'Si' 0.345 0.8085 0.625666666666667 1 1
+a9 'Si' 0.345 0.0585 0.292333333333333 1 1
+a10 'Si' 0.345 0.3085 0.292333333333333 1 1
+a11 'Si' 0.345 0.5585 0.292333333333333 1 1
+a12 'Si' 0.345 0.8085 0.292333333333333 1 1
+a13 'O' 0.531 0.10475 0.904333333333333 1 1
+a14 'O' 0.531 0.35475 0.904333333333333 1 1
+a15 'O' 0.531 0.60475 0.904333333333333 1 1
+a16 'O' 0.531 0.85475 0.904333333333333 1 1
+a17 'O' 0.531 0.10475 0.571 1 1
+a18 'O' 0.531 0.35475 0.571 1 1
+a19 'O' 0.531 0.60475 0.571 1 1
+a20 'O' 0.531 0.85475 0.571 1 1
+a21 'O' 0.531 0.10475 0.237666666666667 1 1
+a22 'O' 0.531 0.35475 0.237666666666667 1 1
+a23 'O' 0.531 0.60475 0.237666666666667 1 1
+a24 'O' 0.531 0.85475 0.237666666666667 1 1

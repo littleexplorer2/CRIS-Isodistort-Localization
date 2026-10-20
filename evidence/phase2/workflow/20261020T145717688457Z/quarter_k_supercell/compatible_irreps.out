@@ -1,0 +1,10 @@
+Isotropy, Version 9.6.1, Jan 2022
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell
+Brigham Young University
+Current setting is International (new ed.) with conventional basis vectors.
+************Irrep (ML) k params k vector  Dir           Subgroup   Size
+GM1+                (0,0,0)   (a)           221 Pm-3m  1
+GM3+                (0,0,0)   (a,-1.732a)   123 P4/mmm 1
+DT1        1/4      (0,1/4,0) (a,0,0,0,0,0) 123 P4/mmm 4
+X1+                 (0,1/2,0) (a,0,0)       123 P4/mmm 2
+*

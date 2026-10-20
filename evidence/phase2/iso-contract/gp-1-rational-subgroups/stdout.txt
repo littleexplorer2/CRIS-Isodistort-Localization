@@ -1,0 +1,11 @@
+Isotropy, Version 9.6.1, Jan 2022
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell
+Brigham Young University
+Current setting is International (new ed.) with conventional basis vectors.
+****************** You have requested information about isotropy subgroups for: 
+      irrep: GP1GQ1   space group: C1-1    
+ The data base for these isotropy subgroups cannot be found.
+ Should the data base be added?
+ Enter RETURN to continue.  Enter any character to stop
+Quit display
+*

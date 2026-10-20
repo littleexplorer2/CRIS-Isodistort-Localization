@@ -1,0 +1,19 @@
+Isotropy, Version 9.6.1, Jan 2022
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell
+Brigham Young University
+*DISPLAY SETTING
+Current setting is International (new ed.) with conventional basis vectors.
+*PAGE NOBREAK
+*SCREEN 240
+*LABEL VECTOR CONVENTIONAL
+*LABEL ELEMENT INTERNATIONAL
+*VALUE PARENT 225
+*SHOW PARENT
+*SHOW BASIS
+*SHOW ELEMENTS
+*DISPLAY PARENT
+Parent    Basis Vectors                       Elements
+225 Fm-3m (0,1/2,1/2),(1/2,0,1/2),(1/2,1/2,0) (x,y,z), (x,-y,-z), (-x,y,-z), (-x,-y,z), (y,z,x), (y,-z,-x), (-y,z,-x), (-y,-z,x), (z,x,y), (z,-x,-y), (-z,x,-y), (-z,-x,y), (-y,-x,-z), (-y,x,z), (y,-x,z), (y,x,-z), (-x,-z,-y), (-x,z,y),
+                                              (x,-z,y), (x,z,-y), (-z,-y,-x), (-z,y,x), (z,-y,x), (z,y,-x), (-x,-y,-z), (-x,y,z), (x,-y,z), (x,y,-z), (-y,-z,-x), (-y,z,x), (y,-z,x), (y,z,-x), (-z,-x,-y), (-z,x,y), (z,-x,y), (z,x,-y),
+                                              (y,x,z), (y,-x,-z), (-y,x,-z), (-y,-x,z), (x,z,y), (x,-z,-y), (-x,z,-y), (-x,-z,y), (z,y,x), (z,-y,-x), (-z,y,-x), (-z,-y,x)
+*QUIT

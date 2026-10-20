@@ -1,0 +1,172 @@
+
+/* WARNING: Type propagation algorithm not settling */
+
+void newlat_order3_(int *param_1,undefined8 param_2,undefined8 param_3,undefined8 param_4,
+                   undefined8 param_5,int *param_6)
+
+{
+  int iVar1;
+  int iVar2;
+  int iVar3;
+  int iVar4;
+  long lVar5;
+  int iVar6;
+  int iVar7;
+  int *piVar8;
+  int *piVar9;
+  int iVar10;
+  long lVar11;
+  undefined1 local_48f8 [18432];
+  undefined1 local_f8 [4];
+  int local_f4;
+  int local_f0 [6];
+  undefined1 local_d8 [12];
+  int local_cc;
+  int local_bc [7];
+  int local_a0;
+  int local_9c;
+  undefined1 local_98 [48];
+  int local_68;
+  int local_64;
+  int local_60;
+  int local_5c;
+  int local_58;
+  int local_54;
+  int local_50;
+  int local_4c;
+  int local_48;
+  
+  local_bc[0] = (int)*(short *)(common_little_ + (long)*param_1 * 2 + 0x2d6f6e);
+  local_bc[4] = 1;
+  local_bc[5] = identity_op_(local_bc);
+  local_f4 = (int)(char)common_little_[(long)*param_1 + 0x369af7];
+  matinv_(param_5,local_98,&local_9c);
+  piVar9 = local_bc;
+  lVar11 = 0;
+  do {
+    piVar9 = (int *)((long)piVar9 + 4);
+    local_bc[1] = 0;
+    local_bc[2] = 0;
+    local_bc[3] = 0;
+    do {
+      do {
+        *piVar9 = *piVar9 + 1;
+        vmlt_(local_98,local_bc + 1,local_d8);
+        local_cc = local_9c;
+        reduc2_(local_d8);
+      } while (local_cc != 1);
+      get_irreps_(&DAT_005b0fbc,param_1,&DAT_005b0fb8,local_bc + 1,param_2,local_f8,local_48f8,
+                  &DAT_005b0fc0,&local_a0);
+      if (local_a0 != 0) {
+        bomb2_("newlat_order3 59",0x10);
+      }
+      iVar1 = orderparam_check_(&local_f4,param_4,local_48f8,param_3);
+    } while (iVar1 == 0);
+    local_f0[lVar11] = local_bc[lVar11 + 1];
+    lVar11 = lVar11 + 1;
+  } while (lVar11 != 3);
+  piVar9 = &local_68;
+  lVar11 = 1;
+  do {
+    local_bc[1] = 0;
+    local_bc[2] = 0;
+    local_bc[3] = 0;
+    local_bc[lVar11] = 1;
+    do {
+      do {
+        do {
+          vmlt_(local_98,local_bc + 1,local_d8);
+          local_cc = local_9c;
+          reduc2_(local_d8);
+          if (local_cc == 1) {
+            get_irreps_(&DAT_005b0fbc,param_1,&DAT_005b0fb8,local_bc + 1,param_2,local_f8,local_48f8
+                        ,&DAT_005b0fc0,&local_a0);
+            if (local_a0 != 0) {
+              bomb2_("newlat_order3 82",0x10);
+            }
+            iVar1 = orderparam_check_(&local_f4,param_4,local_48f8,param_3);
+            if (iVar1 != 0) goto LAB_004b414b;
+          }
+          iVar1 = (int)lVar11;
+          if (iVar1 < 1) goto LAB_004b413a;
+          local_bc[1] = local_bc[1] + 1;
+        } while ((local_f0[0] != local_bc[1]) || (iVar1 == 1));
+        local_bc[1] = 0;
+        local_bc[2] = local_bc[2] + 1;
+      } while ((local_f0[1] != local_bc[2]) || (iVar1 == 2));
+      local_bc[2] = 0;
+      local_bc[3] = local_bc[3] + 1;
+    } while ((local_f0[2] != local_bc[3]) || (iVar1 == 3));
+    local_bc[3] = 0;
+LAB_004b413a:
+    bomb2_("newlat_order3 100",0x11);
+LAB_004b414b:
+    *piVar9 = local_bc[1];
+    piVar9[1] = local_bc[2];
+    piVar9[2] = local_bc[3];
+    lVar11 = lVar11 + 1;
+    piVar9 = piVar9 + 3;
+    if (lVar11 == 4) {
+      iVar1 = 3;
+      do {
+        lVar11 = 1;
+        piVar9 = &local_5c;
+        do {
+          iVar10 = 1;
+          piVar8 = &local_5c;
+          do {
+            if (iVar10 != (int)lVar11) {
+              iVar7 = -1;
+              do {
+                lVar5 = 0;
+                iVar6 = 0;
+                iVar4 = 0;
+                do {
+                  iVar3 = *(int *)((long)piVar9 + lVar5 + -0xc);
+                  iVar2 = -iVar3;
+                  if (-iVar3 < 0) {
+                    iVar2 = iVar3;
+                  }
+                  if (iVar4 < iVar2) {
+                    iVar4 = iVar2;
+                  }
+                  iVar3 = iVar7 * *(int *)((long)piVar8 + lVar5 + -0xc) + iVar3;
+                  *(int *)((long)local_f0 + lVar5 + 0xc) = iVar3;
+                  if (-1 < -iVar3) {
+                    iVar3 = -iVar3;
+                  }
+                  if (iVar6 < iVar3) {
+                    iVar6 = iVar3;
+                  }
+                  lVar5 = lVar5 + 4;
+                } while (lVar5 != 0xc);
+                if (iVar6 < iVar4) {
+                  piVar9[-3] = local_f0[3];
+                  piVar9[-2] = local_f0[4];
+                  piVar9[-1] = local_f0[5];
+                }
+                iVar7 = iVar7 + 2;
+              } while (iVar7 != 3);
+            }
+            iVar10 = iVar10 + 1;
+            piVar8 = piVar8 + 3;
+          } while (iVar10 != 4);
+          lVar11 = lVar11 + 1;
+          piVar9 = piVar9 + 3;
+        } while (lVar11 != 4);
+        iVar1 = iVar1 + -1;
+      } while (iVar1 != 0);
+      *param_6 = local_68;
+      param_6[1] = local_64;
+      param_6[2] = local_60;
+      param_6[3] = local_5c;
+      param_6[4] = local_58;
+      param_6[5] = local_54;
+      param_6[6] = local_50;
+      param_6[7] = local_4c;
+      param_6[8] = local_48;
+      return;
+    }
+  } while( true );
+}
+

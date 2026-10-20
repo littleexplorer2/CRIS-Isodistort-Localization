@@ -1,0 +1,11 @@
+{
+  "case": "irrep-metadata-221-c1",
+  "created_utc": "2026-10-20T14:56:33.125969+00:00",
+  "source": "Independent synthetic crystallographic inputs; official ISO manual syntax",
+  "manual": "evidence/database/official/isotropy_doc.php.html",
+  "manual_sha256": "76056531867ae85e3d884890db19347d6bf7f6e0d14d2f2d42142c6abc63bb77",
+  "probe_script_sha256": "ec3c8063a60fc692c3b4501a812c75de69bd1b97f2b7fbf787cbe7e5e5eba00f",
+  "input_sha256": "c18f65ecf0d3c040b655cd6d914a9b6b1dd512733e639655d59e0e4a53f53b0e",
+  "website_case_answers_read": false,
+  "acceptance": "Research probe; no general scientific validation implied"
+}

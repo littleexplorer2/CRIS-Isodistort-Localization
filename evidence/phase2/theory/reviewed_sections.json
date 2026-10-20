@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "date_utc": "2026-10-20",
+  "task": "Independent definitions and mathematical contract for local commensurate 3D modes",
+  "website_calculation_results_read_in_this_phase": false,
+  "website_case_results_used_as_inputs_or_expected_answers": false,
+  "production_files_modified": false,
+  "contract": "docs/reference_library/MODE_CONTRACT.md",
+  "sources_reviewed": [
+    {
+      "source_id": "isodistorthelp.php",
+      "scope": [
+        "Primary and secondary order parameters",
+        "Method 2: k, physical IR, OPD and domains",
+        "Distortion: primary/secondary ordering and displacive degrees of freedom",
+        "Strain modes",
+        "CIF file: coordinate-to-mode transform and nonstandard tags",
+        "Modes Details: all-atom expansion, As/Ap, normfactor and strained/unstrained metrics"
+      ],
+      "text_archive_locators": [
+        "evidence/web/isodistorthelp.php.txt:204-217",
+        "evidence/web/isodistorthelp.php.txt:415-527",
+        "evidence/web/isodistorthelp.php.txt:702-779",
+        "evidence/web/isodistorthelp.php.txt:1016-1066",
+        "evidence/web/isodistorthelp.php.txt:1123-1197",
+        "evidence/web/isodistorthelp.php.txt:1276-1280"
+      ],
+      "status": "official behavioral definition; not an algorithm proof",
+      "limits": "No explicit global acoustic-removal contract. Strain maximum-component statement conflicts with subsequent normalization changes; numeric displacement example has a vector-length inconsistency and is not used as an expected answer."
+    },
+    {
+      "source_id": "versions.html",
+      "scope": [
+        "Version 5.5 (June 2013), strain normalization changed",
+        "Version 5.6 (July 2013), strain application changed",
+        "Version 6.1 (June 2014), item 7: same-IR-copy orthogonality enforced",
+        "Version 6.7.1, item 5: CIF strain normalization factors added"
+      ],
+      "status": "official historical change statements",
+      "limits": "Does not provide current complete strain equations."
+    },
+    {
+      "source_id": "isotheory.pdf",
+      "scope": "Part 1 Theory, PDF pages 1-4: space-group action, displacement representation, physically-real irreps, stabilizer and domains",
+      "visual_checks": ["PDF page 3"],
+      "status": "author-written conceptual derivation, April 2006",
+      "limits": "Toy crystal examples in the full source are not used as implementation answers. The exact-H set has exceptional higher-symmetry strata; the linear invariant space means at-least-H."
+    },
+    {
+      "source_id": "isodisplace_2006.pdf",
+      "scope": "J. Appl. Cryst. 39, 607-614, sections 2.1-2.4 and 4.3-4.5, PDF pages 2-6",
+      "visual_checks": ["PDF page 6 / printed page 611, tensor definitions and subduction equations"],
+      "status": "primary method paper",
+      "limits": "Historical CLIROP nonorthogonality and amplitude conventions cannot override current version history. Published illustrations are not reused as website case answers."
+    },
+    {
+      "source_id": "isotropy_html_manual",
+      "scope": [
+        "DISPLAY DIRECTION",
+        "SHOW FREQUENCY",
+        "SHOW MICROSCOPIC",
+        "SHOW MACROSCOPIC",
+        "SHOW UNITCELL",
+        "SHOW CARTESIAN",
+        "VALUE DOMAIN",
+        "VALUE DIRECTION",
+        "VALUE BASIS",
+        "VALUE ORIGIN",
+        "VALUE RANK",
+        "VALUE WYCKOFF XYZ"
+      ],
+      "status": "official hosted command contract; execution must still be verified",
+      "limits": "No explicit release number in hosted HTML. Hexagonal macroscopic-tensor axes differ from the generic Cartesian convention unless transformed."
+    },
+    {
+      "source_id": "isoman.pdf",
+      "scope": "v9.3 January 2013; printed pages 10-13 and 17-19, command definitions agreeing with the HTML source",
+      "visual_checks": ["PDF page 11 / printed page 10"],
+      "status": "historical official command manual",
+      "limits": "Not the v9.5 September 2021 file advertised by search indexing. The indexed /iso/isoman.pdf URL returned HTTP 404."
+    },
+    {
+      "source_id": "gsas2_G2phase_CIF.py",
+      "scope": "lines 786-810, 1038-1185 and adjacent explanatory formulas 1187-1285, plus label parser at 1593 onward",
+      "status": "primary source of GSAS-II consumer behavior, not a BYU dictionary",
+      "limits": "Current-main snapshot bound by SHA in sources.json; no runtime import test. Strain and rotational mode handling is explicitly not implemented by this reader."
+    }
+  ],
+  "project_derivation": {
+    "equations": "D1-D14 in MODE_CONTRACT.md",
+    "covered": [
+      "finite subgroup average projector and its image",
+      "centered-cell normalization and lattice counting",
+      "fixed-origin uniform translations",
+      "parent-IR labels not implied by H invariance",
+      "normal-core lattice required for general finite full-parent representation",
+      "Kelvin/Frobenius symmetric-stretch convention"
+    ],
+    "proof_status": "Explicit derivation under stated input assumptions; not production validation",
+    "finite_checks": "evidence/phase2/theory/math_checks.json",
+    "unresolved": [
+      "Current official strain normalization and finite-strain cell mapping",
+      "Complete current BYU private _iso CIF dictionary and target-consumer compatibility",
+      "Runtime completeness and formatting of SHOW FREQUENCY DIR for all allowed commensurate k parameters",
+      "Actual implementation of full parent-IR and site-irrep decomposition",
+      "Error-derived production tolerance and supported input-domain boundaries"
+    ]
+  }
+}

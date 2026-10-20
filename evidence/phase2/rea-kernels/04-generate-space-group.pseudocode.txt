@@ -1,0 +1,30 @@
+
+void generate_space_group_(int *param_1,int *param_2,long param_3)
+
+{
+  char cVar1;
+  int iVar2;
+  long lVar3;
+  long lVar4;
+  long lVar5;
+  
+  iVar2 = *param_1;
+  cVar1 = (&DAT_00e748e9)[(char)(&DAT_00e74cfd)[iVar2]];
+  *param_2 = (int)cVar1;
+  if ('\0' < cVar1) {
+    lVar4 = (long)&common_space_ + (long)*(short *)(&DAT_00e7150a + (long)iVar2 * 2) * 5;
+    lVar5 = 5;
+    do {
+      lVar3 = 0;
+      do {
+        *(int *)(param_3 + lVar3 * 4) = (int)*(char *)(lVar4 + 0x620c5 + lVar3);
+        lVar3 = lVar3 + 1;
+      } while (lVar3 != 5);
+      lVar4 = lVar4 + 5;
+      lVar5 = lVar5 + 5;
+      param_3 = param_3 + 0x14;
+    } while (lVar5 != (ulong)((int)cVar1 - 1) * 5 + 10);
+  }
+  return;
+}
+

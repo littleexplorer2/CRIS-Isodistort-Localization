@@ -1,0 +1,4 @@
+two or more order parameters are required to act simultaneously to lower the symmetry
+of the crystal to G′. We call them coupled order parameters, and together they are
+considered the primary order parameter of the phase transition.
+6

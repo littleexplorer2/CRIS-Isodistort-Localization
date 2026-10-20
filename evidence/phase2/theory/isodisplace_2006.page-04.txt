@@ -1,0 +1,123 @@
+be linearly dependent. Or it may be more convenient to deﬁne it as
+the complete set of independent vector components. Alternatively, it
+is common to deﬁne an order parameter to be a vector in distortion
+space that lies along a speciﬁc OPD of a speciﬁc irrep at a speciﬁc k-
+point. Under this deﬁnition, an arbitrary distortion vector can be
+composed of multiple order parameters, some of which may be multi-
+dimensional themselves. This is the deﬁnition used by ISODIS-
+PLACE.
+3. Physical considerations
+The fundamental advantages of the irrep-induced distortion modes
+are (i) that they form a complete basis of distortion space, and (ii)
+that the free energy of a crystalline solid can be expressed very simply
+in terms of the corresponding order parameters (Landau, 1937;
+Landau & Lifshitz, 1980). These symmetry-adapted distortion modes
+often involve polyhedral stretches, rotations, shears, bucklings, and
+other familiar geometric displacement patterns, which tend to have
+clear physical meaning with respect to the interatomic interaction
+forces that drive a phase transition. In most cases, the principal
+component of a physical distortion can be described by a small
+number of symmetry-adapted distortion-mode amplitudes.
+Relying purely on symmetry considerations, ISODISPLACE
+cannot take into account the physical parameters required to predict
+the actual distortion-mode amplitudes in a real material. Experi-
+mental (e.g. diffraction) data or ab initio calculations are generally
+required to obtain a realistic set of amplitudes that fully deﬁne a
+distortion. Of course, ISODISPLACE can be used to generate a
+candidate distortion model conveniently that can then be exported
+for further experimental or computational investigation.
+Lattice vibrations can also be treated by thinking of distortions as
+frozen phonon modes. The phonon basis vectors at a given k-point
+are called polarization vectors or lattice normal modes and can also
+be assigned to a distortion symmetry. Phonon polarization vectors
+with a given distortion symmetry can, in principle, be decomposed
+over the symmetry-adapted distortion-mode basis of ISODISPLACE
+(Stokes, 1995). Once again, however, the details of the transformation
+will depend on physical parameters such as atomic masses, intera-
+tomic forces and thermodynamic state variables, which are not
+considered by ISODISPLACE.
+4. Functionality
+4.1. Distortion symmetry selection
+Given the parent structure, the selection of a distortion symmetry
+involves three key decisions: a k-point in reciprocal space, an irrep of
+the parent space-group symmetry at that k-point, and an OPD in the
+carrier space of the irrep. At each step, ISODISPLACE computes the
+possible choices and presents them to the user in drop-down menus,
+so that all relevant possibilities can be explored without looking up
+obscure labels in lengthy tables. Several decision paths are currently
+available.
+The general method requires the user to select the k-point, irrep,
+and OPD in sequence. This approach can be used at any commen-
+surate k-point (expressed in terms of rational fractions), including
+special k-points, points located on k-lines and planes, and fully
+general k-points. For each type of k-point, there are a ﬁnite number of
+irreps available which are unique to that k-point. Similarly, each irrep
+has a ﬁnite number of OPDs which are unique to that irrep. While a
+given distortion symmetry may be associated with more than one
+irrep (as discussed below), two different OPD subspaces of the same
+irrep cannot lead to the same distortion symmetry. For a given parent
+space group, k-point and irrep, there may be more than one distortion
+symmetry that possesses the same supercell basis, or the same origin
+shift, or possibly the same space-group symmetry. However, the
+combination of supercell basis, origin shift and crystallographic space
+group identiﬁes only one distortion symmetry, or rather identiﬁes a
+speciﬁc domain of that distortion symmetry. To make domain
+differences more transparent, ISODISPLACE generates a complete
+list of the domains for a given distortion symmetry, along with other
+useful domain-speciﬁc information.
+A convenient alternative to the general method allows the user to
+consider simultaneously all special k-points for relevant distortions
+involving a single irrep, while imposing practical restrictions on the
+ﬁnal distortion symmetry, such as crystal family, space-group
+symmetry, or supercell shape. Because the set of distortion symme-
+tries that can be obtained in this way is manageably ﬁnite, their irreps
+and OPDs have been precomputed and stored for rapid searching.
+This method is not available for non-special k-points simply because
+there are an inﬁnite number of them. Another more ﬂexible method
+allows the user to search over arbitrary commensurate k-points and
+coupled irreps while restricted to a user-speciﬁed space group and
+supercell or superlattice basis.
+For distorted structures with experimentally determined atomic
+coordinates and cell parameters, ISODISPLACE also provides a
+mechanism for automatic mode decomposition: the process of
+transforming the superstructural atomic coordinates into the ampli-
+tudes of the symmetry-adapted distortion modes of the parent
+structure. This method requires the user to enter the parent structure
+and the superstructure separately, along with the superstructure basis.
+4.2. Irrep and OPD labels
+ISODISPLACE lists the following information in each drop-down
+menu that contains distortion symmetries: the space-group irrep label
+(from which the k-point can be inferred), the OPD label and vector,
+the conventional supercell basis, origin shift and size relative to the
+parent cell, and ﬁnally the subgroup index relative to the parent
+space-group symmetry. Like ISOTROPY, it uses the labels of Miller
+& Love (1967) for k-points and irreps. In this standard scheme, k-
+point labels consist of one or two capital letters. Space-group irrep
+labels begin with the k-point label, followed by a numeral and
+possibly a ‘+’ or ‘’ sign. Where complex irreps must be combined in
+order to transform them to real form, the resulting physically redu-
+cible representation labels simply concatenate a pair of irrep labels
+(Bradley & Cracknell, 1972). Wyckoff site point-group irreps are also
+used by ISODISPLACE, which employs the conventional point-
+group irrep labels common to molecular spectroscopy (e.g. Ag, B1u,
+T2g, E, etc.).
+OPD labels follow the convention of Stokes & Hatch (1987), and
+begin with a capital letter or a numeral–letter combination that
+indicates the dimension of the OPD: P for one dimension, C for two
+dimensions and S for three dimensions, followed by the sequence 4D,
+6D, 8D, 12D, 16D, 24D, 48D. These labels are useful when space is
+limited, but do not contain as much information as complete OPD
+descriptions of the form (a, a, 0, b, c, 0). To avoid confusion,
+remember that the use of lowercase alphabet letters (i.e. a, b, c . . . ) in
+OPD and branch labels is not related to their use in Wyckoff point
+labels or as unit-cell parameters.
+Note that one cannot generally expect a given k-point label to have
+comparable meanings within the contexts of two different parent
+space-group symmetries. The labels are deﬁned independently within
+each parent space group. Similarly, it is not generally useful to
+computer programs
+J. Appl. Cryst. (2006). 39, 607–614
+Branton J. Campbell et al.
+ ISODISPLACE
+609
+electronic reprint

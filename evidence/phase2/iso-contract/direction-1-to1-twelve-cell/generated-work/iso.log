@@ -1,0 +1,38 @@
+Isotropy, Version 9.6.1, Jan 2022
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell
+Brigham Young University
+*DISPLAY SETTING
+Current setting is International (new ed.) with conventional basis vectors.
+*PAGE NOBREAK
+*SCREEN 240
+*LABEL VECTOR CONVENTIONAL
+*VALUE PARENT 1
+*VALUE SUBGROUP 1
+*VALUE BASIS 0,0,1 0,4,0 -3,0,0
+*VALUE ORIGIN 0,0,0
+*SHOW PARENT
+*SHOW IRREP
+*SHOW KPOINT
+*SHOW DIRECTION VECTOR
+*DISPLAY DIRECTION
+Irrep (ML) k params   k vector     Dir   Subgroup Size
+GM1                   (0,0,0)      (a)   1 P1     1
+Y1                    (0,1/2,0)    (a)   1 P1     2
+GP1GQ1     1/3,0,0    (1/3,0,0)    (a,b) 1 P1     3
+GP1GQ1     0,1/4,0    (0,1/4,0)    (a,b) 1 P1     4
+GP1GQ1     1/3,-1/4,0 (1/3,-1/4,0) (a,b) 1 P1     12
+GP1GQ1     1/3,1/4,0  (1/3,1/4,0)  (a,b) 1 P1     12
+GP1GQ1     1/3,1/2,0  (1/3,1/2,0)  (a,b) 1 P1     6
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+*QUIT

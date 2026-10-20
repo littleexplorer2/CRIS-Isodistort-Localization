@@ -1,0 +1,11 @@
+{
+  "case": "subgroup-221-gm4minus-p3-centered",
+  "created_utc": "2026-10-20T14:35:15.203469+00:00",
+  "source": "Independent synthetic crystallographic inputs; official ISO manual syntax",
+  "manual": "evidence/database/official/isotropy_doc.php.html",
+  "manual_sha256": "76056531867ae85e3d884890db19347d6bf7f6e0d14d2f2d42142c6abc63bb77",
+  "probe_script_sha256": "e27a752e415e4c4d68d4d54ee5b3e7d7e12e2ab5198fc6253367e94bd0d63d54",
+  "input_sha256": "0338610ad5352d9b842d1cf29aff9e7575fbaeb69a061eeff313fb809bfa1a2a",
+  "website_case_answers_read": false,
+  "acceptance": "Research probe; no general scientific validation implied"
+}

@@ -1,0 +1,42 @@
+{
+  "scope": "Changed mode core, layer/lock/artifact boundaries, native fatal diagnostic, and affected pre-existing CLI/HTTP/browser contracts. Not full regression.",
+  "command": [
+    "C:\\Users\\devou\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "-m",
+    "unittest",
+    "-v",
+    "test_modes",
+    "test_mode_boundaries",
+    "test_native_bomb",
+    "test_local_contract.ExecutionEvidenceTests.test_zero_exit_syntax_error_is_diagnostic",
+    "test_local_contract.ExecutionEvidenceTests.test_consecutive_iso_prompts_do_not_hide_syntax_error",
+    "test_local_contract.CliTests",
+    "test_local_contract.HttpTests",
+    "test_local_contract.BrowserInputContractTests"
+  ],
+  "exit_code": 0,
+  "source_sha256": {
+    "cris_rea\\__init__.py": "e836f5d79c5ed1932608fd8ad0826fdbcef57a1d75fa074182a30bb8be3ea557",
+    "cris_rea\\__main__.py": "6576ee3f162e194413661c9b79274cf1d1db2c3f57a7a325218a849a8859bf37",
+    "cris_rea\\application\\locking.py": "567a7fb83af98fb01bc344cf037960e1ef9d1e967810de9aab1a5c2e5b505837",
+    "cris_rea\\application\\modes.py": "9ccde6b4341b0f19bcfce933791d592dfec5e5242509044dab64585080d110ea",
+    "cris_rea\\application\\service.py": "39b0986e2057917438978b09ab88898976b74190e2c5b7d892884747738fbf8e",
+    "cris_rea\\application\\__init__.py": "74f2d27090d636457682ee21328c79ab3320d72fa2f17e121e7d036cae461351",
+    "cris_rea\\backend\\iso_protocol.py": "6a0330d78b4a9675e75593a91e3d24242e00e71f4c3ec9fda32c37103f93560c",
+    "cris_rea\\backend\\iso_query.py": "24129de4b16b2d723b5563af4e1b628d1249b22aebf2be953983eeffd794be67",
+    "cris_rea\\backend\\runtime.py": "61813050b3d2a5b18cd95cad96ee7caae4a8852299634bd0bb6b79ef2ca3897b",
+    "cris_rea\\backend\\worker.py": "e7db6b0e28e50c2865004c0a27ed6c1996003273621af62a6d90c3e21359c23b",
+    "cris_rea\\backend\\__init__.py": "2e53d8de15b5940a2778cc093a94b1fc541d0ce412435bf1c871d35fd9b6d4e2",
+    "cris_rea\\frontend\\cli.py": "9ecf2451880d7299dcbd45f11bd5b52d9fb8d109bdf1ff725e58975771d7254c",
+    "cris_rea\\frontend\\web.py": "0c5f819ebe45d94f80dab65564c733a09ad7ab6354c1a27fc2465b49b388a668",
+    "cris_rea\\frontend\\webpage.py": "94c183eab9352d59961ca97369ebba00d4a1382d7b76b9c3ca9f2f8b3ff3d10e",
+    "cris_rea\\frontend\\__init__.py": "11acc8367354a18c9c8e6178f8672ad6c4b229f81ca0be9b849799197ccdf06d",
+    "cris_rea\\backend\\modes\\core.py": "2f2c64a2692dff18d3316d4e9153683f43ad5ca683ebf1f140eab6a24c96b095",
+    "cris_rea\\backend\\modes\\export.py": "ef572bffb99a253b82fa80dc88a520f6d7db7839b87eec71548d116059946e4c",
+    "cris_rea\\backend\\modes\\__init__.py": "c525c4ef0d427c9cda682e0d894bac080b5066a4daa96ea192969a073f61062f",
+    "cris_rea\\backend\\structure\\cif.py": "1f4abc47ffd3a9a6485238c03d1b1b1b5c30134b6a360678f15b70657dc3749b",
+    "cris_rea\\backend\\structure\\model.py": "27c2662affb13ae6c82c86a3905de45e93f48b732351a4449bf571726ab10b1c",
+    "cris_rea\\backend\\structure\\symmetry.py": "d14103f284538d7c0d3799adc945d318b9a9921e009cf269057ed0c6d0965d2a",
+    "cris_rea\\backend\\structure\\__init__.py": "9ba3265a9c6180149c80ce584169708896fd4e8f116e22befd5c9f98eced9ce9"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "workflow_id": "b0ae0eca-72c4-4f0c-bb2c-06096ce003ea",
+  "status": "validated_local_subspace",
+  "summary": {
+    "parent": 1,
+    "subgroup": 1,
+    "subgroup_symbol": "P1",
+    "atoms": 2,
+    "displacement_modes": 6,
+    "rigid_translations": 3,
+    "strain_modes": 6,
+    "basis_convention": "CRIS_REA_H_invariant_Cartesian_orthonormal_v1",
+    "compatible_irreps_raw": "Isotropy, Version 9.6.1, Jan 2022\nHarold T. Stokes, Dorian M. Hatch, and Branton J. Campbell\nBrigham Young University\nCurrent setting is International (new ed.) with conventional basis vectors.\n************Irrep (ML) k vector Dir Subgroup Size\nGM1        (0,0,0)  (a) 1 P1     1\n*"
+  },
+  "checks": [
+    {
+      "name": "distorted.cif",
+      "status": 200,
+      "sha256": "6bffdc21c6fe6d177d61cba4e3c70fc5ca1133fa7d7bfd60f537bbab879ff9cc",
+      "bytes": 849,
+      "disposition": "attachment; filename=\"distorted.cif\""
+    },
+    {
+      "name": "modes.csv",
+      "status": 200,
+      "sha256": "1f6664ecd19cc3266281e74e6aceb9e43023a687a359d5f8b64429e09789e473",
+      "bytes": 1181,
+      "disposition": "attachment; filename=\"modes.csv\""
+    },
+    {
+      "name": "modes.json",
+      "status": 200,
+      "sha256": "8b0036926a0a57c888737834154575c4c9b152be9cdca158795c6b59e36699d8",
+      "bytes": 14096,
+      "disposition": "attachment; filename=\"modes.json\""
+    },
+    {
+      "name": "reference.cif",
+      "status": 200,
+      "sha256": "2a9f1dea7113b644cf49613908e1cde85c51dd937dcbffc384b06222d8333b05",
+      "bytes": 691,
+      "disposition": "attachment; filename=\"reference.cif\""
+    },
+    {
+      "name": "report.json",
+      "status": 200,
+      "sha256": "15eddefc8c133b2b65589576e1e718acc81c38d73d6d98fef08ea91ae42affa2",
+      "bytes": 9599,
+      "disposition": "attachment; filename=\"report.json\""
+    }
+  ],
+  "session_token_saved": false,
+  "missing_token_status": 403,
+  "missing_k_status": 400,
+  "missing_k_diagnostic": {
+    "error": "This irrep requires 3 k parameters in order ('a', 'b', 'g')."
+  }
+}

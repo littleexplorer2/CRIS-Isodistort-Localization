@@ -1,0 +1,21 @@
+[
+  {
+    "attributes": {
+      "action": "isodistortform.php",
+      "method": "POST"
+    },
+    "inputs": [
+      {
+        "type": "hidden",
+        "name": "input",
+        "value": "uploadparentcif"
+      },
+      {
+        "type": "hidden",
+        "name": "filename",
+        "value": "/home/isomain/tmp/isodistort_32909.iso"
+      }
+    ],
+    "selects": []
+  }
+]

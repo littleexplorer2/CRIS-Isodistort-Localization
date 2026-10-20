@@ -1,0 +1,97 @@
+[
+  {
+    "name": "open_binary",
+    "label": "open-iso",
+    "arguments": {
+      "path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+      "provider_id": "ghidra",
+      "snapshot_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/evidence/native/rea-iso-snapshot.json"
+    }
+  },
+  {
+    "name": "procedure_pseudo_code",
+    "label": "generate-space-group",
+    "arguments": {
+      "procedure": "generate_space_group_"
+    },
+    "timeout": 600
+  },
+  {
+    "name": "procedure_pseudo_code",
+    "label": "get-wyckoff-all",
+    "arguments": {
+      "procedure": "get_wyckoff_all_"
+    },
+    "timeout": 600
+  },
+  {
+    "name": "procedure_pseudo_code",
+    "label": "get-new-wyckoff",
+    "arguments": {
+      "procedure": "get_new_wyckoff_"
+    },
+    "timeout": 600
+  },
+  {
+    "name": "procedure_pseudo_code",
+    "label": "newlat-order",
+    "arguments": {
+      "procedure": "newlat_order_"
+    },
+    "timeout": 600
+  },
+  {
+    "name": "procedure_pseudo_code",
+    "label": "newlat-order3",
+    "arguments": {
+      "procedure": "newlat_order3_"
+    },
+    "timeout": 600
+  },
+  {
+    "name": "procedure_pseudo_code",
+    "label": "get-irrep4-ssgn",
+    "arguments": {
+      "procedure": "get_irrep4_ssgn_"
+    },
+    "timeout": 600
+  },
+  {
+    "name": "procedure_pseudo_code",
+    "label": "project-local",
+    "arguments": {
+      "procedure": "project_local_"
+    },
+    "timeout": 600
+  },
+  {
+    "name": "procedure_pseudo_code",
+    "label": "project-vector-local",
+    "arguments": {
+      "procedure": "project_vector_local_"
+    },
+    "timeout": 600
+  },
+  {
+    "name": "procedure_pseudo_code",
+    "label": "isotropy-display-distortion",
+    "arguments": {
+      "procedure": "isotropy_display_distortion_"
+    },
+    "timeout": 600
+  },
+  {
+    "name": "export_evidence_bundle",
+    "label": "export",
+    "arguments": {
+      "path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/evidence/phase2/rea-kernels-bundle.json"
+    }
+  },
+  {
+    "name": "close_binary",
+    "label": "close",
+    "arguments": {
+      "snapshot_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/evidence/phase2/rea-kernels-snapshot.json"
+    }
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "label": "export",
+  "at_utc": "2026-10-20T14:32:14.559191+00:00",
+  "elapsed_seconds": 0.0773126599999614,
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 13,
+    "method": "tools/call",
+    "params": {
+      "name": "export_evidence_bundle",
+      "arguments": {
+        "path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/evidence/phase2/rea-kernels-bundle.json"
+      }
+    }
+  },
+  "response": {
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"result\":{\"path\":\"/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/evidence/phase2/rea-kernels-bundle.json\",\"bytes\":1443037,\"records\":21,\"unknowns\":0}}"
+        }
+      ],
+      "structuredContent": {
+        "result": {
+          "path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/evidence/phase2/rea-kernels-bundle.json",
+          "bytes": 1443037,
+          "records": 21,
+          "unknowns": 0
+        }
+      }
+    },
+    "jsonrpc": "2.0",
+    "id": 13
+  },
+  "notifications": []
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "file": "capture_script_at_freeze.py",
+    "sha256": "5bb6349f480d59992927771ba315be2817bc7b9a5512552ff8c7370f097a6bcb",
+    "method": "Exact reconstruction from retained edit history, independently matched to previously recorded SHA-256"
+  },
+  {
+    "file": "capture_script_at_process.py",
+    "sha256": "080973f9ec6e0db00dfd7157b0fa1b61a8269680684ecc1225182a48e9fccb63",
+    "method": "Exact reconstruction from retained edit history, independently matched to previously recorded SHA-256"
+  },
+  {
+    "file": "capture_script_final.py",
+    "sha256": "44f7ad539ff315c13661cc5749c6996755446c454c66db9e4dd5e5f6980cedcd",
+    "method": "Byte copy of final stage script"
+  }
+]

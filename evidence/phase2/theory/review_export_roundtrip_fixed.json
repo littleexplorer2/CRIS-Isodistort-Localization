@@ -1,0 +1,39 @@
+{
+  "created_at_utc": "2026-10-20T14:59:28.906057+00:00",
+  "role": "Algebraic review counterexample; not a website case or full regression",
+  "source_sha256": {
+    "cris_rea/backend/modes/core.py": "2f2c64a2692dff18d3316d4e9153683f43ad5ca683ebf1f140eab6a24c96b095",
+    "cris_rea/backend/modes/export.py": "ef572bffb99a253b82fa80dc88a520f6d7db7839b87eec71548d116059946e4c",
+    "cris_rea/backend/structure/model.py": "27c2662affb13ae6c82c86a3905de45e93f48b732351a4449bf571726ab10b1c"
+  },
+  "input_definition": {
+    "group_generator": "-y,x-y,z",
+    "position": [
+      "1/3",
+      "2/3",
+      "1/7"
+    ],
+    "cell": [
+      4,
+      4,
+      6,
+      90,
+      90,
+      120
+    ],
+    "all_mode_amplitudes": 0
+  },
+  "pre_export_atom_count": 1,
+  "exported_cif": "data_roundtrip\n# H-preserving structure; special amplitudes may have higher symmetry.\n# Cartesian amplitude norm refers to the unstrained conventional subgroup cell.\n_cris_rea_preserved_subgroup_number 143\n_space_group_IT_number 1\n_space_group_name_H-M_alt 'P 1'\n# Full-cell P1 serialization avoids decimal rounding of H-special-site constraints.\n# The verified H operations and exact reference positions remain in modes.json.\n_cell_length_a 4\n_cell_length_b 4\n_cell_length_c 6\n_cell_angle_alpha 90\n_cell_angle_beta 90\n_cell_angle_gamma 120\nloop_\n_space_group_symop_id\n_space_group_symop_operation_xyz\n1 'x,y,z'\nloop_\n_atom_site_label\n_atom_site_type_symbol\n_atom_site_fract_x\n_atom_site_fract_y\n_atom_site_fract_z\n_atom_site_occupancy\n_atom_site_site_symmetry_multiplicity\na1 'Si' 0.333333333333333 0.666666666666667 0.142857142857143 1 1\n",
+  "checked_serialization": {
+    "atom_count": 1,
+    "fractional_rounding_residual": 3.3306690738754696e-16,
+    "metric_rounding_residual": 0.0,
+    "rounding_bound": 1e-12,
+    "representation": "P1_full_cell",
+    "reason": "Declared multiplicity differs from the exact orbit size.",
+    "preserved_subgroup_number": 143
+  },
+  "reimport_atom_count": 1,
+  "status": "roundtrip_succeeded"
+}

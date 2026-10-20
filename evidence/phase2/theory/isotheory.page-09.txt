@@ -1,0 +1,48 @@
+{u3z = u4z = 1}, where the subscript 1 refers to Ba, 2 refers to Ti, and 3,4,5 refers to O.
+The basis vectors of the subspace belonging to Γ−
+5 are (1) {u4z = −u3z = 1},
+{u5x = −u4x = 1}, {u3y = −u5y = 1}.
+Sets of Distortions. We obtain distortions belonging to a particular isotropy subgroup
+by applying the vector⃗η to the basis vectors of the subspaces of S. For example, the
+distortions associated with the isotropy subgroup P4mm belonging to Γ−
+4 are obtained
+by applying⃗η = (a, 0, 0) to the three basis vectors of every subspace of S generated
+by Γ−
+4 . In the case of (a, 0, 0), these would be the ﬁrst basis vector in each subspace:
+{u1x = a1}, {u2x = a2}, {u3x = a3}, {u4x = u5x = a4}, where a1, a2, a3, a4 are
+independent arbitrary constants. Any one of these four distortions can lower the
+Pm¯3m symmetry of BaTiO3 to P4mm.
+As another example, consider⃗η = (a, a, b). This represents a 2-dimensional invariant
+subspace of representation space. The isotropy subgroup symmetry determined by this⃗η
+is the monoclinic space group Cm. Applying⃗η to the basis vectors of the subspaces of S,
+we obtain the following 8 distortions belonging to Cm: {u1x = u1y = a1}, {u1z = b1},
+{u2x = u2y = a2}, {u2z = b2}, (3) {u3x = u4y = a3}, {u5z = b3},
+(4) {u4x = u5x = u3y = u5y = a4}, {u3z = u4z = b4}, where a1, b1, a2, b2, a3, b3, a4, b4 are
+independent arbitrary constants. In order to lower the Pm¯3m symmetry of BaTiO3
+to Cm, however, at least one of a1, a2, a3, a4 and one of b1, b2, b3, b4 must be nonzero.
+Phase transitions and order parameters. Consider a phase transition in BaTiO3
+from the cubic Pm¯3m structure to the monoclinic Cm structure discussed above. The
+primary order parameter is (a, a, b), belonging to the IR Γ−
+4 . There is only one secondary
+order parameter which produces atomic displacements: (0, a, ¯a), belonging to the IR Γ−
+5 .
+This order parameter generates the isotropy subgroup Amm2, which is a supergroup
+of Cm. There is only one distortion belonging to Amm2:
+{u5x = −u4x = −u3y = u5y = a}. In the phase transition, the 8 distortions associated
+with the primary order parameter and the distortion associated with the secondary order
+parameter will all appear. There are 9 independent distortions in all, equal to the
+number of free atomic position variables in the Cm structure.
+Coupled order parameters. Suppose we couple the order parameter (a, 0, 0) belonging
+to Γ−
+4 with the order parameter (0, a, 0) belonging to Γ−
+5 . This means that we
+superimpose the distortions associated with those two order parameters. The order
+parameter (a, 0, 0) belonging to Γ−
+4 lowers the symmetry to P4mm, and the order
+parameter (0, a, 0) belonging to Γ−
+5 lowers the symmetry to P¯4m2. Together, they lower
+the symmetry to Pmm2, which is a subgroup of both P4mm and P¯4m2. A phase
+transition from the Pm¯3m structure to this Pmm2 structure can only happen if the
+coupling between the two order parameters is strong enough so that both order
+parameters become nonzero simultaneously.
+9

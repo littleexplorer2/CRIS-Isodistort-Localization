@@ -1,0 +1,10 @@
+{
+  "case": "elements-221-gm4minus-p1",
+  "created_utc": "2026-10-20T14:31:54.178701+00:00",
+  "source": "Independent synthetic crystallographic inputs; official ISO manual syntax",
+  "manual": "evidence/database/official/isotropy_doc.php.html",
+  "manual_sha256": "76056531867ae85e3d884890db19347d6bf7f6e0d14d2f2d42142c6abc63bb77",
+  "input_sha256": "a4bb7011c579cb0fd1508e4b9a3f452e1a0ec15f918c808c1c000f9bfe57707f",
+  "website_case_answers_read": false,
+  "acceptance": "Research probe; no general scientific validation implied"
+}

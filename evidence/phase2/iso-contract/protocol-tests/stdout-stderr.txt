@@ -1,0 +1,19 @@
+test_builder_exact_k_and_explicit_generation_confirmation (test_iso_protocol.IsoProtocolTests.test_builder_exact_k_and_explicit_generation_confirmation) ... ok
+test_centered_size_is_not_conventional_determinant (test_iso_protocol.IsoProtocolTests.test_centered_size_is_not_conventional_determinant) ... ok
+test_command_injection_inexact_inputs_and_invalid_shapes_rejected (test_iso_protocol.IsoProtocolTests.test_command_injection_inexact_inputs_and_invalid_shapes_rejected) ... ok
+test_direction_builder_basis_transpose (test_iso_protocol.IsoProtocolTests.test_direction_builder_basis_transpose) ... ok
+test_generated_rational_k_table_banner_allowed (test_iso_protocol.IsoProtocolTests.test_generated_rational_k_table_banner_allowed) ... ok
+test_integer_translations_are_preserved_for_supercell_phases (test_iso_protocol.IsoProtocolTests.test_integer_translations_are_preserved_for_supercell_phases) ... ok
+test_live_builder_outputs_and_explicit_setting_failure (test_iso_protocol.IsoProtocolTests.test_live_builder_outputs_and_explicit_setting_failure) ... ok
+test_live_wide_output_and_nonzero_subgroup_origin (test_iso_protocol.IsoProtocolTests.test_live_wide_output_and_nonzero_subgroup_origin) ... ok
+test_missing_fields_wrong_selection_and_truncation (test_iso_protocol.IsoProtocolTests.test_missing_fields_wrong_selection_and_truncation) ... ok
+test_multiple_rows_and_declined_generation_are_not_a_result (test_iso_protocol.IsoProtocolTests.test_multiple_rows_and_declined_generation_are_not_a_result) ... ok
+test_parent_face_centered_basis_and_wrapped_operations (test_iso_protocol.IsoProtocolTests.test_parent_face_centered_basis_and_wrapped_operations) ... ok
+test_primary_basis_orientation_and_metadata (test_iso_protocol.IsoProtocolTests.test_primary_basis_orientation_and_metadata) ... ok
+test_reject_non_exact_or_invalid_operations (test_iso_protocol.IsoProtocolTests.test_reject_non_exact_or_invalid_operations) ... ok
+test_rhombohedral_basis_has_printed_vectors_as_columns (test_iso_protocol.IsoProtocolTests.test_rhombohedral_basis_has_printed_vectors_as_columns) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.018s
+
+OK

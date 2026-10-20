@@ -1,0 +1,10 @@
+{
+  "case": "discover-1-gp",
+  "created_utc": "2026-10-20T14:30:00.356998+00:00",
+  "source": "Independent synthetic crystallographic inputs; official ISO manual syntax",
+  "manual": "evidence/database/official/isotropy_doc.php.html",
+  "manual_sha256": "76056531867ae85e3d884890db19347d6bf7f6e0d14d2f2d42142c6abc63bb77",
+  "input_sha256": "b85373ef182469b13a389249c7c3d4db190b2bf700d9e92272cd949ac182222a",
+  "website_case_answers_read": false,
+  "acceptance": "Research probe; no general scientific validation implied"
+}

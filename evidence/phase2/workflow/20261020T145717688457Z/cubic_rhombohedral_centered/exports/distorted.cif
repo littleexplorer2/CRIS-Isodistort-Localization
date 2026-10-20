@@ -1,0 +1,41 @@
+data_distorted
+# H-preserving structure; special amplitudes may have higher symmetry.
+# Cartesian amplitude norm refers to the unstrained conventional subgroup cell.
+_cris_rea_preserved_subgroup_number 160
+_space_group_IT_number 1
+_space_group_name_H-M_alt 'P 1'
+# Full-cell P1 serialization avoids decimal rounding of H-special-site constraints.
+# The verified H operations and exact reference positions remain in modes.json.
+_cell_length_a 5.65685424949238
+_cell_length_b 5.65685424949238
+_cell_length_c 6.92820323027551
+_cell_angle_alpha 90
+_cell_angle_beta 90
+_cell_angle_gamma 120
+loop_
+_space_group_symop_id
+_space_group_symop_operation_xyz
+1 'x,y,z'
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_site_symmetry_multiplicity
+a1 'Ba' 0.333333333333333 0.666666666666667 0.666666666666667 1 1
+a2 'Ba' 0.666666666666667 0.333333333333333 0.333333333333333 1 1
+a3 'Ba' 0 0 0 1 1
+a4 'Ti' 0.666666666666667 0.333333333333333 0.833333333333333 1 1
+a5 'Ti' 0 0 0.5 1 1
+a6 'Ti' 0.333333333333333 0.666666666666667 0.166666666666667 1 1
+a7 'O' 0.333333333333333 0.166666666666667 0.666666666666667 1 1
+a8 'O' 0.666666666666667 0.833333333333333 0.333333333333333 1 1
+a9 'O' 0 0.5 0 1 1
+a10 'O' 0.833333333333333 0.166666666666667 0.666666666666667 1 1
+a11 'O' 0.166666666666667 0.833333333333333 0.333333333333333 1 1
+a12 'O' 0.5 0.5 0 1 1
+a13 'O' 0.833333333333333 0.666666666666667 0.666666666666667 1 1
+a14 'O' 0.166666666666667 0.333333333333333 0.333333333333333 1 1
+a15 'O' 0.5 0 0 1 1

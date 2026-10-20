@@ -1,0 +1,56 @@
+Every vector in S′ can be written as a linear combination of the basis vectors of S′:
+φ =
+n
+X
+i=1
+ηiφi.
+(2)
+Using Eq. (1), we obtain
+gφ =
+n
+X
+j=1
+
+n
+X
+i=1
+Dji(g)ηi
+
+φj.
+(3)
+From this result, we see that we can consider g to operate on the coeﬃcients ηi rather
+than on the basis vectors φi:
+gηi =
+n
+X
+j=1
+Dij(g)ηj.
+(4)
+We can also consider the coeﬃcients ηi to be components of an n-dimensional vector⃗η in
+“representation space”. Space-group operations g in this space are carried out by the
+matrices D(g), so that Eq. (4) is simply written as g⃗η = D(g)⃗η.
+Now we can view the decomposition of S′ by the isotropy subgroups as a
+decomposition of representation space. Given an isotropy subgroup G′, the collection of
+all vectors⃗η which satisfy g⃗η =⃗η for all g in G′ deﬁnes an invariant subspace of the
+representation space. This subspace is invariant under operators in G′. Some of the
+invariant subspaces of representation space may be one-dimensional, others
+two-dimensional, etc. One of the isotropy subgroups will deﬁne an n-dimensional
+subspace which includes the entire representation space. This subgroup is called the
+kernel of the IR and consists of all operators g which are mapped by the IR onto a unit
+matrix, i.e., D(g) is a unit matrix so that g⃗η =⃗η is satisﬁed for every vector⃗η in the
+representation space.
+Consider a particular isotropy subgroup G′ determined by a vector⃗η. Operators g
+in G but not in G′ generate isotropy subgroups gG′g−1 which are determined by
+vectors g⃗η. These subgroups are equivalent to G′. In phase transitions, they represent
+diﬀerent domains in the lower-symmetry phase. Lists of isotropy subgroups usually list
+only one representative from each group of equivalent subgroups.
+Consider two diﬀerent subspaces, S′ and S′′, associated with the same IR. Since
+space-group operations g in the representation spaces associated with S′ and S′′ are
+carried out by the identical IR matrices D(g), the same vector⃗η in either representation
+space results in the same subgroup symmetry. As a result, a given linear combination of
+basis vectors in S′ has the same eﬀect on the symmetry of the crystal as the same linear
+combination of basis vectors in S′′, even though the actual atomic displacements
+represented by vectors in S′ and S′′ may be very diﬀerent from each other. Furthermore,
+given an isotropy subgroup G′, the collection of all vectors⃗η which satisﬁes g⃗η =⃗η for all
+g in G′ deﬁnes the same subspace in either representation space.
+4

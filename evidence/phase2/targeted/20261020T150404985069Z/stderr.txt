@@ -1,0 +1,38 @@
+test_amplitude_inverse_and_rss (test_modes.ModeTests.test_amplitude_inverse_and_rss) ... ok
+test_c4_axis_and_kelvin_space (test_modes.ModeTests.test_c4_axis_and_kelvin_space) ... ok
+test_centering_volume_and_mode_count (test_modes.ModeTests.test_centering_volume_and_mode_count) ... ok
+test_cif_asymmetric_unit_no_duplicates (test_modes.ModeTests.test_cif_asymmetric_unit_no_duplicates) ... ok
+test_fraction_inverse_and_shear (test_modes.ModeTests.test_fraction_inverse_and_shear) ... ok
+test_incompatible_cell_rejected (test_modes.ModeTests.test_incompatible_cell_rejected) ... ok
+test_inversion_center_has_no_polar_dof (test_modes.ModeTests.test_inversion_center_has_no_polar_dof) ... ok
+test_inversion_related_pair_is_opposite (test_modes.ModeTests.test_inversion_related_pair_is_opposite) ... ok
+test_mismatched_parent_setting_rejected (test_modes.ModeTests.test_mismatched_parent_setting_rejected) ... ok
+test_non_diagonal_supercell_count (test_modes.ModeTests.test_non_diagonal_supercell_count) ... ok
+test_nonfinite_amplitude_and_bad_strain_rejected (test_modes.ModeTests.test_nonfinite_amplitude_and_bad_strain_rejected) ... ok
+test_nonzero_translation_phase_is_not_lost (test_modes.ModeTests.test_nonzero_translation_phase_is_not_lost) ... ok
+test_partial_occupancy_rejected (test_modes.ModeTests.test_partial_occupancy_rejected) ... ok
+test_threefold_special_position_uses_verified_full_cell_cif (test_modes.ModeTests.test_threefold_special_position_uses_verified_full_cell_cif) ... ok
+test_triclinic_p1_all_nine_dof_and_six_strains (test_modes.ModeTests.test_triclinic_p1_all_nine_dof_and_six_strains) ... ok
+test_wrong_index_rejected (test_modes.ModeTests.test_wrong_index_rejected) ... ok
+test_wrong_size_rejected (test_modes.ModeTests.test_wrong_size_rejected) ... ok
+test_download_requires_frozen_validated_export (test_mode_boundaries.ModeBoundaryTests.test_download_requires_frozen_validated_export) ... ok
+test_layers_do_not_depend_on_upper_layers (test_mode_boundaries.ModeBoundaryTests.test_layers_do_not_depend_on_upper_layers) ... ok
+test_raw_and_modes_share_same_lock (test_mode_boundaries.ModeBoundaryTests.test_raw_and_modes_share_same_lock) ... ok
+test_prompt_prefixed_fatal_diagnostic (test_native_bomb.NativeBombTests.test_prompt_prefixed_fatal_diagnostic) ... ok
+test_zero_exit_syntax_error_is_diagnostic (test_local_contract.ExecutionEvidenceTests.test_zero_exit_syntax_error_is_diagnostic) ... ok
+test_consecutive_iso_prompts_do_not_hide_syntax_error (test_local_contract.ExecutionEvidenceTests.test_consecutive_iso_prompts_do_not_hide_syntax_error) ... ok
+test_cli_preserves_bytes_and_diagnostic_exit (test_local_contract.CliTests.test_cli_preserves_bytes_and_diagnostic_exit) ... ok
+test_doctor_unavailable_exit_code (test_local_contract.CliTests.test_doctor_unavailable_exit_code) ... ok
+test_query_preview_does_not_execute (test_local_contract.CliTests.test_query_preview_does_not_execute) ... ok
+test_cross_origin_run_rejected_before_service (test_local_contract.HttpTests.test_cross_origin_run_rejected_before_service) ... ok
+test_file_bytes_are_passed_and_unknown_program_rejected (test_local_contract.HttpTests.test_file_bytes_are_passed_and_unknown_program_rejected) ... ok
+test_local_host_and_token_are_required (test_local_contract.HttpTests.test_local_host_and_token_are_required) ... ok
+test_partial_request_body_has_a_finite_read_timeout (test_local_contract.HttpTests.test_partial_request_body_has_a_finite_read_timeout) ... ok
+test_query_preparation_is_separate_from_execution (test_local_contract.HttpTests.test_query_preparation_is_separate_from_execution) ... ok
+test_rejects_oversized_body_and_invalid_run_id (test_local_contract.HttpTests.test_rejects_oversized_body_and_invalid_run_id) ... ok
+test_file_selection_races (test_local_contract.BrowserInputContractTests.test_file_selection_races) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 3.936s
+
+OK

@@ -1,0 +1,369 @@
+{
+  "created_at_utc": "2026-10-20T14:43:29.825299+00:00",
+  "role": "exact text extraction of Ghidra pseudocode, not original source or proof",
+  "entries": [
+    {
+      "raw_path": "evidence/phase2/rea-kernels/04-generate-space-group.json",
+      "raw_sha256": "f95b9b667f005bb17cd58c0f6c1ed0a2bac0029e2309a4fd5ea00eeec8e96fad",
+      "extracted_path": "evidence/phase2/rea-kernels/04-generate-space-group.pseudocode.txt",
+      "extracted_sha256": "c42f9832b68591aa555c11d696e5f3a8472de060cf573ff140c7d68ddb61faeb",
+      "extracted_bytes": 701,
+      "evidence_id": "ev_e3bbbdbcd52462eed43ddd03ac749989660e6ac9be479cce54af0ef245f3a85f",
+      "operation": "procedure_pseudo_code",
+      "parameters": {
+        "procedure": "generate_space_group_"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "tool_is_error": false,
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+        "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ],
+      "raw_normalized_text_equal": true
+    },
+    {
+      "raw_path": "evidence/phase2/rea-kernels/05-get-wyckoff-all.json",
+      "raw_sha256": "666c4e30f1f989ef9c213fcd917245975057f21e03f4f4c7760a0bda55c9f298",
+      "extracted_path": "evidence/phase2/rea-kernels/05-get-wyckoff-all.pseudocode.txt",
+      "extracted_sha256": "02570e7c7657e8fcac72a913932d9ddd156c97dc5b18fee6cdb33f12d6889616",
+      "extracted_bytes": 1688,
+      "evidence_id": "ev_e206c9a0756fc264b0e17bb37bfdf98259ddb536d843e832a82fb37bc9355b26",
+      "operation": "procedure_pseudo_code",
+      "parameters": {
+        "procedure": "get_wyckoff_all_"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "tool_is_error": false,
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+        "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ],
+      "raw_normalized_text_equal": true
+    },
+    {
+      "raw_path": "evidence/phase2/rea-kernels/06-get-new-wyckoff.json",
+      "raw_sha256": "60b720449c1be4efde576b5aac1d6616d45cea39e5bedae81fc6dcdf1973ffcb",
+      "extracted_path": "evidence/phase2/rea-kernels/06-get-new-wyckoff.pseudocode.txt",
+      "extracted_sha256": "b6373bf11589bc094af4597e5149bd8b11e9edb6fcc377b05040faf264e080fe",
+      "extracted_bytes": 26553,
+      "evidence_id": "ev_2f0a254a09929d46aa3ca701e95ebcd892c0318959073c17e37311b5c7eb2a90",
+      "operation": "procedure_pseudo_code",
+      "parameters": {
+        "procedure": "get_new_wyckoff_"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "tool_is_error": false,
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+        "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+        "Ghidra Listing reports a terminal call at 0x48d88d to 0x4b6450 _gfortran_os_error_at (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+        "Ghidra Listing reports a terminal call at 0x48d89e to 0x4b65e0 _gfortrani_runtime_error (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+        "Ghidra Listing reports a terminal call at 0x48d8be to 0x4b6450 _gfortran_os_error_at (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+        "Ghidra Listing reports a terminal call at 0x48d8d4 to 0x4b6450 _gfortran_os_error_at (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+        "Ghidra Listing reports a terminal call at 0x48d8ea to 0x4b6450 _gfortran_os_error_at (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+        "Ghidra Listing reports a terminal call at 0x48d900 to 0x4b6450 _gfortran_os_error_at (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+        "Ghidra Listing reports a terminal call at 0x48d916 to 0x4b6450 _gfortran_os_error_at (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+        "Ghidra Listing reports a terminal call at 0x48d92c to 0x4b6450 _gfortran_os_error_at (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ],
+      "raw_normalized_text_equal": true
+    },
+    {
+      "raw_path": "evidence/phase2/rea-kernels/07-newlat-order.json",
+      "raw_sha256": "27a4d6801626db0d2b19a69d04b3178fb32ac37eb82867eac4b07d418bc3c8de",
+      "extracted_path": "evidence/phase2/rea-kernels/07-newlat-order.pseudocode.txt",
+      "extracted_sha256": "0b24fef03b71b9e7209c415024114f5da0f5043a5b5cc2e14a7bbb591f5b0efc",
+      "extracted_bytes": 4003,
+      "evidence_id": "ev_059c79cd6c074dd081951e650e9cc69c7bc374eb1450090064f2d96f3aa20253",
+      "operation": "procedure_pseudo_code",
+      "parameters": {
+        "procedure": "newlat_order_"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "tool_is_error": false,
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+        "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ],
+      "raw_normalized_text_equal": true
+    },
+    {
+      "raw_path": "evidence/phase2/rea-kernels/08-newlat-order3.json",
+      "raw_sha256": "62af29f94166c77eeb581a8b8d4b02a74cb641385ca4945e7f409b74d51f5f8d",
+      "extracted_path": "evidence/phase2/rea-kernels/08-newlat-order3.pseudocode.txt",
+      "extracted_sha256": "519fe29b362cff0318c41eb5d7b3b4b1d439953ba3bd669a43c9b97d0371142a",
+      "extracted_bytes": 4923,
+      "evidence_id": "ev_cfe7145dadf08eb6158092a7a78e1162a26f937e69f5a885534a24bef1d51b63",
+      "operation": "procedure_pseudo_code",
+      "parameters": {
+        "procedure": "newlat_order3_"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "tool_is_error": false,
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+        "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ],
+      "raw_normalized_text_equal": true
+    },
+    {
+      "raw_path": "evidence/phase2/rea-kernels/09-get-irrep4-ssgn.json",
+      "raw_sha256": "65849a832ea459130e268cda2986d2f550295dc69d3fbe1de8f2d8cc9de9d6b2",
+      "extracted_path": "evidence/phase2/rea-kernels/09-get-irrep4-ssgn.pseudocode.txt",
+      "extracted_sha256": "db1a9bf2d9c7629aaba4d110b7e805a8ede62724774f3a5676cc8dfad6812065",
+      "extracted_bytes": 3382,
+      "evidence_id": "ev_73e7c753967d8a7082521477790ca55cb51747b26a12116a46af85a043aa0fd2",
+      "operation": "procedure_pseudo_code",
+      "parameters": {
+        "procedure": "get_irrep4_ssgn_"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "tool_is_error": false,
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+        "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ],
+      "raw_normalized_text_equal": true
+    },
+    {
+      "raw_path": "evidence/phase2/rea-kernels/10-project-local.json",
+      "raw_sha256": "b36612d1c55b3e1b815afb8aa5bd2980e8a646fd72cc4deaa3983201ea9ec1f0",
+      "extracted_path": "evidence/phase2/rea-kernels/10-project-local.pseudocode.txt",
+      "extracted_sha256": "14f9804a4659df74a1e444cdb315547a5aa5e898b2123f9a620946fd02ed752a",
+      "extracted_bytes": 17292,
+      "evidence_id": "ev_67058670283cecf507a3a3b01ff43dfdef1a7f23aa97a7be85d5ee9803e0ebb6",
+      "operation": "procedure_pseudo_code",
+      "parameters": {
+        "procedure": "project_local_"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "tool_is_error": false,
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+        "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ],
+      "raw_normalized_text_equal": true
+    },
+    {
+      "raw_path": "evidence/phase2/rea-kernels/11-project-vector-local.json",
+      "raw_sha256": "87913499c58785dc665285dd142474555168f3170406a9842692cfe54362918f",
+      "extracted_path": "evidence/phase2/rea-kernels/11-project-vector-local.pseudocode.txt",
+      "extracted_sha256": "0ee96d247b725c8b2403a2e345a85fce3c47ec279a786f1ae2c594cf421558f0",
+      "extracted_bytes": 3142,
+      "evidence_id": "ev_9cacbb4a5a80c2a69e0e4e9d0f225611665a851a474f63300663013ad3700c38",
+      "operation": "procedure_pseudo_code",
+      "parameters": {
+        "procedure": "project_vector_local_"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "tool_is_error": false,
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+        "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ],
+      "raw_normalized_text_equal": true
+    },
+    {
+      "raw_path": "evidence/phase2/rea-kernels/12-isotropy-display-distortion.json",
+      "raw_sha256": "477bb79b15655e9532b0a2acaed6c3e4c34a5b6bdce7381a9e33b9aeae2ff48f",
+      "extracted_path": "evidence/phase2/rea-kernels/12-isotropy-display-distortion.pseudocode.txt",
+      "extracted_sha256": "22f6538fd76c3404dd45148549c00bd620c13cc25358f4cca257bf2e016bfb22",
+      "extracted_bytes": 199045,
+      "evidence_id": "ev_ad389aeab2cdee02d566ed554c7f594ad5c7530f1e8b3f2b4489fcb64de7e876",
+      "operation": "procedure_pseudo_code",
+      "parameters": {
+        "procedure": "isotropy_display_distortion_"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "tool_is_error": false,
+      "confidence": "observed",
+      "authority": "shipped-artifact",
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+        "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+        "Ghidra Listing reports a terminal call at 0x426cd0 to 0x4b6450 _gfortran_os_error_at (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+        "Ghidra Listing reports a terminal call at 0x428e8a to 0x4b6450 _gfortran_os_error_at (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+        "Ghidra Listing reports a terminal call at 0x428ede to 0x4b6450 _gfortran_os_error_at (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+        "Ghidra Listing reports a terminal call at 0x428f48 to 0x4b6450 _gfortran_os_error_at (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ],
+      "raw_normalized_text_equal": true
+    }
+  ]
+}

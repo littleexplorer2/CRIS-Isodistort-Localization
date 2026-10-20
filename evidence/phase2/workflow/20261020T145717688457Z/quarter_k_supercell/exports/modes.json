@@ -1,0 +1,1418 @@
+{
+  "schema_version": 1,
+  "basis_convention": "CRIS_REA_H_invariant_Cartesian_orthonormal_v1",
+  "scope": "Complete H-invariant polar displacement and homogeneous symmetric strain spaces on the stated finite cell; columns are not parent-IR-resolved.",
+  "coordinates": {
+    "lattice_columns": "Cartesian angstrom",
+    "fractional": "subgroup conventional cell",
+    "basis_columns": "ISO vectors in parent conventional fractional coordinates",
+    "origin": "parent conventional fractional coordinates"
+  },
+  "normalization": {
+    "displacement": "sum over all atoms in subgroup conventional cell of |e_i|^2 = 1",
+    "amplitude_unit": "angstrom; unstrained Cartesian RSS",
+    "mass_weighted": false,
+    "parent_primitive_cells_in_export_cell": 4,
+    "rss_per_parent_primitive_cell": "norm(amplitudes)/sqrt(parent_primitive_cells_in_export_cell)",
+    "strain": "Kelvin/Frobenius orthonormal; dimensionless; F=I+E positive definite",
+    "website_column_equivalence": "not established"
+  },
+  "subgroup": {
+    "number": 123,
+    "symbol": "P4/mmm",
+    "basis": [
+      [
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "-4"
+      ],
+      [
+        "0",
+        "1",
+        "0"
+      ]
+    ],
+    "origin": [
+      "0",
+      "0",
+      "0"
+    ],
+    "index": 12,
+    "primitive_size": 4
+  },
+  "lattice": [
+    [
+      4.0,
+      2.4492935982947064e-16,
+      -9.797174393178826e-16
+    ],
+    [
+      0.0,
+      2.4492935982947064e-16,
+      -16.0
+    ],
+    [
+      0.0,
+      4.0,
+      0.0
+    ]
+  ],
+  "atoms": [
+    {
+      "fractional_exact": [
+        "0",
+        "0",
+        "3/4"
+      ],
+      "symbol": "Ba",
+      "occupancy": "1",
+      "source_label": "A",
+      "source_index": 0,
+      "parent_translation": [
+        0,
+        -3,
+        0
+      ],
+      "label": "a1"
+    },
+    {
+      "fractional_exact": [
+        "0",
+        "0",
+        "1/2"
+      ],
+      "symbol": "Ba",
+      "occupancy": "1",
+      "source_label": "A",
+      "source_index": 0,
+      "parent_translation": [
+        0,
+        -2,
+        0
+      ],
+      "label": "a2"
+    },
+    {
+      "fractional_exact": [
+        "0",
+        "0",
+        "1/4"
+      ],
+      "symbol": "Ba",
+      "occupancy": "1",
+      "source_label": "A",
+      "source_index": 0,
+      "parent_translation": [
+        0,
+        -1,
+        0
+      ],
+      "label": "a3"
+    },
+    {
+      "fractional_exact": [
+        "0",
+        "0",
+        "0"
+      ],
+      "symbol": "Ba",
+      "occupancy": "1",
+      "source_label": "A",
+      "source_index": 0,
+      "parent_translation": [
+        0,
+        0,
+        0
+      ],
+      "label": "a4"
+    },
+    {
+      "fractional_exact": [
+        "1/2",
+        "1/2",
+        "7/8"
+      ],
+      "symbol": "Ti",
+      "occupancy": "1",
+      "source_label": "B",
+      "source_index": 1,
+      "parent_translation": [
+        0,
+        -4,
+        0
+      ],
+      "label": "a5"
+    },
+    {
+      "fractional_exact": [
+        "1/2",
+        "1/2",
+        "5/8"
+      ],
+      "symbol": "Ti",
+      "occupancy": "1",
+      "source_label": "B",
+      "source_index": 1,
+      "parent_translation": [
+        0,
+        -3,
+        0
+      ],
+      "label": "a6"
+    },
+    {
+      "fractional_exact": [
+        "1/2",
+        "1/2",
+        "3/8"
+      ],
+      "symbol": "Ti",
+      "occupancy": "1",
+      "source_label": "B",
+      "source_index": 1,
+      "parent_translation": [
+        0,
+        -2,
+        0
+      ],
+      "label": "a7"
+    },
+    {
+      "fractional_exact": [
+        "1/2",
+        "1/2",
+        "1/8"
+      ],
+      "symbol": "Ti",
+      "occupancy": "1",
+      "source_label": "B",
+      "source_index": 1,
+      "parent_translation": [
+        0,
+        -1,
+        0
+      ],
+      "label": "a8"
+    },
+    {
+      "fractional_exact": [
+        "0",
+        "1/2",
+        "7/8"
+      ],
+      "symbol": "O",
+      "occupancy": "1",
+      "source_label": "O",
+      "source_index": 2,
+      "parent_translation": [
+        0,
+        -4,
+        0
+      ],
+      "label": "a9"
+    },
+    {
+      "fractional_exact": [
+        "0",
+        "1/2",
+        "5/8"
+      ],
+      "symbol": "O",
+      "occupancy": "1",
+      "source_label": "O",
+      "source_index": 2,
+      "parent_translation": [
+        0,
+        -3,
+        0
+      ],
+      "label": "a10"
+    },
+    {
+      "fractional_exact": [
+        "0",
+        "1/2",
+        "3/8"
+      ],
+      "symbol": "O",
+      "occupancy": "1",
+      "source_label": "O",
+      "source_index": 2,
+      "parent_translation": [
+        0,
+        -2,
+        0
+      ],
+      "label": "a11"
+    },
+    {
+      "fractional_exact": [
+        "0",
+        "1/2",
+        "1/8"
+      ],
+      "symbol": "O",
+      "occupancy": "1",
+      "source_label": "O",
+      "source_index": 2,
+      "parent_translation": [
+        0,
+        -1,
+        0
+      ],
+      "label": "a12"
+    },
+    {
+      "fractional_exact": [
+        "1/2",
+        "0",
+        "7/8"
+      ],
+      "symbol": "O",
+      "occupancy": "1",
+      "source_label": "O",
+      "source_index": 2,
+      "parent_translation": [
+        0,
+        -4,
+        0
+      ],
+      "label": "a13"
+    },
+    {
+      "fractional_exact": [
+        "1/2",
+        "0",
+        "5/8"
+      ],
+      "symbol": "O",
+      "occupancy": "1",
+      "source_label": "O",
+      "source_index": 2,
+      "parent_translation": [
+        0,
+        -3,
+        0
+      ],
+      "label": "a14"
+    },
+    {
+      "fractional_exact": [
+        "1/2",
+        "0",
+        "3/8"
+      ],
+      "symbol": "O",
+      "occupancy": "1",
+      "source_label": "O",
+      "source_index": 2,
+      "parent_translation": [
+        0,
+        -2,
+        0
+      ],
+      "label": "a15"
+    },
+    {
+      "fractional_exact": [
+        "1/2",
+        "0",
+        "1/8"
+      ],
+      "symbol": "O",
+      "occupancy": "1",
+      "source_label": "O",
+      "source_index": 2,
+      "parent_translation": [
+        0,
+        -1,
+        0
+      ],
+      "label": "a16"
+    },
+    {
+      "fractional_exact": [
+        "1/2",
+        "1/2",
+        "3/4"
+      ],
+      "symbol": "O",
+      "occupancy": "1",
+      "source_label": "O",
+      "source_index": 2,
+      "parent_translation": [
+        0,
+        -3,
+        0
+      ],
+      "label": "a17"
+    },
+    {
+      "fractional_exact": [
+        "1/2",
+        "1/2",
+        "1/2"
+      ],
+      "symbol": "O",
+      "occupancy": "1",
+      "source_label": "O",
+      "source_index": 2,
+      "parent_translation": [
+        0,
+        -2,
+        0
+      ],
+      "label": "a18"
+    },
+    {
+      "fractional_exact": [
+        "1/2",
+        "1/2",
+        "1/4"
+      ],
+      "symbol": "O",
+      "occupancy": "1",
+      "source_label": "O",
+      "source_index": 2,
+      "parent_translation": [
+        0,
+        -1,
+        0
+      ],
+      "label": "a19"
+    },
+    {
+      "fractional_exact": [
+        "1/2",
+        "1/2",
+        "0"
+      ],
+      "symbol": "O",
+      "occupancy": "1",
+      "source_label": "O",
+      "source_index": 2,
+      "parent_translation": [
+        0,
+        0,
+        0
+      ],
+      "label": "a20"
+    }
+  ],
+  "operation_xyz": [
+    "x,y,z",
+    "x,-y,-z",
+    "-x,y,-z",
+    "-x,-y,z",
+    "-y,-x,-z",
+    "-y,x,z",
+    "y,-x,z",
+    "y,x,-z",
+    "-x,-y,-z",
+    "-x,y,z",
+    "x,-y,z",
+    "x,y,-z",
+    "y,x,z",
+    "y,-x,-z",
+    "-y,x,-z",
+    "-y,-x,z"
+  ],
+  "mode_names": [
+    "internal_1",
+    "internal_2",
+    "internal_3",
+    "internal_4",
+    "internal_5",
+    "internal_6"
+  ],
+  "displacement_basis": [
+    [
+      4.3297802811774664e-17,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.7071067811865475,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      -4.3297802811774664e-17,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      -0.7071067811865475,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      4.3297802811774664e-17,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.7071067811865475,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      4.3297802811774664e-17,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.7071067811865475,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      -4.3297802811774664e-17,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      -0.7071067811865475,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      -4.3297802811774664e-17,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      -0.7071067811865475,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      3.061616997868383e-17,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.5,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      3.061616997868383e-17,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.5,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -3.061616997868383e-17,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -0.5,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      -3.061616997868383e-17,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      -0.5,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      3.061616997868383e-17,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.5,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      3.061616997868383e-17,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.5,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -3.061616997868383e-17,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -0.5,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      -3.061616997868383e-17,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      -0.5,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      4.3297802811774664e-17
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.7071067811865475
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -4.3297802811774664e-17
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -0.7071067811865475
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "basis_shape": "rows = 3*atom_index + Cartesian component, columns = mode",
+  "strain_basis_kelvin": [
+    [
+      0.7071067811865475,
+      -8.738158231932822e-49
+    ],
+    [
+      2.6512257811776554e-33,
+      1.0
+    ],
+    [
+      0.7071067811865475,
+      -3.749399456654643e-33
+    ],
+    [
+      6.123233995736766e-17,
+      -4.870222750104236e-49
+    ],
+    [
+      6.123233995736766e-17,
+      -4.870222750104236e-49
+    ],
+    [
+      3.749399456654643e-33,
+      8.65956056235493e-17
+    ]
+  ],
+  "kelvin_order": [
+    "xx",
+    "yy",
+    "zz",
+    "sqrt(2)*yz",
+    "sqrt(2)*xz",
+    "sqrt(2)*xy"
+  ],
+  "selected_state": {
+    "lattice": [
+      [
+        4.0,
+        2.4492935982947064e-16,
+        -9.797174393178826e-16
+      ],
+      [
+        0.0,
+        2.4492935982947064e-16,
+        -16.0
+      ],
+      [
+        0.0,
+        4.0,
+        0.0
+      ]
+    ],
+    "fractional": [
+      [
+        0.0,
+        0.0,
+        0.75
+      ],
+      [
+        0.0,
+        0.0,
+        0.5
+      ],
+      [
+        0.0,
+        0.0,
+        0.25
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.5,
+        0.5,
+        0.875
+      ],
+      [
+        0.5,
+        0.5,
+        0.625
+      ],
+      [
+        0.5,
+        0.5,
+        0.375
+      ],
+      [
+        0.5,
+        0.5,
+        0.125
+      ],
+      [
+        0.0,
+        0.5,
+        0.875
+      ],
+      [
+        0.0,
+        0.5,
+        0.625
+      ],
+      [
+        0.0,
+        0.5,
+        0.375
+      ],
+      [
+        0.0,
+        0.5,
+        0.125
+      ],
+      [
+        0.5,
+        0.0,
+        0.875
+      ],
+      [
+        0.5,
+        0.0,
+        0.625
+      ],
+      [
+        0.5,
+        0.0,
+        0.375
+      ],
+      [
+        0.5,
+        0.0,
+        0.125
+      ],
+      [
+        0.5,
+        0.5,
+        0.75
+      ],
+      [
+        0.5,
+        0.5,
+        0.5
+      ],
+      [
+        0.5,
+        0.5,
+        0.25
+      ],
+      [
+        0.5,
+        0.5,
+        0.0
+      ]
+    ],
+    "displacements_angstrom": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "amplitudes_angstrom": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "strain_amplitudes": [
+      0.0,
+      0.0
+    ],
+    "strain_tensor": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "deformation": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "validation": {
+    "tolerance": 5.4569682106375746e-11,
+    "cell_condition": 4.000000000000002,
+    "rotation_orthogonality": 2.4492935982947064e-16,
+    "mode_invariance": 1.232595164407831e-32,
+    "orthonormality": 2.220446049250313e-16,
+    "displacement_projector": {
+      "symmetry": 1.2246467991473532e-16,
+      "idempotence": 3.749399456654644e-33,
+      "trace_integer": 0.0,
+      "trace_agreement": 0.0
+    },
+    "translation_projector": {
+      "symmetry": 0.0,
+      "idempotence": 0.0,
+      "trace_integer": 0.0,
+      "trace_agreement": 0.0
+    },
+    "strain_projector": {
+      "symmetry": 1.7319121124709866e-16,
+      "idempotence": 1.3661774735348443e-32,
+      "trace_integer": 0.0,
+      "trace_agreement": 0.0
+    },
+    "character_dimension": 6,
+    "group_order": 16,
+    "group_index": 12,
+    "primitive_size": 4,
+    "exact_group_closure": true,
+    "exact_permutation_composition": true,
+    "complete_in_declared_H_fixed_space": true
+  },
+  "provenance": {
+    "workflow_id": "61892e20-6d40-4a64-9b3a-20331a28bfb6",
+    "started_utc": "2026-10-20T14:58:03.039403+00:00",
+    "status": "preparing",
+    "directory": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\61892e20-6d40-4a64-9b3a-20331a28bfb6",
+    "input": {
+      "sha256": "cd18e170321890565f29e18fa1a63e095201a51dfcfab440cab8bf2a44f71372",
+      "bytes": 805
+    },
+    "request": {
+      "irrep": "DT1",
+      "opd": "P1",
+      "k_values": [
+        "1/4"
+      ],
+      "amplitudes": null,
+      "strain_amplitudes": null
+    },
+    "binary_runs": [
+      {
+        "role": "irrep_metadata",
+        "run_id": "c50dfbdf-117d-4f5c-a03a-8e634b7277be",
+        "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\c50dfbdf-117d-4f5c-a03a-8e634b7277be\\evidence.json"
+      },
+      {
+        "role": "parent",
+        "run_id": "8ed93e97-f91f-454e-b4c2-45b6b4ceb769",
+        "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\8ed93e97-f91f-454e-b4c2-45b6b4ceb769\\evidence.json"
+      },
+      {
+        "role": "subgroup",
+        "run_id": "55bc1d6c-408b-4a57-a15a-6528a43506a3",
+        "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\55bc1d6c-408b-4a57-a15a-6528a43506a3\\evidence.json"
+      },
+      {
+        "role": "subgroup_lattice",
+        "run_id": "e237ee49-cb3c-4e27-9e27-33bc51d0b8e5",
+        "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\e237ee49-cb3c-4e27-9e27-33bc51d0b8e5\\evidence.json"
+      },
+      {
+        "role": "compatible_irreps",
+        "run_id": "f6b65891-63f4-4c99-8fca-822a4543c4e5",
+        "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\f6b65891-63f4-4c99-8fca-822a4543c4e5\\evidence.json"
+      }
+    ],
+    "versions": {
+      "python": "3.12.5",
+      "numpy": "2.5.3"
+    },
+    "external_resources": "Only vendor/isobyu generic programs/databases; no reference-result reads.",
+    "source_code": {
+      "cris_rea\\__init__.py": {
+        "sha256": "e836f5d79c5ed1932608fd8ad0826fdbcef57a1d75fa074182a30bb8be3ea557",
+        "bytes": 101
+      },
+      "cris_rea\\__main__.py": {
+        "sha256": "6576ee3f162e194413661c9b79274cf1d1db2c3f57a7a325218a849a8859bf37",
+        "bytes": 53
+      },
+      "cris_rea\\application\\__init__.py": {
+        "sha256": "74f2d27090d636457682ee21328c79ab3320d72fa2f17e121e7d036cae461351",
+        "bytes": 110
+      },
+      "cris_rea\\application\\locking.py": {
+        "sha256": "567a7fb83af98fb01bc344cf037960e1ef9d1e967810de9aab1a5c2e5b505837",
+        "bytes": 294
+      },
+      "cris_rea\\application\\modes.py": {
+        "sha256": "b284adc0d595feec282dbf8ed7db613cd9b83833f149c8df2ee490cabba04d9b",
+        "bytes": 8489
+      },
+      "cris_rea\\application\\service.py": {
+        "sha256": "39b0986e2057917438978b09ab88898976b74190e2c5b7d892884747738fbf8e",
+        "bytes": 2695
+      },
+      "cris_rea\\backend\\__init__.py": {
+        "sha256": "2e53d8de15b5940a2778cc093a94b1fc541d0ce412435bf1c871d35fd9b6d4e2",
+        "bytes": 449
+      },
+      "cris_rea\\backend\\iso_protocol.py": {
+        "sha256": "6a0330d78b4a9675e75593a91e3d24242e00e71f4c3ec9fda32c37103f93560c",
+        "bytes": 15392
+      },
+      "cris_rea\\backend\\iso_query.py": {
+        "sha256": "24129de4b16b2d723b5563af4e1b628d1249b22aebf2be953983eeffd794be67",
+        "bytes": 1662
+      },
+      "cris_rea\\backend\\modes\\__init__.py": {
+        "sha256": "c525c4ef0d427c9cda682e0d894bac080b5066a4daa96ea192969a073f61062f",
+        "bytes": 230
+      },
+      "cris_rea\\backend\\modes\\core.py": {
+        "sha256": "2f2c64a2692dff18d3316d4e9153683f43ad5ca683ebf1f140eab6a24c96b095",
+        "bytes": 16661
+      },
+      "cris_rea\\backend\\modes\\export.py": {
+        "sha256": "ef572bffb99a253b82fa80dc88a520f6d7db7839b87eec71548d116059946e4c",
+        "bytes": 9912
+      },
+      "cris_rea\\backend\\runtime.py": {
+        "sha256": "61813050b3d2a5b18cd95cad96ee7caae4a8852299634bd0bb6b79ef2ca3897b",
+        "bytes": 14405
+      },
+      "cris_rea\\backend\\structure\\__init__.py": {
+        "sha256": "9ba3265a9c6180149c80ce584169708896fd4e8f116e22befd5c9f98eced9ce9",
+        "bytes": 604
+      },
+      "cris_rea\\backend\\structure\\cif.py": {
+        "sha256": "1f4abc47ffd3a9a6485238c03d1b1b1b5c30134b6a360678f15b70657dc3749b",
+        "bytes": 13482
+      },
+      "cris_rea\\backend\\structure\\model.py": {
+        "sha256": "27c2662affb13ae6c82c86a3905de45e93f48b732351a4449bf571726ab10b1c",
+        "bytes": 15114
+      },
+      "cris_rea\\backend\\structure\\symmetry.py": {
+        "sha256": "d14103f284538d7c0d3799adc945d318b9a9921e009cf269057ed0c6d0965d2a",
+        "bytes": 3956
+      },
+      "cris_rea\\backend\\worker.py": {
+        "sha256": "e7db6b0e28e50c2865004c0a27ed6c1996003273621af62a6d90c3e21359c23b",
+        "bytes": 3483
+      },
+      "cris_rea\\frontend\\__init__.py": {
+        "sha256": "11acc8367354a18c9c8e6178f8672ad6c4b229f81ca0be9b849799197ccdf06d",
+        "bytes": 123
+      },
+      "cris_rea\\frontend\\cli.py": {
+        "sha256": "f6de93f6185059db9fbb950622765cb69dada1b10f5f382bb0e9ae44f6356d0e",
+        "bytes": 5037
+      },
+      "cris_rea\\frontend\\web.py": {
+        "sha256": "0c5f819ebe45d94f80dab65564c733a09ad7ab6354c1a27fc2465b49b388a668",
+        "bytes": 10422
+      },
+      "cris_rea\\frontend\\webpage.py": {
+        "sha256": "a066a18aa86c81786b67947f6390226a00a0d53bf8e22a47a6ae3cd0c90e2bb2",
+        "bytes": 18805
+      }
+    },
+    "irrep_metadata": {
+      "wavevector_expression": "(0,a,0)",
+      "parameter_symbols": [
+        "a"
+      ],
+      "dimension": 6,
+      "nominal_k": [
+        "0",
+        "1/4",
+        "0"
+      ],
+      "note": "Nominal reciprocal conventional star representative; active arms depend on OPD. No claim of independent full irrep-matrix/phase verification."
+    },
+    "compatible_irreps_note": "Official DISPLAY DIRECTION raw listing saved; rounded vectors never enter the basis.",
+    "structure_notices": [],
+    "summary": {
+      "parent": 221,
+      "subgroup": 123,
+      "subgroup_symbol": "P4/mmm",
+      "atoms": 20,
+      "displacement_modes": 6,
+      "rigid_translations": 0,
+      "strain_modes": 2,
+      "basis_convention": "CRIS_REA_H_invariant_Cartesian_orthonormal_v1",
+      "compatible_irreps_raw": "Isotropy, Version 9.6.1, Jan 2022\nHarold T. Stokes, Dorian M. Hatch, and Branton J. Campbell\nBrigham Young University\nCurrent setting is International (new ed.) with conventional basis vectors.\n************Irrep (ML) k params k vector  Dir           Subgroup   Size\nGM1+                (0,0,0)   (a)           221 Pm-3m  1\nGM3+                (0,0,0)   (a,-1.732a)   123 P4/mmm 1\nDT1        1/4      (0,1/4,0) (a,0,0,0,0,0) 123 P4/mmm 4\nX1+                 (0,1/2,0) (a,0,0)       123 P4/mmm 2\n*"
+    }
+  }
+}

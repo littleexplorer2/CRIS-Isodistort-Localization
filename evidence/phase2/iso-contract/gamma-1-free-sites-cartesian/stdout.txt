@@ -1,0 +1,21 @@
+Isotropy, Version 9.6.1, Jan 2022
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell
+Brigham Young University
+Current setting is International (new ed.) with conventional basis vectors.
+****************Parent Irrep (ML) Subgroup Index Size Dir     Basis Vectors           Origin
+1 P1   GM1        1 P1     1     1    P1  (a) (1,0,0),(0,1,0),(0,0,1) (0,0,0)
+******Parent Irrep (ML) Dir Wyckoff Point                       Projected Vectors
+1 P1   GM1        P1  a       (0.97523, 1.45392, 2.03654) (4.00000, 0.00000,
+                                                          0.00000)
+1 P1   GM1        P1  a       (0.97523, 1.45392, 2.03654) (1.29410, 4.82963,
+                                                          0.00000)
+1 P1   GM1        P1  a       (0.97523, 1.45392, 2.03654) (0.52293, 0.93852,
+                                                          5.90303)
+**Parent Irrep (ML) Dir Wyckoff Point                       Projected Vectors
+1 P1   GM1        P1  a       (1.82816, 2.33954, 2.89839) (4.00000, 0.00000,
+                                                          0.00000)
+1 P1   GM1        P1  a       (1.82816, 2.33954, 2.89839) (1.29410, 4.82963,
+                                                          0.00000)
+1 P1   GM1        P1  a       (1.82816, 2.33954, 2.89839) (0.52293, 0.93852,
+                                                          5.90303)
+*

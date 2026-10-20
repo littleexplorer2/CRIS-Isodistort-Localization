@@ -1,0 +1,9 @@
+mode,atom,species,source_label,dx,dy,dz,normalization,amplitude_unit
+internal_1,a1,Na,A,0.5,0,0,supercell_Cartesian_RSS_1,angstrom
+internal_1,a2,Na,A,0.5,0,0,supercell_Cartesian_RSS_1,angstrom
+internal_1,a3,Cl,B,-0.5,0,0,supercell_Cartesian_RSS_1,angstrom
+internal_1,a4,Cl,B,-0.5,0,0,supercell_Cartesian_RSS_1,angstrom
+translation_1,a1,Na,A,0.5,0,0,supercell_Cartesian_RSS_1,angstrom
+translation_1,a2,Na,A,0.5,0,0,supercell_Cartesian_RSS_1,angstrom
+translation_1,a3,Cl,B,0.5,0,0,supercell_Cartesian_RSS_1,angstrom
+translation_1,a4,Cl,B,0.5,0,0,supercell_Cartesian_RSS_1,angstrom

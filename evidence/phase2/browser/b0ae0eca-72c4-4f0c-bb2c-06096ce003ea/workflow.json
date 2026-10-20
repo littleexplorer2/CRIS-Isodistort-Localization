@@ -1,0 +1,239 @@
+{
+  "workflow_id": "b0ae0eca-72c4-4f0c-bb2c-06096ce003ea",
+  "started_utc": "2026-10-20T15:06:24.406757+00:00",
+  "status": "validated_local_subspace",
+  "directory": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\b0ae0eca-72c4-4f0c-bb2c-06096ce003ea",
+  "input": {
+    "sha256": "27e269a046a99a822d6841f2ce8db272f18f5abee832cc97f556a76b6a011a1e",
+    "bytes": 352
+  },
+  "request": {
+    "irrep": "GM1",
+    "opd": "P1",
+    "k_values": [],
+    "amplitudes": [
+      0.01,
+      -0.02,
+      0.03,
+      0.004,
+      0.005,
+      -0.006
+    ],
+    "strain_amplitudes": [
+      0.01,
+      0.02,
+      -0.01,
+      0.003,
+      0.004,
+      -0.005
+    ]
+  },
+  "binary_runs": [
+    {
+      "role": "irrep_metadata",
+      "run_id": "81e708f0-f5a1-4f02-90fb-4d16b0ac1f7d",
+      "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\81e708f0-f5a1-4f02-90fb-4d16b0ac1f7d\\evidence.json"
+    },
+    {
+      "role": "parent",
+      "run_id": "604a65ac-4d50-446f-973b-e800efd9f525",
+      "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\604a65ac-4d50-446f-973b-e800efd9f525\\evidence.json"
+    },
+    {
+      "role": "subgroup",
+      "run_id": "ae407e6c-3af6-4c60-89db-b7db91ab801d",
+      "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\ae407e6c-3af6-4c60-89db-b7db91ab801d\\evidence.json"
+    },
+    {
+      "role": "subgroup_lattice",
+      "run_id": "6f662988-20df-434a-a2bd-ac7a923e77f2",
+      "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\6f662988-20df-434a-a2bd-ac7a923e77f2\\evidence.json"
+    },
+    {
+      "role": "compatible_irreps",
+      "run_id": "f9f4280a-f883-437e-83a0-305281ca7e0d",
+      "evidence": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\f9f4280a-f883-437e-83a0-305281ca7e0d\\evidence.json"
+    }
+  ],
+  "versions": {
+    "python": "3.12.5",
+    "numpy": "2.5.3"
+  },
+  "external_resources": "Only vendor/isobyu generic programs/databases; no reference-result reads.",
+  "source_code": {
+    "cris_rea\\__init__.py": {
+      "sha256": "e836f5d79c5ed1932608fd8ad0826fdbcef57a1d75fa074182a30bb8be3ea557",
+      "bytes": 101
+    },
+    "cris_rea\\__main__.py": {
+      "sha256": "6576ee3f162e194413661c9b79274cf1d1db2c3f57a7a325218a849a8859bf37",
+      "bytes": 53
+    },
+    "cris_rea\\application\\__init__.py": {
+      "sha256": "74f2d27090d636457682ee21328c79ab3320d72fa2f17e121e7d036cae461351",
+      "bytes": 110
+    },
+    "cris_rea\\application\\locking.py": {
+      "sha256": "567a7fb83af98fb01bc344cf037960e1ef9d1e967810de9aab1a5c2e5b505837",
+      "bytes": 294
+    },
+    "cris_rea\\application\\modes.py": {
+      "sha256": "9ccde6b4341b0f19bcfce933791d592dfec5e5242509044dab64585080d110ea",
+      "bytes": 8896
+    },
+    "cris_rea\\application\\service.py": {
+      "sha256": "39b0986e2057917438978b09ab88898976b74190e2c5b7d892884747738fbf8e",
+      "bytes": 2695
+    },
+    "cris_rea\\backend\\__init__.py": {
+      "sha256": "2e53d8de15b5940a2778cc093a94b1fc541d0ce412435bf1c871d35fd9b6d4e2",
+      "bytes": 449
+    },
+    "cris_rea\\backend\\iso_protocol.py": {
+      "sha256": "6a0330d78b4a9675e75593a91e3d24242e00e71f4c3ec9fda32c37103f93560c",
+      "bytes": 15392
+    },
+    "cris_rea\\backend\\iso_query.py": {
+      "sha256": "24129de4b16b2d723b5563af4e1b628d1249b22aebf2be953983eeffd794be67",
+      "bytes": 1662
+    },
+    "cris_rea\\backend\\modes\\__init__.py": {
+      "sha256": "c525c4ef0d427c9cda682e0d894bac080b5066a4daa96ea192969a073f61062f",
+      "bytes": 230
+    },
+    "cris_rea\\backend\\modes\\core.py": {
+      "sha256": "2f2c64a2692dff18d3316d4e9153683f43ad5ca683ebf1f140eab6a24c96b095",
+      "bytes": 16661
+    },
+    "cris_rea\\backend\\modes\\export.py": {
+      "sha256": "ef572bffb99a253b82fa80dc88a520f6d7db7839b87eec71548d116059946e4c",
+      "bytes": 9912
+    },
+    "cris_rea\\backend\\runtime.py": {
+      "sha256": "61813050b3d2a5b18cd95cad96ee7caae4a8852299634bd0bb6b79ef2ca3897b",
+      "bytes": 14405
+    },
+    "cris_rea\\backend\\structure\\__init__.py": {
+      "sha256": "9ba3265a9c6180149c80ce584169708896fd4e8f116e22befd5c9f98eced9ce9",
+      "bytes": 604
+    },
+    "cris_rea\\backend\\structure\\cif.py": {
+      "sha256": "1f4abc47ffd3a9a6485238c03d1b1b1b5c30134b6a360678f15b70657dc3749b",
+      "bytes": 13482
+    },
+    "cris_rea\\backend\\structure\\model.py": {
+      "sha256": "27c2662affb13ae6c82c86a3905de45e93f48b732351a4449bf571726ab10b1c",
+      "bytes": 15114
+    },
+    "cris_rea\\backend\\structure\\symmetry.py": {
+      "sha256": "d14103f284538d7c0d3799adc945d318b9a9921e009cf269057ed0c6d0965d2a",
+      "bytes": 3956
+    },
+    "cris_rea\\backend\\worker.py": {
+      "sha256": "e7db6b0e28e50c2865004c0a27ed6c1996003273621af62a6d90c3e21359c23b",
+      "bytes": 3483
+    },
+    "cris_rea\\frontend\\__init__.py": {
+      "sha256": "11acc8367354a18c9c8e6178f8672ad6c4b229f81ca0be9b849799197ccdf06d",
+      "bytes": 123
+    },
+    "cris_rea\\frontend\\cli.py": {
+      "sha256": "9ecf2451880d7299dcbd45f11bd5b52d9fb8d109bdf1ff725e58975771d7254c",
+      "bytes": 5495
+    },
+    "cris_rea\\frontend\\web.py": {
+      "sha256": "0c5f819ebe45d94f80dab65564c733a09ad7ab6354c1a27fc2465b49b388a668",
+      "bytes": 10422
+    },
+    "cris_rea\\frontend\\webpage.py": {
+      "sha256": "94c183eab9352d59961ca97369ebba00d4a1382d7b76b9c3ca9f2f8b3ff3d10e",
+      "bytes": 18898
+    }
+  },
+  "irrep_metadata": {
+    "wavevector_expression": "(0,0,0)",
+    "parameter_symbols": [],
+    "dimension": 1,
+    "nominal_k": [
+      "0",
+      "0",
+      "0"
+    ],
+    "note": "Nominal reciprocal conventional star representative; active arms depend on OPD. No claim of independent full irrep-matrix/phase verification."
+  },
+  "compatible_irreps_note": "Official DISPLAY DIRECTION raw listing saved; rounded vectors never enter the basis.",
+  "structure_notices": [],
+  "summary": {
+    "parent": 1,
+    "subgroup": 1,
+    "subgroup_symbol": "P1",
+    "atoms": 2,
+    "displacement_modes": 6,
+    "rigid_translations": 3,
+    "strain_modes": 6,
+    "basis_convention": "CRIS_REA_H_invariant_Cartesian_orthonormal_v1",
+    "compatible_irreps_raw": "Isotropy, Version 9.6.1, Jan 2022\nHarold T. Stokes, Dorian M. Hatch, and Branton J. Campbell\nBrigham Young University\nCurrent setting is International (new ed.) with conventional basis vectors.\n************Irrep (ML) k vector Dir Subgroup Size\nGM1        (0,0,0)  (a) 1 P1     1\n*"
+  },
+  "files": {
+    "distorted.cif": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\b0ae0eca-72c4-4f0c-bb2c-06096ce003ea\\exports\\distorted.cif",
+    "modes.csv": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\b0ae0eca-72c4-4f0c-bb2c-06096ce003ea\\exports\\modes.csv",
+    "modes.json": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\b0ae0eca-72c4-4f0c-bb2c-06096ce003ea\\exports\\modes.json",
+    "reference.cif": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\b0ae0eca-72c4-4f0c-bb2c-06096ce003ea\\exports\\reference.cif",
+    "report.json": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\b0ae0eca-72c4-4f0c-bb2c-06096ce003ea\\exports\\report.json"
+  },
+  "export_fingerprints": {
+    "distorted.cif": {
+      "sha256": "6bffdc21c6fe6d177d61cba4e3c70fc5ca1133fa7d7bfd60f537bbab879ff9cc",
+      "bytes": 849
+    },
+    "modes.csv": {
+      "sha256": "1f6664ecd19cc3266281e74e6aceb9e43023a687a359d5f8b64429e09789e473",
+      "bytes": 1181
+    },
+    "modes.json": {
+      "sha256": "8b0036926a0a57c888737834154575c4c9b152be9cdca158795c6b59e36699d8",
+      "bytes": 14096
+    },
+    "reference.cif": {
+      "sha256": "2a9f1dea7113b644cf49613908e1cde85c51dd937dcbffc384b06222d8333b05",
+      "bytes": 691
+    },
+    "report.json": {
+      "sha256": "15eddefc8c133b2b65589576e1e718acc81c38d73d6d98fef08ea91ae42affa2",
+      "bytes": 9599
+    }
+  },
+  "validation": {
+    "tolerance": 9.693484073154e-13,
+    "cell_condition": 1.685870572501087,
+    "rotation_orthogonality": 7.339187999650986e-18,
+    "mode_invariance": 3.4273230451296117e-18,
+    "orthonormality": 2.7817808468846267e-16,
+    "displacement_projector": {
+      "symmetry": 7.339187999650986e-18,
+      "idempotence": 4.8469667330561515e-18,
+      "trace_integer": 0.0,
+      "trace_agreement": 0.0
+    },
+    "translation_projector": {
+      "symmetry": 7.339187999650986e-18,
+      "idempotence": 4.8469667330561515e-18,
+      "trace_integer": 0.0,
+      "trace_agreement": 0.0
+    },
+    "strain_projector": {
+      "symmetry": 1.6970393847485518e-17,
+      "idempotence": 2.304711540147316e-16,
+      "trace_integer": 0.0,
+      "trace_agreement": 0.0
+    },
+    "character_dimension": 6,
+    "group_order": 1,
+    "group_index": 1,
+    "primitive_size": 1,
+    "exact_group_closure": true,
+    "exact_permutation_composition": true,
+    "complete_in_declared_H_fixed_space": true
+  },
+  "finished_utc": "2026-10-20T15:06:40.202313+00:00"
+}

@@ -1,0 +1,252 @@
+{
+  "created_at_utc": "2026-10-20T15:00:35.778172+00:00",
+  "status": "same_input_finite_displacement_span_agrees",
+  "scope": "One newly uploaded synthetic ordinary 3D GM4-/P1 case; no all-case or strain-equivalence claim",
+  "isolation": {
+    "freeze_manifest": "local_freeze_manifest.json",
+    "freeze_sha256": "eac25be26c7604128280b413b5287dde52dfab492977ce2f3c5e48eb77f48d4c",
+    "all_local_files_unchanged": true,
+    "product_imports": false,
+    "reference_role": "Read only after local output freeze; no production changes or reruns"
+  },
+  "inputs_read": {
+    "evidence\\phase2\\workflow\\20261020T145121147627Z\\cubic_polar_axis\\parent.cif": "8bd7d4afaefcde08c6666a1467f24da4aa25659709bc3e38a8fbc3eff33e602a",
+    "evidence\\phase2\\workflow\\20261020T145121147627Z\\cubic_polar_axis\\exports\\modes.json": "0af01b06c2b64add5620818e40928df3d309a2e79a3ce8f18a2968f9823dc55b",
+    "evidence\\phase2\\web-comparison\\20261020_cubic_polar_axis\\05_complete_modes.html": "24f2cc4df042382fe2b895375e839ec54f34654dab86ae486e29e2e79ef18440",
+    "evidence\\phase2\\web-comparison\\20261020_cubic_polar_axis\\local_freeze_manifest.json": "eac25be26c7604128280b413b5287dde52dfab492977ce2f3c5e48eb77f48d4c"
+  },
+  "comparator_sha256": "fcd65113318732e27db63a320f245e13e62735319d1c7b58256674b07e0182dd",
+  "numpy_version": "2.5.3",
+  "subgroup_exact_comparison": {
+    "agrees": true,
+    "website": {
+      "number": 99,
+      "symbol": "P4mm",
+      "basis": [
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ]
+      ],
+      "origin": [
+        "0",
+        "0",
+        "0"
+      ],
+      "primitive_size": 1,
+      "index": 6
+    }
+  },
+  "coordinate_conversion": "Website complete-mode fractional rows -> input-parent A * website C -> Cartesian; rows matched by exact modulo-one coordinates",
+  "website_mode_count": 4,
+  "local_mode_count": 4,
+  "local_internal_count": 3,
+  "local_translation_count": 1,
+  "website_rows": [
+    {
+      "label": "Pm-3m[0,0,0]GM4-(a,0,0)[A:a:dsp]T1u(a)",
+      "rows": [
+        {
+          "printed_atom_label": "A_1",
+          "position": [
+            "0",
+            "0",
+            "0"
+          ],
+          "local_atom_index": 0,
+          "fractional_vector": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Pm-3m[0,0,0]GM4-(a,0,0)[B:b:dsp]T1u(a)",
+      "rows": [
+        {
+          "printed_atom_label": "B_1",
+          "position": [
+            "1/2",
+            "1/2",
+            "1/2"
+          ],
+          "local_atom_index": 1,
+          "fractional_vector": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Pm-3m[0,0,0]GM4-(a,0,0)[O:c:dsp]A2u(a)",
+      "rows": [
+        {
+          "printed_atom_label": "O_1",
+          "position": [
+            "1/2",
+            "1/2",
+            "0"
+          ],
+          "local_atom_index": 2,
+          "fractional_vector": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "printed_atom_label": "O_2",
+          "position": [
+            "1/2",
+            "0",
+            "1/2"
+          ],
+          "local_atom_index": 3,
+          "fractional_vector": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "printed_atom_label": null,
+          "position": [
+            "0",
+            "1/2",
+            "1/2"
+          ],
+          "local_atom_index": 4,
+          "fractional_vector": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Pm-3m[0,0,0]GM4-(a,0,0)[O:c:dsp]Eu(a)",
+      "rows": [
+        {
+          "printed_atom_label": "O_1",
+          "position": [
+            "1/2",
+            "1/2",
+            "0"
+          ],
+          "local_atom_index": 2,
+          "fractional_vector": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "printed_atom_label": "O_2",
+          "position": [
+            "1/2",
+            "0",
+            "1/2"
+          ],
+          "local_atom_index": 3,
+          "fractional_vector": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "printed_atom_label": null,
+          "position": [
+            "0",
+            "1/2",
+            "1/2"
+          ],
+          "local_atom_index": 4,
+          "fractional_vector": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    }
+  ],
+  "span_comparison": {
+    "max_projector_component_difference": 3.3306690738754696e-16,
+    "cross_basis_singular_values": [
+      1.0,
+      0.9999999999999999,
+      0.9999999999999998,
+      0.9999999999999997
+    ],
+    "absolute_numerical_bound": 6.821210263296962e-12,
+    "bound_reason": "2048*binary64 epsilon*max(matrix shape) for this 15x4 well-conditioned example; printed displacement entries are exactly 0 or 1, so no rounded-vector uncertainty is inferred",
+    "website_cartesian_raw_column_norms": [
+      4.0,
+      4.0,
+      4.0,
+      5.656854249492381
+    ]
+  },
+  "normfactor_comparison": [
+    {
+      "label": "Pm-3m[0,0,0]GM4-(a,0,0)[A:a:dsp]T1u(a)",
+      "printed_normfactor_angstrom_inverse": 0.25,
+      "calculated_from_printed_vector_and_input_cell": 0.25,
+      "absolute_difference": 0.0,
+      "five_decimal_half_unit": 5e-06,
+      "consistent_with_printed_precision": true,
+      "norm_using_printed_factor": 1.0
+    },
+    {
+      "label": "Pm-3m[0,0,0]GM4-(a,0,0)[B:b:dsp]T1u(a)",
+      "printed_normfactor_angstrom_inverse": 0.25,
+      "calculated_from_printed_vector_and_input_cell": 0.25,
+      "absolute_difference": 0.0,
+      "five_decimal_half_unit": 5e-06,
+      "consistent_with_printed_precision": true,
+      "norm_using_printed_factor": 1.0
+    },
+    {
+      "label": "Pm-3m[0,0,0]GM4-(a,0,0)[O:c:dsp]A2u(a)",
+      "printed_normfactor_angstrom_inverse": 0.25,
+      "calculated_from_printed_vector_and_input_cell": 0.25,
+      "absolute_difference": 0.0,
+      "five_decimal_half_unit": 5e-06,
+      "consistent_with_printed_precision": true,
+      "norm_using_printed_factor": 1.0
+    },
+    {
+      "label": "Pm-3m[0,0,0]GM4-(a,0,0)[O:c:dsp]Eu(a)",
+      "printed_normfactor_angstrom_inverse": 0.17678,
+      "calculated_from_printed_vector_and_input_cell": 0.17677669529663687,
+      "absolute_difference": 3.3047033631272704e-06,
+      "five_decimal_half_unit": 5e-06,
+      "consistent_with_printed_precision": true,
+      "norm_using_printed_factor": 1.000018694225263
+    }
+  ],
+  "limitations": [
+    "No column order, signs or IR label equivalence claimed for the local basis.",
+    "Official normfactors are rounded to five decimals; directly applying them need not give exact unit norm.",
+    "Only displacement span compared; two printed strain modes retained as reference but not used to establish current official strain convention.",
+    "HTTPS form replay sees request/response bodies, not server executable calls.",
+    "The frozen local outputs precede the subsequent CIF-roundtrip export fix and are not presented as current repaired-export validation."
+  ]
+}

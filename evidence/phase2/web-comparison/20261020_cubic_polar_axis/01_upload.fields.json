@@ -1,0 +1,8 @@
+{
+  "form_fields": {
+    "input": "uploadparentcif"
+  },
+  "file_field": "toProcess",
+  "file_sha256": "8bd7d4afaefcde08c6666a1467f24da4aa25659709bc3e38a8fbc3eff33e602a",
+  "file_source": "evidence/phase2/workflow/20261020T145121147627Z/cubic_polar_axis/parent.cif"
+}
