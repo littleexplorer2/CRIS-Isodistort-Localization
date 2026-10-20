@@ -1,0 +1,59 @@
+- document:
+  - link "ISODISTORT":
+    - /url: isodistort.php
+  - list:
+    - listitem:
+      - link "SUITE":
+        - /url: isotropy.php
+    - listitem:
+      - link "HELP":
+        - /url: isodistorthelp.php
+  - heading "ISODISTORT" [level=1]
+  - paragraph: Version 6.12.2, Jul 2025 Harold T. Stokes. Branton J. Campbell, and Dorian M. Hatch, Department of Physics and Astronomy, Brigham Young University, Provo, Utah, 84602, USA, branton_campbell@byu.edu
+  - paragraph: "Description: ISODISTORT is a user-friendly internet-based tool for exploring the structural distortion modes of crystalline materials induced by irreducible representations of the parent space-group symmetry. The stand-alone ISOVIZ application further allows one to visualize and interactively manipulate the modes generated in ISODISTORT."
+  - paragraph:
+    - link "Help":
+      - /url: isodistorthelp.php
+    - text: ","
+    - link "Tutorials":
+      - /url: isodistorttutorials.php
+    - text: ","
+    - link "Version History":
+      - /url: isodistortversions.php
+  - paragraph:
+    - link "Legacy copy of ISODISTORT version 5.6.1, August 2013":
+      - /url: isodistort_version5.6.1/isodistort.php
+  - text: "Begin by entering the structure of parent phase:"
+  - link:
+    - /url: isodistorthelp.php#parent
+    - img
+  - list:
+    - paragraph:
+      - link "Get started quickly with a cubic perovskite parent.":
+        - /url: isodistortparent.html
+    - paragraph
+    - text: "Import parent structure from a CIF structure file:"
+    - button "OK"
+    - button "Choose File"
+    - text: If you don't have a parent CIF, create one using
+    - link "ISOCIF":
+      - /url: isocif.php
+    - text: .
+  - text: "Alternatively, you can begin with a previously-saved distortion:"
+  - link:
+    - /url: isodistorthelp.php#parent
+    - img
+  - list:
+    - paragraph:
+      - link "Get started quickly with a distorted perovskite example.":
+        - /url: isodistortdistortion.html
+      - text: (Select this link and click "OK" on the next page to test your Java installation.)
+    - paragraph
+    - text: "Import an ISODISTORT distortion file:"
+    - button "OK"
+    - button "Choose File"
+  - paragraph:
+    - text: "How to cite ISODISTORT (cite both of the following): H. T. Stokes, D. M. Hatch, and B. J. Campbell, ISODISTORT, ISOTROPY Software Suite, iso.byu.edu. B. J. Campbell, H. T. Stokes, D. E. Tanner, and D. M. Hatch, \"ISODISPLACE: An Internet Tool for Exploring Structural Distortions.\""
+    - link "J. Appl. Cryst. 39, 607-614 (2006)":
+      - /url: 2006 Campbell.pdf
+    - text: .

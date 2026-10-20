@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<HEAD>
+<meta charset="utf-8">
+<TITLE>ISOTROPY for Linux</TITLE>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="stylesheet" href="bootstrap.css">
+<link rel="stylesheet" href="docs.css">
+<style>
+  body {
+	padding-top: 0px;
+  }
+  div.pad {
+	padding-right: 50px;
+	padding-left: 50px;
+  }
+</style>
+</HEAD>
+<body>
+<div class="navbar navbar-static-top">
+  <div class="navbar-inner">
+     <div class="container">
+       <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+	 <span class="icon-bar"></span>
+       </a>
+       <a class="brand" href="isolinux.php">ISOTROPY for Linux</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+         <li><a href="isotropy.php">SUITE</a></li>
+                  </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="pad">
+
+<H1>ISOTROPY for Linux</H1>
+
+<p>Download a version of the ISOTROPY Softward Suite that will run locally
+under a Linux operating system.  This version of the suite includes
+the current versions of
+ISOTROPY, FINDSYM, SMODES, and COMSUBS.
+
+<div class="well">
+<h3>Download and Set-Up</h3>
+<UL TYPE=DISC>
+<li>Create a directory, isobyu, to contain the program and data files.
+
+<li>Download <A href=iso.zip>iso.zip</a> (about 11 MB) into that directory.
+
+<li>Unzip the files using the command, "unzip iso.zip".
+
+<li>You may delete iso.zip.
+
+<li>Add an environment variable ISODATA which contains the full path
+to the isobyu directory.  For example, if the full path is
+/usr/local/common/isobyu/, then the command in c shell would be:
+"setenv ISODATA /usr/local/common/isobyu/".  Be sure to put a forward
+slash (/) at the end.
+
+<li>Everything should be ready to run.  Try running ISOTROPY by entering the
+command, iso.
+</div>
+
+<div class="well">
+<h3>Files</h3>
+<p><b>ISOTROPY</b>
+<br>iso: executable
+<br>isoman.pdf: user's manual
+<br>isotut.pdf: tutorial
+<p><b>FINDSYM</b>
+<br>findsym: executiable
+<br>findsym.txt: help file
+<br>findsym_sample.in: sample input file 1
+<br>findsym_sample.log: output for sample input file 1
+<br>findsym_sample2.in: sample input file 2
+<br>findsym_sample2.log: output for sample input file 2
+<p><b>SMODES</b>
+<br>smodes: executable
+<br>smodes.txt: help file
+<br>smodes_sample.in: sample input file
+<br>smodes_sample.out: output for sample input file
+<p><b>COMSUBS</b>
+<br>comsubs: executable
+<br>comsubs.txt: help file
+<br>comsubs_sample.in: sample input file
+<br>comsubs_sample.log: output for sample input file
+<p><b>Data files</b>
+<br>data_space.txt, data_wyckoff.txt, data_irreps.txt, data_little.txt,
+data_images.txt, data_isotropy.txt, data_ssg.txt, data_magnetic.txt,
+data_diperiodic.txt, const.dat, match_wyckoff.dat, symmetry.dat
+</div>
+
+</div>
+<script src="swingjs/swingjs2.js"></script>
+<script src="isodistort.js"></script>
+</BODY>
+</HTML>

@@ -1,0 +1,5154 @@
+{
+  "size_bytes": 2553677,
+  "sha256": "d060ccc8ae9bff2177959f9df08290c53529135d73dbbec4ce3c7408463d0c3c",
+  "ascii_text_bytes_only": true,
+  "unusual_byte_histogram": {},
+  "nul_count": 0,
+  "line_break_counts": {
+    "lf": 33198,
+    "crlf": 0,
+    "bare_cr": 0
+  },
+  "first_96_bytes": {
+    "offset": 0,
+    "length": 96,
+    "hex": "6d 61 67 5f 63 6f 75 6e 74 0a 31 36 35 31 20 0a 6d 61 67 5f 6e 6c 61 62 65 6c 0a 22 31 2e 31 20 20 20 20 22 20 22 31 2e 32 20 20 20 20 22 20 22 31 2e 33 20 20 20 20 22 20 22 32 2e 34 20 20 20 20 22 20 22 32 2e 35 20 20 20 20 22 20 22 32 2e 36 20 20 20 20 22 20 22 32 2e 37 20 20 20 20 22",
+    "ascii_escaped": "mag_count\n1651 \nmag_nlabel\n\"1.1    \" \"1.2    \" \"1.3    \" \"2.4    \" \"2.5    \" \"2.6    \" \"2.7    \""
+  },
+  "unusual_runs_first_32": [],
+  "candidate_header_count": 57,
+  "candidate_headers": [
+    {
+      "name": "mag_count",
+      "line": 1,
+      "header_offset": 0,
+      "payload_offset": 10,
+      "payload_end_exclusive": 16,
+      "payload_bytes": 6,
+      "payload_sha256": "682eebbd758c01ff52070c9866a1e7401b573124198b413618ec75e84db92111",
+      "sample": {
+        "offset": 10,
+        "length": 6,
+        "hex": "31 36 35 31 20 0a",
+        "ascii_escaped": "1651 \n"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 1
+      },
+      "integer_min": 1651,
+      "integer_max": 1651,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1651",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_nlabel",
+      "line": 3,
+      "header_offset": 16,
+      "payload_offset": 27,
+      "payload_end_exclusive": 16538,
+      "payload_bytes": 16511,
+      "payload_sha256": "c14f87a1c76db586e25ecdfdeb05f3f8ffead5b45ad328617bc8ffd95343dc67",
+      "sample": {
+        "offset": 27,
+        "length": 96,
+        "hex": "22 31 2e 31 20 20 20 20 22 20 22 31 2e 32 20 20 20 20 22 20 22 31 2e 33 20 20 20 20 22 20 22 32 2e 34 20 20 20 20 22 20 22 32 2e 35 20 20 20 20 22 20 22 32 2e 36 20 20 20 20 22 20 22 32 2e 37 20 20 20 20 22 0a 22 33 2e 31 20 20 20 20 22 20 22 33 2e 32 20 20 20 20 22 20 22 33 2e 33 20 20",
+        "ascii_escaped": "\"1.1    \" \"1.2    \" \"1.3    \" \"2.4    \" \"2.5    \" \"2.6    \" \"2.7    \"\n\"3.1    \" \"3.2    \" \"3.3  "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "quoted": 1651
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "quoted",
+          "raw": "\"1.1    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "quoted",
+          "raw": "\"1.2    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "quoted",
+          "raw": "\"1.3    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 30,
+          "kind": "quoted",
+          "raw": "\"2.4    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 40,
+          "kind": "quoted",
+          "raw": "\"2.5    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 50,
+          "kind": "quoted",
+          "raw": "\"2.6    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 60,
+          "kind": "quoted",
+          "raw": "\"2.7    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 70,
+          "kind": "quoted",
+          "raw": "\"3.1    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 80,
+          "kind": "quoted",
+          "raw": "\"3.2    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 90,
+          "kind": "quoted",
+          "raw": "\"3.3    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 100,
+          "kind": "quoted",
+          "raw": "\"3.4    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 110,
+          "kind": "quoted",
+          "raw": "\"3.5    \"",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_bns_label",
+      "line": 240,
+      "header_offset": 16538,
+      "payload_offset": 16552,
+      "payload_end_exclusive": 41318,
+      "payload_bytes": 24766,
+      "payload_sha256": "20f50743a2bd8934f11b183653220190db3eaf0a1a29de1525c6767992604673",
+      "sample": {
+        "offset": 16552,
+        "length": 96,
+        "hex": "22 50 31 20 20 20 20 20 20 20 20 20 20 22 20 22 50 31 31 27 20 20 20 20 20 20 20 20 22 20 22 50 5f 53 31 20 20 20 20 20 20 20 20 22 20 22 50 2d 31 20 20 20 20 20 20 20 20 20 22 20 22 50 2d 31 31 27 20 20 20 20 20 20 20 22 0a 22 50 2d 31 27 20 20 20 20 20 20 20 20 22 20 22 50 5f 53 2d 31",
+        "ascii_escaped": "\"P1          \" \"P11'        \" \"P_S1        \" \"P-1         \" \"P-11'       \"\n\"P-1'        \" \"P_S-1"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "quoted": 1651
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "quoted",
+          "raw": "\"P1          \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 15,
+          "kind": "quoted",
+          "raw": "\"P11'        \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 30,
+          "kind": "quoted",
+          "raw": "\"P_S1        \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 45,
+          "kind": "quoted",
+          "raw": "\"P-1         \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 60,
+          "kind": "quoted",
+          "raw": "\"P-11'       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 75,
+          "kind": "quoted",
+          "raw": "\"P-1'        \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 90,
+          "kind": "quoted",
+          "raw": "\"P_S-1       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 105,
+          "kind": "quoted",
+          "raw": "\"P2          \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 120,
+          "kind": "quoted",
+          "raw": "\"P21'        \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 135,
+          "kind": "quoted",
+          "raw": "\"P2'         \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 150,
+          "kind": "quoted",
+          "raw": "\"P_a2        \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 165,
+          "kind": "quoted",
+          "raw": "\"P_b2        \"",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_unified_label",
+      "line": 572,
+      "header_offset": 41318,
+      "payload_offset": 41336,
+      "payload_end_exclusive": 90867,
+      "payload_bytes": 49531,
+      "payload_sha256": "966399d6dddbb90bcc459e57603f73d5c906b4739d4c0225554e7b07508056cb",
+      "sample": {
+        "offset": 41336,
+        "length": 96,
+        "hex": "22 50 31 2e 31 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 22 20 22 50 31 2e 31 27 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 22 0a 22 50 31 2e 31 27 5f 63 5b 50 31 5d 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 22 20 22 50 2d 31 2e 31",
+        "ascii_escaped": "\"P1.1                       \" \"P1.1'                      \"\n\"P1.1'_c[P1]                \" \"P-1.1"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "quoted": 1651
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "quoted",
+          "raw": "\"P1.1                       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 30,
+          "kind": "quoted",
+          "raw": "\"P1.1'                      \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 60,
+          "kind": "quoted",
+          "raw": "\"P1.1'_c[P1]                \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 90,
+          "kind": "quoted",
+          "raw": "\"P-1.1                      \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 120,
+          "kind": "quoted",
+          "raw": "\"P-1.1'                     \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 150,
+          "kind": "quoted",
+          "raw": "\"P-1'                       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 180,
+          "kind": "quoted",
+          "raw": "\"P-1.1'_c[P-1]              \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 210,
+          "kind": "quoted",
+          "raw": "\"P2.1                       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 240,
+          "kind": "quoted",
+          "raw": "\"P2.1'                      \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 270,
+          "kind": "quoted",
+          "raw": "\"P2'                        \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 300,
+          "kind": "quoted",
+          "raw": "\"P2.1'_a[P2]                \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 330,
+          "kind": "quoted",
+          "raw": "\"P2.1'_b[P2]                \"",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_space_group",
+      "line": 1399,
+      "header_offset": 90867,
+      "payload_offset": 90883,
+      "payload_end_exclusive": 96610,
+      "payload_bytes": 5727,
+      "payload_sha256": "f18e2e2c12dce9e9dc965fbd7ec0ebd8e99b12d3072a6094d11bad7e4104ed09",
+      "sample": {
+        "offset": 90883,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 32 20 32 20 32 20 32 20 33 20 33 20 33 20 33 20 33 20 33 20 34 20 34 20 34 20 34 20 34 20 34 20 35 20 35 20 35 20 35 20 35 20 36 20 36 20 36 20 36 20 36 20 36 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 38 0a 38 20 38 20 38 20 38 20 39 20 39 20 39 20 39 20 39 20",
+        "ascii_escaped": "1 1 1 2 2 2 2 3 3 3 3 3 3 4 4 4 4 4 4 5 5 5 5 5 6 6 6 6 6 6 7 7 7 7 7 7 7 7 8\n8 8 8 8 9 9 9 9 9 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 1651
+      },
+      "integer_min": 1,
+      "integer_max": 230,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_space_group_pointer",
+      "line": 1475,
+      "header_offset": 96610,
+      "payload_offset": 96634,
+      "payload_end_exclusive": 97648,
+      "payload_bytes": 1014,
+      "payload_sha256": "b9170f1561cbeb4d28fd75b6592f85d56e3d55f756702359dcff2568bd834445",
+      "sample": {
+        "offset": 96634,
+        "length": 96,
+        "hex": "31 20 34 20 38 20 31 34 20 32 30 20 32 35 20 33 31 20 33 39 20 34 34 20 34 39 20 35 37 20 36 35 20 37 32 20 38 32 20 39 32 20 39 39 20 31 30 35 20 31 31 34 20 31 32 33 20 31 32 39 20 31 33 36 20 31 34 33 20 31 34 37 20 31 35 31 0a 31 35 35 20 31 36 34 20 31 37 36 20 31 38 35 20 31 39 37",
+        "ascii_escaped": "1 4 8 14 20 25 31 39 44 49 57 65 72 82 92 99 105 114 123 129 136 143 147 151\n155 164 176 185 197"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 231
+      },
+      "integer_min": 1,
+      "integer_max": 1652,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "14",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 9,
+          "kind": "integer",
+          "raw": "20",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "25",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 15,
+          "kind": "integer",
+          "raw": "31",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "39",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "44",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "49",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 27,
+          "kind": "integer",
+          "raw": "57",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 30,
+          "kind": "integer",
+          "raw": "65",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_number",
+      "line": 1490,
+      "header_offset": 97648,
+      "payload_offset": 97659,
+      "payload_end_exclusive": 103718,
+      "payload_bytes": 6059,
+      "payload_sha256": "f0a3361b7b64050c3e2405c3624a60e09f42fda8eeb02b9e05f22e88169150df",
+      "sample": {
+        "offset": 97659,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 35 20 36 20 37 20 31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 31 33 20 31 34 20 31 35 20 31 36 20 31 37 20 31 38 20 31 39 20 32 30 20 32 31 20 32 32 20 32 33 20 32 34 0a 32 35 20 32 36 20 32 37 20 32 38 20 32 39 20 33 30 20 33",
+        "ascii_escaped": "1 2 3 4 5 6 7 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24\n25 26 27 28 29 30 3"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 1651
+      },
+      "integer_min": 1,
+      "integer_max": 570,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_og_number",
+      "line": 1571,
+      "header_offset": 103718,
+      "payload_offset": 103732,
+      "payload_end_exclusive": 110881,
+      "payload_bytes": 7149,
+      "payload_sha256": "42a1951decdc77b656cf64aef8f63fe845cb725d492d9c69bb7c6f9a4c7fc286",
+      "sample": {
+        "offset": 103732,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 32 33 20 31 35 20 31 36 20 31 37 20 31 38 20 31 34 20 32 34 20 31 39 20 32 30 20 32 31 20 32 32 20 31 33 20 32 35 20 32 36 20 32 37 20 32 38 20 32 39 0a 34 32 20 33 32 20 33 33 20 33 34 20 33 35 20 33 31 20",
+        "ascii_escaped": "1 2 3 4 5 6 7 8 9 10 11 12 23 15 16 17 18 14 24 19 20 21 22 13 25 26 27 28 29\n42 32 33 34 35 31 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 1651
+      },
+      "integer_min": 1,
+      "integer_max": 1651,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_og_nlabel",
+      "line": 1667,
+      "header_offset": 110881,
+      "payload_offset": 110895,
+      "payload_end_exclusive": 135661,
+      "payload_bytes": 24766,
+      "payload_sha256": "58af7189aad31da6a669790c9b75094a9d07bb096999f7325a087e2391f7cfac",
+      "sample": {
+        "offset": 110895,
+        "length": 96,
+        "hex": "22 31 2e 31 2e 31 20 20 20 20 20 20 20 22 20 22 31 2e 32 2e 32 20 20 20 20 20 20 20 22 20 22 31 2e 33 2e 33 20 20 20 20 20 20 20 22 20 22 32 2e 31 2e 34 20 20 20 20 20 20 20 22 20 22 32 2e 32 2e 35 20 20 20 20 20 20 20 22 0a 22 32 2e 33 2e 36 20 20 20 20 20 20 20 22 20 22 32 2e 34 2e 37",
+        "ascii_escaped": "\"1.1.1       \" \"1.2.2       \" \"1.3.3       \" \"2.1.4       \" \"2.2.5       \"\n\"2.3.6       \" \"2.4.7"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "quoted": 1651
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "quoted",
+          "raw": "\"1.1.1       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 15,
+          "kind": "quoted",
+          "raw": "\"1.2.2       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 30,
+          "kind": "quoted",
+          "raw": "\"1.3.3       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 45,
+          "kind": "quoted",
+          "raw": "\"2.1.4       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 60,
+          "kind": "quoted",
+          "raw": "\"2.2.5       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 75,
+          "kind": "quoted",
+          "raw": "\"2.3.6       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 90,
+          "kind": "quoted",
+          "raw": "\"2.4.7       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 105,
+          "kind": "quoted",
+          "raw": "\"3.1.8       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 120,
+          "kind": "quoted",
+          "raw": "\"3.2.9       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 135,
+          "kind": "quoted",
+          "raw": "\"3.3.10      \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 150,
+          "kind": "quoted",
+          "raw": "\"3.4.11      \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 165,
+          "kind": "quoted",
+          "raw": "\"3.5.12      \"",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_og_label",
+      "line": 1999,
+      "header_offset": 135661,
+      "payload_offset": 135674,
+      "payload_end_exclusive": 173648,
+      "payload_bytes": 37974,
+      "payload_sha256": "9770364b8a550acedc93299574ccc73211525f127162e7a55bf8fd54cab9ca4b",
+      "sample": {
+        "offset": 135674,
+        "length": 96,
+        "hex": "22 50 31 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 22 20 22 50 31 31 27 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 22 20 22 50 5f 32 73 31 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 22 0a 22 50 2d 31 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 22 20 22 50 2d 31",
+        "ascii_escaped": "\"P1                  \" \"P11'                \" \"P_2s1               \"\n\"P-1                 \" \"P-1"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "quoted": 1651
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "quoted",
+          "raw": "\"P1                  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 23,
+          "kind": "quoted",
+          "raw": "\"P11'                \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 46,
+          "kind": "quoted",
+          "raw": "\"P_2s1               \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 69,
+          "kind": "quoted",
+          "raw": "\"P-1                 \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 92,
+          "kind": "quoted",
+          "raw": "\"P-11'               \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 115,
+          "kind": "quoted",
+          "raw": "\"P-1'                \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 138,
+          "kind": "quoted",
+          "raw": "\"P_2s-1              \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 161,
+          "kind": "quoted",
+          "raw": "\"P2                  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 184,
+          "kind": "quoted",
+          "raw": "\"P21'                \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 207,
+          "kind": "quoted",
+          "raw": "\"P2'                 \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 230,
+          "kind": "quoted",
+          "raw": "\"P_2a2               \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 253,
+          "kind": "quoted",
+          "raw": "\"P_2b2               \"",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_gen_count",
+      "line": 2551,
+      "header_offset": 173648,
+      "payload_offset": 173662,
+      "payload_end_exclusive": 176965,
+      "payload_bytes": 3303,
+      "payload_sha256": "d3f408e2a6b975d95a855b41158cca7b91892af814eac4972883aa1dce40a6a5",
+      "sample": {
+        "offset": 173662,
+        "length": 96,
+        "hex": "31 20 32 20 32 20 31 20 32 20 31 20 32 20 31 20 32 20 31 20 32 20 32 20 32 20 31 20 32 20 31 20 32 20 32 20 32 20 31 20 32 20 31 20 32 20 32 20 31 20 32 20 31 20 32 20 32 20 32 20 31 20 32 20 31 20 32 20 32 20 32 20 32 20 32 20 31 0a 32 20 31 20 32 20 32 20 31 20 32 20 31 20 32 20 32 20",
+        "ascii_escaped": "1 2 2 1 2 1 2 1 2 1 2 2 2 1 2 1 2 2 2 1 2 1 2 2 1 2 1 2 2 2 1 2 1 2 2 2 2 2 1\n2 1 2 2 1 2 1 2 2 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 1651
+      },
+      "integer_min": 1,
+      "integer_max": 4,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_gen",
+      "line": 2595,
+      "header_offset": 176965,
+      "payload_offset": 176973,
+      "payload_end_exclusive": 246887,
+      "payload_bytes": 69914,
+      "payload_sha256": "e81af41dcccc6cb144b2b3cc7c20620d7cd77ef0bf2c93fc3de980e1297cf2b1",
+      "sample": {
+        "offset": 176973,
+        "length": 96,
+        "hex": "30 20 30 20 30 20 31 20 31 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 31 20 31 20 30 20 30 20 30 20 31 20 34 39 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 0a 30 20 30 20 30 20 30 20 31 20 31 20 30 20 30 20 31",
+        "ascii_escaped": "0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 1 49 0 0 0 0 0 0 0 0 0\n0 0 0 0 1 1 0 0 1"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 33020
+      },
+      "integer_min": -1,
+      "integer_max": 142,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_op_label",
+      "line": 3489,
+      "header_offset": 246887,
+      "payload_offset": 246906,
+      "payload_end_exclusive": 248347,
+      "payload_bytes": 1441,
+      "payload_sha256": "e3096166bbda72f39adbaa8cf523f559aba70e72695314f803545eaef0e9a701",
+      "sample": {
+        "offset": 246906,
+        "length": 96,
+        "hex": "22 45 20 20 20 20 20 20 22 20 22 43 32 78 20 20 20 20 22 20 22 43 32 79 20 20 20 20 22 20 22 43 32 7a 20 20 20 20 22 20 22 43 33 31 2d 20 20 20 22 20 22 43 33 32 2d 20 20 20 22 20 22 43 33 33 2d 20 20 20 22 0a 22 43 33 34 2d 20 20 20 22 20 22 43 33 31 2b 20 20 20 22 20 22 43 33 34 2b 20",
+        "ascii_escaped": "\"E      \" \"C2x    \" \"C2y    \" \"C2z    \" \"C31-   \" \"C32-   \" \"C33-   \"\n\"C34-   \" \"C31+   \" \"C34+ "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "quoted": 144
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "quoted",
+          "raw": "\"E      \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "quoted",
+          "raw": "\"C2x    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "quoted",
+          "raw": "\"C2y    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 30,
+          "kind": "quoted",
+          "raw": "\"C2z    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 40,
+          "kind": "quoted",
+          "raw": "\"C31-   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 50,
+          "kind": "quoted",
+          "raw": "\"C32-   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 60,
+          "kind": "quoted",
+          "raw": "\"C33-   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 70,
+          "kind": "quoted",
+          "raw": "\"C34-   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 80,
+          "kind": "quoted",
+          "raw": "\"C31+   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 90,
+          "kind": "quoted",
+          "raw": "\"C34+   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 100,
+          "kind": "quoted",
+          "raw": "\"C32+   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 110,
+          "kind": "quoted",
+          "raw": "\"C33+   \"",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_op_mlt",
+      "line": 3511,
+      "header_offset": 248347,
+      "payload_offset": 248364,
+      "payload_end_exclusive": 302653,
+      "payload_bytes": 54289,
+      "payload_sha256": "eb5e0126140a0f375c3b7c71da3ccf460d92edb347729c91b690ee4536561182",
+      "sample": {
+        "offset": 248364,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 31 33 20 31 34 20 31 35 20 31 36 20 31 37 20 31 38 20 31 39 20 32 30 20 32 31 20 32 32 20 32 33 20 32 34 20 32 35 20 32 36 20 32 37 20 32 38 20 32 39 0a 33 30 20 33 31 20 33 32 20 33 33 20 33 34 20 33 35 20",
+        "ascii_escaped": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29\n30 31 32 33 34 35 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 20736
+      },
+      "integer_min": 0,
+      "integer_max": 144,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_op_inverse",
+      "line": 4210,
+      "header_offset": 302653,
+      "payload_offset": 302674,
+      "payload_end_exclusive": 303143,
+      "payload_bytes": 469,
+      "payload_sha256": "54c2ec93b7e42f316116c0252bfdc2e290280e4df202bd7498b97a6a3bc08bd9",
+      "sample": {
+        "offset": 302674,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 39 20 31 31 20 31 32 20 31 30 20 35 20 38 20 36 20 37 20 31 33 20 31 35 20 31 34 20 31 36 20 31 37 20 31 38 20 32 30 20 31 39 20 32 31 20 32 34 20 32 33 20 32 32 20 32 35 20 32 36 20 32 37 20 32 38 20 33 33 0a 33 35 20 33 36 20 33 34 20 32 39 20 33 32 20 33 30 20",
+        "ascii_escaped": "1 2 3 4 9 11 12 10 5 8 6 7 13 15 14 16 17 18 20 19 21 24 23 22 25 26 27 28 33\n35 36 34 29 32 30 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 144
+      },
+      "integer_min": 1,
+      "integer_max": 144,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 13,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 19,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 23,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 25,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_op_r",
+      "line": 4218,
+      "header_offset": 303143,
+      "payload_offset": 303158,
+      "payload_end_exclusive": 303447,
+      "payload_bytes": 289,
+      "payload_sha256": "1ebb2823acd19732d3004783cfb837b7cae538ea02240ec483da95376f07036f",
+      "sample": {
+        "offset": 303158,
+        "length": 96,
+        "hex": "46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 0a 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20",
+        "ascii_escaped": "F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F F\nF F F F F F F F F "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "logical_lexeme": 144
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_op_mag2nonmag",
+      "line": 4223,
+      "header_offset": 303447,
+      "payload_offset": 303471,
+      "payload_end_exclusive": 303886,
+      "payload_bytes": 415,
+      "payload_sha256": "16efa8c3608a43b048ae6ab47b16ba200fb64e4817f85bcf1bd75c3de2a7f8e6",
+      "sample": {
+        "offset": 303471,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 31 33 20 31 34 20 31 35 20 31 36 20 31 37 20 31 38 20 31 39 20 32 30 20 32 31 20 32 32 20 32 33 20 32 34 20 32 35 20 32 36 20 32 37 20 32 38 20 32 39 0a 33 30 20 33 31 20 33 32 20 33 33 20 33 34 20 33 35 20",
+        "ascii_escaped": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29\n30 31 32 33 34 35 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 144
+      },
+      "integer_min": 1,
+      "integer_max": 72,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_op_nonmag2mag",
+      "line": 4230,
+      "header_offset": 303886,
+      "payload_offset": 303910,
+      "payload_end_exclusive": 304379,
+      "payload_bytes": 469,
+      "payload_sha256": "838426da396d82f95301722000f42c733ec36d20e67545466fadf50894d20776",
+      "sample": {
+        "offset": 303910,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 31 33 20 31 34 20 31 35 20 31 36 20 31 37 20 31 38 20 31 39 20 32 30 20 32 31 20 32 32 20 32 33 20 32 34 20 32 35 20 32 36 20 32 37 20 32 38 20 32 39 0a 33 30 20 33 31 20 33 32 20 33 33 20 33 34 20 33 35 20",
+        "ascii_escaped": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29\n30 31 32 33 34 35 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 144
+      },
+      "integer_min": 1,
+      "integer_max": 144,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_op_code",
+      "line": 4238,
+      "header_offset": 304379,
+      "payload_offset": 304397,
+      "payload_end_exclusive": 304970,
+      "payload_bytes": 573,
+      "payload_sha256": "76fd6871bd54d21bd42a32d086e6e75ccf884e0fda8837b557e2dc51121ec51b",
+      "sample": {
+        "offset": 304397,
+        "length": 96,
+        "hex": "35 30 30 20 32 20 32 20 32 20 31 34 20 31 34 20 31 34 20 31 34 20 31 34 20 31 34 20 31 34 20 31 34 20 32 20 36 20 36 20 32 20 32 20 32 20 36 20 36 20 32 20 36 20 32 20 36 20 31 20 34 20 34 20 34 20 31 36 20 31 36 20 31 36 20 31 36 0a 31 36 20 31 36 20 31 36 20 31 36 20 34 20 31 32 20 31",
+        "ascii_escaped": "500 2 2 2 14 14 14 14 14 14 14 14 2 6 6 2 2 2 6 6 2 6 2 6 1 4 4 4 16 16 16 16\n16 16 16 16 4 12 1"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 144
+      },
+      "integer_min": 1,
+      "integer_max": 500000,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "500",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "14",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 13,
+          "kind": "integer",
+          "raw": "14",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "14",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 19,
+          "kind": "integer",
+          "raw": "14",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "14",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 25,
+          "kind": "integer",
+          "raw": "14",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 28,
+          "kind": "integer",
+          "raw": "14",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 31,
+          "kind": "integer",
+          "raw": "14",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_group_count",
+      "line": 4247,
+      "header_offset": 304970,
+      "payload_offset": 304992,
+      "payload_end_exclusive": 304997,
+      "payload_bytes": 5,
+      "payload_sha256": "c355463c7c304375729cb243bccfb18a922aa2a687cbf5cc2068612f069579d4",
+      "sample": {
+        "offset": 304992,
+        "length": 5,
+        "hex": "31 32 32 20 0a",
+        "ascii_escaped": "122 \n"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 1
+      },
+      "integer_min": 122,
+      "integer_max": 122,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "122",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_group_nlabel",
+      "line": 4249,
+      "header_offset": 304997,
+      "payload_offset": 305020,
+      "payload_end_exclusive": 306363,
+      "payload_bytes": 1343,
+      "payload_sha256": "e7ed15f676d93b2421a8ecf09db3de7f57509e3b0bdf629259b39106fe9ee86a",
+      "sample": {
+        "offset": 305020,
+        "length": 96,
+        "hex": "22 31 2e 31 2e 31 20 20 20 22 20 22 31 2e 32 2e 32 20 20 20 22 20 22 32 2e 31 2e 33 20 20 20 22 20 22 32 2e 32 2e 34 20 20 20 22 20 22 32 2e 33 2e 35 20 20 20 22 20 22 33 2e 31 2e 36 20 20 20 22 20 22 33 2e 32 2e 37 20 20 20 22 0a 22 33 2e 33 2e 38 20 20 20 22 20 22 34 2e 31 2e 39 20 20",
+        "ascii_escaped": "\"1.1.1   \" \"1.2.2   \" \"2.1.3   \" \"2.2.4   \" \"2.3.5   \" \"3.1.6   \" \"3.2.7   \"\n\"3.3.8   \" \"4.1.9  "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "quoted": 122
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "quoted",
+          "raw": "\"1.1.1   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 11,
+          "kind": "quoted",
+          "raw": "\"1.2.2   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "quoted",
+          "raw": "\"2.1.3   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 33,
+          "kind": "quoted",
+          "raw": "\"2.2.4   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 44,
+          "kind": "quoted",
+          "raw": "\"2.3.5   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 55,
+          "kind": "quoted",
+          "raw": "\"3.1.6   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 66,
+          "kind": "quoted",
+          "raw": "\"3.2.7   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 77,
+          "kind": "quoted",
+          "raw": "\"3.3.8   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 88,
+          "kind": "quoted",
+          "raw": "\"4.1.9   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 99,
+          "kind": "quoted",
+          "raw": "\"4.2.10  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 110,
+          "kind": "quoted",
+          "raw": "\"4.3.11  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 121,
+          "kind": "quoted",
+          "raw": "\"5.1.12  \"",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_group_bns_label",
+      "line": 4268,
+      "header_offset": 306363,
+      "payload_offset": 306389,
+      "payload_end_exclusive": 307732,
+      "payload_bytes": 1343,
+      "payload_sha256": "fadc3d3a59150e66f2116bc54abd670069584e19bc1f05885acb39425bb8f2bb",
+      "sample": {
+        "offset": 306389,
+        "length": 96,
+        "hex": "22 31 20 20 20 20 20 20 20 22 20 22 31 27 20 20 20 20 20 20 22 20 22 2d 31 20 20 20 20 20 20 22 20 22 2d 31 31 27 20 20 20 20 22 20 22 2d 31 27 20 20 20 20 20 22 20 22 32 20 20 20 20 20 20 20 22 20 22 32 31 27 20 20 20 20 20 22 0a 22 32 27 20 20 20 20 20 20 22 20 22 6d 20 20 20 20 20 20",
+        "ascii_escaped": "\"1       \" \"1'      \" \"-1      \" \"-11'    \" \"-1'     \" \"2       \" \"21'     \"\n\"2'      \" \"m      "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "quoted": 122
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "quoted",
+          "raw": "\"1       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 11,
+          "kind": "quoted",
+          "raw": "\"1'      \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "quoted",
+          "raw": "\"-1      \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 33,
+          "kind": "quoted",
+          "raw": "\"-11'    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 44,
+          "kind": "quoted",
+          "raw": "\"-1'     \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 55,
+          "kind": "quoted",
+          "raw": "\"2       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 66,
+          "kind": "quoted",
+          "raw": "\"21'     \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 77,
+          "kind": "quoted",
+          "raw": "\"2'      \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 88,
+          "kind": "quoted",
+          "raw": "\"m       \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 99,
+          "kind": "quoted",
+          "raw": "\"m1'     \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 110,
+          "kind": "quoted",
+          "raw": "\"m'      \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 121,
+          "kind": "quoted",
+          "raw": "\"2/m     \"",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_group_unified_label",
+      "line": 4287,
+      "header_offset": 307732,
+      "payload_offset": 307762,
+      "payload_end_exclusive": 309105,
+      "payload_bytes": 1343,
+      "payload_sha256": "f24fb2956044345411df5425482d1dd1536eebca9dbf3b5d3bbdba214b44b96a",
+      "sample": {
+        "offset": 307762,
+        "length": 96,
+        "hex": "22 31 2e 31 20 20 20 20 20 22 20 22 31 2e 31 27 20 20 20 20 22 20 22 2d 31 2e 31 20 20 20 20 22 20 22 2d 31 2e 31 27 20 20 20 22 20 22 2d 31 27 20 20 20 20 20 22 20 22 32 2e 31 20 20 20 20 20 22 20 22 32 2e 31 27 20 20 20 20 22 0a 22 32 27 20 20 20 20 20 20 22 20 22 6d 2e 31 20 20 20 20",
+        "ascii_escaped": "\"1.1     \" \"1.1'    \" \"-1.1    \" \"-1.1'   \" \"-1'     \" \"2.1     \" \"2.1'    \"\n\"2'      \" \"m.1    "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "quoted": 122
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "quoted",
+          "raw": "\"1.1     \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 11,
+          "kind": "quoted",
+          "raw": "\"1.1'    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "quoted",
+          "raw": "\"-1.1    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 33,
+          "kind": "quoted",
+          "raw": "\"-1.1'   \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 44,
+          "kind": "quoted",
+          "raw": "\"-1'     \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 55,
+          "kind": "quoted",
+          "raw": "\"2.1     \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 66,
+          "kind": "quoted",
+          "raw": "\"2.1'    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 77,
+          "kind": "quoted",
+          "raw": "\"2'      \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 88,
+          "kind": "quoted",
+          "raw": "\"m.1     \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 99,
+          "kind": "quoted",
+          "raw": "\"m.1'    \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 110,
+          "kind": "quoted",
+          "raw": "\"m'      \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 121,
+          "kind": "quoted",
+          "raw": "\"2/m.1   \"",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_group_nonmag",
+      "line": 4306,
+      "header_offset": 309105,
+      "payload_offset": 309128,
+      "payload_end_exclusive": 309464,
+      "payload_bytes": 336,
+      "payload_sha256": "d5842a57a153b7f67c21f507b4f27f4193bc9160f0a14048ed6a614642d93f4d",
+      "sample": {
+        "offset": 309128,
+        "length": 96,
+        "hex": "31 20 31 20 32 20 32 20 32 20 33 20 33 20 33 20 34 20 34 20 34 20 35 20 35 20 35 20 35 20 35 20 36 20 36 20 36 20 37 20 37 20 37 20 37 20 38 20 38 20 38 20 38 20 38 20 39 20 39 20 39 20 31 30 20 31 30 20 31 30 20 31 31 20 31 31 0a 31 31 20 31 31 20 31 31 20 31 32 20 31 32 20 31 32 20 31",
+        "ascii_escaped": "1 1 2 2 2 3 3 3 4 4 4 5 5 5 5 5 6 6 6 7 7 7 7 8 8 8 8 8 9 9 9 10 10 10 11 11\n11 11 11 12 12 12 1"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 122
+      },
+      "integer_min": 1,
+      "integer_max": 32,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_group_order",
+      "line": 4312,
+      "header_offset": 309464,
+      "payload_offset": 309486,
+      "payload_end_exclusive": 309794,
+      "payload_bytes": 308,
+      "payload_sha256": "60adc4137a3d64842a1f589f13470ba50280a793715076bc13abba10a760b102",
+      "sample": {
+        "offset": 309486,
+        "length": 96,
+        "hex": "31 20 32 20 32 20 34 20 32 20 32 20 34 20 32 20 32 20 34 20 32 20 34 20 38 20 34 20 34 20 34 20 34 20 38 20 34 20 34 20 38 20 34 20 34 20 38 20 31 36 20 38 20 38 20 38 20 34 20 38 20 34 20 34 20 38 20 34 20 38 20 31 36 20 38 20 38 0a 38 20 38 20 31 36 20 38 20 38 20 38 20 31 36 20 38 20",
+        "ascii_escaped": "1 2 2 4 2 2 4 2 2 4 2 4 8 4 4 4 4 8 4 4 8 4 4 8 16 8 8 8 4 8 4 4 8 4 8 16 8 8\n8 8 16 8 8 8 16 8 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 122
+      },
+      "integer_min": 1,
+      "integer_max": 96,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_group_type",
+      "line": 4317,
+      "header_offset": 309794,
+      "payload_offset": 309815,
+      "payload_end_exclusive": 310060,
+      "payload_bytes": 245,
+      "payload_sha256": "ec77fca03d299f1c9d807a34e0c96a1145dc4d2ed5b4d9904197b7b9d9f8474c",
+      "sample": {
+        "offset": 309815,
+        "length": 96,
+        "hex": "31 20 32 20 31 20 32 20 33 20 31 20 32 20 33 20 31 20 32 20 33 20 31 20 32 20 33 20 33 20 33 20 31 20 32 20 33 20 31 20 32 20 33 20 33 20 31 20 32 20 33 20 33 20 33 20 31 20 32 20 33 20 31 20 32 20 33 20 31 20 32 20 33 20 33 20 33 0a 31 20 32 20 33 20 33 20 31 20 32 20 33 20 33 20 31 20",
+        "ascii_escaped": "1 2 1 2 3 1 2 3 1 2 3 1 2 3 3 3 1 2 3 1 2 3 3 1 2 3 3 3 1 2 3 1 2 3 1 2 3 3 3\n1 2 3 3 1 2 3 3 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 122
+      },
+      "integer_min": 1,
+      "integer_max": 3,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_group_code",
+      "line": 4322,
+      "header_offset": 310060,
+      "payload_offset": 310081,
+      "payload_end_exclusive": 310776,
+      "payload_bytes": 695,
+      "payload_sha256": "a0212d623207d17bca9fb19e33d41598db84fa985546f8dbae7b96972f2f6063",
+      "sample": {
+        "offset": 310081,
+        "length": 96,
+        "hex": "35 30 30 20 35 30 30 35 30 30 20 35 30 31 20 35 30 31 35 30 31 20 31 35 30 30 20 35 30 32 20 35 30 32 35 30 32 20 32 35 30 30 20 35 30 34 20 35 30 34 35 30 34 20 34 35 30 30 20 35 30 37 20 35 30 37 35 30 37 20 33 35 30 34 0a 35 35 30 32 20 36 35 30 31 20 35 30 36 20 35 30 36 35 30 36 20",
+        "ascii_escaped": "500 500500 501 501501 1500 502 502502 2500 504 504504 4500 507 507507 3504\n5502 6501 506 506506 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 122
+      },
+      "integer_min": 500,
+      "integer_max": 903903,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "500",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "500500",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 11,
+          "kind": "integer",
+          "raw": "501",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 15,
+          "kind": "integer",
+          "raw": "501501",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1500",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 27,
+          "kind": "integer",
+          "raw": "502",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 31,
+          "kind": "integer",
+          "raw": "502502",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 38,
+          "kind": "integer",
+          "raw": "2500",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 43,
+          "kind": "integer",
+          "raw": "504",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 47,
+          "kind": "integer",
+          "raw": "504504",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 54,
+          "kind": "integer",
+          "raw": "4500",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 59,
+          "kind": "integer",
+          "raw": "507",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_point_group",
+      "line": 4333,
+      "header_offset": 310776,
+      "payload_offset": 310792,
+      "payload_end_exclusive": 315907,
+      "payload_bytes": 5115,
+      "payload_sha256": "b2a6a08deaa04e2d7da0a5469d8e14ccebd3d82ec686012a0bb158a4a57ee526",
+      "sample": {
+        "offset": 310792,
+        "length": 96,
+        "hex": "31 20 32 20 32 20 33 20 34 20 35 20 34 20 36 20 37 20 38 20 37 20 37 20 37 20 36 20 37 20 38 20 37 20 37 20 37 20 36 20 37 20 38 20 37 20 37 20 39 20 31 30 20 31 31 20 31 30 20 31 30 20 31 30 20 39 20 31 30 20 31 31 20 31 30 20 31 30 0a 31 30 20 31 30 20 31 30 20 39 20 31 30 20 31 31 20",
+        "ascii_escaped": "1 2 2 3 4 5 4 6 7 8 7 7 7 6 7 8 7 7 7 6 7 8 7 7 9 10 11 10 10 10 9 10 11 10 10\n10 10 10 9 10 11 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 1651
+      },
+      "integer_min": 1,
+      "integer_max": 122,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_lattice_count",
+      "line": 4400,
+      "header_offset": 315907,
+      "payload_offset": 315925,
+      "payload_end_exclusive": 315929,
+      "payload_bytes": 4,
+      "payload_sha256": "ea87b5c9ef39820a66d3da537a5f69914615fe8ba1bf36ca9af174b86152b7ea",
+      "sample": {
+        "offset": 315925,
+        "length": 4,
+        "hex": "35 30 20 0a",
+        "ascii_escaped": "50 \n"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 1
+      },
+      "integer_min": 50,
+      "integer_max": 50,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "50",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_lattice_label",
+      "line": 4402,
+      "header_offset": 315929,
+      "payload_offset": 315947,
+      "payload_end_exclusive": 316298,
+      "payload_bytes": 351,
+      "payload_sha256": "6984d67ef41abeb34a7871dc9c85b276e4400547794cc605ea73cf69d9b02ecf",
+      "sample": {
+        "offset": 315947,
+        "length": 96,
+        "hex": "22 41 50 20 20 22 20 22 41 50 31 27 22 20 22 41 50 5f 53 22 20 22 4d 50 20 20 22 20 22 4d 50 31 27 22 20 22 4d 50 5f 61 22 20 22 4d 50 5f 62 22 20 22 4d 50 5f 43 22 20 22 4d 43 20 20 22 20 22 4d 43 31 27 22 20 22 4d 43 5f 63 22 0a 22 4d 43 5f 61 22 20 22 4f 50 20 20 22 20 22 4f 50 31 27",
+        "ascii_escaped": "\"AP  \" \"AP1'\" \"AP_S\" \"MP  \" \"MP1'\" \"MP_a\" \"MP_b\" \"MP_C\" \"MC  \" \"MC1'\" \"MC_c\"\n\"MC_a\" \"OP  \" \"OP1'"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "quoted": 50
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "quoted",
+          "raw": "\"AP  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 7,
+          "kind": "quoted",
+          "raw": "\"AP1'\"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "quoted",
+          "raw": "\"AP_S\"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "quoted",
+          "raw": "\"MP  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 28,
+          "kind": "quoted",
+          "raw": "\"MP1'\"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 35,
+          "kind": "quoted",
+          "raw": "\"MP_a\"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 42,
+          "kind": "quoted",
+          "raw": "\"MP_b\"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 49,
+          "kind": "quoted",
+          "raw": "\"MP_C\"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 56,
+          "kind": "quoted",
+          "raw": "\"MC  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 63,
+          "kind": "quoted",
+          "raw": "\"MC1'\"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 70,
+          "kind": "quoted",
+          "raw": "\"MC_c\"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 77,
+          "kind": "quoted",
+          "raw": "\"MC_a\"",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_lattice",
+      "line": 4408,
+      "header_offset": 316298,
+      "payload_offset": 316310,
+      "payload_end_exclusive": 321181,
+      "payload_bytes": 4871,
+      "payload_sha256": "9099108b3b12b1ab8793c0430ea7f7772aa576c4f2f2ed86fb3f5b19b8493825",
+      "sample": {
+        "offset": 316310,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 31 20 32 20 31 20 33 20 34 20 35 20 34 20 36 20 37 20 38 20 34 20 35 20 34 20 36 20 37 20 38 20 39 20 31 30 20 39 20 31 31 20 31 32 20 34 20 35 20 34 20 36 20 37 20 38 20 34 20 35 20 34 20 36 20 36 20 37 20 38 20 38 0a 39 20 31 30 20 39 20 31 31 20 31 32 20 39 20 31 30",
+        "ascii_escaped": "1 2 3 1 2 1 3 4 5 4 6 7 8 4 5 4 6 7 8 9 10 9 11 12 4 5 4 6 7 8 4 5 4 6 6 7 8 8\n9 10 9 11 12 9 10"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 1651
+      },
+      "integer_min": 1,
+      "integer_max": 50,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_type",
+      "line": 4472,
+      "header_offset": 321181,
+      "payload_offset": 321190,
+      "payload_end_exclusive": 324493,
+      "payload_bytes": 3303,
+      "payload_sha256": "135fbf9ce9218088361f3c97ccf5ba44a5d3db13fb258415cfa71de83de18fbb",
+      "sample": {
+        "offset": 321190,
+        "length": 96,
+        "hex": "31 20 32 20 34 20 31 20 32 20 33 20 34 20 31 20 32 20 33 20 34 20 34 20 34 20 31 20 32 20 33 20 34 20 34 20 34 20 31 20 32 20 33 20 34 20 34 20 31 20 32 20 33 20 34 20 34 20 34 20 31 20 32 20 33 20 34 20 34 20 34 20 34 20 34 20 31 0a 32 20 33 20 34 20 34 20 31 20 32 20 33 20 34 20 34 20",
+        "ascii_escaped": "1 2 4 1 2 3 4 1 2 3 4 4 4 1 2 3 4 4 4 1 2 3 4 4 1 2 3 4 4 4 1 2 3 4 4 4 4 4 1\n2 3 4 4 1 2 3 4 4 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 1651
+      },
+      "integer_min": 1,
+      "integer_max": 4,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_type4_pointer",
+      "line": 4516,
+      "header_offset": 324493,
+      "payload_offset": 324511,
+      "payload_end_exclusive": 328740,
+      "payload_bytes": 4229,
+      "payload_sha256": "cfdcee65abcf0c1fface63b656a04859ecc883598d79952b02d3b663a6f0dd04",
+      "sample": {
+        "offset": 324511,
+        "length": 96,
+        "hex": "30 20 30 20 31 20 30 20 30 20 30 20 32 20 30 20 30 20 30 20 33 20 34 20 39 20 30 20 30 20 30 20 37 20 36 20 31 30 20 30 20 30 20 30 20 38 20 35 20 30 20 30 20 30 20 31 31 20 31 32 20 31 39 20 30 20 30 20 30 20 31 35 20 31 34 20 31 36 0a 32 32 20 32 31 20 30 20 30 20 30 20 31 38 20 31 33",
+        "ascii_escaped": "0 0 1 0 0 0 2 0 0 0 3 4 9 0 0 0 7 6 10 0 0 0 8 5 0 0 0 11 12 19 0 0 0 15 14 16\n22 21 0 0 0 18 13"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 1651
+      },
+      "integer_min": 0,
+      "integer_max": 517,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_type4_supergroup",
+      "line": 4572,
+      "header_offset": 328740,
+      "payload_offset": 328761,
+      "payload_end_exclusive": 330475,
+      "payload_bytes": 1714,
+      "payload_sha256": "3176ee730f1cc919f890ce3b25b59e0a9e59c7abc5f33d170754b7634d8177eb",
+      "sample": {
+        "offset": 328761,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 33 20 33 20 33 20 34 20 35 20 35 20 35 20 36 20 36 20 36 20 36 20 37 20 37 20 37 20 38 20 38 20 38 20 38 20 39 20 31 30 20 31 30 20 31 30 20 31 30 20 31 30 20 31 31 20 31 31 20 31 32 20 31 32 20 31 32 20 31 32 0a 31 32 20 31 32 20 31 33 20 31 33 20 31 33 20 31 33 20 31",
+        "ascii_escaped": "1 2 3 3 3 3 4 5 5 5 6 6 6 6 7 7 7 8 8 8 8 9 10 10 10 10 10 11 11 12 12 12 12\n12 12 13 13 13 13 1"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 520
+      },
+      "integer_min": 0,
+      "integer_max": 229,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_type4_supergroup_basis",
+      "line": 4596,
+      "header_offset": 330475,
+      "payload_offset": 330502,
+      "payload_end_exclusive": 340217,
+      "payload_bytes": 9715,
+      "payload_sha256": "1867accfd295d27f87215715a824d4528f29451474e0151099f211b80aeb5263",
+      "sample": {
+        "offset": 330502,
+        "length": 96,
+        "hex": "31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 32 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 32 20 31 20 30 20 30 20 30 20 32 20 30 20 30 20 30 20 31 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 32 20 31 20 30 20 30 0a 30 20 31 20 31 20 30 20 2d 31 20 31 20 31 20 30 20 30",
+        "ascii_escaped": "1 0 0 0 1 0 0 0 2 1 0 0 0 1 0 0 0 2 1 0 0 0 2 0 0 0 1 1 0 0 0 1 0 0 0 2 1 0 0\n0 1 1 0 -1 1 1 0 0"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 4680
+      },
+      "integer_min": -2,
+      "integer_max": 2,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_type4_supergroup_origin",
+      "line": 4722,
+      "header_offset": 340217,
+      "payload_offset": 340245,
+      "payload_end_exclusive": 344429,
+      "payload_bytes": 4184,
+      "payload_sha256": "636f65f4a7ddcdcd881738980e6007ce264988e079c782daa8bd5f4818ffd533",
+      "sample": {
+        "offset": 340245,
+        "length": 96,
+        "hex": "30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 31 20 2d 31 0a 34 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31",
+        "ascii_escaped": "0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 1 -1\n4 0 0 0 1 0 0 0 1"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 2080
+      },
+      "integer_min": -3,
+      "integer_max": 8,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_enantiomorphic",
+      "line": 4777,
+      "header_offset": 344429,
+      "payload_offset": 344448,
+      "payload_end_exclusive": 351597,
+      "payload_bytes": 7149,
+      "payload_sha256": "905255fab76d9942284bfa730b4ccb64685adbfef6948d4b7028ce799fcdf884",
+      "sample": {
+        "offset": 344448,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 31 33 20 31 34 20 31 35 20 31 36 20 31 37 20 31 38 20 31 39 20 32 30 20 32 31 20 32 32 20 32 33 20 32 34 20 32 35 20 32 36 20 32 37 20 32 38 20 32 39 0a 33 30 20 33 31 20 33 32 20 33 33 20 33 34 20 33 35 20",
+        "ascii_escaped": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29\n30 31 32 33 34 35 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 1651
+      },
+      "integer_min": 1,
+      "integer_max": 1651,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_image_active",
+      "line": 4873,
+      "header_offset": 351597,
+      "payload_offset": 351614,
+      "payload_end_exclusive": 351897,
+      "payload_bytes": 283,
+      "payload_sha256": "90e72f4cbd764e931d5e0d479861027e2f3e6bf79e1b9ddd6021c44eab453313",
+      "sample": {
+        "offset": 351614,
+        "length": 96,
+        "hex": "46 20 54 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 54 20 54 20 46 20 54 20 46 20 46 20 46 20 54 20 46 20 46 20 46 0a 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20",
+        "ascii_escaped": "F T F F F F F F F F F F F F F F F F F F F F F F F F F F T T F T F F F T F F F\nF F F F F F F F F "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "logical_lexeme": 141
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "logical_lexeme",
+          "raw": "T",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_image_add_r",
+      "line": 4878,
+      "header_offset": 351897,
+      "payload_offset": 351913,
+      "payload_end_exclusive": 352378,
+      "payload_bytes": 465,
+      "payload_sha256": "d56140d9bf1bc67284b15ba8155bec1645144aa32aec5da4bf26c0f5039edc79",
+      "sample": {
+        "offset": 351913,
+        "length": 96,
+        "hex": "32 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 31 33 20 31 34 20 31 35 20 31 36 20 31 37 20 31 38 20 31 39 20 32 30 20 32 31 20 32 32 20 32 33 20 32 34 20 32 35 20 32 36 20 32 37 20 32 39 20 32 39 0a 33 30 20 33 30 20 33 32 20 33 33 20 33 32 20 33 33 20",
+        "ascii_escaped": "2 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 29 29\n30 30 32 33 32 33 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 141
+      },
+      "integer_min": 2,
+      "integer_max": 141,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_image_root",
+      "line": 4885,
+      "header_offset": 352378,
+      "payload_offset": 352393,
+      "payload_end_exclusive": 352425,
+      "payload_bytes": 32,
+      "payload_sha256": "77d74d8cde23e5bab598690952cdce4f587a4a17072a25f8bbf45a7e69ae7253",
+      "sample": {
+        "offset": 352393,
+        "length": 32,
+        "hex": "37 30 20 39 38 20 31 30 30 20 37 31 20 31 30 31 20 38 30 20 31 31 30 20 38 31 20 31 32 39 20 0a",
+        "ascii_escaped": "70 98 100 71 101 80 110 81 129 \n"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 9
+      },
+      "integer_min": 70,
+      "integer_max": 129,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "70",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 3,
+          "kind": "integer",
+          "raw": "98",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "100",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "71",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 13,
+          "kind": "integer",
+          "raw": "101",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 17,
+          "kind": "integer",
+          "raw": "80",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "110",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "81",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 27,
+          "kind": "integer",
+          "raw": "129",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_irrep_ferromagnetic",
+      "line": 4887,
+      "header_offset": 352425,
+      "payload_offset": 352449,
+      "payload_end_exclusive": 362004,
+      "payload_bytes": 9555,
+      "payload_sha256": "8474c17d1ee65401cd2c7a0554bea34ca0df9001774205f2b8a30730d7acbb3d",
+      "sample": {
+        "offset": 352449,
+        "length": 96,
+        "hex": "54 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 54 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 54 20 54 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 20 46 0a 46 20 54 20 54 20 46 20 46 20 46 20 46 20 46 20 46 20",
+        "ascii_escaped": "T F F F F F F F T F F F F F F F F F F F F F F F T T F F F F F F F F F F F F F\nF T T F F F F F F "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "logical_lexeme": 4777
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "logical_lexeme",
+          "raw": "T",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "logical_lexeme",
+          "raw": "T",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "logical_lexeme",
+          "raw": "F",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_subgroup",
+      "line": 5011,
+      "header_offset": 362004,
+      "payload_offset": 362021,
+      "payload_end_exclusive": 422961,
+      "payload_bytes": 60940,
+      "payload_sha256": "ebd3ab42f015faecc6da9f5540f69cbd3353e3db5a913999aed36272993790cf",
+      "sample": {
+        "offset": 362021,
+        "length": 96,
+        "hex": "31 20 33 20 33 20 33 20 33 20 33 20 33 20 33 20 34 20 36 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 38 20 31 30 20 31 31 20 31 31 20 31 31 20 31 31 20 32 34 20 32 34 20 32 34 20 32 34 0a 32 34 20 32 34 20 31 31 20 31 31 20 31 32 20 31 38 20 31",
+        "ascii_escaped": "1 3 3 3 3 3 3 3 4 6 7 7 7 7 7 7 7 7 7 7 7 7 7 7 8 10 11 11 11 11 24 24 24 24\n24 24 11 11 12 18 1"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 16721
+      },
+      "integer_min": 1,
+      "integer_max": 1651,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_subgroup_old",
+      "line": 5798,
+      "header_offset": 422961,
+      "payload_offset": 422982,
+      "payload_end_exclusive": 483922,
+      "payload_bytes": 60940,
+      "payload_sha256": "960d7caaa3710c16a92e080462ec7a0ad725e6870538bfecb0f069b238a54037",
+      "sample": {
+        "offset": 422982,
+        "length": 96,
+        "hex": "31 20 33 20 33 20 33 20 33 20 33 20 33 20 33 20 34 20 36 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 37 20 38 20 31 30 20 31 31 20 31 31 20 31 31 20 31 31 20 32 34 20 32 34 20 32 34 20 32 34 0a 32 34 20 32 34 20 31 31 20 31 31 20 31 32 20 31 38 20 31",
+        "ascii_escaped": "1 3 3 3 3 3 3 3 4 6 7 7 7 7 7 7 7 7 7 7 7 7 7 7 8 10 11 11 11 11 24 24 24 24\n24 24 11 11 12 18 1"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 16721
+      },
+      "integer_min": 1,
+      "integer_max": 1651,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_parent",
+      "line": 6585,
+      "header_offset": 483922,
+      "payload_offset": 483937,
+      "payload_end_exclusive": 562579,
+      "payload_bytes": 78642,
+      "payload_sha256": "7aa0746cbed12d982a02507d9a48bed253c9f9aa39f6aefe9efdc7f6679f4046",
+      "sample": {
+        "offset": 483937,
+        "length": 96,
+        "hex": "32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 35 20 35 20 35 20 35 20 35 20 35 20 35 20 35 20 35 20 35 20 35 20 35 20 35 20 35 20 35 20 35 20 39 20 39 20 39 20 39 20 39 20 39 20 39 20 39 20 39 20 39 20 39 20 39 20 39 20 39 20 39 0a 39 20 31 35 20 31 35 20 31 35 20 31 35 20 31 35 20 31",
+        "ascii_escaped": "2 2 2 2 2 2 2 2 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9\n9 15 15 15 15 15 1"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 16721
+      },
+      "integer_min": 2,
+      "integer_max": 1648,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_irrep",
+      "line": 7632,
+      "header_offset": 562579,
+      "payload_offset": 562593,
+      "payload_end_exclusive": 644662,
+      "payload_bytes": 82069,
+      "payload_sha256": "110e9e15f284ca2d72628d5f5bddbdc7f94e98b04cea9d9225a647214f68e765",
+      "sample": {
+        "offset": 562593,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 31 33 20 31 34 20 31 35 20 31 36 20 31 37 20 31 38 20 31 39 20 32 30 20 32 31 20 32 32 20 32 33 20 32 34 20 32 35 20 32 36 20 32 37 20 32 38 20 32 39 0a 33 30 20 33 31 20 33 32 20 33 33 20 33 34 20 33 35 20",
+        "ascii_escaped": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29\n30 31 32 33 34 35 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 16721
+      },
+      "integer_min": 1,
+      "integer_max": 4777,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_irrep_pointer",
+      "line": 8727,
+      "header_offset": 644662,
+      "payload_offset": 644684,
+      "payload_end_exclusive": 668456,
+      "payload_bytes": 23772,
+      "payload_sha256": "0b4b8566ccc187683c8f3886f9087ce2578cb15bbcb19253d01849e122ea60da",
+      "sample": {
+        "offset": 644684,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 31 33 20 31 34 20 31 35 20 31 36 20 31 37 20 31 38 20 31 39 20 32 30 20 32 31 20 32 32 20 32 33 20 32 34 20 32 35 20 32 36 20 32 37 20 32 38 20 32 39 0a 33 30 20 33 31 20 33 32 20 33 33 20 33 34 20 33 35 20",
+        "ascii_escaped": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29\n30 31 32 33 34 35 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 4778
+      },
+      "integer_min": 1,
+      "integer_max": 16722,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_basis",
+      "line": 9043,
+      "header_offset": 668456,
+      "payload_offset": 668470,
+      "payload_end_exclusive": 999475,
+      "payload_bytes": 331005,
+      "payload_sha256": "316423d32110ec37040281565620f453b152fb15887bbd7fd35cd983f914860b",
+      "sample": {
+        "offset": 668470,
+        "length": 96,
+        "hex": "30 20 30 20 31 20 30 20 31 20 30 20 2d 31 20 30 20 30 20 30 20 31 20 30 20 2d 31 20 30 20 30 20 30 20 30 20 32 20 30 20 30 20 31 20 30 20 31 20 30 20 2d 32 20 30 20 30 20 30 20 31 20 30 20 2d 31 20 30 20 2d 31 20 30 20 30 20 32 20 30 0a 30 20 31 20 31 20 31 20 30 20 30 20 32 20 30 20 31",
+        "ascii_escaped": "0 0 1 0 1 0 -1 0 0 0 1 0 -1 0 0 0 0 2 0 0 1 0 1 0 -2 0 0 0 1 0 -1 0 -1 0 0 2 0\n0 1 1 1 0 0 2 0 1"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 150489
+      },
+      "integer_min": -6,
+      "integer_max": 6,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "-1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 15,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 17,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 19,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 23,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_basis_old",
+      "line": 13270,
+      "header_offset": 999475,
+      "payload_offset": 999493,
+      "payload_end_exclusive": 1333240,
+      "payload_bytes": 333747,
+      "payload_sha256": "86ebc359cfe45b1c78d18cfd4aa29c1b000a702a491949d3d53b0075c1c77c7b",
+      "sample": {
+        "offset": 999493,
+        "length": 96,
+        "hex": "30 20 30 20 31 20 30 20 31 20 30 20 2d 31 20 30 20 30 20 30 20 31 20 30 20 2d 31 20 30 20 30 20 30 20 30 20 32 20 30 20 30 20 31 20 30 20 31 20 30 20 2d 32 20 30 20 30 20 30 20 31 20 30 20 2d 31 20 30 20 2d 31 20 30 20 30 20 32 20 30 0a 30 20 31 20 31 20 31 20 30 20 30 20 32 20 30 20 31",
+        "ascii_escaped": "0 0 1 0 1 0 -1 0 0 0 1 0 -1 0 0 0 0 2 0 0 1 0 1 0 -2 0 0 0 1 0 -1 0 -1 0 0 2 0\n0 1 1 1 0 0 2 0 1"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 150489
+      },
+      "integer_min": -6,
+      "integer_max": 6,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "-1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 15,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 17,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 19,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 23,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_origin",
+      "line": 17532,
+      "header_offset": 1333240,
+      "payload_offset": 1333255,
+      "payload_end_exclusive": 1473678,
+      "payload_bytes": 140423,
+      "payload_sha256": "b58964b409e5c029badc79d79bc371bdc88b8e04a2a4fb15c8c6cd015c08516a",
+      "sample": {
+        "offset": 1333255,
+        "length": 96,
+        "hex": "30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 0a 31 20 30 20 30 20 30 20 31 20 30 20 30 20 31 20 32 20",
+        "ascii_escaped": "0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0\n1 0 0 0 1 0 0 1 2 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 66884
+      },
+      "integer_min": -29,
+      "integer_max": 29,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_origin_old",
+      "line": 19325,
+      "header_offset": 1473678,
+      "payload_offset": 1473697,
+      "payload_end_exclusive": 1614898,
+      "payload_bytes": 141201,
+      "payload_sha256": "05d74708f049e5dbd741a07ceb4f406bae0cc5346a24b40de6b7005103fe38ad",
+      "sample": {
+        "offset": 1473697,
+        "length": 96,
+        "hex": "30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 0a 31 20 30 20 30 20 30 20 31 20 30 20 30 20 31 20 32 20",
+        "ascii_escaped": "0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0\n1 0 0 0 1 0 0 1 2 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 66884
+      },
+      "integer_min": -26,
+      "integer_max": 37,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_orderparam_dim",
+      "line": 21128,
+      "header_offset": 1614898,
+      "payload_offset": 1614921,
+      "payload_end_exclusive": 1649404,
+      "payload_bytes": 34483,
+      "payload_sha256": "fd8bb347187090ec23aeed572abde3c34dfa02e841e90ea4d06b749df27ce7bd",
+      "sample": {
+        "offset": 1614921,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 0a 31 20 31 20 31 20 31 20 31 20 31 20 31 20 32 20 32 20",
+        "ascii_escaped": "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 2 2 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 16721
+      },
+      "integer_min": 1,
+      "integer_max": 24,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_orderparam_freeparam",
+      "line": 21572,
+      "header_offset": 1649404,
+      "payload_offset": 1649433,
+      "payload_end_exclusive": 1682904,
+      "payload_bytes": 33471,
+      "payload_sha256": "f08a5e93aff87e11f2e0ceedcd3410b056b8bc77dc6f750a68374dc81922ee1b",
+      "sample": {
+        "offset": 1649433,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 0a 31 20 31 20 31 20 31 20 31 20 31 20 31 20 32 20 32 20",
+        "ascii_escaped": "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 2 2 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 16721
+      },
+      "integer_min": 1,
+      "integer_max": 24,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_orderparam_label",
+      "line": 22002,
+      "header_offset": 1682904,
+      "payload_offset": 1682929,
+      "payload_end_exclusive": 1799977,
+      "payload_bytes": 117048,
+      "payload_sha256": "9d1d7916ab103a654a5b268a3596af338baa3d0aeb9c69b47a107aee9e239308",
+      "sample": {
+        "offset": 1682929,
+        "length": 96,
+        "hex": "22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 0a 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20",
+        "ascii_escaped": "\"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \"\n\"P1  \" \"P1  \" \"P1  "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "quoted": 16721
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 7,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 28,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 35,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 42,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 49,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 56,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 63,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 70,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 77,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_orderparam_pointer",
+      "line": 23524,
+      "header_offset": 1799977,
+      "payload_offset": 1800004,
+      "payload_end_exclusive": 1899439,
+      "payload_bytes": 99435,
+      "payload_sha256": "16b7ea872ab5533d31f7c3f352075f6455ebca7fab5adb3463f8f8a80559a09c",
+      "sample": {
+        "offset": 1800004,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 31 33 20 31 34 20 31 35 20 31 36 20 31 37 20 31 38 20 31 39 20 32 30 20 32 31 20 32 32 20 32 33 20 32 34 20 32 35 20 32 36 20 32 37 20 32 38 20 32 39 0a 33 30 20 33 31 20 33 32 20 33 33 20 33 34 20 33 35 20",
+        "ascii_escaped": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29\n30 31 32 33 34 35 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 16721
+      },
+      "integer_min": 1,
+      "integer_max": 162055,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_orderparam",
+      "line": 24811,
+      "header_offset": 1899439,
+      "payload_offset": 1899458,
+      "payload_end_exclusive": 2226569,
+      "payload_bytes": 327111,
+      "payload_sha256": "d9d919c04298d5929cb4841d34cd928555066b645dfaf3b653ac26b1fb8d736f",
+      "sample": {
+        "offset": 1899458,
+        "length": 96,
+        "hex": "32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 0a 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 31 20",
+        "ascii_escaped": "2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2\n2 2 2 2 2 2 2 2 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 163000
+      },
+      "integer_min": 0,
+      "integer_max": 174,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "mag_iso_orderparam_old",
+      "line": 29004,
+      "header_offset": 2226569,
+      "payload_offset": 2226592,
+      "payload_end_exclusive": 2553673,
+      "payload_bytes": 327081,
+      "payload_sha256": "9f82d16395c45a748119d430f6c2a40ce623b1a97f1a8c8e7ed33ef845da1cf2",
+      "sample": {
+        "offset": 2226592,
+        "length": 96,
+        "hex": "32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 0a 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 31 20",
+        "ascii_escaped": "2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2\n2 2 2 2 2 2 2 2 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 163000
+      },
+      "integer_min": 0,
+      "integer_max": 172,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "end",
+      "line": 33198,
+      "header_offset": 2553673,
+      "payload_offset": 2553677,
+      "payload_end_exclusive": 2553677,
+      "payload_bytes": 0,
+      "payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sample": {
+        "offset": 2553677,
+        "length": 0,
+        "hex": "",
+        "ascii_escaped": ""
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {},
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": []
+    }
+  ],
+  "limits": [
+    "Headers are lexical candidates, not a decoded schema.",
+    "Token counts do not establish array dimensions or pointer semantics.",
+    "No scientific calculation or executable invocation is performed."
+  ],
+  "file": "data_magnetic.txt",
+  "source": "E:\\CRIS\\ISODISTORT\\resources\\isobyu\\data_magnetic.txt",
+  "source_unchanged_during_scan": true
+}

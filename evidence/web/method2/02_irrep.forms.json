@@ -1,0 +1,277 @@
+[
+  {
+    "attributes": {
+      "action": "isodistortform.php",
+      "method": "POST"
+    },
+    "inputs": [
+      {
+        "type": "hidden",
+        "name": "input",
+        "value": "irrep"
+      },
+      {
+        "type": "hidden",
+        "name": "spacegroup",
+        "value": "221 Pm-3m      Oh-1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesm",
+        "value": "a(b)c               "
+      },
+      {
+        "type": "hidden",
+        "name": "settingcell",
+        "value": "1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingorigin",
+        "value": "2"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesh",
+        "value": "h"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxeso",
+        "value": "abc                 "
+      },
+      {
+        "type": "hidden",
+        "name": "settingssg",
+        "value": "standard"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsetting",
+        "value": "323"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsettingstring",
+        "value": ""
+      },
+      {
+        "type": "hidden",
+        "name": "lattparam",
+        "value": "a=4.2"
+      },
+      {
+        "type": "hidden",
+        "name": "dlattparam",
+        "value": "   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wycount",
+        "value": "  3"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer001",
+        "value": "1627"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber001",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype001",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff001",
+        "value": "1b (1/2,1/2,1/2)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam001",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc001",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer002",
+        "value": "1626"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber002",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype002",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff002",
+        "value": "1a (0,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam002",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc002",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer003",
+        "value": "1629"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber003",
+        "value": " 4"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype003",
+        "value": " 3"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff003",
+        "value": "3d (1/2,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam003",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc003",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive001",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive002",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive003",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includestrain",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "irrepcount",
+        "value": "1"
+      },
+      {
+        "type": "hidden",
+        "name": "kvec1",
+        "value": "GM, k12 (0,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "kvecnumber1",
+        "value": "  1"
+      },
+      {
+        "type": "hidden",
+        "name": "kparam1",
+        "value": "    0    0    0    1"
+      },
+      {
+        "type": "hidden",
+        "name": "nmodstar1",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "irrepopd1",
+        "size": "20"
+      },
+      {
+        "class": "btn btn-primary",
+        "type": "submit",
+        "value": "OK"
+      }
+    ],
+    "selects": [
+      {
+        "name": "irrep1",
+        "options": [
+          {
+            "value": " 9782 *GM1+, k12t1",
+            "text": "GM1+, k12t1"
+          },
+          {
+            "value": " 9784 *GM3+, k12t5",
+            "text": "GM3+, k12t5"
+          },
+          {
+            "value": " 9786 *GM5+, k12t7",
+            "text": "GM5+, k12t7"
+          },
+          {
+            "value": " 9790 *GM4-, k12t10",
+            "text": "GM4-, k12t10"
+          },
+          {
+            "value": " 9791 *GM5-, k12t8",
+            "text": "GM5-, k12t8"
+          }
+        ]
+      }
+    ]
+  }
+]

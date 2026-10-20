@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+vendor/isobyu/
+runs/
+tools/runtime/
+evidence/native/runtime/*/isodata/
+evidence/native/runtime/*/work/
+.regression_validation_counter.json
+*.tmp
+evidence/validation/live-http/rea-local-browser-bundle.json
+evidence/validation/live-http/rea-local-negative-bundle.json

@@ -1,0 +1,38 @@
+!useKeyWords
+!title
+CIF file ../input.dat
+!latticeTolerance
+ 0.100E-04
+!atomicPositionTolerance
+ 0.100E-02
+!atomicPositionMaxTolerance
+ 0.330E+00
+!occupationTolerance
+ 0.100E-02
+!latticeParameters
+   4.1230000
+   5.2870000
+   6.4310000
+  78.2000000
+  83.7000000
+  74.6000000
+!unitCellBasisVectors
+   1.00000000   0.00000000   0.00000000
+   0.00000000   1.00000000   0.00000000
+   0.00000000   0.00000000   1.00000000
+!operatorCount
+  1
+!spaceGroupOperators
+  1  0  0  0  0  1  0  0  0  0  1  0  0  0  0  1
+!atomCount
+    2
+!atomType
+Si O
+!atomPosition
+   0.13700000   0.23100000   0.31900000
+   0.41900000   0.57300000   0.68700000
+!atomOccupation
+   1.00000
+   1.00000
+!CIFSpaceGroup
+1         

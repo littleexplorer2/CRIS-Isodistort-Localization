@@ -1,0 +1,143 @@
+
+
+
+
+ISODISTORT
+
+
+
+
+
+
+  body {
+	padding-top: 0px;
+  }
+  div.pad {
+	padding-right: 50px;
+	padding-left: 50px;
+  }
+
+
+
+
+
+  
+
+     
+
+       
+         
+         
+	 
+       
+       ISODISTORT
+      
+
+        
+         
+SUITE
+                   
+HELP
+	         
+      
+    
+  
+
+
+
+
+
+ISODISTORT
+
+
+Version 6.12.2, Jul 2025
+
+
+Harold T. Stokes. Branton J. Campbell, and Dorian M. Hatch,
+Department of Physics and Astronomy, Brigham
+Young University, Provo, Utah, 84602, USA, branton_campbell@byu.edu
+
+
+Description: 
+ISODISTORT is a user-friendly internet-based tool for exploring the structural distortion modes
+of crystalline materials induced by irreducible representations of the parent space-group symmetry.  
+The stand-alone ISOVIZ application further allows one to visualize and interactively manipulate the modes generated in ISODISTORT.
+
+
+
+Help,
+Tutorials,  
+Version History
+
+
+
+
+Legacy copy
+of ISODISTORT version 5.6.1, August 2013
+
+
+
+
+Begin by entering the structure of parent phase: 
+
+
+
+
+Get started quickly with a
+cubic perovskite parent.
+
+
+
+Import parent structure from a CIF structure file:
+
+
+
+
+
+If you don't have a parent CIF, create
+one using ISOCIF.
+
+
+
+
+
+
+Alternatively, you can begin with a previously-saved distortion:
+
+
+
+
+
+
+
+Get started quickly with a distorted perovskite example.
+(Select this link and click "OK" on the next page to test your Java
+installation.)
+
+
+
+Import an ISODISTORT distortion file:
+
+
+
+
+
+
+
+
+
+
+
+How to cite ISODISTORT (cite both of the following):
+H. T. Stokes, D. M. Hatch, and B. J. Campbell, ISODISTORT, ISOTROPY Software Suite, iso.byu.edu.
+
+B. J. Campbell, H. T. Stokes, D. E. Tanner, and D. M. Hatch, 
+"ISODISPLACE: An Internet Tool for Exploring Structural Distortions."
+J. Appl. Cryst. 39, 607-614 (2006).
+
+
+
+
+
+
+

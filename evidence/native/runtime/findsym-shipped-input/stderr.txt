@@ -1,0 +1,8 @@
+At line 120 of file ../source/findsym.f (unit = 100, file = '/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/evide')
+Fortran runtime error: End of file
+
+Error termination. Backtrace:
+#0  0x490df4 in formatted_transfer_scalar_read
+#1  0x491ebb in formatted_transfer
+#2  0x40bcff in MAIN__
+#3  0x42429f in main

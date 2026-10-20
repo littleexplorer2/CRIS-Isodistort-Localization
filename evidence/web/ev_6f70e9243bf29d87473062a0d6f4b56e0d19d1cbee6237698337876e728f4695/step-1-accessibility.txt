@@ -1,0 +1,604 @@
+- document:
+  - link "ISODISTORT":
+    - /url: isodistort.php
+  - list:
+    - listitem:
+      - link "SUITE":
+        - /url: isotropy.php
+    - listitem:
+      - link "HELP":
+        - /url: isodistorthelp.php
+  - 'heading "ISODISTORT: search" [level=1]'
+  - paragraph: "Space Group: 221 Pm-3m Oh-1, Lattice parameters: a=4.2 Default space-group preferences: monoclinic axes a(b)c, monoclinic cell choice 1, orthorhombic axes abc, origin choice 2, hexagonal axes, SSG standard setting Sr 1b (1/2,1/2,1/2), Ti 1a (0,0,0), O 3d (1/2,0,0)"
+  - heading "Types of distortions to be considered Change" [level=3]:
+    - text: Types of distortions to be considered
+    - button "Change"
+    - link:
+      - /url: isodistorthelp.php#includedistortion
+      - img
+  - paragraph
+  - table:
+    - rowgroup:
+      - row "Strain:":
+        - cell "Strain:":
+          - text: "Strain:"
+          - checkbox [checked]
+      - 'row "Displacive: all none Sr Ti O"':
+        - cell "Displacive:"
+        - cell "all none Sr Ti O":
+          - text: all
+          - checkbox
+          - text: none
+          - checkbox
+          - text: Sr
+          - checkbox [checked]
+          - text: Ti
+          - checkbox [checked]
+          - text: O
+          - checkbox [checked]
+      - 'row "Occupational: all none Sr Ti O"':
+        - cell "Occupational:"
+        - cell "all none Sr Ti O":
+          - text: all
+          - checkbox
+          - text: none
+          - checkbox
+          - text: Sr
+          - checkbox
+          - text: Ti
+          - checkbox
+          - text: O
+          - checkbox
+      - 'row "Magnetic: all none Sr Ti O"':
+        - cell "Magnetic:"
+        - cell "all none Sr Ti O":
+          - text: all
+          - checkbox
+          - text: none
+          - checkbox
+          - text: Sr
+          - checkbox
+          - text: Ti
+          - checkbox
+          - text: O
+          - checkbox
+      - 'row "Rotational: all none Sr Ti O"':
+        - cell "Rotational:"
+        - cell "all none Sr Ti O":
+          - text: all
+          - checkbox
+          - text: none
+          - checkbox
+          - text: Sr
+          - checkbox
+          - text: Ti
+          - checkbox
+          - text: O
+          - checkbox
+  - text: "Important: You must click on Change to implement any changes in the above type of distortions to be considered."
+  - paragraph
+  - 'heading "Method 1: Search over all special k points OK" [level=3]':
+    - text: "Method 1: Search over all special k points"
+    - button "OK"
+    - link:
+      - /url: isodistorthelp.php#isosub
+      - img
+  - paragraph:
+    - text: "Crystal system(s): triclinic"
+    - checkbox
+    - text: monoclinic
+    - checkbox
+    - text: orthorhombic
+    - checkbox
+    - text: tetragonal
+    - checkbox
+    - text: trigonal
+    - checkbox
+    - text: hexagonal
+    - checkbox
+    - text: cubic
+    - checkbox
+    - text: "Space-group symmetry:"
+    - combobox:
+      - option "no choice" [selected]
+      - option "1 P1 C1-1"
+      - option "2 P-1 Ci-1"
+      - option "5 C2 C2-3"
+      - option "6 Pm Cs-1"
+      - option "8 Cm Cs-3"
+      - option "10 P2/m C2h-1"
+      - option "11 P2_1/m C2h-2"
+      - option "12 C2/m C2h-3"
+      - option "13 P2/c C2h-4"
+      - option "14 P2_1/c C2h-5"
+      - option "15 C2/c C2h-6"
+      - option "23 I222 D2-8"
+      - option "24 I2_12_12_1 D2-9"
+      - option "38 Amm2 C2v-14"
+      - option "42 Fmm2 C2v-18"
+      - option "44 Imm2 C2v-20"
+      - option "47 Pmmm D2h-1"
+      - option "51 Pmma D2h-5"
+      - option "53 Pmna D2h-7"
+      - option "55 Pbam D2h-9"
+      - option "57 Pbcm D2h-11"
+      - option "59 Pmmn D2h-13"
+      - option "61 Pbca D2h-15"
+      - option "62 Pnma D2h-16"
+      - option "63 Cmcm D2h-17"
+      - option "64 Cmca D2h-18"
+      - option "65 Cmmm D2h-19"
+      - option "67 Cmma D2h-21"
+      - option "69 Fmmm D2h-23"
+      - option "71 Immm D2h-25"
+      - option "72 Ibam D2h-26"
+      - option "73 Ibca D2h-27"
+      - option "74 Imma D2h-28"
+      - option "99 P4mm C4v-1"
+      - option "115 P-4m2 D2d-5"
+      - option "121 I-42m D2d-11"
+      - option "123 P4/mmm D4h-1"
+      - option "127 P4/mbm D4h-5"
+      - option "129 P4/nmm D4h-7"
+      - option "131 P4_2/mmc D4h-9"
+      - option "139 I4/mmm D4h-17"
+      - option "140 I4/mcm D4h-18"
+      - option "146 R3 C3-4"
+      - option "148 R-3 C3i-2"
+      - option "155 R32 D3-7"
+      - option "160 R3m C3v-5"
+      - option "166 R-3m D3d-5"
+      - option "167 R-3c D3d-6"
+      - option "199 I2_13 T-5"
+      - option "204 Im-3 Th-5"
+      - option "205 Pa-3 Th-6"
+      - option "206 Ia-3 Th-7"
+      - option "217 I-43m Td-3"
+      - option "221 Pm-3m Oh-1"
+      - option "223 Pm-3n Oh-3"
+      - option "225 Fm-3m Oh-5"
+      - option "229 Im-3m Oh-9"
+    - text: "Conventional lattice:"
+    - combobox:
+      - option "no choice" [selected]
+      - option "(1,0,0),(0,1,0),(0,0,1)"
+      - option "(-1,0,1),(0,1,-1),(-1,-1,-1)"
+      - option "(-1,1,0),(-1,-1,0),(0,0,1)"
+      - option "(2,0,0),(0,2,0),(0,0,2)"
+      - option "(-1,0,1),(-1,0,-1),(0,-2,0)"
+      - option "(1,0,-1),(0,-1,1),(-2,-2,-2)"
+      - option "(0,1,1),(1,0,1),(1,1,0)"
+      - option "(1,0,0),(0,0,1),(0,-2,0)"
+      - option "(2,0,0),(0,2,0),(0,0,1)"
+      - option "(2,2,0),(-2,2,0),(0,0,1)"
+      - option "(-2,0,2),(0,2,-2),(-2,-2,-2)"
+      - option "(2,0,2),(2,0,-2),(0,2,0)"
+      - option "(-2,0,2),(0,-2,-2),(1,-1,1)"
+      - option "(0,-2,0),(2,0,2),(-1,1,1)"
+      - option "(-1,1,1),(1,-1,1),(1,1,-1)"
+    - text: "Primitive lattice:"
+    - combobox:
+      - option "no choice" [selected]
+      - option "(1,0,0),(0,1,0),(0,0,1)"
+      - option "(0,1,1),(1,0,1),(1,1,0)"
+      - option "(1,0,0),(0,0,1),(0,-2,0)"
+      - option "(2,0,0),(0,2,0),(0,0,1)"
+      - option "(0,-2,0),(-2,0,0),(0,0,-2)"
+      - option "(1,-1,0),(1,1,0),(0,0,1)"
+      - option "(-1,1,-1),(1,-1,-1),(-1,-1,1)"
+    - text: Maximal subgroups only
+    - checkbox
+  - 'heading "Method 2: General method - search over specific k points OK" [level=3]':
+    - text: "Method 2: General method - search over specific k points"
+    - button "OK"
+    - link:
+      - /url: isodistorthelp.php#kpoint
+      - img
+  - paragraph:
+    - text: "Specify k point:"
+    - combobox:
+      - option "GM, k12 (0,0,0)" [selected]
+      - option "DT, k8 (0,b,0)"
+      - option "LD, k9 (a,a,a)"
+      - option "SM, k4 (a,a,0)"
+      - option "R, k13 (1/2,1/2,1/2)"
+      - option "X, k10 (0,1/2,0)"
+      - option "M, k11 (1/2,1/2,0)"
+      - option "S, k5 (a,1/2,a)"
+      - option "T, k7 (1/2,1/2,g)"
+      - option "Z, k6 (a,1/2,0)"
+      - option "C, k3 (a,a,g)"
+      - option "A, k1 (a,b,0)"
+      - option "B, k2 (a,1/2,g)"
+      - option "GP, k0 (a,b,g)"
+    - text: a=
+    - textbox
+    - text: b=
+    - textbox
+    - text: g=
+    - textbox
+    - text: "# of independent incommensurate modulations="
+    - textbox: "0"
+  - paragraph
+  - text: "Change number of superposed IRs:"
+  - textbox: "1"
+  - button "Change"
+  - link:
+    - /url: isodistorthelp.php#coupledir
+    - img
+  - text: "Important: You must click on Change to implement any changes in the number of superposed IRs."
+  - 'heading "Method 3: Search over arbitrary k points for specified space group and lattice OK" [level=3]':
+    - text: "Method 3: Search over arbitrary k points for specified space group and lattice"
+    - button "OK"
+    - link:
+      - /url: isodistorthelp.php#method3
+      - img
+  - paragraph:
+    - text: "Select either space group symmetry:"
+    - combobox:
+      - option "Not selected" [selected]
+      - option "1 P1 C1-1"
+      - option "2 P-1 Ci-1"
+      - option "3 P2 C2-1"
+      - option "4 P2_1 C2-2"
+      - option "5 C2 C2-3"
+      - option "6 Pm Cs-1"
+      - option "7 Pc Cs-2"
+      - option "8 Cm Cs-3"
+      - option "9 Cc Cs-4"
+      - option "10 P2/m C2h-1"
+      - option "11 P2_1/m C2h-2"
+      - option "12 C2/m C2h-3"
+      - option "13 P2/c C2h-4"
+      - option "14 P2_1/c C2h-5"
+      - option "15 C2/c C2h-6"
+      - option "16 P222 D2-1"
+      - option "17 P222_1 D2-2"
+      - option "18 P2_12_12 D2-3"
+      - option "19 P2_12_12_1 D2-4"
+      - option "20 C222_1 D2-5"
+      - option "21 C222 D2-6"
+      - option "22 F222 D2-7"
+      - option "23 I222 D2-8"
+      - option "24 I2_12_12_1 D2-9"
+      - option "25 Pmm2 C2v-1"
+      - option "26 Pmc2_1 C2v-2"
+      - option "27 Pcc2 C2v-3"
+      - option "28 Pma2 C2v-4"
+      - option "29 Pca2_1 C2v-5"
+      - option "30 Pnc2 C2v-6"
+      - option "31 Pmn2_1 C2v-7"
+      - option "32 Pba2 C2v-8"
+      - option "33 Pna2_1 C2v-9"
+      - option "34 Pnn2 C2v-10"
+      - option "35 Cmm2 C2v-11"
+      - option "36 Cmc2_1 C2v-12"
+      - option "37 Ccc2 C2v-13"
+      - option "38 Amm2 C2v-14"
+      - option "39 Abm2 C2v-15"
+      - option "40 Ama2 C2v-16"
+      - option "41 Aba2 C2v-17"
+      - option "42 Fmm2 C2v-18"
+      - option "43 Fdd2 C2v-19"
+      - option "44 Imm2 C2v-20"
+      - option "45 Iba2 C2v-21"
+      - option "46 Ima2 C2v-22"
+      - option "47 Pmmm D2h-1"
+      - option "48 Pnnn D2h-2"
+      - option "49 Pccm D2h-3"
+      - option "50 Pban D2h-4"
+      - option "51 Pmma D2h-5"
+      - option "52 Pnna D2h-6"
+      - option "53 Pmna D2h-7"
+      - option "54 Pcca D2h-8"
+      - option "55 Pbam D2h-9"
+      - option "56 Pccn D2h-10"
+      - option "57 Pbcm D2h-11"
+      - option "58 Pnnm D2h-12"
+      - option "59 Pmmn D2h-13"
+      - option "60 Pbcn D2h-14"
+      - option "61 Pbca D2h-15"
+      - option "62 Pnma D2h-16"
+      - option "63 Cmcm D2h-17"
+      - option "64 Cmca D2h-18"
+      - option "65 Cmmm D2h-19"
+      - option "66 Cccm D2h-20"
+      - option "67 Cmma D2h-21"
+      - option "68 Ccca D2h-22"
+      - option "69 Fmmm D2h-23"
+      - option "70 Fddd D2h-24"
+      - option "71 Immm D2h-25"
+      - option "72 Ibam D2h-26"
+      - option "73 Ibca D2h-27"
+      - option "74 Imma D2h-28"
+      - option "75 P4 C4-1"
+      - option "76 P4_1 C4-2"
+      - option "77 P4_2 C4-3"
+      - option "78 P4_3 C4-4"
+      - option "79 I4 C4-5"
+      - option "80 I4_1 C4-6"
+      - option "81 P-4 S4-1"
+      - option "82 I-4 S4-2"
+      - option "83 P4/m C4h-1"
+      - option "84 P4_2/m C4h-2"
+      - option "85 P4/n C4h-3"
+      - option "86 P4_2/n C4h-4"
+      - option "87 I4/m C4h-5"
+      - option "88 I4_1/a C4h-6"
+      - option "89 P422 D4-1"
+      - option "90 P42_12 D4-2"
+      - option "91 P4_122 D4-3"
+      - option "92 P4_12_12 D4-4"
+      - option "93 P4_222 D4-5"
+      - option "94 P4_22_12 D4-6"
+      - option "95 P4_322 D4-7"
+      - option "96 P4_32_12 D4-8"
+      - option "97 I422 D4-9"
+      - option "98 I4_122 D4-10"
+      - option "99 P4mm C4v-1"
+      - option "100 P4bm C4v-2"
+      - option "101 P4_2cm C4v-3"
+      - option "102 P4_2nm C4v-4"
+      - option "103 P4cc C4v-5"
+      - option "104 P4nc C4v-6"
+      - option "105 P4_2mc C4v-7"
+      - option "106 P4_2bc C4v-8"
+      - option "107 I4mm C4v-9"
+      - option "108 I4cm C4v-10"
+      - option "109 I4_1md C4v-11"
+      - option "110 I4_1cd C4v-12"
+      - option "111 P-42m D2d-1"
+      - option "112 P-42c D2d-2"
+      - option "113 P-42_1m D2d-3"
+      - option "114 P-42_1c D2d-4"
+      - option "115 P-4m2 D2d-5"
+      - option "116 P-4c2 D2d-6"
+      - option "117 P-4b2 D2d-7"
+      - option "118 P-4n2 D2d-8"
+      - option "119 I-4m2 D2d-9"
+      - option "120 I-4c2 D2d-10"
+      - option "121 I-42m D2d-11"
+      - option "122 I-42d D2d-12"
+      - option "123 P4/mmm D4h-1"
+      - option "124 P4/mcc D4h-2"
+      - option "125 P4/nbm D4h-3"
+      - option "126 P4/nnc D4h-4"
+      - option "127 P4/mbm D4h-5"
+      - option "128 P4/mnc D4h-6"
+      - option "129 P4/nmm D4h-7"
+      - option "130 P4/ncc D4h-8"
+      - option "131 P4_2/mmc D4h-9"
+      - option "132 P4_2/mcm D4h-10"
+      - option "133 P4_2/nbc D4h-11"
+      - option "134 P4_2/nnm D4h-12"
+      - option "135 P4_2/mbc D4h-13"
+      - option "136 P4_2/mnm D4h-14"
+      - option "137 P4_2/nmc D4h-15"
+      - option "138 P4_2/ncm D4h-16"
+      - option "139 I4/mmm D4h-17"
+      - option "140 I4/mcm D4h-18"
+      - option "141 I4_1/amd D4h-19"
+      - option "142 I4_1/acd D4h-20"
+      - option "143 P3 C3-1"
+      - option "144 P3_1 C3-2"
+      - option "145 P3_2 C3-3"
+      - option "146 R3 C3-4"
+      - option "147 P-3 C3i-1"
+      - option "148 R-3 C3i-2"
+      - option "149 P312 D3-1"
+      - option "150 P321 D3-2"
+      - option "151 P3_112 D3-3"
+      - option "152 P3_121 D3-4"
+      - option "153 P3_212 D3-5"
+      - option "154 P3_221 D3-6"
+      - option "155 R32 D3-7"
+      - option "156 P3m1 C3v-1"
+      - option "157 P31m C3v-2"
+      - option "158 P3c1 C3v-3"
+      - option "159 P31c C3v-4"
+      - option "160 R3m C3v-5"
+      - option "161 R3c C3v-6"
+      - option "162 P-31m D3d-1"
+      - option "163 P-31c D3d-2"
+      - option "164 P-3m1 D3d-3"
+      - option "165 P-3c1 D3d-4"
+      - option "166 R-3m D3d-5"
+      - option "167 R-3c D3d-6"
+      - option "168 P6 C6-1"
+      - option "169 P6_1 C6-2"
+      - option "170 P6_5 C6-3"
+      - option "171 P6_2 C6-4"
+      - option "172 P6_4 C6-5"
+      - option "173 P6_3 C6-6"
+      - option "174 P-6 C3h-1"
+      - option "175 P6/m C6h-1"
+      - option "176 P6_3/m C6h-2"
+      - option "177 P622 D6-1"
+      - option "178 P6_122 D6-2"
+      - option "179 P6_522 D6-3"
+      - option "180 P6_222 D6-4"
+      - option "181 P6_422 D6-5"
+      - option "182 P6_322 D6-6"
+      - option "183 P6mm C6v-1"
+      - option "184 P6cc C6v-2"
+      - option "185 P6_3cm C6v-3"
+      - option "186 P6_3mc C6v-4"
+      - option "187 P-6m2 D3h-1"
+      - option "188 P-6c2 D3h-2"
+      - option "189 P-62m D3h-3"
+      - option "190 P-62c D3h-4"
+      - option "191 P6/mmm D6h-1"
+      - option "192 P6/mcc D6h-2"
+      - option "193 P6_3/mcm D6h-3"
+      - option "194 P6_3/mmc D6h-4"
+      - option "195 P23 T-1"
+      - option "196 F23 T-2"
+      - option "197 I23 T-3"
+      - option "198 P2_13 T-4"
+      - option "199 I2_13 T-5"
+      - option "200 Pm-3 Th-1"
+      - option "201 Pn-3 Th-2"
+      - option "202 Fm-3 Th-3"
+      - option "203 Fd-3 Th-4"
+      - option "204 Im-3 Th-5"
+      - option "205 Pa-3 Th-6"
+      - option "206 Ia-3 Th-7"
+      - option "207 P432 O-1"
+      - option "208 P4_232 O-2"
+      - option "209 F432 O-3"
+      - option "210 F4_132 O-4"
+      - option "211 I432 O-5"
+      - option "212 P4_332 O-6"
+      - option "213 P4_132 O-7"
+      - option "214 I4_132 O-8"
+      - option "215 P-43m Td-1"
+      - option "216 F-43m Td-2"
+      - option "217 I-43m Td-3"
+      - option "218 P-43n Td-4"
+      - option "219 F-43c Td-5"
+      - option "220 I-43d Td-6"
+      - option "221 Pm-3m Oh-1"
+      - option "222 Pn-3n Oh-2"
+      - option "223 Pm-3n Oh-3"
+      - option "224 Pn-3m Oh-4"
+      - option "225 Fm-3m Oh-5"
+      - option "226 Fm-3c Oh-6"
+      - option "227 Fd-3m Oh-7"
+      - option "228 Fd-3c Oh-8"
+      - option "229 Im-3m Oh-9"
+      - option "230 Ia-3d Oh-10"
+    - text: "or point group (crystal class):"
+    - combobox:
+      - option "Not selected" [selected]
+      - 'option "triclinic: 1 C1"'
+      - 'option "triclinic: -1 Ci"'
+      - 'option "monoclinic: 2 C2"'
+      - 'option "monoclinic: m Cs"'
+      - 'option "monoclinic: 2/m C2h"'
+      - 'option "orthorhombic: 222 D2"'
+      - 'option "orthorhombic: mm2 C2v"'
+      - 'option "orthorhombic: mmm D2h"'
+      - 'option "tetragonal: 4 C4"'
+      - 'option "tetragonal: -4 S4"'
+      - 'option "tetragonal: 4/m C4h"'
+      - 'option "tetragonal: 422 D4"'
+      - 'option "tetragonal: 4mm C4v"'
+      - 'option "tetragonal: -42m D2d"'
+      - 'option "tetragonal: 4/mmm D4h"'
+      - 'option "hexagonal: 3 C3"'
+      - 'option "hexagonal: -3 C3i"'
+      - 'option "hexagonal: 32 D3"'
+      - 'option "hexagonal: 3m C3v"'
+      - 'option "hexagonal: -3m D3d"'
+      - 'option "hexagonal: 6 C6"'
+      - 'option "hexagonal: -6 C3h"'
+      - 'option "hexagonal: 6/m C6h"'
+      - 'option "hexagonal: 622 D6"'
+      - 'option "hexagonal: 6mm C6v"'
+      - 'option "hexagonal: -62m D3h"'
+      - 'option "hexagonal: 6/mmm D6h"'
+      - 'option "cubic: 23 T"'
+      - 'option "cubic: m-3 Th"'
+      - 'option "cubic: 432 O"'
+      - 'option "cubic: -43m Td"'
+      - 'option "cubic: m-3m Oh"'
+    - radio [checked]
+    - text: Specify a real-space sublattice of the parent lattice with Default
+    - radio [checked]
+    - text: P
+    - radio
+    - text: A
+    - radio
+    - text: B
+    - radio
+    - text: C
+    - radio
+    - text: I
+    - radio
+    - text: F
+    - radio
+    - text: R
+    - radio
+    - text: centering.
+    - radio
+    - text: "Specify a primitive reciprocal-space superlattice Choose a representative basis: a' ="
+    - textbox: "1"
+    - text: a +
+    - textbox: "0"
+    - text: b +
+    - textbox: "0"
+    - text: c b' =
+    - textbox: "0"
+    - text: a +
+    - textbox: "1"
+    - text: b +
+    - textbox: "0"
+    - text: c c' =
+    - textbox: "0"
+    - text: a +
+    - textbox: "0"
+    - text: b +
+    - textbox: "1"
+    - text: c
+  - 'heading "Method 4: Mode decomposition of a distorted structure OK" [level=3]':
+    - text: "Method 4: Mode decomposition of a distorted structure"
+    - button "OK"
+    - link:
+      - /url: isodistorthelp.php#method4
+      - img
+  - paragraph:
+    - text: "Upload distorted structure from CIF file:"
+    - button "Choose File"
+  - heading "Space-Group Preferences Change" [level=3]:
+    - text: Space-Group Preferences
+    - button "Change"
+    - link:
+      - /url: isodistorthelp.php#settings
+      - img
+  - paragraph:
+    - text: "These preferences apply to subsequent distortions but do not affect your parent structure): Monoclinic axes: a(b)c"
+    - radio [checked]
+    - text: c(-b)a
+    - radio
+    - text: ab(c)
+    - radio
+    - text: ba(-c)
+    - radio
+    - text: (a)bc
+    - radio
+    - text: (-a)cb
+    - radio
+    - text: "Monoclinic cell choice: 1"
+    - radio [checked]
+    - text: "2"
+    - radio
+    - text: "3"
+    - radio
+    - text: "Orthorhombic axes: abc"
+    - radio [checked]
+    - text: ba-c
+    - radio
+    - text: cab
+    - radio
+    - text: "-cba"
+    - radio
+    - text: bca
+    - radio
+    - text: a-cb
+    - radio
+    - text: "Trigonal axes: hexagonal"
+    - radio [checked]
+    - text: rhombohedral
+    - radio
+    - text: "Origin choice: 1"
+    - radio
+    - text: "2"
+    - radio [checked]
+    - text: "Superspace group setting: standard (IT-C)"
+    - radio [checked]
+    - text: basic (IT-A)
+    - radio
+    - text: "Note for superspace groups: If the standard setting is selected, none of the other setting selections will apply."
+    - checkbox
+    - text: Employ parent-like basis vectors (smallest supercell whose basis vectors are parallel to conventional parent basis vectors)
+  - text: "Important: You must click on Change to implement any changes in the above preferences."

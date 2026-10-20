@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "source_files": 11,
+  "candidate_fields_checked": 375,
+  "total_bytes": 77898142,
+  "checks": [
+    "source SHA-256",
+    "header byte range",
+    "payload SHA-256",
+    "sample hex equality"
+  ],
+  "scientific_validation": false
+}

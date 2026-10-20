@@ -1,0 +1,47 @@
+{
+  "forms": [],
+  "links": [
+    {
+      "class": "brand",
+      "href": "isodistort.php"
+    },
+    {
+      "href": "isotropy.php"
+    },
+    {
+      "href": "isodistortexample.php",
+      "target": "_blank"
+    },
+    {
+      "href": "isotheory.pdf"
+    },
+    {
+      "href": "http://www.iucr.org/cgi-bin/paper?wf5017"
+    },
+    {
+      "href": "jac39_607reprint.pdf"
+    },
+    {
+      "href": "http://www.iucr.org/cgi-bin/paper?pz5036"
+    },
+    {
+      "href": "aca63_365reprint.pdf"
+    },
+    {
+      "href": "http://iucrcomputing.ccp14.ac.uk/iucr-top/comm/ccom/newsletters/2007nov"
+    },
+    {
+      "href": "compcom8_81reprint.pdf"
+    },
+    {
+      "href": "incommensurate.php",
+      "target": "_blank"
+    },
+    {
+      "href": "transformssgmath.html"
+    },
+    {
+      "href": "http://www.dur.ac.uk/john.evans/topas_workshop/tutorial_isoriet.htm"
+    }
+  ]
+}

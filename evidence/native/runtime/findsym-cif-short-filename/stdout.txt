@@ -1,0 +1,4 @@
+!useKeyWords
+Error reading symmetry operators from CIF file.
+This program has bombed: read_cifv 93
+exit

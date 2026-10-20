@@ -1,0 +1,6 @@
+Isotropy, Version 9.6.1, Jan 2022
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell
+Brigham Young University
+Current setting is International (new ed.) with conventional basis vectors.
+*Syntax error: THIS_IS_NOT_A_COMMAND
+*

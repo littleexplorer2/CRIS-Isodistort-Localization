@@ -1,0 +1,170 @@
+[
+  {
+    "source": "evidence/native/rea-linux-iso-recovered/05-orderparam-check.json",
+    "source_sha256": "a5f7458dcfbe3f376ea34ee5ef2c1003ab25a7913a3f4de1f714cea097eb8340",
+    "derived_file": "evidence/native/pseudocode/orderparam-check.c",
+    "derived_sha256": "a83054625e89a951273e3675e4f2c1848e8033bde578471d23ccf445ac7d36f9",
+    "evidence_id": "ev_532c54c72d30b144fda62477b3ffc34e3b611d5054f43e5e06a71ad360dd6eaa",
+    "limitations": [
+      "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+      "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+      "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+      "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+      "References cover the complete Ghidra function-body AddressSet and exact entry. Dossier incoming edges omit sources owned by that function; procedure_references also retains those internal edges.",
+      "The dossier combines Ghidra FunctionManager, Listing, ReferenceManager, BasicBlockModel, and decompiler observations; provider-specific pseudocode and assembly are not cross-provider text invariants.",
+      "Resolved reference metadata identifies computed, indirect, external, call, jump, and data edges; unresolved targetless flows remain unknown, and function classifications distinguish thunks and externals.",
+      "Synthetic Ghidra entry-point references without actionable memory sources are omitted.",
+      "The Java bridge serializes one function request per Program and lets each decompilation run until it completes or the caller cancels.",
+      "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+    ]
+  },
+  {
+    "source": "evidence/native/rea-linux-iso-recovered/06-orderparam-to-subgroup.json",
+    "source_sha256": "c4fde0da4c96e449fba865d8077c36a4b06f0ee4d102749e27199acc8c00c23d",
+    "derived_file": "evidence/native/pseudocode/orderparam-to-subgroup.c",
+    "derived_sha256": "09b93cc3ba6ed55cd61a01680bee2097e9d66e3366b24d0182c32b1d36ae7036",
+    "evidence_id": "ev_f20461333691000dd27783bf7556a762ee4272d541f8b19554a91d8b81e51382",
+    "limitations": [
+      "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+      "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+      "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+      "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+      "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+      "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+      "Ghidra Listing reports a terminal call at 0x49e428 to 0x4b6450 _gfortran_os_error_at (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+      "Ghidra Listing reports a terminal call at 0x49e473 to 0x4b6450 _gfortran_os_error_at (external=false, thunk=false, hasNoReturn=true); fallthrough is excluded by Ghidra's flow model. This records Ghidra's FunctionManager flag, not an independent verification that the callee cannot return.",
+      "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+    ]
+  },
+  {
+    "source": "evidence/native/rea-linux-iso-recovered/07-init-constants.json",
+    "source_sha256": "72420859663a1be75a65a9154abcc1f7d0c431d82ec48859c19845c25ecc9b7f",
+    "derived_file": "evidence/native/pseudocode/init-constants.c",
+    "derived_sha256": "2c106a52c05b53c7cfeb06e834a7d732c9b7a10ccef51a09f40e2197c59f44e1",
+    "evidence_id": "ev_c3934e6205016da351a9a92ccc97319261a336f2661c83e95d6a8d0a5440cfe6",
+    "limitations": [
+      "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+      "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+      "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+      "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+      "References cover the complete Ghidra function-body AddressSet and exact entry. Dossier incoming edges omit sources owned by that function; procedure_references also retains those internal edges.",
+      "The dossier combines Ghidra FunctionManager, Listing, ReferenceManager, BasicBlockModel, and decompiler observations; provider-specific pseudocode and assembly are not cross-provider text invariants.",
+      "Resolved reference metadata identifies computed, indirect, external, call, jump, and data edges; unresolved targetless flows remain unknown, and function classifications distinguish thunks and externals.",
+      "Synthetic Ghidra entry-point references without actionable memory sources are omitted.",
+      "The Java bridge serializes one function request per Program and lets each decompilation run until it completes or the caller cancels.",
+      "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+    ]
+  },
+  {
+    "source": "evidence/native/rea-linux-iso-recovered/08-constant.json",
+    "source_sha256": "9691f76ba4c1c69a452498564f9448bc0932cae12f8715fa68f455ffc30f8434",
+    "derived_file": "evidence/native/pseudocode/constant.c",
+    "derived_sha256": "0bd30a9e301c08b07d795b88ebd3c1eb436c1111d6aa86f4e8e25d7a9d312124",
+    "evidence_id": "ev_f52b50abf8a82a8fdff67c6627669397e75935686ac1fa0b0ba3e89d81c6b0e0",
+    "limitations": [
+      "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+      "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+      "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+      "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+      "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+      "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+      "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+    ]
+  },
+  {
+    "source": "evidence/native/rea-linux-iso-recovered/09-ncmp.json",
+    "source_sha256": "e60a09d97f231f3cbffc83b47e56cefd096cee8b9aea9eb0576f6e429053fa25",
+    "derived_file": "evidence/native/pseudocode/ncmp.c",
+    "derived_sha256": "9864fd435875484ace49da51c8089ccae6dcdf1969a02d28e7bb82e5fab8e865",
+    "evidence_id": "ev_a7d7f5bf41d5e5819be7499c22486d64739782547587883ba489ec43d36c30fe",
+    "limitations": [
+      "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+      "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+      "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+      "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+      "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+      "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+      "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+    ]
+  },
+  {
+    "source": "evidence/native/rea-linux-iso-recovered/10-get-irrep4.json",
+    "source_sha256": "083576bf59cb09b384c4063c87d5cc546c47b92bae110593943d59ae8ac17cce",
+    "derived_file": "evidence/native/pseudocode/get-irrep4.c",
+    "derived_sha256": "962223f2d8077ea4faaa0e35641cac4f3a318bc1e69da8a998706f8d3c3790cd",
+    "evidence_id": "ev_14bd60fa1fca5963680c7f1cfd61949e8da31466cb5b6fab89b10b6f87edab71",
+    "limitations": [
+      "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+      "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+      "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+      "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+      "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+      "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+      "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+    ]
+  },
+  {
+    "source": "evidence/native/rea-linux-iso-recovered/11-get-irreps.json",
+    "source_sha256": "fde5e33f50cec860c3315ef02303a58cea59195855648b0a6e3f1468f5a79fae",
+    "derived_file": "evidence/native/pseudocode/get-irreps.c",
+    "derived_sha256": "d68ab1a7120a7cc681769e4477ba595eb14ad984e93b815b1b08517055949843",
+    "evidence_id": "ev_876f3330452ee37940cf889e2523bf929f49ca0cfd8c7a84ee870ada181f9d86",
+    "limitations": [
+      "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+      "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+      "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+      "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+      "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+      "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+      "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+    ]
+  },
+  {
+    "source": "evidence/native/rea-linux-iso-recovered/12-project.json",
+    "source_sha256": "8de60f27dd0584d40fb3af2517214cee552f4651a42601325cd8d68235380516",
+    "derived_file": "evidence/native/pseudocode/project.c",
+    "derived_sha256": "e3c5917a928a6a84e9bfed2b418a8835b1eaa5156c3641bfea94162fe0316126",
+    "evidence_id": "ev_1131e1fb43cc1bbde64db04c22132ae5b6ee430b157e4ce0589a9f3a02ca8cc5",
+    "limitations": [
+      "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+      "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+      "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+      "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+      "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+      "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+      "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+    ]
+  },
+  {
+    "source": "evidence/native/rea-linux-iso-recovered/13-project-vector.json",
+    "source_sha256": "ee168c957f400df27a97b48646483fd9c371d7e4f3c565fa3e46340d77733d68",
+    "derived_file": "evidence/native/pseudocode/project-vector.c",
+    "derived_sha256": "dac27c043a2980146c249f1e676016fdcc49181149cc3208b11cd9bc089df6c3",
+    "evidence_id": "ev_995c4e8a0963d7a321775c56b99b779feec99547d7d3799555092da781337c30",
+    "limitations": [
+      "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+      "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+      "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+      "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+      "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+      "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+      "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+    ]
+  },
+  {
+    "source": "evidence/native/rea-linux-iso-recovered/14-get-isotropy-file.json",
+    "source_sha256": "a6733ad583d276af48ffd95d5ca9f17d8a1b7ae1a08a6a7ea6fa8ad73574ba8d",
+    "derived_file": "evidence/native/pseudocode/get-isotropy-file.c",
+    "derived_sha256": "26d6000d07d0195fed2d198fb5ea405c5a56dbac184cdf1c62bc95837fa68545",
+    "evidence_id": "ev_2310ee83c419aac9e2bae0bac220527bd066f4f3a5ac69c79e2eca5861c873b7",
+    "limitations": [
+      "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+      "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+      "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+      "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+      "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+      "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+      "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+    ]
+  }
+]

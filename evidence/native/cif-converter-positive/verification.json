@@ -1,0 +1,41 @@
+{
+  "created_utc": "2026-10-20T14:09:32.461116+00:00",
+  "status": "passed_format_contract",
+  "checks": {
+    "converter_input_matches_frozen_cif": true,
+    "downstream_input_exact_converter_stdout": true,
+    "source_code_unchanged": true,
+    "converter_lattice_preserved": true,
+    "converter_atom_count_preserved": true,
+    "converter_atom_types_preserved": true,
+    "converter_positions_preserved": true,
+    "converter_occupancy_preserved": true,
+    "converter_identity_operator_preserved": true,
+    "converter_declared_group_preserved": true,
+    "both_processes_exit_zero": true,
+    "both_no_recognized_diagnostics": true,
+    "findsym_output_reports_P1": true,
+    "findsym_output_contains_final_cif_and_two_atoms": true
+  },
+  "changed_source_files": [],
+  "converter_run": "479ce6fd-3d63-410b-bedc-68c9d658860e",
+  "findsym_run": "0538df13-283f-4680-89b2-5ad58feb1c96",
+  "tolerance_for_decimal_preservation": "exact Decimal equality; no relaxation",
+  "official_converter_emitted_tolerances": {
+    "latticeTolerance": [
+      "0.100E-04"
+    ],
+    "atomicPositionTolerance": [
+      "0.100E-02"
+    ],
+    "atomicPositionMaxTolerance": [
+      "0.330E+00"
+    ],
+    "occupationTolerance": [
+      "0.100E-02"
+    ]
+  },
+  "scope": "Real two-step local program acceptance on one explicitly synthetic input; not scientific validation across materials, settings, magnetic cases, or arbitrary CIF grammar.",
+  "website_reference_answers_read": false,
+  "resource_copy_policy": "Per-run application copies retained only in ignored runs; no database files copied into evidence."
+}

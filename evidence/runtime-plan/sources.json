@@ -1,0 +1,73 @@
+{
+  "ghidra_release": {
+    "url": "https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/tags/Ghidra_12.1.3_build",
+    "retrieved_utc": "2026-10-20T13:45:17.602513+00:00",
+    "bytes": 4196,
+    "sha256": "43a06ce1c8cd246d209a462c869fdaf71e9e0c27bce34051a4f19d803838d342",
+    "saved": "ghidra_release.json",
+    "tag": "Ghidra_12.1.3_build",
+    "assets": [
+      {
+        "name": "ghidra_12.1.3_PUBLIC_20260817.zip",
+        "size": 569445154,
+        "digest": "sha256:93a5d11a9ad510622acaaf908c556a7b9b764d338e78a7567f3689bf5081fd54",
+        "browser_download_url": "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.3_build/ghidra_12.1.3_PUBLIC_20260817.zip"
+      }
+    ]
+  },
+  "ghidra_requirements": {
+    "url": "https://raw.githubusercontent.com/NationalSecurityAgency/ghidra/Ghidra_12.1.3_build/Ghidra/application.properties",
+    "retrieved_utc": "2026-10-20T13:45:17.603515+00:00",
+    "bytes": 298,
+    "sha256": "9453c90bd39f9c352c631180b3edf68e988644b701ae9fa2cf2d00179535c8fe",
+    "saved": "ghidra_requirements.txt",
+    "java_lines": [
+      "application.java.min=21",
+      "application.java.max=",
+      "application.java.compiler=21"
+    ]
+  },
+  "jdk21": {
+    "url": "https://api.adoptium.net/v3/assets/latest/21/hotspot?architecture=x64&image_type=jdk&os=linux&vendor=eclipse",
+    "retrieved_utc": "2026-10-20T13:45:17.603515+00:00",
+    "bytes": 1821,
+    "sha256": "2de9660d346cc9464f8e47c32272c2b1bcb0253a1bd19bc062f42c3f10e59dce",
+    "saved": "jdk21.json",
+    "assets": [
+      {
+        "version": "21.0.12+101.0.LTS",
+        "release_name": "jdk-21.0.12.1+1",
+        "package": {
+          "checksum": "ce79869e1307ed8ee1e2baa86a412b1eb5b75d10a01006d788a6f968bcfaee94",
+          "checksum_link": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz.sha256.txt",
+          "download_count": 4012036,
+          "link": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz",
+          "metadata_link": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz.json",
+          "name": "OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz",
+          "signature_link": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz.sig",
+          "size": 207473347
+        }
+      }
+    ]
+  },
+  "node_checksums": {
+    "url": "https://nodejs.org/dist/v24.15.0/SHASUMS256.txt",
+    "retrieved_utc": "2026-10-20T13:45:17.604516+00:00",
+    "bytes": 2967,
+    "sha256": "1e812945dee26c3e4ca41a8c0b582668ff2401ba0ae727a122300c0e8514edb0",
+    "saved": "node_checksums.txt",
+    "selected": [
+      "472655581fb851559730c48763e0c9d3bc25975c59d518003fc0849d3e4ba0f6  node-v24.15.0-linux-x64.tar.xz"
+    ]
+  },
+  "node_index": {
+    "url": "https://nodejs.org/dist/v24.15.0/",
+    "retrieved_utc": "2026-10-20T13:45:17.604516+00:00",
+    "bytes": 4595,
+    "sha256": "2e33aeae6232b7b916e48082c497581aa196dbcf7f516bf777c4f1931cda07e2",
+    "saved": "node_index.txt",
+    "selected": [
+      "<a href=\"/dist/v24.15.0/node-v24.15.0-linux-x64.tar.xz\">node-v24.15.0-linux-x64.tar.xz</a>                     16-Apr-2026 07:15                31 MB"
+    ]
+  }
+}

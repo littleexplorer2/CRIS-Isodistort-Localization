@@ -1,0 +1,36 @@
+
+vendor/isobyu/iso:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+Disassembly of section .plt:
+
+Disassembly of section .text:
+
+000000000045716d <constant_>:
+  45716d:	53                   	push   rbx
+  45716e:	48 89 fb             	mov    rbx,rdi
+  457171:	83 3d c8 a0 75 01 00 	cmp    DWORD PTR [rip+0x175a0c8],0x0        # 1bb1240 <const_common_>
+  457178:	74 30                	je     4571aa <constant_+0x3d>
+  45717a:	8b 03                	mov    eax,DWORD PTR [rbx]
+  45717c:	85 c0                	test   eax,eax
+  45717e:	7e 08                	jle    457188 <constant_+0x1b>
+  457180:	3b 05 be a0 75 01    	cmp    eax,DWORD PTR [rip+0x175a0be]        # 1bb1244 <const_common_+0x4>
+  457186:	7e 11                	jle    457199 <constant_+0x2c>
+  457188:	be 0c 00 00 00       	mov    esi,0xc
+  45718d:	48 8d 3d 74 3e 15 00 	lea    rdi,[rip+0x153e74]        # 5ab008 <centered_lattice_type.8+0xac>
+  457194:	e8 1b d1 ff ff       	call   4542b4 <bomb2_>
+  457199:	48 63 13             	movsxd rdx,DWORD PTR [rbx]
+  45719c:	48 8d 05 9d a0 75 01 	lea    rax,[rip+0x175a09d]        # 1bb1240 <const_common_>
+  4571a3:	f2 0f 10 04 d0       	movsd  xmm0,QWORD PTR [rax+rdx*8]
+  4571a8:	5b                   	pop    rbx
+  4571a9:	c3                   	ret
+  4571aa:	c7 05 8c a0 75 01 01 	mov    DWORD PTR [rip+0x175a08c],0x1        # 1bb1240 <const_common_>
+  4571b1:	00 00 00 
+  4571b4:	e8 e8 fc ff ff       	call   456ea1 <init_constants_>
+  4571b9:	eb bf                	jmp    45717a <constant_+0xd>
+
+Disassembly of section __libc_freeres_fn:
+
+Disassembly of section .fini:

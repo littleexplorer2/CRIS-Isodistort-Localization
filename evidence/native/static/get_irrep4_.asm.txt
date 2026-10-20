@@ -1,0 +1,329 @@
+
+vendor/isobyu/iso:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+Disassembly of section .plt:
+
+Disassembly of section .text:
+
+00000000004acc70 <get_irrep4_>:
+  4acc70:	41 57                	push   r15
+  4acc72:	41 56                	push   r14
+  4acc74:	41 55                	push   r13
+  4acc76:	41 54                	push   r12
+  4acc78:	55                   	push   rbp
+  4acc79:	53                   	push   rbx
+  4acc7a:	48 81 ec a8 49 00 00 	sub    rsp,0x49a8
+  4acc81:	48 89 7c 24 18       	mov    QWORD PTR [rsp+0x18],rdi
+  4acc86:	48 89 74 24 10       	mov    QWORD PTR [rsp+0x10],rsi
+  4acc8b:	48 89 4c 24 08       	mov    QWORD PTR [rsp+0x8],rcx
+  4acc90:	4c 89 44 24 20       	mov    QWORD PTR [rsp+0x20],r8
+  4acc95:	4c 89 4c 24 28       	mov    QWORD PTR [rsp+0x28],r9
+  4acc9a:	f3 0f 6f 12          	movdqu xmm2,XMMWORD PTR [rdx]
+  4acc9e:	0f 29 94 24 80 49 00 	movaps XMMWORD PTR [rsp+0x4980],xmm2
+  4acca5:	00 
+  4acca6:	8b 42 10             	mov    eax,DWORD PTR [rdx+0x10]
+  4acca9:	89 84 24 90 49 00 00 	mov    DWORD PTR [rsp+0x4990],eax
+  4accb0:	8b 06                	mov    eax,DWORD PTR [rsi]
+  4accb2:	3b 05 1c e8 95 00    	cmp    eax,DWORD PTR [rip+0x95e81c]        # e0b4d4 <irrpointersave.9>
+  4accb8:	0f 84 38 02 00 00    	je     4acef6 <get_irrep4_+0x286>
+  4accbe:	89 05 10 e8 95 00    	mov    DWORD PTR [rip+0x95e810],eax        # e0b4d4 <irrpointersave.9>
+  4accc4:	48 98                	cdqe
+  4accc6:	48 8d 15 b3 4d 9f 00 	lea    rdx,[rip+0x9f4db3]        # ea1a80 <common_little_>
+  4acccd:	0f b7 8c 42 6e 6f 2d 	movzx  ecx,WORD PTR [rdx+rax*2+0x2d6f6e]
+  4accd4:	00 
+  4accd5:	0f bf f1             	movsx  esi,cx
+  4accd8:	89 35 f2 e7 95 00    	mov    DWORD PTR [rip+0x95e7f2],esi        # e0b4d0 <ispace.8>
+  4accde:	0f b6 bc 02 33 c3 36 	movzx  edi,BYTE PTR [rdx+rax*1+0x36c333]
+  4acce5:	00 
+  4acce6:	40 0f be c7          	movsx  eax,dil
+  4accea:	89 05 dc e7 95 00    	mov    DWORD PTR [rip+0x95e7dc],eax        # e0b4cc <kpnt.7>
+  4accf0:	48 0f bf c1          	movsx  rax,cx
+  4accf4:	48 8d 0d 05 61 96 00 	lea    rcx,[rip+0x966105]        # e12e00 <common_space_>
+  4accfb:	0f b6 b4 01 e3 1f 06 	movzx  esi,BYTE PTR [rcx+rax*1+0x61fe3]
+  4acd02:	00 
+  4acd03:	40 0f be ce          	movsx  ecx,sil
+  4acd07:	89 0d bb e7 95 00    	mov    DWORD PTR [rip+0x95e7bb],ecx        # e0b4c8 <latt.6>
+  4acd0d:	48 0f be cf          	movsx  rcx,dil
+  4acd11:	48 8d 04 40          	lea    rax,[rax+rax*2]
+  4acd15:	48 8d 3c c0          	lea    rdi,[rax+rax*8]
+  4acd19:	48 01 cf             	add    rdi,rcx
+  4acd1c:	0f b7 84 7a 02 e5 2d 	movzx  eax,WORD PTR [rdx+rdi*2+0x2de502]
+  4acd23:	00 
+  4acd24:	44 0f bf c0          	movsx  r8d,ax
+  4acd28:	44 89 05 95 e7 95 00 	mov    DWORD PTR [rip+0x95e795],r8d        # e0b4c4 <nmod.5>
+  4acd2f:	0f b7 9c 7a 86 15 2e 	movzx  ebx,WORD PTR [rdx+rdi*2+0x2e1586]
+  4acd36:	00 
+  4acd37:	48 0f be f6          	movsx  rsi,sil
+  4acd3b:	48 8d 34 76          	lea    rsi,[rsi+rsi*2]
+  4acd3f:	48 8d 34 f6          	lea    rsi,[rsi+rsi*8]
+  4acd43:	48 01 f2             	add    rdx,rsi
+  4acd46:	80 bc 11 d6 c0 2f 00 	cmp    BYTE PTR [rcx+rdx*1+0x2fc0d6],0x0
+  4acd4d:	00 
+  4acd4e:	74 3b                	je     4acd8b <get_irrep4_+0x11b>
+  4acd50:	48 0f bf db          	movsx  rbx,bx
+  4acd54:	66 85 c0             	test   ax,ax
+  4acd57:	0f 8e 99 01 00 00    	jle    4acef6 <get_irrep4_+0x286>
+  4acd5d:	48 c1 e3 04          	shl    rbx,0x4
+  4acd61:	48 8d 15 18 4d 9f 00 	lea    rdx,[rip+0x9f4d18]        # ea1a80 <common_little_>
+  4acd68:	4c 8d 54 9a bc       	lea    r10,[rdx+rbx*4-0x44]
+  4acd6d:	4c 8d 0d 68 dc 95 00 	lea    r9,[rip+0x95dc68]        # e0a9dc <iopn.0+0x7c>
+  4acd74:	48 0f bf c0          	movsx  rax,ax
+  4acd78:	48 c1 e0 04          	shl    rax,0x4
+  4acd7c:	4c 8d 58 0f          	lea    r11,[rax+0xf]
+  4acd80:	41 b8 0f 00 00 00    	mov    r8d,0xf
+  4acd86:	e9 34 01 00 00       	jmp    4acebf <get_irrep4_+0x24f>
+  4acd8b:	48 8d 15 6e e3 95 00 	lea    rdx,[rip+0x95e36e]        # e0b100 <iops.3>
+  4acd92:	48 8d 35 27 e7 95 00 	lea    rsi,[rip+0x95e727]        # e0b4c0 <nops.4>
+  4acd99:	48 8d 3d 30 e7 95 00 	lea    rdi,[rip+0x95e730]        # e0b4d0 <ispace.8>
+  4acda0:	e8 69 85 fd ff       	call   48530e <generate_space_group_>
+  4acda5:	48 8d 3d 34 e2 95 00 	lea    rdi,[rip+0x95e234]        # e0afe0 <mapops.2>
+  4acdac:	b9 24 00 00 00       	mov    ecx,0x24
+  4acdb1:	b8 00 00 00 00       	mov    eax,0x0
+  4acdb6:	f3 48 ab             	rep stos QWORD PTR [rdi],rax
+  4acdb9:	8b 35 01 e7 95 00    	mov    esi,DWORD PTR [rip+0x95e701]        # e0b4c0 <nops.4>
+  4acdbf:	85 f6                	test   esi,esi
+  4acdc1:	7e 28                	jle    4acdeb <get_irrep4_+0x17b>
+  4acdc3:	48 8d 15 46 e3 95 00 	lea    rdx,[rip+0x95e346]        # e0b110 <iops.3+0x10>
+  4acdca:	83 c6 01             	add    esi,0x1
+  4acdcd:	b8 01 00 00 00       	mov    eax,0x1
+  4acdd2:	48 8d 3d 07 e2 95 00 	lea    rdi,[rip+0x95e207]        # e0afe0 <mapops.2>
+  4acdd9:	48 63 0a             	movsxd rcx,DWORD PTR [rdx]
+  4acddc:	89 44 8f fc          	mov    DWORD PTR [rdi+rcx*4-0x4],eax
+  4acde0:	83 c0 01             	add    eax,0x1
+  4acde3:	48 83 c2 14          	add    rdx,0x14
+  4acde7:	39 f0                	cmp    eax,esi
+  4acde9:	75 ee                	jne    4acdd9 <get_irrep4_+0x169>
+  4acdeb:	48 0f bf c3          	movsx  rax,bx
+  4acdef:	44 8b 05 ce e6 95 00 	mov    r8d,DWORD PTR [rip+0x95e6ce]        # e0b4c4 <nmod.5>
+  4acdf6:	45 85 c0             	test   r8d,r8d
+  4acdf9:	0f 8e f7 00 00 00    	jle    4acef6 <get_irrep4_+0x286>
+  4acdff:	48 8d 3c 85 fb ff ff 	lea    rdi,[rax*4-0x5]
+  4ace06:	ff 
+  4ace07:	48 89 c3             	mov    rbx,rax
+  4ace0a:	48 89 c1             	mov    rcx,rax
+  4ace0d:	48 c1 e1 04          	shl    rcx,0x4
+  4ace11:	48 8d 05 68 4c 9f 00 	lea    rax,[rip+0x9f4c68]        # ea1a80 <common_little_>
+  4ace18:	48 01 c1             	add    rcx,rax
+  4ace1b:	48 8d 35 fe db 95 00 	lea    rsi,[rip+0x95dbfe]        # e0aa20 <kvec.1+0x40>
+  4ace22:	4d 63 c0             	movsxd r8,r8d
+  4ace25:	4c 01 c3             	add    rbx,r8
+  4ace28:	4c 8d 0c 9d fb ff ff 	lea    r9,[rbx*4-0x5]
+  4ace2f:	ff 
+  4ace30:	eb 11                	jmp    4ace43 <get_irrep4_+0x1d3>
+  4ace32:	48 83 c7 04          	add    rdi,0x4
+  4ace36:	48 83 c1 10          	add    rcx,0x10
+  4ace3a:	48 83 c6 40          	add    rsi,0x40
+  4ace3e:	4c 39 cf             	cmp    rdi,r9
+  4ace41:	74 1c                	je     4ace5f <get_irrep4_+0x1ef>
+  4ace43:	b8 00 00 00 00       	mov    eax,0x0
+  4ace48:	8b 94 01 98 c4 24 00 	mov    edx,DWORD PTR [rcx+rax*1+0x24c498]
+  4ace4f:	89 54 06 c0          	mov    DWORD PTR [rsi+rax*1-0x40],edx
+  4ace53:	48 83 c0 04          	add    rax,0x4
+  4ace57:	48 83 f8 10          	cmp    rax,0x10
+  4ace5b:	75 eb                	jne    4ace48 <get_irrep4_+0x1d8>
+  4ace5d:	eb d3                	jmp    4ace32 <get_irrep4_+0x1c2>
+  4ace5f:	48 8d 15 ba db 95 00 	lea    rdx,[rip+0x95dbba]        # e0aa20 <kvec.1+0x40>
+  4ace66:	49 c1 e0 04          	shl    r8,0x4
+  4ace6a:	49 8d 70 fb          	lea    rsi,[r8-0x5]
+  4ace6e:	48 c7 c1 fb ff ff ff 	mov    rcx,0xfffffffffffffffb
+  4ace75:	eb 0d                	jmp    4ace84 <get_irrep4_+0x214>
+  4ace77:	48 83 c1 10          	add    rcx,0x10
+  4ace7b:	48 83 c2 40          	add    rdx,0x40
+  4ace7f:	48 39 f1             	cmp    rcx,rsi
+  4ace82:	74 72                	je     4acef6 <get_irrep4_+0x286>
+  4ace84:	48 8d 42 d0          	lea    rax,[rdx-0x30]
+  4ace88:	c7 00 00 00 00 00    	mov    DWORD PTR [rax],0x0
+  4ace8e:	c7 40 04 00 00 00 00 	mov    DWORD PTR [rax+0x4],0x0
+  4ace95:	c7 40 08 00 00 00 00 	mov    DWORD PTR [rax+0x8],0x0
+  4ace9c:	c7 40 0c 00 00 00 00 	mov    DWORD PTR [rax+0xc],0x0
+  4acea3:	48 83 c0 10          	add    rax,0x10
+  4acea7:	48 39 d0             	cmp    rax,rdx
+  4aceaa:	75 dc                	jne    4ace88 <get_irrep4_+0x218>
+  4aceac:	eb c9                	jmp    4ace77 <get_irrep4_+0x207>
+  4aceae:	49 83 c0 10          	add    r8,0x10
+  4aceb2:	49 83 c2 40          	add    r10,0x40
+  4aceb6:	49 83 c1 40          	add    r9,0x40
+  4aceba:	4d 39 d8             	cmp    r8,r11
+  4acebd:	74 37                	je     4acef6 <get_irrep4_+0x286>
+  4acebf:	49 8d 78 f0          	lea    rdi,[r8-0x10]
+  4acec3:	4c 89 ce             	mov    rsi,r9
+  4acec6:	4c 89 d1             	mov    rcx,r10
+  4acec9:	b8 00 00 00 00       	mov    eax,0x0
+  4acece:	8b 94 01 3c 22 05 00 	mov    edx,DWORD PTR [rcx+rax*1+0x5223c]
+  4aced5:	89 54 06 04          	mov    DWORD PTR [rsi+rax*1+0x4],edx
+  4aced9:	48 83 c0 04          	add    rax,0x4
+  4acedd:	48 83 f8 10          	cmp    rax,0x10
+  4acee1:	75 eb                	jne    4acece <get_irrep4_+0x25e>
+  4acee3:	48 83 c7 04          	add    rdi,0x4
+  4acee7:	48 83 c1 10          	add    rcx,0x10
+  4aceeb:	48 83 c6 10          	add    rsi,0x10
+  4aceef:	4c 39 c7             	cmp    rdi,r8
+  4acef2:	75 d5                	jne    4acec9 <get_irrep4_+0x259>
+  4acef4:	eb b8                	jmp    4aceae <get_irrep4_+0x23e>
+  4acef6:	48 63 05 cb e5 95 00 	movsxd rax,DWORD PTR [rip+0x95e5cb]        # e0b4c8 <latt.6>
+  4acefd:	48 63 15 c8 e5 95 00 	movsxd rdx,DWORD PTR [rip+0x95e5c8]        # e0b4cc <kpnt.7>
+  4acf04:	48 8d 04 40          	lea    rax,[rax+rax*2]
+  4acf08:	48 8d 0c c0          	lea    rcx,[rax+rax*8]
+  4acf0c:	48 8d 05 6d 4b 9f 00 	lea    rax,[rip+0x9f4b6d]        # ea1a80 <common_little_>
+  4acf13:	48 01 c8             	add    rax,rcx
+  4acf16:	80 bc 02 d6 c0 2f 00 	cmp    BYTE PTR [rdx+rax*1+0x2fc0d6],0x0
+  4acf1d:	00 
+  4acf1e:	0f 85 29 02 00 00    	jne    4ad14d <get_irrep4_+0x4dd>
+  4acf24:	48 63 94 24 90 49 00 	movsxd rdx,DWORD PTR [rsp+0x4990]
+  4acf2b:	00 
+  4acf2c:	48 8d 05 ad e0 95 00 	lea    rax,[rip+0x95e0ad]        # e0afe0 <mapops.2>
+  4acf33:	8b 5c 90 fc          	mov    ebx,DWORD PTR [rax+rdx*4-0x4]
+  4acf37:	85 db                	test   ebx,ebx
+  4acf39:	0f 84 f8 01 00 00    	je     4ad137 <get_irrep4_+0x4c7>
+  4acf3f:	48 8d 94 24 00 49 00 	lea    rdx,[rsp+0x4900]
+  4acf46:	00 
+  4acf47:	48 63 db             	movsxd rbx,ebx
+  4acf4a:	48 8d 4c 9b fb       	lea    rcx,[rbx+rbx*4-0x5]
+  4acf4f:	48 8d 05 aa e1 95 00 	lea    rax,[rip+0x95e1aa]        # e0b100 <iops.3>
+  4acf56:	48 8d 34 88          	lea    rsi,[rax+rcx*4]
+  4acf5a:	48 8d bc 24 80 49 00 	lea    rdi,[rsp+0x4980]
+  4acf61:	00 
+  4acf62:	e8 9a b4 ff ff       	call   4a8401 <vsub_>
+  4acf67:	48 8d 3d f2 d9 95 00 	lea    rdi,[rip+0x95d9f2]        # e0a960 <iopn.0>
+  4acf6e:	b9 0c 00 00 00       	mov    ecx,0xc
+  4acf73:	b8 00 00 00 00       	mov    eax,0x0
+  4acf78:	f3 48 ab             	rep stos QWORD PTR [rdi],rax
+  4acf7b:	c7 05 3b da 95 00 01 	mov    DWORD PTR [rip+0x95da3b],0x1        # e0a9c0 <iopn.0+0x60>
+  4acf82:	00 00 00 
+  4acf85:	44 8b 35 38 e5 95 00 	mov    r14d,DWORD PTR [rip+0x95e538]        # e0b4c4 <nmod.5>
+  4acf8c:	45 85 f6             	test   r14d,r14d
+  4acf8f:	0f 8e 9e 00 00 00    	jle    4ad033 <get_irrep4_+0x3c3>
+  4acf95:	48 8d 2d 44 da 95 00 	lea    rbp,[rip+0x95da44]        # e0a9e0 <kvec.1>
+  4acf9c:	bb 01 00 00 00       	mov    ebx,0x1
+  4acfa1:	4c 8d ac 24 f0 48 00 	lea    r13,[rsp+0x48f0]
+  4acfa8:	00 
+  4acfa9:	4c 8d 3d 30 39 10 00 	lea    r15,[rip+0x103930]        # 5b08e0 <sym.0+0x311>
+  4acfb0:	4c 8d 25 a9 d9 95 00 	lea    r12,[rip+0x95d9a9]        # e0a960 <iopn.0>
+  4acfb7:	4c 89 ea             	mov    rdx,r13
+  4acfba:	48 8b 74 24 08       	mov    rsi,QWORD PTR [rsp+0x8]
+  4acfbf:	48 89 ef             	mov    rdi,rbp
+  4acfc2:	e8 10 07 00 00       	call   4ad6d7 <get_kvec_>
+  4acfc7:	48 8d bc 24 10 49 00 	lea    rdi,[rsp+0x4910]
+  4acfce:	00 
+  4acfcf:	b9 0c 00 00 00       	mov    ecx,0xc
+  4acfd4:	b8 00 00 00 00       	mov    eax,0x0
+  4acfd9:	f3 48 ab             	rep stos QWORD PTR [rdi],rax
+  4acfdc:	48 8d 94 24 00 49 00 	lea    rdx,[rsp+0x4900]
+  4acfe3:	00 
+  4acfe4:	4c 89 ee             	mov    rsi,r13
+  4acfe7:	4c 89 ff             	mov    rdi,r15
+  4acfea:	e8 9a b6 fe ff       	call   498689 <ivdot_>
+  4acfef:	48 8d bc 24 10 49 00 	lea    rdi,[rsp+0x4910]
+  4acff6:	00 
+  4acff7:	89 84 9c 0c 49 00 00 	mov    DWORD PTR [rsp+rbx*4+0x490c],eax
+  4acffe:	8b 84 24 fc 48 00 00 	mov    eax,DWORD PTR [rsp+0x48fc]
+  4ad005:	0f af 84 24 0c 49 00 	imul   eax,DWORD PTR [rsp+0x490c]
+  4ad00c:	00 
+  4ad00d:	89 84 24 70 49 00 00 	mov    DWORD PTR [rsp+0x4970],eax
+  4ad014:	48 8d 0d c9 38 10 00 	lea    rcx,[rip+0x1038c9]        # 5b08e4 <sym.0+0x315>
+  4ad01b:	4c 89 e2             	mov    rdx,r12
+  4ad01e:	4c 89 e6             	mov    rsi,r12
+  4ad021:	e8 e1 b1 ff ff       	call   4a8207 <vaddn_>
+  4ad026:	48 83 c3 01          	add    rbx,0x1
+  4ad02a:	48 83 c5 40          	add    rbp,0x40
+  4ad02e:	41 39 de             	cmp    r14d,ebx
+  4ad031:	7d 84                	jge    4acfb7 <get_irrep4_+0x347>
+  4ad033:	48 8d 7c 24 30       	lea    rdi,[rsp+0x30]
+  4ad038:	ba 00 48 00 00       	mov    edx,0x4800
+  4ad03d:	be 00 00 00 00       	mov    esi,0x0
+  4ad042:	e8 79 40 f5 ff       	call   4010c0 <_init+0xc0>
+  4ad047:	66 0f ef c9          	pxor   xmm1,xmm1
+  4ad04b:	f2 0f 2a 0d 6d d9 95 	cvtsi2sd xmm1,DWORD PTR [rip+0x95d96d]        # e0a9c0 <iopn.0+0x60>
+  4ad052:	00 
+  4ad053:	b8 00 00 00 00       	mov    eax,0x0
+  4ad058:	48 8d 15 01 d9 95 00 	lea    rdx,[rip+0x95d901]        # e0a960 <iopn.0>
+  4ad05f:	66 0f ef c0          	pxor   xmm0,xmm0
+  4ad063:	f2 0f 2a 04 82       	cvtsi2sd xmm0,DWORD PTR [rdx+rax*4]
+  4ad068:	f2 0f 5e c1          	divsd  xmm0,xmm1
+  4ad06c:	f2 0f 11 84 c4 30 48 	movsd  QWORD PTR [rsp+rax*8+0x4830],xmm0
+  4ad073:	00 00 
+  4ad075:	48 83 c0 01          	add    rax,0x1
+  4ad079:	48 83 f8 18          	cmp    rax,0x18
+  4ad07d:	75 e0                	jne    4ad05f <get_irrep4_+0x3ef>
+  4ad07f:	48 8d 4c 24 30       	lea    rcx,[rsp+0x30]
+  4ad084:	48 8d 94 24 30 48 00 	lea    rdx,[rsp+0x4830]
+  4ad08b:	00 
+  4ad08c:	48 8d b4 24 80 49 00 	lea    rsi,[rsp+0x4980]
+  4ad093:	00 
+  4ad094:	4c 8b 84 24 e0 49 00 	mov    r8,QWORD PTR [rsp+0x49e0]
+  4ad09b:	00 
+  4ad09c:	48 8b 7c 24 10       	mov    rdi,QWORD PTR [rsp+0x10]
+  4ad0a1:	e8 32 01 00 00       	call   4ad1d8 <get_irrep4_ssgn_>
+  4ad0a6:	48 8b 84 24 e0 49 00 	mov    rax,QWORD PTR [rsp+0x49e0]
+  4ad0ad:	00 
+  4ad0ae:	83 38 00             	cmp    DWORD PTR [rax],0x0
+  4ad0b1:	0f 85 d3 00 00 00    	jne    4ad18a <get_irrep4_+0x51a>
+  4ad0b7:	48 8b 44 24 18       	mov    rax,QWORD PTR [rsp+0x18]
+  4ad0bc:	8b 00                	mov    eax,DWORD PTR [rax]
+  4ad0be:	83 f8 02             	cmp    eax,0x2
+  4ad0c1:	0f 84 d9 00 00 00    	je     4ad1a0 <get_irrep4_+0x530>
+  4ad0c7:	83 f8 01             	cmp    eax,0x1
+  4ad0ca:	0f 85 f2 00 00 00    	jne    4ad1c2 <get_irrep4_+0x552>
+  4ad0d0:	48 8b 44 24 10       	mov    rax,QWORD PTR [rsp+0x10]
+  4ad0d5:	48 63 00             	movsxd rax,DWORD PTR [rax]
+  4ad0d8:	48 8d 15 a1 49 9f 00 	lea    rdx,[rip+0x9f49a1]        # ea1a80 <common_little_>
+  4ad0df:	0f b6 94 02 f7 9a 36 	movzx  edx,BYTE PTR [rdx+rax*1+0x369af7]
+  4ad0e6:	00 
+  4ad0e7:	84 d2                	test   dl,dl
+  4ad0e9:	0f 8e ca 00 00 00    	jle    4ad1b9 <get_irrep4_+0x549>
+  4ad0ef:	48 8d 44 24 30       	lea    rax,[rsp+0x30]
+  4ad0f4:	0f be d2             	movsx  edx,dl
+  4ad0f7:	8d 52 ff             	lea    edx,[rdx-0x1]
+  4ad0fa:	48 69 d2 88 01 00 00 	imul   rdx,rdx,0x188
+  4ad101:	48 8d 94 14 b8 01 00 	lea    rdx,[rsp+rdx*1+0x1b8]
+  4ad108:	00 
+  4ad109:	66 0f ef c0          	pxor   xmm0,xmm0
+  4ad10d:	f2 0f 58 00          	addsd  xmm0,QWORD PTR [rax]
+  4ad111:	48 05 88 01 00 00    	add    rax,0x188
+  4ad117:	48 39 c2             	cmp    rdx,rax
+  4ad11a:	75 f1                	jne    4ad10d <get_irrep4_+0x49d>
+  4ad11c:	48 8b 44 24 20       	mov    rax,QWORD PTR [rsp+0x20]
+  4ad121:	f2 0f 11 00          	movsd  QWORD PTR [rax],xmm0
+  4ad125:	48 81 c4 a8 49 00 00 	add    rsp,0x49a8
+  4ad12c:	5b                   	pop    rbx
+  4ad12d:	5d                   	pop    rbp
+  4ad12e:	41 5c                	pop    r12
+  4ad130:	41 5d                	pop    r13
+  4ad132:	41 5e                	pop    r14
+  4ad134:	41 5f                	pop    r15
+  4ad136:	c3                   	ret
+  4ad137:	be 0d 00 00 00       	mov    esi,0xd
+  4ad13c:	48 8d 3d 72 37 10 00 	lea    rdi,[rip+0x103772]        # 5b08b5 <sym.0+0x2e6>
+  4ad143:	e8 6c 71 fa ff       	call   4542b4 <bomb2_>
+  4ad148:	e9 f2 fd ff ff       	jmp    4acf3f <get_irrep4_+0x2cf>
+  4ad14d:	8b 84 24 80 49 00 00 	mov    eax,DWORD PTR [rsp+0x4980]
+  4ad154:	89 84 24 00 49 00 00 	mov    DWORD PTR [rsp+0x4900],eax
+  4ad15b:	8b 84 24 84 49 00 00 	mov    eax,DWORD PTR [rsp+0x4984]
+  4ad162:	89 84 24 04 49 00 00 	mov    DWORD PTR [rsp+0x4904],eax
+  4ad169:	8b 84 24 88 49 00 00 	mov    eax,DWORD PTR [rsp+0x4988]
+  4ad170:	89 84 24 08 49 00 00 	mov    DWORD PTR [rsp+0x4908],eax
+  4ad177:	8b 84 24 8c 49 00 00 	mov    eax,DWORD PTR [rsp+0x498c]
+  4ad17e:	89 84 24 0c 49 00 00 	mov    DWORD PTR [rsp+0x490c],eax
+  4ad185:	e9 dd fd ff ff       	jmp    4acf67 <get_irrep4_+0x2f7>
+  4ad18a:	be 0d 00 00 00       	mov    esi,0xd
+  4ad18f:	48 8d 3d 2d 37 10 00 	lea    rdi,[rip+0x10372d]        # 5b08c3 <sym.0+0x2f4>
+  4ad196:	e8 19 71 fa ff       	call   4542b4 <bomb2_>
+  4ad19b:	e9 17 ff ff ff       	jmp    4ad0b7 <get_irrep4_+0x447>
+  4ad1a0:	48 8d 74 24 30       	lea    rsi,[rsp+0x30]
+  4ad1a5:	ba 00 48 00 00       	mov    edx,0x4800
+  4ad1aa:	48 8b 7c 24 28       	mov    rdi,QWORD PTR [rsp+0x28]
+  4ad1af:	e8 8c 3e f5 ff       	call   401040 <_init+0x40>
+  4ad1b4:	e9 6c ff ff ff       	jmp    4ad125 <get_irrep4_+0x4b5>
+  4ad1b9:	66 0f ef c0          	pxor   xmm0,xmm0
+  4ad1bd:	e9 5a ff ff ff       	jmp    4ad11c <get_irrep4_+0x4ac>
+  4ad1c2:	be 0e 00 00 00       	mov    esi,0xe
+  4ad1c7:	48 8d 3d 03 37 10 00 	lea    rdi,[rip+0x103703]        # 5b08d1 <sym.0+0x302>
+  4ad1ce:	e8 e1 70 fa ff       	call   4542b4 <bomb2_>
+  4ad1d3:	e9 4d ff ff ff       	jmp    4ad125 <get_irrep4_+0x4b5>
+
+Disassembly of section __libc_freeres_fn:
+
+Disassembly of section .fini:

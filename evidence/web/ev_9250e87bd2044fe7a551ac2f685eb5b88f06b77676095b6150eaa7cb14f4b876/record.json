@@ -1,0 +1,376 @@
+{
+  "analysis_profile": null,
+  "authority": "controlled-replay",
+  "confidence": "observed",
+  "environment": {
+    "architecture": "unknown",
+    "id": "Chromium@155.0.4283.62",
+    "isolation": "process",
+    "platform": "unknown"
+  },
+  "evidence_id": "ev_9250e87bd2044fe7a551ac2f685eb5b88f06b77676095b6150eaa7cb14f4b876",
+  "evidence_links": [],
+  "limitations": [
+    "Artifact identity is unavailable for this observation.",
+    "Event sequence records provider receipt order; simultaneous browser causality is not inferred.",
+    "Network content is retained only when selected; Playwright response-body bytes are API results and are not guaranteed to match wire bytes.",
+    "Request bytes are limited to what Playwright exposes; not_exposed does not establish body absence or multipart file coverage.",
+    "Network content reads settle within 5 seconds each and the observer does not request bodies from unfinished responses.",
+    "Playwright scenario events do not expose request initiator stacks; receipt order does not prove causality.",
+    "Storage values are hashed only after declared-secret redaction.",
+    "Some selected network content was unavailable; per-transaction content states retain the reason.",
+    "Browser host platform and architecture were not observed."
+  ],
+  "locations": [],
+  "normalized_result": {
+    "browser": {
+      "cleanup": "terminated-owned-process",
+      "mode": "launch",
+      "process_ownership": "provider-owned",
+      "product": "Chromium",
+      "version": "155.0.4283.62"
+    },
+    "completeness": {
+      "equality_eligible": false,
+      "missing_sections": [
+        "events"
+      ],
+      "status": "incomplete",
+      "truncated_sections": []
+    },
+    "duration_ms": 9869,
+    "events": {
+      "dropped": 0,
+      "items": [
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "upgrade-insecure-requests",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "document",
+          "sequence": 1,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-1",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistortparent.html"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 2,
+          "source_event_sequence": 1,
+          "step_index": 0,
+          "transaction_id": "request-1"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-encoding",
+            "content-length",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "vary",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "document",
+          "sequence": 3,
+          "status": 200,
+          "step_index": 0,
+          "transaction_id": "request-1",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistortparent.html"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "upgrade-insecure-requests",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "document",
+          "sequence": 4,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-1",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistortparent.html"
+          }
+        }
+      ],
+      "omissions": {
+        "by_kind": [],
+        "network_transaction_range": null,
+        "network_transactions": []
+      },
+      "retained": 4
+    },
+    "limitations": [
+      "Event sequence records provider receipt order; simultaneous browser causality is not inferred.",
+      "Network content is retained only when selected; Playwright response-body bytes are API results and are not guaranteed to match wire bytes.",
+      "Request bytes are limited to what Playwright exposes; not_exposed does not establish body absence or multipart file coverage.",
+      "Network content reads settle within 5 seconds each and the observer does not request bodies from unfinished responses.",
+      "Playwright scenario events do not expose request initiator stacks; receipt order does not prove causality.",
+      "Storage values are hashed only after declared-secret redaction.",
+      "Some selected network content was unavailable; per-transaction content states retain the reason."
+    ],
+    "scenario": {
+      "action_count": 1,
+      "event_families": [
+        "network",
+        "page-errors"
+      ],
+      "limits": {
+        "max_event_allocation_bytes": 4194304,
+        "max_events": 10000,
+        "max_network_body_allocation_bytes": 1048576,
+        "max_network_body_bytes": 65536,
+        "max_network_header_allocation_bytes": 1048576,
+        "max_network_metadata_allocation_bytes": 1048576,
+        "max_network_transactions": 1024,
+        "max_total_event_allocation_bytes": 16777216
+      },
+      "network_content": {
+        "header_values": false,
+        "request_body": true,
+        "response_body": false
+      },
+      "secret_references": [],
+      "start_origin": "https://landau3.byu.edu"
+    },
+    "steps": [
+      {
+        "action": "goto_start",
+        "after_url": {
+          "origin": "https://landau3.byu.edu",
+          "query_parameter_names": [],
+          "redacted": false,
+          "url": "https://landau3.byu.edu/isodistortparent.html"
+        },
+        "artifacts": {
+          "accessibility": {
+            "state": "not_requested"
+          },
+          "dom": {
+            "state": "not_requested"
+          },
+          "history": {
+            "state": "not_requested"
+          },
+          "screenshot": {
+            "state": "not_requested"
+          },
+          "storage": {
+            "state": "not_requested"
+          },
+          "url": {
+            "state": "not_requested"
+          }
+        },
+        "before_url": {
+          "origin": null,
+          "query_parameter_names": [],
+          "redacted": false,
+          "url": "about:blank"
+        },
+        "completeness": {
+          "equality_eligible": true,
+          "missing_sections": [],
+          "status": "complete",
+          "truncated_sections": []
+        },
+        "elapsed_ms": 2548,
+        "error": null,
+        "event_sequence_end": 4,
+        "event_sequence_start": 1,
+        "status": "completed",
+        "step_id": "scenario_start",
+        "step_index": 0
+      },
+      {
+        "action": "wait_for_timeout",
+        "after_url": {
+          "origin": "https://landau3.byu.edu",
+          "query_parameter_names": [],
+          "redacted": false,
+          "url": "https://landau3.byu.edu/isodistortparent.html"
+        },
+        "artifacts": {
+          "accessibility": {
+            "state": "captured",
+            "value": {
+              "bytes": 10,
+              "sha256": "56866acd9b713f351889ef2731ef171bade4c16f48aa1cda8687f17a1a21be2a",
+              "text": "- document"
+            }
+          },
+          "dom": {
+            "state": "captured",
+            "value": {
+              "bytes": 2146,
+              "sha256": "f2aa17337fdace9934539b2dca72f744f06e94b50e23175caeedb2a0fc887ade",
+              "text": "<html><head>\n<title>ISODISTORT</title>\n</head>\n<body bgcolor=\"#FFFFFF\" onload=\"setTimeout ('document.forms[0].submit()', 1000)\">\n\n<form action=\"isodistortform.php\" method=\"POST\">\n<input type=\"hidden\" name=\"input\" value=\"autoloadparent\">\n<input type=\"hidden\" name=\"spacegroup\" value=\"221 Pm-3m      Oh-1\">\n<input type=\"hidden\" name=\"lattparam\" value=\"a=4.2\">\n<input type=\"hidden\" name=\"dlattparam\" value=\"   4.20000000000000        4.20000000000000        4.20000000000000        90.0000000000000        90.0000000000000        90.0000000000000\">\n<input type=\"hidden\" name=\"wycount\" value=\"  3\">\n<input type=\"hidden\" name=\"wypointer001\" value=\"1627\">\n<input type=\"hidden\" name=\"wynumber001\" value=\" 2\">\n<input type=\"hidden\" name=\"wytype001\" value=\" 1\">\n<input type=\"hidden\" name=\"wyckoff001\" value=\"1b (1/2,1/2,1/2)\">\n<input type=\"hidden\" name=\"wyatom001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyatomtype001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyparam001\" value=\"  0.000000000000000E+000  0.000000000000000E+000  0.000000000000000E+000\">\n<input type=\"hidden\" name=\"wyocc001\" value=\"   1.00000000000000\">\n<input type=\"hidden\" name=\"wypointer002\" value=\"1626\">\n<input type=\"hidden\" name=\"wynumber002\" value=\" 1\">\n<input type=\"hidden\" name=\"wytype002\" value=\" 2\">\n<input type=\"hidden\" name=\"wyckoff002\" value=\"1a (0,0,0)\">\n<input type=\"hidden\" name=\"wyatom002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyatomtype002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyparam002\" value=\"  0.000000000000000E+000  0.000000000000000E+000  0.000000000000000E+000\">\n<input type=\"hidden\" name=\"wyocc002\" value=\"   1.00000000000000\">\n<input type=\"hidden\" name=\"wypointer003\" value=\"1629\">\n<input type=\"hidden\" name=\"wynumber003\" value=\" 4\">\n<input type=\"hidden\" name=\"wytype003\" value=\" 3\">\n<input type=\"hidden\" name=\"wyckoff003\" value=\"3d (1/2,0,0)\">\n<input type=\"hidden\" name=\"wyatom003\" value=\"O\">\n<input type=\"hidden\" name=\"wyatomtype003\" value=\"O\">\n<input type=\"hidden\" name=\"wyparam003\" value=\"  0.000000000000000E+000  0.000000000000000E+000  0.000000000000000E+000\">\n<input type=\"hidden\" name=\"wyocc003\" value=\"   1.00000000000000\">\n</form>\n\n\n</body></html>"
+            }
+          },
+          "history": {
+            "state": "not_requested"
+          },
+          "screenshot": {
+            "state": "not_requested"
+          },
+          "storage": {
+            "state": "not_requested"
+          },
+          "url": {
+            "state": "captured",
+            "value": {
+              "origin": "https://landau3.byu.edu",
+              "query_parameter_names": [],
+              "redacted": false,
+              "url": "https://landau3.byu.edu/isodistortparent.html"
+            }
+          }
+        },
+        "before_url": {
+          "origin": "https://landau3.byu.edu",
+          "query_parameter_names": [],
+          "redacted": false,
+          "url": "https://landau3.byu.edu/isodistortparent.html"
+        },
+        "completeness": {
+          "equality_eligible": true,
+          "missing_sections": [],
+          "status": "complete",
+          "truncated_sections": []
+        },
+        "elapsed_ms": 831,
+        "error": null,
+        "event_sequence_end": 4,
+        "event_sequence_start": 5,
+        "status": "completed",
+        "step_id": "parent-form",
+        "step_index": 1
+      }
+    ]
+  },
+  "operation": "capture_browser_scenario",
+  "parameters": {
+    "actions": [
+      {
+        "action": "wait_for_timeout",
+        "duration_ms": 800,
+        "step_id": "parent-form"
+      }
+    ],
+    "browser": {
+      "executable_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+      "headless": true,
+      "mode": "launch"
+    },
+    "capture": {
+      "after_each_step": [],
+      "at_end": [
+        "url",
+        "dom",
+        "accessibility"
+      ],
+      "events": [
+        "network",
+        "page-errors"
+      ],
+      "limits": {
+        "max_event_allocation_bytes": 4194304,
+        "max_events": 10000,
+        "max_network_body_allocation_bytes": 1048576,
+        "max_network_body_bytes": 65536,
+        "max_network_header_allocation_bytes": 1048576,
+        "max_network_metadata_allocation_bytes": 1048576,
+        "max_network_transactions": 1024,
+        "max_total_event_allocation_bytes": 16777216
+      },
+      "network": {
+        "header_values": false,
+        "request_body": true,
+        "response_body": false
+      }
+    },
+    "environment": {
+      "color_scheme": "light",
+      "locale": "en-US",
+      "reduced_motion": "reduce",
+      "service_workers": "block",
+      "timezone": "UTC",
+      "viewport": {
+        "device_scale_factor": 1,
+        "height": 720,
+        "width": 1280
+      }
+    },
+    "scenario_sha256": "8165d6fe202186232730ec177d84999abf9054c24dd774e9f1ff1ff6dd4b6a6e",
+    "secrets": [],
+    "start_url": {
+      "query": [],
+      "url": "https://landau3.byu.edu/isodistortparent.html"
+    },
+    "storage": {
+      "cookies": [],
+      "local_storage": [],
+      "session_storage": []
+    }
+  },
+  "predicate_type": "rea.browser-scenario-capture",
+  "provider": {
+    "id": "rea-playwright-browser-scenario",
+    "name": "REA Playwright browser scenario capture provider",
+    "version": "1"
+  },
+  "raw_result": null,
+  "relationship_coverage": null,
+  "subject": null
+}

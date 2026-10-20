@@ -1,0 +1,9 @@
+{
+  "binary": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\vendor\\isobyu\\iso",
+  "binary_sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8",
+  "virtual_address": "0x5a6f10",
+  "file_offset": 1732368,
+  "raw_8_bytes_hex": "0000000000000080",
+  "uint64_hex": "0x8000000000000000",
+  "meaning": "XOR mask toggles the IEEE-754 binary64 sign bit; paired constants loop uses this mask."
+}

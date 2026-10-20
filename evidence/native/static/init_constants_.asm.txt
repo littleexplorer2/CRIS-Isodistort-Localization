@@ -1,0 +1,183 @@
+
+vendor/isobyu/iso:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+Disassembly of section .plt:
+
+Disassembly of section .text:
+
+0000000000456ea1 <init_constants_>:
+  456ea1:	41 57                	push   r15
+  456ea3:	41 56                	push   r14
+  456ea5:	41 55                	push   r13
+  456ea7:	41 54                	push   r12
+  456ea9:	55                   	push   rbp
+  456eaa:	53                   	push   rbx
+  456eab:	48 81 ec 98 02 00 00 	sub    rsp,0x298
+  456eb2:	4c 8d ac 24 20 02 00 	lea    r13,[rsp+0x220]
+  456eb9:	00 
+  456eba:	b9 64 00 00 00       	mov    ecx,0x64
+  456ebf:	ba 07 00 00 00       	mov    edx,0x7
+  456ec4:	4c 89 ee             	mov    rsi,r13
+  456ec7:	48 8d 3d 6a e1 14 00 	lea    rdi,[rip+0x14e16a]        # 5a5038 <_IO_stdin_used+0x38>
+  456ece:	b8 00 00 00 00       	mov    eax,0x0
+  456ed3:	e8 38 72 07 00       	call   4ce110 <_gfortran_getenv>
+  456ed8:	48 8d bc 24 18 02 00 	lea    rdi,[rsp+0x218]
+  456edf:	00 
+  456ee0:	e8 15 b8 02 00       	call   4826fa <find_io_unit_>
+  456ee5:	48 8d 05 ef 40 15 00 	lea    rax,[rip+0x1540ef]        # 5aafdb <centered_lattice_type.8+0x7f>
+  456eec:	48 89 44 24 08       	mov    QWORD PTR [rsp+0x8],rax
+  456ef1:	c7 44 24 10 13 00 00 	mov    DWORD PTR [rsp+0x10],0x13
+  456ef8:	00 
+  456ef9:	c7 84 24 1c 02 00 00 	mov    DWORD PTR [rsp+0x21c],0x0
+  456f00:	00 00 00 00 
+  456f04:	48 8d 84 24 1c 02 00 	lea    rax,[rsp+0x21c]
+  456f0b:	00 
+  456f0c:	48 89 44 24 28       	mov    QWORD PTR [rsp+0x28],rax
+  456f11:	4c 89 ee             	mov    rsi,r13
+  456f14:	bf 64 00 00 00       	mov    edi,0x64
+  456f19:	e8 32 64 07 00       	call   4cd350 <_gfortran_string_len_trim>
+  456f1e:	48 63 d8             	movsxd rbx,eax
+  456f21:	48 85 db             	test   rbx,rbx
+  456f24:	b8 00 00 00 00       	mov    eax,0x0
+  456f29:	48 0f 48 d8          	cmovs  rbx,rax
+  456f2d:	4c 8d 63 09          	lea    r12,[rbx+0x9]
+  456f31:	4d 85 e4             	test   r12,r12
+  456f34:	bf 01 00 00 00       	mov    edi,0x1
+  456f39:	49 0f 45 fc          	cmovne rdi,r12
+  456f3d:	e8 1e 94 0c 00       	call   520360 <__libc_malloc>
+  456f42:	48 89 c5             	mov    rbp,rax
+  456f45:	4c 8d 0d a5 40 15 00 	lea    r9,[rip+0x1540a5]        # 5aaff1 <centered_lattice_type.8+0x95>
+  456f4c:	41 b8 09 00 00 00    	mov    r8d,0x9
+  456f52:	4c 89 e9             	mov    rcx,r13
+  456f55:	48 89 da             	mov    rdx,rbx
+  456f58:	48 89 c6             	mov    rsi,rax
+  456f5b:	4c 89 e7             	mov    rdi,r12
+  456f5e:	e8 dd 62 07 00       	call   4cd240 <_gfortran_concat_string>
+  456f63:	48 89 6c 24 40       	mov    QWORD PTR [rsp+0x40],rbp
+  456f68:	4c 89 64 24 38       	mov    QWORD PTR [rsp+0x38],r12
+  456f6d:	48 8d 05 2f e1 14 00 	lea    rax,[rip+0x14e12f]        # 5a50a3 <_IO_stdin_used+0xa3>
+  456f74:	48 89 44 24 48       	mov    QWORD PTR [rsp+0x48],rax
+  456f79:	48 c7 44 24 50 03 00 	mov    QWORD PTR [rsp+0x50],0x3
+  456f80:	00 00 
+  456f82:	48 8d 05 28 a7 15 00 	lea    rax,[rip+0x15a728]        # 5b16b1 <itry.0+0xd31>
+  456f89:	48 89 84 24 a0 00 00 	mov    QWORD PTR [rsp+0xa0],rax
+  456f90:	00 
+  456f91:	48 c7 84 24 98 00 00 	mov    QWORD PTR [rsp+0x98],0x4
+  456f98:	00 04 00 00 00 
+  456f9d:	c7 84 24 30 01 00 00 	mov    DWORD PTR [rsp+0x130],0x0
+  456fa4:	00 00 00 00 
+  456fa8:	c7 04 24 20 43 00 01 	mov    DWORD PTR [rsp],0x1004320
+  456faf:	44 8b a4 24 18 02 00 	mov    r12d,DWORD PTR [rsp+0x218]
+  456fb6:	00 
+  456fb7:	44 89 64 24 04       	mov    DWORD PTR [rsp+0x4],r12d
+  456fbc:	48 89 e7             	mov    rdi,rsp
+  456fbf:	e8 fc 3b 06 00       	call   4babc0 <_gfortran_st_open>
+  456fc4:	48 89 ef             	mov    rdi,rbp
+  456fc7:	e8 d4 96 0c 00       	call   5206a0 <__free>
+  456fcc:	83 bc 24 1c 02 00 00 	cmp    DWORD PTR [rsp+0x21c],0x0
+  456fd3:	00 
+  456fd4:	0f 85 f8 00 00 00    	jne    4570d2 <init_constants_+0x231>
+  456fda:	4c 8d 3d fa 3f 15 00 	lea    r15,[rip+0x153ffa]        # 5aafdb <centered_lattice_type.8+0x7f>
+  456fe1:	48 89 e5             	mov    rbp,rsp
+  456fe4:	4c 8d b4 24 14 02 00 	lea    r14,[rsp+0x214]
+  456feb:	00 
+  456fec:	4c 8d 2d 4d a2 75 01 	lea    r13,[rip+0x175a24d]        # 1bb1240 <const_common_>
+  456ff3:	4c 89 7c 24 08       	mov    QWORD PTR [rsp+0x8],r15
+  456ff8:	c7 44 24 10 19 00 00 	mov    DWORD PTR [rsp+0x10],0x19
+  456fff:	00 
+  457000:	c7 04 24 88 00 00 00 	mov    DWORD PTR [rsp],0x88
+  457007:	44 89 64 24 04       	mov    DWORD PTR [rsp+0x4],r12d
+  45700c:	48 89 ef             	mov    rdi,rbp
+  45700f:	e8 8c a1 06 00       	call   4c11a0 <_gfortran_st_read>
+  457014:	ba 04 00 00 00       	mov    edx,0x4
+  457019:	4c 89 f6             	mov    rsi,r14
+  45701c:	48 89 ef             	mov    rdi,rbp
+  45701f:	e8 9c 54 06 00       	call   4bc4c0 <_gfortran_transfer_integer>
+  457024:	8b 9c 24 14 02 00 00 	mov    ebx,DWORD PTR [rsp+0x214]
+  45702b:	48 63 c3             	movsxd rax,ebx
+  45702e:	49 8d 74 c5 00       	lea    rsi,[r13+rax*8+0x0]
+  457033:	ba 08 00 00 00       	mov    edx,0x8
+  457038:	48 89 ef             	mov    rdi,rbp
+  45703b:	e8 20 56 06 00       	call   4bc660 <_gfortran_transfer_real>
+  457040:	48 89 ef             	mov    rdi,rbp
+  457043:	e8 98 a6 06 00       	call   4c16e0 <_gfortran_st_read_done>
+  457048:	8b 04 24             	mov    eax,DWORD PTR [rsp]
+  45704b:	83 e0 03             	and    eax,0x3
+  45704e:	83 f8 02             	cmp    eax,0x2
+  457051:	75 a0                	jne    456ff3 <init_constants_+0x152>
+  457053:	48 8d 05 81 3f 15 00 	lea    rax,[rip+0x153f81]        # 5aafdb <centered_lattice_type.8+0x7f>
+  45705a:	48 89 44 24 08       	mov    QWORD PTR [rsp+0x8],rax
+  45705f:	c7 44 24 10 1b 00 00 	mov    DWORD PTR [rsp+0x10],0x1b
+  457066:	00 
+  457067:	c7 04 24 00 00 00 00 	mov    DWORD PTR [rsp],0x0
+  45706e:	44 89 64 24 04       	mov    DWORD PTR [rsp+0x4],r12d
+  457073:	48 89 e7             	mov    rdi,rsp
+  457076:	e8 15 04 06 00       	call   4b7490 <_gfortran_st_close>
+  45707b:	8d 43 01             	lea    eax,[rbx+0x1]
+  45707e:	89 05 c0 a1 75 01    	mov    DWORD PTR [rip+0x175a1c0],eax        # 1bb1244 <const_common_+0x4>
+  457084:	83 eb 02             	sub    ebx,0x2
+  457087:	d1 eb                	shr    ebx,1
+  457089:	83 f8 02             	cmp    eax,0x2
+  45708c:	7e 32                	jle    4570c0 <init_constants_+0x21f>
+  45708e:	48 8d 05 bb a1 75 01 	lea    rax,[rip+0x175a1bb]        # 1bb1250 <const_common_+0x10>
+  457095:	89 db                	mov    ebx,ebx
+  457097:	48 c1 e3 04          	shl    rbx,0x4
+  45709b:	48 8d 50 10          	lea    rdx,[rax+0x10]
+  45709f:	48 01 da             	add    rdx,rbx
+  4570a2:	f3 0f 7e 0d 66 fe 14 	movq   xmm1,QWORD PTR [rip+0x14fe66]        # 5a6f10 <ifactor.0+0x588>
+  4570a9:	00 
+  4570aa:	f2 0f 10 00          	movsd  xmm0,QWORD PTR [rax]
+  4570ae:	66 0f 57 c1          	xorpd  xmm0,xmm1
+  4570b2:	f2 0f 11 40 08       	movsd  QWORD PTR [rax+0x8],xmm0
+  4570b7:	48 83 c0 10          	add    rax,0x10
+  4570bb:	48 39 d0             	cmp    rax,rdx
+  4570be:	75 ea                	jne    4570aa <init_constants_+0x209>
+  4570c0:	48 81 c4 98 02 00 00 	add    rsp,0x298
+  4570c7:	5b                   	pop    rbx
+  4570c8:	5d                   	pop    rbp
+  4570c9:	41 5c                	pop    r12
+  4570cb:	41 5d                	pop    r13
+  4570cd:	41 5e                	pop    r14
+  4570cf:	41 5f                	pop    r15
+  4570d1:	c3                   	ret
+  4570d2:	48 8d 05 02 3f 15 00 	lea    rax,[rip+0x153f02]        # 5aafdb <centered_lattice_type.8+0x7f>
+  4570d9:	48 89 44 24 08       	mov    QWORD PTR [rsp+0x8],rax
+  4570de:	c7 44 24 10 16 00 00 	mov    DWORD PTR [rsp+0x10],0x16
+  4570e5:	00 
+  4570e6:	c7 04 24 80 00 00 00 	mov    DWORD PTR [rsp],0x80
+  4570ed:	c7 44 24 04 06 00 00 	mov    DWORD PTR [rsp+0x4],0x6
+  4570f4:	00 
+  4570f5:	48 89 e3             	mov    rbx,rsp
+  4570f8:	48 89 df             	mov    rdi,rbx
+  4570fb:	e8 c0 a0 06 00       	call   4c11c0 <_gfortran_st_write>
+  457100:	ba 18 00 00 00       	mov    edx,0x18
+  457105:	48 8d 35 9b df 14 00 	lea    rsi,[rip+0x14df9b]        # 5a50a7 <_IO_stdin_used+0xa7>
+  45710c:	48 89 df             	mov    rdi,rbx
+  45710f:	e8 5c 58 06 00       	call   4bc970 <_gfortran_transfer_character_write>
+  457114:	4c 89 ee             	mov    rsi,r13
+  457117:	bf 64 00 00 00       	mov    edi,0x64
+  45711c:	e8 2f 62 07 00       	call   4cd350 <_gfortran_string_len_trim>
+  457121:	48 63 d0             	movsxd rdx,eax
+  457124:	48 85 d2             	test   rdx,rdx
+  457127:	b8 00 00 00 00       	mov    eax,0x0
+  45712c:	48 0f 48 d0          	cmovs  rdx,rax
+  457130:	4c 89 ee             	mov    rsi,r13
+  457133:	48 89 df             	mov    rdi,rbx
+  457136:	e8 35 58 06 00       	call   4bc970 <_gfortran_transfer_character_write>
+  45713b:	ba 09 00 00 00       	mov    edx,0x9
+  457140:	48 8d 35 aa 3e 15 00 	lea    rsi,[rip+0x153eaa]        # 5aaff1 <centered_lattice_type.8+0x95>
+  457147:	48 89 df             	mov    rdi,rbx
+  45714a:	e8 21 58 06 00       	call   4bc970 <_gfortran_transfer_character_write>
+  45714f:	48 89 df             	mov    rdi,rbx
+  457152:	e8 f9 a7 06 00       	call   4c1950 <_gfortran_st_write_done>
+  457157:	be 0c 00 00 00       	mov    esi,0xc
+  45715c:	48 8d 3d 98 3e 15 00 	lea    rdi,[rip+0x153e98]        # 5aaffb <centered_lattice_type.8+0x9f>
+  457163:	e8 4c d1 ff ff       	call   4542b4 <bomb2_>
+  457168:	e9 6d fe ff ff       	jmp    456fda <init_constants_+0x139>
+
+Disassembly of section __libc_freeres_fn:
+
+Disassembly of section .fini:

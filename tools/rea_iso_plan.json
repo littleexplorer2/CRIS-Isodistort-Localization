@@ -1,0 +1,17 @@
+[
+  {"name":"open_binary","label":"open-iso","arguments":{"path":"/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso","provider_id":"ghidra"}},
+  {"name":"binary_overview","label":"overview","arguments":{},"timeout":900},
+  {"name":"analyze_function","label":"orderparam-check","arguments":{"procedure":"orderparam_check_"}},
+  {"name":"procedure_pseudo_code","label":"orderparam-to-subgroup","arguments":{"procedure":"orderparam_to_subgroup_"}},
+  {"name":"analyze_function","label":"init-constants","arguments":{"procedure":"init_constants_"}},
+  {"name":"procedure_pseudo_code","label":"constant","arguments":{"procedure":"constant_"}},
+  {"name":"procedure_pseudo_code","label":"ncmp","arguments":{"procedure":"ncmp_"}},
+  {"name":"procedure_pseudo_code","label":"get-irrep4","arguments":{"procedure":"get_irrep4_"}},
+  {"name":"procedure_pseudo_code","label":"get-irreps","arguments":{"procedure":"get_irreps_"}},
+  {"name":"procedure_pseudo_code","label":"project","arguments":{"procedure":"project_"}},
+  {"name":"procedure_pseudo_code","label":"project-vector","arguments":{"procedure":"project_vector_"}},
+  {"name":"procedure_pseudo_code","label":"get-isotropy-file","arguments":{"procedure":"get_isotropy_file_"}},
+  {"name":"procedure_pseudo_code","label":"main","arguments":{"procedure":"MAIN__"}},
+  {"name":"export_evidence_bundle","label":"export","arguments":{"path":"/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/evidence/native/rea-iso-bundle.json"}},
+  {"name":"close_binary","label":"close","arguments":{"snapshot_path":"/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/evidence/native/rea-iso-snapshot.json"}}
+]

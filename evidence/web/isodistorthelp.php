@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<HEAD>
+<meta charset="utf-8">
+<TITLE>ISODISTORT help</TITLE>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="stylesheet" href="bootstrap.css">
+<link rel="stylesheet" href="docs.css">
+<style>
+  body {
+	padding-top: 0px;
+  }
+  div.pad {
+	padding-right: 50px;
+	padding-left: 50px;
+  }
+</style>
+</HEAD>
+<body>
+<div class="navbar navbar-static-top">
+  <div class="navbar-inner">
+     <div class="container">
+       <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+	 <span class="icon-bar"></span>
+       </a>
+       <a class="brand" href="isodistort.php">ISODISTORT</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+         <li><a href="isotropy.php">SUITE</a></li>
+                  </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="pad">
+
+<H1>ISODISTORT Help</H1>
+
+<p>Harold T. Stokes. Branton J. Campbell, and Dorian M. Hatch,
+Department of Physics and Astronomy, Brigham
+Young University, Provo, Utah, 84602, USA, branton_campbell@byu.edu
+
+<P>ISODISTORT (isotropy subgroup distortions) is a graphical user
+interface (GUI) that utilizes the computer algorithms of the Isotropy
+Software Suite. This program explores a variety of physical
+distortions (atomic displacements, atomic orderings, magnetic moments,
+rotational moments, and strains) of structural phase transitions induced by irreducible
+representations (single or superposed, commensurate or
+incommensurate). The output includes (1) tools for the
+3D visualization of structural distortions and the corresponding
+diffraction patterns, (2) a detailed description of each of the
+symmetry-modes of the parent that contribute to the distorted
+structure, (3) a variety of output formats that facilitate direct symmetry-mode
+structure refinements in programs like JANA, Fullprof, TOPAS, GSAS-II, Crystals, Olex2, etd),
+(4) a list of the equivalent domains of the distorted structure, (5) a
+list of the order-parameter combinations that are potentially primary, (6) the
+irreducible matrix representations that contribute to the distortion, and (7) structure
+files for each of the distorted structures that lie in the tree between the parent
+and child structures.
+
+<P>See the <A href="isodistortexample.php"
+target=_blank><b>EXAMPLE</b></A> which guides the user through a simple case.
+
+<h2>Some Background References</h2>
+<p>(1) <a href="isotheory.pdf">Introduction
+to Isotropy Subgroups and Displacive Phase Transitions</a>
+<br>(2) B. J. Campbell, H. T. Stokes, D. E. Tanner, and
+D. M. Hatch, "ISODISPLACE: a web-based tool for exploring structural
+distortions," <a
+href="http://www.iucr.org/cgi-bin/paper?wf5017"><i>J. Appl. Cryst.</i>
+<b>39</b>, 607-614 (2006)</a>.  <a
+href="jac39_607reprint.pdf">Download PDF
+reprint</a>
+<br>(3) H. T. Stokes, B. J. Campbell, and D. M. Hatch, "Order parameters
+for phase transitions to structures with one-dimensional incommensurate
+modulations," <a
+href="http://www.iucr.org/cgi-bin/paper?pz5036"><i> Acta Cryst. A</i> <b>63</b>, 365-373 (2007)</a>.
+<a href="aca63_365reprint.pdf">Download PDF
+reprint</a>
+<br>(4) B. J. Campbell, J. S. O. Evans, F. Perselli, and H. T. Stokes,
+"Rietveld refinement of structural distortion-mode amplitude,"
+<a href="http://iucrcomputing.ccp14.ac.uk/iucr-top/comm/ccom/newsletters/2007nov"><i>IUCr
+Computing Commission Newsletter</i> No. 8, 81-95 (2007)</a>.
+<a href="compcom8_81reprint.pdf">Download PDF
+reprint</a>
+<h2>Glossary and References</h2>
+
+<p><B>CIF</B>. Crystallographic Information File containing
+information about the structure of a crystal using a standardized
+format.
+
+<p><B>IR</B>.  An irreducible representation of the space-group symmetry
+of the parent structure.
+
+<p><B><I>International Tables</I></B>. <I>International Tables for
+Crystallography</I>, Vol. A, Edited by Theo Hahn (Kluwer Academic,
+Dordrecht).
+
+<p><B>Kovalev</B>. Tables of irreducible representations found in (1)
+O. V. Kovalev, <I>Irreducible Representations of the Space Groups</I>
+(Gordon and Breach, New York, 1965) or (2) O. V. Kovalev,
+<I>Representations of the Crystallographic Space Groups: Irreducible
+Representations, Induced Representations and Corepresentations</I> (Gordon and
+Breach, New York, 1993).
+
+<p><B>Miller and Love</B>. Tables of irreducible representations
+found in (1) S. C. Miller and W. F. Love, <I>Tables of Irreducible
+Representations of Space Groups and Co-Representations of Magnetic
+Space Groups</I> (Pruett, Boulder, 1967) or (2) A. P. Cracknell, B. L.
+Davies, S. C. Miller and W. F. Love, <I>Kronecker Product Tables</I>,
+Vol. 1 (Plenum, New York, 1979).
+
+<p><B>Stokes and Hatch</B>. Tables of isotropy subgroups found in
+H. T. Stokes and D. M. Hatch, <I>Isotropy Subgroups of the 230
+Crystallographic Space Groups</I> (World Scientific, Singapore, 1988).
+These tables are limited to special <i>k</i> points.
+
+<BR>
+<H2>Introduction</H2>
+
+<p>When a crystal experiences a symmetry-lowering structural transition,
+some of the symmetry elements of the parent space group are lost,
+while others persist in the distorted superstructure. Those elements
+that persist form the space group symmetry of the superstructure, and
+comprise a subgroup of the parent space-group.  We refer to such a
+subgroup as an <i>isotropy subgroup</i> of the parent space group, or as a
+<i>distortion symmetry</i> of the parent symmetry.  The purpose of ISODISTORT
+is to make it easy to identify and explore the distortion symmetries
+available to a user-provided parent structure.  With distortions
+comprised of atomic-displacements in mind, this software tool was
+originally called ISODISPLACE .  Because it now handles several
+different types of physical order parameters, it has been renamed as
+ISODISTORT.
+
+<p>You don't have to be a group theory expert to use ISODISTORT, though a
+working knowledge of crystallographic information (i.e. how to use a
+space-group, cell parameters and atomic coordinates to describe a
+structure) is needed.  The internal design attempts to avoid prompting
+the user for information that they are not likely to know, and where
+possible, to predetermine the options available to the user at each
+step, displaying those options in menus that can be explored
+one possibility at a time.  After receiving user input, ISODISTORT
+performs crystallographic and group-theoretical computations, and
+returns the details of the selected distortion in a variety of
+user-selected formats.  Among other resources, there are companion
+applications that allow you to interactively visualize and manipulate 
+the free parameters (modes) of your distortion. For a more technical
+description of the relevant group-theoretical concepts, see
+H. T. Stokes and D.M. Hatch, <i>Isotropy Subgroups of the 230
+Crystallographic Space Groups</i> (World Scientific, Singapore, 1988).
+
+<p>A symmetry-motivated change of basis: The internal degrees of freedom
+available within a distortion-induced superstructure can be viewed as
+basis vectors in a generalized distortion space. The traditional
+crystallographic structural parameters (cell parameters, the <i>xyz</i>
+atomic coordinates, site occupancies and magnetic moments) constitute
+one oft-used basis of this space. In general, ISODISTORT will generate
+new symmetry-motivated basis vectors (i.e. modes) to describe
+distortion space which are linear combinations of the familiar
+crystallographic basis vectors.  In practice, the final product of an
+ISODISTORT calculation is a square matrix that transforms the
+description of the distorted structure from the traditional basis to
+the symmetry-motivated basis; the number of free structural parameters
+does not change.  The new symmetry-motivated structural parameters are
+precisely the natural order parameters of the associated structural
+transition, and therefore have special physical and geometric meaning
+with respect to the energetics of the transition.  For example,
+ISODISTORT will often generate modes that include polyhedral
+stretches, rotations, shears, buckles, and other familiar displacement
+patterns, being closely related to the more complicated frozen phonon
+basis which further depends on masses and interatomic forces.  In
+summary, the principal component of many physical distortions can be
+captured by a relatively small number of symmetry-motivated degrees of
+freedom for which ISODISTORT is an ideal exploratory tool.
+
+<p>Primary and secondary order parameters: A primary IR is an IR that can
+single-handedly generate the final distortion symmetry.  If two IRs
+must be superposed in order to achieve a given distortion symmetry, then
+we refer to them as superposed primary IRs.  A primary order parameter is
+a structural degree of freedom associated with a primary IR.  In
+addition to the primary order parameter(s), ISODISTORT calculates and
+displays any secondary order parameters that can coexist with the
+primary order parameter(s).  Without going into too much detail, a
+secondary IR generates secondary order parameters which can coexist
+within the final superstructure but do not necessarily of themselves
+generate the final distortion symmetry (i.e. they don't lower the
+symmetry enough). For example, any internal degrees of freedom within
+the parent structure will also exist in the superstructure as
+secondary order parameters.
+
+<p>We have traditionally referred to any distortion symmetry of the
+parent space group as an isotropy subgroup of the parent, even if
+multiple primary IRs must be superposed to obtain it.  Some, however,
+reserve the term <i>isotropy subgroup</i> for distortion symmetries obtained
+with a single primary IR.
+
+<p>There are numerous distinct classes of physical order parameters that
+can be associated with isotropy subgroups.  ISODISTORT specifically
+employs isotropy subgroups that yield any of the following types of order
+parameters: (e.g. displacements, occupancies, strains, magnetic
+moments, and rotational moments).  Any order parameter type will have specific tensor
+properties.  Lattice strains, for example, are described as
+macroscopic polar rank-2 tensors.  Atomic displacement modes are
+described using microscopic polar vectors.  Magnetic moments and
+rotational moments are
+described with microscopic axial vectors.  And atomic occupancies are
+described with microscopic scalar parameters.
+
+<p>Note that in the current version of the software, the parent structure must be
+non-magnetic.  Internally, the program replaces a nonmagnetic parent
+space group with the corresponding a magnetic gray group before
+generating magnetic distortions.  Though a gray group does not support
+magnetic moments itself, many of its distortion symmetries can.
+
+<p><A name=parent></a><b>Structure of parent phase</b>. You will
+begin an ISODISTORT session by providing information about the
+crystalline structure of the parent (undistorted) phase. This includes
+the space-group symmetry, the cell parameters, and the positions of
+the atoms. ISODISTORT requires that you upload this information from a
+CIF file. If you do not have a CIF file for the parent structure, you
+can create one (or modify an existing one) using a related tool called
+ISOCIF. If you just want to do some exploring, ISODISTORT also allows
+you to start with a predefined cubic perovskite structure. You can
+also begin an ISODISTORT session by uploading a previously-saved
+ISODISTORT distortion file.  Once again, if you just want to do some
+exploring, you can start with a predefined distorted cubic perovskite
+structure.
+
+<p><A name=cifinput></a><b>CIF file</b>. Structural information must
+be input in CIF format.  There are two options for uploading a CIF
+file. (1) You may upload the CIF file directly from a local drive, or
+(2) you may copy and paste the contents of a CIF file into a text
+field. If you don't have your structure in CIF format, first use
+ISOCIF to prepare a CIF file, and then proceed to ISODISTORT.  If you
+have a CIF file that cannot be interpreted by ISODISTORT (this can
+happen if, for example, the space-group setting used in the CIF file
+is not one of the settings found in <i>International Tables</i>),
+ISOCIF can also be used to modify your CIF file to render it suitable
+for use in ISODISTORT.  ISOCIF and ISODISTORT now read and write CIF
+files containing magnetic structures.  In the absence of an
+international standard, we have employed a handful of magnetic CIF
+tags that extend the core CIF dictionary in a logical way.  To learn
+more about magnetic space groups, and their symbols, settings and
+operators, go to (link not yet available).
+
+<p><A name=settings></a><b>Space-group
+preferences</b>. The <i>International Tables</i> gives more than one
+setting for some space groups. When you upload a parent structure, you
+can choose "default" space-group setting preferences that will affect
+any distorted structures generated using that parent. The setting of
+the space-group symmetry of the parent structure, however, is
+determined by the parent CIF file rather than by your "default"
+choices. If you want a different setting for your parent structure,
+modify the associated CIF file using ISOCIF.
+
+<P>Monoclinic space groups have settings for six different orientations of the
+axes. Choose axes <I>a(b)c</I>, <I>c(-b)a</I>, <I>ab(c)</I>, <I>ba(-c)</I>,
+<I>(a)bc</I>, or <I>(-a)cb</I>. Unique axes are in parentheses. See
+Table 4.3.1 in <I>International Tables</I> for more details.
+
+<P>Most monoclinic space groups also have settings for different cell
+choices.  Choose cell choice 1, 2, or 3.
+
+<P>Orthorhombic space groups have 6 different choices for the
+orientation of axes. Choose axes <I>abc</I>, <I>ba-c</I>, <I>cab</I>,
+<I>-cba</I>, <I>bca</I>, or <I>a-cb</I>. See Table 4.3.1 in
+<I>International Tables</I> for more details.
+
+<P>Trigonal space groups (for example, #146, R3) have settings using
+hexagonal axes and rhombohedral axes. Choose one of these.
+
+<P>Some orthorhombic, tetragonal, and cubic space groups (for example,
+#227 Fd-3m) have two choices for the position of the origin, one of
+which (origin choice 2) in located at a point of inversion. Choose
+origin choice 1 or 2.
+
+<p>For (3+1)-dimensional superspace groups, choose either the standard
+setting listed in Vol. C of <I>International Tables</I> or the setting
+of the basic space group as given by the above choices in Vol. A
+of <I>International Tables</I>.
+
+<p>Magnetic space-groups respect the same space-group settings as
+non-magnetic space groups.
+
+<p><A name=irrepversions></a><b>IR matrices</b>. An IR maps each
+space-group operator onto a matrix.  In 1988, a set of matrices was
+published in Stokes and Hatch for IRs at special <i>k</i> points.
+Subsequently, matrices for IRs at non-special <i>k</i> points were
+made available through the isotropy software suite.  In 2007, a set of
+matrices for operators extended to (3+1)-dimensional superspace was
+made available at the ISO(3+1)D website.  We call all of these choices of
+matrices the "1988 version".
+
+<p>In 2011, a new set of IR matrices was introduced.  
+The matrices were chosen to have a specific "block"
+form so that the contributions from different modulation 
+<i>k</i> vectors would appear separated from each other in the order
+parameters.  For example, consider a <i>k</i> point (a,0,0) in a cubic
+space group.  The space group operators generate three modulation
+vectors from this
+<i>k</i> point: (a,0,0), (0,a,0), (0,0,a).  Suppose that one of the
+IRs at this <i>k</i> point is six-dimensional.  Then two of the
+dimensions would be associated with each modulation.  An order
+parameter (a,b,0,0,0,0) would generate a distortion with a modulation
+vector (a,0,0), an order parameter (0,0,a,b,0,0) would generate a
+distortion with a modulation vector (0,a,0), an order parameter
+(a,b,c,d,0,0) would generate a distortion with two superposed
+modulation vectors, (a,0,0) and (0,a,0), etc.  You would be able to
+see by inspection from the order parameter direction which modulation
+vectors were involved in the distortion.  To accomplish this,
+IR matrices must be chosen to have a certain form.  We call this
+new choice of matrices the "2011 version".  
+
+<p>In addition to putting these matrices into "block" form, we also
+chose the matrices so that those representing pure translations would
+have a specific form, and we chose the
+matrices for types 2 and 3 IRs so that a simple transformation would
+bring them into complex block-diagonal form.  As a result, about 70%
+of the IRs are different from those in the 1988 version, and about 15%
+of the IRs are different from those in the 2007 version of ISO(3+1)D.
+
+<h2>Search</h2>
+
+<p>The "Search" page contains (1) Information about the parent structure,
+including nearest-neighbor distances between different types of atoms,
+(2) a "View parent" tool, (3) a check box for each type of physical
+distortion that you may wish to explore, and (4) four different search
+methods for finding distorted structures.
+
+<P><A name=includedistortion></A><b>Types of distortions to be
+considered</b>.  By default, the program considers only atomic
+displacements and strains, though site-occupancies and magnetic
+moments are also available.  Use the check boxes available to make your
+selection if different from the default.  Note that you MUST click on
+OK to implement any changes to these check boxes.  If you check
+displacements, occupancies and strains, all appropriate isotropy
+subgroups will be generated that contain any one of these order
+parameter types (logical OR rather than AND).  If you call for
+magnetic distortions, however, no isotropy subgroup that fails to
+produce a magnetic distortion will be generated.
+
+<h3><A name=isosub></a>Method 1: Search over all special <i>k</i>
+points</h3>  
+
+<p>Reciprocal-space points that contain no variable
+parameters are called <i>special k points</i>.  The isotropy subgroups
+associated with a single IR of any special k point have been
+pre-calculated and placed in a readily-accessible database so that
+users can simultaneously search over all special <i>k</i>-points, filtered by
+user-specified constraints such as (1) crystal system, (2) space-group
+symmetry, (3) conventional or primitive direct sublattice, and/or (4)
+whether the space-group symmetry of the distorted phase is a maximal
+subgroup of the parent space group.  If your distortion is fairly
+simple, there is a good chance that this method will be sufficient to
+obtain it.  Your search will not be affected by any drop-down list
+that is set to "no choice".  If you use more than one filter
+criterion, all selections will apply simultaneously (logical AND
+rather than OR).  Note that each lattice selection is specified by
+three basis vectors and also includes lattices which are rotated by
+any point operators of the parent space group.  The search should
+produce a drop-down list of the corresponding isotropy subgroups and
+their associated <i>k</i> points, IRs, and order parameter directions as
+described below.
+
+<h3><A name=kpoint></a><A name=kpoint></a>Method 2: General method -
+search over specific <b>k</b> points</h3>
+
+<p>Choose a
+<I>k</I> point in the first Brillouin zone. This choice affects the
+possible superlattices which can result from the phase transition.
+Each line in the drop-down menu contains (1) the label of the <I>k</I>
+point using the notation of Miller and Love, (2) the label of the
+<I>k</I> point using the notation of Kovalev (only included for
+special <I>k</I> points), and (3) the coordinates of the point in
+terms of the basis vectors of the reciprocal lattice of the
+conventional lattice defined in <I>International Tables</I>. Some
+points contain one or more of the parameters
+<I>a</I>, <I>b</I>, or <I>g</I> (for example, <I>a</I>,0,0).  You must
+enter the values of the parameters needed for fully specifying the
+position of the point.  If no parameters are needed (for example, the
+<I>k</I> point 0,0,0), you do not need to enter any
+values. You <I>must</I> enter all parameters as rational numbers (for
+example, 1/2 instead of 0.5).
+
+<p><b>Incommensurate modulations</b>.  Incommensurate <i>k</i>-points
+are points with one or more irrational components. If you want to
+explore an incommensurate modulation at a given <i>k</i>-point, enter
+"1" for the number of independent modulations to include (the current version only
+supports up to 3 independent modulations), and enter the irrational parameters as
+decimal numbers (for example, 0.5 instead of 1/2). An incommensurate
+distortion arising due to <i>d</i> independent incommensurate modulations will
+possess the symmetry of a (3+<i>d</i>)-dimensional superspace group.
+Note that the total number of active modulations may be greater than the number
+of independent modulations.
+The <a href=incommensurate.php target=_blank>ISO(3+1)D tables</a> at
+stokes.byu.edu/incommensurate.html list all of the isotropy subgroups
+arising from a single modulation at an incommensurate
+<i>k</i>-point.
+
+<p><A name=coupledir></a><b>Superposed IRs</b>. If you want to
+superimpose distortions from more than one primary order parameter,
+you need to couple two or more IRs.  Enter the number of superposed IRs
+and click on OK.  This will take you to a page where you will choose
+a <i>k</i> point for each of the superposed IRs.  After making your
+initial selections, you will see two additional pages to select and IR
+and an order-parameter direction.
+
+<P><A name=irrep></a><B>IR</B>.
+Choose an irreducible representation
+(IR). The list in the drop-down menu contains IRs associated with the
+<I>k</I> point you selected. The choice of IR affects the symmetry of
+the atomic displacements you will obtain. The list contains only IRs
+which allow atomic displacements or atomic ordering at one or more of
+the unique atomic positions you selected. Each line in the drop-down
+menu contains the label of the IR using the notation of (1) Miller and
+Love and (2) Kovalev (only included for IRs associated with special
+<I>k</I> points). Type-2 and type-3 IRs are complex. We want real IRs
+since atomic displacements induced by the IR must be real. In these
+cases, we obtain the <I>physical IR</I> from the direct sum of the IR
+and its complex conjugate. These are indicated in the notation by a
+pair of IR symbols (for example, P1P1, where P1 is a type-2 IR which
+is equivalent to its own complex conjugate, and A2A3, where A2 and A3
+are type-3 IRs which are complex conjugates of each other). Note that
+physical IRs are reducible with respect to complex numbers but
+irreducible with respect to real numbers. When dealing with magnetic
+distortions, IRs that produce magnetic moments have an "m" prepended
+to their labels.  The OPD field on this page allows one to specify and
+order-parameter direction (OPD) rather than calculating all possible
+OPDs, which can save time when calculation times are very long.
+
+<P><A name=orderparam></a><B>Order parameter direction (OPD)</B>.
+Choose the direction of the primary order parameter from among
+the list of possibilities.  An order
+parameter direction (OPD) is a vector in representation space and has
+the same dimension as the IR. The isotropy subgroup is actually
+defined as the subgroup of parent space-group operators which leave
+the direction of the order parameter invariant. For the IR that you
+selected, a radio-button list appears that contains all possible
+OPDs. Each entry in the menu contains (1) the OPD symbol (notation of
+Stokes and Hatch), (2) the OPD vector components in representation
+space, (3) the space group type of the resulting isotropy subgroup,
+(4) the basis vectors of the resulting sublattice (i.e. supercell) in
+parent-lattice units, (5) the origin of the resulting supercell in
+parent lattice units, (6) the size <i>s</i> of the primitive unit cell
+of the isotropy subgroup relative to the parent space group, and (7)
+the index <i>i</i> of the isotropy subgroup relative to the parent
+space group. For incommensurate structures, the (3+1)-dimensional
+superspace group symmetry is given, and the basis vectors of the
+lattice as well as the origin of the superspace group is given in
+(3+1)-dimensional space with four components.
+
+<P><A name=genisosub></A><b>Real-time calculations</b>.  ISODISTORT
+uses precomputed data tables containing the isotropy subgroups for
+Method 1 (single IRs at special <i>k</i> points) and for single IRs
+associated with incommensurate <i>k</i> points. For any other case (IRs at
+non-special k points or superposed IRs), the isotropy subgroups must be
+generated on demand and saved to a temporary file on the server.  If
+the isotropy subgroups of the IR(s) that you selected have not been
+recently generated, the list of OPDs will contain only the general
+direction of the order parameter. You can generate the file containing
+the other directions and their isotropy subgroups by clicking on
+"Generate isotropy subgroups" at the bottom of the page. The
+generation of isotropy subgroups may take anywhere from a few seconds
+to many hours.  Be prepared to wait while they are being generated.
+Factors that increase the time required include a high-symmetry
+parent, a low-symmetry distortion, or the coupling of multiple
+IRs.  Couple more than three IRs of a cubic parent with caution.
+Calculations on the server are automatically killed if they have not
+run to completion within one hour, and all temporary files on the
+server are automatically deleted once a week.  Contact us if you need
+help with a special case that warrants an exception to these policies.
+
+<h3><a name=method3></a>Method 3: Search over arbitrary <i>k</i> points for a
+specified point group and supercell</h3>
+
+<p>This algorithm searches for any distortion symmetries consistent with
+a user-selected point-group or space-group type and supercell.  After
+you click on OK, the next page will contain a list
+containing all possible distortion symmetries consistent with your
+selections, each of which will possess a unique combination of
+space-group type, supercell basis and supercell origin.  You must
+either select a point-group or a space-group type.  If you attempt to
+select both, the space-group selection will supercede the point-group
+selection.  In the case of magnetic distortions, only magnetic
+space-groups whose BNS symbols reduce to the selected non-magnetic
+point group or space group will be generated.
+
+<p>To employ this method, you must provide a set of representative basis
+vectors with which to define a supercell. All
+crystallographically-appropriate orientations and origin shifts of
+this supercell relative to the parent cell will be computed and tested
+automatically. Note that the basis must be specified as a
+transformation matrix containing only integers and/or rational
+fractions (e.g. 1/2 instead of 0.5).
+
+<p>The basis vectors that you enter are used to identify a primitive
+sublattice of the direct parent lattice without regards to its final
+symmetry.  If you enter conventional direct-lattice vectors (which is
+often more convenient than specifying primitive lattice vectors), you
+must also indicate what type of centering you have assumed so that a
+primitive sublattice can be unambiguously identified. In selecting a
+centering type, switch off your brain's autopilot function and
+carefully consider that you are NOT choosing the centering of the
+supercell, but instead deciding which parent lattice points are going
+to define the sublattice!  This is a very convenient, but potentially
+confusing feature.  Because the basis vectors are only used to
+identify a lattice, and do not reflect the true symmetry of the
+resulting supercell, any set of basis vectors that corresponds to the
+desired lattice will be sufficient. You can even use non-standard
+centering types (e.g. base-centered tetragonal) if you find them
+convenient. If the program finds any distortion symmetries that match
+the lattice and space-group type you selected, the results will be
+automatically transformed into a standard space-group setting.  If you
+don't indicate a centering type, the program assumes a default
+centering that matches the space-group type that you selected, or
+simply primitive if you selected a point group instead.  Instead of
+choosing a direct sublattice, note that it is sometimes more conveient
+to specify a primitive reciprocal superlattice, from which the
+corresponding primitive direct sublattice can easily be determined.
+
+<p>Basis Example 1: Start with a primitive cubic parent cell and consider
+the formation of a C-centered supercell with twice the conventional
+volume, but the same primitive volume.  Thus, no new
+reciprocal-lattice peaks will arise from this transformation.  The
+simplest approach would be to enter (1,0,0),(0,1,0),(0,0,1) as the
+direct-lattice basis with no (i.e. primitive) centering.  You could
+also specify the primitive reciprocal-lattice basis as
+(1,0,0),(0,1,0),(0,0,1).  If you prefer to specify a centered basis,
+you could enter (1,1,0),(-1,1,0),(0,0,1) as the direct-lattice basis
+with C-type centering, or (1,0,0),(0,1,1),(0,-1,1) with A-type
+centering, or (1,0,1),(0,1,0),(-1,0,1) with B-type centering.  Any of
+these options would be equally effective.
+
+<p>Basis Example 2: Start with a body-centered tetragonal parent cell and
+consider the formation of a primitive tetragonal supercell with the
+same cell parameters, so that the primitive volume doubles while the
+conventional volume stays the same. This will produce intensity at the
+h+k+l = 2n+1 reciprocal-lattice positions that were systematically
+absent for the parent structure.  Enter (1,0,0),(0,1,0),(0,0,1) as the
+direct-lattice basis with no centering, or else use it as the
+reciprocal-lattice basis.  No centering option for the direct lattice
+is appropriate to this situation.
+
+<p>Basis Example 3: Start with a body-centered tetragonal parent cell and
+consider the formation of a primitive triclinic supercell that
+coincides with the primitive parent cell, so that the conventional
+volume gets cut in half while the primitive volume stays the same.
+The primitive direct sublattice will be described as
+(-1/2,1/2,1/2),(1/2,-1/2,1/2),(1/2,1/2,-1/2); and the primitive
+reciprocal superlattice will be described as (0,1,1),(1,0,1),(1,1,0).
+But the same direct sublattice is more conveniently specified by
+entering (1,0,0),(0,1,0),(0,0,1) as the basis with conventional I-type
+centering.
+
+<h3><a name=method4></a>Method 4: Mode decomposition of a distorted
+structure</h3>
+
+<p>With this method, you will upload a distorted structure from a CIF
+file and automatically decompose it into symmetry modes of your parent
+structure. This method is especially useful for analyzing a structure
+that has already been refined against experimental data.  If numerical
+uncertainties are
+included with any of the variable parameters in the CIF, they will
+also be calculated for the corresponding mode amplitudes, which can be
+useful in determining which mode and strain amplitudes are
+significant. There are two options: (1) You may upload the CIF, or (2)
+you may copy and paste the contents of the CIF into a text field. In
+either case, the CIF is preprocessed and displayed in a text field
+where you may edit it if desired. The setting of the space-group
+symmetry of the distorted structure is determined by the CIF, and not
+by the "default" choices you made earlier.  Note that if you selected
+to include magnetic order-parameters, the distorted structure to be
+decomposed must be magnetic.
+
+<p><a name=inputbasis></a><b>Basis</b>.  After uploading a distorted
+structure, you will be asked to enter the sublattice basis (i.e. the
+real-space lattice vectors of the conventional cell of the distorted
+structure in terms of the lattice vectors of the conventional cell of
+the parent structure). There are two options: (1) Choose the
+transformation in the drop-down menu containing all of the unique
+possibilities that are not prohibited by symmetry and which generate
+cell parameters similar (~10% tolerance) to those in your daughter
+CIF.  If the strains are large, the correct transformation may not
+appear in the list.  (2) Enter the transformation matrix in the fields
+provided.  If non-integer values need to be entered, enter them as
+rational numbers (for example, 1/2 instead of 0.5). Be careful: the
+basis vectors that you use must reflect the exact (but undistorted) shape and
+orientation of your supercell relative to the parent cell. Also, the
+types of atoms in the CIF must match the types of atoms in the parent
+phase.  
+
+<p><b>Origin</b>.  The transformation from parent lattice to daughter
+sublattice also has an origin shift (possibly zero).  The program
+automatically attempts to compute all possible origin shifts consistent
+with the form of the operators of the isotropy subgroup.  However, if
+you feel that you can speed things up by specifying the correct origin
+shift, and happen to know what it is, you may do so.  For isotropy
+subgroups whose origins have a sliding degree of freedom, a value is
+selected that minimizes the average distance between the atoms in the
+distorted and undistorted structures.
+
+<p><a name=trynearest></a><b>Atom-matching method</b>.  In many cases, the
+most time-consuming task is not the decomposition itself, but the
+process of matching up the atoms in the distorted and undistorted
+supercells.  Remember that the parent and distorted structures come
+from different files that may have originated in very different ways,
+and may not be compatible at all.  We can only perform a decomposition
+if there is a one-to-one mapping of atoms from the undistorted
+supercell into the distorted supercell that preserves element types,
+Wyckoff sites, and approximate positions.  There are two algorithms
+available for this process.  (1) For a given origin candidate, the
+"nearest-site method" simply attempts to map each atom in the
+undistorted structure onto the nearest atom in the distorted
+structure.  If the nearest match for any atom is of the wrong element
+type or Wyckoff site, the method fails, but does so quickly.  The
+"robust" method, on the other hand, tries to match an atom in the
+undistorted structure to every atom in the distorted structure
+separated by less than a user-selected threshold distance.  Suppose
+that there are 4 candidate origins and 20 atoms in the undistorted
+structure, each of which has 2 neighbors in the distorted structure
+that lie within the threshold distance and have the correct types.
+This yields 4*2<sup>20</sup> = 4194304 possible mappings to be
+evaluated one at a time.  Only the mapping that minimizes the average
+distance between the atoms in the undistorted and distorted structures
+will be used for the decomposition.  If the distortion involves large
+atomic displacements, a large threshold distance is necessary, which
+can result in a rather long computation time.  Extremely long
+atom-matching calculations often indicate that you need to try
+different options.  Decompositions that take longer than 30 minutes
+are killed automatically by the server.
+
+<h2><A name=modeamp></a>Distortion</h2>
+
+<p>The "distortion" page will appear in a new
+window. It contains input boxes for the amplitudes of all of the
+displacive, occupancy, and strain modes. All amplitudes are set to
+zero by default unless they were predetermined via mode decomposition.
+
+<P>The modes are grouped according to IR on this page, though the order
+in which the IRs are presented depends on the "search" method used.
+Any IR selected by the user via Methods 1 or 2 will be classified as
+"primary," so that their modes are listed first, followed by the modes
+of all "secondary" IRs that contribute to the distortion.  One line of
+descriptive information is provided for each IR and contains (1) the
+space-group symmetry (short Hermann-Mauguin symbol) of the parent
+phase, (2) the components of the k vector, (3) the IR, (4) the
+components of the order parameter direction vector, (5) the
+space-group symmetry (space-group number and the short Hermann-Mauguin
+symbol) of the distortion that would result if this order parameter
+acted alone, together with the (6) the basis vectors and (7) origin of
+the resulting supercell, (8) the size s of the primitive unit cell of
+the supercell relative to the primitive parent cell, and (9) the index
+<i>i</i> of the subgroup relative to the parent space group.
+
+<P>Displacive modes. Each displacive mode corresponds to a set of
+displacements experienced by some or all the atoms in the
+superstructure associated with one of the symmetry-unique atoms of the
+parent structure. The total number of displacive modes available to
+the distorted structure is equal to the total number of its unique
+displacive structural variables (i.e. variable atomic <i>xyz</i>
+coordinates). Thus, the transformation from the <i>xyz</i>-atomic-coordinate
+basis to the symmetry-motivated distortion-mode basis conserves the
+total number of structural degrees of freedom. Each mode has a label
+that contains (1) the identity of the parent atom and its Wyckoff
+position, (2) the IR of the point-group symmetry of the local Wyckoff
+position, and (3) one of the free variables from the order parameter
+direction (<i>a</i>,<i>b</i>,<i>c</i>,...).
+
+<P>Occupancy modes. Compositional ordering (i.e. occupancy) modes cause a
+parent Wyckoff site to split into two or more daughter Wyckoff sites
+in the distorted phase and alter their occupancies relative to the
+parent phase.  The mode label of an occupancy mode can be easily
+distinguished from that of a displacive mode because we replace the
+Wyckoff-site-symmetry with the word "order."  The total number of
+occupancy modes will equal the total number of unique atoms in the
+supercell.
+
+<p>Strain modes.  These modes are distinguished from the
+other modes by the word, "strain," contained in the mode label
+next to the input box.  Each strain mode is some linear combination
+of the six strain components, <i>e<sub>xx</sub></i>, <i>e<sub>yy</sub></i>,
+<i>e<sub>zz</sub></i>, <i>e<sub>yz</sub></i>, <i>e<sub>xz</sub></i>,
+<i>e<sub>xy</sub></i>.  The amplitude of a mode indicates the
+magnitude of the largest strain component in the mode.  Next to the
+input boxes we find labels that distinguish the different strain
+modes.  Each mode label contains (2) the word, "strain," and (2) one
+of the free variables in the order parameter (a,b,c,...).
+
+<p>Magnetic modes. Each magnetic mode corresponds to a set of magnetic
+moments acquired by some or all the atoms in the superstructure
+associated with one of the symmetry-unique atoms of the parent
+structure. The total number of magnetic modes available to the
+distorted structure is equal to its total number of unique magnetic
+structural variables (i.e. variable
+atomic <i>m<sub>x</sub></i>,<i>m<sub>y</sub></i>,<i>m<sub>z</sub></i>
+vector components).  Each mode has a label that contains (1) the
+identity of the parent atom and its Wyckoff position, (2) the IR of
+the point-group symmetry of the local Wyckoff position, and (3) one of
+the free variables from the order parameter direction
+(<i>a</i>,<i>b</i>,<i>c</i>,...).
+
+<p>Rotational modes. Each rotational mode corresponds to a set of rotational
+moments defined for one or more symmetry-unique rigid-unit pivot atoms (possibly dummy atoms)
+in the superstructure. The total number of rotational modes available to the
+distorted structure is equal to its total number of unique rotational
+structural variables (i.e. variable
+atomic <i>r<sub>x</sub></i>,<i>r<sub>y</sub></i>,<i>r<sub>z</sub></i>
+vector components).  Each mode has a label that contains (1) the
+identity of the parent atom and its Wyckoff position, (2) the IR of
+the point-group symmetry of the local Wyckoff position, and (3) one of
+the free variables from the order parameter direction
+(<i>a</i>,<i>b</i>,<i>c</i>,...).
+
+<p>In ferroelectric phase transitions, at least one of the order parameters
+will be labeled "ferroelectric."  We obtain a proper ferroelectric
+if one of the ferroelectric order parameters is primary, otherwise we
+obtain an improper ferroelectric.  Ferroelectric modes are also infrared
+active.
+
+<p>In ferroelastic phase transitions, at least one of the order
+parameters allows strain (except for the identity IR, GM1 or GM1+).
+This causes the crystal system of the distorted phase to be different
+from that of the parent.  We obtain a proper ferroelastic if one of
+the primary order parameters allows strain, otherwise we obtain an
+improper ferroelastic.  Order parameters that allow both atomic
+displacements and strain are Raman active.
+
+<P>Near the top of the page are a variety of
+choices: "Save interactive distortion", "Save interactive diffraction", 
+"CIF file", "Distortion file", "Domains", "Primary order parameters", 
+"Modes details", "Complete Modes details","Fullprof.pcr", "TOPAS.str", 
+"IR matrices", and "Subgroup tree".  Your selection here will 
+determine the type of output produced.
+
+<P><A name=savedist></A><B>Interactive visualization</B>.
+Because Java Web Start will cease to exist in the not-too-distant future, 
+we have recently converted the interactive java applets for viewing distortions 
+and diffraction patterns into two stand-alone java applications: 
+ISOVIZ (for atomic structures) and ISOVIZQ (for diffraction patterns). 
+Now, instead of having an interactive applet open directly from the distortion
+page of ISODISTORT, the user must first save an ascii data file (we'll call it
+an "isoviz" or "isovizq" file) to their local computer, and open that file with 
+the corresponding application. See the ISOVIZ page of the ISOTROPY Suite for 
+information about installing and running ISOVIZ and ISOVISQ.
+
+<P>Near the bottom of the distortion page, one can modify a variety of parameters
+that will be saved in the isoviz/isovizq data file, which then 
+influence the interactive visualizations:
+(1) Atomic radius (Angstroms). This is the radius used in the graphical rendition and
+should, for visual clarity, be somewhat smaller than the actual atomic
+radii. (2) Maximum bond length (Angstroms). A line will be drawn
+between any two atoms with a center-to-center distance less than this
+value.  (3) The length of magnetic moment vectors
+(Angstroms/magneton).  (4) Applet width (pixels). This parameter
+allows you to adjust the size of the application so that it fits on your
+computer screen.  (5) Maximum slider-bar amplitudes for each type of
+physical distortion. A large value allows large amplitudes but also
+makes the distortions very sensitive to movements of the slider bars.
+These maximum values also apply to the "Save interactive diffraction" option.
+(6) View range.  This sets the region of the crystal to be displayed.
+Reasonable default values for these parameters may be used without adjustment.
+
+<P><A name=viewdist></A><B>Save interactive distortion</B>.  This option
+saves an ascii data file, which can then be opened with the stand-alone
+ISOVIZ application, which allows one to interactively manipulate a
+three-dimensional rendition of the unit cell of the isotropy subgroup.
+Slider bars allow you to vary the amplitude of each symmetry mode
+available to your distortion.
+A master slider bar at the top allows you to simultaneously multiply
+every slider bar by a factor between 0 and 1, which has the effect of
+varying the amplitude of the overall distortion.  Similarly, at the
+bottom of the slider-bar panel, there are single-IR master slide
+bars that have a similar effect on the modes belonging to a
+specific IR.  
+
+<p>Left-click dragging the mouse across the image changes the orientation
+of the rendered structure, while a right-click or a middle-click drag
+translates (i.e. pans) the rendered structure within the view window.
+The x axis points to the right, the y axis points up, and the z axis
+points out of the screen. When reorienting the structure, and up or
+down movement of the mouse rotates the rendition about the x axis,
+while a side-to-side movement rotates the rendition about the y axis.
+
+<p>Each symmetry mode includes a slider bar, an abbreviated mode label,
+and a mode-amplitude indicator.  Each unique atom in the supercell
+also has an associated checkbox that allows it to be rendered in a
+different color (to single it out for closer inspection).  This
+checkbox includes an atom label, a total displacement indicator (in
+Angstroms), a total occupancy indicator, and a total moment (magneton)
+indicator.
+
+<p>Below the slider bars,
+there are several options that affect the rendition:
+
+<p>Atoms:  If checked (default), atoms are displayed.
+
+<p>Bonds:  If checked (default), bonds between atoms are displayed.
+
+<p>Cells:  If checked (default), unit cell boundaries are displayed.
+
+<p>Spin:  If checked, dragging the mouse across the image causes the rendition
+to continuously spin with a rate that depends on mouse drag velocity.
+
+<p>Axes: If checked, the arrows appear to indicate the parent cell and
+supercell lattice directions (black = a, white = b, grey = c).
+
+<p>Animate: If checked, all modes will be animated via the continuous
+variation of the master slider bar position.
+
+<p>Color: Appears when more than one parent atom has the same element
+type, and allows you to make atoms of the same element type to have
+the same color.  Otherwise (default) each unique atom of the parent
+structure is represented by a different color.  In each case, atom
+colors are assigned so as to uniformly spread the color spectrum as
+widely as possible.
+
+<p>Yrot:  If checked, dragging the mouse right and left across the
+image results in a pure y-axis rotation.
+
+<p>Zrot:  If checked, dragging the mouse clockwise or counterclockwise about
+the center of the image produces a pure z-axis rotation.
+
+<p>Zoom:  If checked, dragging the mouse up and down across the image zooms the
+rendition in or out.
+
+<p>Note that the Normal, Xrot, Yrot, Zrot and Zoom buttons form a set
+of related options, only one of which can be selected.<p>If you want
+to view the rendition from a particular crystallographic direction,
+check one of the following: SupHKL for a direction perpendicular to
+the (hkl) plane of the supercell, SupUVW for a direction [uvw] in the
+supercell, ParHKL for a direction perpendicular to the (hkl) plane of
+the parent unit cell, ParUVW for a direction [uvw] in the parent unit
+cell.  Then enter the view coordinates and click on "Apply View" to
+orient the rendition in the direction you specified.
+
+<p>Save Image: allows you to save an image of the current distortion
+to a file.
+
+<p>Press "r" to reset application to its initial state.
+
+<p>Press "z" to zero all of the mode amplitudes.
+
+<p>Press "i" to reset the mode amplitudes to their initial values
+without resetting other parameters.
+
+<p>Press "s" to toggle the amplitudes of the single-IR master sliders
+(all to zero or all to 1).
+
+<p>Press "n" to reverse the panning direction so as to be opposite the
+mouse-drag motion.
+
+<p>Press "c" to recenter the rendered structure within the view window
+after panning it to an off-center position.
+
+<p><A name=viewdiff></A><B>Save interactive diffraction</B>. 
+This option is provided in parallel with "Save interactive distortion",
+and allows the user to save an ascii data file to be used with the
+stand-alone ISVIZQ application.  The ISOVIZQ window contains an interactive
+two-dimensional view of the single-crystal or powder x-ray or neutron 
+diffraction pattern.
+The right-hand side of the application window contains the same slider
+bars and other information panels that are available in the ISOVIZ.
+But here, the slider bars allow you to vary the
+amplitudes of the modes while viewing their effect on the parent and
+superlattice peaks in the diffraction pattern.  Each parent or
+superlattice peak is indicated by a colored marker (a small open
+circle in the single-crystal pattern, or a vertical stick in the
+powder pattern). Parent peaks come in two colors: red (systematically
+absent) and green (normal). Superlattice peaks also come in two
+colors: orange (systematically absent) and blue (normal). When you move
+your mouse over one of these markers, the parent and superlattice
+indices of the corresponding peak will appear.
+
+The "Crystal" and "Powder" buttons move the display back and forth
+between the single-crystal pattern and the powder-diffraction pattern.
+In powder mode, peaks are represented as fixed-width gaussians with
+linearly-scaled intensities.  In single-crystal mode, each peak
+intensity is represented on a log scale by the size of a filled white
+circle.  The central peak at (000) has maximum intensity
+<i>I</i><sub>max</sub> and is represented by a filled yellow circle of
+maximum radius <i>r</i><sub>max</sub>.  Any peak whose intensity
+<i>I</i> becomes equal (or nearly equal) to that of the central peak
+changes from white to yellow.  Any peak with intensity <i>I</i> less
+than 10<sup>-4</sup><i>I</i><sub>max</sub> has zero radius.  All other
+peaks are represented by filled white circles with radius
+<i>r</i>=<i>r</i><sub>max</sub>[1+log<sub>10</sub>(<i>I</i>/<i>I</i><sub>max</sub>)/4].
+
+<p>In single-crystal mode, you can determine the 2D slice of
+reciprocal space to be viewed by specifying the point at the center of
+the plot, the direction of the horizontal axis, and another direction
+that should be contained in the upper half of the plot.  All three
+vectors should be specified in reciprocal lattice (i.e. <i>hkl</i>)
+units.  Note that the horizontal and upper directions must be defined
+relative to the center of the plot.  The "Parent" and "Super" buttons
+determine whether these vectors should are interpreted relative to the
+parent lattice or the superlattice.  Finally, the "Q Range" field
+allows you to determine how large of a slice to view.  The tick marks
+appear at integer multiples of the user-provided horizontal and upper
+<i>hkl</i> direction vectors, and are intended to help you identify
+specific peaks within a pattern.
+
+In powder-mode, there are three choices for the horizontal-axis
+parameter: 2*theta, d-spacing, and q = 2*pi/d.
+Note that the "Wave" field allows you to set the wavelength (Å) that
+defines the 2*theta scale.  For each scale choice, the "Min"
+and "Max" fields allow you to choose the display range, while the
+"Res" field determines the peak width (FWHM).  The "Zoom" field allows
+you to reduce the vertical scale of the powder pattern in order to
+zoom in on weak superlattice peaks.
+
+<p>The "Xray" and "Neut" buttons allow you to toggle between x-ray and
+neutron diffraction patterns.  Note that the scattering strength of
+each element has been set to the atomic number for x-rays and to the
+complex coherent scattering length of the natural isotopic composition
+for neutrons.  No angle-dependent form factors have been implemented,
+though a modest isotropic thermal parameter has been applied -- this
+tool is only intended for detecting qualitative intensity patterns
+that arise due to specific modes.
+
+<p>Press "r" to reset application to its initial state.
+
+<p>Press "z" to zero all of the mode amplitudes.
+
+<p>Press "i" to reset the mode amplitudes to their initial values
+without resetting other parameters.
+
+<p>Press "s" to toggle the amplitudes of the single-IR master sliders
+(all to zero or all to 1).
+
+<P><A name=cifsub></A><B>CIF file</B>.  This option creates a
+distortion-mode CIF that allows other software to interpret the
+distorted structure in terms of symmetry-motivated distortion-mode
+amplitudes. One can also upload this CIF as a new parent phase, so
+that further distortions can be considered.  A drop-down menu on the
+distortion page allows one to choose the decimal precision of numeric
+values.  A checkbox and associated parameters further allows one to
+output a series of CIF files that comprise a "movie" that follows the
+crystal through some number of oscillations through a range of mode
+amplitudes (values of the master slider).
+
+<P>The "Use alternate setting" checkbox allows one to generate the CIF
+output in an alternate (and possibly non-standard) setting of the symmetry
+group.  The basis and origin of the new setting can be entered relative
+to either the parent setting or the default subgroup setting.  Specifically,
+one should enter the components of S<sup>-1t</sup>, 
+the inversed transpose of the matrix S that transforms an atomic coordinate
+or superspace coordinate x from the reference setting (parent or default child)
+to the new setting, e.g. x' = S<sup>-1t</sup> x.  The structure of this matrix 
+for an incommensurate group is described in detail
+<a href="transformssgmath.html">HERE</a>.
+
+<P>The CIF file output includes the details of
+the linear transformation that relates free atomic coordinates to
+displacive mode amplitudes, free atomic occupancies to occupancy-mode
+amplitudes, free magnetic-moment vector components to magnetic-mode
+amplitudes, and parent-cell strains to strain-mode amplitudes.
+The CIF tags used to describe the distorted superstructure are
+standard, whereas the tags used to describe the symmetry modes have
+been created especially for ISODISTORT.  At some future time, we
+anticipate that a CIF standard will be established for symmetry-mode
+analyses.  When that happens, we will likely adopt the new standard.
+
+<P><A name=dfile></A><B>Distortion file</B>. This option creates a
+file containing all of the information on the distortion page. If you
+save this file, you can load it again from the ISODISTORT home page,
+allowing you to immediately return to a previous result.  Because old
+distortion files tend <b>not</b> to be compatible with new releases of
+ISODISTORT, they are only useful for short-term information storage.
+CIF output, on the other hand, is more permanent.
+
+<P><A name=domains></A><B>Domains</B>. This option creates a
+list of all domains of the distorted structure with respect to the
+parent structure.  Domains are specified by
+equivalent directions of the primary order parameter.  They are
+generated by operators which are contained in the parent space group
+but not in the isotropy subgroup.  The number of possible domains is
+equal to the index of isotropy subgroup relative to the parent space
+group.  The generating operators may (1) rotate the lattice of the
+subgroup (lattice orientation), (2) rotate the contents of the unit
+cell relative to the lattice (internal orientation), and/or (3) move
+the origin of the subgroup relative to the parent (origin shift).
+Each line in the output contains (1) the domain number, (2) the
+lattice orientation number, (3) the internal orientation number, (4)
+the origin shift number, (5) the components of the order parameter,
+(6) the domain generator, (7) the space-group symmetry of the
+subgroup, (8) the basis vectors of the lattice of the subgroup, and
+(9) the origin of the subgroup relative to the parent.  The first
+domain contains the original primary order parameter.
+
+<P><A name=setsprimary></A><b>Primary order parameters</b>.
+This option creates a list of all possible sets of primary
+order parameters involving any combination of atomic displacements,
+strains, or atomic orderings (to save space, only the IR symbols are
+shown).  While you typically choose your primary order-parameters before
+arriving at the distortion page, you can think of the entries in this
+list as alternative sets that would have brought you to the same
+distortion symmetry.  The true physical primary order parameters, of
+course, are those that actually drive the energetics of the transition
+-- a topic that ISODISTORT does not address.  The list of
+potentially-primary order parameters also indicates for each entry
+whether or not the phase transition is allowed to be continuous
+according to rules of Landau theory and the rules of renormalization
+group theory. This list is not implemented
+for incommensurate distortions.
+
+<P><A name=modesdetails></A><b>Modes Details</b>. This option allows
+you to see more detailed information about each of the modes available
+to the distortion.  The "complete" modes details feature differs only
+in that it lists the contributions of every atom in the unit cell
+rather than listing only the symmetry-unique atoms.
+First, the superstructure is tabulated in terms
+of the traditional atomic-<i>xyz</i>-coordinate basis, including the
+displacement of each unique atom from its undistorted position in the
+parent structure.  The modes are grouped according to order-parameter
+type (e.g. displacements or occupancies), with mode definitions and
+mode amplitudes appearing in separate tables.  For a given order
+parameter type, the modes are presented in the same order in which
+they appeared on the "distortion" page, where they were grouped by IR.
+
+<P>For microscopic order parameters (i.e. displacements, occupancies,
+and magnetic moments), tables of mode amplitudes display the standard
+supercell-normalized amplitude (As) for each mode, which is also used
+elsewhere in ISODISTORT, as well as a parent-cell-normalized amplitude
+(Ap), that only appears on this page.  The magnitude of As is the
+square root of the sum of the squares of the mode-induced changes
+within the primitive supercell (i.e. the root-summed-squared
+displacement, the root-summed-squared occupancy change or the
+root-summed-squared magnetic moment).  While this definition of As is
+very simple, it does scale with the square-root of the primitive
+supercell volume, which makes it inconvenient for comparing the
+amplitudes of multiple distortions of the same parent that result in
+different supercell sizes.  For this reason, we define Ap =
+As*sqrt(Vp/Vs) to be normalized to the parent cell, where Vp and Vs
+are the respective primitive parent and supercell volumes.  The sign
+of As (or Ap) merely indicates the direction of the resulting
+distortion relative to the corresponding mode vector (described
+below).  In addition to amplitudes for individual modes, we display a
+total amplitude for each IR (i.e. the root-summed-squared amplitude
+over all modes of the same IR) and an overall amplitude for the entire
+distortion (i.e. the root-summed-squared amplitude over all the IRs).
+This paragraph represents a significant change from earlier versions
+of this software (i.e. earlier than April 2009), which used dmax as
+the definition for displacive mode amplitude.  We encourage the use of
+these new definitions (i.e. As and Ap) in the literature for the sake
+of standardization. Note that the maximum change experienced by any
+atom affected by a mode is also displayed next to its mode amplitude
+(dmax in Angstroms for displacements, mmax in magnetons for magnetic
+modes and omax for occupancy modes).
+
+<p>Strain modes are macroscopic, and are therefore treated
+differently.  Each parent lattice strain is defined as a linear
+combination of strain-mode amplitudes.  In this way, a given set of
+strain-mode amplitudes are used to determine the parent lattice
+strains, which are in turn used to calculate the cell parameters of
+the distorted parent cell.  Using the basis transform that defines the
+daughter sublattice relative to the parent lattice, the distorted
+supercell parameters are also determined.  To see how this is
+accomplished in detail, export your distortion in TOPAS.STR format and
+view the resulting strain-mode equations.
+
+<P>In the table of mode definitions, each mode has a label and a
+normalization factor, followed by a multi-atom mode vector with one
+line for each unique atom in the supercell affected by the mode.
+Displacive mode vectors indicate the displacement direction and
+magnitude of each affected atom in unitless superlattice coordinates.
+Occupancy-mode vectors indicate the relative occupancy-change
+direction and magnitude of each affected atom.  The mode vectors are
+not normalized in the form presented, but are instead defined such
+that the largest non-zero component of a given mode has a value of
+1.0.  We provide a normalization factor (normfactor) in case you want
+to manually construct normalized mode vectors.  If the entire mode
+vector is multiplied by its normalization factor (normfactor), then
+the sum of squares of the resulting changes within the supercell (all
+the atoms, not just the unique ones) will equal 1.0 (Angstrom units
+for displacive modes, Bohr magneton units for magnetic modes, unitless
+for occupancy modes).
+
+<p><b>Mode-amplitude calculation example:</b>
+
+<p>Let our parent cell be a cubic ABO<sub>3</sub> perovskite with a
+3.86 Å cell parameter, and consider a distortion that produces a
+tetragonal supercell, i.e. sqrt(2)×sqrt(2)×1.  Let B' be the matrix of
+column vectors that define the unstrained supercell in cartesian coordinates,
+which in this case will be diagonal with 5.46, 5.46 and 3.86 Å along the diagonal.
+And let B be the matrix of column vectors that define the strained supercell
+in cartesian coordinates, though no lattice strains are present in this example.
+In general, the normfactor must be computed using B', whereas the actual 
+atomic displacements must be computed using B.
+
+<p>Suppose that a displacive mode splits the parent oxygen atom into two descendents
+with respective multiplicities of 4 and 2, and relative displacements of
+(1,-1,0) and (0,0,1) within the supercell.  We define the
+mode vector to be {(1,-1,0),(0,0,1)}and compute
+the normalization factor to be
+normfactor = 1/sqrt[4*||B'.(1,-1,0)||<sup>2</sup>
++2*||B'.(0,0,1)||<sup>2</sup>] =
+1/sqrt[4*(7.72 Å)<sup>2</sup>+2*(3.86 Å)<sup>2</sup>] = 0.06106
+Å<sup>-1</sup>.  If the displacive mode amplitude is As = 0.16 Å, 
+then the two
+descendent oxygens will experience displacements of d1 =
+As*normfactor*||B.(1,-1,0)|| = (0.16 Å)(0.06106 Å<sup>-1</sup>)(5.46 Å) 
+= 0.0533 Å and d2
+= As*normfactor*||B.(0,0,1)|| = (0.16 Å)(0.06106 Å<sup>-1</sup>)(3.86 Å) 
+= 0.0377 Å,
+respectively.  And dmax will be defined as the larger of the two
+(i.e. 0.0533 Å) displacements.  
+
+<p>Now suppose instead that the same parent oxygen, with an occupancy
+of 0.8, is split by an occupancy mode that yields a final occupancy of
+1.0 (a change of +0.2) for the first descendent oxygen and 0.7 (a change
+of -0.1) for the second one.  We would define the occupancy mode
+vector as {1.0, -0.5}, which has normfactor =
+1/sqrt[4(1.0)<sup>2</sup> + 2(-0.5)<sup>2</sup>] = 0.4851, where the
+occupancy mode amplitude is As = sqrt(4*(0.2)<sup>2</sup> +
+2*(-0.1)<sup>2</sup>) = 0.42.  The occupancy changes are then
+recovered as As*normfactor*modevector = (0.42)(0.4851){1.0, -0.5} =
+{0.2, -0.1}.
+
+<p>Magnetic and rotational moments are commonly defined in crystal-axis 
+coordinates, such that the magnitude of the vector indicates the total 
+magnetic moment (in &#956;<sub>B</sub>/&#197; units) or total rotation 
+angle (in radian units), and the direction of the vector defines the moment 
+direction (e.g. rotation axis).  This is very different from the
+presentation of Euler angles (or other similar parameters); the components
+of a moment vector in crystal-axis coordinates are <i>not</i> intended 
+to be applied in any particular order.  The matrix that transforms 
+a moment vector from crystal-axis coordinates
+to Cartesian coordinates is B.L<sup>-1</sup>, where L = ((a,0,0),(0,b,0),(0,0,c)).
+The matrix B.L<sup>-1</sup> is like B except that each column has been divided by the corresponding
+unit cell parameter.  In crystal-axis coordinates, the magnitude of a magnetic moment vector
+m = (<i>m<sub>x</sub></i>,<i>m<sub>y</sub></i>,<i>m<sub>z</sub></i>) will be
+calculated as ||B.L<sup>-1</sup>.m||, and the magnitude of a rotational moment vector 
+r = (<i>r<sub>x</sub></i>,<i>r<sub>y</sub></i>,<i>r<sub>z</sub></i>) will be
+calculated as ||B.L<sup>-1</sup>.r||.  
+
+<p>Let's continue the example above by assuming that the two B-site atoms of the supercell
+are on the same Wyckoff site and have magnetic moments along the (0,0,1) direction.
+We then have normfactor =
+1/sqrt[2*||B'.(0,0,1)||<sup>2</sup>] = 1/sqrt[2*(3.86 Å)<sup>2</sup>] = 0.1832 Å<sup>-1</sup>.
+Let each magnetic moment have magnitude 1.56 &mu;<sub>B</sub>.  Because 
+m = As*normfactor*L.(0,0,1) = As(0.1832 Å<sup>-1</sup>)(3.86 Å)(0,0,1) = (0,0,1.56)&mu;<sub>B</sub>,
+the magnetic mode amplitude must be As = 2.2 &mu;<sub>B</sub>.
+The magnetic-moment vector in Cartesian coordinates is M = B.L<sup>-1</sup>.m.
+Because the unit cell axes are all orthogonal, B is diagonal and equal to L, so that
+B.L<sup>-1</sup> is just the identity matrix.  Hence, M = m.  A rotational example would follow
+the same process, only replacing &mu;<sub>B</sub> with radian units.
+
+<p>When lattice strains coexist with
+displacive or magnetic modes, the mode amplitudes, normalization factors,
+and displacement/moment vectors expressed in lattice coordinates are independent of the strains.
+But in general, the displacement/moment vectors expressed in crystal-axis coordinates or cartesian
+coordinates will vary as a function of the lattice strains at fixed mode amplitude.
+
+<P><A name=topas></A><b>TOPAS.str</b>. This option generates an .STR
+file containing everything TOPAS needs to know for the direct
+refinement of distortion-mode amplitudes (occupational, displacive, magnetic, or rigid-body rotational).
+A checkbox on the distortion page provides the option to include the calculation of strain modes if desired.  
+John Evans at the University of Durham has posted a simple TOPAS tutorial for performing
+distortion-mode refinements
+(<a href="http://www.dur.ac.uk/john.evans/topas_workshop/tutorial_isoriet.htm">http://www.dur.ac.uk/)
+
+<P><A name=topas></A><b>Fullprof.pcr</b>. This option generates a Fullprof .pcr
+file containing everything Fullprof needs to know for the direct
+refinement of distortion-mode amplitudes (occupational, displacive, or magnetic).
+
+<P><A name=irrepmatrices></A><b>IR matrices</b>. This option displays the irrep matrices of each irrep
+that contributes to the distortion, both for the full irrep and for the restriction of the irrep to the
+subgroup.
+
+<P><A name=subgrouptree></A><b>Subgroup tree</b>. This option calculates each of the intermediate subgroups
+that lie in the Barnighausen tree between the parent and child space groups.  A checkbox on the distortion
+page further provides the option to calculate a symmetry-mode-parameter TOPAS.str output file for each 
+subgroup in the tree, so that
+one can easily test each model against an experimental diffraction data.  This option could be extended to other
+refinement packages in the future if needed.
+
+
+<BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR>
+</P>
+
+</div>
+<script src="swingjs/swingjs2.js"></script>
+<script src="isodistort.js"></script>
+</BODY>
+</HTML>
+

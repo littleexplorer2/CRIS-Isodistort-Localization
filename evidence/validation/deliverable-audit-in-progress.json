@@ -1,0 +1,28 @@
+{
+  "at_utc": "2026-10-20T14:17:45.741520+00:00",
+  "scope": "AST, local documentation links and frozen test-source/log fingerprints only; no scientific acceptance",
+  "python_files_parsed": 27,
+  "local_document_links_checked": 49,
+  "engineering_records": [
+    {
+      "record": "evidence\\validation\\20261020T135545223268Z-win32\\record.json",
+      "source_count": 14,
+      "changed_sources": [],
+      "logs_match": true,
+      "exit_code": 0
+    },
+    {
+      "record": "evidence\\validation\\20261020T135602600670Z-linux\\record.json",
+      "source_count": 14,
+      "changed_sources": [],
+      "logs_match": true,
+      "exit_code": 0
+    }
+  ],
+  "errors": [
+    {
+      "file": "docs\\DATABASE_FORMATS.md",
+      "broken_link": "../evidence/database/rea_readpath_review.json"
+    }
+  ]
+}

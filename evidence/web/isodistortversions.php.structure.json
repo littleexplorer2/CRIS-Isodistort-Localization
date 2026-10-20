@@ -1,0 +1,19 @@
+{
+  "forms": [],
+  "links": [
+    {
+      "class": "brand",
+      "href": "isodistort.php"
+    },
+    {
+      "href": "isotropy.php"
+    },
+    {
+      "href": "isodistorthelp.php",
+      "target": "_blank"
+    },
+    {
+      "href": "http://iso.byu.edu/isodistort_version5.6.1/isodistort.php"
+    }
+  ]
+}

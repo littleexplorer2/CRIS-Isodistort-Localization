@@ -1,0 +1,187 @@
+{
+  "forms": [
+    {
+      "attributes": {
+        "action": "isodistortform.php",
+        "method": "POST"
+      },
+      "controls": [
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "input",
+          "value": "autoloadparent"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "spacegroup",
+          "value": "221 Pm-3m      Oh-1"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "lattparam",
+          "value": "a=4.2"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "dlattparam",
+          "value": "   4.20000000000000        4.20000000000000        4.20000000000000        90.0000000000000        90.0000000000000        90.0000000000000"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wycount",
+          "value": "  3"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wypointer001",
+          "value": "1627"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wynumber001",
+          "value": " 2"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wytype001",
+          "value": " 1"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyckoff001",
+          "value": "1b (1/2,1/2,1/2)"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyatom001",
+          "value": "Sr"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyatomtype001",
+          "value": "Sr"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyparam001",
+          "value": "  0.000000000000000E+000  0.000000000000000E+000  0.000000000000000E+000"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyocc001",
+          "value": "   1.00000000000000"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wypointer002",
+          "value": "1626"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wynumber002",
+          "value": " 1"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wytype002",
+          "value": " 2"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyckoff002",
+          "value": "1a (0,0,0)"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyatom002",
+          "value": "Ti"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyatomtype002",
+          "value": "Ti"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyparam002",
+          "value": "  0.000000000000000E+000  0.000000000000000E+000  0.000000000000000E+000"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyocc002",
+          "value": "   1.00000000000000"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wypointer003",
+          "value": "1629"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wynumber003",
+          "value": " 4"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wytype003",
+          "value": " 3"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyckoff003",
+          "value": "3d (1/2,0,0)"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyatom003",
+          "value": "O"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyatomtype003",
+          "value": "O"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyparam003",
+          "value": "  0.000000000000000E+000  0.000000000000000E+000  0.000000000000000E+000"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "wyocc003",
+          "value": "   1.00000000000000"
+        }
+      ]
+    }
+  ],
+  "links": []
+}

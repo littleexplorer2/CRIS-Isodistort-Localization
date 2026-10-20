@@ -1,0 +1,196 @@
+
+vendor/isobyu/iso:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+Disassembly of section .plt:
+
+Disassembly of section .text:
+
+0000000000486eb2 <get_irreps_>:
+  486eb2:	41 57                	push   r15
+  486eb4:	41 56                	push   r14
+  486eb6:	41 55                	push   r13
+  486eb8:	41 54                	push   r12
+  486eba:	55                   	push   rbp
+  486ebb:	53                   	push   rbx
+  486ebc:	48 81 ec 48 48 00 00 	sub    rsp,0x4848
+  486ec3:	48 89 f5             	mov    rbp,rsi
+  486ec6:	49 89 d7             	mov    r15,rdx
+  486ec9:	48 89 c8             	mov    rax,rcx
+  486ecc:	4d 89 c5             	mov    r13,r8
+  486ecf:	4c 89 4c 24 08       	mov    QWORD PTR [rsp+0x8],r9
+  486ed4:	4c 8b b4 24 90 48 00 	mov    r14,QWORD PTR [rsp+0x4890]
+  486edb:	00 
+  486edc:	48 8b b4 24 88 48 00 	mov    rsi,QWORD PTR [rsp+0x4888]
+  486ee3:	00 
+  486ee4:	44 8b 26             	mov    r12d,DWORD PTR [rsi]
+  486ee7:	8b 17                	mov    edx,DWORD PTR [rdi]
+  486ee9:	8d 4a ff             	lea    ecx,[rdx-0x1]
+  486eec:	83 f9 01             	cmp    ecx,0x1
+  486eef:	76 71                	jbe    486f62 <get_irreps_+0xb0>
+  486ef1:	8d 4a fd             	lea    ecx,[rdx-0x3]
+  486ef4:	83 f9 01             	cmp    ecx,0x1
+  486ef7:	0f 87 8b 00 00 00    	ja     486f88 <get_irreps_+0xd6>
+  486efd:	83 ea 02             	sub    edx,0x2
+  486f00:	89 94 24 18 48 00 00 	mov    DWORD PTR [rsp+0x4818],edx
+  486f07:	8b 10                	mov    edx,DWORD PTR [rax]
+  486f09:	89 94 24 20 48 00 00 	mov    DWORD PTR [rsp+0x4820],edx
+  486f10:	8b 50 04             	mov    edx,DWORD PTR [rax+0x4]
+  486f13:	89 94 24 24 48 00 00 	mov    DWORD PTR [rsp+0x4824],edx
+  486f1a:	8b 50 08             	mov    edx,DWORD PTR [rax+0x8]
+  486f1d:	89 94 24 28 48 00 00 	mov    DWORD PTR [rsp+0x4828],edx
+  486f24:	8b 50 0c             	mov    edx,DWORD PTR [rax+0xc]
+  486f27:	89 94 24 2c 48 00 00 	mov    DWORD PTR [rsp+0x482c],edx
+  486f2e:	48 63 50 10          	movsxd rdx,DWORD PTR [rax+0x10]
+  486f32:	48 8d 05 67 28 58 01 	lea    rax,[rip+0x1582867]        # 1a097a0 <common_magnetic_>
+  486f39:	0f be 8c 10 78 20 10 	movsx  ecx,BYTE PTR [rax+rdx*1+0x102078]
+  486f40:	00 
+  486f41:	89 8c 24 30 48 00 00 	mov    DWORD PTR [rsp+0x4830],ecx
+  486f48:	48 8b 1d b9 5d 12 00 	mov    rbx,QWORD PTR [rip+0x125db9]        # 5acd08 <centered_lattice_type.8+0x1dac>
+  486f4f:	83 bc 90 b4 4f 02 00 	cmp    DWORD PTR [rax+rdx*4+0x24fb4],0x0
+  486f56:	00 
+  486f57:	75 40                	jne    486f99 <get_irreps_+0xe7>
+  486f59:	48 8b 1d 38 07 12 00 	mov    rbx,QWORD PTR [rip+0x120738]        # 5a7698 <ifactor.0+0xd10>
+  486f60:	eb 37                	jmp    486f99 <get_irreps_+0xe7>
+  486f62:	89 94 24 18 48 00 00 	mov    DWORD PTR [rsp+0x4818],edx
+  486f69:	f3 0f 6f 08          	movdqu xmm1,XMMWORD PTR [rax]
+  486f6d:	0f 29 8c 24 20 48 00 	movaps XMMWORD PTR [rsp+0x4820],xmm1
+  486f74:	00 
+  486f75:	8b 40 10             	mov    eax,DWORD PTR [rax+0x10]
+  486f78:	89 84 24 30 48 00 00 	mov    DWORD PTR [rsp+0x4830],eax
+  486f7f:	48 8b 1d 12 07 12 00 	mov    rbx,QWORD PTR [rip+0x120712]        # 5a7698 <ifactor.0+0xd10>
+  486f86:	eb 11                	jmp    486f99 <get_irreps_+0xe7>
+  486f88:	be 0d 00 00 00       	mov    esi,0xd
+  486f8d:	48 8d 3d 4f 72 12 00 	lea    rdi,[rip+0x12724f]        # 5ae1e3 <centered_lattice_type.8+0x3287>
+  486f94:	e8 1b d3 fc ff       	call   4542b4 <bomb2_>
+  486f99:	8b 45 00             	mov    eax,DWORD PTR [rbp+0x0]
+  486f9c:	85 c0                	test   eax,eax
+  486f9e:	0f 84 71 01 00 00    	je     487115 <get_irreps_+0x263>
+  486fa4:	89 84 24 1c 48 00 00 	mov    DWORD PTR [rsp+0x481c],eax
+  486fab:	0f 8e 4b 01 00 00    	jle    4870fc <get_irreps_+0x24a>
+  486fb1:	0f bf 15 96 82 d0 00 	movsx  edx,WORD PTR [rip+0xd08296]        # 118f24e <common_little_+0x2ed7ce>
+  486fb8:	39 d0                	cmp    eax,edx
+  486fba:	0f 8f 3c 01 00 00    	jg     4870fc <get_irreps_+0x24a>
+  486fc0:	4d 63 e4             	movsxd r12,r12d
+  486fc3:	4d 85 e4             	test   r12,r12
+  486fc6:	b8 00 00 00 00       	mov    eax,0x0
+  486fcb:	4c 0f 48 e0          	cmovs  r12,rax
+  486fcf:	48 63 84 24 1c 48 00 	movsxd rax,DWORD PTR [rsp+0x481c]
+  486fd6:	00 
+  486fd7:	48 8d 15 a2 aa a1 00 	lea    rdx,[rip+0xa1aaa2]        # ea1a80 <common_little_>
+  486fde:	44 0f b6 bc 02 f7 9a 	movzx  r15d,BYTE PTR [rdx+rax*1+0x369af7]
+  486fe5:	36 00 
+  486fe7:	41 0f be ef          	movsx  ebp,r15b
+  486feb:	83 bc 24 18 48 00 00 	cmp    DWORD PTR [rsp+0x4818],0x2
+  486ff2:	02 
+  486ff3:	75 57                	jne    48704c <get_irreps_+0x19a>
+  486ff5:	48 8b 84 24 88 48 00 	mov    rax,QWORD PTR [rsp+0x4888]
+  486ffc:	00 
+  486ffd:	8b 30                	mov    esi,DWORD PTR [rax]
+  486fff:	39 ee                	cmp    esi,ebp
+  487001:	0f 8c 4f 01 00 00    	jl     487156 <get_irreps_+0x2a4>
+  487007:	85 f6                	test   esi,esi
+  487009:	7e 41                	jle    48704c <get_irreps_+0x19a>
+  48700b:	4e 8d 04 e5 00 00 00 	lea    r8,[r12*8+0x0]
+  487012:	00 
+  487013:	48 8b 84 24 80 48 00 	mov    rax,QWORD PTR [rsp+0x4880]
+  48701a:	00 
+  48701b:	48 8d 48 f8          	lea    rcx,[rax-0x8]
+  48701f:	48 63 f6             	movsxd rsi,esi
+  487022:	bf 00 00 00 00       	mov    edi,0x0
+  487027:	b8 01 00 00 00       	mov    eax,0x1
+  48702c:	48 c7 04 c1 00 00 00 	mov    QWORD PTR [rcx+rax*8],0x0
+  487033:	00 
+  487034:	48 89 c2             	mov    rdx,rax
+  487037:	48 83 c0 01          	add    rax,0x1
+  48703b:	48 39 f2             	cmp    rdx,rsi
+  48703e:	75 ec                	jne    48702c <get_irreps_+0x17a>
+  487040:	48 83 c7 01          	add    rdi,0x1
+  487044:	4c 01 c1             	add    rcx,r8
+  487047:	48 39 f7             	cmp    rdi,rsi
+  48704a:	75 db                	jne    487027 <get_irreps_+0x175>
+  48704c:	48 8d 94 24 20 48 00 	lea    rdx,[rsp+0x4820]
+  487053:	00 
+  487054:	48 8d b4 24 1c 48 00 	lea    rsi,[rsp+0x481c]
+  48705b:	00 
+  48705c:	48 8d bc 24 18 48 00 	lea    rdi,[rsp+0x4818]
+  487063:	00 
+  487064:	48 83 ec 08          	sub    rsp,0x8
+  487068:	41 56                	push   r14
+  48706a:	4c 8d 4c 24 20       	lea    r9,[rsp+0x20]
+  48706f:	4c 8d 84 24 48 48 00 	lea    r8,[rsp+0x4848]
+  487076:	00 
+  487077:	4c 89 e9             	mov    rcx,r13
+  48707a:	e8 f1 5b 02 00       	call   4acc70 <get_irrep4_>
+  48707f:	48 83 c4 10          	add    rsp,0x10
+  487083:	41 83 3e 00          	cmp    DWORD PTR [r14],0x0
+  487087:	75 7a                	jne    487103 <get_irreps_+0x251>
+  487089:	83 bc 24 18 48 00 00 	cmp    DWORD PTR [rsp+0x4818],0x1
+  487090:	01 
+  487091:	0f 84 c8 00 00 00    	je     48715f <get_irreps_+0x2ad>
+  487097:	85 ed                	test   ebp,ebp
+  487099:	7e 68                	jle    487103 <get_irreps_+0x251>
+  48709b:	48 8d 94 24 90 01 00 	lea    rdx,[rsp+0x190]
+  4870a2:	00 
+  4870a3:	49 c1 e4 03          	shl    r12,0x3
+  4870a7:	48 8b 84 24 80 48 00 	mov    rax,QWORD PTR [rsp+0x4880]
+  4870ae:	00 
+  4870af:	48 8d 48 f8          	lea    rcx,[rax-0x8]
+  4870b3:	45 0f be ff          	movsx  r15d,r15b
+  4870b7:	41 8d 47 ff          	lea    eax,[r15-0x1]
+  4870bb:	48 8d 04 40          	lea    rax,[rax+rax*2]
+  4870bf:	48 c1 e0 07          	shl    rax,0x7
+  4870c3:	48 8d b4 04 10 03 00 	lea    rsi,[rsp+rax*1+0x310]
+  4870ca:	00 
+  4870cb:	b8 01 00 00 00       	mov    eax,0x1
+  4870d0:	66 48 0f 6e c3       	movq   xmm0,rbx
+  4870d5:	f2 0f 59 84 c2 78 fe 	mulsd  xmm0,QWORD PTR [rdx+rax*8-0x188]
+  4870dc:	ff ff 
+  4870de:	f2 0f 11 04 c1       	movsd  QWORD PTR [rcx+rax*8],xmm0
+  4870e3:	48 83 c0 01          	add    rax,0x1
+  4870e7:	39 c5                	cmp    ebp,eax
+  4870e9:	7d e5                	jge    4870d0 <get_irreps_+0x21e>
+  4870eb:	48 81 c2 80 01 00 00 	add    rdx,0x180
+  4870f2:	4c 01 e1             	add    rcx,r12
+  4870f5:	48 39 f2             	cmp    rdx,rsi
+  4870f8:	75 d1                	jne    4870cb <get_irreps_+0x219>
+  4870fa:	eb 07                	jmp    487103 <get_irreps_+0x251>
+  4870fc:	41 c7 06 01 00 00 00 	mov    DWORD PTR [r14],0x1
+  487103:	48 81 c4 48 48 00 00 	add    rsp,0x4848
+  48710a:	5b                   	pop    rbx
+  48710b:	5d                   	pop    rbp
+  48710c:	41 5c                	pop    r12
+  48710e:	41 5d                	pop    r13
+  487110:	41 5e                	pop    r14
+  487112:	41 5f                	pop    r15
+  487114:	c3                   	ret
+  487115:	41 8b 07             	mov    eax,DWORD PTR [r15]
+  487118:	85 c0                	test   eax,eax
+  48711a:	74 31                	je     48714d <get_irreps_+0x29b>
+  48711c:	8d 50 ff             	lea    edx,[rax-0x1]
+  48711f:	81 fa a8 12 00 00    	cmp    edx,0x12a8
+  487125:	77 1d                	ja     487144 <get_irreps_+0x292>
+  487127:	48 98                	cdqe
+  487129:	48 8d 15 50 a9 a1 00 	lea    rdx,[rip+0xa1a950]        # ea1a80 <common_little_>
+  487130:	0f bf 84 42 e6 bf 2d 	movsx  eax,WORD PTR [rdx+rax*2+0x2dbfe6]
+  487137:	00 
+  487138:	89 84 24 1c 48 00 00 	mov    DWORD PTR [rsp+0x481c],eax
+  48713f:	e9 7c fe ff ff       	jmp    486fc0 <get_irreps_+0x10e>
+  487144:	41 c7 06 01 00 00 00 	mov    DWORD PTR [r14],0x1
+  48714b:	eb b6                	jmp    487103 <get_irreps_+0x251>
+  48714d:	41 c7 06 01 00 00 00 	mov    DWORD PTR [r14],0x1
+  487154:	eb ad                	jmp    487103 <get_irreps_+0x251>
+  487156:	41 c7 06 01 00 00 00 	mov    DWORD PTR [r14],0x1
+  48715d:	eb a4                	jmp    487103 <get_irreps_+0x251>
+  48715f:	66 48 0f 6e c3       	movq   xmm0,rbx
+  487164:	f2 0f 59 84 24 38 48 	mulsd  xmm0,QWORD PTR [rsp+0x4838]
+  48716b:	00 00 
+  48716d:	48 8b 44 24 08       	mov    rax,QWORD PTR [rsp+0x8]
+  487172:	f2 0f 11 00          	movsd  QWORD PTR [rax],xmm0
+  487176:	eb 8b                	jmp    487103 <get_irreps_+0x251>
+
+Disassembly of section __libc_freeres_fn:
+
+Disassembly of section .fini:

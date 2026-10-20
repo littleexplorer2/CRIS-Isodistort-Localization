@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "conversations_since_last_full_run": 7,
+  "history_before_initialization": "unknown",
+  "initialized_at": "2026-10-20T00:36:03.137096+08:00",
+  "counted_turn_ids": [
+    "41652e34-089c-4e1b-b4eb-9f6e60d88194",
+    "a30e146f-e17e-438e-934c-afcfb707f996",
+    "b96b7257-b71a-41d2-b1e1-1c09f8daf902",
+    "73441e2c-20b3-4188-82c4-85be96fcb534",
+    "639cd417-008f-4653-b4e4-5203c41d429a",
+    "f077cc61-2371-4094-b091-e02fb76ca98c",
+    "cfcdb746-38dd-4d82-a24d-6a14d6a5e395",
+    "c3f7a9e2-5b1d-4a86-9f2c-8d7e6b4a1f30",
+    "9b1e6d47-2c3a-4f58-8a71-6d0c2f4b7e15",
+    "79ca716f-7439-42ed-a804-931781b11947",
+    "b4a52129-b437-4414-af8b-4022fc0916d2",
+    "d39bb911-fbe4-4b9c-9ad6-e62ee0015f89"
+  ],
+  "last_counted_request": "核对第3/4项母相与B点参数冲突，登记第1/2/5/6项新列表并修正下载说明",
+  "last_prompt": null,
+  "last_choice": null,
+  "last_full_run": null,
+  "manual_resets": [
+    {
+      "turn_id": "639cd417-008f-4653-b4e4-5203c41d429a",
+      "at": "2026-10-20T17:58:47.7620242+08:00",
+      "reason": "Explicit user-requested counter reset; no full verification was authorized or executed",
+      "count_before_turn": 4,
+      "count_after_registration": 5,
+      "count_after_reset": 0,
+      "full_run_executed": false,
+      "pending_prompt_cleared": true
+    }
+  ],
+  "current_turn_validation_policy": {
+    "recorded_at": "2026-10-20T21:13:28.3770580+08:00",
+    "full_regression": "not_run_prior_explicit_user_decline",
+    "turn_id": "d39bb911-fbe4-4b9c-9ad6-e62ee0015f89",
+    "targeted_checks": "official metadata and parent/query context audit"
+  },
+  "pending_prompt": {
+    "threshold_reached": true,
+    "status": "suppressed_by_explicit_user_no_full_regression",
+    "turn_id": "d39bb911-fbe4-4b9c-9ad6-e62ee0015f89"
+  }
+}

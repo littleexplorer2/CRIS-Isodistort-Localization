@@ -1,0 +1,235 @@
+
+void orderparam_to_subgroup_
+               (int *param_1,undefined8 param_2,long param_3,int *param_4,undefined4 *param_5,
+               int *param_6,long param_7)
+
+{
+  int iVar1;
+  int iVar2;
+  int iVar3;
+  ulong uVar4;
+  long lVar5;
+  long lVar6;
+  ulong uVar7;
+  size_t sVar8;
+  undefined1 *puVar9;
+  void *pvVar10;
+  int iVar11;
+  size_t __size;
+  undefined1 *__size_00;
+  int iVar12;
+  undefined4 *local_4eb0;
+  int local_4ea8;
+  int local_4ea4;
+  void *local_4ea0;
+  int local_4e94;
+  long local_4e90;
+  int local_4e88;
+  undefined1 local_4e68 [18432];
+  undefined8 local_668 [47];
+  undefined4 uStack_4ec;
+  undefined1 local_4e8 [4];
+  uint local_4e4;
+  int local_4e0;
+  int local_4dc;
+  undefined4 local_4d8 [240];
+  undefined4 local_118 [5];
+  int local_104;
+  int local_100;
+  int local_fc;
+  undefined1 local_f8 [48];
+  undefined1 local_c8 [48];
+  undefined1 local_98 [48];
+  undefined4 local_68;
+  undefined4 local_64;
+  undefined4 local_60;
+  undefined4 local_5c;
+  undefined4 local_58;
+  undefined4 local_54;
+  undefined4 local_50;
+  undefined4 local_4c;
+  undefined4 local_48;
+  
+  local_4e0 = (int)*(short *)(common_little_ + (long)*param_1 * 2 + 0x2d6f6e);
+  generate_space_group_(&local_4e0,&local_4dc,local_4d8);
+  local_4e4 = (uint)(char)common_little_[(long)*param_1 + 0x369af7];
+  iVar1 = *param_4;
+  if (iVar1 < 1) {
+    local_4ea0 = (void *)0x0;
+  }
+  else {
+    local_4ea0 = (void *)0x0;
+    local_4e94 = 1;
+    do {
+      local_4e90 = param_3 + 0x180;
+      if (0 < (int)local_4e4) {
+        uVar7 = (ulong)local_4e4;
+        uVar4 = 0;
+        do {
+          local_668[uVar4] = *(undefined8 *)(param_3 + uVar4 * 8);
+          uVar4 = uVar4 + 1;
+        } while (uVar4 != uVar7);
+      }
+      if (local_4e94 == 1) {
+        newlat_order_(param_1,param_2,local_668,&DAT_005af834,&local_68);
+        local_4e88 = ndet_(&local_68);
+        sVar8 = 0;
+        if (0 < local_4e88) {
+          iVar3 = 0;
+          if (-1 < local_4e88) {
+            iVar3 = local_4e88;
+          }
+          sVar8 = (long)iVar3 << 4;
+        }
+        if (local_4ea0 != (void *)0x0) {
+          _gfortran_runtime_error_at
+                    ("At line 48 of file ../source/orderparam_to_subgroup.f",
+                     "Attempting to allocate already allocated variable \'%s\'","ifract");
+LAB_0049e417:
+                    /* WARNING: Subroutine does not return */
+          _gfortran_os_error_at
+                    ("In file \'../source/orderparam_to_subgroup.f\', around line 49",
+                     "Error allocating %lu bytes",sVar8);
+        }
+        __size = 1;
+        if (sVar8 != 0) {
+          __size = sVar8;
+        }
+        local_4ea0 = malloc(__size);
+        if (local_4ea0 == (void *)0x0) goto LAB_0049e417;
+        get_new_fractionals_(&local_68,&local_104,local_4ea0);
+      }
+      else {
+        newlat_order3_(param_1,param_2,local_668,&DAT_005af834,&local_68,local_c8);
+        matinv_(&local_68,local_98,&local_fc);
+        puVar9 = local_f8;
+        matmlt_(local_98,local_c8,puVar9);
+        reduc3_(puVar9,&local_fc);
+        if (local_fc != 1) {
+          bomb2_("orderparam_to_subgroup 58",0x19);
+        }
+        iVar3 = ndet_(local_f8);
+        if (local_4e88 < iVar3) {
+          if (local_4ea0 == (void *)0x0) {
+            _gfortran_runtime_error_at
+                      ("At line 61 of file ../source/orderparam_to_subgroup.f",
+                       "Attempt to DEALLOCATE unallocated \'%s\'","ifract");
+LAB_0049e462:
+                    /* WARNING: Subroutine does not return */
+            _gfortran_os_error_at
+                      ("In file \'../source/orderparam_to_subgroup.f\', around line 64",
+                       "Error allocating %lu bytes",puVar9);
+          }
+          free(local_4ea0);
+          puVar9 = (undefined1 *)0x0;
+          if (0 < iVar3) {
+            iVar11 = 0;
+            if (-1 < iVar3) {
+              iVar11 = iVar3;
+            }
+            puVar9 = (undefined1 *)((long)iVar11 << 4);
+          }
+          __size_00 = (undefined1 *)0x1;
+          if (puVar9 != (undefined1 *)0x0) {
+            __size_00 = puVar9;
+          }
+          local_4ea0 = malloc((size_t)__size_00);
+          local_4e88 = iVar3;
+          if (local_4ea0 == (void *)0x0) goto LAB_0049e462;
+        }
+        get_new_fractionals_(local_f8,&local_104,local_4ea0);
+        iVar3 = local_104;
+        if (0 < local_104) {
+          iVar11 = 1;
+          pvVar10 = local_4ea0;
+          do {
+            vmlt_(&local_68,pvVar10,pvVar10);
+            reduc2_(pvVar10);
+            iVar11 = iVar11 + 1;
+            pvVar10 = (void *)((long)pvVar10 + 0x10);
+          } while (iVar11 <= iVar3);
+        }
+        matmlt_(&local_68,local_f8,&local_68);
+      }
+      iVar3 = local_4dc;
+      if (local_4dc < 1) {
+        local_4ea4 = 0;
+      }
+      else {
+        local_4eb0 = local_4d8;
+        local_4ea4 = 0;
+        local_4ea8 = 1;
+        do {
+          iVar11 = local_104;
+          local_118[4] = local_4eb0[4];
+          if (0 < local_104) {
+            iVar12 = 1;
+            pvVar10 = local_4ea0;
+LAB_0049e4ba:
+            vadd_(pvVar10,local_4eb0,local_118);
+            get_irreps_(&DAT_005af83c,param_1,&DAT_005af838,local_118,param_2,local_4e8,local_4e68,
+                        &DAT_005af840,&local_100);
+            if (local_100 != 0) {
+              bomb2_("orderparam_to_subgroup 81",0x19);
+            }
+            iVar2 = orderparam_check_(&local_4e4,&DAT_005af834,local_4e68,local_668);
+            if (iVar2 == 0) goto code_r0x0049e4a9;
+            local_4ea4 = local_4ea4 + 1;
+            lVar6 = 0;
+            do {
+              *(undefined4 *)((long)&uStack_4ec + lVar6 + (long)local_4ea4 * 0x14) =
+                   *(undefined4 *)((long)local_118 + lVar6);
+              lVar6 = lVar6 + 4;
+            } while (lVar6 != 0x14);
+          }
+LAB_0049e563:
+          local_4ea8 = local_4ea8 + 1;
+          local_4eb0 = local_4eb0 + 5;
+        } while (local_4ea8 <= iVar3);
+      }
+      local_4dc = local_4ea4;
+      local_4e94 = local_4e94 + 1;
+      param_3 = local_4e90;
+    } while (local_4e94 <= iVar1);
+  }
+  *param_6 = local_4dc;
+  if (0 < local_4dc) {
+    lVar6 = 0x14;
+    do {
+      lVar5 = lVar6 + -0x14;
+      do {
+        *(undefined4 *)(param_7 + lVar5) = *(undefined4 *)((long)local_4d8 + lVar5);
+        lVar5 = lVar5 + 4;
+      } while (lVar5 != lVar6);
+      lVar6 = lVar6 + 0x14;
+    } while (lVar6 != (ulong)(local_4dc - 1) * 0x14 + 0x28);
+  }
+  *param_5 = local_68;
+  param_5[1] = local_64;
+  param_5[2] = local_60;
+  param_5[3] = local_5c;
+  param_5[4] = local_58;
+  param_5[5] = local_54;
+  param_5[6] = local_50;
+  param_5[7] = local_4c;
+  param_5[8] = local_48;
+  if (0 < *param_4) {
+    if (local_4ea0 != (void *)0x0) {
+      free(local_4ea0);
+      return;
+    }
+    _gfortran_runtime_error_at
+              ("At line 109 of file ../source/orderparam_to_subgroup.f",
+               "Attempt to DEALLOCATE unallocated \'%s\'","ifract");
+  }
+  if (local_4ea0 != (void *)0x0) {
+    free(local_4ea0);
+  }
+  return;
+code_r0x0049e4a9:
+  iVar12 = iVar12 + 1;
+  pvVar10 = (void *)((long)pvVar10 + 0x10);
+  if (iVar11 < iVar12) goto LAB_0049e563;
+  goto LAB_0049e4ba;
+}
+

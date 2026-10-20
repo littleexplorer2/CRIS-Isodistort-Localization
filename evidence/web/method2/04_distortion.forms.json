@@ -1,0 +1,735 @@
+[
+  {
+    "attributes": {
+      "action": "isodistortform.php",
+      "method": "POST",
+      "target": "_blank"
+    },
+    "inputs": [
+      {
+        "type": "hidden",
+        "name": "input",
+        "value": "displaydistort"
+      },
+      {
+        "type": "hidden",
+        "name": "spacegroup",
+        "value": "221 Pm-3m      Oh-1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesm",
+        "value": "a(b)c               "
+      },
+      {
+        "type": "hidden",
+        "name": "settingcell",
+        "value": "1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingorigin",
+        "value": "2"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesh",
+        "value": "h"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxeso",
+        "value": "abc                 "
+      },
+      {
+        "type": "hidden",
+        "name": "settingssg",
+        "value": "standard"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsetting",
+        "value": "323"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsettingstring",
+        "value": ""
+      },
+      {
+        "type": "hidden",
+        "name": "lattparam",
+        "value": "a=4.2"
+      },
+      {
+        "type": "hidden",
+        "name": "dlattparam",
+        "value": "   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wycount",
+        "value": "  3"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer001",
+        "value": "1627"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber001",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype001",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff001",
+        "value": "1b (1/2,1/2,1/2)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam001",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc001",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer002",
+        "value": "1626"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber002",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype002",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff002",
+        "value": "1a (0,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam002",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc002",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer003",
+        "value": "1629"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber003",
+        "value": " 4"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype003",
+        "value": " 3"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff003",
+        "value": "3d (1/2,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam003",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc003",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive001",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive002",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive003",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includestrain",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "irrepcount",
+        "value": "1"
+      },
+      {
+        "type": "hidden",
+        "name": "kvec1",
+        "value": "GM, k12 (0,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "kvecnumber1",
+        "value": "  1"
+      },
+      {
+        "type": "hidden",
+        "name": "kparam1",
+        "value": "    0    0    0    1"
+      },
+      {
+        "type": "hidden",
+        "name": "nmodstar1",
+        "value": "0"
+      },
+      {
+        "type": "hidden",
+        "name": "irrep1",
+        "value": "GM4-, k12t10"
+      },
+      {
+        "type": "hidden",
+        "name": "irrpointer1",
+        "value": " 9790"
+      },
+      {
+        "type": "hidden",
+        "name": "isofilename",
+        "value": "            "
+      },
+      {
+        "type": "hidden",
+        "name": "orderparam",
+        "value": "P1      (a,0,0)  99 P4mm, basis={(0,1,0),(0,0,1),(1,0,0)}, origin=(0,0,0), s=1, i=6, k-active= (0,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "isosubgroup",
+        "value": "12414"
+      },
+      {
+        "type": "hidden",
+        "name": "subgroupsym",
+        "value": "    99"
+      },
+      {
+        "type": "hidden",
+        "name": "subgroupsetting",
+        "value": " 172"
+      },
+      {
+        "type": "hidden",
+        "name": "subgroupsettingstring",
+        "value": ""
+      },
+      {
+        "type": "hidden",
+        "name": "modesfilename",
+        "value": "isodistort_64169.iso "
+      },
+      {
+        "type": "hidden",
+        "name": "atomsfilename",
+        "value": "                     "
+      },
+      {
+        "type": "hidden",
+        "name": "lattparamsubstring",
+        "value": "a=4.20000, b=4.20000, c=4.20000, alpha=90.00000, beta=90.00000, gamma=90.00000"
+      },
+      {
+        "type": "button",
+        "name": "appbtn",
+        "value": "interactive viewer",
+        "onclick": "clickIsoDistort()"
+      },
+      {
+        "style": "display:none",
+        "type": "radio",
+        "name": "origintype"
+      },
+      {
+        "type": "radio",
+        "name": "origintype",
+        "value": "isovizdistortion",
+        "checked": null
+      },
+      {
+        "type": "radio",
+        "name": "origintype",
+        "value": "isovizdiffraction"
+      },
+      {
+        "type": "radio",
+        "name": "origintype",
+        "value": "structurefile"
+      },
+      {
+        "type": "radio",
+        "name": "origintype",
+        "value": "distortionfile"
+      },
+      {
+        "type": "radio",
+        "name": "origintype",
+        "value": "domains"
+      },
+      {
+        "type": "radio",
+        "name": "origintype",
+        "value": "primary"
+      },
+      {
+        "type": "radio",
+        "name": "origintype",
+        "value": "modesdetails"
+      },
+      {
+        "type": "radio",
+        "name": "origintype",
+        "value": "completemodesdetails"
+      },
+      {
+        "type": "radio",
+        "name": "origintype",
+        "value": "topas"
+      },
+      {
+        "type": "radio",
+        "name": "origintype",
+        "value": "fullprof"
+      },
+      {
+        "type": "radio",
+        "name": "origintype",
+        "value": "irreps"
+      },
+      {
+        "type": "radio",
+        "name": "origintype",
+        "value": "tree"
+      },
+      {
+        "class": "btn btn-primary",
+        "type": "submit",
+        "value": "OK"
+      },
+      {
+        "type": "hidden",
+        "name": "inputvalues",
+        "value": "false"
+      },
+      {
+        "type": "text",
+        "name": "mode001001",
+        "class": "span1",
+        "value": "0",
+        "size": "9"
+      },
+      {
+        "type": "text",
+        "name": "mode002001",
+        "class": "span1",
+        "value": "0",
+        "size": "9"
+      },
+      {
+        "type": "text",
+        "name": "mode003001",
+        "class": "span1",
+        "value": "0",
+        "size": "9"
+      },
+      {
+        "type": "text",
+        "name": "mode003002",
+        "class": "span1",
+        "value": "0",
+        "size": "9"
+      },
+      {
+        "type": "text",
+        "name": "strain1",
+        "class": "span1",
+        "value": "0",
+        "size": "9"
+      },
+      {
+        "type": "text",
+        "name": "strain2",
+        "class": "span1",
+        "value": "0",
+        "size": "9"
+      },
+      {
+        "type": "checkbox",
+        "name": "zeromodes",
+        "value": "true"
+      },
+      {
+        "type": "text",
+        "name": "atomicradius",
+        "value": "0.4",
+        "class": "span1",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "name": "bondlengthmin",
+        "value": "0.00",
+        "class": "span1",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "name": "bondlength",
+        "value": "2.50",
+        "class": "span1",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "name": "appletwidth",
+        "value": "1024",
+        "class": "span1",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "class": "span1",
+        "name": "supercellxmin",
+        "value": "0.000",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "class": "span1",
+        "name": "supercellxmax",
+        "value": "1.000",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "class": "span1",
+        "name": "supercellymin",
+        "value": "0.000",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "class": "span1",
+        "name": "supercellymax",
+        "value": "1.000",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "class": "span1",
+        "name": "supercellzmin",
+        "value": "0.000",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "class": "span1",
+        "name": "supercellzmax",
+        "value": "1.000",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "name": "modeamplitude",
+        "value": "1.0",
+        "class": "span1",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "name": "strainamplitude",
+        "value": "0.1",
+        "class": "span1",
+        "size": "5"
+      },
+      {
+        "type": "checkbox",
+        "name": "topasstrain",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "treetopas",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "treecif",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "nonstandardsetting",
+        "value": "true"
+      },
+      {
+        "type": "radio",
+        "name": "settingwrt",
+        "value": "parent",
+        "checked": null
+      },
+      {
+        "type": "radio",
+        "name": "settingwrt",
+        "value": "subgroup"
+      },
+      {
+        "type": "text",
+        "name": "basist11",
+        "class": "span1",
+        "size": "3",
+        "value": "1 "
+      },
+      {
+        "type": "text",
+        "name": "basist12",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "basist13",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "basist21",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "basist22",
+        "class": "span1",
+        "size": "3",
+        "value": "1 "
+      },
+      {
+        "type": "text",
+        "name": "basist23",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "basist31",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "basist32",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "basist33",
+        "class": "span1",
+        "size": "3",
+        "value": "1 "
+      },
+      {
+        "type": "text",
+        "name": "origint1",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "origint2",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "origint3",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "checkbox",
+        "name": "cifmovie",
+        "value": "true"
+      },
+      {
+        "type": "radio",
+        "name": "cifmoviezip",
+        "value": "true",
+        "checked": null
+      },
+      {
+        "type": "radio",
+        "name": "cifmoviezip",
+        "value": "false"
+      },
+      {
+        "type": "text",
+        "class": "span1",
+        "name": "ampmincifmovie",
+        "value": "0",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "class": "span1",
+        "name": "ampmaxcifmovie",
+        "value": "1",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "class": "span1",
+        "name": "nframescifmovie",
+        "value": "10",
+        "size": "5"
+      },
+      {
+        "type": "radio",
+        "name": "varcifmovie",
+        "value": "linear",
+        "checked": null
+      },
+      {
+        "type": "radio",
+        "name": "varcifmovie",
+        "value": "sine"
+      },
+      {
+        "type": "text",
+        "class": "span1",
+        "name": "periodscifmovie",
+        "value": "1",
+        "size": "5"
+      }
+    ],
+    "selects": [
+      {
+        "name": "cifdec",
+        "class": "span1",
+        "options": [
+          {
+            "value": " 5",
+            "text": " 5"
+          },
+          {
+            "value": " 6",
+            "text": " 6"
+          },
+          {
+            "value": " 7",
+            "text": " 7"
+          },
+          {
+            "value": " 8",
+            "text": " 8"
+          },
+          {
+            "value": " 9",
+            "text": " 9"
+          },
+          {
+            "value": "10",
+            "text": "10"
+          },
+          {
+            "value": "11",
+            "text": "11"
+          },
+          {
+            "value": "12",
+            "text": "12"
+          },
+          {
+            "value": "13",
+            "text": "13"
+          },
+          {
+            "value": "14",
+            "text": "14"
+          },
+          {
+            "value": "15",
+            "text": "15"
+          },
+          {
+            "value": "16",
+            "text": "16"
+          }
+        ]
+      }
+    ]
+  }
+]

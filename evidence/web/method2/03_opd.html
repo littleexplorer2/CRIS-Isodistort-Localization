@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<HEAD>
+<meta charset="utf-8">
+<TITLE>ISODISTORT: order parameter direction</TITLE>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="stylesheet" href="bootstrap.css">
+<link rel="stylesheet" href="docs.css">
+<style>
+  body {
+	padding-top: 0px;
+  }
+  div.pad {
+	padding-right: 50px;
+	padding-left: 50px;
+  }
+</style>
+</HEAD>
+<body>
+<div class="navbar navbar-static-top">
+  <div class="navbar-inner">
+     <div class="container">
+       <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+	 <span class="icon-bar"></span>
+       </a>
+       <a class="brand" href="isodistort.php">ISODISTORT</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+         <li><a href="isotropy.php">SUITE</a></li>
+                   <li><a href="isodistorthelp.php" TARGET="_blank">HELP</a></li>
+	         </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="pad">
+<H1>ISODISTORT: order parameter direction</H1><p>
+Space Group: 221 Pm-3m      Oh-1,
+Lattice parameters: a=4.2<br>
+Default space-group preferences: monoclinic axes a(b)c, monoclinic cell choice 1, orthorhombic axes abc, origin choice 2, hexagonal axes, SSG standard setting<br>
+Sr 1b (1/2,1/2,1/2),
+Ti 1a (0,0,0),
+O 3d (1/2,0,0)<br>
+Include strain, displacive ALL distortions<br>
+k point: GM, k12 (0,0,0)<br>
+IR: GM4-, k12t10<br>
+<FORM ACTION="isodistortform.php" METHOD="POST" target="_blank">
+<INPUT TYPE="hidden" NAME="input" VALUE="distort">
+<INPUT TYPE="hidden" NAME="origintype" VALUE="method2">
+<INPUT TYPE="hidden" NAME="spacegroup" VALUE="221 Pm-3m      Oh-1">
+<INPUT TYPE="hidden" NAME="settingaxesm" VALUE="a(b)c               ">
+<INPUT TYPE="hidden" NAME="settingcell" VALUE="1">
+<INPUT TYPE="hidden" NAME="settingorigin" VALUE="2">
+<INPUT TYPE="hidden" NAME="settingaxesh" VALUE="h">
+<INPUT TYPE="hidden" NAME="settingaxeso" VALUE="abc                 ">
+<INPUT TYPE="hidden" NAME="settingssg" VALUE="standard">
+<INPUT TYPE="hidden" NAME="parentsetting" VALUE="323">
+<INPUT TYPE="hidden" NAME="parentsettingstring" VALUE="">
+<INPUT TYPE="hidden" NAME="lattparam" VALUE="a=4.2">
+<INPUT TYPE="hidden" NAME="dlattparam" VALUE="   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000">
+<INPUT TYPE="hidden" NAME="wycount" VALUE="  3">
+<INPUT TYPE="hidden" NAME="wypointer001" VALUE="1627">
+<INPUT TYPE="hidden" NAME="wynumber001" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wytype001" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wyckoff001" VALUE="1b (1/2,1/2,1/2)">
+<INPUT TYPE="hidden" NAME="wyatom001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyatomtype001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyparam001" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc001" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer002" VALUE="1626">
+<INPUT TYPE="hidden" NAME="wynumber002" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wytype002" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wyckoff002" VALUE="1a (0,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyatomtype002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyparam002" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc002" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer003" VALUE="1629">
+<INPUT TYPE="hidden" NAME="wynumber003" VALUE=" 4">
+<INPUT TYPE="hidden" NAME="wytype003" VALUE=" 3">
+<INPUT TYPE="hidden" NAME="wyckoff003" VALUE="3d (1/2,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyatomtype003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyparam003" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc003" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="includedisplacive001" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive002" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive003" VALUE="true">
+<INPUT TYPE="hidden" NAME="includestrain" VALUE="true">
+<INPUT TYPE="hidden" NAME="irrepcount" VALUE="1">
+<INPUT TYPE="hidden" NAME="kvec1" VALUE="GM, k12 (0,0,0)">
+<INPUT TYPE="hidden" NAME="kvecnumber1" VALUE="  1">
+<INPUT TYPE="hidden" NAME="kparam1" VALUE="    0    0    0    1">
+<INPUT TYPE="hidden" NAME="nmodstar1" VALUE="0">
+<INPUT TYPE="hidden" NAME="irrep1" VALUE="GM4-, k12t10">
+<INPUT TYPE="hidden" NAME="irrpointer1" VALUE=" 9790">
+<br>Finish selecting the distortion mode by choosing an order parameter direction
+<a href="isodistorthelp.php#orderparam" target="_blank"><img src=help.jpg></a><br>
+<INPUT TYPE="RADIO" NAME="orderparam" VALUE="12414    99 *P1      (a,0,0)  99 P4mm, basis={(0,1,0),(0,0,1),(1,0,0)}, origin=(0,0,0), s=1, i=6, k-active= (0,0,0)" CHECKED>P1      (a,0,0)  99 P4mm, basis={(0,1,0),(0,0,1),(1,0,0)}, origin=(0,0,0), s=1, i=6, k-active= (0,0,0)<BR>
+<INPUT TYPE="RADIO" NAME="orderparam" VALUE="12415    38 *P2      (a,a,0)  38 Amm2, basis={(0,0,1),(-1,1,0),(-1,-1,0)}, origin=(0,0,0), s=1, i=12, k-active= (0,0,0)"        >P2      (a,a,0)  38 Amm2, basis={(0,0,1),(-1,1,0),(-1,-1,0)}, origin=(0,0,0), s=1, i=12, k-active= (0,0,0)<BR>
+<INPUT TYPE="RADIO" NAME="orderparam" VALUE="12413   160 *P3      (a,a,a) 160 R3m, basis={(-1,0,1),(0,1,-1),(-1,-1,-1)}, origin=(0,0,0), s=1, i=8, k-active= (0,0,0)"        >P3      (a,a,a) 160 R3m, basis={(-1,0,1),(0,1,-1),(-1,-1,-1)}, origin=(0,0,0), s=1, i=8, k-active= (0,0,0)<BR>
+<INPUT TYPE="RADIO" NAME="orderparam" VALUE="12417     6 *C1      (a,b,0)   6 Pm, basis={(-1,0,0),(0,0,1),(0,1,0)}, origin=(0,0,0), s=1, i=24, k-active= (0,0,0)"        >C1      (a,b,0)   6 Pm, basis={(-1,0,0),(0,0,1),(0,1,0)}, origin=(0,0,0), s=1, i=24, k-active= (0,0,0)<BR>
+<INPUT TYPE="RADIO" NAME="orderparam" VALUE="12416     8 *C2      (a,a,b)   8 Cm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0), s=1, i=24, k-active= (0,0,0)"        >C2      (a,a,b)   8 Cm, basis={(1,1,0),(-1,1,0),(0,0,1)}, origin=(0,0,0), s=1, i=24, k-active= (0,0,0)<BR>
+<INPUT TYPE="RADIO" NAME="orderparam" VALUE="12418     1 *S1      (a,b,c)   1 P1, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(0,0,0), s=1, i=48, k-active= (0,0,0)"        >S1      (a,b,c)   1 P1, basis={(1,0,0),(0,1,0),(0,0,1)}, origin=(0,0,0), s=1, i=48, k-active= (0,0,0)<BR>
+<INPUT TYPE="hidden" NAME="isofilename" VALUE="            ">
+<INPUT CLASS="btn btn-primary" TYPE="submit" VALUE="OK"> <P>
+</FORM>
+</div>
+<script src="swingjs/swingjs2.js"></script>
+<script src="isodistort.js"></script>
+</BODY>
+</HTML>

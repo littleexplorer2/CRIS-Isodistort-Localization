@@ -1,0 +1,52 @@
+
+vendor/isobyu/iso:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+Disassembly of section .plt:
+
+Disassembly of section .text:
+
+000000000048530e <generate_space_group_>:
+  48530e:	49 89 f0             	mov    r8,rsi
+  485311:	48 63 3f             	movsxd rdi,DWORD PTR [rdi]
+  485314:	48 8d 0d e5 da 98 00 	lea    rcx,[rip+0x98dae5]        # e12e00 <common_space_>
+  48531b:	48 0f be 84 39 fd 1e 	movsx  rax,BYTE PTR [rcx+rdi*1+0x61efd]
+  485322:	06 00 
+  485324:	0f b6 84 01 e9 1a 06 	movzx  eax,BYTE PTR [rcx+rax*1+0x61ae9]
+  48532b:	00 
+  48532c:	0f be f0             	movsx  esi,al
+  48532f:	41 89 30             	mov    DWORD PTR [r8],esi
+  485332:	0f b7 8c 79 0a e7 05 	movzx  ecx,WORD PTR [rcx+rdi*2+0x5e70a]
+  485339:	00 
+  48533a:	85 f6                	test   esi,esi
+  48533c:	7e 56                	jle    485394 <generate_space_group_+0x86>
+  48533e:	48 0f bf c9          	movsx  rcx,cx
+  485342:	48 8d 34 89          	lea    rsi,[rcx+rcx*4]
+  485346:	48 8d 0d b3 da 98 00 	lea    rcx,[rip+0x98dab3]        # e12e00 <common_space_>
+  48534d:	48 01 ce             	add    rsi,rcx
+  485350:	48 8d 4a 14          	lea    rcx,[rdx+0x14]
+  485354:	0f be c0             	movsx  eax,al
+  485357:	8d 40 ff             	lea    eax,[rax-0x1]
+  48535a:	4c 8d 44 80 0a       	lea    r8,[rax+rax*4+0xa]
+  48535f:	bf 05 00 00 00       	mov    edi,0x5
+  485364:	eb 11                	jmp    485377 <generate_space_group_+0x69>
+  485366:	48 83 c6 05          	add    rsi,0x5
+  48536a:	48 83 c7 05          	add    rdi,0x5
+  48536e:	48 83 c1 14          	add    rcx,0x14
+  485372:	4c 39 c7             	cmp    rdi,r8
+  485375:	74 1d                	je     485394 <generate_space_group_+0x86>
+  485377:	b8 00 00 00 00       	mov    eax,0x0
+  48537c:	0f be 94 06 c5 20 06 	movsx  edx,BYTE PTR [rsi+rax*1+0x620c5]
+  485383:	00 
+  485384:	89 54 81 ec          	mov    DWORD PTR [rcx+rax*4-0x14],edx
+  485388:	48 83 c0 01          	add    rax,0x1
+  48538c:	48 83 f8 05          	cmp    rax,0x5
+  485390:	75 ea                	jne    48537c <generate_space_group_+0x6e>
+  485392:	eb d2                	jmp    485366 <generate_space_group_+0x58>
+  485394:	c3                   	ret
+
+Disassembly of section __libc_freeres_fn:
+
+Disassembly of section .fini:

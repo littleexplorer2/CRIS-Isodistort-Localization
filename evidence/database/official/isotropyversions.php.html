@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<HEAD>
+<meta charset="utf-8">
+<TITLE>ISOTROPY versions</TITLE>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="stylesheet" href="bootstrap.css">
+<link rel="stylesheet" href="docs.css">
+<style>
+  body {
+	padding-top: 0px;
+  }
+  div.pad {
+	padding-right: 50px;
+	padding-left: 50px;
+  }
+</style>
+</HEAD>
+<body>
+<div class="navbar navbar-static-top">
+  <div class="navbar-inner">
+     <div class="container">
+       <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+	 <span class="icon-bar"></span>
+       </a>
+       <a class="brand" href="isowww.php">ISOTROPY</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+         <li><a href="isotropy.php">SUITE</a></li>
+                   <li><a href="isotropy_doc.php" TARGET="_blank">HELP</a></li>
+	         </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="pad">
+
+<H1>ISOTROPY</H1>
+
+<h2>Version History</h2>
+
+<p>Jan 2022, version 9.6.1.  Implemented Kovalev IR symbols
+for all IRs.
+
+<p>Jan 2022, version 9.6.  Implemented UNI (unified) symbols for
+magnetic space groups.
+
+<p>Sep 2021, version 9.5. (1) Removed superspace groups.  ISOTROPY was using
+out-of-date and incomplete data for (3+1)-dimensional superspace groups.
+We removed the feature rather than updated it.  For superspace isotropy
+subgroups, use ISOSUBGROUP.  (2) Removed access to old version of irreps.
+(3) Changed the default domain for many of the isotropy subgroups using
+irreps at special k points.
+
+<p>July 2020, version 9.4.2. Minor bug fixes.
+
+<p>December 2015, version 9.4.1.  Fixed bug involvin domains with space
+groups 152 and 154.
+
+<p>October 2015, version 9.4.  Minor bug fixes.  Disabled SHOW DIM in
+DISPLAY INVARIANTS for coupled irreps.
+
+<p>June 2013, version 9.3.1.  The new 2011 version of irrep matrices
+are now the default version.  
+
+<p>January 2013, version 9.3.  Added commands DISPLAY SETTING IRREP,
+VALUE IRREP VERSION and
+VALUE IRREP MAGNETIC.  Also corrected some errors.<p>
+
+Sep 2011, version 9.2.  Corrected some errors.<p>
+
+May 2009, version 9.1.  Added IT setting for magnetic space groups
+and also corrected some errors in the magnetic isotropy subgroups.<p>
+
+August 2007, version 9.0.  Added superspace groups and incommensurate
+structures.<p>
+
+June 2006, version 8.5.  Fixed minor bugs.<p>
+
+March 2006,version 8.4.  Fixed some minor bugs concerning coupled
+irreps.<p>
+
+February 2006, ersion 8.3.  Fixed some minor bugs.  Also fixed
+a major bug affecting the calculation of isotropy subgroups for coupled
+irreps where the second (or third or fourth, etc.) irrep belongs to a
+non k point of symmetry (non special k point).<p>
+
+January 2006, version 8.2.  Fixed incorrect ferroics types for some
+cases in the cubic space groups.<p>
+
+July 2005, version 8.1.  Added monoclinic and orthorhomic 
+settings.<p>
+
+March 2004, version 8.0.4.  Fixed various minor bugs.<p>
+
+July 2002, version 8.0.1.  Fixed bug in show macroscopic for
+hexagonal groups. Bug introduced in version 7.0.<P>
+
+July 2002, version 8.0. Added domain sets capability.<P>
+
+March 2002, version 7.0.  Changed all 8-byte real numbers to
+16-byte real numbers.  This should make no difference in the output.<P>
+
+August 2001, version 6.7.  Added show subgroup and show size
+commands to display direction.<P>
+
+July 2001, ersion 6.6.  Added option to obtain maximal subgroups
+and minimal supergroups.<P>
+
+September 2000, version 6.5.  Fixed some minor bugs.<P>
+
+August 2000, ersion 6.4.2.  Fixed some minor bugs.<P>
+
+June 2000, version 6.4.  Expanded to include ferroic nature
+of phase transitions.<P>
+March 2000, ISOTROPY, version 6.3.4.  Fixed some minor bugs.<P>
+
+February 2000, version 6.3.2.  Expanded various routines to
+include irreps at non k points of symmetry.<P>
+
+October 1999. Tutorials: Wrote Session 6 on domains
+and updated the other sessions to reflect changes made in more recent
+versions of ISOTROPY.
+<P>
+
+October 1999, version 6.3.1.  Fixed minor bug introduced in
+last version.  Implemented Smith normal form in the method for
+identifying space group symmetry of subgroup. <P>
+
+September 1999, version 6.3.  Coupled order parameters can now be
+generated for irreps at non-k-points of symmetry ("displace isotropy coupled").
+<P>
+
+August 1999, version 6.2.1.  Fixed bug in "show subgroup alternate" 
+command.
+<P>
+
+August 1999, version 6.2.  Added "show subgroup alternate" command.
+<P>
+
+
+August 1999, ISOTROPY, version 6.1.1.  Fixed bug in "value direction" command.
+Also improved routine for generating isotropy subgroups at non k points of symmetry.
+<P>
+
+June 1999, ISOTROPY, version 6.1.  Fixed some minor bugs.  File affected:
+iso.exe.<P>
+
+February 1999, ISOTROPY, version 6.0.3.  Fixed some minor bugs and some
+incorect generators for three point groups in the data base.  Files affected:  iso.exe and
+d_space.bin.<P>
+
+January 1999, ISOTROPY, version 6.0.2.  Fixed some minor bugs and added
+some error messages.  Files affected:  iso.exe.<P>
+
+June 1998, ISOTROPY, version 6.0.1.  Fixed a bug in DISPLAY BUSH.  
+Files affected:  iso.exe.<P>
+
+March 1998, ISOTROPY, version 6.0.  Introduced new features, including the
+incorporation of GET_ISOTROPY, which used to be a separate program.  Also
+made a change in d_wyck.bin, the data base associated with Wyckoff positions.<P>
+
+February 1998, ISOTROPY, version 5.6.1.  Fixed some bugs in DISPLAY BUSH.
+Files affected:  iso.exe.<P>
+
+January 1998, ISOTROPY, version 5.6.  First version made available at this
+internet site.<P>
+
+</div>
+<script src="swingjs/swingjs2.js"></script>
+<script src="isodistort.js"></script>
+</BODY>
+</HTML>

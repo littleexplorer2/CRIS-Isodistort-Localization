@@ -1,0 +1,18 @@
+{
+  "status": "completed_uninterpreted",
+  "exit_code": 0,
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+  "command": [
+    "../isodata/iso"
+  ],
+  "cwd": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/8a69195a-4f22-4574-b980-451275c41fb5/work",
+  "isodata": "../isodata/",
+  "environment_overrides": {
+    "ISODATA": "../isodata/",
+    "TMPDIR": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/8a69195a-4f22-4574-b980-451275c41fb5/work",
+    "LC_ALL": "C"
+  },
+  "pid": 511,
+  "duration_seconds": 1.121439
+}

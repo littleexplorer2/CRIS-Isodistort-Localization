@@ -1,0 +1,24 @@
+{
+  "at_utc": "2026-10-20T14:19:33.051177+00:00",
+  "scope": "AST, local documentation links and frozen test-source/log fingerprints only; no scientific acceptance",
+  "python_files_parsed": 27,
+  "local_document_links_checked": 49,
+  "engineering_records": [
+    {
+      "record": "evidence\\validation\\20261020T135545223268Z-win32\\record.json",
+      "source_count": 14,
+      "changed_sources": [],
+      "logs_match": true,
+      "exit_code": 0
+    },
+    {
+      "record": "evidence\\validation\\20261020T135602600670Z-linux\\record.json",
+      "source_count": 14,
+      "changed_sources": [],
+      "logs_match": true,
+      "exit_code": 0
+    }
+  ],
+  "errors": [],
+  "previous_check": "deliverable-audit-in-progress.json ran before a parallel writer created its linked evidence ledger; link now checked again."
+}

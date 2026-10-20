@@ -1,0 +1,94 @@
+{
+  "created_utc": "2026-10-20T14:07:01.975757+00:00",
+  "frozen_before_execution": true,
+  "input": {
+    "path": "synthetic_p1.cif",
+    "bytes": 612,
+    "sha256": "5a55a8393ef7aa59b4d2e6fe4a8d59dd5433d3fff803e3a81b4429f7cb291690"
+  },
+  "origin": "Synthetic test created independently in this task; coordinates and cell parameters chosen explicitly, not copied or inferred from official results. This is not an experimental SiO material.",
+  "contract": "CIF with P1 and explicit identity symmetry -> official findsym_cifinput text -> official FINDSYM acceptance.",
+  "units": {
+    "length": "angstrom",
+    "angle": "degrees",
+    "positions": "dimensionless fractional coordinates of the declared cell"
+  },
+  "expected_scope": "Check converter preserves atom identities/count/positions/lattice and output is accepted by FINDSYM; not complete scientific validation.",
+  "source_code": {
+    "cris_rea/__init__.py": {
+      "bytes": 101,
+      "sha256": "e836f5d79c5ed1932608fd8ad0826fdbcef57a1d75fa074182a30bb8be3ea557"
+    },
+    "cris_rea/__main__.py": {
+      "bytes": 53,
+      "sha256": "6576ee3f162e194413661c9b79274cf1d1db2c3f57a7a325218a849a8859bf37"
+    },
+    "cris_rea/application/__init__.py": {
+      "bytes": 110,
+      "sha256": "74f2d27090d636457682ee21328c79ab3320d72fa2f17e121e7d036cae461351"
+    },
+    "cris_rea/application/service.py": {
+      "bytes": 2671,
+      "sha256": "6d2f8ef97f6932ad80ba54d2b595ece734c3182f04bf7d21e6a7c873af404672"
+    },
+    "cris_rea/backend/__init__.py": {
+      "bytes": 449,
+      "sha256": "2e53d8de15b5940a2778cc093a94b1fc541d0ce412435bf1c871d35fd9b6d4e2"
+    },
+    "cris_rea/backend/iso_query.py": {
+      "bytes": 1662,
+      "sha256": "24129de4b16b2d723b5563af4e1b628d1249b22aebf2be953983eeffd794be67"
+    },
+    "cris_rea/backend/runtime.py": {
+      "bytes": 14395,
+      "sha256": "1fd8c8eebb72410db30cc88e105827c8749f2e60ec608862681d2278a8af2a9e"
+    },
+    "cris_rea/backend/worker.py": {
+      "bytes": 3483,
+      "sha256": "e7db6b0e28e50c2865004c0a27ed6c1996003273621af62a6d90c3e21359c23b"
+    },
+    "cris_rea/frontend/__init__.py": {
+      "bytes": 123,
+      "sha256": "11acc8367354a18c9c8e6178f8672ad6c4b229f81ca0be9b849799197ccdf06d"
+    },
+    "cris_rea/frontend/cli.py": {
+      "bytes": 2843,
+      "sha256": "de6091fc2436c68920e175f1c723c4e557e0034ec9ff589bd79c3fc3e106209b"
+    },
+    "cris_rea/frontend/web.py": {
+      "bytes": 6299,
+      "sha256": "ab9776f47c488b40eebaaffb671df15caa99a244ca281ab5becaa0e795b6aed1"
+    },
+    "cris_rea/frontend/webpage.py": {
+      "bytes": 10829,
+      "sha256": "8547a2d015989a77403d4ccfffdd7acaf54df1f3dfa8f6d3ad305495ee934904"
+    }
+  },
+  "official_resources": {
+    "findsym_cifinput": {
+      "bytes": 2143992,
+      "sha256": "5864257abdced911b570749199e73a8b9bee1990ad3c9729d7a51917035b5209"
+    },
+    "findsym": {
+      "bytes": 2259192,
+      "sha256": "79b40ebd73ecb69997e94e6b9a90e9e51aeef21ca6a74a3f4862762af97cf198"
+    },
+    "findsym.txt": {
+      "bytes": 13192,
+      "sha256": "8559387ef9f142b52123b21ddf9c27364568cfaa0582746372ab5c416cb6aee9"
+    }
+  },
+  "reference_answers_read": [],
+  "run_plan": [
+    {
+      "program": "findsym_cifinput",
+      "input": "synthetic_p1.cif",
+      "timeout_seconds": 30
+    },
+    {
+      "program": "findsym",
+      "input": "exact stdout bytes of converter, only if converter accepts input",
+      "timeout_seconds": 30
+    }
+  ]
+}

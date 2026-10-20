@@ -1,0 +1,3470 @@
+{
+  "size_bytes": 6112902,
+  "sha256": "65512dabbbf0934690aaaa25448d59b4d8b4f5bdda5c5c5ec1834f50f6ed016a",
+  "ascii_text_bytes_only": true,
+  "unusual_byte_histogram": {},
+  "nul_count": 0,
+  "line_break_counts": {
+    "lf": 78819,
+    "crlf": 0,
+    "bare_cr": 0
+  },
+  "first_96_bytes": {
+    "offset": 0,
+    "length": 96,
+    "hex": "69 73 6f 74 72 6f 70 79 5f 73 75 62 67 72 6f 75 70 0a 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 32 20 31 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 33 20 31 20 33 20 33 20 33 20 33 20 35 20 35 20 35 20 35 20 35 20 35 20 33 20 33 20 33 0a",
+    "ascii_escaped": "isotropy_subgroup\n1 1 1 1 1 1 1 1 2 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3 1 3 3 3 3 5 5 5 5 5 5 3 3 3\n"
+  },
+  "unusual_runs_first_32": [],
+  "candidate_header_count": 37,
+  "candidate_headers": [
+    {
+      "name": "isotropy_subgroup",
+      "line": 1,
+      "header_offset": 0,
+      "payload_offset": 18,
+      "payload_end_exclusive": 44046,
+      "payload_bytes": 44028,
+      "payload_sha256": "e33f00c6908f9711b2dd9b4de5b531e83e89b605b65020aaa86b44a33110c8be",
+      "sample": {
+        "offset": 18,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 32 20 31 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 33 20 31 20 33 20 33 20 33 20 33 20 35 20 35 20 35 20 35 20 35 20 35 20 33 20 33 20 33 0a 34 20 34 20 31 20 34 20 34 20 34 20 34 20 31 20 31 20",
+        "ascii_escaped": "1 1 1 1 1 1 1 1 2 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3 1 3 3 3 3 5 5 5 5 5 5 3 3 3\n4 4 1 4 4 4 4 1 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 1,
+      "integer_max": 230,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_subgroup_old",
+      "line": 568,
+      "header_offset": 44046,
+      "payload_offset": 44068,
+      "payload_end_exclusive": 88096,
+      "payload_bytes": 44028,
+      "payload_sha256": "7651b1549984c79f5cb47ce244242c516d6506829018490163099205c8a38cd8",
+      "sample": {
+        "offset": 44068,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 32 20 31 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 33 20 31 20 33 20 33 20 33 20 33 20 35 20 35 20 35 20 35 20 35 20 35 20 33 20 33 20 33 0a 34 20 34 20 31 20 34 20 34 20 34 20 34 20 31 20 31 20",
+        "ascii_escaped": "1 1 1 1 1 1 1 1 2 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3 1 3 3 3 3 5 5 5 5 5 5 3 3 3\n4 4 1 4 4 4 4 1 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 1,
+      "integer_max": 230,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_parent",
+      "line": 1135,
+      "header_offset": 88096,
+      "payload_offset": 88112,
+      "payload_end_exclusive": 145364,
+      "payload_bytes": 57252,
+      "payload_sha256": "6e1401761e49228c9d7fa077f55928ee90c054a5b54c2ea32799ed1ac9bb0c82",
+      "sample": {
+        "offset": 88112,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 33 20 33 20 33 20 33 20 33 20 33 20 33 20 33 20 33 20 33 20 33 20 33 20 33 20 33 20 33 0a 33 20 34 20 34 20 34 20 34 20 34 20 34 20 34 20 34 20",
+        "ascii_escaped": "1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3\n3 4 4 4 4 4 4 4 4 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 1,
+      "integer_max": 230,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_irrep",
+      "line": 1886,
+      "header_offset": 145364,
+      "payload_offset": 145379,
+      "payload_end_exclusive": 220038,
+      "payload_bytes": 74659,
+      "payload_sha256": "c16d4bbacdecec8d81ae555a17d7414c2c38abf2c6a0f880c30b46e4bb76fe49",
+      "sample": {
+        "offset": 145379,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 31 33 20 31 34 20 31 35 20 31 36 20 31 37 20 31 38 20 31 39 20 32 30 20 32 31 20 32 32 20 32 33 20 32 34 20 32 35 20 32 36 20 32 37 20 32 38 20 32 39 0a 33 30 20 33 31 20 33 32 20 33 33 20 33 34 20 33 35 20",
+        "ascii_escaped": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29\n30 31 32 33 34 35 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 1,
+      "integer_max": 4777,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_irrep_pointer",
+      "line": 2882,
+      "header_offset": 220038,
+      "payload_offset": 220061,
+      "payload_end_exclusive": 243770,
+      "payload_bytes": 23709,
+      "payload_sha256": "1676304c9dd59e4429c285abf09d9ee8648ea23c3d8bb52b8e306372c7b703af",
+      "sample": {
+        "offset": 220061,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 31 33 20 31 34 20 31 35 20 31 36 20 31 37 20 31 38 20 31 39 20 32 30 20 32 31 20 32 32 20 32 33 20 32 34 20 32 35 20 32 36 20 32 37 20 32 38 20 32 39 0a 33 30 20 33 31 20 33 32 20 33 33 20 33 34 20 33 35 20",
+        "ascii_escaped": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29\n30 31 32 33 34 35 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 4778
+      },
+      "integer_min": 1,
+      "integer_max": 15240,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_orderparam_dim",
+      "line": 3197,
+      "header_offset": 243770,
+      "payload_offset": 243794,
+      "payload_end_exclusive": 275203,
+      "payload_bytes": 31409,
+      "payload_sha256": "fad9eb3d70a8317dea7df5ec162191b788698a4f32359d18246545a960e25a08",
+      "sample": {
+        "offset": 243794,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 0a 31 20 31 20 31 20 31 20 31 20 31 20 31 20 32 20 32 20",
+        "ascii_escaped": "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 2 2 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 1,
+      "integer_max": 24,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_orderparam_freeparam",
+      "line": 3601,
+      "header_offset": 275203,
+      "payload_offset": 275233,
+      "payload_end_exclusive": 305740,
+      "payload_bytes": 30507,
+      "payload_sha256": "3b488a8c4417e84c3928ffd24c13e2567215d4ba536bd104753e59e684ced23f",
+      "sample": {
+        "offset": 275233,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 0a 31 20 31 20 31 20 31 20 31 20 31 20 31 20 32 20 32 20",
+        "ascii_escaped": "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 2 2 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 1,
+      "integer_max": 24,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_orderparam_label",
+      "line": 3993,
+      "header_offset": 305740,
+      "payload_offset": 305766,
+      "payload_end_exclusive": 412440,
+      "payload_bytes": 106674,
+      "payload_sha256": "76c653ce6efce03dda5d711ca498363d6c1f0a63cf6f1e6233347d4284d0f383",
+      "sample": {
+        "offset": 305766,
+        "length": 96,
+        "hex": "22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20 22 0a 22 50 31 20 20 22 20 22 50 31 20 20 22 20 22 50 31 20 20",
+        "ascii_escaped": "\"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \" \"P1  \"\n\"P1  \" \"P1  \" \"P1  "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "quoted": 15239
+      },
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 7,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 28,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 35,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 42,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 49,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 56,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 63,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 70,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 77,
+          "kind": "quoted",
+          "raw": "\"P1  \"",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_orderparam_pointer",
+      "line": 5380,
+      "header_offset": 412440,
+      "payload_offset": 412468,
+      "payload_end_exclusive": 501647,
+      "payload_bytes": 89179,
+      "payload_sha256": "b105f0171f7ee0a9ce0bee110ef7ffcc2e053009c614ddc1731fcee6c4cf73c2",
+      "sample": {
+        "offset": 412468,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 31 33 20 31 34 20 31 35 20 31 36 20 31 37 20 31 38 20 31 39 20 32 30 20 32 31 20 32 32 20 32 33 20 32 34 20 32 35 20 32 36 20 32 37 20 32 38 20 32 39 0a 33 30 20 33 31 20 33 32 20 33 33 20 33 34 20 33 35 20",
+        "ascii_escaped": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29\n30 31 32 33 34 35 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 1,
+      "integer_max": 143070,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_orderparam",
+      "line": 6534,
+      "header_offset": 501647,
+      "payload_offset": 501667,
+      "payload_end_exclusive": 790621,
+      "payload_bytes": 288954,
+      "payload_sha256": "e978b7668f8a26a4383fba9548e28975b03fc18124614a0ee77ffeaa6bd6423c",
+      "sample": {
+        "offset": 501667,
+        "length": 96,
+        "hex": "32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 0a 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 31 20",
+        "ascii_escaped": "2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2\n2 2 2 2 2 2 2 2 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 144000
+      },
+      "integer_min": 0,
+      "integer_max": 174,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_orderparam_old",
+      "line": 10238,
+      "header_offset": 790621,
+      "payload_offset": 790645,
+      "payload_end_exclusive": 1079620,
+      "payload_bytes": 288975,
+      "payload_sha256": "4553a87e01079932ed6d5797fd62eaf365258d700febf2e8b53f58eda8f6c6cb",
+      "sample": {
+        "offset": 790645,
+        "length": 96,
+        "hex": "32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 0a 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 31 20",
+        "ascii_escaped": "2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2\n2 2 2 2 2 2 2 2 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 144000
+      },
+      "integer_min": 0,
+      "integer_max": 172,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_direction",
+      "line": 13943,
+      "header_offset": 1079620,
+      "payload_offset": 1079639,
+      "payload_end_exclusive": 1120507,
+      "payload_bytes": 40868,
+      "payload_sha256": "5ba44a9c2fcd1a143d43c151bef6874ccd2117c3365d1ff4be1a3a08de8ec1cf",
+      "sample": {
+        "offset": 1079639,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 0a 31 20 31 20 31 20 31 20 31 20 31 20 31 20 36 20 36 20",
+        "ascii_escaped": "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 6 6 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 1,
+      "integer_max": 657,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_order",
+      "line": 14469,
+      "header_offset": 1120507,
+      "payload_offset": 1120522,
+      "payload_end_exclusive": 1200851,
+      "payload_bytes": 80329,
+      "payload_sha256": "0dfdaed66c548a4d2efe83af02af80480500322afdc68c232d78da3a21c72048",
+      "sample": {
+        "offset": 1120522,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 31 30 20 31 31 20 31 32 20 31 33 20 31 34 20 31 35 20 31 36 20 31 37 20 31 38 20 31 39 20 32 30 20 32 31 20 32 32 20 32 33 20 32 34 20 32 35 20 32 36 20 32 37 20 32 38 20 32 39 0a 33 30 20 33 31 20 33 32 20 33 33 20 33 34 20 33 35 20",
+        "ascii_escaped": "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29\n30 31 32 33 34 35 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 1,
+      "integer_max": 15239,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 21,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 24,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_basis",
+      "line": 15525,
+      "header_offset": 1200851,
+      "payload_offset": 1200866,
+      "payload_end_exclusive": 1499013,
+      "payload_bytes": 298147,
+      "payload_sha256": "c001eedc2c369149b69f68856e026574f13229263a263236912dfa1e0904f201",
+      "sample": {
+        "offset": 1200866,
+        "length": 96,
+        "hex": "31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 32 20 32 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 31 20 30 20 31 20 30 20 31 20 30 20 2d 31 20 30 20 31 20 31 20 31 20 30 0a 2d 31 20 31 20 30 20 30 20 30 20 31 20 30 20 31 20",
+        "ascii_escaped": "1 0 0 0 1 0 0 0 1 1 0 0 0 1 0 0 0 2 2 0 0 0 1 0 0 0 1 1 0 1 0 1 0 -1 0 1 1 1 0\n-1 1 0 0 0 1 0 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 137151
+      },
+      "integer_min": -4,
+      "integer_max": 4,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_basis_old",
+      "line": 19331,
+      "header_offset": 1499013,
+      "payload_offset": 1499032,
+      "payload_end_exclusive": 1791087,
+      "payload_bytes": 292055,
+      "payload_sha256": "5953fca1c5fc8c884187e9561e482ff62d3069131fddf8d588b8a25b285a2d7e",
+      "sample": {
+        "offset": 1499032,
+        "length": 96,
+        "hex": "31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 32 20 32 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 31 20 30 20 31 20 30 20 31 20 30 20 2d 31 20 30 20 31 20 31 20 31 20 30 0a 2d 31 20 31 20 30 20 30 20 30 20 31 20 30 20 31 20",
+        "ascii_escaped": "1 0 0 0 1 0 0 0 1 1 0 0 0 1 0 0 0 2 2 0 0 0 1 0 0 0 1 1 0 1 0 1 0 -1 0 1 1 1 0\n-1 1 0 0 0 1 0 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 137151
+      },
+      "integer_min": -3,
+      "integer_max": 4,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_origin",
+      "line": 23060,
+      "header_offset": 1791087,
+      "payload_offset": 1791103,
+      "payload_end_exclusive": 1919383,
+      "payload_bytes": 128280,
+      "payload_sha256": "cc21c4ec0af9150b0da26301d16586c1176bf1ea7b673c2873de232635f3dbb5",
+      "sample": {
+        "offset": 1791103,
+        "length": 96,
+        "hex": "30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 0a 31 20 30 20 30 20 30 20 31 20 30 20 30 20 31 20 32 20",
+        "ascii_escaped": "0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0\n1 0 0 0 1 0 0 1 2 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 60956
+      },
+      "integer_min": -27,
+      "integer_max": 29,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_origin_old",
+      "line": 24699,
+      "header_offset": 1919383,
+      "payload_offset": 1919403,
+      "payload_end_exclusive": 2046697,
+      "payload_bytes": 127294,
+      "payload_sha256": "89f74c2c350f9ba377a50920560926450911dcd2f792b0cec1f38c6c7de1af4d",
+      "sample": {
+        "offset": 1919403,
+        "length": 96,
+        "hex": "30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 31 20 30 20 30 20 30 0a 31 20 30 20 30 20 30 20 31 20 30 20 30 20 31 20 32 20",
+        "ascii_escaped": "0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0\n1 0 0 0 1 0 0 1 2 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 60956
+      },
+      "integer_min": -13,
+      "integer_max": 27,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_arms",
+      "line": 26328,
+      "header_offset": 2046697,
+      "payload_offset": 2046711,
+      "payload_end_exclusive": 2077190,
+      "payload_bytes": 30479,
+      "payload_sha256": "920f3617eb6050cc541aaf19e6b02b606700798b19b0fd6ef7d4f5fa6f162d6f",
+      "sample": {
+        "offset": 2046711,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 0a 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20",
+        "ascii_escaped": "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 1,
+      "integer_max": 6,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_ferroic",
+      "line": 26720,
+      "header_offset": 2077190,
+      "payload_offset": 2077207,
+      "payload_end_exclusive": 2107686,
+      "payload_bytes": 30479,
+      "payload_sha256": "9de8cfd7b4fa5abed14bea63187bbf8280fdc0d3254fda76246df79a4ba253e1",
+      "sample": {
+        "offset": 2077207,
+        "length": 96,
+        "hex": "30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 0a 30 20 30 20 31 20 30 20 30 20 30 20 30 20 31 20 31 20",
+        "ascii_escaped": "0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 1 0 0 0 0 1 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 0,
+      "integer_max": 5,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_ferroelectric",
+      "line": 27112,
+      "header_offset": 2107686,
+      "payload_offset": 2107709,
+      "payload_end_exclusive": 2138188,
+      "payload_bytes": 30479,
+      "payload_sha256": "d7ab2dff23e4e25f07a00864b8a93771638c6b458108b41889d388320607d50c",
+      "sample": {
+        "offset": 2107709,
+        "length": 96,
+        "hex": "30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 0a 30 20 30 20 31 20 30 20 30 20 30 20 30 20 32 20 32 20",
+        "ascii_escaped": "0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 1 0 0 0 0 2 2 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 0,
+      "integer_max": 2,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_ferroelastic",
+      "line": 27504,
+      "header_offset": 2138188,
+      "payload_offset": 2138210,
+      "payload_end_exclusive": 2168689,
+      "payload_bytes": 30479,
+      "payload_sha256": "fd1b6aba2be5dd699e2bc7fff175325181071acf306a2b587878e95844d8a3d6",
+      "sample": {
+        "offset": 2138210,
+        "length": 96,
+        "hex": "30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 31 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 0a 30 20 30 20 31 20 30 20 30 20 30 20 30 20 32 20 32 20",
+        "ascii_escaped": "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 1 0 0 0 0 2 2 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 0,
+      "integer_max": 2,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_domain_count",
+      "line": 27896,
+      "header_offset": 2168689,
+      "payload_offset": 2168711,
+      "payload_end_exclusive": 2207771,
+      "payload_bytes": 39060,
+      "payload_sha256": "8281d64ef46aaf88cfd73e8c570863b1ab28e5f0009e641777b4e5d0a9ea4a7b",
+      "sample": {
+        "offset": 2168711,
+        "length": 96,
+        "hex": "31 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 31 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 31 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 20 32 0a 32 20 31 20 32 20 32 20 32 20 32 20 32 20 34 20 34 20",
+        "ascii_escaped": "1 2 2 2 2 2 2 2 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2\n2 1 2 2 2 2 2 4 4 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 1,
+      "integer_max": 1536,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_domain_type_count",
+      "line": 28398,
+      "header_offset": 2207771,
+      "payload_offset": 2207798,
+      "payload_end_exclusive": 2240365,
+      "payload_bytes": 32567,
+      "payload_sha256": "e8c25c476b2284d435a961f9d60e4d7431089799f2a950f7849219ff62f77deb",
+      "sample": {
+        "offset": 2207798,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 0a 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20",
+        "ascii_escaped": "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 1,
+      "integer_max": 128,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_domain_pointer",
+      "line": 28816,
+      "header_offset": 2240365,
+      "payload_offset": 2240389,
+      "payload_end_exclusive": 2315177,
+      "payload_bytes": 74788,
+      "payload_sha256": "960e60f91e62175466e1bebdb50ae73a593f5d95f5b16d87c9f988d8a7776c53",
+      "sample": {
+        "offset": 2240389,
+        "length": 96,
+        "hex": "30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 0a 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20",
+        "ascii_escaped": "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 0,
+      "integer_max": 460146,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_domain",
+      "line": 29791,
+      "header_offset": 2315177,
+      "payload_offset": 2315193,
+      "payload_end_exclusive": 3358810,
+      "payload_bytes": 1043617,
+      "payload_sha256": "e8915e34ae2fed0f1e9ccee89e098a3e920a66e29338a0d03ec7735706b86c05",
+      "sample": {
+        "offset": 2315193,
+        "length": 96,
+        "hex": "30 20 31 20 30 20 31 20 30 20 31 20 31 20 30 20 30 20 31 20 30 20 31 20 30 20 30 20 31 20 31 20 30 20 31 20 30 20 31 20 30 20 31 20 31 20 30 20 30 20 31 20 30 20 31 20 30 20 30 20 31 20 31 20 30 20 31 20 30 20 31 20 30 20 31 20 31 0a 30 20 30 20 31 20 30 20 31 20 30 20 30 20 31 20 31 20",
+        "ascii_escaped": "0 1 0 1 0 1 1 0 0 1 0 1 0 0 1 1 0 1 0 1 0 1 1 0 0 1 0 1 0 0 1 1 0 1 0 1 0 1 1\n0 0 1 0 1 0 0 1 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 460300
+      },
+      "integer_min": 0,
+      "integer_max": 127,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_domain_old",
+      "line": 43158,
+      "header_offset": 3358810,
+      "payload_offset": 3358830,
+      "payload_end_exclusive": 4402447,
+      "payload_bytes": 1043617,
+      "payload_sha256": "6020e330ff7c56307421234490f7b7dc2aa4a456a049f2e604091b2f1703a4b6",
+      "sample": {
+        "offset": 3358830,
+        "length": 96,
+        "hex": "30 20 31 20 30 20 31 20 30 20 31 20 31 20 30 20 30 20 31 20 30 20 31 20 30 20 30 20 31 20 31 20 30 20 31 20 30 20 31 20 30 20 31 20 31 20 30 20 30 20 31 20 30 20 31 20 30 20 30 20 31 20 31 20 30 20 31 20 30 20 31 20 30 20 31 20 31 0a 30 20 30 20 31 20 30 20 31 20 30 20 30 20 31 20 31 20",
+        "ascii_escaped": "0 1 0 1 0 1 1 0 0 1 0 1 0 0 1 1 0 1 0 1 0 1 1 0 0 1 0 1 0 0 1 1 0 1 0 1 0 1 1\n0 0 1 0 1 0 0 1 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 460300
+      },
+      "integer_min": 0,
+      "integer_max": 127,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_subduce_pointer",
+      "line": 56526,
+      "header_offset": 4402447,
+      "payload_offset": 4402472,
+      "payload_end_exclusive": 4490642,
+      "payload_bytes": 88170,
+      "payload_sha256": "41913033bb0c313fbf17581f7521bb986767bec6ced8d4e8ea298f5f33564db3",
+      "sample": {
+        "offset": 4402472,
+        "length": 96,
+        "hex": "31 20 32 20 34 20 36 20 38 20 31 30 20 31 32 20 31 34 20 31 36 20 31 37 20 31 39 20 32 31 20 32 33 20 32 35 20 32 37 20 32 39 20 33 31 20 33 33 20 33 35 20 33 37 20 33 39 20 34 31 20 34 33 20 34 35 20 34 37 20 34 38 20 35 30 20 35 32 0a 35 34 20 35 36 20 35 38 20 36 30 20 36 32 20 36 34",
+        "ascii_escaped": "1 2 4 6 8 10 12 14 16 17 19 21 23 25 27 29 31 33 35 37 39 41 43 45 47 48 50 52\n54 56 58 60 62 64"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15240
+      },
+      "integer_min": 1,
+      "integer_max": 94272,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "8",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "10",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 13,
+          "kind": "integer",
+          "raw": "12",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "14",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 19,
+          "kind": "integer",
+          "raw": "16",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "17",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 25,
+          "kind": "integer",
+          "raw": "19",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 28,
+          "kind": "integer",
+          "raw": "21",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_subduce_irrep",
+      "line": 57664,
+      "header_offset": 4490642,
+      "payload_offset": 4490665,
+      "payload_end_exclusive": 4957497,
+      "payload_bytes": 466832,
+      "payload_sha256": "2e861f4f10b8f5824a057c6a337231db0b8fe5e77a3cd204d292527d6fbf9511",
+      "sample": {
+        "offset": 4490665,
+        "length": 96,
+        "hex": "31 20 31 20 32 20 31 20 33 20 31 20 34 20 31 20 35 20 31 20 36 20 31 20 37 20 31 20 38 20 39 20 39 20 31 30 20 39 20 31 31 20 39 20 31 32 20 39 20 31 33 20 39 20 31 34 20 39 20 31 35 20 39 20 31 36 20 39 20 31 37 20 39 20 31 38 20 39 0a 31 39 20 39 20 32 30 20 39 20 32 31 20 39 20 32 32",
+        "ascii_escaped": "1 1 2 1 3 1 4 1 5 1 6 1 7 1 8 9 9 10 9 11 9 12 9 13 9 14 9 15 9 16 9 17 9 18 9\n19 9 20 9 21 9 22"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 94271
+      },
+      "integer_min": 1,
+      "integer_max": 4777,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_subduce_frequency",
+      "line": 63886,
+      "header_offset": 4957497,
+      "payload_offset": 4957524,
+      "payload_end_exclusive": 5146128,
+      "payload_bytes": 188604,
+      "payload_sha256": "e65083cdebe9caae85eb34d16be7593cfce0964a41b6a0ce364ea2485f51f8e4",
+      "sample": {
+        "offset": 4957524,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 0a 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20",
+        "ascii_escaped": "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 94271
+      },
+      "integer_min": 1,
+      "integer_max": 24,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_subduce_subgroup",
+      "line": 66305,
+      "header_offset": 5146128,
+      "payload_offset": 5146154,
+      "payload_end_exclusive": 5659963,
+      "payload_bytes": 513809,
+      "payload_sha256": "0cc72d6718240add9777e97c2a0a3ec57c36662e36ac2f97c39b2e47b3e3b1fa",
+      "sample": {
+        "offset": 5146154,
+        "length": 96,
+        "hex": "31 20 31 20 32 20 31 20 33 20 31 20 34 20 31 20 35 20 31 20 36 20 31 20 37 20 31 20 38 20 39 20 39 20 31 30 20 39 20 31 31 20 39 20 31 32 20 39 20 31 33 20 39 20 31 34 20 39 20 31 35 20 39 20 31 36 20 39 20 31 37 20 39 20 31 38 20 39 0a 31 39 20 39 20 32 30 20 39 20 32 31 20 39 20 32 32",
+        "ascii_escaped": "1 1 2 1 3 1 4 1 5 1 6 1 7 1 8 9 9 10 9 11 9 12 9 13 9 14 9 15 9 16 9 17 9 18 9\n19 9 20 9 21 9 22"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 94271
+      },
+      "integer_min": 1,
+      "integer_max": 15239,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "5",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "6",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_subduce_domain",
+      "line": 73015,
+      "header_offset": 5659963,
+      "payload_offset": 5659987,
+      "payload_end_exclusive": 5851016,
+      "payload_bytes": 191029,
+      "payload_sha256": "a26e8abbb5565a84cae4f63044b94a157bc32e62cd7afa94d32afe7e6118f2ca",
+      "sample": {
+        "offset": 5659987,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 0a 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20",
+        "ascii_escaped": "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 94271
+      },
+      "integer_min": 1,
+      "integer_max": 226,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_subduce_domain_old",
+      "line": 75460,
+      "header_offset": 5851016,
+      "payload_offset": 5851044,
+      "payload_end_exclusive": 6041667,
+      "payload_bytes": 190623,
+      "payload_sha256": "08e295a87bf7f43b2ddbb21f5b0fd978d880d2a193096262d16efd995cf6317e",
+      "sample": {
+        "offset": 5851044,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 0a 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20",
+        "ascii_escaped": "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1\n1 1 1 1 1 1 1 1 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 94271
+      },
+      "integer_min": 1,
+      "integer_max": 241,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_w_subduce_pointer",
+      "line": 77901,
+      "header_offset": 6041667,
+      "payload_offset": 6041694,
+      "payload_end_exclusive": 6053887,
+      "payload_bytes": 12193,
+      "payload_sha256": "72a0e521d584226ce7c23baec40fbf3ff9eebb279b54a9f6bb592c84425e2079",
+      "sample": {
+        "offset": 6041694,
+        "length": 96,
+        "hex": "31 20 34 20 37 20 39 20 31 31 20 31 34 20 31 37 20 32 30 20 32 33 20 32 36 20 32 38 20 33 30 20 33 32 20 33 34 20 33 37 20 33 39 20 34 31 20 34 33 20 34 35 20 34 38 20 35 31 20 30 20 30 20 30 20 35 34 20 35 37 20 36 30 20 36 32 0a 36 34 20 36 37 20 37 30 20 37 33 20 37 36 20 37 39 20 38",
+        "ascii_escaped": "1 4 7 9 11 14 17 20 23 26 28 30 32 34 37 39 41 43 45 48 51 0 0 0 54 57 60 62\n64 67 70 73 76 79 8"
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 4732
+      },
+      "integer_min": 0,
+      "integer_max": 5748,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "4",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "7",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "9",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "11",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 11,
+          "kind": "integer",
+          "raw": "14",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "17",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 17,
+          "kind": "integer",
+          "raw": "20",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "23",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 23,
+          "kind": "integer",
+          "raw": "26",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 26,
+          "kind": "integer",
+          "raw": "28",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 29,
+          "kind": "integer",
+          "raw": "30",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_w_subduce_count",
+      "line": 78060,
+      "header_offset": 6053887,
+      "payload_offset": 6053912,
+      "payload_end_exclusive": 6084391,
+      "payload_bytes": 30479,
+      "payload_sha256": "2e3d107f60c0954a10a48cdc81a9106ae860186f5c70f103592470df913a6f44",
+      "sample": {
+        "offset": 6053912,
+        "length": 96,
+        "hex": "30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 0a 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20 30 20",
+        "ascii_escaped": "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 15239
+      },
+      "integer_min": 0,
+      "integer_max": 9,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "0",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_w_subduce_irrep",
+      "line": 78452,
+      "header_offset": 6084391,
+      "payload_offset": 6084416,
+      "payload_end_exclusive": 6101263,
+      "payload_bytes": 16847,
+      "payload_sha256": "b94302cea9c11be63fc5fcae97dde8c50322f6c2d95f3b9c75a0e035debe53f5",
+      "sample": {
+        "offset": 6084416,
+        "length": 96,
+        "hex": "31 20 32 20 33 20 31 20 32 20 33 20 32 20 33 20 31 20 33 20 31 20 32 20 33 20 31 20 32 20 33 20 31 20 32 20 33 20 31 20 32 20 33 20 31 20 32 20 33 20 32 20 33 20 32 20 33 20 31 20 33 20 31 20 33 20 31 20 32 20 33 20 32 20 33 20 32 0a 33 20 31 20 33 20 31 20 33 20 31 20 32 20 33 20 31 20",
+        "ascii_escaped": "1 2 3 1 2 3 2 3 1 3 1 2 3 1 2 3 1 2 3 1 2 3 1 2 3 2 3 2 3 1 3 1 3 1 2 3 2 3 2\n3 1 3 1 3 1 2 3 1 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 5756
+      },
+      "integer_min": 1,
+      "integer_max": 73,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "isotropy_w_subduce_frequency",
+      "line": 78669,
+      "header_offset": 6101263,
+      "payload_offset": 6101292,
+      "payload_end_exclusive": 6112898,
+      "payload_bytes": 11606,
+      "payload_sha256": "cf35b0ec18e3a3cef1e6292d18bb9812d6facf37215d0dae315b58e9523cb8f0",
+      "sample": {
+        "offset": 6101292,
+        "length": 96,
+        "hex": "31 20 31 20 31 20 31 20 31 20 31 20 32 20 31 20 32 20 31 20 31 20 33 20 32 20 31 20 33 20 32 20 33 20 31 20 32 20 33 20 31 20 32 20 34 20 34 20 34 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 31 20 32 20 32 20 34 20 33 20 33 20 33 0a 33 20 33 20 33 20 33 20 33 20 32 20 34 20 36 20 34 20",
+        "ascii_escaped": "1 1 1 1 1 1 2 1 2 1 1 3 2 1 3 2 3 1 2 3 1 2 4 4 4 1 1 1 1 1 1 1 1 2 2 4 3 3 3\n3 3 3 3 3 2 4 6 4 "
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {
+        "integer": 5756
+      },
+      "integer_min": 1,
+      "integer_max": 12,
+      "first_tokens": [
+        {
+          "relative_byte_offset": 0,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 2,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 4,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 6,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 8,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 10,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 12,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 14,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 16,
+          "kind": "integer",
+          "raw": "2",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 18,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 20,
+          "kind": "integer",
+          "raw": "1",
+          "sample_truncated": false
+        },
+        {
+          "relative_byte_offset": 22,
+          "kind": "integer",
+          "raw": "3",
+          "sample_truncated": false
+        }
+      ]
+    },
+    {
+      "name": "end",
+      "line": 78819,
+      "header_offset": 6112898,
+      "payload_offset": 6112902,
+      "payload_end_exclusive": 6112902,
+      "payload_bytes": 0,
+      "payload_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sample": {
+        "offset": 6112902,
+        "length": 0,
+        "hex": "",
+        "ascii_escaped": ""
+      },
+      "tokenizer": "quoted strings or non-whitespace/comma runs; lexical only",
+      "token_counts": {},
+      "integer_min": null,
+      "integer_max": null,
+      "first_tokens": []
+    }
+  ],
+  "limits": [
+    "Headers are lexical candidates, not a decoded schema.",
+    "Token counts do not establish array dimensions or pointer semantics.",
+    "No scientific calculation or executable invocation is performed."
+  ],
+  "file": "data_isotropy.txt",
+  "source": "E:\\CRIS\\ISODISTORT\\resources\\isobyu\\data_isotropy.txt",
+  "source_unchanged_during_scan": true
+}

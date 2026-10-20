@@ -1,0 +1,54 @@
+- document:
+  - banner:
+    - heading "CRIS REA" [level=1]
+    - paragraph: Official ISOTROPY programs · local execution · traceable runs
+    - text: ● Loopback only
+  - main:
+    - text: Research priority
+    - heading "Parent structure + k / IR / OPD → subgroups and distortion modes" [level=2]
+    - paragraph: The current console runs the official tools with your raw input. A verified parent-structure workflow is planned; this console does not yet reproduce the ISODISTORT website methods.
+    - heading "1. Prepare an official-tool input" [level=2]
+    - text: Program
+    - combobox "Program":
+      - option "ISO" [selected]
+      - option "FINDSYM"
+      - option "FINDSYM_CIFINPUT"
+      - option "SMODES"
+      - option "COMSUBS"
+    - text: ISOTROPY command language; raw queries, no structure workflow
+    - group:
+      - text: Prepare a restricted ISO query Parent space group
+      - spinbutton "Parent space group": "221"
+      - text: IR label
+      - textbox "IR label":
+        - /placeholder: e.g. GM4-
+        - text: GM4-
+      - text: OPD label
+      - textbox "OPD label":
+        - /placeholder: e.g. P1
+        - text: P1
+      - text: Wyckoff (optional)
+      - textbox "Wyckoff (optional)":
+        - /placeholder: e.g. a
+        - text: a
+      - button "Prepare ISO commands"
+      - paragraph: Shows raw commands for review. Uses your labels as entered; no k parameters or atomic coordinates are inferred. Optional Wyckoff output is an official projection, not a complete normalized CIF mode export.
+    - text: Raw input
+    - textbox "Raw input":
+      - /placeholder: Paste trusted input in the selected program's documented format.
+      - text: PAGE NOBREAK VALUE PARENT 221 VALUE IRREP GM4- VALUE DIRECTION P1 SHOW PARENT SHOW IRREP SHOW DIRECTION SHOW SUBGROUP SHOW BASIS SHOW ORIGIN SHOW SIZE SHOW INDEX DISPLAY ISOTROPY VALUE WYCKOFF a SHOW MICROSCOPIC VECTOR DISPLAY DISTORTION QUIT
+    - text: Or upload an input file
+    - button "Or upload an input file"
+    - text: Timeout (s)
+    - spinbutton "Timeout (s)": "30"
+    - text: Prepared official ISO commands. Review the raw input before running.
+    - button "Run official program"
+    - text: "Maximum input: 1 MiB"
+    - paragraph: "Use the bundled program manuals for input formats and conventions. Only run inputs you trust: the official programs are not placed in an operating-system sandbox."
+    - heading "2. Inspect the raw result" [level=2]
+    - status: "Process completed; scientific result not yet validated. Run: 8a69195a-4f22-4574-b980-451275c41fb5 Saved: C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\8a69195a-4f22-4574-b980-451275c41fb5"
+    - text: Standard output Isotropy, Version 9.6.1, Jan 2022 Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell Brigham Young University Current setting is International (new ed.) with conventional basis vectors. *************Parent Irrep (ML) Subgroup Index Size Dir Basis Vectors Origin 221 Pm-3m GM4- 99 P4mm 6 1 P1 (0,1,0),(0,0,1),(1,0,0) (0,0,0) ***Parent Irrep (ML) Dir Point Projected Vectors 221 Pm-3m GM4- P1 (0,0,0) (1,0,0) * Standard error (empty)
+    - group: Run evidence and file fingerprints
+    - text: Each run has its own working directory and writable copy of the official database files. Inputs, raw output, resource hashes, commands and exit status are saved under
+    - code: runs/<run-id>/
+    - text: . A zero exit code records process completion only. Scientific input acceptance, numerical accuracy and equivalence to the website require separate validation.

@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="en">
+<HEAD>
+<meta charset="utf-8">
+<TITLE>ISOTROPY user's manual</TITLE>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="stylesheet" href="bootstrap.css">
+<link rel="stylesheet" href="docs.css">
+<style>
+  body {
+	padding-top: 0px;
+  }
+  div.pad {
+	padding-right: 50px;
+	padding-left: 50px;
+  }
+</style>
+</HEAD>
+<body>
+<div class="navbar navbar-static-top">
+  <div class="navbar-inner">
+     <div class="container">
+       <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+	 <span class="icon-bar"></span>
+       </a>
+       <a class="brand" href="isowww.php">ISOTROPY</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+         <li><a href="isotropy.php">SUITE</a></li>
+                  </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="pad">
+
+<H1>Isotropy User's Manual</H1>
+
+Harold T. Stokes. Branton J. Campbell, and Dorian M. Hatch,
+Department of Physics and Astronomy, Brigham
+Young University, Provo, Utah, 84602, USA, branton_campbell@byu.edu
+
+<H1>Summary of Commands</H1>
+ 
+<p><A HREF="#misc">miscellaneous</A><BR>
+<A HREF="#settings">settings</A><BR>
+<A HREF="#labeling">labeling</A><BR>
+<A HREF="#spacegroups">space groups</A><BR>
+<A HREF="#kpoints">k points</A><BR>
+<A HREF="#images">images</A><BR>
+<A HREF="#irreps">irreps</A><BR>
+<A HREF="#isotropy">isotropy subgroups</A><BR>
+<A HREF="#distortions">distortions</A><BR>
+<A HREF="#invariant">invariant polynomials</A><BR>
+<A HREF="#bush">bushes</A><BR>
+<A HREF="#direction">order parameters</A>
+ 
+<P><B><A NAME="misc"></A>Miscellaneous</B><P>
+ 
+<B><A HREF="#q">Q</A></B>: quit<BR>
+<B><A HREF="#sc">SC p1</A></B>: width of screen<BR>
+<B><A HREF="#page">PAGE p1</A></B>: number of lines displayed at a time<BR>
+<B><A HREF="#c">C V ...</A></B>: cancel a <B>V</B> command<BR>
+<B><A HREF="#c v all">C V ALL</A></B>: cancel all previously used <B>V</B> commands<BR>
+<B><A HREF="#c">C SH ...</A></B>: cancel a <B>SH</B> command<BR>
+<B><A HREF="#c sh all">C SH ALL</A></B>: cancel all previously used <B>SH</B> commands<BR>
+<B><A HREF="#d v">D V</A></B>: display all <B>V</B> commands in effect<BR>
+<B><A HREF="#d sh">D SH</A></B>: display all <B>SH</B> commands in effect<BR>
+<B><A HREF="#help">?</A></B>: help (can be inserted in place of any keyword)<BR>
+ 
+<P><B><A NAME="settings"></A>Space Group Settings</B><P>
+ 
+<B><A HREF="#d set">D SET</A></B>: display the current space-group setting<BR>
+<B><A HREF="#set">SET p1</A></B>: change the setting (p1 = <B>I</B>, <B>I NEW</B>, <B>I OLD</B>, <B>MI</B>, <B>K</B>, <B>B</B>, <B>Z</B>)<BR>
+<B><A HREF="#set i">SET I p1 OR p2</A></B>: origin choice (p1 = space group or <B>ALL</B> and p2 = <B>1</B>, <B>2</B>)<BR>
+<B><A HREF="#set i">SET I p1 AX p2</A></B>: axis choice (p1 = space group or <B>ALL</B> and p2 = <B>B</B>, <B>C</B>, <B>HEX</B>, <B>RH</B>)<BR>
+<B><A HREF="#set i">SET I p1 CELL p2</A></B>: cell choice (p1 = space group or <B>ALL</B> and p2 = <B>1</B>, <B>2</B>, <B>3</B>)<BR>
+<B><A HREF="#set mag">SET MAG</A></B>: magnetic space groups<BR>
+<B><A HREF="#set nomag">SET NOMAG</A></B>: return to Federov space groups<BR>
+ 
+<P><B><A NAME="labeling"></A>Labeling</B><P>
+ 
+<B><A HREF="#l sp">L SP p1</A></B>: change the labeling of space groups (p1 = <B>SCH</B>, <B>I</B>, <B>I SHORT</B>, <B>I FULL</B>)<BR>
+<B><A HREF="#l ele">L EL p1</A></B>: change the labeling of space group elements (p1 = <B>I</B>, <B>M</B>, <B>K</B>, <B>B</B>, <B>Z</B>)<BR>
+<B><A HREF="#l v">L VEC p1</A></B>: change the form of the vectors (p1 = <B>CON</B>, <B>PRIM</B>)<BR>
+<B><A HREF="#l im">L IM p1</A></B>: use image notation of Toledano and Toledano (p1 = <B>TOL</B>, <B>NOTOL</B>)<BR>
+<B><A HREF="#l po">L POINT p1</A></B>: change the labeling of point groups (p1 = <B>SCH</B>, <B>I</B>)<BR>
+<B><A HREF="#l lat">L LAT p1</A></B>: change the labeling of lattices (p1 = <B>SCH</B>, <B>P</B>)<BR>
+ 
+<P><B><A NAME="spacegroups"></A>Space Groups</B><P>
+ 
+<B><A HREF="#d par">D PAR</A></B>: display data on parent space group<BR>
+<B><A HREF="#v par">V PAR p1 [p2]</A></B>: select space group(s)<BR>
+<B><A HREF="#v lat p">V LAT PAR p1...p6</A></B>: select lattice parameters a, b, c, alpha, beta, gamma<BR>
+<B><A HREF="#v lat">V LAT p1 [p2]</A></B>: select lattice(s)<BR>
+<B><A HREF="#v point">V POINT p1 [p2]</A></B>: select point group(s)<BR>
+<B><A HREF="#v wy">V WY p1 [p2...]</A></B>: select wyckoff positions<BR>
+<B><A HREF="#v wy ir">V WY IR p1 [p2...]</A></B>: select point-group irrep of wyckoff position<BR>
+<B><A HREF="#v wy xyz">V WY XYZ p1 p2 p3</A></B>: select parameters x,y,z of wyckoff position<BR>
+<B><A HREF="#sh par">SH PAR</A></B>: show space group symbol<BR>
+<B><A HREF="#sh cart">SH CART</A></B>: show Cartesian coordinates<BR>
+<B><A HREF="#sh gen">SH GEN</A></B>: show generating elements of space group<BR>
+<B><A HREF="#sh ele">SH EL</A></B>: show coset representatives of space group<BR>
+<B><A HREF="#sh lat">SH LAT</A></B>: show lattice<BR>
+<B><A HREF="#sh point">SH POINT</A></B>: show point group<BR>
+<B><A HREF="#sh bas">SH BAS</A></B>: show basis vectors of lattice<BR>
+<B><A HREF="#sh wy">SH WY [p1 p2]</A></B>: show Wyckoff positions (p1 = <B>VEC</B>, <B>POINT</B>, ELE</A></B>, <B>CHAR</B>, p2 = <B>ALL</B>)<BR>
+ 
+<P><B><A NAME="kpoints"></A>K Points</B><P>
+ 
+<B><A HREF="#d kp">D KP</A></B>: display data on <B>k</B> points<BR>
+<B><A HREF="#v par">V PAR p1 [p2]</A></B>: select space group(s)<BR>
+<B><A HREF="#v ir">V IR p1</A></B>: select irrep<BR>
+<B><A HREF="#v kp">V KP p1</A></B>: select <B>k</B> point<BR>
+<B><A HREF="#v kdeg">V KDEG p1</A></B>: select degrees of freedom of <B>k</B> point<BR>
+<B><A HREF="#sh par">SH PAR</A></B>: show space group symbol<BR>
+<B><A HREF="#sh kp">SH KP</A></B>: show coordinates of <B>k</B> point<BR>
+<B><A HREF="#sh kdeg">SH KDEG</A></B>: show degrees of freedom of <B>k</B> point<BR>
+<B><A HREF="#sh star">SH STAR</A></B>: show the star of <B>k</B><BR>
+ 
+<P><B><A NAME="images"></A>Images of Irreps</B><P>
+ 
+<B><A HREF="#d im">D IM</A></B>: display data on images of irreps<BR>
+<B><A HREF="#v im">V IM p1</A></B>: select image<BR>
+<B><A HREF="#v dim">V DIM p1 [p2]</A></B>: select dimension(s)<BR>
+<B><A HREF="#v ord">V ORD p1 [p2]</A></B>: select order(s)<BR>
+<B><A HREF="#v act">V ACT p1</A></B>: select active or non-active images (p1 = <B>Y</B>, <B>N</B>)<BR>
+<B><A HREF="#v lan">V LAN p1 [p2]</A></B>: select Landau frequency/frequencies<BR>
+<B><A HREF="#v type">V TYPE p1</A></B>: select type of irrep<BR>
+<B><A HREF="#sh im">SH IM</A></B>: show image symbol<BR>
+<B><A HREF="#sh gen">SH GEN</A></B>: show generating matrices<BR>
+<B><A HREF="#sh ele">SH EL</A></B>: show all matrices<BR>
+<B><A HREF="#sh dim">SH DIM</A></B>: show dimension<BR>
+<B><A HREF="#sh ord">SH ORD</A></B>: show order<BR>
+<B><A HREF="#sh act">SH ACT</A></B>: show whether image is active or not<BR>
+<B><A HREF="#sh lan">SH LAN</A></B>: show Landau frequency<BR>
+<B><A HREF="#sh type">SH TYPE</A></B>: show type of irrep<BR>
+ 
+<P><B><A NAME="irreps"></A>Irreps</B><P>
+ 
+<B><A HREF="#d ir">D IR</A></B>: display data on irreps<BR>
+<B><A HREF="#v par">V PAR p1 [p2]</A></B>: select space group(s)<BR>
+<B><A HREF="#v ir">V IR p1</A></B>: select irrep<BR>
+<B><A HREF="#v kp">V KP p1</A></B>: select <B>k</B> point<BR>
+<B><A HREF="#v kdeg">V KDEG p1</A></B>: select degrees of freedom of <B>k</B> point<BR>
+<B><A HREF="#v kval">V KVAL p1 [p2...]</A></B>: select parameters alpha, beta, gamma for the <B>k</B> point<BR>
+<B><A HREF="#v im">V IM p1</A></B>: select image of irrep<BR>
+<B><A HREF="#v ele">V EL p1</A></B>: select space-group element (to display the character or matrix)<BR>
+<B><A HREF="#v dim">V DIM p1 [p2]</A></B>: select dimension(s)<BR>
+<B><A HREF="#v act">V ACT p1</A></B>: select active or non-active irreps (p1 = <B>Y</B>, <B>N</B>)<BR>
+<B><A HREF="#v lan">V LAN p1 [p2]</A></B>: select Landau frequency/frequencies<BR>
+<B><A HREF="#v lif">V LIF p1 [p2]</A></B>: select Lifshitz frequency/frequencies<BR>
+<B><A HREF="#v fel">V FEL p1 [p2]</A></B>: select Felix frequency/frequencies<BR>
+<B><A HREF="#v type">V TYPE p1</A></B>: select type of irrep<BR>
+<B><A HREF="#v wy">V WY p1 [p2...]</A></B>: select wyckoff positions<BR>
+<B><A HREF="#v wy ir">V WY IR p1</A></B>: select point-group irrep of wyckoff position<BR>
+<B><A HREF="#v compat">V COMPAT p1</A></B>: select <B>k</B> point for compatibility relation<BR>
+<B><A HREF="#sh par">SH PAR</A></B>: show space group<BR>
+<B><A HREF="#sh ir">SH IR [p1]</A></B>: show irrep (p1=other settings: <B>M</B>, <B>K</B>, <B>B</B>, <B>Z</B>, <B>P</B>)<BR>
+<B><A HREF="#sh act">SH ACT</A></B>: show whether the irrep is active or not<BR>
+<B><A HREF="#sh im">SH IM</A></B>: show image of irrep<BR>
+<B><A HREF="#sh gen">SH GEN</A></B>: show space-group elements that map onto the image generators<BR>
+<B><A HREF="#sh ele">SH EL</A></B>: show space-group element selected<BR>
+<B><A HREF="#sh char">SH CH</A></B>: show character of selected space-group element<BR>
+<B><A HREF="#sh mat">SH MAT</A></B>: show matrix of selected space-group element<BR>
+<B><A HREF="#sh complex">SH COMPLEX</A></B>: show complex form of irrep matrix and character<BR>
+<B><A HREF="#sh ker">SH KER</A></B>: show generators of kernel<BR>
+<B><A HREF="#sh dim">SH DIM</A></B>: show dimension<BR>
+<B><A HREF="#sh lan">SH LAN</A></B>: show Landau frequency<BR>
+<B><A HREF="#sh lif">SH LIF</A></B>: show Lifshitz frequency<BR>
+<B><A HREF="#sh fel">SH FEL</A></B>: show Felix frequency<BR>
+<B><A HREF="#sh type">SH TYPE</A></B>: show type of irrep<BR>
+<B><A HREF="#sh faint">SH FAINT</A></B>: show faintness index for linear coupling with other irreps<BR>
+<B><A HREF="#sh freq">SH FR</A></B>: show frequency and irreps of the Wyckoff-position point groups<BR>
+<B><A HREF="#sh kp">SH KP</A></B>: show coordinates of <B>k</B> point<BR>
+<B><A HREF="#sh kdeg">SH KDEG</A></B>: show degrees of freedom of <B>k</B> point<BR>
+<B><A HREF="#sh star">SH STAR</A></B>: show the star of <B>k</B><BR>
+<B><A HREF="#sh compat">SH COMPAT</A></B>: show compatibility relations<BR>
+ 
+<P><B><A NAME="isotropy"></A>Isotropy Subgroups</B><P>
+ 
+<B><A HREF="#d iso">D IS</A></B>: display data on isotropy subgroups<BR>
+<B><A HREF="#d iso coup">D IS COUP</A></B>: display data on isotropy subgroups for coupled order parameters<BR>
+<B><A HREF="#v par">V PAR p1 [p2]</A></B>: select parent space group(s)<BR>
+<B><A HREF="#v subg">V SUB p1 [p2]</A></B>: select isotropy subgroup(s)<BR>
+<B><A HREF="#v lat">V LAT p1 [p2]</A></B>: select lattice(s) of subgroup<BR>
+<B><A HREF="#v point">V POINT p1 [p2]</A></B>: select point group(s) of subgroup<BR>
+<B><A HREF="#v ir">V IR p1 [p2...]</A></B>: select irreps<BR>
+<B><A HREF="#v ir mag">V IR MAG p1 [p2...]</A></B>: indicate which irreps
+are magnetic<BR>
+<B><A HREF="#v kp">V KP p1</A></B>: select <B>k</B> point<BR>
+<B><A HREF="#v kval">V KVAL p1 [p2...]</A></B>: select parameters alpha, beta, gamma for the <B>k</B> points<BR>
+<B><A HREF="#v im">V IM p1</A></B>: select image of irrep<BR>
+<B><A HREF="#v dim">V DIM p1 [p2]</A></B>: select dimension(s) of irrep<BR>
+<B><A HREF="#v act">V ACT p1</A></B>: select active or non-active irreps (p1 = <B>Y</B>, <B>N</B>)<BR>
+<B><A HREF="#v cont">V CON p1</A></B>: select continuous or discontinuous transitions (p1 = <B>LAN</B>, <B>RG</B>, <B>NO</B>)<BR>
+<B><A HREF="#v lan">V LAN p1 [p2]</A></B>: select Landau frequency/frequencies<BR>
+<B><A HREF="#v lif">V LIF p1 [p2]</A></B>: select Lifshitz frequency/frequencies<BR>
+<B><A HREF="#v fel">V FEL p1 [p2]</A></B>: select Felix frequency/frequencies<BR>
+<B><A HREF="#v dir">V DIR p1 [p2...]</A></B>: select directions of order parameter<BR>
+<B><A HREF="#v freq">V FREQ p1 [p2]</A></B>: select subduction frequency/frequencies<BR>
+<B><A HREF="#v dom">V DOM p1</A></B>: select domain<BR>
+<B><A HREF="#v dom p">V DOM P p1 p2</A></B>: select domain pair<BR>
+<B><A HREF="#v dom set or">V DOM SET OR p1</A></B>: select order of domain set<BR>
+<B><A HREF="#v dom set cl">V DOM SET CL p1</A></B>: select class of domain set<BR>
+<B><A HREF="#v dom set dir">V DOM SET DIR p1</A></B>: select direction of domain set vector<BR>
+<B><A HREF="#v dom set un">V DOM SET UN p1</A></B>: select number of unconnected parts in domain set<BR>
+<B><A HREF="#v norm">V NORM p1 p2 p3</A></B>: select Miller indices (hkl) of plane between twin domains<BR>
+<B><A HREF="#v pos">V POS p1 p2 p3</A></B>: select point on plane between twin domains<BR>
+<B><A HREF="#v size">V SIZ p1 [p2]</A></B>: select size of subgroup's primitive unit cell relative to parent group's<BR>
+<B><A HREF="#v max">V MAX p1</A></B>: select maximal or non-maximal subgroups (p1 = <B>Y</B>, <B>N</B>)<BR>
+<B><A HREF="#v sub max">V SUB MAX </A></B>: select maximal subgroups the of parent<BR>
+<B><A HREF="#v lat">V LAT PAR p1...p6</A></B>: select lattice parameters a, b, c, alpha, beta, gamma<BR>
+<B><A HREF="#v bas">V BAS p1 p2 p3</A></B>: select alternate basis vectors<BR>
+<B><A HREF="#v ori">V ORI p1</A></B>: select alternate origin<BR>
+<B><A HREF="#v fer">V FER p1</A></B>: select ferroic species (p1 = <B>FC</B>, <B>PFC</B>, <B>IFC</B>, <B>FS</B>, <B>PFS</B>, 
+<B>IFS</B>, <B>NF</B>, <B>OTHER</B>, <BR>
+<B><A HREF="#sh par">SH PAR</A></B>: show parent space group symbol<BR>
+<B><A HREF="#sh subg">SH SUB</A></B>: show isotropy subgroup symbol<BR>
+<B><A HREF="#sh dir">SH DIR [p1]</A></B>: show direction of order parameter (p1=<B>VEC</B> to show the vector)<BR>
+<B><A HREF="#sh bas">SH BAS</A></B>: show basis vectors of subgroup<BR>
+<B><A HREF="#sh ori">SH ORI</A></B>: show origin of subgroup<BR>
+<B><A HREF="#sh sub alt">SH SUB ALT</A></B>: show alternate basis vectors and origin of subgroup<BR>
+<B><A HREF="#sh xyz">SH XYZ</A></B>: show x,y,z in subgroup in terms of x,y,z in parent group<BR>
+<B><A HREF="#sh wy">SH WY SUBG</A></B>: show Wyckoff positions in subgroup<BR>
+<B><A HREF="#sh gen">SH GEN</A></B>: show elements of parent group which generate subgroup<BR>
+<B><A HREF="#sh ele">SH EL</A></B>: show elements of parent group which are elements of subgroup<BR>
+<B><A HREF="#sh newf">SH NEW</A></B>: show new fractionals in subgroup<BR>
+<B><A HREF="#sh size">SH SIZ</A></B>: show relative size of subgroup's primitive unit cell to parent group's<BR>
+<B><A HREF="#sh ind">SH IND</A></B>: show index of subgroup in parent group<BR>
+<B><A HREF="#sh dom">SH DOM [p1]</A></B>: show domains (p1=<B>GEN</B> to show generators)<BR>
+<B><A HREF="#sh dist">SH DISTINCT</A></B>: show which domains are distinct<BR>
+<B><A HREF="#sh pair">SH PAIR</A></B>: show which pairs of domains are equivalent<BR>
+<B><A HREF="#sh pair">SH PAIR p1</A></B>: show pair intersection group (p1=<B>I</B>), pair group (p1=<B>GR</B>) and its basis vectors (p1=<B>B</B>),
+its origin (p1=<B>O</B>), its generating elements (p1=<B>GE</B>), and its elements (p1=<B>E</B>).<BR>
+<B><A HREF="#sh twin">SH TWIN INT p1</A></B>: show twin intersection group: its label (p1=<B>GR</B>), its basis vectors (p1=<B>B</B>), its origin (p1=<B>O</B>),
+its generating elements (p1=<B>GE</B>), and its elements (p1=<B>E</B>).<BR>
+<B><A HREF="#sh twin">SH TWIN p1</A></B>: show twin group: its label (p1=<B>GR</B>), its basis vectors (p1=<B>B</B>), its origin (p1=<B>O</B>),
+its generating elements (p1=<B>GE</B>), and its elements (p1=<B>E</B>).<BR>
+<B><A HREF="#sh twin">SH TWIN SW p1</A></B>: show switching elements in twin group (p1=<B>SIDE</B>, <B>NORMAL</B>, <B>BOTH</B>).<BR>
+<B><A HREF="#sh dom set">SH DOM SET [p1]</A></B>: show domain sets (p1=<B>GR</B> to show set group, <B>INT</B> to show intersection group,
+<B>BAS</B> to show basis vectors, <B>OR</B> to show origin, <B>GEN</B> to show generators, <B>ELE</B> to show elements,
+<B>ALL</B> to show equivalent sets or directions, <B>EQ</B> to show equivalence operators,
+<B>DIR</B> to show domain set vectors)<BR>
+<B><A HREF="#sh max">SH MAX</A></B>: show whether or not the subgroup is maximal<BR>
+<B><A HREF="#sh lat">SH LAT</A></B>: show lattices of parent space group and of subgroup<BR>
+<B><A HREF="#sh point">SH POINT</A></B>: show point groups of parent space group and of subgroup<BR>
+<B><A HREF="#sh ir">SH IR [p1]</A></B>: show irrep (p1=other settings: <B>M</B>, <B>K</B>, <B>B</B>, <B>Z</B>, <B>P</B>)<BR>
+<B><A HREF="#sh im">SH IM</A></B>: show image of irrep<BR>
+<B><A HREF="#sh dim">SH DIM</A></B>: show dimension<BR>
+<B><A HREF="#sh act">SH ACT</A></B>: show whether the irrep is active or not<BR>
+<B><A HREF="#sh cont">SH CON</A></B>: show whether or not the phase transition is continuous<BR>
+<B><A HREF="#sh lan">SH LAN</A></B>: show Landau frequency<BR>
+<B><A HREF="#sh lif">SH LIF</A></B>: show Lifshitz frequency<BR>
+<B><A HREF="#sh fel">SH FEL</A></B>: show Felix frequency<BR>
+<B><A HREF="#sh freq">SH FR [p1]</A></B>: show frequencies and irreps that subduce the subgroup (p1=<B>DIR</B>, <B>GAM</B>, <B>CL</B>)<BR>
+<B><A HREF="#sh cart">SH CART</A></B>: show Cartesian coordinates<BR>
+<B><A HREF="#sh fer">SH FER</A></B>: show ferroic species<BR>
+ 
+<P><B><A NAME="distortions"></A>Distortions</B><P>
+ 
+<B><A HREF="#d dist">D DIST</A></B>: display distortions<BR>
+<B><A HREF="#v par">V PAR p1</A></B>: select parent space group<BR>
+<B><A HREF="#v ir">V IR p1</A></B>: select irrep<BR>
+<B><A HREF="#v kp">V KP p1</A></B>: select <B>k</B> point<BR>
+<B><A HREF="#v kval">V KVAL p1 [p2...]</A></B>: select parameters alpha, beta, gamma for the <B>k</B> point<BR>
+<B><A HREF="#v rank">V RANK p1</A></B>: select rank and symmetries of macroscopic tensor<BR>
+<B><A HREF="#v dir">V DIR p1 [p2...]</A></B>: select directions of order parameter<BR>
+<B><A HREF="#v dom">V DOM p1</A></B>: select domain<BR>
+<B><A HREF="#v cell">V CELL p1 p2 p3</A></B>: select super cell<BR>
+<B><A HREF="#v lat p">V LAT PAR p1...p6</A></B>: select lattice parameters a, b, c, alpha, beta, gamma<BR>
+<B><A HREF="#v wy">V WY p1 [p2...]</A></B>: select wyckoff positions<BR>
+<B><A HREF="#v wy ir">V WY IR p1 [p2...]</A></B>: select point-group irrep of wyckoff position<BR>
+<B><A HREF="#v wy xyz">V WY XYZ p1 p2 p3</A></B>: select parameters x,y,z of wyckoff position<BR>
+<B><A HREF="#v pos">V POS p1 p2 p3</A></B>: select coordinates of point<BR>
+<B><A HREF="#sh mac">SH MAC [p1]</A></B>: show macroscopic distortion (p1=<B>PSEUDO</B>)<BR>
+<B><A HREF="#sh mic">SH MIC [p1] [p2]</A></B>: show microscopic distortion (p1=<B>SC</B>, <B>VEC</B>, p2=<B>PSEUDO</B>)<BR>
+<B><A HREF="#sh loc">SH LOC [p1] [p2]</A></B>: show local distortion (p1=<B>SC</B>, <B>VEC</B>, p2=<B>PSEUDO</B>)<BR>
+<B><A HREF="#sh par">SH PAR</A></B>: show parent space group symbol<BR>
+<B><A HREF="#sh ir">SH IR [p1]</A></B>: show irrep (p1=other settings: <B>M</B>, <B>K</B>, <B>B</B>, <B>Z</B>, <B>P</B>)<BR>
+<B><A HREF="#sh dir">SH DIR</A></B>: show direction of order parameter<BR>
+<B><A HREF="#sh dom">SH DOM</A></B>: show domain<BR>
+<B><A HREF="#sh wy">SH WY [p1]</A></B>: show Wyckoff positions (p1=<B>IR</B>)<BR>
+<B><A HREF="#sh pos">SH POS IR</A></B>: show point group irrep of point about Wyckoff position<BR>
+<B><A HREF="#sh unit">SH UNIT</A></B>: show distortions in unit cell of parent<BR>
+<B><A HREF="#sh cart">SH CART</A></B>: show Cartesian coordinates<BR>
+ 
+<P><B><A NAME="invariant"></A>Invariant Polynomials</B><P>
+ 
+<B><A HREF="#d inv">D INV</A></B>: display invariant polynomials<BR>
+<B><A HREF="#v par">V PAR p1</A></B>: select parent space group<BR>
+<B><A HREF="#v ir">V IR p1 [p2...]</A></B>: select irreps<BR>
+<B><A HREF="#v kval">V KVAL p1 [p2...]</A></B>: select parameters alpha, beta, gamma for the <B>k</B> point<BR>
+<B><A HREF="#v dir">V DIR p1 [p2...]</A></B>: select directions of order parameter<BR>
+<B><A HREF="#v dom">V DOM p1 [p2...]</A></B>: select domains<BR>
+<B><A HREF="#v deg">V DEG p1 [p2]</A></B>: select degree(s) of polynomials<BR>
+<B><A HREF="#v grad">V GRAD p1</A></B>: select number of spatial derivatives<BR>
+<B><A HREF="#sh par">SH PAR</A></B>: show parent space group symbol<BR>
+<B><A HREF="#sh ir">SH IR [p1]</A></B>: show irrep (p1=other settings: <B>M</B>, <B>K</B>, <B>B</B>, <B>Z</B>, <B>P</B>)<BR>
+<B><A HREF="#sh dim">SH DIM</A></B>: show dimension<BR>
+ 
+<P><B><A NAME="bush"></A>Bushes of Modes</B><P>
+ 
+<B><A HREF="#d bush">D BUSH</A></B>: display data on bush of modes<BR>
+<B><A HREF="#v par">V PAR p1</A></B>: select parent space group<BR>
+<B><A HREF="#v ir">V IR p1</A></B>: select irrep<BR>
+<B><A HREF="#v kval">V KVAL p1 [p2...]</A></B>: select parameters alpha, beta, gamma for the <B>k</B> point<BR>
+<B><A HREF="#v dir">V DIR p1</A></B>: select direction of order parameter<BR>
+<B><A HREF="#v wy">V WY p1 [p2...]</A></B>: select Wyckoff positions<BR>
+<B><A HREF="#v deg">V DEG p1 [p2]</A></B>: select degree(s) of invariant polynomials<BR>
+<B><A HREF="#sh mod">SH MODES</A></B>: show atomic displacements<BR>
+<B><A HREF="#sh inv">SH INV</A></B>: show invariant polynomials in free energy<BR>
+ 
+<P><B><A NAME="direction"></A>Order Parameters</B><P>
+ 
+<B><A HREF="#d dir">D DIR</A></B>: display directions of order parameters<BR>
+<B><A HREF="#v par">V PAR p1</A></B>: select parent space group<BR>
+<B><A HREF="#v subg">V SUBG p1</A></B>: select subgroup<BR>
+<B><A HREF="#v bas">V BASIS p1 p2 p3</A></B>: select basis vectors of subgroup lattice<BR>
+<B><A HREF="#v ori">V ORIGIN p1</A></B>: select origin of subgroup<BR>
+<B><A HREF="#sh kp">SH KPOINT</A></B>: show <B>k</B> vectors<BR>
+<B><A HREF="#sh subg">SH SUB</A></B>: show subgroup symbol<BR>
+<B><A HREF="#sh size">SH SIZ</A></B>: show relative size of subgroup's primitive unit cell to parent group's<BR>
+ 
+<H1>Isotropy User's Manual</H1>
+ 
+ISOTROPY is a program which displays information about space groups,
+irreducible representations, isotropy subgroups, and phase transitions.
+The concepts and algorithms used in ISOTROPY were developed by
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell.  
+<P>
+This software may be distributed without restriction, but if it is used
+in research that results in publications, the use of this program should
+be acknowledged with reference to H. T. Stokes, D. M. Hatch, and
+B. J. Campbell.
+<P>
+ 
+ 
+ISOTROPY has access to six different space-group settings, found in the
+following references:
+<P>
+ 
+1.
+<I>International Tables for Crystallography,</I> Vol. A, edited by T. Hahn
+(Reidel, Boston, 1983).
+<P>
+ 
+2.
+<I>International Tables for X-Ray Crystallography</I>, Vol. I, edited by
+N. F. M. Henry and K. Lonsdale (Kynoch Press, Birmingham, 1965).
+<P>
+ 
+3.
+S. C. Miller and W. F. Love, <I>Tables of Irreducible Representations
+of Space Groups and Co-Representations of Magnetic Space Groups</I>
+(Pruett, Boulder, 1967).  This is essentially the same as A. P. Cracknell,
+B. L. Davies, S. C. Miller, and W. F. Love, <I>Kronecker Product Tables,</I>
+Vol. 1 (Plenum, New York, 1979).
+<P>
+ 
+4.
+O. V. Kovalev, <I>Representations of the Crystallographic Space Groups:
+Irreducible Representations, Induced Representations and Corepresentations</I>
+(Gordon and Breach, Amsterdam, 1993).
+<P>
+ 
+5.
+C. J. Bradley and A. P. Cracknell, <I>The Mathematical Theory of Symmetry
+in Solids</I> (Clarendon, Oxford, 1972).
+<P>
+ 
+6.
+<I>The Irreducible Representations of Space Groups,</I> edited by J. Zak
+(Benjamin, New York, 1969).
+<P>
+ 
+These references will be referred to as International Tables (new ed.),
+International Tables (old ed.), Miller-Love, Kovalev, Bradley-Cracknell,
+and Zak, respectively.  ISOTROPY has access to the irrep labeling of
+Miller-Love, Kovalev, Bradley-Cracknell, and Zak for all physically
+irreducible representations arising from <B>k</B> points of symmetry.
+Also, ISOTROPY has access to the irrep labeling of Miller-Love for
+all physically irreducible representations arising from <I>all</I> <B>k</B> points,
+including <B>k</B> lines and <B>k</B> planes of symmetry and general <B>k</B> vectors.
+When ISOTROPY starts, the default space-group setting is International
+Tables (new ed.) and the default irrep labeling is Miller-Love.<P>
+ 
+<H1>Isotropy Commands</H1>
+ 
+A command
+consists of a series of keywords and parameters.  Different keywords and
+parameters are separated by a space character in the command.
+All keywords may be entered using either upper or lower case letters.
+All keywords may be abbreviated to the first one or more characters,
+depending on the ambiguity of the meaning of different commands that start
+with the same letter(s).  ISOTROPY tells the user when a keyword is
+ambiguous.
+<P>
+ 
+<A NAME="help"></A>If a question mark (<B>?</B>) is entered in place of one
+of the keywords, all valid keywords that could be entered at the position
+of the question mark will be displayed.  For example, if a simple <B>?</B>
+is entered in place of a command, ISOTROPY will indicate that the valid
+keywords are <B>CANCEL</B>, <B>DISPLAY</B>, <B>LABEL</B>, <B>PAGE</B>, <B>QUIT</B>,
+<B>SCREEN</B>, <B>SETTING</B>, <B>SHOW</B>, and <B>VALUE</B>.
+This means that the first keyword
+in a command must be one of these words.  As another example, if
+<B>LABEL ?</B> is entered as a command, ISOTROPY will indicate that the
+valid keywords are <B>ELEMENT</B>, <B>IMAGE</B>, <B>LATTICE</B>,
+<B>POINTGROUP</B>, <B>SPACEGROUP</B>, and <B>VECTOR</B>.
+This means that if the
+first keyword in a command is <B>LABEL</B>, then it must be followed
+by one of those six words.
+<P>
+ 
+In the following material, each command is denoted by keywords and
+parameters (p1, p2) which may be a number or another keyword.
+A parameter in brackets (eg., [p2]) is optional and does not need
+to be present for a command to be valid.
+<P>
+ 
+<B><A NAME="c"><FONT COLOR=#FF0000>CANCEL p1 p2 [p3 ...]</FONT></A></B><BR>
+The keyword <B>CANCEL</B> can be put in front of any <B>SHOW</B> or
+<B>VALUE</B> command below to cancel the effect of that command.  These
+cancel commands will not be explicitly listed here, except for a few commands
+which require some additional explanation.
+<P>
+ 
+<B><A NAME="c sh all"><FONT COLOR=#FF0000>CANCEL SHOW ALL</FONT></A></B><BR>
+Cancels the effect of all <B>SHOW</B> commands previously used.
+<P>
+ 
+<B><A NAME="c sh ele"><FONT COLOR=#FF0000>CANCEL SHOW ELEMENT</FONT></A></B><BR>
+This command also causes <B>CANCEL SHOW CHARACTER</B> and <B>CANCEL SHOW MATRIX</B> to be automatically executed.
+<P>
+ 
+<B><A NAME="c sh ir"><FONT COLOR=#FF0000>CANCEL SHOW IRREP [p1]</FONT></A></B><BR>
+Cancels the effect of <B>SHOW IRREP</B>.  The parameter p1 is the name
+of the one the settings (<B>MILLER-LOVE</B>, <B>KOVALEV</B>,
+<B>BRADLEY-CRACKNELL</B>, or <B>ZAK</B>).  If p1 is present, then
+only the notation specified by p1 is removed from the display.
+If p1 is not present, then all irrep symbols are removed from the
+display.  (Note that the irrep symbol in the current setting can only be
+removed from the display by removing all irrep symbols with
+<B>CANCEL SHOW IRREP</B>).
+<P>
+ 
+<B><A NAME="c v all"><FONT COLOR=#FF0000>CANCEL VALUE ALL</FONT></A></B><BR>
+Cancels the effect of all <B>VALUE</B> commands previously used.
+<P>
+ 
+<B><A NAME="d bush"><FONT COLOR=#FF0000>DISPLAY BUSH</FONT></A></B><BR>
+Data about a bush of vibrational modes are displayed.  The parent space group,
+irrep, direction of the order parameter, and Wyckoff positions of the atoms
+must be selected.  When used with <B>SHOW MODES</B>, the atomic displacements
+in each mode is displayed.  When used with <B>SHOW INVARIANTS</B>, the invariant
+polynomials in the free-energy expansion of the bush of modes are displayed.
+<P>
+ 
+<B><A NAME="d dir"><FONT COLOR=#FF0000>DISPLAY DIRECTION</FONT></A></B><BR>
+The irreps and directions of order parameters are displayed, given the parent
+space group, subgroup, basis vectors of the subgroup lattice, and origin of
+the subgroup.
+<P>
+ 
+<B><A NAME="d dist"><FONT COLOR=#FF0000>DISPLAY DISTORTION</FONT></A></B><BR>
+Symmetry-allowed distortions are displayed.
+The displayed data are controlled by
+<B>VALUE</B>, <B>SHOW</B>, and <B>CANCEL</B> commands.
+<P>
+ 
+<B><A NAME="d im"><FONT COLOR=#FF0000>DISPLAY IMAGE</FONT></A></B><BR>
+Data about images of the irreps are displayed.
+The displayed data are controlled by
+<B>VALUE</B>, <B>SHOW</B>, and <B>CANCEL</B> commands.
+<P>
+ 
+<B><A NAME="d inv"><FONT COLOR=#FF0000>DISPLAY INVARIANTS</FONT></A></B><BR>
+Invariant polynomials in the representation space of one or more coupled
+irreps are displayed.
+The displayed data are controlled by
+<B>VALUE</B>, <B>SHOW</B>, and <B>CANCEL</B> commands.
+A parent space group must be selected (using <B>VALUE PARENT</B>),
+and one or more irreps must be selected (using <B>VALUE IRREP</B>).
+Each invariant polynomial and its degree are displayed without needing to
+use any <B>SHOW</B> commands.
+<P>
+ 
+<B>VALUE GRADIENT</B> may be used to display invariant polynomials containing
+spatial derivatives.  The value selected by this command determines the
+number of derivatives each polynomial will contain.  (Note that polynomials
+which vanish in a volume integral are also displayed.  The user must inspect
+these himself and discard them by hand.)  The degree of the polynomial must
+be selected (using <B>VALUE DEGREE</B>).
+<P>
+ 
+<B><A NAME="d ir"><FONT COLOR=#FF0000>DISPLAY IRREP</FONT></A></B><BR>
+Data about irreps are displayed.
+The displayed data are controlled by
+<B>VALUE</B>, <B>SHOW</B>, and <B>CANCEL</B> commands.
+<P>
+ 
+<B><A NAME="d iso"><FONT COLOR=#FF0000>DISPLAY ISOTROPY</FONT></A></B><BR>
+Data about isotropy subgroups are displayed.
+The displayed data are controlled by
+<B>VALUE</B>, <B>SHOW</B>, and <B>CANCEL</B> commands.
+Isotropy subgroups for irreps associated with <B>k</B> lines and <B>k</B> planes of
+symmetry and general <B>k</B> vectors are not stored in the data base since they
+depend on the parameters alpha, beta, gamma which define the exact location
+of the <B>k</B> vector.
+The data for these subgroups are read from a special file.
+ISOTROPY looks for this file in the user's directory.  If it is not found, the
+user is prompted, and, if desired, ISOTROPY will then proceed to calculate
+the requested subgroups and create the file.
+<P>
+ 
+<B><A NAME="d iso coup"><FONT COLOR=#FF0000>DISPLAY ISOTROPY COUPLED</FONT></A></B><BR>
+Data about isotropy subgroups of coupled order parameters are displayed.
+The displayed data are controlled by
+<B>VALUE</B>, <B>SHOW</B>, and <B>CANCEL</B> commands.
+A parent space group must be selected (using <B>VALUE PARENT</B>),
+and two or more irreps must be selected (using <B>VALUE IRREP</B>).
+The data for these subgroups are read from a special file.
+ISOTROPY looks for this file in the user's directory.  If it is not found, the
+user is prompted, and, if desired, ISOTROPY will then proceed to calculate
+the requested subgroups and create the file.  Note that not commands implemented
+for <B>DISPLAY ISOTROPY</B> are implemented for <B>DISPLAY ISOTROPY COUPLED</B>.
+<P>
+ 
+<B><A NAME="d kp"><FONT COLOR=#FF0000>DISPLAY KPOINT</FONT></A></B><BR>
+Data about <B>k</B> vectors in the first Brillouin zone are displayed.
+The displayed data are controlled by
+<B>VALUE</B>, <B>SHOW</B>, and <B>CANCEL</B> commands.
+<P>
+ 
+<B><A NAME="d par"><FONT COLOR=#FF0000>DISPLAY PARENT</FONT></A></B><BR>
+Data about space groups are displayed.  (The word <B>PARENT</B> refers
+to "parent space group".)  The displayed data are controlled by
+<B>VALUE</B>, <B>SHOW</B>, and <B>CANCEL</B> commands.
+<P>
+ 
+<B><A NAME="d set"><FONT COLOR=#FF0000>DISPLAY SETTING</FONT></A></B><BR>
+The current space-group setting being used is displayed.
+<P>
+ 
+<B><A NAME="d sh"><FONT COLOR=#FF0000>DISPLAY SHOW</FONT></A></B><BR>
+All <B>SHOW</B> commands currently in effect are shown.
+<P>
+ 
+<B><A NAME="d v"><FONT COLOR=#FF0000>DISPLAY VALUE</FONT></A></B><BR>
+All <B>VALUE</B> commands currently in effect are shown.
+<P>
+ 
+<B><A NAME="l ele"><FONT COLOR=#FF0000>LABEL ELEMENT p1</FONT></A></B><BR>
+The notation for the space-group elements is changed.
+This affects the label displayed whenever elements of a space
+group are displayed.  It also affects the way in which elements are to
+be entered with the <B>VALUE ELEMENT</B> command. The parameter p1
+indicates the notation to be used: <B>INTERNATIONAL</B>, <B>MILLER-LOVE</B>,
+<B>KOVALEV</B>, <B>BRADLEY-CRACKNELL</B> and <B>ZAK</B> for the notations
+of the international tables, Miller and Love, Kovalev, Bradley and Cracknell,
+and Zak, respectively.  See the <A HREF="#v ele"><B>VALUE ELEMENT</B></A> command for an explanation
+of these notations.  Note that the <B>SETTING</B> command does not change
+the notation of space-group elements. For example,
+it is possible to show elements
+of a space group in the setting of Zak using Bradley and Cracknell's
+notation for the space-group elements.
+When ISOTROPY is started, the default notation for elements is
+<B>BRADLEY-CRACKNELL</B>.
+<P>
+ 
+<B><A NAME="l im"><FONT COLOR=#FF0000>LABEL IMAGE p1</FONT></A></B><BR>
+<B>LABEL IMAGE TOLEDANO</B> adds the notation of Toledano and Toledano
+for images whenever image symbols are displayed.
+<B>LABEL IMAGE NOTOLEDANO</B> removes this notation.
+<P>
+ 
+<B><A NAME="l lat"><FONT COLOR=#FF0000>LABEL LATTICE p1</FONT></A></B><BR>
+The notation for Bravais lattices is changed.  This affects the label
+displayed when <B>SHOW LATTICE</B> is used.
+The parameter p1 indicates the notation to be used: <B>SCHOENFLIES</B>
+and <B>PEARSON</B>.  See the <A HREF="#v lat"><B>VALUE LATTICE</B></A> command for more
+explanation about these notations.
+<P>
+ 
+<B><A NAME="l po"><FONT COLOR=#FF0000>LABEL POINTGROUP p1</FONT></A></B><BR>
+The notation for point groups is changed.  This affects the label
+displayed when <B>SHOW POINTGROUP</B> is used.
+The parameter p1 indicates the notation to be used: <B>INTERNATIONAL</B>
+and <B>SCHOENFLIES</B>. See the <A HREF="#v point"><B>VALUE POINTGROUP</B></A> command for more
+explanation about these notations.
+<P>
+ 
+<B><A NAME="l sp"><FONT COLOR=#FF0000>LABEL SPACEGROUP p1</FONT></A></B><BR>
+The notation for the space-group label is changed.  This affects the label
+displayed when <B>SHOW PARENT</B> or <B>SHOW SUBGROUP</B> are used.
+The parameter p1 indicates the notation to be used: <B>INTERNATIONAL</B>
+and <B>SCHOENFLIES</B>.  Also the international notation can be changed
+to the full symbol or the short symbol using
+<B>LABEL SPACEGROUP INTERNATIONAL SHORT</B> or
+<B>LABEL SPACEGROUP INTERNATIONAL FULL</B>, respectively.
+The full symbol reflects the choice of cell and unique axis for the
+monoclinic space groups, while the short symbol does not.
+The <B>INTERNATIONAL</B> label also reflects the setting used.  For example,
+space group #12 is <B>C2/m</B>, <B>A2/m</B>, <B>B2/m</B>, <B>B2/m</B> for
+the <B>INTERNATIONAL</B>, <B>MILLER-LOVE</B>, <B>BRADLEY-CRACKNELL</B>,
+<B>ZAK</B> settings, respectively.  When using the <B>KOVALEV</B> setting,
+only the <B>SCHOENFLIES</B> labeling of space groups is shown.
+<P>
+ 
+<B><A NAME="l v"><FONT COLOR=#FF0000>LABEL VECTOR p1</FONT></A></B><BR>
+<B>LABEL VECTOR PRIMITIVE</B> causes the components of vectors and coordinates
+of points to be displayed in terms of primitive basis vectors.
+<B>LABEL VECTOR CONVENTIONAL</B> causes the components of vectors and coordinates of
+points to be displayed in terms of conventional basis vectors.  For example,
+a vector (1/2)<B>i</B>+(1/2)<B>j</B> in a face-centered cubic lattice
+would be displayed as <B>(1/2,1/2,0)</B> using conventional basis vectors
+and as <B>(0,0,1)</B> using primitive basis vectors. (This vector happens
+to be chosen for the third primitive basis vector for that lattice.)
+<B>LABEL VECTOR PRIMITIVE</B> cannot be used with the
+<B>INTERNATIONAL</B> setting.
+<P>
+ 
+<B><A NAME="page"><FONT COLOR=#FF0000>PAGE p1</FONT></A></B><BR>
+This command sets the number of lines that can be displayed at one time.
+When the output to a particular <B>DISPLAY</B> command
+requires more lines than p1, only p1 lines are displayed at a time.
+When ISOTROPY starts, the default number of lines is 22. If p1 is
+<B>NOBREAK</B>, all lines are displayed at one time.
+<P>
+ 
+<B><A NAME="q"><FONT COLOR=#FF0000>QUIT</FONT></A></B><BR>
+The program ISOTROPY exits.
+<P>
+ 
+<B><A NAME="sc"><FONT COLOR=#FF0000>SCREEN p1</FONT></A></B><BR>
+The width of the display is changed to p1 characters wide.  The default
+width is 80 characters.  If the data to be displayed require
+more than p1 characters in a line, ISOTROPY first tries to arrange
+the last column of data  to form more than one line on the screen.  If this
+cannot be done, the line is truncated and an asterisk
+(<B>*</B>) appears at the right edge of the screen.
+<P>
+ 
+<B><A NAME="set"><FONT COLOR=#FF0000>SETTING p1</FONT></A></B><BR>
+The current space-group setting is changed.  The parameter p1 is
+the name of the setting: <B>INTERNATIONAL NEW</B>,
+<B>INTERNATIONAL OLD</B>, <B>MILLER-LOVE</B>, <B>KOVALEV</B>,
+<B>BRADLEY-CRACKNELL</B>, and <B>ZAK</B> refer to the setting of
+International Tables (new ed.), International Tables (old ed.),
+Miller and Love, Kovalev, Bradley and Cracknell, and
+Zak, respectively.  The current setting can be displayed using the
+<B>DISPLAY SETTING</B> command.
+Additional options for the settings in International
+Tables are discussed under the command, <B>SETTING INTERNATIONAL p1</B>.
+If the <B>SETTING INTERNATIONAL</B> command is used (without the keywords
+<B>NEW</B> or <B>OLD</B>), then the setting is returned to whichever edition
+was used the last time the current setting
+was <B>INTERNATIONAL</B>.
+When ISOTROPY starts, the current setting is <B>INTERNATIONAL NEW</B>.
+The <B>SETTING</B> command changes the notation used for irreps,
+unless the setting is changed to <B>INTERNATIONAL</B>.
+<P>
+ 
+<B><A NAME="set i"><FONT COLOR=#FF0000>SETTING INTERNATIONAL p1</FONT></A></B><BR>
+This command allows additional options for the setting of space groups
+in International Tables.
+<P>
+ 
+Some space groups have two choices of origin.  When ISOTROPY is started,
+origin choice 2 is used.  (This is the choice with the point of inversion
+at the origin.)  To change the origin choice for a particular space group,
+use <B>SETTING INTERNATIONAL p1 ORIGIN p2</B>, where p1 is a space-group
+number or symbol and p2 is <B>1</B> or <B>2</B>.  The origin choice
+for all space groups (with more than one origin choice) can be changed
+by using <B>ALL</B> for p1.  (Note that the origin choice is changed only for
+the current setting, i.e., the new or old edition, not both.)
+For example, <B>SETTING INTERNATIONAL 228 ORIGIN 1</B>
+changes the setting to origin choice 1 for space group #228
+Fd3c.  <B>SETTING INTERNATIONAL ALL ORIGIN 1</B> changes the setting
+of all space groups (which have two origin choices) to origin choice 1.
+<P>
+ 
+The monoclinic space groups have two choices for the unique axis.  When
+ISOTROPY is started, unique axis b is used for the new edition and
+unique axis c is used for the old edition.  To change the choice of
+unique axis for a particular space group, use
+<B>SETTING INTERNATIONAL p1 AXIS p2</B>,
+where p1 is a space-group number or symbol and p2
+is <B>B</B> or <B>C</B>.  The choice of unique axis for all monoclinic
+space groups can be changed by using <B>ALL</B> for p1.  (Note that the
+axis choice
+is changed only for the current setting, i.e., the new or old edition,
+not both.)
+For example, <B>SETTING INTERNATIONAL 5 AXIS C</B>
+changes the setting to unique axis c for space group #5
+A2.  <B>SETTING INTERNATIONAL ALL AXIS C</B> changes the setting
+of all monoclinic space groups to unique axis c.
+<P>
+ 
+The base-centered monoclinic space groups in the new edition
+have three cell choices.  When
+ISOTROPY is started, cell choice 1 is used.  To change the cell choice
+for a particular space group, use <B>SETTING INTERNATIONAL p1 CELL p2</B>,
+where p1 is a space-group number or symbol and p2
+is <B>1</B>, <B>2</B>, or <B>3</B>.  The cell choice for all base-centered
+monoclinic
+space groups can be changed by using <B>ALL</B> for p1.  (Note that the
+cell choice is changed only if the current setting is the new edition.)
+For example, <B>SETTING INTERNATIONAL 5 CELL 3</B>
+changes the setting to cell choice 3 for space group #5
+A2.  <B>SETTING INTERNATIONAL ALL CELL 3</B> changes the setting
+of all base-centered monoclinic space groups to cell choice 3.
+<P>
+ 
+The trigonal space groups have two choices for axes: hexagonal and
+rhombohedral.  When
+ISOTROPY is started, the hexagonal axes are used.
+To change the choice of
+axes for a particular space group, use
+<B>SETTING INTERNATIONAL p1 AXIS p2</B>,
+where p1 is a space-group number or symbol and p2
+is <B>HEXAGONAL</B> or <B>RHOMBOHEDRAL</B>.
+The choice of axes for all trigonal
+space groups can be changed by using <B>ALL</B> for p1.  (Note that the
+axis choice
+is changed only for the current setting, i.e., the new or old edition,
+not both.)
+For example, <B>SETTING INTERNATIONAL 167 AXIS RHOMBOHEDRAL</B> changes the setting to rhombohedral axes
+for space group #167
+R-3c.  <B>SETTING INTERNATIONAL ALL AXIS RHOMBOHEDRAL</B>
+changes the setting
+of all trigonal space groups to rhombohedral axes.
+<P>
+ 
+<B><A NAME="set mag"><FONT COLOR=#FF0000>SETTING MAGNETIC</FONT></A></B><BR>
+Data about the isotropy subgroups of the grey magnetic space groups are
+displayed when <B>DISPLAY ISOTROPY</B> is used.  All coordinates are expressed
+in terms of the primitive basis vectors in the setting of Miller and Love.
+<P>
+Magnetic space groups are displayed in the following format:  (1) the
+number of the associated Fedorov space group in parentheses, (2) the Belov
+number, and (3) the symbol given in Miller and Love.
+Magnetic space groups are selected using the number or
+symbol of the corresponding Fedorov space group.
+For example, <B>VALUE PARENT 155</B>
+or <B>VALUE PARENT R32</B> selects the grey magnetic space group R321'.
+The command <B>VALUE SUBGROUP 155</B> selects any of the four space
+groups associated with R32, i.e., R32, R321', R32', R<SUB>I</SUB>32.
+<P>
+ 
+<B><A NAME="set nomag"><FONT COLOR=#FF0000>SETTING NOMAGNETIC</FONT></A></B><BR>
+The command, <B>SETTING MAGNETIC</B>, is cancelled.
+<P>
+ 
+<B><A NAME="sh act"><FONT COLOR=#FF0000>SHOW ACTIVE</FONT></A></B><BR>
+Active images are indicated when <B>DISPLAY IMAGE</B> is used.  Active irreps
+are indicated when <B>DISPLAY IRREP</B> or <B>DISPLAY ISOTROPY</B> is used.  An irrep is active when
+both its Landau and Lifshitz frequencies are zero (the Landau and
+Lifshitz conditions).  An image is active when at least one
+active irrep is mapped onto it.  Note that not all irreps mapped onto
+active images are active irreps.  Some of them may fail the Lifshitz
+condition.
+<P>
+ 
+<B><A NAME="sh bas"><FONT COLOR=#FF0000>SHOW BASIS</FONT></A></B><BR>
+The basis vectors are shown.  When <B>DISPLAY PARENT</B> is used, the primitive
+basis
+vectors of the parent space group are shown. If <B>LABEL VECTOR CONVENTIONAL</B>
+is used, primitive basis vectors with
+respect to the conventional unit cell are shown.
+<P>
+ 
+When <B>DISPLAY ISOTROPY</B>
+is used, the basis vectors of the isotropy subgroup  are shown.  When used with
+<B>LABEL VECTOR PRIMITIVE</B>, the primitive basis vectors of the subgroup
+are given in terms of the primitive basis vectors of the parent space group.
+When used with
+<B>LABEL VECTOR CONVENTIONAL</B>, the conventional basis vectors of the subgroup
+are given in terms of the conventional basis vectors of the parent space group.
+<P>
+ 
+<B><A NAME="sh cart"><FONT COLOR=#FF0000>SHOW CARTESIAN</FONT></A></B><BR>
+Cartesian coordinates are displayed.  The cartesian coordinates are
+defined by the <B>VALUE LATTICE PARAMETER</B> command.  This is only implemented
+a few places in ISOTROPY:  (1) <B>DISPLAY PARENT</B>: basis vectors of the
+primitive lattice (<B>SHOW BASIS</B>), space-group elements, displayed
+as a rotation matrix followed by a translation (<B>SHOW GENERATORS</B> and
+<B>SHOW ELEMENT</B>), and Wyckoff positions (<B>SHOW WYCKOFF VECTOR</B>).
+(2) <B>DISPLAY ISOTROPY</B>: basis vectors of the
+primitive lattice (<B>SHOW BASIS</B>) and space-group elements
+(<B>SHOW GENERATORS</B> and <B>SHOW ELEMENT</B>).
+(3) <B>DISPLAY DISTORTION</B>: Wyckoff positions and displacement vectors
+(<B>SHOW MICROSCOPIC</B>).
+In the case of Wyckoff positions, the values of the parameters x,y,z
+must be selected by <B>VALUE WYCKOFF XYZ</B> if needed.
+Vectors must be given in terms of conventional basis vectors, not primitive.
+The cartesian coordinate system is chosen so that the x axis lies along
+the a axis, and the y axis lies in the ab plane.
+<P>
+ 
+<B><A NAME="sh char"><FONT COLOR=#FF0000>SHOW CHARACTER</FONT></A></B><BR>
+The irrep character for an element of the parent space group is
+shown when <B>DISPLAY IRREP</B> is used.  The <B>SHOW ELEMENT</B> command is
+also automatically executed. The element is selected with
+the <B>VALUE ELEMENT</B> command.
+(The character is the trace of the
+matrix onto which the irrep maps the element of the space group.)
+<P>
+ 
+<B><A NAME="sh compat"><FONT COLOR=#FF0000>SHOW COMPATIBILITY</FONT></A></B><BR>
+The compatibility relations for an irrep is shown when <B>DISPLAY IRREP</B>
+is used.  The irrep of the little group of <B>k</B> is decomposed into
+irreps of the little group of <B>k</B>', where <B>k</B>' is some <B>k</B> vector
+with more degrees of freedom than <B>k</B> and contains <B>k</B> as a subspace
+of its domain.  For example, if <B>k</B> is a point of symmetry, then <B>k</B>'
+may be a line of symmetry which contains that point.  <B>k</B>' may be
+selected by the <B>VALUE COMPATIBILITY</B> command.  If not selected, then
+relations for every possible <B>k</B>' with one degree of freedom less than
+that of <B>k</B> are shown.
+<P>
+ 
+<B><A NAME="sh complex"><FONT COLOR=#FF0000>SHOW COMPLEX</FONT></A></B><BR>
+The complex form of an irrep is shown when <B>DISPLAY IRREP</B> is used.
+<P>
+ 
+<B><A NAME="sh cont"><FONT COLOR=#FF0000>SHOW CONTINUOUS</FONT></A></B><BR>
+The phase transitions allowed to be continuous in Landau theory or in RG
+theory are indicated when <B>DISPLAY ISOTROPY</B> is used.
+In Landau theory, a phase transition to a particular subgroup is allowed
+to be continuous if the irrep is active and the order parameter is
+a possible minimum of the free energy expanded to fourth degree.
+RG theory imposes the additional constraint that
+the coefficients of the free-energy expansion lie within the attractor
+basin of a stable fixed point.
+<P>
+ 
+<B><A NAME="sh dim"><FONT COLOR=#FF0000>SHOW DIMENSION</FONT></A></B><BR>
+The dimension of the image of the irrep is shown when <B>DISPLAY IMAGE</B>,
+<B>DISPLAY INVARIANTS</B>,
+<B>DISPLAY IRREP</B>, or <B>DISPLAY ISOTROPY</B> is used.  
+In the cases of <B>DISPLAY INVARIANTS</B> and
+<B>DISPLAY ISOTROPY COUPLED</B>, the
+dimension of the <I>reducible</I> representation is shown (the sum of the
+dimensions of each of the irreps selected).
+<P>
+ 
+<B><A NAME="sh dir"><FONT COLOR=#FF0000>SHOW DIRECTION [p1]</FONT></A></B><BR>
+The symbol for the direction of the order parameter is shown when
+<B>DISPLAY ISOTROPY</B> or
+<B>DISPLAY DISTORTION</B> is used.
+If p1 is <B>VECTOR</B>, then the
+vector form of the order parameter is also shown.
+<P>
+ 
+When <B>DISPLAY DISTORTION</B> is used, the direction is shown only when one
+has been selected by <B>VALUE DIRECTION</B>.  Also, the parameter p1 is
+ignored.
+<P>
+ 
+When <B>DISPLAY ISOTROPY COUPLED</B> is used,
+the symbol for the order parameter direction of each
+irrep is shown followed by a number in parentheses indicating which domain
+of the uncoupled isotropy subgroup is involved.  For example, suppose we
+display the isotropy subgroups for the coupled order parameters of irreps
+X<SUB>3</SUB><SUP>+</SUP> and P<SUB>5</SUB> of space group
+D<SUB>4h</SUB><SUP>17</SUP>.
+We would find that one of the subgroups is D<SUB>2d</SUB><SUP>4</SUP> with
+order parameter direction <B>P1(1)P4(3)</B>.  This means that this subgroup
+is an intersection of the first domain of D<SUB>4h</SUB><SUP>16</SUP> [irrep X<SUB>3</SUB><SUP>+</SUP>,
+direction P<SUB>1</SUB>=(a,0)] and the third domain of D<SUB>2d</SUB><SUP>11</SUP> [irrep P<SUB>5</SUB>,
+direction P<SUB>4</SUB>=(a,0,- a,0)].  The direction of the order parameter for
+D<SUB>2d</SUB><SUP>4</SUP> is denoted <B>(a,0,b,0,-b,0)</B>, the first two components
+associated with irrep X<SUB>3</SUB><SUP>+</SUP> and the remaining four components associated
+with irrep P<SUB>5</SUB>.  The irreps associated with each part of the order parameter
+may be seen by using <B>SHOW IRREP</B>.
+<P>
+ 
+<B><A NAME="sh dist"><FONT COLOR=#FF0000>SHOW DISTINCT</FONT></A></B><BR>
+The domains for distinct subgroups are shown when <B>DISPLAY ISOTROPY</B> is
+used.
+<P>
+ 
+<B><A NAME="sh dom"><FONT COLOR=#FF0000>SHOW DOMAINS [GENERATORS]</FONT></A></B><BR>
+The possible domains arising from the phase transition are shown when
+<B>DISPLAY ISOTROPY</B> is used.
+The number of possible domains is
+equal to the index of the isotropy subgroup in the parent space group.
+When the parameter <B>GENERATORS</B> is present,
+the element of the parent space group which
+generates the domain is also shown.
+<P>
+ 
+When <B>DISPLAY DISTORTIONS</B> is used, <B>SHOW DOMAINS</B> will cause the
+domain selected by <B>VALUE DOMAIN</B> to be shown.
+<P>
+ 
+<B><A NAME="sh dom set"><FONT COLOR=#FF0000>SHOW DOMAIN SETS</FONT></A></B><BR>
+The possible multidomain structures (domain sets) are shown when  
+<B>DISPLAY ISOTROPY</B> is used.  See the tutorial on domains.
+<P>
+
+<B><FONT COLOR=#FF0000>SHOW DOMAIN SETS ALL</FONT></B><BR>
+Equivalent domain sets are shown when
+<B>DISPLAY ISOTROPY</B> is used and when a class has been selected with
+<B>VALUE DOMAIN SETS CLASS</B>.  When used with <B>SHOW DOMAIN SETS
+DIRECTION</B>, equivalent directions are shown when a direction has been
+selected with <B>VALUE DOMAIN SETS DIRECTION</B>.
+<P>
+
+<B><FONT COLOR=#FF0000>SHOW DOMAIN SETS BASIS</FONT></B><BR>
+The basis vectors of the domain set group are shown when 
+<B>DISPLAY ISOTROPY</B> is used.  When used with <B>SHOW DOMAIN SETS
+INTERSECT</B>, the basis vectors of the intersection group are shown.
+<P>
+
+<B><FONT COLOR=#FF0000>SHOW DOMAIN SETS DIRECTION</FONT></B><BR>
+The directions of the domain set vectors are shown when 
+<B>DISPLAY ISOTROPY</B> is used.  See the tutorial on domains.
+<P>
+
+<B><FONT COLOR=#FF0000>SHOW DOMAIN SETS ELEMENTS</FONT></B><BR>
+The elements of the domain set group are shown when 
+<B>DISPLAY ISOTROPY</B> is used.  When used with <B>SHOW DOMAIN SETS
+INTERSECT</B>, the elements of the intersection group are shown.
+<P>
+
+<B><FONT COLOR=#FF0000>SHOW DOMAIN SETS EQUIVALENT</FONT></B><BR>
+Operators which take us to equivalent domain sets or equivalent directions
+are shown when <B>DISPLAY ISOTROPY</B> is used.  This command is used
+with <B>SHOW DOMAIN SETS 
+ALL</B>.
+<P>
+
+<B><FONT COLOR=#FF0000>SHOW DOMAIN SETS GENERATORS</FONT></B><BR>
+The generating elements of the domain set group are shown when 
+<B>DISPLAY ISOTROPY</B> is used.  When used with <B>SHOW DOMAIN SETS
+INTERSECT</B>, the generating elements of the intersection group are shown.
+<P>
+
+<B><FONT COLOR=#FF0000>SHOW DOMAIN SETS GROUP</FONT></B><BR>
+The space group symmetry of the domain set is shown when 
+<B>DISPLAY ISOTROPY</B> is used.
+<P>
+
+<B><FONT COLOR=#FF0000>SHOW DOMAIN SETS INTERSECT</FONT></B><BR>
+The space group symmetry of the intersection of the symmetries of every
+domain in the set is shown when 
+<B>DISPLAY ISOTROPY</B> is used.
+<P>
+
+<B><FONT COLOR=#FF0000>SHOW DOMAIN SETS ORIGIN</FONT></B><BR>
+The origin of the domain set group is shown when 
+<B>DISPLAY ISOTROPY</B> is used.  When used with <B>SHOW DOMAIN SETS
+INTERSECT</B>, the origin of the intersection group is shown.
+<P>
+
+<B><A NAME="sh ele"><FONT COLOR=#FF0000>SHOW ELEMENTS</FONT></A></B><BR>
+When used with <B>DISPLAY PARENT</B>, the coset representatives of the parent
+space group with respect to its translation subgroup are shown.
+<P>
+ 
+When used with <B>DISPLAY IMAGE</B>, all of the matrices of the image are shown.
+<P>
+ 
+When used with <B>DISPLAY IRREP</B>, the element of the parent space group
+selected by <B>VALUE ELEMENT</B> is shown.
+<P>
+ 
+When used with <B>DISPLAY ISOTROPY</B>, the coset representatives of the
+subgroup with respect to its translation subgroup are shown.
+<P>
+ 
+<B><A NAME="sh faint"><FONT COLOR=#FF0000>SHOW FAINTNESS</FONT></A></B><BR>
+The nonzero faintness indices for all of the other irreps of the parent
+space group are shown when <B>DISPLAY IRREP</B> is used.
+Invariant polynomials exist which linearly couple these irreps to the
+selected irrep.  The minimum degree of the part of the polynomial associated
+with the selected irrep is the faintness index.  For example, if the
+selected irrep is <B>R4+</B>, we find a faintness index 3 for irrep <B>R2+</B>.
+The form of the invariant polynomial in this case is
+q<SUB>1</SUB>n<SUB>1</SUB>n<SUB>2</SUB>n<SUB>3</SUB>
+where q<SUB>1</SUB> is the order parameter associated with <B>R2+</B> and
+n<SUB>1</SUB>,n<SUB>2</SUB>,n<SUB>3</SUB> are components of the order parameter <B>n</B>
+associated with
+<B>R4+</B>.  The coupling is linear in q<SUB>1</SUB>, and the degree of the part of
+the polynomial containing components of <B>n</B> is 3, the faintness index.
+<P>
+ 
+<B><A NAME="sh fel"><FONT COLOR=#FF0000>SHOW FELIX</FONT></A></B><BR>
+The Felix frequency of the image
+is shown when <B>DISPLAY IRREP</B> or <B>DISPLAY ISOTROPY</B> is used.
+The Felix frequency is the number of anisotropic gradient terms in the LGW
+Hamiltonian.
+<P>
+ 
+<B><A NAME="sh fer"><FONT COLOR=#FF0000>SHOW FERROIC</FONT></A></B><BR>
+The ferroic species of the phase transition 
+is shown when <B>DISPLAY ISOTROPY</B> is used.
+See <A HREF="#v fer"><B>VALUE FERROIC</B></A> for an explanation of the symbols.
+<P>
+
+<B><A NAME="sh freq"><FONT COLOR=#FF0000>SHOW FREQUENCY [p1]</FONT></A></B><BR>
+When <B>DISPLAY IRREP</B> is used, the point-group irreps of the Wyckoff
+positions which induce the space-group irrep are shown, along with the
+subduction frequency.
+If p1 is <B>VECTOR</B>, only the point-group irreps which induce vector
+irreps of the space-group irrep are shown, along with the number
+vector irreps which can be induce.  This number will be some multiple of
+the subduction frequency, since there may be more than one independent
+set of vector basis functions for the point group irrep.
+<P>
+ 
+When <B>DISPLAY ISOTROPY</B> is used,
+the irreps which subduce  the isotropy subgroup are shown, along with the
+subduction frequency.
+For each irrep, there is a direction of an order
+parameter which remains invariant under the operation of each element in
+the isotropy subgroup. If p1 is <B>DIR</B>, the
+direction of that order parameter is shown.  In parentheses is
+shown the domain number where you can find that direction if you display
+the isotropy subgroups for that irrep.  If p1 is <B>GAMMA</B>, only
+the gamma (<B>k</B>=0) irreps are shown.  If p1 is <B>CLASSIFICATION</B>,
+the symbol <B>F</B> (for "full") is shown when the distortions associated
+with the irrep fully classify the domains of the subgroup.  Otherwise, the
+symbol <B>P</B> (for "partial") is shown.
+<P>
+ 
+<B><A NAME="sh gen"><FONT COLOR=#FF0000>SHOW GENERATORS</FONT></A></B><BR>
+When used with <B>DISPLAY PARENT</B>, the generators of the parent space group
+are shown. (Generators of the lattice are actually not shown explicitly.)
+<P>
+ 
+When used with <B>DISPLAY IMAGE</B>, the generating matrices of the image
+are shown.
+<P>
+ 
+When used with <B>DISPLAY IRREP</B>, elements of the parent space group
+which are mapped onto the generating matrices of the irrep's image are shown.
+<P>
+ 
+When used with <B>DISPLAY ISOTROPY</B>,
+the elements of the parent space
+group which generate the isotropy subgroup are shown.
+<P>
+ 
+<B><A NAME="sh im"><FONT COLOR=#FF0000>SHOW IMAGE</FONT></A></B><BR>
+The symbol of the image of the irrep is shown when <B>DISPLAY IMAGE</B>,
+<B>DISPLAY IRREP</B>, or <B>DISPLAY ISOTROPY</B> is used.
+<P>
+ 
+<B><A NAME="sh ind"><FONT COLOR=#FF0000>SHOW INDEX</FONT></A></B><BR>
+The index of the isotropy subgroup in the parent space group is shown
+when <B>DISPLAY ISOTROPY</B>
+is used.  The index is the size of the parent
+space group relative to the subgroup.
+<P>
+ 
+<B><A NAME="sh inv"><FONT COLOR=#FF0000>SHOW INVARIANTS</FONT></A></B><BR>
+The invariant polynomials in the free-energy expansion of a bush of modes are
+displayed when <B>DISPLAY BUSH</B> is used.
+<P>
+ 
+<B><A NAME="sh ir"><FONT COLOR=#FF0000>SHOW IRREP [p1]</FONT></A></B><BR>
+The symbol of the irrep is shown when <B>DISPLAY INVARIANTS</B>,
+<B>DISPLAY DISTORTION</B>, <B>DISPLAY IRREP</B>, or <B>DISPLAY ISOTROPY</B> is used.
+The symbol shown uses the irrep notation of the
+current space-group setting.  The parameter p1 allows the irrep
+symbol to also be shown in other notations.  p1 can be <B>MILLER-LOVE</B>,
+<B>KOVALEV</B>, <B>BRADLEY-CRACKNELL</B>, or <B>ZAK</B>, referring to the
+irrep notations of Miller and Love, Kovalev, Bradley and Cracknell, and
+Zak, respectively.  p1 can also be <B>POINTGROUP</B>, in which case the
+conventional labels for point-group irreps are shown for irreps at the
+gamma point (<B>k</B>=0).
+Even when p1 is present, this command causes the
+irrep to be shown in the notation of the current setting in addition
+to the setting specified by p1.  When <B>DISPLAY INVARIANTS</B> or
+<B>DISPLAY ISOTROPY COUPLED</B> is
+used, the symbols of all irreps selected are shown in sequence on the same
+line.
+<P>
+ 
+<B><A NAME="sh kdeg"><FONT COLOR=#FF0000>SHOW KDEGREE</FONT></A></B><BR>
+The degrees of freedom of the <B>k</B> vector are shown.  For example, a
+<B>k</B> point of symmetry has 0 degrees of freedom, and a <B>k</B> line of symmetry
+has 1 degree of freedom.
+<P>
+ 
+<B><A NAME="sh ker"><FONT COLOR=#FF0000>SHOW KERNEL</FONT></A></B><BR>
+The generating elements of the kernel of the irrep are shown when
+<B>DISPLAY IRREP</B> is used.  (The kernel is the set of all elements
+in the parent space group which map onto the unit matrix in the image.)
+<P>
+ 
+<B><A NAME="sh kp"><FONT COLOR=#FF0000>SHOW KPOINT</FONT></A></B><BR>
+The coordinates of the <B>k</B> vector are shown when <B>DISPLAY KPOINT</B>,
+<B>DISPLAY IRREP</B> or <B>DISPLAY DIRECTION</B> is used.
+The coordinates are given in terms of the
+reciprocal lattice vectors derived from the basis vectors of the direct lattice.
+The form depends on the space-group setting as well as the form of the vectors
+used, primitive or conventional.
+<P>
+ 
+<B><A NAME="sh lan"><FONT COLOR=#FF0000>SHOW LANDAU</FONT></A></B><BR>
+The Landau frequency of the image
+is shown when <B>DISPLAY IMAGE</B>, <B>DISPLAY IRREP</B>, or <B>DISPLAY ISOTROPY</B> is used.  The Landau frequency is
+the number of independent third-degree invariants.
+<P>
+ 
+<B><A NAME="sh lat"><FONT COLOR=#FF0000>SHOW LATTICE</FONT></A></B><BR>
+When <B>DISPLAY PARENT</B> is used, the Bravais lattice of the space
+group is shown.  
+When <B>DISPLAY ISOTROPY</B>
+is used, the Bravais lattices
+of both the parent space group and isotropy subgroup are shown.
+<P>
+ 
+<B><A NAME="sh lif"><FONT COLOR=#FF0000>SHOW LIFSHITZ</FONT></A></B><BR>
+The Lifshitz frequency of the irrep
+is shown when <B>DISPLAY IRREP</B> or <B>DISPLAY ISOTROPY</B> is used.
+The Lifshitz frequency is
+the number of times that the vector representation is contained
+in the antisymmetrized cube of the irrep.
+<P>
+ 
+<B><A NAME="sh loc"><FONT COLOR=#FF0000>SHOW LOCAL [p1] [p2]</FONT></A></B><BR>
+The local microscopic distortions at a point about a Wyckoff position
+are displayed when <B>DISPLAY DISTORTION</B> is
+used.  The coordinates of the point must be selected with the command
+<B>VALUE POSITION</B>.
+If p1 is not present, then the distortions are shown as linear
+combinations of basis functions of the irrep of the point group associated
+with the point.  The command <B>SHOW LOCAL SCALAR</B> displays
+distortions of scalar functions, such as occupation probabilities.
+The command <B>SHOW LOCAL VECTOR</B> displays vector
+distortions, such as atomic displacements.  The command <B>SHOW LOCAL VECTOR PSEUDO</B> displays pseudo vector distortions, such as molecular rotations
+or magnetic moments.
+<P>
+ 
+<B><A NAME="sh mac"><FONT COLOR=#FF0000>SHOW MACROSCOPIC [PSEUDO]</FONT></A></B><BR>
+The macroscopic distortions (tensor components) are displayed when
+<B>DISPLAY DISTORTION</B> is used.  The type of tensor must be specified by
+the <B>VALUE RANK</B> command.  The parameter <B>PSEUDO</B> indicates a
+pseudo-tensor, such as a magnetic moment.
+For hexagonal crystals, the tensors are given with respect to an orthogonal
+coordinate system where the y axis is chosen to lie along the hexagonal
+b axis.
+<P>
+ 
+<B><A NAME="sh mat"><FONT COLOR=#FF0000>SHOW MATRIX</FONT></A></B><BR>
+The irrep matrix for an element of the parent space group is
+shown when <B>DISPLAY IRREP</B> is used.  The command <B>SHOW ELEMENT</B>
+is also automatically executed.
+The element is selected with
+the <B>VALUE ELEMENT</B> command.
+<P>
+ 
+<B><A NAME="sh max"><FONT COLOR=#FF0000>SHOW MAXIMAL</FONT></A></B><BR>
+Maximal isotropy subgroups are indicated when <B>DISPLAY ISOTROPY</B> is
+used.
+An isotropy subgroup is maximal when it is not a subgroup of any other
+isotropy subgroup for the same irrep.
+<P>
+ 
+<B><A NAME="sh mic"><FONT COLOR=#FF0000>SHOW MICROSCOPIC [p1] [p2]</FONT></A></B><BR>
+The microscopic distortions are displayed when <B>DISPLAY DISTORTION</B> is
+used.  If p1 is not present, then the distortions are shown as linear
+combinations of basis functions of the irrep of the point group associated
+with the Wyckoff position.  The command <B>SHOW MICROSCOPIC SCALAR</B> displays
+distortions of scalar functions, such as occupation probabilities.
+The command <B>SHOW MICROSCOPIC VECTOR</B> displays vector
+distortions, such as atomic displacements.  The command <B>SHOW MICROSCOPIC VECTOR PSEUDO</B> displays pseudo vector distortions, such as molecular rotations
+or magnetic moments.
+<P>
+ 
+<B><A NAME="sh mod"><FONT COLOR=#FF0000>SHOW MODES</FONT></A></B><BR>
+The atomic displacements in each vibration mode of a bush are displayed when
+<B>DISPLAY BUSH</B> is used.
+<P>
+ 
+<B><A NAME="sh newf"><FONT COLOR=#FF0000>SHOW NEWFRACTIONALS</FONT></A></B><BR>
+The new fractionals in the unit cell of the isotropy subgroup are shown
+when <B>DISPLAY ISOTROPY</B>
+is used.  These new fractionals are vectors
+which are lattice vectors in the parent space group but are not lattice
+vectors in the isotropy subgroup.
+<P>
+ 
+<B><A NAME="sh ord"><FONT COLOR=#FF0000>SHOW ORDER</FONT></A></B><BR>
+The order of the image is shown when <B>DISPLAY IMAGE</B> is used.
+<P>
+ 
+<B><A NAME="sh ori"><FONT COLOR=#FF0000>SHOW ORIGIN</FONT></A></B><BR>
+The origin of the isotropy subgroup with respect to the parent space
+group is shown when <B>DISPLAY ISOTROPY</B>
+is used.  When used with
+<B>LABEL VECTOR PRIMITIVE</B>, the coordinates of the origin
+are given in terms of the primitive basis vectors of the parent space group.
+When used with
+<B>LABEL VECTOR CONVENTIONAL</B>, the coordinates of the origin
+are given in terms of the conventional basis vectors of the parent space group.
+<P>
+ 
+<B><A NAME="sh pair"><FONT COLOR=#FF0000>SHOW PAIRS [p1]</FONT></A></B><BR>
+This command shows information about pairs of domains of isotropy subgroups
+when <B>DISPLAY ISOTROPY</B> is used.
+We denote a pair of domains by (P<SUB>i</SUB>,P<SUB>j</SUB>), where
+P<SUB>i</SUB> is the ith domain of an isotropy subgroup.
+The pair to be considered can be selected by the <B>VALUE DOMAIN PAIRS</B>
+command.
+If the pair has not been selected, then the pair (P<SUB>1</SUB>,P<SUB>j</SUB>) is considered
+for each domain j.
+<P>
+ 
+When the pair has not been selected,
+equivalence classes of domain pairs are displayed.
+Any class of pairs has an element of the form
+(P<SUB>1</SUB>,P<SUB>j</SUB>).  Each pair is considered for every domain j.
+The number in the pair column numbers the class of pairs to which the pair
+belongs.  For example, domain 3, pair 2 means the pair (1,3) is in the second
+equivalence class of pairs.
+<P>
+ 
+If p1 is <B>INTERSECT</B>, the intersection of the isotropy groups belonging
+to the two domains in the domain pair is displayed.  We call this the
+pair intersection group.  This group is always one of the other isotropy
+subgroups belonging to the same irrep.  Therefore, we display simply the
+direction of that isotropy subgroup.  The domain of that subgroup is also
+shown in parentheses if it is not the first domain.
+<P>
+ 
+If p1 is <B>SWITCH</B>, an element of the space group which switches
+the two domains in the pair is displayed.
+For the domain pair (P<SUB>i</SUB>,P<SUB>j</SUB>), this element
+takes P<SUB>i</SUB> to P<SUB>j</SUB> and it also takes P<SUB>j</SUB> to P<SUB>i</SUB>.  When the two domains
+are identical, we consider the switching element to not exist.
+<P>
+ 
+If p1 is <B>GROUP</B>, the space group label of the
+pair group is displayed.  This group consists of
+all elements in the pair intersection group plus all elements that switch
+the two domains in the pair.  If p1 is <B>BASIS</B>, <B>ORIGIN</B>,
+<B>GENERATORS</B>, or <B>ELEMENTS</B>, then the basis vectors of the lattice,
+the origin of the space group, the generating elements, or the complete
+list of elements of the pair group are displayed, respectively.  These commands
+are very similar to the <B>SHOW BASIS</B>, <B>SHOW ORIGIN</B>,
+<B>SHOW GENERATORS</B>, and <B>SHOW ELEMENTS</B> commands used with the
+<B>DISPLAY ISOTROPY</B> command.
+<P>
+ 
+<B><A NAME="sh par"><FONT COLOR=#FF0000>SHOW PARENT</FONT></A></B><BR>
+The parent space group is displayed when <B>DISPLAY PARENT</B>,
+<B>DISPLAY INVARIANTS</B>, <B>DISPLAY DISTORTION</B>,
+<B>DISPLAY IRREP</B>, <B>DISPLAY ISOTROPY</B>,  or
+<B>DISPLAY KPOINT</B> is used.
+<P>
+ 
+<B><A NAME="sh point"><FONT COLOR=#FF0000>SHOW POINTGROUP</FONT></A></B><BR>
+When <B>DISPLAY PARENT</B> is used, the point group of the space group
+is displayed.  
+When <B>DISPLAY ISOTROPY</B>
+is used, the point groups of
+both the parent space group and isotropy subgroup are shown.
+<P>
+ 
+<B><A NAME="sh pos"><FONT COLOR=#FF0000>SHOW POSITION IRREP</FONT></A></B><BR>
+The irrep of the point group associated with a point about a Wyckoff
+position is shown when <B>DISPLAY DISTORTION</B> is used with <B>SHOW LOCAL</B>.
+<P>
+ 
+<B><A NAME="sh size"><FONT COLOR=#FF0000>SHOW SIZE</FONT></A></B><BR>
+The relative sizes of the primitive unit cells of the parent space group
+and the isotropy subgroup is shown when <B>DISPLAY ISOTROPY</B> is used.
+<P>
+ 
+<B><A NAME="sh star"><FONT COLOR=#FF0000>SHOW STAR</FONT></A></B><BR>
+When <B>DISPLAY KPOINT</B> or <B>DISPLAY IRREP</B> is used, the star of <B>k</B> is
+displayed.
+<P>
+ 
+<B><A NAME="sh subg"><FONT COLOR=#FF0000>SHOW SUBGROUP</FONT></A></B><BR>
+The space-group symbol of the
+isotropy subgroup is shown when <B>DISPLAY ISOTROPY</B> is used.
+<P>
+ 
+<B><A NAME="sh sub alt"><FONT COLOR=#FF0000>SHOW SUBGROUP ALTERNATE</FONT></A></B><BR>
+An alternate basis vector and origin are shown when <B>DISPLAY ISOTROPY</B>
+is used.  If the basis vectors selected by <B>VALUE BASIS</B> and the origin
+selected by <B>VALUE ORIGIN</B> are consistent with the subgroup-symmetry
+being displayed, the selected values will be shown instead of those in
+the data base.  This provides a way for you to try some "nicer" choices
+of basis vectors and origins and find out whether these choices still
+describe the same subgroup-symmetry.
+<P>
+
+<B><A NAME="sh twin"><FONT COLOR=#FF0000>SHOW TWIN p1 [p2]</FONT></A></B><BR>
+This command displays information about twin intersection groups and twin
+groups when <B>DISPLAY ISOTROPY</B> is used.  This information is
+shown for a particular domain pair if one has been selected by the
+<B>VALUE DOMAIN PAIR</B> command.  Otherwise, the pair (P<SUB>1</SUB>,P<SUB>j</SUB>) for
+each domain j will be used.  In order to display information about twins,
+a plane must be specified by selecting its normal position using the
+<B>VALUE NORMAL</B> command and a point on the plane using the
+<B>VALUE POSITION</B> command.
+<P>
+ 
+If p1 is <B>INTERSECT</B>, then information about the twin intersection
+group is displayed.  Each element in this group must obey the following
+requirements:  It must be a member of each of the two
+isotropy subgroups associated with the two domains in the pair.  (This means
+that this group is a subgroup of the pair intersection group.)
+If the element operates on a point in the specified plane, the point must
+stay in the plane.  (This means that the group must be diperiodic.)
+If the point operator part of the element operates on a vector perpendicular
+to the specified plane, the direction of the vector must stay the same.
+To display information about twin intersection groups, an additional keyword
+(p2) must also be present.
+If p2 is <B>GROUP</B>, <B>BASIS</B>, <B>ORIGIN</B>,
+<B>GENERATORS</B>, or <B>ELEMENTS</B>, then the diperiodic space group label,
+the basis vectors of the lattice,
+the origin of the space group, the generating elements, or the complete
+list of elements of the twin intersection
+group are displayed, respectively.  These commands
+are very similar to the <B>SHOW SUBGROUP</B>, <B>SHOW BASIS</B>, <B>SHOW ORIGIN</B>,
+<B>SHOW GENERATORS</B>, and <B>SHOW ELEMENTS</B> commands used with the
+<B>DISPLAY ISOTROPY</B> command.
+<P>
+ 
+Information which is displayed about the twin group is controlled by p1.
+Each element in the twin group must obey the following requirements:
+It must either keep both domains in the pair invariant or switch them.
+(This means
+that this group is a subgroup of the pair group.)
+If the elements operates on a point in the specified plane, the point must
+stay in the plane.  (This means that the group must be diperiodic.)
+If the point operator part of the element operates on a vector perpendicular
+to the specified plane, the direction of the vector either stays the same
+or reverses its direction.
+If p1 is <B>GROUP</B>, <B>BASIS</B>, <B>ORIGIN</B>,
+<B>GENERATORS</B>, or <B>ELEMENTS</B>, then the diperiodic space group label,
+the basis vectors of the lattice,
+the origin of the space group, the generating elements, or the complete
+list of elements of the twin group are displayed, respectively.  These commands
+are very similar to the <B>SHOW SUBGROUP</B>, <B>SHOW BASIS</B>, <B>SHOW ORIGIN</B>,
+<B>SHOW GENERATORS</B>, and <B>SHOW ELEMENTS</B> commands used with the
+<B>DISPLAY ISOTROPY</B> command.
+<P>
+ 
+If p1 is <B>SWITCH</B>, then a "switching" element is displayed.
+If p2 is <B>SIDE</B>, then the element switches the two domains but does
+not change the direction of the vector normal to the plane.
+If p2 is <B>NORMAL</B>, then the element reverses the direction of
+the vector normal to the plane but does not switch the two domains.
+If p2 is <B>BOTH</B>, then the element switches both the two domains and
+the direction of the vector normal to the plane.
+<P>
+ 
+<B><A NAME="sh type"><FONT COLOR=#FF0000>SHOW TYPE</FONT></A></B><BR>
+The irrep type (1,2,3) are shown when <B>DISPLAY IMAGE</B> or <B>DISPLAY IRREP</B> is used.  A type-1 irrep is real.  A type-2 irrep is complex but its
+characters are real.  A type-3 irrep is complex and its characters are also
+complex.
+<P>
+
+<B><A NAME="sh unit"><FONT COLOR=#FF0000>SHOW UNITCELL</FONT></A></B><BR>
+Only distortions in the unit cell of the parent are shown when <B>DISPLAY DISTORTIONS</B> is used with <B>SHOW MICROSCOPIC</B>.
+<P>
+ 
+<B><A NAME="sh wy"><FONT COLOR=#FF0000>SHOW WYCKOFF [p1,p2]</FONT></A></B><BR>
+When <B>DISPLAY PARENT</B> is used,
+the symbol for the Wyckoff position is shown.
+If p1 is <B>VECTOR</B>, the coordinates of the Wyckoff position
+are shown.  In addition, if p2 is <B>ALL</B>, the coordinates of all
+of the points associated with the Wyckoff position are shown.
+If p1 is <B>POINTGROUP</B>, the point group
+of the Wyckoff position is shown.
+If p1 is <B>ELEMENTS</B>, the space-group elements which belong to the
+point group of the Wyckoff position are shown.
+If p1 is <B>CHARACTER</B>, the characters of the point-group irreps are
+shown for each space-group element which belongs to the point group of the
+Wyckoff position.
+<P>
+ 
+When <B>DISPLAY DISTORTION</B> is used,
+the symbol for the Wyckoff position is shown.
+If p1 is <B>IRREP</B>, the irrep of the point group of the Wyckoff position
+is shown.
+<P>
+ 
+<B><A NAME="sh wy subg"><FONT COLOR=#FF0000>SHOW WYCKOFF SUBGROUP</FONT></A></B><BR>
+When <B>DISPLAY ISOTROPY</B> is used, the Wyckoff positions of the atoms in the subgroup
+are shown.
+<P>
+ 
+<B><A NAME="sh xyz"><FONT COLOR=#FF0000>SHOW XYZ</FONT></A></B><BR>
+The x,y,z coordinates of a point in the unit cell of the isotropy subgroup
+are given in terms of the x,y,z coordinates of a point in the unit cell
+of the parent space group when <B>DISPLAY ISOTROPY</B> is used.
+The coordinates are given with respect to the origins of
+the space groups.
+When used with
+<B>LABEL VECTOR PRIMITIVE</B>, the coordinates
+are given in terms of primitive basis vectors.
+When used with
+<B>LABEL VECTOR CONVENTIONAL</B>, the coordinates
+are given in terms of conventional basis vectors.
+(In the case of centered  Bravais lattices, the conventional basis vectors
+are not primitive.)
+<P>
+ 
+<B><A NAME="v act"><FONT COLOR=#FF0000>VALUE ACTIVE p1</FONT></A></B><BR>
+When <B>DISPLAY IMAGE</B> is used, <B>VALUE ACTIVE YES</B> selects active
+images  and <B>VALUE ACTIVE NO</B> selects images which are not active.
+When <B>DISPLAY IRREP</B> or <B>DISPLAY ISOTROPY</B> is used,
+<B>VALUE ACTIVE YES</B> selects active
+irreps  and <B>VALUE ACTIVE NO</B> selects irreps which are not active.
+An irrep is active when
+both its Landau and Lifshitz frequencies are zero (the Landau and
+Lifshitz conditions).  An image is active when at least one
+active irrep is mapped onto it.  Note that not all irreps mapped onto
+active images are active irreps.  Some of them may fail the Lifshitz
+condition.
+<P>
+ 
+<B><A NAME="v bas"><FONT COLOR=#FF0000>VALUE BASIS p1 p2 p3</FONT></A></B><BR>
+The basis vectors of a subgroup are selected.  This command affects the data
+displayed by <B>DISPLAY DIRECTION</B>.  p1,p2,p3 are the three vectors.
+Each vector is denoted by three numbers separated by commas. The
+three numbers are components of the vector in terms of the basis
+vectors of the lattice of the parent space group.  See <B>VALUE CELL</B>
+below for examples.
+<P>
+
+When used with <B>DISPLAY ISOTROPY</B>, the alternate basis vectors are 
+selected.  See <B>SHOW SUBGROUP ALTERNATE</B>.
+<P>
+
+ 
+<B><A NAME="v cell"><FONT COLOR=#FF0000>VALUE CELL p1 p2 p3</FONT></A></B><BR>
+The basis vectors of a super cell are selected.  This command affects the data
+displayed by <B>DISPLAY DISTORTION</B>.  p1,p2,p3 are the three vectors.
+Each vector is denoted by three numbers separated by commas. The
+three numbers are components of the vector in terms of the basis
+vectors of the lattice.  For example, <B>2,0,0</B> denotes a vector which is
+two times the first basis vector of the lattice.  Components may be fractions
+if the conventional form of the vector has been chosen with <B>LABEL VECTOR CONVENTIONAL</B>.  Each vector must be a vector of the primitive lattice.
+For example, <B>1/2,1/2,0</B> would be a vector
+of a face-centered lattice.  When a super cell has been selected,
+<B>DISPLAY DISTORTION</B> shows all atoms in the super cell.
+<P>
+ 
+<B><A NAME="v compat"><FONT COLOR=#FF0000>VALUE COMPATIBILITY p1</FONT></A></B><BR>
+The compatibility relations to be shown by <B>DISPLAY IRREP</B> are selected.
+p1 is the label of a <B>k</B> vector.  See the <A HREF="#sh compat"><B>SHOW COMPATIBILITY</B></A>
+command.
+<P>
+ 
+<B><A NAME="v cont"><FONT COLOR=#FF0000>VALUE CONTINUOUS p1</FONT></A></B><BR>
+Phase transitions which may or may not be allowed to be continuous in
+Landau theory or in RG theory
+are selected when <B>DISPLAY ISOTROPY</B> is used.
+<B>VALUE CONTINUOUS RG</B> selects isotropy
+subgroups to which a phase transition
+is allowed to be continuous in RG theory, <B>VALUE CONTINUOUS LANDAU</B>
+selects isotropy subgroups to which a phase transition is also allowed to
+be continuous in Landau theory and
+<B>VALUE CONTINUOUS NO</B> selects isotropy
+subgroups to which a phase transition is
+not allowed to be continuous in either theory.
+In Landau theory, a phase transition to a particular subgroup is allowed
+to be continuous if the irrep is active and the order parameter is
+a possible minimum of the free energy expanded to fourth degree.
+RG theory imposes the additional constraint that
+the coefficients of the free-energy expansion lie within the attractor
+basin of a stable fixed point.
+<P>
+ 
+<B><A NAME="v deg"><FONT COLOR=#FF0000>VALUE DEGREE p1 [p2]</FONT></A></B><BR>
+The degrees of invariant polynomials are selected.
+This command affects the data displayed by <B>DISPLAY INVARIANTS</B>.
+The parameters, p1 and p2, are numbers representing the degree of the
+polynomial.  If they are both present,
+then degrees p1 through p2 are selected.  If only p1 is
+present, then only degree p1 is selected.  If this command has not been used
+yet, or if the <B>CANCEL VALUE DEGREE</B> command has been used, ISOTROPY
+displays the invariant polynomials of degrees 1 through 4 by default.
+<P>
+ 
+<B><A NAME="v dim"><FONT COLOR=#FF0000>VALUE DIMENSION p1 [p2]</FONT></A></B><BR>
+The dimensions of matrices in the irrep's
+image are selected.  This command affects the data displayed
+by <B>DISPLAY IMAGE</B>, <B>DISPLAY IRREP</B>, and <B>DISPLAY ISOTROPY</B>.
+The parameters, p1 and p2, are numbers representing the dimension
+of matrices in an image.  If they are both present,
+then dimensions p1 through p2 are selected.  If only p1 is
+present, then only dimension p1 is selected.
+<P>
+ 
+<B><A NAME="v dir"><FONT COLOR=#FF0000>VALUE DIRECTION p1 [p2 ...]</FONT></A></B><BR>
+The direction of the order parameter is selected.  This command affects
+the data displayed by <B>DISPLAY ISOTROPY</B>, <B>DISPLAY DISTORTION</B>,
+<B>DISPLAY INVARIANTS</B>, <B>DISPLAY BUSH</B>, and <B>DISPLAY DIRECTION</B>.
+The parameters p1,p2,... each represent the direction of an order
+parameter.  If more than one direction is selected, then corresponding
+irreps must be selected first, and the number of directions selected must
+equal the number of irreps selected.
+<P>
+ 
+The direction of an order parameter can be represented in several ways.
+The most usual way is to simply enter for the parameter the symbol of
+the direction (for example <B>VALUE DIRECTION P1</B> to select the direction
+P1).
+<B>VALUE DIRECTION KERNEL</B> selects the order parameter in the most
+general direction.
+<B>VALUE DIRECTION ONEARM</B> selects order parameters which arise from only
+one arm of the star of <B>k</B>.  These are implemented only for non <B>k</B> points
+of symmetry.  In addition, <B>VALUE DIRECTION ONEARM,P1</B> selects the
+order parameter P1 among those which arise from only one arm of the star
+of <B>k</B>.
+<B>VALUE DIRECTION VECTOR,A,0,0</B> selects the order parameter (a,0,0),
+and <B>VALUE DIRECTION VECTOR,0.5A,0.866A</B> selects the order parameter
+(1/2a,1/2sqrt(3)a).  Note that irrational coefficients
+(and sometimes rational coefficients such as 1/3) must be given to
+three decimal places.
+<P>
+ 
+<B><A NAME="v dom"><FONT COLOR=#FF0000>VALUE DOMAIN p1 [p2 ...]</FONT></A></B><BR>
+The domain of the isotropy subgroup is selected.
+This command affects the data displayed by <B>DISPLAY ISOTROPY</B> when used with
+<B>SHOW DOMAIN</B>, by
+<B>DISPLAY DISTORTION</B> when
+a subgroup has been selected with <B>VALUE DIRECTION</B>,
+and by <B>DISPLAY INVARIANTS</B> when the direction of an order parameter
+has been selected with <B>VALUE DIRECTION</B>.
+p1 is a number indicating the domain.  (The numbering of domains may
+be obtained by using <B>SHOW DOMAINS</B> with <B>DISPLAY ISOTROPY</B>.)
+Normally, <B>DISPLAY ISOTROPY</B> used with <B>SHOW DOMAIN</B> causes all domains
+to be displayed.  <B>VALUE DOMAIN</B> causes only one domain to be displayed.
+Normally, <B>DISPLAY DISTORTION</B> uses the direction
+of the order parameter in the first domain.
+<B>VALUE DOMAIN</B> along with <B>VALUE DIRECTION</B> uses the direction
+of the order parameter in selected domain.  When used with
+<B>DISPLAY INVARIANTS</B>, the number of domains selected
+must be equal to the number of irreps selected by the
+<B>VALUE IRREP</B> command.
+<P>
+ 
+<B><A NAME="v dom p"><FONT COLOR=#FF0000>VALUE DOMAIN PAIR p1 p2</FONT></A></B><BR>
+A pair of domains of the isotropy subgroup is selected.
+This command affects the data displayed by <B>DISPLAY ISOTROPY</B> when used with
+<B>SHOW PAIRS</B> or <B>SHOW TWIN</B> commands.
+<P>
+ 
+<B><A NAME="v dom set cl"><FONT COLOR=#FF0000>VALUE DOMAIN SETS CLASS p1</FONT></A></B><BR>
+The class of the domain set is selected. 
+This command affects the data displayed by <B>DISPLAY ISOTROPY</B>.
+p1 is a number which is displayed in the "class" column when
+<B>SHOW DOMAIN SETS</B> is used.
+<P>
+
+<B><A NAME="v dom set dir"><FONT COLOR=#FF0000>VALUE DOMAIN SETS DIRECTION p1</FONT></A></B><BR>
+The direction of the domain set vector is selected. 
+This command affects the data displayed by <B>DISPLAY ISOTROPY</B>.
+p1 is a number which is displayed in the "dir" column when
+<B>SHOW DOMAIN SETS</B> is used with <B>SHOW DOMAIN SETS DIRECTION</B>.
+<P>
+
+<B><A NAME="v dom set or"><FONT COLOR=#FF0000>VALUE DOMAIN SETS ORDER p1</FONT></A></B><BR>
+The order of the domain set is selected. 
+This command affects the data displayed by <B>DISPLAY ISOTROPY</B>.
+p1 is a number representing the number of domains present in the set.
+<P>
+
+<B><A NAME="v dom set un"><FONT COLOR=#FF0000>VALUE DOMAIN SETS UNCONNECTED p1</FONT></A></B><BR>
+The number of unconnected parts of the domain set is selected. 
+This command affects the data displayed by <B>DISPLAY ISOTROPY</B>.
+p1 is a number.
+<P>
+
+<B><A NAME="v ele"><FONT COLOR=#FF0000>VALUE ELEMENT p1</FONT></A></B><BR>
+The element of the parent space group is selected.
+This command affects the data displayed by <B>DISPLAY IRREP</B>.
+p1 is a space-group element.
+The element is denoted by a symbol, using the notation of International Tables,
+Miller and Love, Kovalev, Bradley and Cracknell, or Zak.
+For example, <B>X 1/2-Y -Z</B>, 
+<B>2 0 1/2 0</B>,  <B>H2 0 1/2 0</B>, 
+<B>C2X 0 1/2 0</B>, and <B>UX 0 1/2 0</B>
+all refer to the same element (using each of the notations, respectively).
+In the notation of the International Tables,
+the x,y,z parts are separated by
+a space character. In the other notations, the point operation comes first,
+followed by the fractional, each part separated by a space character.
+The notation used for p1 must agree with the point-operation notation
+selected for elements. The
+<B>LABEL ELEMENT</B> command changes the notation selected.
+<P>
+ 
+<B><A NAME="v fel"><FONT COLOR=#FF0000>VALUE FELIX p1 [p2]</FONT></A></B><BR>
+The Felix frequency of the image
+is selected.  This command affects the data displayed
+by <B>DISPLAY IRREP</B> and <B>DISPLAY ISOTROPY</B>.
+The parameters, p1 and p2, are numbers representing the Felix frequency
+of an irrep (the number of anisotropic gradient terms in the LGW Hamiltonian).
+If they are both present,
+then Felix frequencies p1 through p2 are selected.  If only p1 is
+present, then only Felix frequency
+p1 is selected.
+<P>
+ 
+<B><A NAME="v fer"><FONT COLOR=#FF0000>VALUE FERROIC p1</FONT></A></B><BR>
+The ferroic species of the phase transition 
+is selected.  This command affects the data displayed
+by <B>DISPLAY ISOTROPY</B>.
+The parameter p1 is a symbol representing the ferroic species:
+<B>FC</B> (ferroelectric), <B>PF</B> (proper ferroelectric),
+<B>IFC</B> (improper ferroelectric), <B>FS</B> (ferroelastic),
+<B>PFS</B> (proper ferroelastic), <B>IFS</B> (improper ferroelastic), 
+<B>NF</B> (nonferroic), <B>OTHER</B> (other ferroic).
+<P>
+
+<B><A NAME="v freq"><FONT COLOR=#FF0000>VALUE FREQUENCY p1 [p2]</FONT></A></B><BR>
+The subduction frequency of the isotropy subgroup
+is selected.  This command affects the data displayed
+by <B>DISPLAY ISOTROPY</B>.
+The parameters, p1 and p2, are numbers representing the subduction
+frequency.
+If they are both present,
+then subduction frequencies p1 through p2 are selected.  If only p1 is
+present, then only subduction frequency
+p1 is selected.
+<P>
+ 
+<B><A NAME="v grad"><FONT COLOR=#FF0000>VALUE GRADIENT p1</FONT></A></B><BR>
+The number of spatial derivatives in invariant polynomials is selected.
+This command affects the data displayed by <B>DISPLAY INVARIANTS</B>.
+The parameter p1 is a number representing the number of derivatives to
+appear in each invariant polynomial.
+<P>
+ 
+<B><A NAME="v im"><FONT COLOR=#FF0000>VALUE IMAGE p1</FONT></A></B><BR>
+The image of the irrep is selected.  This command affects the data displayed
+by <B>DISPLAY IMAGE</B>, <B>DISPLAY IRREP</B>, and <B>DISPLAY ISOTROPY</B>.
+The parameter p1 is an image to be selected.
+The image is denoted by a symbol, using either
+the notation of Stokes and Hatch or the notation of Toledano and Toledano.
+<P>
+ 
+<B><A NAME="v ir"><FONT COLOR=#FF0000>VALUE IRREP p1 [p2 ...]</FONT></A></B><BR>
+The irreps are selected.  This command affects the data displayed
+by <B>DISPLAY INVARIANTS</B>, <B>DISPLAY DISTORTION</B>,
+<B>DISPLAY IRREP</B>, <B>DISPLAY ISOTROPY</B>, and <B>DISPLAY KPOINT</B>.
+The parameters p1,p2,... are irreps to be selected.
+Only the first irrep listed (p1) is used by <B>DISPLAY DISTORTIONS</B>,
+<B>DISPLAY IRREP</B>, and
+<B>DISPLAY ISOTROPY</B>.  This command cancels the
+effect of any <B>VALUE KPOINT</B> command previously used.
+The irrep is denoted by a symbol, using either
+the notation of Miller and Love, Kovalev, Bradley and Cracknell, or Zak.
+For example, <B>Y1+</B>, <B>K8T1</B>, <B>Z1+</B>, and <B>Z1</B> all refer
+to the same irrep (using each of the notations, respectively)
+in space group #12 A2/m.  Note that <B>Z1</B> and <B>A1</B> are the
+same irrep in the Zak notation for this space group.  When there are
+more than one symbol for the same irrep, any of them may be used for
+p1.  <B>GM</B> is used for gamma.  When a physically irreducible
+representation is constructed from two complex conjugate irreps, the
+notation indicates this (for example, <B>Z1Z2</B> or <B>K22T1T2</B>
+in space group #30 Pnc2/mc2).
+<P>
+ 
+The irrep notation used for p1 must agree with the current
+space-group setting.  The
+<B>SETTING</B> command changes the current setting. When <B>SETTING INTERNATIONAL</B> is used, the current irrep notation does not
+change.  When ISOTROPY is first started, the irrep notation
+is Miller and Love.  See the <A HREF="#set"><B>SETTING</B></A> command for an explanation
+of how the command affects the irrep selected by <B>VALUE IRREP</B>.
+<P>
+ 
+<B><A NAME="v ir mag"><FONT COLOR=#FF0000>VALUE IRREP MAGNETIC p1, [p2...]</FONT></A></B><BR>
+Irreps are designated to be either magnetic <b>YES</b> or
+nonmagnetic <b>NO</b>.  This command affects the data displayed by
+<b>DISPLAY ISOTROPY COUPLED</b> when <b>SETTING MAGNETIC</b> is used.
+<p>
+
+<B><A NAME="v kdeg"><FONT COLOR=#FF0000>VALUE KDEGREE p1</FONT></A></B><BR>
+The degrees of freedom of the <B>k</B> vector are selected.
+This command affects the data displayed
+by <B>DISPLAY IRREP</B> and <B>DISPLAY KPOINT</B>.
+<P>
+ 
+<B><A NAME="v kp"><FONT COLOR=#FF0000>VALUE KPOINT p1</FONT></A></B><BR>
+Irreps which arise from a given <B>k</B> point are selected.
+This command affects the data displayed
+by <B>DISPLAY IRREP</B>, <B>DISPLAY ISOTROPY</B> and <B>DISPLAY DISTORTION</B>.
+This command also selects the <B>k</B> vector displayed by <B>DISPLAY KPOINT</B>.
+The parameter p1 is the <B>k</B> point to be selected.  This command cancels the
+effect of any <B>VALUE IRREP</B> command previously used.
+The <B>k</B> point is denoted by a symbol, using either
+the notation of Miller and Love, Kovalev, Bradley and Cracknell, or Zak.
+For example, <B>Y</B>, <B>K8</B>, <B>Z</B>, and <B>Z</B> all refer
+to the same <B>k</B> point (using each of the notations, respectively)
+in space group #12 A2/m.  Note that <B>Z</B> and <B>A</B> are equivalent
+<B>k</B> points in the Zak notation for this space group.  When there are
+equivalent <B>k</B> points, any of them may be used for
+p1.  <B>GM</B> is used for gamma.
+As with irrep notation,
+the <B>k</B>-point notation used for p1 must agree with the current
+space-group setting.  See the <A HREF="#v ir"><B>VALUE IRREP</B></A> command for a further
+discussion of this point.
+<P>
+ 
+<B><A NAME="v kval"><FONT COLOR=#FF0000>VALUE KVALUE p1 [p2 ...]</FONT></A></B><BR>
+The values of the parameters alpha,beta,gamma defining the <B>k</B> vectors
+are selected.  The parameters p1,p2,... each represent a set of parameters
+for a <B>k</B> vector.  The number of sets selected must
+equal the number of irreps selected.  These parameters need only be selected
+if one or more of the irreps are associated with <B>k</B> vectors
+which are not at <B>k</B> points of symmetry.  For example, a <B>k</B> vector on
+a <B>k</B> line of symmetry is defined by a single parameter alpha which gives
+the position of the vector on the line.  In that case,
+<B>VALUE KVALUE 1,1/4</B> would select one value, alpha=1/4.  <B>VALUE KVALUE 2,1/4,3/8</B> selects two values, alpha=1/4 and beta=3/8.
+<B>VALUE KVALUE 0 1,1/4</B> selects values for two <B>k</B> vectors, the first
+one at a <B>k</B> point of symmetry and the second one at a <B>k</B> line of
+symmetry.
+Each value must be given as a ratio of two integers, as shown in the examples.
+<P>
+ 
+<B><A NAME="v lan"><FONT COLOR=#FF0000>VALUE LANDAU p1 [p2]</FONT></A></B><BR>
+The Landau frequency of the image
+is selected.  This command affects the data displayed
+by <B>DISPLAY IMAGE</B>, <B>DISPLAY IRREP</B>, and <B>DISPLAY ISOTROPY</B>.
+The parameters, p1 and p2, are numbers representing the Landau frequency
+of an image (the number of independent third-degree invariants).
+If they are both present,
+then Landau frequencies p1 through p2 are selected.  If only p1 is
+present, then only Landau frequency
+p1 is selected.
+<P>
+ 
+<B><A NAME="v lat"><FONT COLOR=#FF0000>VALUE LATTICE p1 [p2]</FONT></A></B><BR>
+When <B>DISPLAY PARENT</B> is used, the Bravais lattices of the space group
+are selected.  When <B>DISPLAY ISOTROPY</B>
+is used, the Bravais lattices
+of the isotropy subgroup are selected.  
+The parameters, p1 and p2 are lattices.  If they are both present, then
+lattices p1 through p2 are selected (using the order shown in the
+table below).  If only p1 is present,
+then only lattice p1 is selected.
+The lattices are denoted by a symbol, using either
+the Schoenflies notation or the Pearson notation (see table below).
+For example, <B>VALUE LATTICE TI</B> and <B>VALUE LATTICE Q-V</B> both
+select the body-centered tetragonal lattice.
+<P>
+
+<TABLE BORDER>
+<TR><TH>Lattice</TH><TH COLSPAN=2>Symbols</TH>
+<TH>Lattice</TH><TH COLSPAN=2>Symbols</TH></TR>
+<TR><TD>1. triclinic</TD><TD>T</TD><TD>AP</TD><TD>8. primitive tetragonal</TD><TD>Q</TD><TD>TP</TD></TR>
+<TR><TD>2. primitive monoclinic</TD><TD>M</TD><TD>MP</TD><TD>9. body-centered tetragonal</TD><TD>Q-V</TD><TD>TI</TD></TR>
+<TR><TD>3. base-centered monoclinic</TD><TD>M-B</TD><TD>MC</TD><TD>10. Trigonal</TD><TD>RH</TD><TD>HR</TD></TR>
+<TR><TD>4. primitive orthorhombic</TD><TD>O</TD><TD>OP</TD><TD>11. Hexagonal</TD><TD>H</TD><TD>HP</TD></TR>
+<TR><TD>5. base-centered orthorhombic</TD><TD>O-B</TD><TD>OC</TD><TD>12. primitive cubic</TD><TD>C</TD><TD>CP</TD></TR>
+<TR><TD>6. body-centered orthorhombic</TD><TD>O-V</TD><TD>OI</TD><TD>13. face-centered cubic</TD><TD>C-F</TD><TD>CF</TD></TR>
+<TR><TD>7. face-centered orthorhombic</TD><TD>O-F</TD><TD>OF</TD><TD>14. body-centered cubic</TD><TD>C-V</TD><TD>CI</TD></TR>
+</TABLE>
+<P>
+
+<B><A NAME="v lat p"><FONT COLOR=#FF0000>VALUE LATTICE PARAMETER p1 p2 p3 p4 p5 p6</FONT></A></B><BR>
+The lattice parameters are selected.  The parameters p1 through p6
+are the values of a,b,c,alpha,beta,gamma, respectively.  a,b,c
+are the lengths of the 3 basis vectors <B>a</B>,<B>b</B>,<B>c</B> of the conventional
+lattice, alpha is the angle between <B>b</B> and <B>c</B>, beta is the angle
+between <B>a</B> and <B>c</B>, and gamma is the angle between <B>a</B> and <B>b</B>.
+<P>
+ 
+<B><A NAME="v lif"><FONT COLOR=#FF0000>VALUE LIFSHITZ p1 [p2]</FONT></A></B><BR>
+The Lifshitz frequency of the irrep
+is selected.  This command affects the data displayed
+by <B>DISPLAY IRREP</B> and <B>DISPLAY ISOTROPY</B>.
+The parameters, p1 and p2, are numbers representing the Lifshitz frequency
+of an irrep (the number of times that the vector representation is contained
+in the antisymmetrized cube of the irrep).
+If they are both present,
+then Lifshitz frequencies p1 through p2 are selected.  If only p1 is
+present, then only Lifshitz frequency
+p1 is selected.
+<P>
+ 
+<B><A NAME="v max"><FONT COLOR=#FF0000>VALUE MAXIMAL p1</FONT></A></B><BR>
+When <B>DISPLAY ISOTROPY</B> is used, <B>VALUE MAXIMAL YES</B> selects maximal
+isotropy
+subgroups and <B>VALUE MAXIMAL NO</B> selects subgroups which are not maximal.
+An isotropy subgroup is maximal when it is not a subgroup of any other
+isotropy subgroup for the same irrep.
+<P>
+ 
+<B><A NAME="v norm"><FONT COLOR=#FF0000>VALUE NORMAL p1 p2 p3</FONT></A></B><BR>
+This command affects the data displayed by <B>DISPLAY ISOTROPY</B> when
+one of the <B>SHOW TWIN</B> commands is used.
+This command selects the orientation of the plane between a domain pair.
+p1 p2 p3 are the Miller indices (hkl) of the plane.  All three
+numbers must be integers.  Note that if the primitive labeling of vectors
+is selected by the <B>LABEL VECTORS PRIMITIVE</B> command,
+these Miller indices may not have
+their usual meaning.
+<P>
+ 
+<B><A NAME="v ord"><FONT COLOR=#FF0000>VALUE ORDER p1 [p2]</FONT></A></B><BR>
+The orders of the image
+are selected.  This command affects the data displayed
+by <B>DISPLAY IMAGE</B>.
+The parameters, p1 and p2, are numbers representing the order of an image
+(number of distinct matrices in the image group).  If they are both present,
+then orders p1 through p2 are selected.  If only p1 is
+present, then only order p1 is selected.
+<P>
+ 
+<B><A NAME="v ori"><FONT COLOR=#FF0000>VALUE ORIGIN p1</FONT></A></B><BR>
+The origin of a subgroup is selected.  This command affects the data
+displayed by <B>DISPLAY DIRECTION</B>.  p1 is the position of the origin,
+denoted by three numbers separated by commas. The
+three numbers are coordinates in terms of the basis
+vectors of the lattice of the parent space group.
+<P>
+ 
+When used with <B>DISPLAY ISOTROPY</B>, the alternate origin is
+selected.  See <B>SHOW SUBGROUP ALTERNATE</B>.
+<P>
+
+<B><A NAME="v par"><FONT COLOR=#FF0000>VALUE PARENT p1 [p2]</FONT></A></B><BR>
+The parent space groups are selected.  This command affects the
+data displayed by <B>DISPLAY PARENT</B>, <B>DISPLAY INVARIANTS</B>,
+<B>DISPLAY DISTORTION</B>,
+<B>DISPLAY IRREP</B>, <B>DISPLAY ISOTROPY</B>, 
+and <B>DISPLAY KPOINT</B>.
+The parameters, p1 and p2, are space groups.
+If they are both present, then space groups p1 through p2
+are selected.  If only p1 is present, then only space group p1
+is selected. The space groups can be denoted by a number or by a symbol,
+using either the Schoenflies or international notation (either short or full
+symbol).  For example,
+<B>VALUE PARENT 124</B> refers to space group #124 (D<SUP>2</SUP><SUB>4h</SUB> or
+P4/mcc or P4/m2/c2/c).  This command could have also been
+entered as <B>VALUE PARENT D4H-2</B> or <B>VALUE PARENT P4/MCC</B> or
+<B>VALUE PARENT P4/M2/C2/C</B>.  Note that since parameters are delimited
+by space characters, they should not contain any space characters themselves.
+In the international notation, bars over
+numbers are denoted by a preceding minus sign (eg., <B>P-3C1</B>)
+and subscripts are denoted by a preceding underline character (eg.,
+<B>P4_2/MCM</B> for P4<SUB>2</SUB>/mcm).
+<P>
+ 
+<B><A NAME="v point"><FONT COLOR=#FF0000>VALUE POINTGROUP p1 [p2]</FONT></A></B><BR>
+When <B>DISPLAY PARENT</B> is used, the point groups of the space group
+are selected.  When <B>DISPLAY ISOTROPY</B> 
+is used, the point groups of
+the isotropy subgroup are selected.
+The parameters, p1 and p2 are space groups.  If they are both present,
+then point groups p1 through p2 are selected (using the order shown in
+the table below). If only p1 is present, then only point group p1 is
+selected.
+The point groups are denoted by a symbol, using either the Schoenflies
+or international notation (see table below).  For example, <B>VALUE POINTGROUP OH</B> and <B>VALUE POINTGROUP M-3M</B> both refer to the
+point group O<SUB>h</SUB> or m-3m.  A bar over a number is denoted by a preceding
+minus sign (eg., <B>-4</B> for "4 bar").
+<P>
+
+<TABLE BORDER>
+<TR><TD>1. C1</TD><TD>1</TD><TD>9. C4</TD><TD>4</TD><TD>17. C3I</TD><TD>-3</TD><TD>25. C6V</TD><TD>6MM</TD></TR>
+<TR><TD>2. CI</TD><TD>-1</TD><TD>10. S4</TD><TD>-4</TD><TD>18. D3</TD><TD>32</TD><TD>26. D3H</TD><TD>-62M</TD></TR>
+<TR><TD>3. C2</TD><TD>2</TD><TD>11. C4H</TD><TD>4/M</TD><TD>19. C3V</TD><TD>3M</TD><TD>27. D6H</TD><TD>6/MMM</TD></TR>
+<TR><TD>4. CS</TD><TD>M</TD><TD>12. D4</TD><TD>422</TD><TD>20. D3D</TD><TD>-3M</TD><TD>28. T</TD><TD>23</TD></TR>
+<TR><TD>5. C2H</TD><TD>2/M</TD><TD>13. C4V</TD><TD>4MM</TD><TD>21. C6</TD><TD>6</TD><TD>29. TH</TD><TD>M-3</TD></TR>
+<TR><TD>6. D2</TD><TD>222</TD><TD>14. D2D</TD><TD>-42M</TD><TD>22. C3H</TD><TD>-6</TD><TD>30. O</TD><TD>432</TD></TR>
+<TR><TD>7. C2V</TD><TD>MM2</TD><TD>15. D4H</TD><TD>4/MMM</TD><TD>23. C6H</TD><TD>6/M</TD><TD>31. TD</TD><TD>-43M</TD></TR>
+<TR><TD>8. D2H</TD><TD>MMM</TD><TD>16. C3</TD><TD>3</TD><TD>24. D6</TD><TD>622</TD><TD>32. OH</TD><TD>M-3M</TD></TR>
+</TABLE>
+<P>
+ 
+<B><A NAME="v pos"><FONT COLOR=#FF0000>VALUE POSITION p1 p2 p3 </FONT></A></B><BR>
+The coordinates of a point are selected.
+This command affects the data displayed
+by <B>DISPLAY DISTORTION</B> when <B>SHOW LOCAL</B> is used.
+The coordinates are assumed to be in terms of the basis vectors of the lattice,
+using the setting chosen at the time when <B>DISPLAY DISTORTION</B> is used.
+Each coordinate must be given in terms of rational numbers.  For example,
+<B>1/2 1/2 1/2</B> would denote the coordinates at
+(1/2,1/2,1/2).
+Also, irrational coordinates can be denoted by <B>x</B>, <B>y</B>, or <B>z</B>.
+For example, <B>x 1/2-x 0</B> would denote coordinates at
+(x,1/2-x,0), where x is an arbitrary irrational number.
+The coordinates <B>x y z</B> would denote a general point.
+<P>
+ 
+The command <B>VALUE POSITION</B> also affects the data displayed by
+<B>DISPLAY ISOTROPY</B> when one of the <B>SHOW TWIN</B> commands are used.
+In this case, a point on the plane between the pair of domains is selected.
+<P>
+ 
+<B><A NAME="v rank"><FONT COLOR=#FF0000>VALUE RANK p1</FONT></A></B><BR>
+The rank of a macroscopic
+tensor is selected. This command affects the data displayed
+by <B>DISPLAY DISTORTION</B> when <B>SHOW MACROSCOPIC</B> is used.
+p1 shows the indices of the tensor in numerical order.  For example,
+p1=<B>1234</B> indicates a tensor of rank 4.  Indices to be symmetrized are
+enclosed by square brackets.  For example, p1=<B>[12]</B> indicates
+a totally-symmetrized tensor of rank 2.  Indices to be antisymmetrized are
+enclosed by curly brackets.  For example,
+p1=<B>1{23}</B> indicates a tensor of rank 3 which is
+antisymmetric with respect to the 2nd and 3rd indices.
+The value of the rank cannot exceed 6.
+<P>
+ 
+<B><A NAME="v size"><FONT COLOR=#FF0000>VALUE SIZE p1 [p2]</FONT></A></B><BR>
+The relative sizes of the primitive unit cells of the parent space group
+and the isotropy subgroup
+are selected.  This command affects the data displayed
+by <B>DISPLAY ISOTROPY</B>.
+The parameters, p1 and p2, are numbers representing relative size.
+If they are both present,
+then sizes p1 through p2 are selected.  If only p1 is
+present, then only size p1 is selected.
+<P>
+ 
+<B><A NAME="v subg"><FONT COLOR=#FF0000>VALUE SUBGROUP p1 [p2]</FONT></A></B><BR>
+The isotropy subgroup space groups are selected.  This command affects the
+data displayed by
+<B>DISPLAY ISOTROPY</B>.
+The parameters, p1 and p2, are space groups.
+If they are both present, then space groups p1 through p2
+are selected.  If only p1 is present, then only space group p1
+is selected. The space groups can be denoted by a number or by a symbol.
+See <A HREF="#v par"><B>VALUE PARENT</B></A> for an explanation of the symbols
+used.
+<P>
+ 
+<B><A NAME="v sub max"><FONT COLOR=#FF0000>VALUE SUBGROUP MAXIMAL</FONT></A></B><BR>
+The maximal subgroups of the parent are selected.  This command affects the
+data displayed by <B>DISPLAY ISOTROPY</B>. 
+<P>
+
+<B><A NAME="v type"><FONT COLOR=#FF0000>VALUE TYPE p1</FONT></A></B><BR>
+The irrep type (1,2,3) is selected.  This command affects the data displayed by
+<B>DISPLAY IRREP</B> and <B>DISPLAY IMAGE</B>.
+A type-1 irrep is real.  A type-2 irrep is complex but its
+characters are real.  A type-3 irrep is complex and its characters are also
+complex.
+<P>
+ 
+<B><A NAME="v wy"><FONT COLOR=#FF0000>VALUE WYCKOFF p1 [p2 ...]</FONT></A></B><BR>
+Wyckoff positions are selected.  This command affects the data displayed by
+<B>DISPLAY PARENT</B>, <B>DISPLAY IRREP</B>, and <B>DISPLAY DISTORTION</B>.
+The parameters p1,p2,... are the single-letter
+symbols of the positions, as given in International Tables.
+<P>
+ 
+<B><A NAME="v wy ir"><FONT COLOR=#FF0000>VALUE WYCKOFF IRREP p1 [p2 ...]</FONT></A></B><BR>
+Irreps of the point group of a Wyckoff position are selected. This command
+affects the data displayed by <B>DISPLAY PARENT</B>, <B>DISPLAY IRREP</B>,
+and <B>DISPLAY DISTORTION</B>.
+The parameters p1,p2,... are the irrep symbols, using the convention of
+Bradley and Cracknell.
+<P>
+ 
+<B><A NAME="v wy xyz"><FONT COLOR=#FF0000>VALUE WYCKOFF XYZ p1 p2 p3</FONT></A></B><BR>
+The parameters x,y,z of the Wyckoff position are selected.  p1,p2,p3
+are the values of x,y,z, respectively.
+ 
+</div>
+<script src="swingjs/swingjs2.js"></script>
+<script src="isodistort.js"></script>
+</BODY>
+</HTML>

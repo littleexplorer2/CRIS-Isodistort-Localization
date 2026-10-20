@@ -1,0 +1,38 @@
+{
+  "scope": "New-project engineering tests; no scientific acceptance claim.",
+  "reason": "Retain actual command output and evidence for final reviewed implementation.",
+  "started_at_utc": "2026-10-20T13:55:45.224267+00:00",
+  "finished_at_utc": "2026-10-20T13:55:50.222584+00:00",
+  "command": [
+    "C:\\Users\\devou\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-v"
+  ],
+  "cwd": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA",
+  "exit_code": 0,
+  "host": "Windows-11-10.0.26300-SP0",
+  "python": "3.12.5 (tags/v3.12.5:ff3bc82, Aug  6 2024, 20:45:27) [MSC v.1940 64 bit (AMD64)]",
+  "temporary_directory": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA\\runs\\engineering-test-temp",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "4dfd2e2234f80c65a956d985091e9d8cf7e1469849413dbdf12d1bf4db0ea068",
+  "source_sha256": {
+    "cris_rea/__init__.py": "e836f5d79c5ed1932608fd8ad0826fdbcef57a1d75fa074182a30bb8be3ea557",
+    "cris_rea/__main__.py": "6576ee3f162e194413661c9b79274cf1d1db2c3f57a7a325218a849a8859bf37",
+    "cris_rea/application/__init__.py": "74f2d27090d636457682ee21328c79ab3320d72fa2f17e121e7d036cae461351",
+    "cris_rea/application/service.py": "6d2f8ef97f6932ad80ba54d2b595ece734c3182f04bf7d21e6a7c873af404672",
+    "cris_rea/backend/__init__.py": "2e53d8de15b5940a2778cc093a94b1fc541d0ce412435bf1c871d35fd9b6d4e2",
+    "cris_rea/backend/iso_query.py": "24129de4b16b2d723b5563af4e1b628d1249b22aebf2be953983eeffd794be67",
+    "cris_rea/backend/runtime.py": "1fd8c8eebb72410db30cc88e105827c8749f2e60ec608862681d2278a8af2a9e",
+    "cris_rea/backend/worker.py": "e7db6b0e28e50c2865004c0a27ed6c1996003273621af62a6d90c3e21359c23b",
+    "cris_rea/frontend/__init__.py": "11acc8367354a18c9c8e6178f8672ad6c4b229f81ca0be9b849799197ccdf06d",
+    "cris_rea/frontend/cli.py": "de6091fc2436c68920e175f1c723c4e557e0034ec9ff589bd79c3fc3e106209b",
+    "cris_rea/frontend/web.py": "ab9776f47c488b40eebaaffb671df15caa99a244ca281ab5becaa0e795b6aed1",
+    "cris_rea/frontend/webpage.py": "8547a2d015989a77403d4ccfffdd7acaf54df1f3dfa8f6d3ad305495ee934904",
+    "tests/test_local_contract.py": "e5808159037eec3eeec473eb6ad149970c2d5974972d61de52b24fcac3ce27ec",
+    "tests/test_webpage_races.js": "f6b1a2dcb467237aa4f80c25908d705ab290dfe114213adb1350811ae24371fd"
+  }
+}

@@ -1,0 +1,55 @@
+
+vendor/isobyu/iso:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+Disassembly of section .plt:
+
+Disassembly of section .text:
+
+00000000004571bb <iconstant_>:
+  4571bb:	41 56                	push   r14
+  4571bd:	41 55                	push   r13
+  4571bf:	41 54                	push   r12
+  4571c1:	55                   	push   rbp
+  4571c2:	53                   	push   rbx
+  4571c3:	48 83 ec 10          	sub    rsp,0x10
+  4571c7:	48 89 fd             	mov    rbp,rdi
+  4571ca:	83 3d 6f a0 75 01 00 	cmp    DWORD PTR [rip+0x175a06f],0x0        # 1bb1240 <const_common_>
+  4571d1:	74 59                	je     45722c <iconstant_+0x71>
+  4571d3:	44 8b 25 6a a0 75 01 	mov    r12d,DWORD PTR [rip+0x175a06a]        # 1bb1244 <const_common_+0x4>
+  4571da:	45 85 e4             	test   r12d,r12d
+  4571dd:	7e 5e                	jle    45723d <iconstant_+0x82>
+  4571df:	bb 01 00 00 00       	mov    ebx,0x1
+  4571e4:	4c 8d 35 55 a0 75 01 	lea    r14,[rip+0x175a055]        # 1bb1240 <const_common_>
+  4571eb:	41 89 dd             	mov    r13d,ebx
+  4571ee:	f2 0f 10 45 00       	movsd  xmm0,QWORD PTR [rbp+0x0]
+  4571f3:	f2 41 0f 5c 04 de    	subsd  xmm0,QWORD PTR [r14+rbx*8]
+  4571f9:	f2 0f 11 44 24 08    	movsd  QWORD PTR [rsp+0x8],xmm0
+  4571ff:	48 8d 7c 24 08       	lea    rdi,[rsp+0x8]
+  457204:	e8 0c 44 04 00       	call   49b615 <ncmp_>
+  457209:	85 c0                	test   eax,eax
+  45720b:	74 0f                	je     45721c <iconstant_+0x61>
+  45720d:	48 83 c3 01          	add    rbx,0x1
+  457211:	41 39 dc             	cmp    r12d,ebx
+  457214:	7d d5                	jge    4571eb <iconstant_+0x30>
+  457216:	41 bd 00 00 00 00    	mov    r13d,0x0
+  45721c:	44 89 e8             	mov    eax,r13d
+  45721f:	48 83 c4 10          	add    rsp,0x10
+  457223:	5b                   	pop    rbx
+  457224:	5d                   	pop    rbp
+  457225:	41 5c                	pop    r12
+  457227:	41 5d                	pop    r13
+  457229:	41 5e                	pop    r14
+  45722b:	c3                   	ret
+  45722c:	c7 05 0a a0 75 01 01 	mov    DWORD PTR [rip+0x175a00a],0x1        # 1bb1240 <const_common_>
+  457233:	00 00 00 
+  457236:	e8 66 fc ff ff       	call   456ea1 <init_constants_>
+  45723b:	eb 96                	jmp    4571d3 <iconstant_+0x18>
+  45723d:	41 bd 00 00 00 00    	mov    r13d,0x0
+  457243:	eb d7                	jmp    45721c <iconstant_+0x61>
+
+Disassembly of section __libc_freeres_fn:
+
+Disassembly of section .fini:

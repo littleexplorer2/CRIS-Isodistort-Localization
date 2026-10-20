@@ -1,0 +1,33 @@
+test_file_selection_races (test_local_contract.BrowserInputContractTests.test_file_selection_races) ... ok
+test_cli_preserves_bytes_and_diagnostic_exit (test_local_contract.CliTests.test_cli_preserves_bytes_and_diagnostic_exit) ... ok
+test_doctor_unavailable_exit_code (test_local_contract.CliTests.test_doctor_unavailable_exit_code) ... ok
+test_query_preview_does_not_execute (test_local_contract.CliTests.test_query_preview_does_not_execute) ... ok
+test_consecutive_iso_prompts_do_not_hide_syntax_error (test_local_contract.ExecutionEvidenceTests.test_consecutive_iso_prompts_do_not_hide_syntax_error) ... ok
+test_file_argument_and_isodata_remain_short (test_local_contract.ExecutionEvidenceTests.test_file_argument_and_isodata_remain_short) ... ok
+test_missing_vendor_records_runtime_error (test_local_contract.ExecutionEvidenceTests.test_missing_vendor_records_runtime_error) ... ok
+test_separate_runs_preserve_bytes_and_vendor (test_local_contract.ExecutionEvidenceTests.test_separate_runs_preserve_bytes_and_vendor) ... ok
+test_timeout_and_failure_never_become_completion (test_local_contract.ExecutionEvidenceTests.test_timeout_and_failure_never_become_completion) ... ok
+test_unavailable_supervisor_does_not_make_output (test_local_contract.ExecutionEvidenceTests.test_unavailable_supervisor_does_not_make_output) ... ok
+test_zero_exit_explicit_converter_error_is_diagnostic (test_local_contract.ExecutionEvidenceTests.test_zero_exit_explicit_converter_error_is_diagnostic) ... ok
+test_zero_exit_syntax_error_is_diagnostic (test_local_contract.ExecutionEvidenceTests.test_zero_exit_syntax_error_is_diagnostic) ... ok
+test_cross_origin_run_rejected_before_service (test_local_contract.HttpTests.test_cross_origin_run_rejected_before_service) ... ok
+test_file_bytes_are_passed_and_unknown_program_rejected (test_local_contract.HttpTests.test_file_bytes_are_passed_and_unknown_program_rejected) ... ok
+test_local_host_and_token_are_required (test_local_contract.HttpTests.test_local_host_and_token_are_required) ... ok
+test_partial_request_body_has_a_finite_read_timeout (test_local_contract.HttpTests.test_partial_request_body_has_a_finite_read_timeout) ... ok
+test_query_preparation_is_separate_from_execution (test_local_contract.HttpTests.test_query_preparation_is_separate_from_execution) ... ok
+test_rejects_oversized_body_and_invalid_run_id (test_local_contract.HttpTests.test_rejects_oversized_body_and_invalid_run_id) ... ok
+test_doctor_requires_vendor_even_when_linux_probe_passes (test_local_contract.InputBoundaryTests.test_doctor_requires_vendor_even_when_linux_probe_passes) ... ok
+test_query_uses_user_labels_and_rejects_injection (test_local_contract.InputBoundaryTests.test_query_uses_user_labels_and_rejects_injection) ... ok
+test_rejects_invalid_bytes_and_timeouts (test_local_contract.InputBoundaryTests.test_rejects_invalid_bytes_and_timeouts) ... ok
+test_rejects_run_traversal (test_local_contract.InputBoundaryTests.test_rejects_run_traversal) ... ok
+test_rejects_unknown_and_path_programs (test_local_contract.InputBoundaryTests.test_rejects_unknown_and_path_programs) ... ok
+test_manifest_link_is_not_read (test_local_contract.LinkBoundaryTests.test_manifest_link_is_not_read) ... skipped 'Symlink creation needs Linux/WSL.'
+test_runs_link_is_rejected_before_writing (test_local_contract.LinkBoundaryTests.test_runs_link_is_rejected_before_writing) ... skipped 'Symlink creation needs Linux/WSL.'
+test_child_input_and_nonzero_exit (test_local_contract.LinuxSupervisorTests.test_child_input_and_nonzero_exit) ... skipped 'Process groups require Linux/WSL.'
+test_real_output_limit (test_local_contract.LinuxSupervisorTests.test_real_output_limit) ... skipped 'Process groups require Linux/WSL.'
+test_real_timeout (test_local_contract.LinuxSupervisorTests.test_real_timeout) ... skipped 'Process groups require Linux/WSL.'
+
+----------------------------------------------------------------------
+Ran 28 tests in 4.286s
+
+OK (skipped=5)

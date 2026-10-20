@@ -1,0 +1,379 @@
+
+vendor/isobyu/iso:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+Disassembly of section .plt:
+
+Disassembly of section .text:
+
+000000000049e2bd <orderparam_to_subgroup_>:
+  49e2bd:	41 57                	push   r15
+  49e2bf:	41 56                	push   r14
+  49e2c1:	41 55                	push   r13
+  49e2c3:	41 54                	push   r12
+  49e2c5:	55                   	push   rbp
+  49e2c6:	53                   	push   rbx
+  49e2c7:	48 81 ec 98 4e 00 00 	sub    rsp,0x4e98
+  49e2ce:	49 89 ff             	mov    r15,rdi
+  49e2d1:	48 89 7c 24 08       	mov    QWORD PTR [rsp+0x8],rdi
+  49e2d6:	48 89 74 24 10       	mov    QWORD PTR [rsp+0x10],rsi
+  49e2db:	48 89 d3             	mov    rbx,rdx
+  49e2de:	49 89 ce             	mov    r14,rcx
+  49e2e1:	48 89 4c 24 48       	mov    QWORD PTR [rsp+0x48],rcx
+  49e2e6:	4c 89 44 24 50       	mov    QWORD PTR [rsp+0x50],r8
+  49e2eb:	4c 89 4c 24 58       	mov    QWORD PTR [rsp+0x58],r9
+  49e2f0:	48 8d 2d 89 37 a0 00 	lea    rbp,[rip+0xa03789]        # ea1a80 <common_little_>
+  49e2f7:	48 63 07             	movsxd rax,DWORD PTR [rdi]
+  49e2fa:	0f bf 84 45 6e 6f 2d 	movsx  eax,WORD PTR [rbp+rax*2+0x2d6f6e]
+  49e301:	00 
+  49e302:	89 84 24 e8 49 00 00 	mov    DWORD PTR [rsp+0x49e8],eax
+  49e309:	48 8d 94 24 f0 49 00 	lea    rdx,[rsp+0x49f0]
+  49e310:	00 
+  49e311:	48 8d b4 24 ec 49 00 	lea    rsi,[rsp+0x49ec]
+  49e318:	00 
+  49e319:	48 8d bc 24 e8 49 00 	lea    rdi,[rsp+0x49e8]
+  49e320:	00 
+  49e321:	e8 e8 6f fe ff       	call   48530e <generate_space_group_>
+  49e326:	49 63 07             	movsxd rax,DWORD PTR [r15]
+  49e329:	0f be 84 05 f7 9a 36 	movsx  eax,BYTE PTR [rbp+rax*1+0x369af7]
+  49e330:	00 
+  49e331:	89 84 24 e4 49 00 00 	mov    DWORD PTR [rsp+0x49e4],eax
+  49e338:	41 8b 06             	mov    eax,DWORD PTR [r14]
+  49e33b:	89 44 24 44          	mov    DWORD PTR [rsp+0x44],eax
+  49e33f:	85 c0                	test   eax,eax
+  49e341:	0f 8e 64 04 00 00    	jle    49e7ab <orderparam_to_subgroup_+0x4ee>
+  49e347:	48 8d 83 80 01 00 00 	lea    rax,[rbx+0x180]
+  49e34e:	48 89 44 24 38       	mov    QWORD PTR [rsp+0x38],rax
+  49e353:	48 c7 44 24 28 00 00 	mov    QWORD PTR [rsp+0x28],0x0
+  49e35a:	00 00 
+  49e35c:	c7 44 24 34 01 00 00 	mov    DWORD PTR [rsp+0x34],0x1
+  49e363:	00 
+  49e364:	4c 8d 74 24 60       	lea    r14,[rsp+0x60]
+  49e369:	e9 69 02 00 00       	jmp    49e5d7 <orderparam_to_subgroup_+0x31a>
+  49e36e:	48 8d 9c 24 60 4e 00 	lea    rbx,[rsp+0x4e60]
+  49e375:	00 
+  49e376:	48 8d 94 24 60 48 00 	lea    rdx,[rsp+0x4860]
+  49e37d:	00 
+  49e37e:	49 89 d8             	mov    r8,rbx
+  49e381:	48 8d 0d ac 14 11 00 	lea    rcx,[rip+0x1114ac]        # 5af834 <sym.0+0x1a9>
+  49e388:	48 8b 74 24 10       	mov    rsi,QWORD PTR [rsp+0x10]
+  49e38d:	48 8b 7c 24 08       	mov    rdi,QWORD PTR [rsp+0x8]
+  49e392:	e8 b6 5f 01 00       	call   4b434d <newlat_order_>
+  49e397:	48 89 df             	mov    rdi,rbx
+  49e39a:	e8 cb d2 ff ff       	call   49b66a <ndet_>
+  49e39f:	89 44 24 40          	mov    DWORD PTR [rsp+0x40],eax
+  49e3a3:	bb 00 00 00 00       	mov    ebx,0x0
+  49e3a8:	85 c0                	test   eax,eax
+  49e3aa:	7e 0a                	jle    49e3b6 <orderparam_to_subgroup_+0xf9>
+  49e3ac:	0f 49 d8             	cmovns ebx,eax
+  49e3af:	48 63 db             	movsxd rbx,ebx
+  49e3b2:	48 c1 e3 04          	shl    rbx,0x4
+  49e3b6:	48 83 7c 24 28 00    	cmp    QWORD PTR [rsp+0x28],0x0
+  49e3bc:	75 3a                	jne    49e3f8 <orderparam_to_subgroup_+0x13b>
+  49e3be:	48 85 db             	test   rbx,rbx
+  49e3c1:	bf 01 00 00 00       	mov    edi,0x1
+  49e3c6:	48 0f 45 fb          	cmovne rdi,rbx
+  49e3ca:	e8 91 1f 08 00       	call   520360 <__libc_malloc>
+  49e3cf:	48 89 44 24 28       	mov    QWORD PTR [rsp+0x28],rax
+  49e3d4:	48 85 c0             	test   rax,rax
+  49e3d7:	74 3e                	je     49e417 <orderparam_to_subgroup_+0x15a>
+  49e3d9:	48 8d b4 24 c4 4d 00 	lea    rsi,[rsp+0x4dc4]
+  49e3e0:	00 
+  49e3e1:	48 8d bc 24 60 4e 00 	lea    rdi,[rsp+0x4e60]
+  49e3e8:	00 
+  49e3e9:	48 8b 54 24 28       	mov    rdx,QWORD PTR [rsp+0x28]
+  49e3ee:	e8 5b ef fe ff       	call   48d34e <get_new_fractionals_>
+  49e3f3:	e9 77 03 00 00       	jmp    49e76f <orderparam_to_subgroup_+0x4b2>
+  49e3f8:	48 8d 15 54 84 10 00 	lea    rdx,[rip+0x108454]        # 5a6853 <options.981.0+0xb03>
+  49e3ff:	48 8d 35 b2 73 10 00 	lea    rsi,[rip+0x1073b2]        # 5a57b8 <_IO_stdin_used+0x7b8>
+  49e406:	48 8d 3d 6b 14 11 00 	lea    rdi,[rip+0x11146b]        # 5af878 <sym.0+0x1ed>
+  49e40d:	b8 00 00 00 00       	mov    eax,0x0
+  49e412:	e8 09 83 01 00       	call   4b6720 <_gfortran_runtime_error_at>
+  49e417:	48 89 da             	mov    rdx,rbx
+  49e41a:	48 8d 35 f0 6b 10 00 	lea    rsi,[rip+0x106bf0]        # 5a5011 <_IO_stdin_used+0x11>
+  49e421:	48 8d 3d 88 14 11 00 	lea    rdi,[rip+0x111488]        # 5af8b0 <sym.0+0x225>
+  49e428:	e8 23 80 01 00       	call   4b6450 <_gfortran_os_error_at>
+  49e42d:	be 19 00 00 00       	mov    esi,0x19
+  49e432:	48 8d 3d 0b 14 11 00 	lea    rdi,[rip+0x11140b]        # 5af844 <sym.0+0x1b9>
+  49e439:	e8 76 5e fb ff       	call   4542b4 <bomb2_>
+  49e43e:	e9 52 02 00 00       	jmp    49e695 <orderparam_to_subgroup_+0x3d8>
+  49e443:	48 8d 15 09 84 10 00 	lea    rdx,[rip+0x108409]        # 5a6853 <options.981.0+0xb03>
+  49e44a:	48 8d 35 47 81 10 00 	lea    rsi,[rip+0x108147]        # 5a6598 <options.981.0+0x848>
+  49e451:	48 8d 3d 98 14 11 00 	lea    rdi,[rip+0x111498]        # 5af8f0 <sym.0+0x265>
+  49e458:	b8 00 00 00 00       	mov    eax,0x0
+  49e45d:	e8 be 82 01 00       	call   4b6720 <_gfortran_runtime_error_at>
+  49e462:	48 89 da             	mov    rdx,rbx
+  49e465:	48 8d 35 a5 6b 10 00 	lea    rsi,[rip+0x106ba5]        # 5a5011 <_IO_stdin_used+0x11>
+  49e46c:	48 8d 3d b5 14 11 00 	lea    rdi,[rip+0x1114b5]        # 5af928 <sym.0+0x29d>
+  49e473:	e8 d8 7f 01 00       	call   4b6450 <_gfortran_os_error_at>
+  49e478:	44 8b 7c 24 40       	mov    r15d,DWORD PTR [rsp+0x40]
+  49e47d:	e9 77 02 00 00       	jmp    49e6f9 <orderparam_to_subgroup_+0x43c>
+  49e482:	48 8d 8c 24 60 48 00 	lea    rcx,[rsp+0x4860]
+  49e489:	00 
+  49e48a:	48 8d bc 24 e4 49 00 	lea    rdi,[rsp+0x49e4]
+  49e491:	00 
+  49e492:	4c 89 f2             	mov    rdx,r14
+  49e495:	48 8d 35 98 13 11 00 	lea    rsi,[rip+0x111398]        # 5af834 <sym.0+0x1a9>
+  49e49c:	e8 0e 63 01 00       	call   4b47af <orderparam_check_>
+  49e4a1:	85 c0                	test   eax,eax
+  49e4a3:	0f 85 89 00 00 00    	jne    49e532 <orderparam_to_subgroup_+0x275>
+  49e4a9:	41 83 c4 01          	add    r12d,0x1
+  49e4ad:	48 83 c5 10          	add    rbp,0x10
+  49e4b1:	45 39 e5             	cmp    r13d,r12d
+  49e4b4:	0f 8c a9 00 00 00    	jl     49e563 <orderparam_to_subgroup_+0x2a6>
+  49e4ba:	48 8d 9c 24 b0 4d 00 	lea    rbx,[rsp+0x4db0]
+  49e4c1:	00 
+  49e4c2:	48 89 da             	mov    rdx,rbx
+  49e4c5:	48 8b 34 24          	mov    rsi,QWORD PTR [rsp]
+  49e4c9:	48 89 ef             	mov    rdi,rbp
+  49e4cc:	e8 f0 9c 00 00       	call   4a81c1 <vadd_>
+  49e4d1:	48 83 ec 08          	sub    rsp,0x8
+  49e4d5:	48 8d 84 24 d0 4d 00 	lea    rax,[rsp+0x4dd0]
+  49e4dc:	00 
+  49e4dd:	50                   	push   rax
+  49e4de:	41 57                	push   r15
+  49e4e0:	41 56                	push   r14
+  49e4e2:	4c 8d 8c 24 00 4a 00 	lea    r9,[rsp+0x4a00]
+  49e4e9:	00 
+  49e4ea:	4c 8b 44 24 30       	mov    r8,QWORD PTR [rsp+0x30]
+  49e4ef:	48 89 d9             	mov    rcx,rbx
+  49e4f2:	48 8d 15 3f 13 11 00 	lea    rdx,[rip+0x11133f]        # 5af838 <sym.0+0x1ad>
+  49e4f9:	48 8b 74 24 28       	mov    rsi,QWORD PTR [rsp+0x28]
+  49e4fe:	48 8d 3d 37 13 11 00 	lea    rdi,[rip+0x111337]        # 5af83c <sym.0+0x1b1>
+  49e505:	e8 a8 89 fe ff       	call   486eb2 <get_irreps_>
+  49e50a:	48 83 c4 20          	add    rsp,0x20
+  49e50e:	83 bc 24 c8 4d 00 00 	cmp    DWORD PTR [rsp+0x4dc8],0x0
+  49e515:	00 
+  49e516:	0f 84 66 ff ff ff    	je     49e482 <orderparam_to_subgroup_+0x1c5>
+  49e51c:	be 19 00 00 00       	mov    esi,0x19
+  49e521:	48 8d 3d 36 13 11 00 	lea    rdi,[rip+0x111336]        # 5af85e <sym.0+0x1d3>
+  49e528:	e8 87 5d fb ff       	call   4542b4 <bomb2_>
+  49e52d:	e9 50 ff ff ff       	jmp    49e482 <orderparam_to_subgroup_+0x1c5>
+  49e532:	83 44 24 24 01       	add    DWORD PTR [rsp+0x24],0x1
+  49e537:	8b 44 24 24          	mov    eax,DWORD PTR [rsp+0x24]
+  49e53b:	48 98                	cdqe
+  49e53d:	48 8d 04 80          	lea    rax,[rax+rax*4]
+  49e541:	48 8d 8c 84 f0 49 00 	lea    rcx,[rsp+rax*4+0x49f0]
+  49e548:	00 
+  49e549:	b8 00 00 00 00       	mov    eax,0x0
+  49e54e:	8b 94 04 b0 4d 00 00 	mov    edx,DWORD PTR [rsp+rax*1+0x4db0]
+  49e555:	89 54 01 ec          	mov    DWORD PTR [rcx+rax*1-0x14],edx
+  49e559:	48 83 c0 04          	add    rax,0x4
+  49e55d:	48 83 f8 14          	cmp    rax,0x14
+  49e561:	75 eb                	jne    49e54e <orderparam_to_subgroup_+0x291>
+  49e563:	83 44 24 20 01       	add    DWORD PTR [rsp+0x20],0x1
+  49e568:	8b 44 24 20          	mov    eax,DWORD PTR [rsp+0x20]
+  49e56c:	48 83 44 24 18 14    	add    QWORD PTR [rsp+0x18],0x14
+  49e572:	39 44 24 30          	cmp    DWORD PTR [rsp+0x30],eax
+  49e576:	7c 38                	jl     49e5b0 <orderparam_to_subgroup_+0x2f3>
+  49e578:	48 8b 44 24 18       	mov    rax,QWORD PTR [rsp+0x18]
+  49e57d:	48 89 04 24          	mov    QWORD PTR [rsp],rax
+  49e581:	8b 40 10             	mov    eax,DWORD PTR [rax+0x10]
+  49e584:	89 84 24 c0 4d 00 00 	mov    DWORD PTR [rsp+0x4dc0],eax
+  49e58b:	44 8b ac 24 c4 4d 00 	mov    r13d,DWORD PTR [rsp+0x4dc4]
+  49e592:	00 
+  49e593:	45 85 ed             	test   r13d,r13d
+  49e596:	7e cb                	jle    49e563 <orderparam_to_subgroup_+0x2a6>
+  49e598:	48 8b 6c 24 28       	mov    rbp,QWORD PTR [rsp+0x28]
+  49e59d:	41 bc 01 00 00 00    	mov    r12d,0x1
+  49e5a3:	e9 12 ff ff ff       	jmp    49e4ba <orderparam_to_subgroup_+0x1fd>
+  49e5a8:	c7 44 24 24 00 00 00 	mov    DWORD PTR [rsp+0x24],0x0
+  49e5af:	00 
+  49e5b0:	8b 44 24 24          	mov    eax,DWORD PTR [rsp+0x24]
+  49e5b4:	89 84 24 ec 49 00 00 	mov    DWORD PTR [rsp+0x49ec],eax
+  49e5bb:	83 44 24 34 01       	add    DWORD PTR [rsp+0x34],0x1
+  49e5c0:	8b 44 24 34          	mov    eax,DWORD PTR [rsp+0x34]
+  49e5c4:	48 81 44 24 38 80 01 	add    QWORD PTR [rsp+0x38],0x180
+  49e5cb:	00 00 
+  49e5cd:	39 44 24 44          	cmp    DWORD PTR [rsp+0x44],eax
+  49e5d1:	0f 8c dd 01 00 00    	jl     49e7b4 <orderparam_to_subgroup_+0x4f7>
+  49e5d7:	8b 94 24 e4 49 00 00 	mov    edx,DWORD PTR [rsp+0x49e4]
+  49e5de:	85 d2                	test   edx,edx
+  49e5e0:	7e 27                	jle    49e609 <orderparam_to_subgroup_+0x34c>
+  49e5e2:	89 d2                	mov    edx,edx
+  49e5e4:	b8 00 00 00 00       	mov    eax,0x0
+  49e5e9:	48 8b 4c 24 38       	mov    rcx,QWORD PTR [rsp+0x38]
+  49e5ee:	f2 0f 10 84 c1 80 fe 	movsd  xmm0,QWORD PTR [rcx+rax*8-0x180]
+  49e5f5:	ff ff 
+  49e5f7:	f2 0f 11 84 c4 60 48 	movsd  QWORD PTR [rsp+rax*8+0x4860],xmm0
+  49e5fe:	00 00 
+  49e600:	48 83 c0 01          	add    rax,0x1
+  49e604:	48 39 d0             	cmp    rax,rdx
+  49e607:	75 e5                	jne    49e5ee <orderparam_to_subgroup_+0x331>
+  49e609:	83 7c 24 34 01       	cmp    DWORD PTR [rsp+0x34],0x1
+  49e60e:	0f 84 5a fd ff ff    	je     49e36e <orderparam_to_subgroup_+0xb1>
+  49e614:	4c 8d ac 24 00 4e 00 	lea    r13,[rsp+0x4e00]
+  49e61b:	00 
+  49e61c:	48 8d 9c 24 60 4e 00 	lea    rbx,[rsp+0x4e60]
+  49e623:	00 
+  49e624:	48 8d 94 24 60 48 00 	lea    rdx,[rsp+0x4860]
+  49e62b:	00 
+  49e62c:	4d 89 e9             	mov    r9,r13
+  49e62f:	49 89 d8             	mov    r8,rbx
+  49e632:	48 8d 0d fb 11 11 00 	lea    rcx,[rip+0x1111fb]        # 5af834 <sym.0+0x1a9>
+  49e639:	48 8b 74 24 10       	mov    rsi,QWORD PTR [rsp+0x10]
+  49e63e:	48 8b 7c 24 08       	mov    rdi,QWORD PTR [rsp+0x8]
+  49e643:	e8 0a 58 01 00       	call   4b3e52 <newlat_order3_>
+  49e648:	4c 8d a4 24 cc 4d 00 	lea    r12,[rsp+0x4dcc]
+  49e64f:	00 
+  49e650:	48 8d ac 24 30 4e 00 	lea    rbp,[rsp+0x4e30]
+  49e657:	00 
+  49e658:	4c 89 e2             	mov    rdx,r12
+  49e65b:	48 89 ee             	mov    rsi,rbp
+  49e65e:	48 89 df             	mov    rdi,rbx
+  49e661:	e8 8b c9 ff ff       	call   49aff1 <matinv_>
+  49e666:	48 8d 9c 24 d0 4d 00 	lea    rbx,[rsp+0x4dd0]
+  49e66d:	00 
+  49e66e:	48 89 da             	mov    rdx,rbx
+  49e671:	4c 89 ee             	mov    rsi,r13
+  49e674:	48 89 ef             	mov    rdi,rbp
+  49e677:	e8 be cc ff ff       	call   49b33a <matmlt_>
+  49e67c:	4c 89 e6             	mov    rsi,r12
+  49e67f:	48 89 df             	mov    rdi,rbx
+  49e682:	e8 d2 39 00 00       	call   4a2059 <reduc3_>
+  49e687:	83 bc 24 cc 4d 00 00 	cmp    DWORD PTR [rsp+0x4dcc],0x1
+  49e68e:	01 
+  49e68f:	0f 85 98 fd ff ff    	jne    49e42d <orderparam_to_subgroup_+0x170>
+  49e695:	48 8d bc 24 d0 4d 00 	lea    rdi,[rsp+0x4dd0]
+  49e69c:	00 
+  49e69d:	e8 c8 cf ff ff       	call   49b66a <ndet_>
+  49e6a2:	41 89 c7             	mov    r15d,eax
+  49e6a5:	39 44 24 40          	cmp    DWORD PTR [rsp+0x40],eax
+  49e6a9:	0f 8d c9 fd ff ff    	jge    49e478 <orderparam_to_subgroup_+0x1bb>
+  49e6af:	48 83 7c 24 28 00    	cmp    QWORD PTR [rsp+0x28],0x0
+  49e6b5:	0f 84 88 fd ff ff    	je     49e443 <orderparam_to_subgroup_+0x186>
+  49e6bb:	48 8b 7c 24 28       	mov    rdi,QWORD PTR [rsp+0x28]
+  49e6c0:	e8 db 1f 08 00       	call   5206a0 <__free>
+  49e6c5:	bb 00 00 00 00       	mov    ebx,0x0
+  49e6ca:	45 85 ff             	test   r15d,r15d
+  49e6cd:	7e 0b                	jle    49e6da <orderparam_to_subgroup_+0x41d>
+  49e6cf:	41 0f 49 df          	cmovns ebx,r15d
+  49e6d3:	48 63 db             	movsxd rbx,ebx
+  49e6d6:	48 c1 e3 04          	shl    rbx,0x4
+  49e6da:	48 85 db             	test   rbx,rbx
+  49e6dd:	bf 01 00 00 00       	mov    edi,0x1
+  49e6e2:	48 0f 45 fb          	cmovne rdi,rbx
+  49e6e6:	e8 75 1c 08 00       	call   520360 <__libc_malloc>
+  49e6eb:	48 89 44 24 28       	mov    QWORD PTR [rsp+0x28],rax
+  49e6f0:	48 85 c0             	test   rax,rax
+  49e6f3:	0f 84 69 fd ff ff    	je     49e462 <orderparam_to_subgroup_+0x1a5>
+  49e6f9:	48 8d b4 24 c4 4d 00 	lea    rsi,[rsp+0x4dc4]
+  49e700:	00 
+  49e701:	48 8d bc 24 d0 4d 00 	lea    rdi,[rsp+0x4dd0]
+  49e708:	00 
+  49e709:	48 8b 5c 24 28       	mov    rbx,QWORD PTR [rsp+0x28]
+  49e70e:	48 89 da             	mov    rdx,rbx
+  49e711:	e8 38 ec fe ff       	call   48d34e <get_new_fractionals_>
+  49e716:	44 8b a4 24 c4 4d 00 	mov    r12d,DWORD PTR [rsp+0x4dc4]
+  49e71d:	00 
+  49e71e:	45 85 e4             	test   r12d,r12d
+  49e721:	7e 2f                	jle    49e752 <orderparam_to_subgroup_+0x495>
+  49e723:	bd 01 00 00 00       	mov    ebp,0x1
+  49e728:	4c 8d ac 24 60 4e 00 	lea    r13,[rsp+0x4e60]
+  49e72f:	00 
+  49e730:	48 89 da             	mov    rdx,rbx
+  49e733:	48 89 de             	mov    rsi,rbx
+  49e736:	4c 89 ef             	mov    rdi,r13
+  49e739:	e8 b0 9b 00 00       	call   4a82ee <vmlt_>
+  49e73e:	48 89 df             	mov    rdi,rbx
+  49e741:	e8 68 38 00 00       	call   4a1fae <reduc2_>
+  49e746:	83 c5 01             	add    ebp,0x1
+  49e749:	48 83 c3 10          	add    rbx,0x10
+  49e74d:	41 39 ec             	cmp    r12d,ebp
+  49e750:	7d de                	jge    49e730 <orderparam_to_subgroup_+0x473>
+  49e752:	48 8d bc 24 60 4e 00 	lea    rdi,[rsp+0x4e60]
+  49e759:	00 
+  49e75a:	48 8d b4 24 d0 4d 00 	lea    rsi,[rsp+0x4dd0]
+  49e761:	00 
+  49e762:	48 89 fa             	mov    rdx,rdi
+  49e765:	e8 d0 cb ff ff       	call   49b33a <matmlt_>
+  49e76a:	44 89 7c 24 40       	mov    DWORD PTR [rsp+0x40],r15d
+  49e76f:	8b 84 24 ec 49 00 00 	mov    eax,DWORD PTR [rsp+0x49ec]
+  49e776:	89 44 24 30          	mov    DWORD PTR [rsp+0x30],eax
+  49e77a:	85 c0                	test   eax,eax
+  49e77c:	0f 8e 26 fe ff ff    	jle    49e5a8 <orderparam_to_subgroup_+0x2eb>
+  49e782:	48 8d 84 24 f0 49 00 	lea    rax,[rsp+0x49f0]
+  49e789:	00 
+  49e78a:	48 89 44 24 18       	mov    QWORD PTR [rsp+0x18],rax
+  49e78f:	c7 44 24 24 00 00 00 	mov    DWORD PTR [rsp+0x24],0x0
+  49e796:	00 
+  49e797:	c7 44 24 20 01 00 00 	mov    DWORD PTR [rsp+0x20],0x1
+  49e79e:	00 
+  49e79f:	4c 8d 3d 9a 10 11 00 	lea    r15,[rip+0x11109a]        # 5af840 <sym.0+0x1b5>
+  49e7a6:	e9 cd fd ff ff       	jmp    49e578 <orderparam_to_subgroup_+0x2bb>
+  49e7ab:	48 c7 44 24 28 00 00 	mov    QWORD PTR [rsp+0x28],0x0
+  49e7b2:	00 00 
+  49e7b4:	8b 84 24 ec 49 00 00 	mov    eax,DWORD PTR [rsp+0x49ec]
+  49e7bb:	48 8b 5c 24 58       	mov    rbx,QWORD PTR [rsp+0x58]
+  49e7c0:	89 03                	mov    DWORD PTR [rbx],eax
+  49e7c2:	85 c0                	test   eax,eax
+  49e7c4:	7e 21                	jle    49e7e7 <orderparam_to_subgroup_+0x52a>
+  49e7c6:	8d 40 ff             	lea    eax,[rax-0x1]
+  49e7c9:	48 8d 04 80          	lea    rax,[rax+rax*4]
+  49e7cd:	48 8d 34 85 28 00 00 	lea    rsi,[rax*4+0x28]
+  49e7d4:	00 
+  49e7d5:	b9 14 00 00 00       	mov    ecx,0x14
+  49e7da:	48 8b bc 24 d0 4e 00 	mov    rdi,QWORD PTR [rsp+0x4ed0]
+  49e7e1:	00 
+  49e7e2:	e9 99 00 00 00       	jmp    49e880 <orderparam_to_subgroup_+0x5c3>
+  49e7e7:	8b 84 24 60 4e 00 00 	mov    eax,DWORD PTR [rsp+0x4e60]
+  49e7ee:	48 8b 74 24 50       	mov    rsi,QWORD PTR [rsp+0x50]
+  49e7f3:	89 06                	mov    DWORD PTR [rsi],eax
+  49e7f5:	8b 84 24 64 4e 00 00 	mov    eax,DWORD PTR [rsp+0x4e64]
+  49e7fc:	89 46 04             	mov    DWORD PTR [rsi+0x4],eax
+  49e7ff:	8b 84 24 68 4e 00 00 	mov    eax,DWORD PTR [rsp+0x4e68]
+  49e806:	89 46 08             	mov    DWORD PTR [rsi+0x8],eax
+  49e809:	8b 84 24 6c 4e 00 00 	mov    eax,DWORD PTR [rsp+0x4e6c]
+  49e810:	89 46 0c             	mov    DWORD PTR [rsi+0xc],eax
+  49e813:	8b 84 24 70 4e 00 00 	mov    eax,DWORD PTR [rsp+0x4e70]
+  49e81a:	89 46 10             	mov    DWORD PTR [rsi+0x10],eax
+  49e81d:	8b 84 24 74 4e 00 00 	mov    eax,DWORD PTR [rsp+0x4e74]
+  49e824:	89 46 14             	mov    DWORD PTR [rsi+0x14],eax
+  49e827:	8b 84 24 78 4e 00 00 	mov    eax,DWORD PTR [rsp+0x4e78]
+  49e82e:	89 46 18             	mov    DWORD PTR [rsi+0x18],eax
+  49e831:	8b 84 24 7c 4e 00 00 	mov    eax,DWORD PTR [rsp+0x4e7c]
+  49e838:	89 46 1c             	mov    DWORD PTR [rsi+0x1c],eax
+  49e83b:	8b 84 24 80 4e 00 00 	mov    eax,DWORD PTR [rsp+0x4e80]
+  49e842:	89 46 20             	mov    DWORD PTR [rsi+0x20],eax
+  49e845:	48 8b 44 24 48       	mov    rax,QWORD PTR [rsp+0x48]
+  49e84a:	83 38 00             	cmp    DWORD PTR [rax],0x0
+  49e84d:	7e 69                	jle    49e8b8 <orderparam_to_subgroup_+0x5fb>
+  49e84f:	48 83 7c 24 28 00    	cmp    QWORD PTR [rsp+0x28],0x0
+  49e855:	74 42                	je     49e899 <orderparam_to_subgroup_+0x5dc>
+  49e857:	48 8b 7c 24 28       	mov    rdi,QWORD PTR [rsp+0x28]
+  49e85c:	e8 3f 1e 08 00       	call   5206a0 <__free>
+  49e861:	48 81 c4 98 4e 00 00 	add    rsp,0x4e98
+  49e868:	5b                   	pop    rbx
+  49e869:	5d                   	pop    rbp
+  49e86a:	41 5c                	pop    r12
+  49e86c:	41 5d                	pop    r13
+  49e86e:	41 5e                	pop    r14
+  49e870:	41 5f                	pop    r15
+  49e872:	c3                   	ret
+  49e873:	48 83 c1 14          	add    rcx,0x14
+  49e877:	48 39 f1             	cmp    rcx,rsi
+  49e87a:	0f 84 67 ff ff ff    	je     49e7e7 <orderparam_to_subgroup_+0x52a>
+  49e880:	48 8d 41 ec          	lea    rax,[rcx-0x14]
+  49e884:	8b 94 04 f0 49 00 00 	mov    edx,DWORD PTR [rsp+rax*1+0x49f0]
+  49e88b:	89 14 07             	mov    DWORD PTR [rdi+rax*1],edx
+  49e88e:	48 83 c0 04          	add    rax,0x4
+  49e892:	48 39 c8             	cmp    rax,rcx
+  49e895:	75 ed                	jne    49e884 <orderparam_to_subgroup_+0x5c7>
+  49e897:	eb da                	jmp    49e873 <orderparam_to_subgroup_+0x5b6>
+  49e899:	48 8d 15 b3 7f 10 00 	lea    rdx,[rip+0x107fb3]        # 5a6853 <options.981.0+0xb03>
+  49e8a0:	48 8d 35 f1 7c 10 00 	lea    rsi,[rip+0x107cf1]        # 5a6598 <options.981.0+0x848>
+  49e8a7:	48 8d 3d ba 10 11 00 	lea    rdi,[rip+0x1110ba]        # 5af968 <sym.0+0x2dd>
+  49e8ae:	b8 00 00 00 00       	mov    eax,0x0
+  49e8b3:	e8 68 7e 01 00       	call   4b6720 <_gfortran_runtime_error_at>
+  49e8b8:	48 8b 44 24 28       	mov    rax,QWORD PTR [rsp+0x28]
+  49e8bd:	48 85 c0             	test   rax,rax
+  49e8c0:	74 9f                	je     49e861 <orderparam_to_subgroup_+0x5a4>
+  49e8c2:	48 89 c7             	mov    rdi,rax
+  49e8c5:	e8 d6 1d 08 00       	call   5206a0 <__free>
+  49e8ca:	eb 95                	jmp    49e861 <orderparam_to_subgroup_+0x5a4>
+
+Disassembly of section __libc_freeres_fn:
+
+Disassembly of section .fini:

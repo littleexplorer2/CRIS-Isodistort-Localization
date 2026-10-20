@@ -1,0 +1,2 @@
+CRIS REA: http://127.0.0.1:8765
+Local official-tool console. Ctrl+C stops the server.

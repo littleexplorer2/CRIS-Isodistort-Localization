@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<HEAD>
+<meta charset="utf-8">
+<TITLE>ISODISTORT: search</TITLE>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="stylesheet" href="bootstrap.css">
+<link rel="stylesheet" href="docs.css">
+<style>
+  body {
+	padding-top: 0px;
+  }
+  div.pad {
+	padding-right: 50px;
+	padding-left: 50px;
+  }
+</style>
+</HEAD>
+<body>
+<div class="navbar navbar-static-top">
+  <div class="navbar-inner">
+     <div class="container">
+       <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+	 <span class="icon-bar"></span>
+       </a>
+       <a class="brand" href="isodistort.php">ISODISTORT</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+         <li><a href="isotropy.php">SUITE</a></li>
+                   <li><a href="isodistorthelp.php" TARGET="_blank">HELP</a></li>
+	         </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="pad">
+<H1>ISODISTORT: search</H1><p>
+Space Group: 221 Pm-3m      Oh-1,
+Lattice parameters: a=4.2<br>
+Default space-group preferences: monoclinic axes a(b)c, monoclinic cell choice 1, orthorhombic axes abc, origin choice 2, hexagonal axes, SSG standard setting<br>
+Sr 1b (1/2,1/2,1/2),
+Ti 1a (0,0,0),
+O 3d (1/2,0,0)<br>
+<div class="well">
+<FORM ACTION="isodistortform.php" METHOD="POST">
+<h3>Types of distortions to be considered
+<INPUT CLASS="btn btn-primary" TYPE="submit" VALUE="Change">
+<a href="isodistorthelp.php#includedistortion" target="_blank"><img src=help.jpg></a></h3><p>
+<INPUT TYPE="hidden" NAME="input" VALUE="changesearch">
+<INPUT TYPE="hidden" NAME="spacegroup" VALUE="221 Pm-3m      Oh-1">
+<INPUT TYPE="hidden" NAME="settingaxesm" VALUE="a(b)c               ">
+<INPUT TYPE="hidden" NAME="settingcell" VALUE="1">
+<INPUT TYPE="hidden" NAME="settingorigin" VALUE="2">
+<INPUT TYPE="hidden" NAME="settingaxesh" VALUE="h">
+<INPUT TYPE="hidden" NAME="settingaxeso" VALUE="abc                 ">
+<INPUT TYPE="hidden" NAME="settingssg" VALUE="standard">
+<INPUT TYPE="hidden" NAME="parentsetting" VALUE="323">
+<INPUT TYPE="hidden" NAME="parentsettingstring" VALUE="">
+<INPUT TYPE="hidden" NAME="lattparam" VALUE="a=4.2">
+<INPUT TYPE="hidden" NAME="dlattparam" VALUE="   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000">
+<INPUT TYPE="hidden" NAME="wycount" VALUE="  3">
+<INPUT TYPE="hidden" NAME="wypointer001" VALUE="1627">
+<INPUT TYPE="hidden" NAME="wynumber001" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wytype001" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wyckoff001" VALUE="1b (1/2,1/2,1/2)">
+<INPUT TYPE="hidden" NAME="wyatom001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyatomtype001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyparam001" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc001" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer002" VALUE="1626">
+<INPUT TYPE="hidden" NAME="wynumber002" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wytype002" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wyckoff002" VALUE="1a (0,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyatomtype002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyparam002" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc002" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer003" VALUE="1629">
+<INPUT TYPE="hidden" NAME="wynumber003" VALUE=" 4">
+<INPUT TYPE="hidden" NAME="wytype003" VALUE=" 3">
+<INPUT TYPE="hidden" NAME="wyckoff003" VALUE="3d (1/2,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyatomtype003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyparam003" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc003" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="irrepcount" VALUE="1">
+<table>
+<tr><td>Strain: <INPUT TYPE="checkbox" NAME="includestrain" VALUE="true" CHECKED></td></tr>
+<tr><td VALIGN="TOP">Displacive: </td>
+<td>all<INPUT TYPE="checkbox" NAME="includedisplaciveall" VALUE="true">
+none<INPUT TYPE="checkbox" NAME="includedisplacivenone" VALUE="true">
+Sr<INPUT TYPE="checkbox" NAME="includedisplacive001" VALUE="true" CHECKED>
+Ti<INPUT TYPE="checkbox" NAME="includedisplacive002" VALUE="true" CHECKED>
+O<INPUT TYPE="checkbox" NAME="includedisplacive003" VALUE="true" CHECKED></td></tr>
+<tr><td VALIGN="TOP">Occupational:</td>
+<td>all<INPUT TYPE="checkbox" NAME="includescalarall" VALUE="true">
+none<INPUT TYPE="checkbox" NAME="includescalarnone" VALUE="true">
+Sr<INPUT TYPE="checkbox" NAME="includescalar001" VALUE="true">
+Ti<INPUT TYPE="checkbox" NAME="includescalar002" VALUE="true">
+O<INPUT TYPE="checkbox" NAME="includescalar003" VALUE="true"></td></tr>
+<tr><td VALIGN="TOP">Magnetic: </td>
+<td>all<INPUT TYPE="checkbox" NAME="includemagneticall" VALUE="true">
+none<INPUT TYPE="checkbox" NAME="includemagneticnone" VALUE="true">
+Sr<INPUT TYPE="checkbox" NAME="includemagnetic001" VALUE="true">
+Ti<INPUT TYPE="checkbox" NAME="includemagnetic002" VALUE="true">
+O<INPUT TYPE="checkbox" NAME="includemagnetic003" VALUE="true"></td></tr>
+<tr><td VALIGN="TOP">Rotational: </td>
+<td>all<INPUT TYPE="checkbox" NAME="includerotationalall" VALUE="true">
+none<INPUT TYPE="checkbox" NAME="includerotationalnone" VALUE="true">
+Sr<INPUT TYPE="checkbox" NAME="includerotational001" VALUE="true">
+Ti<INPUT TYPE="checkbox" NAME="includerotational002" VALUE="true">
+O<INPUT TYPE="checkbox" NAME="includerotational003" VALUE="true"></td></tr>
+</table>
+</FORM>
+<b>Important: You must click on Change to implement any changes in the above type of distortions to be considered.</b>
+</div>
+<div class="well">
+<p><FORM ACTION="isodistortform.php" METHOD="POST" target="_blank">
+<h3>Method 1: Search over all special <i>k</i> points
+<INPUT CLASS="btn btn-primary" TYPE="submit" VALUE="OK">
+<a href="isodistorthelp.php#isosub" target="_blank"><img src=help.jpg></a></h3><p><br>
+<INPUT TYPE="hidden" NAME="input" VALUE="isosubgroup">
+<INPUT TYPE="hidden" NAME="spacegroup" VALUE="221 Pm-3m      Oh-1">
+<INPUT TYPE="hidden" NAME="settingaxesm" VALUE="a(b)c               ">
+<INPUT TYPE="hidden" NAME="settingcell" VALUE="1">
+<INPUT TYPE="hidden" NAME="settingorigin" VALUE="2">
+<INPUT TYPE="hidden" NAME="settingaxesh" VALUE="h">
+<INPUT TYPE="hidden" NAME="settingaxeso" VALUE="abc                 ">
+<INPUT TYPE="hidden" NAME="settingssg" VALUE="standard">
+<INPUT TYPE="hidden" NAME="parentsetting" VALUE="323">
+<INPUT TYPE="hidden" NAME="parentsettingstring" VALUE="">
+<INPUT TYPE="hidden" NAME="lattparam" VALUE="a=4.2">
+<INPUT TYPE="hidden" NAME="dlattparam" VALUE="   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000">
+<INPUT TYPE="hidden" NAME="wycount" VALUE="  3">
+<INPUT TYPE="hidden" NAME="wypointer001" VALUE="1627">
+<INPUT TYPE="hidden" NAME="wynumber001" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wytype001" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wyckoff001" VALUE="1b (1/2,1/2,1/2)">
+<INPUT TYPE="hidden" NAME="wyatom001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyatomtype001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyparam001" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc001" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer002" VALUE="1626">
+<INPUT TYPE="hidden" NAME="wynumber002" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wytype002" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wyckoff002" VALUE="1a (0,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyatomtype002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyparam002" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc002" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer003" VALUE="1629">
+<INPUT TYPE="hidden" NAME="wynumber003" VALUE=" 4">
+<INPUT TYPE="hidden" NAME="wytype003" VALUE=" 3">
+<INPUT TYPE="hidden" NAME="wyckoff003" VALUE="3d (1/2,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyatomtype003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyparam003" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc003" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="includedisplacive001" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive002" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive003" VALUE="true">
+<INPUT TYPE="hidden" NAME="includestrain" VALUE="true">
+Crystal system(s):
+triclinic<INPUT TYPE="checkbox" NAME="isosystem1" VALUE="1 1 *triclinic">&nbsp;&nbsp;
+monoclinic<INPUT TYPE="checkbox" NAME="isosystem2" VALUE="2 3 *monoclinic">&nbsp;&nbsp;
+orthorhombic<INPUT TYPE="checkbox" NAME="isosystem3" VALUE="4 7 *orthorhombic">&nbsp;&nbsp;
+tetragonal<INPUT TYPE="checkbox" NAME="isosystem4" VALUE="8 9 *tetragonal">&nbsp;&nbsp;
+trigonal<INPUT TYPE="checkbox" NAME="isosystem5" VALUE="10 10 *trigonal">&nbsp;&nbsp;
+hexagonal<INPUT TYPE="checkbox" NAME="isosystem6" VALUE="11 11 *hexagonal">&nbsp;&nbsp;
+cubic<INPUT TYPE="checkbox" NAME="isosystem7" VALUE="12 14 *cubic"><br>
+Space-group symmetry:<SELECT NAME="isosubgroup">
+<OPTION>no choice</OPTION>
+<OPTION>  1 P1         C1-1    </OPTION>
+<OPTION>  2 P-1        Ci-1    </OPTION>
+<OPTION>  5 C2         C2-3    </OPTION>
+<OPTION>  6 Pm         Cs-1    </OPTION>
+<OPTION>  8 Cm         Cs-3    </OPTION>
+<OPTION> 10 P2/m       C2h-1   </OPTION>
+<OPTION> 11 P2_1/m     C2h-2   </OPTION>
+<OPTION> 12 C2/m       C2h-3   </OPTION>
+<OPTION> 13 P2/c       C2h-4   </OPTION>
+<OPTION> 14 P2_1/c     C2h-5   </OPTION>
+<OPTION> 15 C2/c       C2h-6   </OPTION>
+<OPTION> 23 I222       D2-8    </OPTION>
+<OPTION> 24 I2_12_12_1 D2-9    </OPTION>
+<OPTION> 38 Amm2       C2v-14  </OPTION>
+<OPTION> 42 Fmm2       C2v-18  </OPTION>
+<OPTION> 44 Imm2       C2v-20  </OPTION>
+<OPTION> 47 Pmmm       D2h-1   </OPTION>
+<OPTION> 51 Pmma       D2h-5   </OPTION>
+<OPTION> 53 Pmna       D2h-7   </OPTION>
+<OPTION> 55 Pbam       D2h-9   </OPTION>
+<OPTION> 57 Pbcm       D2h-11  </OPTION>
+<OPTION> 59 Pmmn       D2h-13  </OPTION>
+<OPTION> 61 Pbca       D2h-15  </OPTION>
+<OPTION> 62 Pnma       D2h-16  </OPTION>
+<OPTION> 63 Cmcm       D2h-17  </OPTION>
+<OPTION> 64 Cmca       D2h-18  </OPTION>
+<OPTION> 65 Cmmm       D2h-19  </OPTION>
+<OPTION> 67 Cmma       D2h-21  </OPTION>
+<OPTION> 69 Fmmm       D2h-23  </OPTION>
+<OPTION> 71 Immm       D2h-25  </OPTION>
+<OPTION> 72 Ibam       D2h-26  </OPTION>
+<OPTION> 73 Ibca       D2h-27  </OPTION>
+<OPTION> 74 Imma       D2h-28  </OPTION>
+<OPTION> 99 P4mm       C4v-1   </OPTION>
+<OPTION>115 P-4m2      D2d-5   </OPTION>
+<OPTION>121 I-42m      D2d-11  </OPTION>
+<OPTION>123 P4/mmm     D4h-1   </OPTION>
+<OPTION>127 P4/mbm     D4h-5   </OPTION>
+<OPTION>129 P4/nmm     D4h-7   </OPTION>
+<OPTION>131 P4_2/mmc   D4h-9   </OPTION>
+<OPTION>139 I4/mmm     D4h-17  </OPTION>
+<OPTION>140 I4/mcm     D4h-18  </OPTION>
+<OPTION>146 R3         C3-4    </OPTION>
+<OPTION>148 R-3        C3i-2   </OPTION>
+<OPTION>155 R32        D3-7    </OPTION>
+<OPTION>160 R3m        C3v-5   </OPTION>
+<OPTION>166 R-3m       D3d-5   </OPTION>
+<OPTION>167 R-3c       D3d-6   </OPTION>
+<OPTION>199 I2_13      T-5     </OPTION>
+<OPTION>204 Im-3       Th-5    </OPTION>
+<OPTION>205 Pa-3       Th-6    </OPTION>
+<OPTION>206 Ia-3       Th-7    </OPTION>
+<OPTION>217 I-43m      Td-3    </OPTION>
+<OPTION>221 Pm-3m      Oh-1    </OPTION>
+<OPTION>223 Pm-3n      Oh-3    </OPTION>
+<OPTION>225 Fm-3m      Oh-5    </OPTION>
+<OPTION>229 Im-3m      Oh-9    </OPTION>
+</SELECT>
+Conventional lattice:<SELECT NAME="isolattice">
+<OPTION>no choice</OPTION>
+<OPTION VALUE=" 10 12396 12398 12399 12407 12414 12417 12418 12420 12422 12424 *conventional lattice selected: (1,0,0),(0,1,0),(0,0,1)">(1,0,0),(0,1,0),(0,0,1)</OPTION>
+<OPTION VALUE="  3 12404 12413 12419 *conventional lattice selected: (-1,0,1),(0,1,-1),(-1,-1,-1)">(-1,0,1),(0,1,-1),(-1,-1,-1)</OPTION>
+<OPTION VALUE=" 16 12405 12406 12415 12416 12421 12423 12559 12563 12567 12571 12576 12577 12595 12601 12614 12615 *conventional lattice selected: (-1,1,0),(-1,-1,0),(0,0,1)">(-1,1,0),(-1,-1,0),(0,0,1)</OPTION>
+<OPTION VALUE=" 67 12425 12429 12462 12463 12464 12495 12501 12502 12505 12506 12507 12508 12524 12525 12526 12530 12531 12532 12545 12551 12552 12555 12556 12557 12558 12560 12561 12562 12564 12565 12566 12568 12569 12570 12572 12573 12574 12578 12580 12581 12583 12584 12585 12587 12596 12597 12598 12599 12600 12602 12603 12604 12605 12606 12616 12619 12620 12622 12623 12624 12628 12629 12630 12631 12634 12635 12636 *conventional lattice selected: (2,0,0),(0,2,0),(0,0,2)">(2,0,0),(0,2,0),(0,0,2)</OPTION>
+<OPTION VALUE=" 16 12427 12428 12431 12432 12433 12434 12437 12438 12439 12440 12448 12449 12450 12451 12483 12533 *conventional lattice selected: (-1,0,1),(-1,0,-1),(0,-2,0)">(-1,0,1),(-1,0,-1),(0,-2,0)</OPTION>
+<OPTION VALUE="  3 12430 12436 12447 *conventional lattice selected: (1,0,-1),(0,-1,1),(-2,-2,-2)">(1,0,-1),(0,-1,1),(-2,-2,-2)</OPTION>
+<OPTION VALUE="  3 12435 12441 12452 *conventional lattice selected: (0,1,1),(1,0,1),(1,1,0)">(0,1,1),(1,0,1),(1,1,0)</OPTION>
+<OPTION VALUE="  7 12459 12484 12485 12521 12527 12534 12535 *conventional lattice selected: (1,0,0),(0,0,1),(0,-2,0)">(1,0,0),(0,0,1),(0,-2,0)</OPTION>
+<OPTION VALUE=" 24 12460 12461 12486 12487 12488 12489 12490 12492 12493 12494 12522 12523 12528 12529 12536 12537 12538 12539 12540 12542 12543 12544 12575 12613 *conventional lattice selected: (2,0,0),(0,2,0),(0,0,1)">(2,0,0),(0,2,0),(0,0,1)</OPTION>
+<OPTION VALUE="  2 12491 12541 *conventional lattice selected: (2,2,0),(-2,2,0),(0,0,1)">(2,2,0),(-2,2,0),(0,0,1)</OPTION>
+<OPTION VALUE="  6 12496 12497 12498 12546 12547 12548 *conventional lattice selected: (-2,0,2),(0,2,-2),(-2,-2,-2)">(-2,0,2),(0,2,-2),(-2,-2,-2)</OPTION>
+<OPTION VALUE=" 10 12499 12500 12503 12504 12549 12550 12553 12554 12625 12626 *conventional lattice selected: (2,0,2),(2,0,-2),(0,2,0)">(2,0,2),(2,0,-2),(0,2,0)</OPTION>
+<OPTION VALUE="  5 12579 12582 12617 12618 12621 *conventional lattice selected: (-2,0,2),(0,-2,-2),(1,-1,1)">(-2,0,2),(0,-2,-2),(1,-1,1)</OPTION>
+<OPTION VALUE="  4 12586 12627 12632 12633 *conventional lattice selected: (0,-2,0),(2,0,2),(-1,1,1)">(0,-2,0),(2,0,2),(-1,1,1)</OPTION>
+<OPTION VALUE="  3 12588 12637 12638 *conventional lattice selected: (-1,1,1),(1,-1,1),(1,1,-1)">(-1,1,1),(1,-1,1),(1,1,-1)</OPTION>
+</SELECT>
+Primitive lattice:<SELECT NAME="isoplattice">
+<OPTION>no choice</OPTION>
+<OPTION VALUE=" 19 12396 12398 12399 12404 12405 12406 12407 12413 12414 12415 12416 12417 12418 12419 12420 12421 12422 12423 12424 *primitive lattice selected: (1,0,0),(0,1,0),(0,0,1)">(1,0,0),(0,1,0),(0,0,1)</OPTION>
+<OPTION VALUE=" 22 12425 12427 12428 12429 12430 12431 12432 12433 12434 12435 12436 12437 12438 12439 12440 12441 12447 12448 12449 12450 12451 12452 *primitive lattice selected: (0,1,1),(1,0,1),(1,1,0)">(0,1,1),(1,0,1),(1,1,0)</OPTION>
+<OPTION VALUE="  9 12459 12483 12484 12485 12521 12527 12533 12534 12535 *primitive lattice selected: (1,0,0),(0,0,1),(0,-2,0)">(1,0,0),(0,0,1),(0,-2,0)</OPTION>
+<OPTION VALUE=" 24 12460 12461 12486 12487 12488 12489 12490 12491 12492 12493 12494 12522 12523 12528 12529 12536 12537 12538 12539 12540 12541 12542 12543 12544 *primitive lattice selected: (2,0,0),(0,2,0),(0,0,1)">(2,0,0),(0,2,0),(0,0,1)</OPTION>
+<OPTION VALUE=" 37 12462 12463 12464 12495 12496 12497 12498 12499 12500 12501 12502 12503 12504 12505 12506 12507 12508 12524 12525 12526 12530 12531 12532 12545 12546 12547 12548 12549 12550 12551 12552 12553 12554 12555 12556 12557 12558 *primitive lattice selected: (0,-2,0),(-2,0,0),(0,0,-2)">(0,-2,0),(-2,0,0),(0,0,-2)</OPTION>
+<OPTION VALUE=" 12 12559 12563 12567 12571 12575 12576 12577 12595 12601 12613 12614 12615 *primitive lattice selected: (1,-1,0),(1,1,0),(0,0,1)">(1,-1,0),(1,1,0),(0,0,1)</OPTION>
+<OPTION VALUE=" 56 12560 12561 12562 12564 12565 12566 12568 12569 12570 12572 12573 12574 12578 12579 12580 12581 12582 12583 12584 12585 12586 12587 12588 12596 12597 12598 12599 12600 12602 12603 12604 12605 12606 12616 12617 12618 12619 12620 12621 12622 12623 12624 12625 12626 12627 12628 12629 12630 12631 12632 12633 12634 12635 12636 12637 12638 *primitive lattice selected: (-1,1,-1),(1,-1,-1),(-1,-1,1)">(-1,1,-1),(1,-1,-1),(-1,-1,1)</OPTION>
+</SELECT>
+Maximal subgroups only<INPUT TYPE="checkbox"NAME="maximal" VALUE="yes">
+</FORM>
+</div>
+<div class="well">
+<FORM ACTION="isodistortform.php" METHOD="POST" target="_blank">
+<h3>Method 2: General method - search over specific <i>k</i> points
+<INPUT CLASS="btn btn-primary" TYPE="submit" VALUE="OK">
+<a href="isodistorthelp.php#kpoint" target="_blank"><img src=help.jpg></a></h3><p><br>
+<INPUT TYPE="hidden" NAME="input" VALUE="kvector">
+<INPUT TYPE="hidden" NAME="spacegroup" VALUE="221 Pm-3m      Oh-1">
+<INPUT TYPE="hidden" NAME="settingaxesm" VALUE="a(b)c               ">
+<INPUT TYPE="hidden" NAME="settingcell" VALUE="1">
+<INPUT TYPE="hidden" NAME="settingorigin" VALUE="2">
+<INPUT TYPE="hidden" NAME="settingaxesh" VALUE="h">
+<INPUT TYPE="hidden" NAME="settingaxeso" VALUE="abc                 ">
+<INPUT TYPE="hidden" NAME="settingssg" VALUE="standard">
+<INPUT TYPE="hidden" NAME="parentsetting" VALUE="323">
+<INPUT TYPE="hidden" NAME="parentsettingstring" VALUE="">
+<INPUT TYPE="hidden" NAME="lattparam" VALUE="a=4.2">
+<INPUT TYPE="hidden" NAME="dlattparam" VALUE="   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000">
+<INPUT TYPE="hidden" NAME="wycount" VALUE="  3">
+<INPUT TYPE="hidden" NAME="wypointer001" VALUE="1627">
+<INPUT TYPE="hidden" NAME="wynumber001" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wytype001" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wyckoff001" VALUE="1b (1/2,1/2,1/2)">
+<INPUT TYPE="hidden" NAME="wyatom001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyatomtype001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyparam001" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc001" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer002" VALUE="1626">
+<INPUT TYPE="hidden" NAME="wynumber002" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wytype002" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wyckoff002" VALUE="1a (0,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyatomtype002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyparam002" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc002" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer003" VALUE="1629">
+<INPUT TYPE="hidden" NAME="wynumber003" VALUE=" 4">
+<INPUT TYPE="hidden" NAME="wytype003" VALUE=" 3">
+<INPUT TYPE="hidden" NAME="wyckoff003" VALUE="3d (1/2,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyatomtype003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyparam003" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc003" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="includedisplacive001" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive002" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive003" VALUE="true">
+<INPUT TYPE="hidden" NAME="includestrain" VALUE="true">
+<INPUT TYPE="hidden" NAME="irrepcount" VALUE="1">
+Specify <i>k</i> point:
+<SELECT NAME="kvec1">
+<OPTION VALUE=" 1 *GM, k12 (0,0,0)">GM, k12 (0,0,0)</OPTION>
+<OPTION VALUE=" 2 *DT, k8 (0,b,0)">DT, k8 (0,b,0)</OPTION>
+<OPTION VALUE=" 3 *LD, k9 (a,a,a)">LD, k9 (a,a,a)</OPTION>
+<OPTION VALUE=" 4 *SM, k4 (a,a,0)">SM, k4 (a,a,0)</OPTION>
+<OPTION VALUE=" 5 *R, k13 (1/2,1/2,1/2)">R, k13 (1/2,1/2,1/2)</OPTION>
+<OPTION VALUE=" 6 *X, k10 (0,1/2,0)">X, k10 (0,1/2,0)</OPTION>
+<OPTION VALUE=" 7 *M, k11 (1/2,1/2,0)">M, k11 (1/2,1/2,0)</OPTION>
+<OPTION VALUE=" 8 *S, k5 (a,1/2,a)">S, k5 (a,1/2,a)</OPTION>
+<OPTION VALUE=" 9 *T, k7 (1/2,1/2,g)">T, k7 (1/2,1/2,g)</OPTION>
+<OPTION VALUE="10 *Z, k6 (a,1/2,0)">Z, k6 (a,1/2,0)</OPTION>
+<OPTION VALUE="11 *C, k3 (a,a,g)">C, k3 (a,a,g)</OPTION>
+<OPTION VALUE="12 *A, k1 (a,b,0)">A, k1 (a,b,0)</OPTION>
+<OPTION VALUE="13 *B, k2 (a,1/2,g)">B, k2 (a,1/2,g)</OPTION>
+<OPTION VALUE="14 *GP, k0 (a,b,g)">GP, k0 (a,b,g)</OPTION>
+</SELECT>
+a=<INPUT TYPE="text" NAME="kparam11" class="span1" size=5>
+b=<INPUT TYPE="text" NAME="kparam21" class="span1" size=5>
+g=<INPUT TYPE="text" NAME="kparam31" class="span1" size=5>
+# of independent incommensurate modulations=<INPUT TYPE="text" NAME="nmodstar1" size=2 maxlength=2 class="span1" VALUE="0">
+</FORM>
+<p><FORM ACTION="isodistortform.php" METHOD="POST">
+<INPUT TYPE="hidden" NAME="input" VALUE="changesearch">
+<INPUT TYPE="hidden" NAME="spacegroup" VALUE="221 Pm-3m      Oh-1">
+<INPUT TYPE="hidden" NAME="settingaxesm" VALUE="a(b)c               ">
+<INPUT TYPE="hidden" NAME="settingcell" VALUE="1">
+<INPUT TYPE="hidden" NAME="settingorigin" VALUE="2">
+<INPUT TYPE="hidden" NAME="settingaxesh" VALUE="h">
+<INPUT TYPE="hidden" NAME="settingaxeso" VALUE="abc                 ">
+<INPUT TYPE="hidden" NAME="settingssg" VALUE="standard">
+<INPUT TYPE="hidden" NAME="parentsetting" VALUE="323">
+<INPUT TYPE="hidden" NAME="parentsettingstring" VALUE="">
+<INPUT TYPE="hidden" NAME="lattparam" VALUE="a=4.2">
+<INPUT TYPE="hidden" NAME="dlattparam" VALUE="   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000">
+<INPUT TYPE="hidden" NAME="wycount" VALUE="  3">
+<INPUT TYPE="hidden" NAME="wypointer001" VALUE="1627">
+<INPUT TYPE="hidden" NAME="wynumber001" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wytype001" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wyckoff001" VALUE="1b (1/2,1/2,1/2)">
+<INPUT TYPE="hidden" NAME="wyatom001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyatomtype001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyparam001" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc001" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer002" VALUE="1626">
+<INPUT TYPE="hidden" NAME="wynumber002" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wytype002" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wyckoff002" VALUE="1a (0,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyatomtype002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyparam002" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc002" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer003" VALUE="1629">
+<INPUT TYPE="hidden" NAME="wynumber003" VALUE=" 4">
+<INPUT TYPE="hidden" NAME="wytype003" VALUE=" 3">
+<INPUT TYPE="hidden" NAME="wyckoff003" VALUE="3d (1/2,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyatomtype003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyparam003" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc003" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="includedisplacive001" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive002" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive003" VALUE="true">
+<INPUT TYPE="hidden" NAME="includestrain" VALUE="true">
+Change number of superposed IRs:
+<input type="text" name="irrepcount" value="1" class="span1" size=3>
+<INPUT CLASS="btn btn-primary" TYPE="submit" VALUE="Change">
+<a href="isodistorthelp.php#coupledir" target="_blank"><img src=help.jpg></a>
+</FORM>
+<b>Important: You must click on Change to implement any changes in the number of superposed IRs.</b>
+</div>
+<div class="well">
+<FORM ACTION="isodistortform.php" METHOD="POST" target="_blank">
+<h3>Method 3: Search over arbitrary <i>k</i> points for specified space group and lattice
+<INPUT CLASS="btn btn-primary" TYPE="submit" VALUE="OK">
+<a href="isodistorthelp.php#method3" target="_blank"><img src=help.jpg></a></h3><p><br>
+<INPUT TYPE="hidden" NAME="input" VALUE="parentbasis">
+<INPUT TYPE="hidden" NAME="spacegroup" VALUE="221 Pm-3m      Oh-1">
+<INPUT TYPE="hidden" NAME="settingaxesm" VALUE="a(b)c               ">
+<INPUT TYPE="hidden" NAME="settingcell" VALUE="1">
+<INPUT TYPE="hidden" NAME="settingorigin" VALUE="2">
+<INPUT TYPE="hidden" NAME="settingaxesh" VALUE="h">
+<INPUT TYPE="hidden" NAME="settingaxeso" VALUE="abc                 ">
+<INPUT TYPE="hidden" NAME="settingssg" VALUE="standard">
+<INPUT TYPE="hidden" NAME="parentsetting" VALUE="323">
+<INPUT TYPE="hidden" NAME="parentsettingstring" VALUE="">
+<INPUT TYPE="hidden" NAME="lattparam" VALUE="a=4.2">
+<INPUT TYPE="hidden" NAME="dlattparam" VALUE="   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000">
+<INPUT TYPE="hidden" NAME="wycount" VALUE="  3">
+<INPUT TYPE="hidden" NAME="wypointer001" VALUE="1627">
+<INPUT TYPE="hidden" NAME="wynumber001" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wytype001" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wyckoff001" VALUE="1b (1/2,1/2,1/2)">
+<INPUT TYPE="hidden" NAME="wyatom001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyatomtype001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyparam001" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc001" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer002" VALUE="1626">
+<INPUT TYPE="hidden" NAME="wynumber002" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wytype002" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wyckoff002" VALUE="1a (0,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyatomtype002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyparam002" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc002" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer003" VALUE="1629">
+<INPUT TYPE="hidden" NAME="wynumber003" VALUE=" 4">
+<INPUT TYPE="hidden" NAME="wytype003" VALUE=" 3">
+<INPUT TYPE="hidden" NAME="wyckoff003" VALUE="3d (1/2,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyatomtype003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyparam003" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc003" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="includedisplacive001" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive002" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive003" VALUE="true">
+<INPUT TYPE="hidden" NAME="includestrain" VALUE="true">
+Select either space group symmetry:
+<SELECT NAME="subgroupsym">
+<OPTION VALUE=0>Not selected</OPTION>
+<OPTION>  1 P1         C1-1    </OPTION>
+<OPTION>  2 P-1        Ci-1    </OPTION>
+<OPTION>  3 P2         C2-1    </OPTION>
+<OPTION>  4 P2_1       C2-2    </OPTION>
+<OPTION>  5 C2         C2-3    </OPTION>
+<OPTION>  6 Pm         Cs-1    </OPTION>
+<OPTION>  7 Pc         Cs-2    </OPTION>
+<OPTION>  8 Cm         Cs-3    </OPTION>
+<OPTION>  9 Cc         Cs-4    </OPTION>
+<OPTION> 10 P2/m       C2h-1   </OPTION>
+<OPTION> 11 P2_1/m     C2h-2   </OPTION>
+<OPTION> 12 C2/m       C2h-3   </OPTION>
+<OPTION> 13 P2/c       C2h-4   </OPTION>
+<OPTION> 14 P2_1/c     C2h-5   </OPTION>
+<OPTION> 15 C2/c       C2h-6   </OPTION>
+<OPTION> 16 P222       D2-1    </OPTION>
+<OPTION> 17 P222_1     D2-2    </OPTION>
+<OPTION> 18 P2_12_12   D2-3    </OPTION>
+<OPTION> 19 P2_12_12_1 D2-4    </OPTION>
+<OPTION> 20 C222_1     D2-5    </OPTION>
+<OPTION> 21 C222       D2-6    </OPTION>
+<OPTION> 22 F222       D2-7    </OPTION>
+<OPTION> 23 I222       D2-8    </OPTION>
+<OPTION> 24 I2_12_12_1 D2-9    </OPTION>
+<OPTION> 25 Pmm2       C2v-1   </OPTION>
+<OPTION> 26 Pmc2_1     C2v-2   </OPTION>
+<OPTION> 27 Pcc2       C2v-3   </OPTION>
+<OPTION> 28 Pma2       C2v-4   </OPTION>
+<OPTION> 29 Pca2_1     C2v-5   </OPTION>
+<OPTION> 30 Pnc2       C2v-6   </OPTION>
+<OPTION> 31 Pmn2_1     C2v-7   </OPTION>
+<OPTION> 32 Pba2       C2v-8   </OPTION>
+<OPTION> 33 Pna2_1     C2v-9   </OPTION>
+<OPTION> 34 Pnn2       C2v-10  </OPTION>
+<OPTION> 35 Cmm2       C2v-11  </OPTION>
+<OPTION> 36 Cmc2_1     C2v-12  </OPTION>
+<OPTION> 37 Ccc2       C2v-13  </OPTION>
+<OPTION> 38 Amm2       C2v-14  </OPTION>
+<OPTION> 39 Abm2       C2v-15  </OPTION>
+<OPTION> 40 Ama2       C2v-16  </OPTION>
+<OPTION> 41 Aba2       C2v-17  </OPTION>
+<OPTION> 42 Fmm2       C2v-18  </OPTION>
+<OPTION> 43 Fdd2       C2v-19  </OPTION>
+<OPTION> 44 Imm2       C2v-20  </OPTION>
+<OPTION> 45 Iba2       C2v-21  </OPTION>
+<OPTION> 46 Ima2       C2v-22  </OPTION>
+<OPTION> 47 Pmmm       D2h-1   </OPTION>
+<OPTION> 48 Pnnn       D2h-2   </OPTION>
+<OPTION> 49 Pccm       D2h-3   </OPTION>
+<OPTION> 50 Pban       D2h-4   </OPTION>
+<OPTION> 51 Pmma       D2h-5   </OPTION>
+<OPTION> 52 Pnna       D2h-6   </OPTION>
+<OPTION> 53 Pmna       D2h-7   </OPTION>
+<OPTION> 54 Pcca       D2h-8   </OPTION>
+<OPTION> 55 Pbam       D2h-9   </OPTION>
+<OPTION> 56 Pccn       D2h-10  </OPTION>
+<OPTION> 57 Pbcm       D2h-11  </OPTION>
+<OPTION> 58 Pnnm       D2h-12  </OPTION>
+<OPTION> 59 Pmmn       D2h-13  </OPTION>
+<OPTION> 60 Pbcn       D2h-14  </OPTION>
+<OPTION> 61 Pbca       D2h-15  </OPTION>
+<OPTION> 62 Pnma       D2h-16  </OPTION>
+<OPTION> 63 Cmcm       D2h-17  </OPTION>
+<OPTION> 64 Cmca       D2h-18  </OPTION>
+<OPTION> 65 Cmmm       D2h-19  </OPTION>
+<OPTION> 66 Cccm       D2h-20  </OPTION>
+<OPTION> 67 Cmma       D2h-21  </OPTION>
+<OPTION> 68 Ccca       D2h-22  </OPTION>
+<OPTION> 69 Fmmm       D2h-23  </OPTION>
+<OPTION> 70 Fddd       D2h-24  </OPTION>
+<OPTION> 71 Immm       D2h-25  </OPTION>
+<OPTION> 72 Ibam       D2h-26  </OPTION>
+<OPTION> 73 Ibca       D2h-27  </OPTION>
+<OPTION> 74 Imma       D2h-28  </OPTION>
+<OPTION> 75 P4         C4-1    </OPTION>
+<OPTION> 76 P4_1       C4-2    </OPTION>
+<OPTION> 77 P4_2       C4-3    </OPTION>
+<OPTION> 78 P4_3       C4-4    </OPTION>
+<OPTION> 79 I4         C4-5    </OPTION>
+<OPTION> 80 I4_1       C4-6    </OPTION>
+<OPTION> 81 P-4        S4-1    </OPTION>
+<OPTION> 82 I-4        S4-2    </OPTION>
+<OPTION> 83 P4/m       C4h-1   </OPTION>
+<OPTION> 84 P4_2/m     C4h-2   </OPTION>
+<OPTION> 85 P4/n       C4h-3   </OPTION>
+<OPTION> 86 P4_2/n     C4h-4   </OPTION>
+<OPTION> 87 I4/m       C4h-5   </OPTION>
+<OPTION> 88 I4_1/a     C4h-6   </OPTION>
+<OPTION> 89 P422       D4-1    </OPTION>
+<OPTION> 90 P42_12     D4-2    </OPTION>
+<OPTION> 91 P4_122     D4-3    </OPTION>
+<OPTION> 92 P4_12_12   D4-4    </OPTION>
+<OPTION> 93 P4_222     D4-5    </OPTION>
+<OPTION> 94 P4_22_12   D4-6    </OPTION>
+<OPTION> 95 P4_322     D4-7    </OPTION>
+<OPTION> 96 P4_32_12   D4-8    </OPTION>
+<OPTION> 97 I422       D4-9    </OPTION>
+<OPTION> 98 I4_122     D4-10   </OPTION>
+<OPTION> 99 P4mm       C4v-1   </OPTION>
+<OPTION>100 P4bm       C4v-2   </OPTION>
+<OPTION>101 P4_2cm     C4v-3   </OPTION>
+<OPTION>102 P4_2nm     C4v-4   </OPTION>
+<OPTION>103 P4cc       C4v-5   </OPTION>
+<OPTION>104 P4nc       C4v-6   </OPTION>
+<OPTION>105 P4_2mc     C4v-7   </OPTION>
+<OPTION>106 P4_2bc     C4v-8   </OPTION>
+<OPTION>107 I4mm       C4v-9   </OPTION>
+<OPTION>108 I4cm       C4v-10  </OPTION>
+<OPTION>109 I4_1md     C4v-11  </OPTION>
+<OPTION>110 I4_1cd     C4v-12  </OPTION>
+<OPTION>111 P-42m      D2d-1   </OPTION>
+<OPTION>112 P-42c      D2d-2   </OPTION>
+<OPTION>113 P-42_1m    D2d-3   </OPTION>
+<OPTION>114 P-42_1c    D2d-4   </OPTION>
+<OPTION>115 P-4m2      D2d-5   </OPTION>
+<OPTION>116 P-4c2      D2d-6   </OPTION>
+<OPTION>117 P-4b2      D2d-7   </OPTION>
+<OPTION>118 P-4n2      D2d-8   </OPTION>
+<OPTION>119 I-4m2      D2d-9   </OPTION>
+<OPTION>120 I-4c2      D2d-10  </OPTION>
+<OPTION>121 I-42m      D2d-11  </OPTION>
+<OPTION>122 I-42d      D2d-12  </OPTION>
+<OPTION>123 P4/mmm     D4h-1   </OPTION>
+<OPTION>124 P4/mcc     D4h-2   </OPTION>
+<OPTION>125 P4/nbm     D4h-3   </OPTION>
+<OPTION>126 P4/nnc     D4h-4   </OPTION>
+<OPTION>127 P4/mbm     D4h-5   </OPTION>
+<OPTION>128 P4/mnc     D4h-6   </OPTION>
+<OPTION>129 P4/nmm     D4h-7   </OPTION>
+<OPTION>130 P4/ncc     D4h-8   </OPTION>
+<OPTION>131 P4_2/mmc   D4h-9   </OPTION>
+<OPTION>132 P4_2/mcm   D4h-10  </OPTION>
+<OPTION>133 P4_2/nbc   D4h-11  </OPTION>
+<OPTION>134 P4_2/nnm   D4h-12  </OPTION>
+<OPTION>135 P4_2/mbc   D4h-13  </OPTION>
+<OPTION>136 P4_2/mnm   D4h-14  </OPTION>
+<OPTION>137 P4_2/nmc   D4h-15  </OPTION>
+<OPTION>138 P4_2/ncm   D4h-16  </OPTION>
+<OPTION>139 I4/mmm     D4h-17  </OPTION>
+<OPTION>140 I4/mcm     D4h-18  </OPTION>
+<OPTION>141 I4_1/amd   D4h-19  </OPTION>
+<OPTION>142 I4_1/acd   D4h-20  </OPTION>
+<OPTION>143 P3         C3-1    </OPTION>
+<OPTION>144 P3_1       C3-2    </OPTION>
+<OPTION>145 P3_2       C3-3    </OPTION>
+<OPTION>146 R3         C3-4    </OPTION>
+<OPTION>147 P-3        C3i-1   </OPTION>
+<OPTION>148 R-3        C3i-2   </OPTION>
+<OPTION>149 P312       D3-1    </OPTION>
+<OPTION>150 P321       D3-2    </OPTION>
+<OPTION>151 P3_112     D3-3    </OPTION>
+<OPTION>152 P3_121     D3-4    </OPTION>
+<OPTION>153 P3_212     D3-5    </OPTION>
+<OPTION>154 P3_221     D3-6    </OPTION>
+<OPTION>155 R32        D3-7    </OPTION>
+<OPTION>156 P3m1       C3v-1   </OPTION>
+<OPTION>157 P31m       C3v-2   </OPTION>
+<OPTION>158 P3c1       C3v-3   </OPTION>
+<OPTION>159 P31c       C3v-4   </OPTION>
+<OPTION>160 R3m        C3v-5   </OPTION>
+<OPTION>161 R3c        C3v-6   </OPTION>
+<OPTION>162 P-31m      D3d-1   </OPTION>
+<OPTION>163 P-31c      D3d-2   </OPTION>
+<OPTION>164 P-3m1      D3d-3   </OPTION>
+<OPTION>165 P-3c1      D3d-4   </OPTION>
+<OPTION>166 R-3m       D3d-5   </OPTION>
+<OPTION>167 R-3c       D3d-6   </OPTION>
+<OPTION>168 P6         C6-1    </OPTION>
+<OPTION>169 P6_1       C6-2    </OPTION>
+<OPTION>170 P6_5       C6-3    </OPTION>
+<OPTION>171 P6_2       C6-4    </OPTION>
+<OPTION>172 P6_4       C6-5    </OPTION>
+<OPTION>173 P6_3       C6-6    </OPTION>
+<OPTION>174 P-6        C3h-1   </OPTION>
+<OPTION>175 P6/m       C6h-1   </OPTION>
+<OPTION>176 P6_3/m     C6h-2   </OPTION>
+<OPTION>177 P622       D6-1    </OPTION>
+<OPTION>178 P6_122     D6-2    </OPTION>
+<OPTION>179 P6_522     D6-3    </OPTION>
+<OPTION>180 P6_222     D6-4    </OPTION>
+<OPTION>181 P6_422     D6-5    </OPTION>
+<OPTION>182 P6_322     D6-6    </OPTION>
+<OPTION>183 P6mm       C6v-1   </OPTION>
+<OPTION>184 P6cc       C6v-2   </OPTION>
+<OPTION>185 P6_3cm     C6v-3   </OPTION>
+<OPTION>186 P6_3mc     C6v-4   </OPTION>
+<OPTION>187 P-6m2      D3h-1   </OPTION>
+<OPTION>188 P-6c2      D3h-2   </OPTION>
+<OPTION>189 P-62m      D3h-3   </OPTION>
+<OPTION>190 P-62c      D3h-4   </OPTION>
+<OPTION>191 P6/mmm     D6h-1   </OPTION>
+<OPTION>192 P6/mcc     D6h-2   </OPTION>
+<OPTION>193 P6_3/mcm   D6h-3   </OPTION>
+<OPTION>194 P6_3/mmc   D6h-4   </OPTION>
+<OPTION>195 P23        T-1     </OPTION>
+<OPTION>196 F23        T-2     </OPTION>
+<OPTION>197 I23        T-3     </OPTION>
+<OPTION>198 P2_13      T-4     </OPTION>
+<OPTION>199 I2_13      T-5     </OPTION>
+<OPTION>200 Pm-3       Th-1    </OPTION>
+<OPTION>201 Pn-3       Th-2    </OPTION>
+<OPTION>202 Fm-3       Th-3    </OPTION>
+<OPTION>203 Fd-3       Th-4    </OPTION>
+<OPTION>204 Im-3       Th-5    </OPTION>
+<OPTION>205 Pa-3       Th-6    </OPTION>
+<OPTION>206 Ia-3       Th-7    </OPTION>
+<OPTION>207 P432       O-1     </OPTION>
+<OPTION>208 P4_232     O-2     </OPTION>
+<OPTION>209 F432       O-3     </OPTION>
+<OPTION>210 F4_132     O-4     </OPTION>
+<OPTION>211 I432       O-5     </OPTION>
+<OPTION>212 P4_332     O-6     </OPTION>
+<OPTION>213 P4_132     O-7     </OPTION>
+<OPTION>214 I4_132     O-8     </OPTION>
+<OPTION>215 P-43m      Td-1    </OPTION>
+<OPTION>216 F-43m      Td-2    </OPTION>
+<OPTION>217 I-43m      Td-3    </OPTION>
+<OPTION>218 P-43n      Td-4    </OPTION>
+<OPTION>219 F-43c      Td-5    </OPTION>
+<OPTION>220 I-43d      Td-6    </OPTION>
+<OPTION>221 Pm-3m      Oh-1    </OPTION>
+<OPTION>222 Pn-3n      Oh-2    </OPTION>
+<OPTION>223 Pm-3n      Oh-3    </OPTION>
+<OPTION>224 Pn-3m      Oh-4    </OPTION>
+<OPTION>225 Fm-3m      Oh-5    </OPTION>
+<OPTION>226 Fm-3c      Oh-6    </OPTION>
+<OPTION>227 Fd-3m      Oh-7    </OPTION>
+<OPTION>228 Fd-3c      Oh-8    </OPTION>
+<OPTION>229 Im-3m      Oh-9    </OPTION>
+<OPTION>230 Ia-3d      Oh-10   </OPTION>
+</SELECT>
+or point group (crystal class):
+<SELECT NAME="pointgroupsym">
+<OPTION VALUE=0>Not selected</OPTION>
+<OPTION VALUE=" 1">triclinic: 1     C1  </OPTION>
+<OPTION VALUE=" 2">triclinic: -1    Ci  </OPTION>
+<OPTION VALUE=" 3">monoclinic: 2     C2  </OPTION>
+<OPTION VALUE=" 4">monoclinic: m     Cs  </OPTION>
+<OPTION VALUE=" 5">monoclinic: 2/m   C2h </OPTION>
+<OPTION VALUE=" 6">orthorhombic: 222   D2  </OPTION>
+<OPTION VALUE=" 7">orthorhombic: mm2   C2v </OPTION>
+<OPTION VALUE=" 8">orthorhombic: mmm   D2h </OPTION>
+<OPTION VALUE=" 9">tetragonal: 4     C4  </OPTION>
+<OPTION VALUE="10">tetragonal: -4    S4  </OPTION>
+<OPTION VALUE="11">tetragonal: 4/m   C4h </OPTION>
+<OPTION VALUE="12">tetragonal: 422   D4  </OPTION>
+<OPTION VALUE="13">tetragonal: 4mm   C4v </OPTION>
+<OPTION VALUE="14">tetragonal: -42m  D2d </OPTION>
+<OPTION VALUE="15">tetragonal: 4/mmm D4h </OPTION>
+<OPTION VALUE="16">hexagonal: 3     C3  </OPTION>
+<OPTION VALUE="17">hexagonal: -3    C3i </OPTION>
+<OPTION VALUE="18">hexagonal: 32    D3  </OPTION>
+<OPTION VALUE="19">hexagonal: 3m    C3v </OPTION>
+<OPTION VALUE="20">hexagonal: -3m   D3d </OPTION>
+<OPTION VALUE="21">hexagonal: 6     C6  </OPTION>
+<OPTION VALUE="22">hexagonal: -6    C3h </OPTION>
+<OPTION VALUE="23">hexagonal: 6/m   C6h </OPTION>
+<OPTION VALUE="24">hexagonal: 622   D6  </OPTION>
+<OPTION VALUE="25">hexagonal: 6mm   C6v </OPTION>
+<OPTION VALUE="26">hexagonal: -62m  D3h </OPTION>
+<OPTION VALUE="27">hexagonal: 6/mmm D6h </OPTION>
+<OPTION VALUE="28">cubic: 23    T   </OPTION>
+<OPTION VALUE="29">cubic: m-3   Th  </OPTION>
+<OPTION VALUE="30">cubic: 432   O   </OPTION>
+<OPTION VALUE="31">cubic: -43m  Td  </OPTION>
+<OPTION VALUE="32">cubic: m-3m  Oh  </OPTION>
+</SELECT>
+<br><INPUT TYPE="radio" NAME="latticetype" VALUE="direct" CHECKED> Specify a real-space sublattice of the parent lattice with
+Default<INPUT TYPE="radio" NAME="centering" VALUE="d" CHECKED>
+P<INPUT TYPE="radio" NAME="centering" VALUE="P">
+A<INPUT TYPE="radio" NAME="centering" VALUE="A">
+B<INPUT TYPE="radio" NAME="centering" VALUE="B">
+C<INPUT TYPE="radio" NAME="centering" VALUE="C">
+I<INPUT TYPE="radio" NAME="centering" VALUE="I">
+F<INPUT TYPE="radio" NAME="centering" VALUE="F">
+R<INPUT TYPE="radio" NAME="centering" VALUE="R"> centering.
+<br><INPUT TYPE="radio" NAME="latticetype" VALUE="reciprocal"> Specify a primitive reciprocal-space superlattice
+<br>Choose a representative basis:
+<br>a' = <input type="text" name="basis11" class="span1" size=3 value=1>a + <input type="text" name="basis12" class="span1" size=3 value=0>b + <input type="text" name="basis13" class="span1" size=3 value=0>c
+<br>b' = <input type="text" name="basis21" class="span1" size=3 value=0>a + <input type="text" name="basis22" class="span1" size=3 value=1>b + <input type="text" name="basis23" class="span1" size=3 value=0>c
+<br>c' = <input type="text" name="basis31" class="span1" size=3 value=0>a + <input type="text" name="basis32" class="span1" size=3 value=0>b + <input type="text" name="basis33" class="span1" size=3 value=1>c
+</FORM>
+</div>
+<div class="well">
+<FORM ACTION="isodistortuploadfile.php" METHOD="POST"  enctype="multipart/form-data" target="_blank">
+<h3>Method 4: Mode decomposition of a distorted structure
+<INPUT CLASS="btn btn-primary" TYPE="submit" VALUE="OK">
+<a href="isodistorthelp.php#method4" target="_blank"><img src=help.jpg></a></h3><p><br>
+<INPUT TYPE="hidden" NAME="input" VALUE="uploadsubgroupcif">
+<INPUT TYPE="hidden" NAME="spacegroup" VALUE="221 Pm-3m      Oh-1">
+<INPUT TYPE="hidden" NAME="settingaxesm" VALUE="a(b)c               ">
+<INPUT TYPE="hidden" NAME="settingcell" VALUE="1">
+<INPUT TYPE="hidden" NAME="settingorigin" VALUE="2">
+<INPUT TYPE="hidden" NAME="settingaxesh" VALUE="h">
+<INPUT TYPE="hidden" NAME="settingaxeso" VALUE="abc                 ">
+<INPUT TYPE="hidden" NAME="settingssg" VALUE="standard">
+<INPUT TYPE="hidden" NAME="parentsetting" VALUE="323">
+<INPUT TYPE="hidden" NAME="parentsettingstring" VALUE="">
+<INPUT TYPE="hidden" NAME="lattparam" VALUE="a=4.2">
+<INPUT TYPE="hidden" NAME="dlattparam" VALUE="   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000">
+<INPUT TYPE="hidden" NAME="wycount" VALUE="  3">
+<INPUT TYPE="hidden" NAME="wypointer001" VALUE="1627">
+<INPUT TYPE="hidden" NAME="wynumber001" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wytype001" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wyckoff001" VALUE="1b (1/2,1/2,1/2)">
+<INPUT TYPE="hidden" NAME="wyatom001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyatomtype001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyparam001" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc001" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer002" VALUE="1626">
+<INPUT TYPE="hidden" NAME="wynumber002" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wytype002" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wyckoff002" VALUE="1a (0,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyatomtype002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyparam002" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc002" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer003" VALUE="1629">
+<INPUT TYPE="hidden" NAME="wynumber003" VALUE=" 4">
+<INPUT TYPE="hidden" NAME="wytype003" VALUE=" 3">
+<INPUT TYPE="hidden" NAME="wyckoff003" VALUE="3d (1/2,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyatomtype003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyparam003" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc003" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="includedisplacive001" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive002" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive003" VALUE="true">
+<INPUT TYPE="hidden" NAME="includestrain" VALUE="true">
+Upload distorted structure from CIF file: 
+<input name="toProcess" type="file" size="30">
+</FORM>
+</div>
+<div class="well">
+<FORM ACTION="isodistortform.php" METHOD="POST">
+<h3>Space-Group Preferences
+<INPUT CLASS="btn btn-primary" TYPE="submit" VALUE="Change">
+<a href="isodistorthelp.php#settings" target="_blank"><img src=help.jpg></a></h3><p><br>
+<INPUT TYPE="hidden" NAME="input" VALUE="changesearch">
+<INPUT TYPE="hidden" NAME="spacegroup" VALUE="221 Pm-3m      Oh-1">
+<INPUT TYPE="hidden" NAME="parentsetting" VALUE="323">
+<INPUT TYPE="hidden" NAME="parentsettingstring" VALUE="">
+<INPUT TYPE="hidden" NAME="lattparam" VALUE="a=4.2">
+<INPUT TYPE="hidden" NAME="dlattparam" VALUE="   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000">
+<INPUT TYPE="hidden" NAME="wycount" VALUE="  3">
+<INPUT TYPE="hidden" NAME="wypointer001" VALUE="1627">
+<INPUT TYPE="hidden" NAME="wynumber001" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wytype001" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wyckoff001" VALUE="1b (1/2,1/2,1/2)">
+<INPUT TYPE="hidden" NAME="wyatom001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyatomtype001" VALUE="Sr">
+<INPUT TYPE="hidden" NAME="wyparam001" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc001" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer002" VALUE="1626">
+<INPUT TYPE="hidden" NAME="wynumber002" VALUE=" 1">
+<INPUT TYPE="hidden" NAME="wytype002" VALUE=" 2">
+<INPUT TYPE="hidden" NAME="wyckoff002" VALUE="1a (0,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyatomtype002" VALUE="Ti">
+<INPUT TYPE="hidden" NAME="wyparam002" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc002" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="wypointer003" VALUE="1629">
+<INPUT TYPE="hidden" NAME="wynumber003" VALUE=" 4">
+<INPUT TYPE="hidden" NAME="wytype003" VALUE=" 3">
+<INPUT TYPE="hidden" NAME="wyckoff003" VALUE="3d (1/2,0,0)">
+<INPUT TYPE="hidden" NAME="wyatom003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyatomtype003" VALUE="O">
+<INPUT TYPE="hidden" NAME="wyparam003" VALUE="   0.0000000000000000        0.0000000000000000        0.0000000000000000">
+<INPUT TYPE="hidden" NAME="wyocc003" VALUE="   1.0000000000000000">
+<INPUT TYPE="hidden" NAME="includedisplacive001" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive002" VALUE="true">
+<INPUT TYPE="hidden" NAME="includedisplacive003" VALUE="true">
+<INPUT TYPE="hidden" NAME="includestrain" VALUE="true">
+<INPUT TYPE="hidden" NAME="irrepcount" VALUE="1">
+These preferences apply to subsequent distortions but do not affect your parent structure):<br>
+Monoclinic axes:
+a(b)c<INPUT TYPE="radio" NAME="settingaxesm" VALUE="a(b)c" CHECKED>
+c(-b)a<INPUT TYPE="radio" NAME="settingaxesm" VALUE="c(-b)a">
+ab(c)<INPUT TYPE="radio" NAME="settingaxesm" VALUE="ab(c)">
+ba(-c)<INPUT TYPE="radio" NAME="settingaxesm" VALUE="ba(-c)">
+(a)bc<INPUT TYPE="radio" NAME="settingaxesm" VALUE="(a)bc">
+(-a)cb<INPUT TYPE="radio" NAME="settingaxesm" VALUE="(-a)cb"><BR>
+Monoclinic cell choice:
+1<INPUT TYPE="radio" NAME="settingcell" VALUE="1" CHECKED>
+2<INPUT TYPE="radio" NAME="settingcell" VALUE="2">
+3<INPUT TYPE="radio" NAME="settingcell" VALUE="3"><BR>
+Orthorhombic axes:
+abc<INPUT TYPE="radio" NAME="settingaxeso" VALUE="abc" CHECKED>
+ba-c<INPUT TYPE="radio" NAME="settingaxeso" VALUE="ba-c">
+cab<INPUT TYPE="radio" NAME="settingaxeso" VALUE="cab">
+-cba<INPUT TYPE="radio" NAME="settingaxeso" VALUE="-cba">
+bca<INPUT TYPE="radio" NAME="settingaxeso" VALUE="bca">
+a-cb<INPUT TYPE="radio" NAME="settingaxeso" VALUE="a-cb"><BR>
+Trigonal axes:
+hexagonal<INPUT TYPE="radio" NAME="settingaxesh" VALUE="h" CHECKED>
+rhombohedral<INPUT TYPE="radio" NAME="settingaxesh" VALUE="r"><br>
+Origin choice:
+1<INPUT TYPE="radio" NAME="settingorigin" VALUE="1">
+2<INPUT TYPE="radio" NAME="settingorigin" VALUE="2" CHECKED><br>
+Superspace group setting:
+standard (IT-C)<INPUT TYPE="radio" NAME="settingssg" VALUE="standard" CHECKED>
+basic (IT-A)<INPUT TYPE="radio" NAME="settingssg" VALUE="basic"><br>
+Note for superspace groups: If the standard setting is selected, none of the other setting selections will apply.<br>
+<INPUT TYPE="checkbox" NAME="parentlike" VALUE="true">
+Employ parent-like basis vectors (smallest supercell whose basis vectors are parallel to conventional parent basis vectors)
+</FORM>
+<b>Important: You must click on Change to implement any changes in the above preferences.</b>
+</div>
+</div>
+<script src="swingjs/swingjs2.js"></script>
+<script src="isodistort.js"></script>
+</BODY>
+</HTML>

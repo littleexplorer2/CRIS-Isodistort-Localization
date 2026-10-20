@@ -1,0 +1,20 @@
+{
+  "forms": [],
+  "links": [
+    {
+      "class": "brand",
+      "href": "isodistort.php"
+    },
+    {
+      "href": "isotropy.php"
+    },
+    {
+      "href": "isodistorthelp.php",
+      "target": "_blank"
+    },
+    {
+      "href": "http://www.physics.byu.edu/faculty/campbell/docs/tutorials-iucr2026/",
+      "target": "_blank"
+    }
+  ]
+}

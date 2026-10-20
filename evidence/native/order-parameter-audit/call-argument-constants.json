@@ -1,0 +1,16 @@
+{
+  "source": "vendor/isobyu/iso",
+  "source_sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8",
+  "virtual_address": "0x5af834",
+  "file_offset": "0x1af834",
+  "pt_load_flags": 4,
+  "hex": "01000000000000000200000030000000",
+  "interpretation": "four little-endian signed int32 values used by call sites",
+  "int32_values": [
+    1,
+    0,
+    2,
+    48
+  ],
+  "scope": "Call-site constants only; does not decode common_little database fields."
+}

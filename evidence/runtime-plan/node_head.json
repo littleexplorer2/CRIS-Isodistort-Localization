@@ -1,0 +1,23 @@
+{
+  "url": "https://nodejs.org/dist/v24.15.0/node-v24.15.0-linux-x64.tar.xz",
+  "method": "HEAD",
+  "status": 200,
+  "retrieved_utc": "2026-10-20T13:45:35.515804+00:00",
+  "content_length": 31164460,
+  "headers": {
+    "Date": "Tue, 20 Oct 2026 13:45:35 GMT",
+    "Content-Type": "application/x-xz",
+    "Content-Length": "31164460",
+    "Connection": "close",
+    "CF-Cache-Status": "HIT",
+    "Accept-Ranges": "bytes",
+    "Age": "512386",
+    "Cache-Control": "public, immutable, max-age=31536000, s-maxage=31536000",
+    "ETag": "\"51db27228dc03d64e77b3cd430f61a41\"",
+    "Last-Modified": "Wed, 15 Apr 2026 07:18:39 GMT",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+    "X-Content-Type-Options": "nosniff",
+    "Server": "cloudflare",
+    "CF-RAY": "a4d876bf5f9b4aa5-TPE"
+  }
+}

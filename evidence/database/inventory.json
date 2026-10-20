@@ -1,0 +1,119 @@
+{
+  "format": "cris-rea-database-byte-inventory-v1",
+  "created_utc": "2026-10-20T13:37:55.593921+00:00",
+  "source": "E:\\CRIS\\ISODISTORT\\resources\\isobyu",
+  "scanner_sha256": "76b5137f4eba5d2bfbaa44b3f7297013e72e890a6ef74c496375b273d699d254",
+  "scope": "all data_*.txt and const.dat directly inside source",
+  "files": [
+    {
+      "file": "const.dat",
+      "size_bytes": 3220,
+      "sha256": "5b5cd037a04af62dad280cde6d9dda48ec4752b17a0dd46f9d92b7b88c7d0d8b",
+      "ascii_text_bytes_only": true,
+      "nul_count": 0,
+      "candidate_header_count": 0,
+      "source_unchanged_during_scan": true,
+      "evidence": "const.dat.inventory.json"
+    },
+    {
+      "file": "data_diperiodic.txt",
+      "size_bytes": 10994,
+      "sha256": "2aacea5bdd2a439f5b0e8a875c1ca6d85a3409197c1229cd3547b159b9154255",
+      "ascii_text_bytes_only": true,
+      "nul_count": 0,
+      "candidate_header_count": 14,
+      "source_unchanged_during_scan": true,
+      "evidence": "data_diperiodic.txt.inventory.json"
+    },
+    {
+      "file": "data_images.txt",
+      "size_bytes": 146986,
+      "sha256": "3a0f7a647ed13032ca52fabab49a5b01ad4b21c1827b3a4415c9685ab542adca",
+      "ascii_text_bytes_only": true,
+      "nul_count": 0,
+      "candidate_header_count": 28,
+      "source_unchanged_during_scan": true,
+      "evidence": "data_images.txt.inventory.json"
+    },
+    {
+      "file": "data_irreps.txt",
+      "size_bytes": 1104194,
+      "sha256": "80395779402c579e206f84b1dfb59a2216c2eba5f925d30ecec923bd41679263",
+      "ascii_text_bytes_only": true,
+      "nul_count": 0,
+      "candidate_header_count": 24,
+      "source_unchanged_during_scan": true,
+      "evidence": "data_irreps.txt.inventory.json"
+    },
+    {
+      "file": "data_isotropy.txt",
+      "size_bytes": 6112902,
+      "sha256": "65512dabbbf0934690aaaa25448d59b4d8b4f5bdda5c5c5ec1834f50f6ed016a",
+      "ascii_text_bytes_only": true,
+      "nul_count": 0,
+      "candidate_header_count": 37,
+      "source_unchanged_during_scan": true,
+      "evidence": "data_isotropy.txt.inventory.json"
+    },
+    {
+      "file": "data_little.txt",
+      "size_bytes": 10612956,
+      "sha256": "37ca30ed47beb6530be92c63bee7287f60b29083515777da251879f7bd387bae",
+      "ascii_text_bytes_only": true,
+      "nul_count": 0,
+      "candidate_header_count": 56,
+      "source_unchanged_during_scan": true,
+      "evidence": "data_little.txt.inventory.json"
+    },
+    {
+      "file": "data_magnetic.txt",
+      "size_bytes": 2553677,
+      "sha256": "d060ccc8ae9bff2177959f9df08290c53529135d73dbbec4ce3c7408463d0c3c",
+      "ascii_text_bytes_only": true,
+      "nul_count": 0,
+      "candidate_header_count": 57,
+      "source_unchanged_during_scan": true,
+      "evidence": "data_magnetic.txt.inventory.json"
+    },
+    {
+      "file": "data_space.txt",
+      "size_bytes": 584128,
+      "sha256": "47d8de79c643ad2f6c8e57424e179cd5702ddad669f02032296c0e3f8c2e594a",
+      "ascii_text_bytes_only": true,
+      "nul_count": 0,
+      "candidate_header_count": 68,
+      "source_unchanged_during_scan": true,
+      "evidence": "data_space.txt.inventory.json"
+    },
+    {
+      "file": "data_ssg.txt",
+      "size_bytes": 25412801,
+      "sha256": "c7a3a3987a43511b2c1dd6c75fd31665a011202a0b1af419a7cdf105678c84e2",
+      "ascii_text_bytes_only": false,
+      "nul_count": 140,
+      "candidate_header_count": 56,
+      "source_unchanged_during_scan": true,
+      "evidence": "data_ssg.txt.inventory.json"
+    },
+    {
+      "file": "data_ssgmag.txt",
+      "size_bytes": 30627646,
+      "sha256": "fd5cbd60582064d80ab49abcb7548b31d9a554e283e3b78729afb57dd79255e7",
+      "ascii_text_bytes_only": true,
+      "nul_count": 0,
+      "candidate_header_count": 12,
+      "source_unchanged_during_scan": true,
+      "evidence": "data_ssgmag.txt.inventory.json"
+    },
+    {
+      "file": "data_wyckoff.txt",
+      "size_bytes": 728638,
+      "sha256": "ae8b2604d5bcc9a9b90587fbf99795e74ae18c0bd8b8fa48639a30dfabb0f95a",
+      "ascii_text_bytes_only": true,
+      "nul_count": 0,
+      "candidate_header_count": 23,
+      "source_unchanged_during_scan": true,
+      "evidence": "data_wyckoff.txt.inventory.json"
+    }
+  ]
+}

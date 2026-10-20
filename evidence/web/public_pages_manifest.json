@@ -1,0 +1,109 @@
+{
+  "capture_method": "Python urllib HTTPS GET; decoded response body",
+  "records": [
+    {
+      "url": "https://landau3.byu.edu/isodistort.php",
+      "final_url": "https://landau3.byu.edu/isodistort.php",
+      "http_status": 200,
+      "captured_at_utc": "2026-10-20T13:37:54.414280+00:00",
+      "sha256": "5272c3600f76ed27d662c890ca85441908293c9b56bd2ba5fbd8548c7f51fad6",
+      "bytes": 3889,
+      "headers": {
+        "Date": "Tue, 20 Oct 2026 13:37:54 GMT",
+        "Content-Type": "text/html; charset=UTF-8"
+      },
+      "path": "evidence/web/isodistort.php",
+      "role": "official-reference-only"
+    },
+    {
+      "url": "https://landau3.byu.edu/isodistorthelp.php",
+      "final_url": "https://landau3.byu.edu/isodistorthelp.php",
+      "http_status": 200,
+      "captured_at_utc": "2026-10-20T13:37:56.146962+00:00",
+      "sha256": "93bb70d6eafd98a5d657229456889077a645a00cae9ab35b4f4816de35b79d2c",
+      "bytes": 66479,
+      "headers": {
+        "Date": "Tue, 20 Oct 2026 13:37:56 GMT",
+        "Content-Type": "text/html; charset=UTF-8"
+      },
+      "path": "evidence/web/isodistorthelp.php",
+      "role": "official-reference-only"
+    },
+    {
+      "url": "https://landau3.byu.edu/isodistorttutorials.php",
+      "final_url": "https://landau3.byu.edu/isodistorttutorials.php",
+      "http_status": 200,
+      "captured_at_utc": "2026-10-20T13:37:57.411400+00:00",
+      "sha256": "f988e7f622c4d95cb42094c6b5ae14d521e40c9b25c06ef129e90d7ba6c5dd48",
+      "bytes": 1566,
+      "headers": {
+        "Date": "Tue, 20 Oct 2026 13:37:57 GMT",
+        "Content-Type": "text/html; charset=UTF-8"
+      },
+      "path": "evidence/web/isodistorttutorials.php",
+      "role": "official-reference-only"
+    },
+    {
+      "url": "https://landau3.byu.edu/isodistortversions.php",
+      "final_url": "https://landau3.byu.edu/isodistortversions.php",
+      "http_status": 200,
+      "captured_at_utc": "2026-10-20T13:37:58.897010+00:00",
+      "sha256": "45ad229cc67face587c7e146a0dce4ec3ac33e46483ceed0b61d1873bfa87883",
+      "bytes": 26130,
+      "headers": {
+        "Date": "Tue, 20 Oct 2026 13:37:58 GMT",
+        "Content-Type": "text/html; charset=UTF-8"
+      },
+      "path": "evidence/web/isodistortversions.php",
+      "role": "official-reference-only"
+    },
+    {
+      "url": "https://landau3.byu.edu/isodistortparent.html",
+      "final_url": "https://landau3.byu.edu/isodistortparent.html",
+      "http_status": 200,
+      "captured_at_utc": "2026-10-20T13:38:00.165411+00:00",
+      "sha256": "a887539ad54ac829059bf9624dae97e8322019a3e47ed188c20739b37f9dac07",
+      "bytes": 2184,
+      "headers": {
+        "Date": "Tue, 20 Oct 2026 13:38:00 GMT",
+        "Last-Modified": "Mon, 06 Jul 2026 23:30:53 GMT",
+        "ETag": "\"888-655f9aa5f55ad\"",
+        "Content-Type": "text/html"
+      },
+      "path": "evidence/web/isodistortparent.html",
+      "role": "official-reference-only"
+    },
+    {
+      "url": "https://landau3.byu.edu/isodistortdistortion.html",
+      "final_url": "https://landau3.byu.edu/isodistortdistortion.html",
+      "http_status": 200,
+      "captured_at_utc": "2026-10-20T13:38:01.464531+00:00",
+      "sha256": "bc374a1dbf898e25aa9fa0c79f7f4022617bd1fa06dbd65d6d475193cf04064d",
+      "bytes": 391,
+      "headers": {
+        "Date": "Tue, 20 Oct 2026 13:38:01 GMT",
+        "Last-Modified": "Mon, 06 Jul 2026 23:30:53 GMT",
+        "ETag": "\"187-655f9aa5ef7ec\"",
+        "Content-Type": "text/html"
+      },
+      "path": "evidence/web/isodistortdistortion.html",
+      "role": "official-reference-only"
+    },
+    {
+      "url": "https://landau3.byu.edu/isodistort.js",
+      "final_url": "https://landau3.byu.edu/isodistort.js",
+      "http_status": 200,
+      "captured_at_utc": "2026-10-20T13:38:02.748402+00:00",
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d",
+      "bytes": 1967,
+      "headers": {
+        "Date": "Tue, 20 Oct 2026 13:38:03 GMT",
+        "Last-Modified": "Mon, 07 Jul 2025 17:38:58 GMT",
+        "ETag": "\"7af-6395a51887080\"",
+        "Content-Type": "text/javascript"
+      },
+      "path": "evidence/web/isodistort.js",
+      "role": "official-reference-only"
+    }
+  ]
+}

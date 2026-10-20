@@ -1,0 +1,525 @@
+{
+  "created_utc": "2026-10-20T14:18:39.655840+00:00",
+  "kind": "human_read_static_evidence_review",
+  "scope": "database read paths; no production changes, source database rescan or new REA session",
+  "records": [
+    {
+      "procedure": "init_constants_",
+      "evidence_id": "ev_c3934e6205016da351a9a92ccc97319261a336f2661c83e95d6a8d0a5440cfe6",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "raw_response": "evidence/native/rea-linux-iso-recovered/07-init-constants.json",
+      "raw_response_sha256": "72420859663a1be75a65a9154abcc1f7d0c431d82ec48859c19845c25ecc9b7f",
+      "pseudocode_file": "evidence/native/pseudocode/init-constants.c",
+      "pseudocode_sha256": "2c106a52c05b53c7cfeb06e834a7d732c9b7a10ccef51a09f40e2197c59f44e1",
+      "isError_field_present": false,
+      "isError_field_value": null,
+      "pseudocode_exactly_matches_normalized_response": true,
+      "anchors": [
+        {
+          "needle": "_gfortran_getenv(\"ISODATA\"",
+          "matches": [
+            {
+              "line": 33,
+              "text": "_gfortran_getenv(\"ISODATA\",local_a8,7,100);"
+            }
+          ]
+        },
+        {
+          "needle": "_gfortran_concat_string(",
+          "matches": [
+            {
+              "line": 50,
+              "text": "_gfortran_concat_string(sVar1,__ptr,lVar4,local_a8,9,\"const.dat\");"
+            }
+          ]
+        },
+        {
+          "needle": "_gfortran_transfer_integer(",
+          "matches": [
+            {
+              "line": 85,
+              "text": "_gfortran_transfer_integer(&local_2c8,&local_b4,4);"
+            }
+          ]
+        },
+        {
+          "needle": "_gfortran_transfer_real(",
+          "matches": [
+            {
+              "line": 87,
+              "text": "_gfortran_transfer_real(&local_2c8,&const_common_ + (long)local_b4 * 2,8);"
+            }
+          ]
+        },
+        {
+          "needle": "puVar3[1] = *puVar3 ^",
+          "matches": [
+            {
+              "line": 99,
+              "text": "puVar3[1] = *puVar3 ^ 0x8000000000000000;"
+            }
+          ]
+        }
+      ],
+      "provider_limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "References cover the complete Ghidra function-body AddressSet and exact entry. Dossier incoming edges omit sources owned by that function; procedure_references also retains those internal edges.",
+        "The dossier combines Ghidra FunctionManager, Listing, ReferenceManager, BasicBlockModel, and decompiler observations; provider-specific pseudocode and assembly are not cross-provider text invariants.",
+        "Resolved reference metadata identifies computed, indirect, external, call, jump, and data edges; unresolved targetless flows remain unknown, and function classifications distinguish thunks and externals.",
+        "Synthetic Ghidra entry-point references without actionable memory sources are omitted.",
+        "The Java bridge serializes one function request per Program and lets each decompilation run until it completes or the caller cancels.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ]
+    },
+    {
+      "procedure": "constant_",
+      "evidence_id": "ev_f52b50abf8a82a8fdff67c6627669397e75935686ac1fa0b0ba3e89d81c6b0e0",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "raw_response": "evidence/native/rea-linux-iso-recovered/08-constant.json",
+      "raw_response_sha256": "9691f76ba4c1c69a452498564f9448bc0932cae12f8715fa68f455ffc30f8434",
+      "pseudocode_file": "evidence/native/pseudocode/constant.c",
+      "pseudocode_sha256": "0bd30a9e301c08b07d795b88ebd3c1eb436c1111d6aa86f4e8e25d7a9d312124",
+      "isError_field_present": false,
+      "isError_field_value": null,
+      "pseudocode_exactly_matches_normalized_response": true,
+      "anchors": [
+        {
+          "needle": "if (const_common_ == 0)",
+          "matches": [
+            {
+              "line": 10,
+              "text": "if (const_common_ == 0) {"
+            }
+          ]
+        },
+        {
+          "needle": "if ((*param_1 < 1)",
+          "matches": [
+            {
+              "line": 14,
+              "text": "if ((*param_1 < 1) || (DAT_01bb1244 < *param_1)) {"
+            }
+          ]
+        },
+        {
+          "needle": "return *(undefined8 *)",
+          "matches": [
+            {
+              "line": 17,
+              "text": "return *(undefined8 *)(&const_common_ + (long)*param_1 * 2);"
+            }
+          ]
+        }
+      ],
+      "provider_limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+        "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ]
+    },
+    {
+      "procedure": "get_irrep4_",
+      "evidence_id": "ev_14bd60fa1fca5963680c7f1cfd61949e8da31466cb5b6fab89b10b6f87edab71",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "raw_response": "evidence/native/rea-linux-iso-recovered/10-get-irrep4.json",
+      "raw_response_sha256": "083576bf59cb09b384c4063c87d5cc546c47b92bae110593943d59ae8ac17cce",
+      "pseudocode_file": "evidence/native/pseudocode/get-irrep4.c",
+      "pseudocode_sha256": "962223f2d8077ea4faaa0e35641cac4f3a318bc1e69da8a998706f8d3c3790cd",
+      "isError_field_present": false,
+      "isError_field_value": null,
+      "pseudocode_exactly_matches_normalized_response": true,
+      "anchors": [
+        {
+          "needle": "generate_space_group_(",
+          "matches": [
+            {
+              "line": 67,
+              "text": "generate_space_group_(&ispace_8,&nops_4,iops_3);"
+            }
+          ]
+        },
+        {
+          "needle": "get_kvec_(",
+          "matches": [
+            {
+              "line": 163,
+              "text": "get_kvec_(puVar13,param_4,local_e8);"
+            }
+          ]
+        },
+        {
+          "needle": "ivdot_(",
+          "matches": [
+            {
+              "line": 169,
+              "text": "uVar6 = ivdot_(&DAT_005b08e0,local_e8,&local_d8);"
+            }
+          ]
+        },
+        {
+          "needle": "get_irrep4_ssgn_(",
+          "matches": [
+            {
+              "line": 183,
+              "text": "get_irrep4_ssgn_(param_2,&local_58,local_1a8,local_49a8,param_7);"
+            }
+          ]
+        },
+        {
+          "needle": "if (*param_1 == 2)",
+          "matches": [
+            {
+              "line": 187,
+              "text": "if (*param_1 == 2) {"
+            }
+          ]
+        },
+        {
+          "needle": "dVar22 = dVar22 + *pdVar9",
+          "matches": [
+            {
+              "line": 198,
+              "text": "dVar22 = dVar22 + *pdVar9;"
+            }
+          ]
+        }
+      ],
+      "provider_limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+        "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ]
+    },
+    {
+      "procedure": "get_irreps_",
+      "evidence_id": "ev_876f3330452ee37940cf889e2523bf929f49ca0cfd8c7a84ee870ada181f9d86",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "raw_response": "evidence/native/rea-linux-iso-recovered/11-get-irreps.json",
+      "raw_response_sha256": "fde5e33f50cec860c3315ef02303a58cea59195855648b0a6e3f1468f5a79fae",
+      "pseudocode_file": "evidence/native/pseudocode/get-irreps.c",
+      "pseudocode_sha256": "d68ab1a7120a7cc681769e4477ba595eb14ad984e93b815b1b08517055949843",
+      "isError_field_present": false,
+      "isError_field_value": null,
+      "pseudocode_exactly_matches_normalized_response": true,
+      "anchors": [
+        {
+          "needle": "else if (iVar3 - 3U < 2)",
+          "matches": [
+            {
+              "line": 40,
+              "text": "else if (iVar3 - 3U < 2) {"
+            }
+          ]
+        },
+        {
+          "needle": "if (0x12a8 < iVar3 - 1U)",
+          "matches": [
+            {
+              "line": 60,
+              "text": "if (0x12a8 < iVar3 - 1U) {"
+            }
+          ]
+        },
+        {
+          "needle": "if (iVar2 < cVar1)",
+          "matches": [
+            {
+              "line": 77,
+              "text": "if (iVar2 < cVar1) {"
+            }
+          ]
+        },
+        {
+          "needle": "get_irrep4_(",
+          "matches": [
+            {
+              "line": 96,
+              "text": "get_irrep4_(&local_60,&local_5c,&local_58,param_5,local_40,local_4868,param_9);"
+            }
+          ]
+        }
+      ],
+      "provider_limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+        "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ]
+    },
+    {
+      "procedure": "get_isotropy_file_",
+      "evidence_id": "ev_2310ee83c419aac9e2bae0bac220527bd066f4f3a5ac69c79e2eca5861c873b7",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "subject": {
+        "name": "iso",
+        "digest": {
+          "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+        },
+        "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+        "format": "elf",
+        "architecture": "x86_64"
+      },
+      "raw_response": "evidence/native/rea-linux-iso-recovered/14-get-isotropy-file.json",
+      "raw_response_sha256": "a6733ad583d276af48ffd95d5ca9f17d8a1b7ae1a08a6a7ea6fa8ad73574ba8d",
+      "pseudocode_file": "evidence/native/pseudocode/get-isotropy-file.c",
+      "pseudocode_sha256": "26d6000d07d0195fed2d198fb5ea405c5a56dbac184cdf1c62bc95837fa68545",
+      "isError_field_present": false,
+      "isError_field_value": null,
+      "pseudocode_exactly_matches_normalized_response": true,
+      "anchors": [
+        {
+          "needle": "if (__isotropy_module_MOD_superspace == 0)",
+          "matches": [
+            {
+              "line": 39,
+              "text": "if (__isotropy_module_MOD_superspace == 0) {"
+            }
+          ]
+        },
+        {
+          "needle": "memcpy(param_4,\"i     xx.iso\"",
+          "matches": [
+            {
+              "line": 58,
+              "text": "memcpy(param_4,\"i     xx.iso\",param_10);"
+            },
+            {
+              "line": 217,
+              "text": "memcpy(param_4,\"i     xx.iso\",param_10);"
+            }
+          ]
+        },
+        {
+          "needle": "get_isotropy_filename_",
+          "matches": [
+            {
+              "line": 78,
+              "text": "get_isotropy_filename_"
+            },
+            {
+              "line": 237,
+              "text": "get_isotropy_filename_"
+            },
+            {
+              "line": 242,
+              "text": "get_isotropy_filename_"
+            },
+            {
+              "line": 312,
+              "text": "get_isotropy_filename_"
+            },
+            {
+              "line": 383,
+              "text": "get_isotropy_filename_"
+            }
+          ]
+        },
+        {
+          "needle": "if (__isotropy_module_MOD_www == 0)",
+          "matches": [
+            {
+              "line": 83,
+              "text": "if (__isotropy_module_MOD_www == 0) {"
+            }
+          ]
+        },
+        {
+          "needle": "get_isotropy_(",
+          "matches": [
+            {
+              "line": 162,
+              "text": "get_isotropy_(&local_44,param_1,param_3,&DAT_005a6020,local_4c,local_50);"
+            },
+            {
+              "line": 247,
+              "text": "get_isotropy_(&local_44,param_1,param_3,&DAT_005a6028,local_4c,local_50);"
+            },
+            {
+              "line": 316,
+              "text": "get_isotropy_(&local_44,param_1,param_3,&DAT_005a6024,local_4c,local_50);"
+            },
+            {
+              "line": 387,
+              "text": "get_isotropy_(&local_44,param_1,param_3,&DAT_005a602c,param_8,param_9);"
+            }
+          ]
+        },
+        {
+          "needle": "*(undefined1 *)param_4 = 0x6b",
+          "matches": [
+            {
+              "line": 241,
+              "text": "*(undefined1 *)param_4 = 0x6b;"
+            }
+          ]
+        },
+        {
+          "needle": "*param_4 = 0x7878202020202061",
+          "matches": [
+            {
+              "line": 295,
+              "text": "*param_4 = 0x7878202020202061;"
+            }
+          ]
+        },
+        {
+          "needle": "memcpy(param_4,\"v     xx.iso\"",
+          "matches": [
+            {
+              "line": 363,
+              "text": "memcpy(param_4,\"v     xx.iso\",param_10);"
+            }
+          ]
+        },
+        {
+          "needle": "if (local_54 == *param_7)",
+          "matches": [
+            {
+              "line": 356,
+              "text": "if (local_54 == *param_7) {"
+            }
+          ]
+        },
+        {
+          "needle": "*param_6 = 2;",
+          "matches": [
+            {
+              "line": 451,
+              "text": "*param_6 = 2;"
+            }
+          ]
+        }
+      ],
+      "provider_limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+        "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+        "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+        "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+        "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+        "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+        "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+      ]
+    }
+  ],
+  "additional_evidence": [
+    "evidence/native/static/init_constants_.asm.txt",
+    "evidence/native/static/constant_.asm.txt",
+    "evidence/database/constant_sign_mask.json"
+  ],
+  "failed_request": {
+    "path": "evidence/native/rea-linux-iso-recovered/15-main.json",
+    "sha256": "c9e4084ecc3634a5dc6fb85e7d69bc6860d17e72195b1f9d4a94a7d43fbeda25",
+    "isError": true,
+    "retried_by_this_review": false
+  },
+  "findings": [
+    {
+      "id": "CONST-LOAD",
+      "classification": "static observation cross-checked against GNU assembly",
+      "claim": "ISODATA is trimmed and concatenated with const.dat. Each read supplies a 4-byte integer index and 8-byte real target. constant_ initializes lazily and checks lookup bounds.",
+      "limit": "Original Fortran declarations and malformed-input robustness are not fully recovered."
+    },
+    {
+      "id": "CONST-SIGN",
+      "classification": "static observation plus independently read ELF bytes",
+      "claim": "Starting at even index 2, adjacent odd slots receive binary64 sign-bit-flipped values. Actual slot stride is 8 bytes.",
+      "limit": "No proof that every matrix integer is a direct constant_ index, especially zero."
+    },
+    {
+      "id": "IRREP-CHAIN",
+      "classification": "static call and branch observation",
+      "claim": "get_irreps_ calls get_irrep4_, which calls get_irrep4_ssgn_. Matrix and diagonal-sum output branches, dimensions, common_little_ loads and magnetic mapping/sign branches are visible. Neither reviewed function directly calls constant_.",
+      "limit": "get_irrep4_ssgn_ and field-to-common-block loading map remain unreviewed; phase, complex basis and normalization contracts are not recovered."
+    },
+    {
+      "id": "ISOTROPY-COORDINATION",
+      "classification": "static observation with text-supported state-role inference",
+      "claim": "i/k/a/v .iso naming, get_isotropy_filename_ calls, missing/in-progress branches, conditional get_isotropy_ calls and mode-5 dimension check are visible.",
+      "limit": "No direct data_isotropy.txt or .iso body parser in this function. Full keys, cache location, locking and generation algorithms remain in callees. Numeric modes are not mapped to website Methods."
+    },
+    {
+      "id": "MAIN-NOT-RECOVERED",
+      "classification": "recorded failure",
+      "claim": "MAIN__ pseudocode request returned isError true, was not counted as successful evidence, and was not retried by this review.",
+      "limit": "No complete field-by-field loader schema."
+    }
+  ],
+  "scientific_validation": "not_performed",
+  "review_checks": {
+    "five_response_hashes_match_manifest": true,
+    "five_derived_hashes_match_manifest": true,
+    "five_pseudocode_bodies_match_normalized_response": true,
+    "all_recorded_anchors_found": true
+  },
+  "review_check_history": "Initial check incorrectly required an explicit isError:false field. It failed without writing output; the actual successful MCP responses omit the optional isError field. Final check preserves that absence."
+}

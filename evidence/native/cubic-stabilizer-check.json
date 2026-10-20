@@ -1,0 +1,146 @@
+{
+  "status": "passed",
+  "arithmetic": "exact integers and rational fractions; no tolerance",
+  "scope": "Gamma polar-vector action of cubic signed-permutation group only",
+  "limitations": [
+    "Does not prove ISO implementation for general irreps, nonzero k, or superspace",
+    "Space-group labels are not derived by this check"
+  ],
+  "directions": [
+    {
+      "direction": [
+        1,
+        0,
+        0
+      ],
+      "group_order": 48,
+      "stabilizer_order": 8,
+      "index": 6,
+      "projector": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ]
+    },
+    {
+      "direction": [
+        1,
+        1,
+        0
+      ],
+      "group_order": 48,
+      "stabilizer_order": 4,
+      "index": 12,
+      "projector": [
+        [
+          "1/2",
+          "1/2",
+          "0"
+        ],
+        [
+          "1/2",
+          "1/2",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ]
+    },
+    {
+      "direction": [
+        1,
+        1,
+        1
+      ],
+      "group_order": 48,
+      "stabilizer_order": 6,
+      "index": 8,
+      "projector": [
+        [
+          "1/3",
+          "1/3",
+          "1/3"
+        ],
+        [
+          "1/3",
+          "1/3",
+          "1/3"
+        ],
+        [
+          "1/3",
+          "1/3",
+          "1/3"
+        ]
+      ]
+    },
+    {
+      "direction": [
+        1,
+        2,
+        3
+      ],
+      "group_order": 48,
+      "stabilizer_order": 1,
+      "index": 48,
+      "projector": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ]
+      ]
+    },
+    {
+      "direction": [
+        0,
+        0,
+        0
+      ],
+      "group_order": 48,
+      "stabilizer_order": 48,
+      "index": 1,
+      "projector": [
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "0"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+[
+  {
+    "url": "https://iso.byu.edu/isolinux.php",
+    "retrieved_utc": "2026-10-20T13:39:36.636168+00:00",
+    "status": 200,
+    "final_url": "https://iso.byu.edu/isolinux.php",
+    "file": "isolinux.php.html",
+    "bytes": 2987,
+    "sha256": "7b84f87c44b14bd2ca228a4afa00de45061e61f898b7b7a048c99790614f20f9"
+  },
+  {
+    "url": "https://iso.byu.edu/isotropy_doc.php",
+    "retrieved_utc": "2026-10-20T13:39:36.637167+00:00",
+    "status": 200,
+    "final_url": "https://iso.byu.edu/isotropy_doc.php",
+    "file": "isotropy_doc.php.html",
+    "bytes": 101279,
+    "sha256": "76056531867ae85e3d884890db19347d6bf7f6e0d14d2f2d42142c6abc63bb77"
+  },
+  {
+    "url": "https://iso.byu.edu/isotropyversions.php",
+    "retrieved_utc": "2026-10-20T13:39:36.637167+00:00",
+    "status": 200,
+    "final_url": "https://iso.byu.edu/isotropyversions.php",
+    "file": "isotropyversions.php.html",
+    "bytes": 5755,
+    "sha256": "492d68eb1533bd77c8f5516e9ee6580c207a0dc9b217955ae1696ad375612574"
+  }
+]

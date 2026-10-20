@@ -1,0 +1,90 @@
+
+vendor/isobyu/iso:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+Disassembly of section .plt:
+
+Disassembly of section .text:
+
+00000000004b47af <orderparam_check_>:
+  4b47af:	41 57                	push   r15
+  4b47b1:	41 56                	push   r14
+  4b47b3:	41 55                	push   r13
+  4b47b5:	41 54                	push   r12
+  4b47b7:	55                   	push   rbp
+  4b47b8:	53                   	push   rbx
+  4b47b9:	48 83 ec 38          	sub    rsp,0x38
+  4b47bd:	48 89 54 24 10       	mov    QWORD PTR [rsp+0x10],rdx
+  4b47c2:	8b 06                	mov    eax,DWORD PTR [rsi]
+  4b47c4:	89 44 24 1c          	mov    DWORD PTR [rsp+0x1c],eax
+  4b47c8:	85 c0                	test   eax,eax
+  4b47ca:	0f 8e eb 00 00 00    	jle    4b48bb <orderparam_check_+0x10c>
+  4b47d0:	49 89 fd             	mov    r13,rdi
+  4b47d3:	4c 8d a1 80 01 00 00 	lea    r12,[rcx+0x180]
+  4b47da:	48 c7 44 24 08 30 00 	mov    QWORD PTR [rsp+0x8],0x30
+  4b47e1:	00 00 
+  4b47e3:	c7 44 24 18 01 00 00 	mov    DWORD PTR [rsp+0x18],0x1
+  4b47ea:	00 
+  4b47eb:	4c 8d b1 88 fe ff ff 	lea    r14,[rcx-0x178]
+  4b47f2:	45 8b 7d 00          	mov    r15d,DWORD PTR [r13+0x0]
+  4b47f6:	45 85 ff             	test   r15d,r15d
+  4b47f9:	0f 8e 95 00 00 00    	jle    4b4894 <orderparam_check_+0xe5>
+  4b47ff:	48 8b 44 24 10       	mov    rax,QWORD PTR [rsp+0x10]
+  4b4804:	48 8d 68 08          	lea    rbp,[rax+0x8]
+  4b4808:	bb 01 00 00 00       	mov    ebx,0x1
+  4b480d:	eb 2f                	jmp    4b483e <orderparam_check_+0x8f>
+  4b480f:	66 0f ef c9          	pxor   xmm1,xmm1
+  4b4813:	f2 41 0f 5c 8c dc 78 	subsd  xmm1,QWORD PTR [r12+rbx*8-0x188]
+  4b481a:	fe ff ff 
+  4b481d:	f2 0f 11 4c 24 28    	movsd  QWORD PTR [rsp+0x28],xmm1
+  4b4823:	48 8d 7c 24 28       	lea    rdi,[rsp+0x28]
+  4b4828:	e8 e8 6d fe ff       	call   49b615 <ncmp_>
+  4b482d:	85 c0                	test   eax,eax
+  4b482f:	75 4f                	jne    4b4880 <orderparam_check_+0xd1>
+  4b4831:	48 83 c3 01          	add    rbx,0x1
+  4b4835:	48 83 c5 08          	add    rbp,0x8
+  4b4839:	41 39 df             	cmp    r15d,ebx
+  4b483c:	7c 56                	jl     4b4894 <orderparam_check_+0xe5>
+  4b483e:	41 8b 55 00          	mov    edx,DWORD PTR [r13+0x0]
+  4b4842:	85 d2                	test   edx,edx
+  4b4844:	7e c9                	jle    4b480f <orderparam_check_+0x60>
+  4b4846:	49 8d 84 24 80 fe ff 	lea    rax,[r12-0x180]
+  4b484d:	ff 
+  4b484e:	8d 52 ff             	lea    edx,[rdx-0x1]
+  4b4851:	48 03 54 24 08       	add    rdx,QWORD PTR [rsp+0x8]
+  4b4856:	49 8d 0c d6          	lea    rcx,[r14+rdx*8]
+  4b485a:	48 89 ea             	mov    rdx,rbp
+  4b485d:	66 0f ef c9          	pxor   xmm1,xmm1
+  4b4861:	f2 0f 10 42 f8       	movsd  xmm0,QWORD PTR [rdx-0x8]
+  4b4866:	f2 0f 59 00          	mulsd  xmm0,QWORD PTR [rax]
+  4b486a:	f2 0f 58 c8          	addsd  xmm1,xmm0
+  4b486e:	48 81 c2 80 01 00 00 	add    rdx,0x180
+  4b4875:	48 83 c0 08          	add    rax,0x8
+  4b4879:	48 39 c8             	cmp    rax,rcx
+  4b487c:	75 e3                	jne    4b4861 <orderparam_check_+0xb2>
+  4b487e:	eb 93                	jmp    4b4813 <orderparam_check_+0x64>
+  4b4880:	b8 00 00 00 00       	mov    eax,0x0
+  4b4885:	48 83 c4 38          	add    rsp,0x38
+  4b4889:	5b                   	pop    rbx
+  4b488a:	5d                   	pop    rbp
+  4b488b:	41 5c                	pop    r12
+  4b488d:	41 5d                	pop    r13
+  4b488f:	41 5e                	pop    r14
+  4b4891:	41 5f                	pop    r15
+  4b4893:	c3                   	ret
+  4b4894:	83 44 24 18 01       	add    DWORD PTR [rsp+0x18],0x1
+  4b4899:	8b 44 24 18          	mov    eax,DWORD PTR [rsp+0x18]
+  4b489d:	48 83 44 24 08 30    	add    QWORD PTR [rsp+0x8],0x30
+  4b48a3:	49 81 c4 80 01 00 00 	add    r12,0x180
+  4b48aa:	39 44 24 1c          	cmp    DWORD PTR [rsp+0x1c],eax
+  4b48ae:	0f 8d 3e ff ff ff    	jge    4b47f2 <orderparam_check_+0x43>
+  4b48b4:	b8 01 00 00 00       	mov    eax,0x1
+  4b48b9:	eb ca                	jmp    4b4885 <orderparam_check_+0xd6>
+  4b48bb:	b8 01 00 00 00       	mov    eax,0x1
+  4b48c0:	eb c3                	jmp    4b4885 <orderparam_check_+0xd6>
+
+Disassembly of section __libc_freeres_fn:
+
+Disassembly of section .fini:

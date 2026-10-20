@@ -1,0 +1,9 @@
+Isotropy, Version 9.6.1, Jan 2022
+Harold T. Stokes, Dorian M. Hatch, and Branton J. Campbell
+Brigham Young University
+Current setting is International (new ed.) with conventional basis vectors.
+*************Parent    Irrep (ML) Subgroup Index Size Dir Basis Vectors           Origin
+221 Pm-3m GM4-       99 P4mm  6     1    P1  (0,1,0),(0,0,1),(1,0,0) (0,0,0)
+***Parent    Irrep (ML) Dir Point   Projected Vectors
+221 Pm-3m GM4-       P1  (0,0,0) (1,0,0)
+*

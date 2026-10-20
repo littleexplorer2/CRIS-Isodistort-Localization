@@ -1,0 +1,15 @@
+{
+  "command": [
+    "../isodata/findsym",
+    "../input.dat"
+  ],
+  "cwd": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/0538df13-283f-4680-89b2-5ad58feb1c96/work",
+  "isodata": "../isodata/",
+  "input_mode": "file",
+  "input_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/0538df13-283f-4680-89b2-5ad58feb1c96/input.dat",
+  "stdout_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/0538df13-283f-4680-89b2-5ad58feb1c96/stdout.txt",
+  "stderr_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/0538df13-283f-4680-89b2-5ad58feb1c96/stderr.txt",
+  "result_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/0538df13-283f-4680-89b2-5ad58feb1c96/process.json",
+  "timeout_seconds": 30.0,
+  "max_output_bytes": 20971520
+}

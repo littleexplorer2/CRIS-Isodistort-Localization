@@ -1,0 +1,248 @@
+
+vendor/isobyu/iso:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+Disassembly of section .plt:
+
+Disassembly of section .text:
+
+00000000004a10f8 <project_vector_>:
+  4a10f8:	41 57                	push   r15
+  4a10fa:	41 56                	push   r14
+  4a10fc:	41 55                	push   r13
+  4a10fe:	41 54                	push   r12
+  4a1100:	55                   	push   rbp
+  4a1101:	53                   	push   rbx
+  4a1102:	48 81 ec c8 00 00 00 	sub    rsp,0xc8
+  4a1109:	48 89 bc 24 80 00 00 	mov    QWORD PTR [rsp+0x80],rdi
+  4a1110:	00 
+  4a1111:	48 89 f5             	mov    rbp,rsi
+  4a1114:	48 89 94 24 88 00 00 	mov    QWORD PTR [rsp+0x88],rdx
+  4a111b:	00 
+  4a111c:	48 89 8c 24 90 00 00 	mov    QWORD PTR [rsp+0x90],rcx
+  4a1123:	00 
+  4a1124:	4c 89 44 24 40       	mov    QWORD PTR [rsp+0x40],r8
+  4a1129:	4d 89 cd             	mov    r13,r9
+  4a112c:	f2 0f 10 2d 64 65 10 	movsd  xmm5,QWORD PTR [rip+0x106564]        # 5a7698 <ifactor.0+0xd10>
+  4a1133:	00 
+  4a1134:	f2 0f 11 6c 24 28    	movsd  QWORD PTR [rsp+0x28],xmm5
+  4a113a:	41 83 39 02          	cmp    DWORD PTR [r9],0x2
+  4a113e:	74 15                	je     4a1155 <project_vector_+0x5d>
+  4a1140:	c7 44 24 64 00 00 00 	mov    DWORD PTR [rsp+0x64],0x0
+  4a1147:	00 
+  4a1148:	c7 44 24 60 01 00 00 	mov    DWORD PTR [rsp+0x60],0x1
+  4a114f:	00 
+  4a1150:	e9 cb 02 00 00       	jmp    4a1420 <project_vector_+0x328>
+  4a1155:	48 8b 84 24 00 01 00 	mov    rax,QWORD PTR [rsp+0x100]
+  4a115c:	00 
+  4a115d:	48 63 10             	movsxd rdx,DWORD PTR [rax]
+  4a1160:	48 8d 05 99 1c 97 00 	lea    rax,[rip+0x971c99]        # e12e00 <common_space_>
+  4a1167:	83 bc 90 1c e4 05 00 	cmp    DWORD PTR [rax+rdx*4+0x5e41c],0x0
+  4a116e:	00 
+  4a116f:	75 cf                	jne    4a1140 <project_vector_+0x48>
+  4a1171:	f2 0f 10 3d 8f bb 10 	movsd  xmm7,QWORD PTR [rip+0x10bb8f]        # 5acd08 <centered_lattice_type.8+0x1dac>
+  4a1178:	00 
+  4a1179:	f2 0f 11 7c 24 28    	movsd  QWORD PTR [rsp+0x28],xmm7
+  4a117f:	eb bf                	jmp    4a1140 <project_vector_+0x48>
+  4a1181:	83 7c 24 7c 00       	cmp    DWORD PTR [rsp+0x7c],0x0
+  4a1186:	0f 8e 80 02 00 00    	jle    4a140c <project_vector_+0x314>
+  4a118c:	48 8b 84 24 10 01 00 	mov    rax,QWORD PTR [rsp+0x110]
+  4a1193:	00 
+  4a1194:	48 05 98 04 00 00    	add    rax,0x498
+  4a119a:	48 89 44 24 68       	mov    QWORD PTR [rsp+0x68],rax
+  4a119f:	8b 4c 24 64          	mov    ecx,DWORD PTR [rsp+0x64]
+  4a11a3:	48 63 c1             	movsxd rax,ecx
+  4a11a6:	48 8d 44 c0 09       	lea    rax,[rax+rax*8+0x9]
+  4a11ab:	48 c1 e0 04          	shl    rax,0x4
+  4a11af:	48 89 44 24 70       	mov    QWORD PTR [rsp+0x70],rax
+  4a11b4:	48 63 44 24 60       	movsxd rax,DWORD PTR [rsp+0x60]
+  4a11b9:	48 8d 04 40          	lea    rax,[rax+rax*2]
+  4a11bd:	48 89 44 24 58       	mov    QWORD PTR [rsp+0x58],rax
+  4a11c2:	89 4c 24 78          	mov    DWORD PTR [rsp+0x78],ecx
+  4a11c6:	48 8b 84 24 20 01 00 	mov    rax,QWORD PTR [rsp+0x120]
+  4a11cd:	00 
+  4a11ce:	48 83 c0 18          	add    rax,0x18
+  4a11d2:	48 89 84 24 98 00 00 	mov    QWORD PTR [rsp+0x98],rax
+  4a11d9:	00 
+  4a11da:	49 89 ef             	mov    r15,rbp
+  4a11dd:	4c 89 ed             	mov    rbp,r13
+  4a11e0:	e9 b7 01 00 00       	jmp    4a139c <project_vector_+0x2a4>
+  4a11e5:	4c 89 f0             	mov    rax,r14
+  4a11e8:	4d 89 e6             	mov    r14,r12
+  4a11eb:	49 89 c4             	mov    r12,rax
+  4a11ee:	49 83 c4 01          	add    r12,0x1
+  4a11f2:	49 83 c6 03          	add    r14,0x3
+  4a11f6:	44 39 64 24 34       	cmp    DWORD PTR [rsp+0x34],r12d
+  4a11fb:	0f 8c 92 00 00 00    	jl     4a1293 <project_vector_+0x19b>
+  4a1201:	4c 89 74 24 18       	mov    QWORD PTR [rsp+0x18],r14
+  4a1206:	bb 01 00 00 00       	mov    ebx,0x1
+  4a120b:	4c 89 e0             	mov    rax,r12
+  4a120e:	4d 89 f4             	mov    r12,r14
+  4a1211:	49 89 c6             	mov    r14,rax
+  4a1214:	48 63 55 00          	movsxd rdx,DWORD PTR [rbp+0x0]
+  4a1218:	49 63 45 00          	movsxd rax,DWORD PTR [r13+0x0]
+  4a121c:	48 8d 14 d2          	lea    rdx,[rdx+rdx*8]
+  4a1220:	48 8d 04 c0          	lea    rax,[rax+rax*8]
+  4a1224:	48 8d 04 50          	lea    rax,[rax+rdx*2]
+  4a1228:	48 8d 35 51 24 4f 01 	lea    rsi,[rip+0x14f2451]        # 1993680 <common_wyckoff_>
+  4a122f:	48 01 f0             	add    rax,rsi
+  4a1232:	48 03 44 24 18       	add    rax,QWORD PTR [rsp+0x18]
+  4a1237:	0f be 84 03 48 18 07 	movsx  eax,BYTE PTR [rbx+rax*1+0x71848]
+  4a123e:	00 
+  4a123f:	89 84 24 bc 00 00 00 	mov    DWORD PTR [rsp+0xbc],eax
+  4a1246:	f2 0f 10 94 dc 98 00 	movsd  xmm2,QWORD PTR [rsp+rbx*8+0x98]
+  4a124d:	00 00 
+  4a124f:	f2 0f 11 54 24 08    	movsd  QWORD PTR [rsp+0x8],xmm2
+  4a1255:	f2 43 0f 10 9c f7 60 	movsd  xmm3,QWORD PTR [r15+r14*8-0x4a0]
+  4a125c:	fb ff ff 
+  4a125f:	f2 0f 11 5c 24 10    	movsd  QWORD PTR [rsp+0x10],xmm3
+  4a1265:	48 8b 7c 24 20       	mov    rdi,QWORD PTR [rsp+0x20]
+  4a126a:	e8 fe 5e fb ff       	call   45716d <constant_>
+  4a126f:	f2 0f 59 44 24 10    	mulsd  xmm0,QWORD PTR [rsp+0x10]
+  4a1275:	f2 0f 58 44 24 08    	addsd  xmm0,QWORD PTR [rsp+0x8]
+  4a127b:	f2 0f 11 84 dc 98 00 	movsd  QWORD PTR [rsp+rbx*8+0x98],xmm0
+  4a1282:	00 00 
+  4a1284:	48 83 c3 01          	add    rbx,0x1
+  4a1288:	48 83 fb 04          	cmp    rbx,0x4
+  4a128c:	75 86                	jne    4a1214 <project_vector_+0x11c>
+  4a128e:	e9 52 ff ff ff       	jmp    4a11e5 <project_vector_+0xed>
+  4a1293:	4d 89 fe             	mov    r14,r15
+  4a1296:	48 8b 84 24 00 01 00 	mov    rax,QWORD PTR [rsp+0x100]
+  4a129d:	00 
+  4a129e:	48 63 00             	movsxd rax,DWORD PTR [rax]
+  4a12a1:	48 8d 3c c0          	lea    rdi,[rax+rax*8]
+  4a12a5:	b9 01 00 00 00       	mov    ecx,0x1
+  4a12aa:	4c 8b 4c 24 38       	mov    r9,QWORD PTR [rsp+0x38]
+  4a12af:	48 8b 74 24 50       	mov    rsi,QWORD PTR [rsp+0x50]
+  4a12b4:	4d 89 c8             	mov    r8,r9
+  4a12b7:	48 8d 04 0f          	lea    rax,[rdi+rcx*1]
+  4a12bb:	48 8d 15 3e 1b 97 00 	lea    rdx,[rip+0x971b3e]        # e12e00 <common_space_>
+  4a12c2:	48 8d 14 82          	lea    rdx,[rdx+rax*4]
+  4a12c6:	48 8d 84 24 a0 00 00 	lea    rax,[rsp+0xa0]
+  4a12cd:	00 
+  4a12ce:	66 0f ef c9          	pxor   xmm1,xmm1
+  4a12d2:	66 0f ef c0          	pxor   xmm0,xmm0
+  4a12d6:	f2 0f 2a 42 d8       	cvtsi2sd xmm0,DWORD PTR [rdx-0x28]
+  4a12db:	f2 0f 59 44 24 28    	mulsd  xmm0,QWORD PTR [rsp+0x28]
+  4a12e1:	f2 0f 59 00          	mulsd  xmm0,QWORD PTR [rax]
+  4a12e5:	f2 0f 58 c8          	addsd  xmm1,xmm0
+  4a12e9:	48 83 c2 0c          	add    rdx,0xc
+  4a12ed:	48 83 c0 08          	add    rax,0x8
+  4a12f1:	48 39 f0             	cmp    rax,rsi
+  4a12f4:	75 dc                	jne    4a12d2 <project_vector_+0x1da>
+  4a12f6:	f2 41 0f 11 8c c8 60 	movsd  QWORD PTR [r8+rcx*8-0x4a0],xmm1
+  4a12fd:	fb ff ff 
+  4a1300:	48 83 c1 01          	add    rcx,0x1
+  4a1304:	48 83 f9 04          	cmp    rcx,0x4
+  4a1308:	75 aa                	jne    4a12b4 <project_vector_+0x1bc>
+  4a130a:	83 44 24 48 01       	add    DWORD PTR [rsp+0x48],0x1
+  4a130f:	8b 44 24 48          	mov    eax,DWORD PTR [rsp+0x48]
+  4a1313:	48 83 44 24 38 18    	add    QWORD PTR [rsp+0x38],0x18
+  4a1319:	49 83 c6 18          	add    r14,0x18
+  4a131d:	39 44 24 4c          	cmp    DWORD PTR [rsp+0x4c],eax
+  4a1321:	7c 50                	jl     4a1373 <project_vector_+0x27b>
+  4a1323:	48 c7 84 24 a0 00 00 	mov    QWORD PTR [rsp+0xa0],0x0
+  4a132a:	00 00 00 00 00 
+  4a132f:	48 c7 84 24 a8 00 00 	mov    QWORD PTR [rsp+0xa8],0x0
+  4a1336:	00 00 00 00 00 
+  4a133b:	48 c7 84 24 b0 00 00 	mov    QWORD PTR [rsp+0xb0],0x0
+  4a1342:	00 00 00 00 00 
+  4a1347:	48 8b 44 24 40       	mov    rax,QWORD PTR [rsp+0x40]
+  4a134c:	8b 00                	mov    eax,DWORD PTR [rax]
+  4a134e:	89 44 24 34          	mov    DWORD PTR [rsp+0x34],eax
+  4a1352:	85 c0                	test   eax,eax
+  4a1354:	0f 8e 3c ff ff ff    	jle    4a1296 <project_vector_+0x19e>
+  4a135a:	4c 8b 7c 24 58       	mov    r15,QWORD PTR [rsp+0x58]
+  4a135f:	41 bc 01 00 00 00    	mov    r12d,0x1
+  4a1365:	4c 89 f0             	mov    rax,r14
+  4a1368:	4d 89 fe             	mov    r14,r15
+  4a136b:	49 89 c7             	mov    r15,rax
+  4a136e:	e9 8e fe ff ff       	jmp    4a1201 <project_vector_+0x109>
+  4a1373:	49 89 ef             	mov    r15,rbp
+  4a1376:	4c 89 ed             	mov    rbp,r13
+  4a1379:	48 81 44 24 68 80 04 	add    QWORD PTR [rsp+0x68],0x480
+  4a1380:	00 00 
+  4a1382:	48 81 44 24 70 90 00 	add    QWORD PTR [rsp+0x70],0x90
+  4a1389:	00 00 
+  4a138b:	8b 44 24 78          	mov    eax,DWORD PTR [rsp+0x78]
+  4a138f:	2b 44 24 64          	sub    eax,DWORD PTR [rsp+0x64]
+  4a1393:	8d 40 01             	lea    eax,[rax+0x1]
+  4a1396:	39 44 24 7c          	cmp    DWORD PTR [rsp+0x7c],eax
+  4a139a:	7c 62                	jl     4a13fe <project_vector_+0x306>
+  4a139c:	83 44 24 78 01       	add    DWORD PTR [rsp+0x78],0x1
+  4a13a1:	48 8b 84 24 90 00 00 	mov    rax,QWORD PTR [rsp+0x90]
+  4a13a8:	00 
+  4a13a9:	8b 00                	mov    eax,DWORD PTR [rax]
+  4a13ab:	89 44 24 4c          	mov    DWORD PTR [rsp+0x4c],eax
+  4a13af:	85 c0                	test   eax,eax
+  4a13b1:	7e c6                	jle    4a1379 <project_vector_+0x281>
+  4a13b3:	48 8b 84 24 98 00 00 	mov    rax,QWORD PTR [rsp+0x98]
+  4a13ba:	00 
+  4a13bb:	48 8b 4c 24 70       	mov    rcx,QWORD PTR [rsp+0x70]
+  4a13c0:	48 8d 04 c8          	lea    rax,[rax+rcx*8]
+  4a13c4:	48 89 44 24 38       	mov    QWORD PTR [rsp+0x38],rax
+  4a13c9:	4c 8b 6c 24 68       	mov    r13,QWORD PTR [rsp+0x68]
+  4a13ce:	c7 44 24 48 01 00 00 	mov    DWORD PTR [rsp+0x48],0x1
+  4a13d5:	00 
+  4a13d6:	48 8d 84 24 bc 00 00 	lea    rax,[rsp+0xbc]
+  4a13dd:	00 
+  4a13de:	48 89 44 24 20       	mov    QWORD PTR [rsp+0x20],rax
+  4a13e3:	48 8d 84 24 b8 00 00 	lea    rax,[rsp+0xb8]
+  4a13ea:	00 
+  4a13eb:	48 89 44 24 50       	mov    QWORD PTR [rsp+0x50],rax
+  4a13f0:	4d 89 ee             	mov    r14,r13
+  4a13f3:	49 89 ed             	mov    r13,rbp
+  4a13f6:	4c 89 fd             	mov    rbp,r15
+  4a13f9:	e9 25 ff ff ff       	jmp    4a1323 <project_vector_+0x22b>
+  4a13fe:	49 89 ed             	mov    r13,rbp
+  4a1401:	4c 89 fd             	mov    rbp,r15
+  4a1404:	8b 44 24 78          	mov    eax,DWORD PTR [rsp+0x78]
+  4a1408:	89 44 24 64          	mov    DWORD PTR [rsp+0x64],eax
+  4a140c:	48 8b 4c 24 40       	mov    rcx,QWORD PTR [rsp+0x40]
+  4a1411:	8b 44 24 60          	mov    eax,DWORD PTR [rsp+0x60]
+  4a1415:	03 01                	add    eax,DWORD PTR [rcx]
+  4a1417:	89 44 24 60          	mov    DWORD PTR [rsp+0x60],eax
+  4a141b:	83 f8 03             	cmp    eax,0x3
+  4a141e:	7f 5b                	jg     4a147b <project_vector_+0x383>
+  4a1420:	48 8b 84 24 80 00 00 	mov    rax,QWORD PTR [rsp+0x80]
+  4a1427:	00 
+  4a1428:	48 63 08             	movsxd rcx,DWORD PTR [rax]
+  4a142b:	49 63 45 00          	movsxd rax,DWORD PTR [r13+0x0]
+  4a142f:	48 63 54 24 60       	movsxd rdx,DWORD PTR [rsp+0x60]
+  4a1434:	48 8d 0c 49          	lea    rcx,[rcx+rcx*2]
+  4a1438:	48 8d 04 40          	lea    rax,[rax+rax*2]
+  4a143c:	48 8d 04 48          	lea    rax,[rax+rcx*2]
+  4a1440:	48 8d 0d 39 22 4f 01 	lea    rcx,[rip+0x14f2239]        # 1993680 <common_wyckoff_>
+  4a1447:	48 01 c8             	add    rax,rcx
+  4a144a:	0f be 84 02 9d 17 07 	movsx  eax,BYTE PTR [rdx+rax*1+0x7179d]
+  4a1451:	00 
+  4a1452:	48 8b 8c 24 88 00 00 	mov    rcx,QWORD PTR [rsp+0x88]
+  4a1459:	00 
+  4a145a:	39 01                	cmp    DWORD PTR [rcx],eax
+  4a145c:	75 ae                	jne    4a140c <project_vector_+0x314>
+  4a145e:	48 8b 84 24 08 01 00 	mov    rax,QWORD PTR [rsp+0x108]
+  4a1465:	00 
+  4a1466:	8b 00                	mov    eax,DWORD PTR [rax]
+  4a1468:	89 44 24 7c          	mov    DWORD PTR [rsp+0x7c],eax
+  4a146c:	85 c0                	test   eax,eax
+  4a146e:	0f 85 0d fd ff ff    	jne    4a1181 <project_vector_+0x89>
+  4a1474:	83 44 24 64 01       	add    DWORD PTR [rsp+0x64],0x1
+  4a1479:	eb 91                	jmp    4a140c <project_vector_+0x314>
+  4a147b:	48 8b 84 24 18 01 00 	mov    rax,QWORD PTR [rsp+0x118]
+  4a1482:	00 
+  4a1483:	8b 4c 24 64          	mov    ecx,DWORD PTR [rsp+0x64]
+  4a1487:	89 08                	mov    DWORD PTR [rax],ecx
+  4a1489:	48 81 c4 c8 00 00 00 	add    rsp,0xc8
+  4a1490:	5b                   	pop    rbx
+  4a1491:	5d                   	pop    rbp
+  4a1492:	41 5c                	pop    r12
+  4a1494:	41 5d                	pop    r13
+  4a1496:	41 5e                	pop    r14
+  4a1498:	41 5f                	pop    r15
+  4a149a:	c3                   	ret
+
+Disassembly of section __libc_freeres_fn:
+
+Disassembly of section .fini:

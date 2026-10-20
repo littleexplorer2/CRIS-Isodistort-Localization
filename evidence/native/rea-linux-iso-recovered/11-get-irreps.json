@@ -1,0 +1,114 @@
+{
+  "label": "get-irreps",
+  "at_utc": "2026-10-20T14:10:56.132806+00:00",
+  "elapsed_seconds": 0.04004789300000766,
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 11,
+    "method": "tools/call",
+    "params": {
+      "name": "procedure_pseudo_code",
+      "arguments": {
+        "procedure": "get_irreps_"
+      }
+    }
+  },
+  "response": {
+    "result": {
+      "_meta": {
+        "provenance": {
+          "untrusted_content": true,
+          "source": "analysis_target"
+        }
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"evidence_id\":\"ev_876f3330452ee37940cf889e2523bf929f49ca0cfd8c7a84ee870ada181f9d86\",\"subject\":{\"name\":\"iso\",\"digest\":{\"sha256\":\"242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8\"},\"local_path\":\"/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso\",\"format\":\"elf\",\"architecture\":\"x86_64\"},\"provider\":{\"id\":\"ghidra\",\"name\":\"Ghidra\",\"version\":\"12.1.3\"},\"analysis_profile\":{\"provider\":{\"id\":\"ghidra\",\"name\":\"Ghidra\",\"version\":\"12.1.3\"},\"parameters\":{\"target_kind\":\"executable\",\"target_format\":\"elf\",\"architecture\":\"x86_64\",\"available_architectures\":[\"x86_64\"],\"import_mode\":\"ephemeral-source-immutable\",\"annotation_policy\":\"atomic-function-entry-metadata-v1\",\"load_image_observations\":\"source-mappings-entry-context-v2\",\"function_body_evidence\":\"complete-inclusive-ranges-v1\",\"function_references\":\"complete-body-and-entry-reference-manager-v2\",\"call_relationship_coverage\":\"function-body-call-coverage-v5\",\"function_dossier_coverage\":\"observed-facets-and-call-relationships-v1\",\"string_inventory_evidence\":\"defined-data-coverage-v1\",\"location_resolution\":\"explicit-address-exact-entry-symbol-first-v3\",\"procedure_file_offset_resolution\":\"address-first-unique-target-source-mapping-v2\",\"instruction_flow_evidence\":\"decoded-return-pcode-v1\",\"instruction_references\":\"exact-address-incoming-without-synthetic-entry-v2\",\"function_boundary_observations\":\"ghidra-function-boundary-limitations-v4\",\"no_return_repair\":\"returning-imports-decoded-return-v2\",\"process_launch\":\"inspected-jvm-launch-support-v1\",\"jump_table_evidence\":\"typed-case-default-blocks-v1\",\"decompiler_jump_loads\":true,\"loader\":\"auto-from-header\",\"language_id\":\"auto-from-header\",\"compiler_spec_id\":\"auto-default\",\"analyzer_preset\":\"ghidra-default\"},\"digest\":\"925fa33731c67bdc2c9882788b5c8efec77d0e3e564e9481ba43dd06334888ff\"},\"predicate_type\":\"rea.analysis\",\"operation\":\"procedure_pseudo_code\",\"parameters\":{\"procedure\":\"get_irreps_\"},\"raw_result\":{\"value\":\"\\nvoid get_irreps_(int *param_1,int *param_2,int *param_3,undefined8 *param_4,undefined8 param_5,\\n                double *param_6,long param_7,int *param_8,int *param_9)\\n\\n{\\n  char cVar1;\\n  int iVar2;\\n  int iVar3;\\n  long lVar4;\\n  long lVar5;\\n  undefined1 *puVar6;\\n  double unaff_RBX;\\n  long lVar7;\\n  long lVar8;\\n  bool bVar9;\\n  undefined1 local_4868 [384];\\n  undefined1 local_46e8 [384];\\n  undefined1 auStack_4568 [17672];\\n  int local_60;\\n  int local_5c;\\n  undefined8 local_58;\\n  undefined8 uStack_50;\\n  int local_48;\\n  double local_40 [2];\\n  \\n  iVar2 = *param_8;\\n  iVar3 = *param_1;\\n  if (iVar3 - 1U < 2) {\\n    local_58 = *param_4;\\n    uStack_50 = param_4[1];\\n    local_48 = *(int *)(param_4 + 2);\\n    unaff_RBX = 1.0;\\n    local_60 = iVar3;\\n  }\\n  else if (iVar3 - 3U < 2) {\\n    local_58 = *param_4;\\n    uStack_50 = param_4[1];\\n    local_48 = (int)(char)common_magnetic_[(long)*(int *)(param_4 + 2) + 0x102078];\\n    unaff_RBX = -1.0;\\n    local_60 = iVar3 + -2;\\n    if (*(int *)(common_magnetic_ + (long)*(int *)(param_4 + 2) * 4 + 0x24fb4) == 0) {\\n      unaff_RBX = 1.0;\\n    }\\n  }\\n  else {\\n    bomb2_(\\\"get_irreps 74\\\",0xd);\\n  }\\n  local_5c = *param_2;\\n  if (local_5c == 0) {\\n    iVar3 = *param_3;\\n    if (iVar3 == 0) {\\n      *param_9 = 1;\\n      return;\\n    }\\n    if (0x12a8 < iVar3 - 1U) {\\n      *param_9 = 1;\\n      return;\\n    }\\n    local_5c = (int)*(short *)(common_little_ + (long)iVar3 * 2 + 0x2dbfe6);\\n  }\\n  else if ((local_5c < 1) || ((short)common_little_._3069902_2_ < local_5c)) {\\n    *param_9 = 1;\\n    return;\\n  }\\n  lVar8 = (long)iVar2;\\n  if (lVar8 < 0) {\\n    lVar8 = 0;\\n  }\\n  cVar1 = common_little_[(long)local_5c + 0x369af7];\\n  if (local_60 == 2) {\\n    iVar2 = *param_8;\\n    if (iVar2 < cVar1) {\\n      *param_9 = 1;\\n      return;\\n    }\\n    if (0 < iVar2) {\\n      lVar5 = param_7 + -8;\\n      lVar7 = 0;\\n      do {\\n        lVar4 = 1;\\n        do {\\n          *(undefined8 *)(lVar5 + lVar4 * 8) = 0;\\n          bVar9 = lVar4 != iVar2;\\n          lVar4 = lVar4 + 1;\\n        } while (bVar9);\\n        lVar7 = lVar7 + 1;\\n        lVar5 = lVar5 + lVar8 * 8;\\n      } while (lVar7 != iVar2);\\n    }\\n  }\\n  get_irrep4_(&local_60,&local_5c,&local_58,param_5,local_40,local_4868,param_9);\\n  if (*param_9 == 0) {\\n    if (local_60 == 1) {\\n      *param_6 = unaff_RBX * local_40[0];\\n    }\\n    else if ('\\\\0' < cVar1) {\\n      puVar6 = local_46e8;\\n      param_7 = param_7 + -8;\\n      do {\\n        lVar5 = 1;\\n        do {\\n          *(double *)(param_7 + lVar5 * 8) = unaff_RBX * *(double *)(puVar6 + lVar5 * 8 + -0x188);\\n          lVar5 = lVar5 + 1;\\n        } while ((int)lVar5 <= (int)cVar1);\\n        puVar6 = puVar6 + 0x180;\\n        param_7 = param_7 + lVar8 * 8;\\n      } while (puVar6 != auStack_4568 + (ulong)((int)cVar1 - 1) * 0x180);\\n    }\\n  }\\n  return;\\n}\\n\\n\",\"limitations\":[]},\"normalized_result\":\"\\nvoid get_irreps_(int *param_1,int *param_2,int *param_3,undefined8 *param_4,undefined8 param_5,\\n                double *param_6,long param_7,int *param_8,int *param_9)\\n\\n{\\n  char cVar1;\\n  int iVar2;\\n  int iVar3;\\n  long lVar4;\\n  long lVar5;\\n  undefined1 *puVar6;\\n  double unaff_RBX;\\n  long lVar7;\\n  long lVar8;\\n  bool bVar9;\\n  undefined1 local_4868 [384];\\n  undefined1 local_46e8 [384];\\n  undefined1 auStack_4568 [17672];\\n  int local_60;\\n  int local_5c;\\n  undefined8 local_58;\\n  undefined8 uStack_50;\\n  int local_48;\\n  double local_40 [2];\\n  \\n  iVar2 = *param_8;\\n  iVar3 = *param_1;\\n  if (iVar3 - 1U < 2) {\\n    local_58 = *param_4;\\n    uStack_50 = param_4[1];\\n    local_48 = *(int *)(param_4 + 2);\\n    unaff_RBX = 1.0;\\n    local_60 = iVar3;\\n  }\\n  else if (iVar3 - 3U < 2) {\\n    local_58 = *param_4;\\n    uStack_50 = param_4[1];\\n    local_48 = (int)(char)common_magnetic_[(long)*(int *)(param_4 + 2) + 0x102078];\\n    unaff_RBX = -1.0;\\n    local_60 = iVar3 + -2;\\n    if (*(int *)(common_magnetic_ + (long)*(int *)(param_4 + 2) * 4 + 0x24fb4) == 0) {\\n      unaff_RBX = 1.0;\\n    }\\n  }\\n  else {\\n    bomb2_(\\\"get_irreps 74\\\",0xd);\\n  }\\n  local_5c = *param_2;\\n  if (local_5c == 0) {\\n    iVar3 = *param_3;\\n    if (iVar3 == 0) {\\n      *param_9 = 1;\\n      return;\\n    }\\n    if (0x12a8 < iVar3 - 1U) {\\n      *param_9 = 1;\\n      return;\\n    }\\n    local_5c = (int)*(short *)(common_little_ + (long)iVar3 * 2 + 0x2dbfe6);\\n  }\\n  else if ((local_5c < 1) || ((short)common_little_._3069902_2_ < local_5c)) {\\n    *param_9 = 1;\\n    return;\\n  }\\n  lVar8 = (long)iVar2;\\n  if (lVar8 < 0) {\\n    lVar8 = 0;\\n  }\\n  cVar1 = common_little_[(long)local_5c + 0x369af7];\\n  if (local_60 == 2) {\\n    iVar2 = *param_8;\\n    if (iVar2 < cVar1) {\\n      *param_9 = 1;\\n      return;\\n    }\\n    if (0 < iVar2) {\\n      lVar5 = param_7 + -8;\\n      lVar7 = 0;\\n      do {\\n        lVar4 = 1;\\n        do {\\n          *(undefined8 *)(lVar5 + lVar4 * 8) = 0;\\n          bVar9 = lVar4 != iVar2;\\n          lVar4 = lVar4 + 1;\\n        } while (bVar9);\\n        lVar7 = lVar7 + 1;\\n        lVar5 = lVar5 + lVar8 * 8;\\n      } while (lVar7 != iVar2);\\n    }\\n  }\\n  get_irrep4_(&local_60,&local_5c,&local_58,param_5,local_40,local_4868,param_9);\\n  if (*param_9 == 0) {\\n    if (local_60 == 1) {\\n      *param_6 = unaff_RBX * local_40[0];\\n    }\\n    else if ('\\\\0' < cVar1) {\\n      puVar6 = local_46e8;\\n      param_7 = param_7 + -8;\\n      do {\\n        lVar5 = 1;\\n        do {\\n          *(double *)(param_7 + lVar5 * 8) = unaff_RBX * *(double *)(puVar6 + lVar5 * 8 + -0x188);\\n          lVar5 = lVar5 + 1;\\n        } while ((int)lVar5 <= (int)cVar1);\\n        puVar6 = puVar6 + 0x180;\\n        param_7 = param_7 + lVar8 * 8;\\n      } while (puVar6 != auStack_4568 + (ulong)((int)cVar1 - 1) * 0x180);\\n    }\\n  }\\n  return;\\n}\\n\\n\",\"confidence\":\"observed\",\"authority\":\"shipped-artifact\",\"environment\":null,\"limitations\":[\"The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.\",\"The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.\",\"Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.\",\"Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.\",\"Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.\",\"External functions and functions without an analyzable body return null; other decompiler failures remain explicit.\",\"This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported.\"],\"relationship_coverage\":null,\"locations\":[],\"evidence_links\":[]}"
+        }
+      ],
+      "structuredContent": {
+        "evidence_id": "ev_876f3330452ee37940cf889e2523bf929f49ca0cfd8c7a84ee870ada181f9d86",
+        "subject": {
+          "name": "iso",
+          "digest": {
+            "sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8"
+          },
+          "local_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/vendor/isobyu/iso",
+          "format": "elf",
+          "architecture": "x86_64"
+        },
+        "provider": {
+          "id": "ghidra",
+          "name": "Ghidra",
+          "version": "12.1.3"
+        },
+        "analysis_profile": {
+          "provider": {
+            "id": "ghidra",
+            "name": "Ghidra",
+            "version": "12.1.3"
+          },
+          "parameters": {
+            "target_kind": "executable",
+            "target_format": "elf",
+            "architecture": "x86_64",
+            "available_architectures": [
+              "x86_64"
+            ],
+            "import_mode": "ephemeral-source-immutable",
+            "annotation_policy": "atomic-function-entry-metadata-v1",
+            "load_image_observations": "source-mappings-entry-context-v2",
+            "function_body_evidence": "complete-inclusive-ranges-v1",
+            "function_references": "complete-body-and-entry-reference-manager-v2",
+            "call_relationship_coverage": "function-body-call-coverage-v5",
+            "function_dossier_coverage": "observed-facets-and-call-relationships-v1",
+            "string_inventory_evidence": "defined-data-coverage-v1",
+            "location_resolution": "explicit-address-exact-entry-symbol-first-v3",
+            "procedure_file_offset_resolution": "address-first-unique-target-source-mapping-v2",
+            "instruction_flow_evidence": "decoded-return-pcode-v1",
+            "instruction_references": "exact-address-incoming-without-synthetic-entry-v2",
+            "function_boundary_observations": "ghidra-function-boundary-limitations-v4",
+            "no_return_repair": "returning-imports-decoded-return-v2",
+            "process_launch": "inspected-jvm-launch-support-v1",
+            "jump_table_evidence": "typed-case-default-blocks-v1",
+            "decompiler_jump_loads": true,
+            "loader": "auto-from-header",
+            "language_id": "auto-from-header",
+            "compiler_spec_id": "auto-default",
+            "analyzer_preset": "ghidra-default"
+          },
+          "digest": "925fa33731c67bdc2c9882788b5c8efec77d0e3e564e9481ba43dd06334888ff"
+        },
+        "predicate_type": "rea.analysis",
+        "operation": "procedure_pseudo_code",
+        "parameters": {
+          "procedure": "get_irreps_"
+        },
+        "raw_result": {
+          "value": "\nvoid get_irreps_(int *param_1,int *param_2,int *param_3,undefined8 *param_4,undefined8 param_5,\n                double *param_6,long param_7,int *param_8,int *param_9)\n\n{\n  char cVar1;\n  int iVar2;\n  int iVar3;\n  long lVar4;\n  long lVar5;\n  undefined1 *puVar6;\n  double unaff_RBX;\n  long lVar7;\n  long lVar8;\n  bool bVar9;\n  undefined1 local_4868 [384];\n  undefined1 local_46e8 [384];\n  undefined1 auStack_4568 [17672];\n  int local_60;\n  int local_5c;\n  undefined8 local_58;\n  undefined8 uStack_50;\n  int local_48;\n  double local_40 [2];\n  \n  iVar2 = *param_8;\n  iVar3 = *param_1;\n  if (iVar3 - 1U < 2) {\n    local_58 = *param_4;\n    uStack_50 = param_4[1];\n    local_48 = *(int *)(param_4 + 2);\n    unaff_RBX = 1.0;\n    local_60 = iVar3;\n  }\n  else if (iVar3 - 3U < 2) {\n    local_58 = *param_4;\n    uStack_50 = param_4[1];\n    local_48 = (int)(char)common_magnetic_[(long)*(int *)(param_4 + 2) + 0x102078];\n    unaff_RBX = -1.0;\n    local_60 = iVar3 + -2;\n    if (*(int *)(common_magnetic_ + (long)*(int *)(param_4 + 2) * 4 + 0x24fb4) == 0) {\n      unaff_RBX = 1.0;\n    }\n  }\n  else {\n    bomb2_(\"get_irreps 74\",0xd);\n  }\n  local_5c = *param_2;\n  if (local_5c == 0) {\n    iVar3 = *param_3;\n    if (iVar3 == 0) {\n      *param_9 = 1;\n      return;\n    }\n    if (0x12a8 < iVar3 - 1U) {\n      *param_9 = 1;\n      return;\n    }\n    local_5c = (int)*(short *)(common_little_ + (long)iVar3 * 2 + 0x2dbfe6);\n  }\n  else if ((local_5c < 1) || ((short)common_little_._3069902_2_ < local_5c)) {\n    *param_9 = 1;\n    return;\n  }\n  lVar8 = (long)iVar2;\n  if (lVar8 < 0) {\n    lVar8 = 0;\n  }\n  cVar1 = common_little_[(long)local_5c + 0x369af7];\n  if (local_60 == 2) {\n    iVar2 = *param_8;\n    if (iVar2 < cVar1) {\n      *param_9 = 1;\n      return;\n    }\n    if (0 < iVar2) {\n      lVar5 = param_7 + -8;\n      lVar7 = 0;\n      do {\n        lVar4 = 1;\n        do {\n          *(undefined8 *)(lVar5 + lVar4 * 8) = 0;\n          bVar9 = lVar4 != iVar2;\n          lVar4 = lVar4 + 1;\n        } while (bVar9);\n        lVar7 = lVar7 + 1;\n        lVar5 = lVar5 + lVar8 * 8;\n      } while (lVar7 != iVar2);\n    }\n  }\n  get_irrep4_(&local_60,&local_5c,&local_58,param_5,local_40,local_4868,param_9);\n  if (*param_9 == 0) {\n    if (local_60 == 1) {\n      *param_6 = unaff_RBX * local_40[0];\n    }\n    else if ('\\0' < cVar1) {\n      puVar6 = local_46e8;\n      param_7 = param_7 + -8;\n      do {\n        lVar5 = 1;\n        do {\n          *(double *)(param_7 + lVar5 * 8) = unaff_RBX * *(double *)(puVar6 + lVar5 * 8 + -0x188);\n          lVar5 = lVar5 + 1;\n        } while ((int)lVar5 <= (int)cVar1);\n        puVar6 = puVar6 + 0x180;\n        param_7 = param_7 + lVar8 * 8;\n      } while (puVar6 != auStack_4568 + (ulong)((int)cVar1 - 1) * 0x180);\n    }\n  }\n  return;\n}\n\n",
+          "limitations": []
+        },
+        "normalized_result": "\nvoid get_irreps_(int *param_1,int *param_2,int *param_3,undefined8 *param_4,undefined8 param_5,\n                double *param_6,long param_7,int *param_8,int *param_9)\n\n{\n  char cVar1;\n  int iVar2;\n  int iVar3;\n  long lVar4;\n  long lVar5;\n  undefined1 *puVar6;\n  double unaff_RBX;\n  long lVar7;\n  long lVar8;\n  bool bVar9;\n  undefined1 local_4868 [384];\n  undefined1 local_46e8 [384];\n  undefined1 auStack_4568 [17672];\n  int local_60;\n  int local_5c;\n  undefined8 local_58;\n  undefined8 uStack_50;\n  int local_48;\n  double local_40 [2];\n  \n  iVar2 = *param_8;\n  iVar3 = *param_1;\n  if (iVar3 - 1U < 2) {\n    local_58 = *param_4;\n    uStack_50 = param_4[1];\n    local_48 = *(int *)(param_4 + 2);\n    unaff_RBX = 1.0;\n    local_60 = iVar3;\n  }\n  else if (iVar3 - 3U < 2) {\n    local_58 = *param_4;\n    uStack_50 = param_4[1];\n    local_48 = (int)(char)common_magnetic_[(long)*(int *)(param_4 + 2) + 0x102078];\n    unaff_RBX = -1.0;\n    local_60 = iVar3 + -2;\n    if (*(int *)(common_magnetic_ + (long)*(int *)(param_4 + 2) * 4 + 0x24fb4) == 0) {\n      unaff_RBX = 1.0;\n    }\n  }\n  else {\n    bomb2_(\"get_irreps 74\",0xd);\n  }\n  local_5c = *param_2;\n  if (local_5c == 0) {\n    iVar3 = *param_3;\n    if (iVar3 == 0) {\n      *param_9 = 1;\n      return;\n    }\n    if (0x12a8 < iVar3 - 1U) {\n      *param_9 = 1;\n      return;\n    }\n    local_5c = (int)*(short *)(common_little_ + (long)iVar3 * 2 + 0x2dbfe6);\n  }\n  else if ((local_5c < 1) || ((short)common_little_._3069902_2_ < local_5c)) {\n    *param_9 = 1;\n    return;\n  }\n  lVar8 = (long)iVar2;\n  if (lVar8 < 0) {\n    lVar8 = 0;\n  }\n  cVar1 = common_little_[(long)local_5c + 0x369af7];\n  if (local_60 == 2) {\n    iVar2 = *param_8;\n    if (iVar2 < cVar1) {\n      *param_9 = 1;\n      return;\n    }\n    if (0 < iVar2) {\n      lVar5 = param_7 + -8;\n      lVar7 = 0;\n      do {\n        lVar4 = 1;\n        do {\n          *(undefined8 *)(lVar5 + lVar4 * 8) = 0;\n          bVar9 = lVar4 != iVar2;\n          lVar4 = lVar4 + 1;\n        } while (bVar9);\n        lVar7 = lVar7 + 1;\n        lVar5 = lVar5 + lVar8 * 8;\n      } while (lVar7 != iVar2);\n    }\n  }\n  get_irrep4_(&local_60,&local_5c,&local_58,param_5,local_40,local_4868,param_9);\n  if (*param_9 == 0) {\n    if (local_60 == 1) {\n      *param_6 = unaff_RBX * local_40[0];\n    }\n    else if ('\\0' < cVar1) {\n      puVar6 = local_46e8;\n      param_7 = param_7 + -8;\n      do {\n        lVar5 = 1;\n        do {\n          *(double *)(param_7 + lVar5 * 8) = unaff_RBX * *(double *)(puVar6 + lVar5 * 8 + -0x188);\n          lVar5 = lVar5 + 1;\n        } while ((int)lVar5 <= (int)cVar1);\n        puVar6 = puVar6 + 0x180;\n        param_7 = param_7 + lVar8 * 8;\n      } while (puVar6 != auStack_4568 + (ulong)((int)cVar1 - 1) * 0x180);\n    }\n  }\n  return;\n}\n\n",
+        "confidence": "observed",
+        "authority": "shipped-artifact",
+        "environment": null,
+        "limitations": [
+          "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results.",
+          "The imported Program and temporary project are ephemeral and deleted on close. Annotation operations edit session database metadata; original executable bytes are never written.",
+          "Cancelling an active Ghidra request terminates its ephemeral database and discards session annotations. The selected target remains open; the next provider query imports the original artifact again.",
+          "Default-space addresses use lowercase 0x-prefixed hexadecimal; other address spaces use <percent-encoded-space>:0x<hex>.",
+          "Pseudocode is Ghidra decompiler output, not original source and not text-equivalent to Hopper output.",
+          "External functions and functions without an analyzable body return null; other decompiler failures remain explicit.",
+          "This session uses Ghidra 12.1.3. The bridge is verified against 12.1.4; other 12.1.x builds are accepted and the observed version is reported."
+        ],
+        "relationship_coverage": null,
+        "locations": [],
+        "evidence_links": []
+      }
+    },
+    "jsonrpc": "2.0",
+    "id": 11
+  },
+  "notifications": []
+}

@@ -1,0 +1,11 @@
+{
+  "created_utc": "2026-10-20T14:08:14.452350+00:00",
+  "frozen_before_findsym_execution": true,
+  "program": "findsym",
+  "input_path": "runs/479ce6fd-3d63-410b-bedc-68c9d658860e/stdout.txt",
+  "input_sha256": "079cbb4d54502cdca5fd4bfc20087d9541a83feb1edb521db941a2ba300c6481",
+  "input_bytes": 696,
+  "origin": "Exact locally produced findsym_cifinput stdout bytes. No edits and no official website result reference.",
+  "source_input_manifest": "input_manifest.json",
+  "upstream_run_id": "479ce6fd-3d63-410b-bedc-68c9d658860e"
+}

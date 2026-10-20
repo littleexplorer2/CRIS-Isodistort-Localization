@@ -1,0 +1,7 @@
+{
+  "pid": 1268,
+  "command": "python -m cris_rea serve --port 8765",
+  "root": "C:\\Users\\devou\\OneDrive\\Desktop\\CRIS_REA",
+  "started_at_utc": "2026-10-20T13:57:58.7861249Z",
+  "code_frozen_before_start": true
+}

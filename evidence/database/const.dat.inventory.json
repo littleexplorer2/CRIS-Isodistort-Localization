@@ -1,0 +1,29 @@
+{
+  "size_bytes": 3220,
+  "sha256": "5b5cd037a04af62dad280cde6d9dda48ec4752b17a0dd46f9d92b7b88c7d0d8b",
+  "ascii_text_bytes_only": true,
+  "unusual_byte_histogram": {},
+  "nul_count": 0,
+  "line_break_counts": {
+    "lf": 88,
+    "crlf": 0,
+    "bare_cr": 0
+  },
+  "first_96_bytes": {
+    "offset": 0,
+    "length": 96,
+    "hex": "20 20 20 31 20 20 20 30 2e 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 20 20 30 0a 20 20 20 32 20 20 20 31 2e 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 20 20 31 0a 20 20 20 34 20 20 20 30 2e 35 30 30 30 30 30 30 30 30 30 30 30 30 30 30 20 20 31 2f 32 0a 20 20 20 36 20 20 20 30 2e 38",
+    "ascii_escaped": "   1   0.000000000000000  0\n   2   1.000000000000000  1\n   4   0.500000000000000  1/2\n   6   0.8"
+  },
+  "unusual_runs_first_32": [],
+  "candidate_header_count": 0,
+  "candidate_headers": [],
+  "limits": [
+    "Headers are lexical candidates, not a decoded schema.",
+    "Token counts do not establish array dimensions or pointer semantics.",
+    "No scientific calculation or executable invocation is performed."
+  ],
+  "file": "const.dat",
+  "source": "E:\\CRIS\\ISODISTORT\\resources\\isobyu\\const.dat",
+  "source_unchanged_during_scan": true
+}

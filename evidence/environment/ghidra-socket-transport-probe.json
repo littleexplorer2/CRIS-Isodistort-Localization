@@ -1,0 +1,19 @@
+{
+  "purpose": "Test REA's existing Unix socket fallback only; no Ghidra analysis.",
+  "started_at_utc": "2026-10-20T14:05:23.714Z",
+  "rea_version": "6.7.0",
+  "runtime_root_candidate": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/tools/runtime/temp/ghidra-projects-and-analysis-artifacts/rea-ghidra-PROBE0",
+  "unshortened_socket_bytes": 132,
+  "platform": "linux",
+  "node": "v24.15.0",
+  "endpoint": {
+    "transport": "unix-socket",
+    "path": "/tmp/rea-ghidra-socket-EZEiwY/s"
+  },
+  "socket_root": "/tmp/rea-ghidra-socket-EZEiwY",
+  "socket_root_mode": "700",
+  "bind_succeeded": true,
+  "cleaned": true,
+  "status": "passed",
+  "finished_at_utc": "2026-10-20T14:05:23.741Z"
+}

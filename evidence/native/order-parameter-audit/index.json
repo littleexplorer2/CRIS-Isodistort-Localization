@@ -1,0 +1,51 @@
+{
+  "purpose": "Offline readable extraction of already retained REA results.",
+  "target_sha256": "242b2c6ef93b00007d580eef27a4540018d94467e52e9a0cb81c4c835b37ddc8",
+  "records": [
+    {
+      "source_packet": "evidence/native/rea-linux-iso-recovered/05-orderparam-check.json",
+      "source_sha256": "a5f7458dcfbe3f376ea34ee5ef2c1003ab25a7913a3f4de1f714cea097eb8340",
+      "evidence_id": "ev_532c54c72d30b144fda62477b3ffc34e3b611d5054f43e5e06a71ad360dd6eaa",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "analysis_profile_digest": "925fa33731c67bdc2c9882788b5c8efec77d0e3e564e9481ba43dd06334888ff",
+      "json_pointer": "/response/result/structuredContent/raw_result/value/pseudocode",
+      "extracted_path": "evidence/native/order-parameter-audit/05-orderparam-check.pseudo.txt",
+      "extracted_sha256": "25fc9408336d427a51a78bbd702cfbad71ddca86d5e8f5eee34e29c5d02b49d4",
+      "extraction_changes": "none; decoded JSON string encoded as UTF-8"
+    },
+    {
+      "source_packet": "evidence/native/rea-linux-iso-recovered/06-orderparam-to-subgroup.json",
+      "source_sha256": "c4fde0da4c96e449fba865d8077c36a4b06f0ee4d102749e27199acc8c00c23d",
+      "evidence_id": "ev_f20461333691000dd27783bf7556a762ee4272d541f8b19554a91d8b81e51382",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "analysis_profile_digest": "925fa33731c67bdc2c9882788b5c8efec77d0e3e564e9481ba43dd06334888ff",
+      "json_pointer": "/response/result/structuredContent/raw_result/value",
+      "extracted_path": "evidence/native/order-parameter-audit/06-orderparam-to-subgroup.pseudo.txt",
+      "extracted_sha256": "77ab19c39e603103fd054aa40cf6164ebeea2b3768786743485617d1cefad18a",
+      "extraction_changes": "none; decoded JSON string encoded as UTF-8"
+    },
+    {
+      "source_packet": "evidence/native/rea-linux-iso-recovered/09-ncmp.json",
+      "source_sha256": "e60a09d97f231f3cbffc83b47e56cefd096cee8b9aea9eb0576f6e429053fa25",
+      "evidence_id": "ev_a7d7f5bf41d5e5819be7499c22486d64739782547587883ba489ec43d36c30fe",
+      "provider": {
+        "id": "ghidra",
+        "name": "Ghidra",
+        "version": "12.1.3"
+      },
+      "analysis_profile_digest": "925fa33731c67bdc2c9882788b5c8efec77d0e3e564e9481ba43dd06334888ff",
+      "json_pointer": "/response/result/structuredContent/raw_result/value",
+      "extracted_path": "evidence/native/order-parameter-audit/09-ncmp.pseudo.txt",
+      "extracted_sha256": "42591ae48e7fa9ae22c66ca5840dc14f45b47014b69a3f800f6da4c5f0365179",
+      "extraction_changes": "none; decoded JSON string encoded as UTF-8"
+    }
+  ]
+}

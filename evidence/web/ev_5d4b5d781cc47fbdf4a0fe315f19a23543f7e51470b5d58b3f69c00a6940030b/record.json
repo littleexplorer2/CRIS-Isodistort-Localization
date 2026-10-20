@@ -1,0 +1,1119 @@
+{
+  "analysis_profile": null,
+  "authority": "controlled-replay",
+  "confidence": "observed",
+  "environment": {
+    "architecture": "unknown",
+    "id": "Chromium@155.0.4283.62",
+    "isolation": "process",
+    "platform": "unknown"
+  },
+  "evidence_id": "ev_5d4b5d781cc47fbdf4a0fe315f19a23543f7e51470b5d58b3f69c00a6940030b",
+  "evidence_links": [],
+  "limitations": [
+    "Artifact identity is unavailable for this observation.",
+    "Event sequence records provider receipt order; simultaneous browser causality is not inferred.",
+    "Network content is retained only when selected; Playwright response-body bytes are API results and are not guaranteed to match wire bytes.",
+    "Request bytes are limited to what Playwright exposes; not_exposed does not establish body absence or multipart file coverage.",
+    "Network content reads settle within 5 seconds each and the observer does not request bodies from unfinished responses.",
+    "Captured response-body bytes are the result of Playwright's Response.body() API. Playwright may satisfy that API with a credentialed follow-up load of the request URL when CDP has no body, so transaction and event links do not verify that retained bytes came from the original network transaction.",
+    "Playwright scenario events do not expose request initiator stacks; receipt order does not prove causality.",
+    "Storage values are hashed only after declared-secret redaction.",
+    "Some selected network content was unavailable; per-transaction content states retain the reason.",
+    "Browser host platform and architecture were not observed."
+  ],
+  "locations": [],
+  "normalized_result": {
+    "browser": {
+      "cleanup": "terminated-owned-process",
+      "mode": "launch",
+      "process_ownership": "provider-owned",
+      "product": "Chromium",
+      "version": "155.0.4283.62"
+    },
+    "completeness": {
+      "equality_eligible": false,
+      "missing_sections": [
+        "events"
+      ],
+      "status": "incomplete",
+      "truncated_sections": []
+    },
+    "duration_ms": 6560,
+    "events": {
+      "dropped": 0,
+      "items": [
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "upgrade-insecure-requests",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "document",
+          "sequence": 1,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-1",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistort.php"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 2,
+          "source_event_sequence": 1,
+          "step_index": 0,
+          "transaction_id": "request-1"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "access-control-allow-origin",
+            "connection",
+            "content-encoding",
+            "content-length",
+            "content-type",
+            "date",
+            "keep-alive",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "vary",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "document",
+          "sequence": 3,
+          "status": 200,
+          "step_index": 0,
+          "transaction_id": "request-1",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistort.php"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "stylesheet",
+          "sequence": 4,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-2",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/bootstrap.css"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 5,
+          "source_event_sequence": 4,
+          "step_index": 0,
+          "transaction_id": "request-2"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "stylesheet",
+          "sequence": 6,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-3",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/docs.css"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 7,
+          "source_event_sequence": 6,
+          "step_index": 0,
+          "transaction_id": "request-3"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "image",
+          "sequence": 8,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-4",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/help.jpg"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 9,
+          "source_event_sequence": 8,
+          "step_index": 0,
+          "transaction_id": "request-4"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "script",
+          "sequence": 10,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-5",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/swingjs/swingjs2.js"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 11,
+          "source_event_sequence": 10,
+          "step_index": 0,
+          "transaction_id": "request-5"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "script",
+          "sequence": 12,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-6",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistort.js"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 13,
+          "source_event_sequence": 12,
+          "step_index": 0,
+          "transaction_id": "request-6"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "upgrade-insecure-requests",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "document",
+          "sequence": 14,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-1",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistort.php"
+          }
+        },
+        {
+          "body": {
+            "bytes": 3889,
+            "content": "PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPEhFQUQ+CjxtZXRhIGNoYXJzZXQ9InV0Zi04Ij4KPFRJVExFPklTT0RJU1RPUlQ8L1RJVExFPgo8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCI+CjxtZXRhIG5hbWU9ImRlc2NyaXB0aW9uIiBjb250ZW50PSIiPgo8bWV0YSBuYW1lPSJhdXRob3IiIGNvbnRlbnQ9IiI+CjxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iYm9vdHN0cmFwLmNzcyI+CjxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iZG9jcy5jc3MiPgo8c3R5bGU+CiAgYm9keSB7CglwYWRkaW5nLXRvcDogMHB4OwogIH0KICBkaXYucGFkIHsKCXBhZGRpbmctcmlnaHQ6IDUwcHg7CglwYWRkaW5nLWxlZnQ6IDUwcHg7CiAgfQo8L3N0eWxlPgo8L0hFQUQ+Cjxib2R5Pgo8ZGl2IGNsYXNzPSJuYXZiYXIgbmF2YmFyLXN0YXRpYy10b3AiPgogIDxkaXYgY2xhc3M9Im5hdmJhci1pbm5lciI+CiAgICAgPGRpdiBjbGFzcz0iY29udGFpbmVyIj4KICAgICAgIDxhIGNsYXNzPSJidG4gYnRuLW5hdmJhciIgZGF0YS10b2dnbGU9ImNvbGxhcHNlIiBkYXRhLXRhcmdldD0iLm5hdi1jb2xsYXBzZSI+CiAgICAgICAgIDxzcGFuIGNsYXNzPSJpY29uLWJhciI+PC9zcGFuPgogICAgICAgICA8c3BhbiBjbGFzcz0iaWNvbi1iYXIiPjwvc3Bhbj4KCSA8c3BhbiBjbGFzcz0iaWNvbi1iYXIiPjwvc3Bhbj4KICAgICAgIDwvYT4KICAgICAgIDxhIGNsYXNzPSJicmFuZCIgaHJlZj0iaXNvZGlzdG9ydC5waHAiPklTT0RJU1RPUlQ8L2E+CiAgICAgIDxkaXYgY2xhc3M9Im5hdi1jb2xsYXBzZSI+CiAgICAgICAgPHVsIGNsYXNzPSJuYXYiPgogICAgICAgICA8bGk+PGEgaHJlZj0iaXNvdHJvcHkucGhwIj5TVUlURTwvYT48L2xpPgogICAgICAgICAgICAgICAgICAgPGxpPjxhIGhyZWY9Imlzb2Rpc3RvcnRoZWxwLnBocCIgVEFSR0VUPSJfYmxhbmsiPkhFTFA8L2E+PC9saT4KCSAgICAgICAgIDwvdWw+CiAgICAgIDwvZGl2PgogICAgPC9kaXY+CiAgPC9kaXY+CjwvZGl2Pgo8ZGl2IGNsYXNzPSJwYWQiPgoKPEgxPklTT0RJU1RPUlQ8L0gxPgoKPHA+VmVyc2lvbiA2LjEyLjIsIEp1bCAyMDI1Cgo8YnI+SGFyb2xkIFQuIFN0b2tlcy4gQnJhbnRvbiBKLiBDYW1wYmVsbCwgYW5kIERvcmlhbiBNLiBIYXRjaCwKRGVwYXJ0bWVudCBvZiBQaHlzaWNzIGFuZCBBc3Ryb25vbXksIEJyaWdoYW0KWW91bmcgVW5pdmVyc2l0eSwgUHJvdm8sIFV0YWgsIDg0NjAyLCBVU0EsIGJyYW50b25fY2FtcGJlbGxAYnl1LmVkdQoKPHA+PGI+RGVzY3JpcHRpb246PC9iPiAKSVNPRElTVE9SVCBpcyBhIHVzZXItZnJpZW5kbHkgaW50ZXJuZXQtYmFzZWQgdG9vbCBmb3IgZXhwbG9yaW5nIHRoZSBzdHJ1Y3R1cmFsIGRpc3RvcnRpb24gbW9kZXMKb2YgY3J5c3RhbGxpbmUgbWF0ZXJpYWxzIGluZHVjZWQgYnkgaXJyZWR1Y2libGUgcmVwcmVzZW50YXRpb25zIG9mIHRoZSBwYXJlbnQgc3BhY2UtZ3JvdXAgc3ltbWV0cnkuICAKVGhlIHN0YW5kLWFsb25lIElTT1ZJWiBhcHBsaWNhdGlvbiBmdXJ0aGVyIGFsbG93cyBvbmUgdG8gdmlzdWFsaXplIGFuZCBpbnRlcmFjdGl2ZWx5IG1hbmlwdWxhdGUgdGhlIG1vZGVzIGdlbmVyYXRlZCBpbiBJU09ESVNUT1JULjwvcD4KCjxwPgo8QSBocmVmPSJpc29kaXN0b3J0aGVscC5waHAiIHRhcmdldD1fYmxhbms+PEI+SGVscDwvQj48L0E+LAo8YSBocmVmPSJpc29kaXN0b3J0dHV0b3JpYWxzLnBocCIgdGFyZ2V0PSJfYmxhbmsiPjxiPlR1dG9yaWFsczwvYj48L2E+LCAgCjxhIGhyZWY9Imlzb2Rpc3RvcnR2ZXJzaW9ucy5waHAiIHRhcmdldD0iX2JsYW5rIj48Yj5WZXJzaW9uIEhpc3Rvcnk8L2I+PC9hPgo8L3A+Cgo8cD4KPGEgaHJlZj0iaXNvZGlzdG9ydF92ZXJzaW9uNS42LjEvaXNvZGlzdG9ydC5waHAiPjxiPkxlZ2FjeSBjb3B5Cm9mIElTT0RJU1RPUlQgdmVyc2lvbiA1LjYuMSwgQXVndXN0IDIwMTM8L2I+PC9hPgo8L3A+Cgo8ZGl2IGNsYXNzPSJ3ZWxsIj4KPEI+QmVnaW4gYnkgZW50ZXJpbmcgdGhlIHN0cnVjdHVyZSBvZiBwYXJlbnQgcGhhc2U8L0I+OiA8QQpocmVmPSJpc29kaXN0b3J0aGVscC5waHAjcGFyZW50Igp0YXJnZXQ9X2JsYW5rPjxpbWcgc3JjPWhlbHAuanBnPjwvQT4KCjx1bD4KPHA+PGJyPjxhIGhyZWY9Imlzb2Rpc3RvcnRwYXJlbnQuaHRtbCI+R2V0IHN0YXJ0ZWQgcXVpY2tseSB3aXRoIGEKY3ViaWMgcGVyb3Zza2l0ZSBwYXJlbnQuPC9hPgoKPFA+PEZPUk0gQUNUSU9OPSJpc29kaXN0b3J0dXBsb2FkZmlsZS5waHAiIE1FVEhPRD0iUE9TVCIgIAplbmN0eXBlPSJtdWx0aXBhcnQvZm9ybS1kYXRhIj4KSW1wb3J0IHBhcmVudCBzdHJ1Y3R1cmUgZnJvbSBhIENJRiBzdHJ1Y3R1cmUgZmlsZToKPElOUFVUIFRZUEU9ImhpZGRlbiIgTkFNRT0iaW5wdXQiIFZBTFVFPSJ1cGxvYWRwYXJlbnRjaWYiPgo8SU5QVVQgQ0xBU1M9ImJ0biBidG4tcHJpbWFyeSIgVFlQRT0ic3VibWl0IiBWQUxVRT0iT0siPgo8aW5wdXQgbmFtZT0idG9Qcm9jZXNzIiB0eXBlPSJmaWxlIiBzaXplPSIzMCI+CjwvZm9ybT4KCklmIHlvdSBkb24ndCBoYXZlIGEgcGFyZW50IENJRiwgY3JlYXRlCm9uZSB1c2luZyA8QSBocmVmPSJpc29jaWYucGhwIj5JU09DSUY8L0E+LgoKPC91bD4KPC9kaXY+Cgo8ZGl2IGNsYXNzPSJ3ZWxsIj4KPGI+QWx0ZXJuYXRpdmVseSwgeW91IGNhbiBiZWdpbiB3aXRoIGEgcHJldmlvdXNseS1zYXZlZCBkaXN0b3J0aW9uOjwvYj4KPEEgaHJlZj0iaXNvZGlzdG9ydGhlbHAucGhwI3BhcmVudCIKdGFyZ2V0PV9ibGFuaz48aW1nIHNyYz1oZWxwLmpwZz48L0E+Cgo8dWw+Cgo8cD48YnI+PGEgaHJlZj0iaXNvZGlzdG9ydGRpc3RvcnRpb24uaHRtbCI+CkdldCBzdGFydGVkIHF1aWNrbHkgd2l0aCBhIGRpc3RvcnRlZCBwZXJvdnNraXRlIGV4YW1wbGUuPC9hPgooU2VsZWN0IHRoaXMgbGluayBhbmQgY2xpY2sgIk9LIiBvbiB0aGUgbmV4dCBwYWdlIHRvIHRlc3QgeW91ciBKYXZhCmluc3RhbGxhdGlvbi4pCgo8UD48Rk9STSBBQ1RJT049Imlzb2Rpc3RvcnR1cGxvYWRmaWxlLnBocCIgTUVUSE9EPSJQT1NUIiAgCmVuY3R5cGU9Im11bHRpcGFydC9mb3JtLWRhdGEiPgpJbXBvcnQgYW4gSVNPRElTVE9SVCBkaXN0b3J0aW9uIGZpbGU6CjxJTlBVVCBUWVBFPSJoaWRkZW4iIE5BTUU9ImlucHV0IiBWQUxVRT0iZGlzdG9ydCI+CjxJTlBVVCBUWVBFPSJoaWRkZW4iIE5BTUU9Im9yaWdpbnR5cGUiIFZBTFVFPSJkZmlsZSI+CjxJTlBVVCBDTEFTUz0iYnRuIGJ0bi1wcmltYXJ5IiBUWVBFPSJzdWJtaXQiIFZBTFVFPSJPSyI+CjxpbnB1dCBuYW1lPSJ0b1Byb2Nlc3MiIHR5cGU9ImZpbGUiIHNpemU9IjMwIj4KPC9mb3JtPgoKPC91bD4KPC9kaXY+Cgo8cD4KPGI+SG93IHRvIGNpdGUgSVNPRElTVE9SVDwvYj4gKGNpdGUgYm90aCBvZiB0aGUgZm9sbG93aW5nKTo8L2JyPgpILiBULiBTdG9rZXMsIEQuIE0uIEhhdGNoLCBhbmQgQi4gSi4gQ2FtcGJlbGwsIElTT0RJU1RPUlQsIElTT1RST1BZIFNvZnR3YXJlIFN1aXRlLCBpc28uYnl1LmVkdS48YnI+CkIuIEouIENhbXBiZWxsLCBILiBULiBTdG9rZXMsIEQuIEUuIFRhbm5lciwgYW5kIEQuIE0uIEhhdGNoLCAKIklTT0RJU1BMQUNFOiBBbiBJbnRlcm5ldCBUb29sIGZvciBFeHBsb3JpbmcgU3RydWN0dXJhbCBEaXN0b3J0aW9ucy4iCjxhIGhyZWY9IjIwMDYgQ2FtcGJlbGwucGRmIiB0YXJnZXQ9X2JsYW5rPjxpPkouIEFwcGwuIENyeXN0LjwvaT4gPGI+Mzk8L2I+LCA2MDctNjE0ICgyMDA2KTwvYT4uCjwvcD4KCjwvZGl2Pgo8c2NyaXB0IHNyYz0ic3dpbmdqcy9zd2luZ2pzMi5qcyI+PC9zY3JpcHQ+CjxzY3JpcHQgc3JjPSJpc29kaXN0b3J0LmpzIj48L3NjcmlwdD4KPC9CT0RZPgo8L0hUTUw+Cg==",
+            "encoding": "base64",
+            "media_type": "text/html; charset=UTF-8",
+            "redacted": false,
+            "representation": "playwright-response-body-bytes",
+            "sha256": "5272c3600f76ed27d662c890ca85441908293c9b56bd2ba5fbd8548c7f51fad6",
+            "state": "captured"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "response",
+          "sequence": 15,
+          "source_event_sequence": 3,
+          "step_index": 0,
+          "transaction_id": "request-1"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-encoding",
+            "content-length",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "vary",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "stylesheet",
+          "sequence": 16,
+          "status": 200,
+          "step_index": 0,
+          "transaction_id": "request-2",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/bootstrap.css"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "stylesheet",
+          "sequence": 17,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-2",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/bootstrap.css"
+          }
+        },
+        {
+          "body": {
+            "limit_allocation_bytes": 1048576,
+            "message": "Body redaction exceeds the selected network body allocation budget.",
+            "observed_allocation_bytes": 1065570,
+            "reason": "body-allocation-limit",
+            "state": "unavailable"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "response",
+          "sequence": 18,
+          "source_event_sequence": 16,
+          "step_index": 0,
+          "transaction_id": "request-2"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-encoding",
+            "content-length",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "vary",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "stylesheet",
+          "sequence": 19,
+          "status": 200,
+          "step_index": 0,
+          "transaction_id": "request-3",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/docs.css"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "stylesheet",
+          "sequence": 20,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-3",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/docs.css"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "image",
+          "sequence": 21,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-7",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/grid-18px-masked.png"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 22,
+          "source_event_sequence": 21,
+          "step_index": 0,
+          "transaction_id": "request-7"
+        },
+        {
+          "body": {
+            "bytes": 264,
+            "content": "LyogQm9keSBhbmQgc3RydWN0dXJlCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tICovCmJvZHkgewogIHBvc2l0aW9uOiByZWxhdGl2ZTsKICBwYWRkaW5nLXRvcDogOTBweDsKICBiYWNrZ3JvdW5kLWNvbG9yOiAjZmZmOwogIGJhY2tncm91bmQtaW1hZ2U6IHVybChncmlkLTE4cHgtbWFza2VkLnBuZyk7CiAgYmFja2dyb3VuZC1yZXBlYXQ6IHJlcGVhdC14OwogIGJhY2tncm91bmQtcG9zaXRpb246IDAgNDBweDsKfQoK",
+            "encoding": "base64",
+            "media_type": "text/css",
+            "redacted": false,
+            "representation": "playwright-response-body-bytes",
+            "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4",
+            "state": "captured"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "response",
+          "sequence": 23,
+          "source_event_sequence": 19,
+          "step_index": 0,
+          "transaction_id": "request-3"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-length",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "image",
+          "sequence": 24,
+          "status": 200,
+          "step_index": 0,
+          "transaction_id": "request-4",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/help.jpg"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "image",
+          "sequence": 25,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-4",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/help.jpg"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-encoding",
+            "content-length",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "vary",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "script",
+          "sequence": 26,
+          "status": 200,
+          "step_index": 0,
+          "transaction_id": "request-6",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistort.js"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "script",
+          "sequence": 27,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-6",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistort.js"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-length",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "image",
+          "sequence": 28,
+          "status": 200,
+          "step_index": 0,
+          "transaction_id": "request-7",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/grid-18px-masked.png"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "image",
+          "sequence": 29,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-7",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/grid-18px-masked.png"
+          }
+        },
+        {
+          "body": {
+            "bytes": 9264,
+            "content": "/9j/4AAQSkZJRgABAgEASABIAAD/4QTNRXhpZgAATU0AKgAAAAgABwESAAMAAAABAAEAAAEaAAUAAAABAAAAYgEbAAUAAAABAAAAagEoAAMAAAABAAIAAAExAAIAAAAUAAAAcgEyAAIAAAAUAAAAhodpAAQAAAABAAAAnAAAAMgAAABIAAAAAQAAAEgAAAABQWRvYmUgUGhvdG9zaG9wIDcuMAAyMDEzOjA1OjA5IDE2OjM2OjU0AAAAAAOgAQADAAAAAf//AACgAgAEAAAAAQAAABSgAwAEAAAAAQAAABQAAAAAAAAABgEDAAMAAAABAAYAAAEaAAUAAAABAAABFgEbAAUAAAABAAABHgEoAAMAAAABAAIAAAIBAAQAAAABAAABJgICAAQAAAABAAADnwAAAAAAAABIAAAAAQAAAEgAAAAB/9j/4AAQSkZJRgABAgEASABIAAD/7QAMQWRvYmVfQ00AAv/uAA5BZG9iZQBkgAAAAAH/2wCEAAwICAgJCAwJCQwRCwoLERUPDAwPFRgTExUTExgRDAwMDAwMEQwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwBDQsLDQ4NEA4OEBQODg4UFA4ODg4UEQwMDAwMEREMDAwMDAwRDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDP/AABEIABQAFAMBIgACEQEDEQH/3QAEAAL/xAE/AAABBQEBAQEBAQAAAAAAAAADAAECBAUGBwgJCgsBAAEFAQEBAQEBAAAAAAAAAAEAAgMEBQYHCAkKCxAAAQQBAwIEAgUHBggFAwwzAQACEQMEIRIxBUFRYRMicYEyBhSRobFCIyQVUsFiMzRygtFDByWSU/Dh8WNzNRaisoMmRJNUZEXCo3Q2F9JV4mXys4TD03Xj80YnlKSFtJXE1OT0pbXF1eX1VmZ2hpamtsbW5vY3R1dnd4eXp7fH1+f3EQACAgECBAQDBAUGBwcGBTUBAAIRAyExEgRBUWFxIhMFMoGRFKGxQiPBUtHwMyRi4XKCkkNTFWNzNPElBhaisoMHJjXC0kSTVKMXZEVVNnRl4vKzhMPTdePzRpSkhbSVxNTk9KW1xdXl9VZmdoaWprbG1ub2JzdHV2d3h5ent8f/2gAMAwEAAhEDEQA/AO8vvdnfar7bLKul4RewtpJbZc6v+fPqVxZ6THfoWV1O/SvVPHooffTSMa/pGRlMdZiXsuL52gPcy+rc5m7a7d6VzH/11f8Aq9YGUX9PfpkYd9osaeS2x78im3+pbXYp4GOLs/Kz8iwXW1WPox2idtVY27mbXtZ+msd/PWe9WOLh4xsI/LXX9zT5fV80uNrcPFwS3Mvmvp++L+aPB8keBqftzM9H7BtZ+2fX+y7ddk7fV+27fpeh9n/TbP8AraSyvXb/AM5P+cH/AHm/aPsfrfmz6Xo+vP8AovX/AEfqpKX2o/uj5eP/AKt/mf8A0Bi96X7x+f2/+of5/wD9Df/Q7b6wfYvtVXoev+2Np9H7HHq7J/7Ubv0X2bd/p1lXf84Nv/ZD9s/Z0fpfs3o8fnfaPsn6b0v9JtXhKSu4vkj8v+H/ADv/AFBo5vnl83/U/wCZ/wDTh+m/8jfsb/Bfsr0v+t+n/r/b3/y0l8yJKv8A4/z/AMv+qtn/ABPk/l/1F//Z/+0JglBob3Rvc2hvcCAzLjAAOEJJTQQlAAAAAAAQAAAAAAAAAAAAAAAAAAAAADhCSU0D7QAAAAAAEABIAAAAAQABAEgAAAABAAE4QklNBCYAAAAAAA4AAAAAAAAAAAAAP4AAADhCSU0EDQAAAAAABAAAAHg4QklNBBkAAAAAAAQAAAAeOEJJTQPzAAAAAAAJAAAAAAAAAAABADhCSU0ECgAAAAAAAQAAOEJJTScQAAAAAAAKAAEAAAAAAAAAAThCSU0D9QAAAAAASAAvZmYAAQBsZmYABgAAAAAAAQAvZmYAAQChmZoABgAAAAAAAQAyAAAAAQBaAAAABgAAAAAAAQA1AAAAAQAtAAAABgAAAAAAAThCSU0D+AAAAAAAcAAA/////////////////////////////wPoAAAAAP////////////////////////////8D6AAAAAD/////////////////////////////A+gAAAAA/////////////////////////////wPoAAA4QklNBAAAAAAAAAIAAzhCSU0EAgAAAAAACAAAAAAAAAAAOEJJTQQIAAAAAAAQAAAAAQAAAkAAAAJAAAAAADhCSU0EHgAAAAAABAAAAAA4QklNBBoAAAAAAz8AAAAGAAAAAAAAAAAAAAAUAAAAFAAAAAUAaABlAGwAcAAyAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAUAAAAFAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAABAAAAABAAAAAAAAbnVsbAAAAAIAAAAGYm91bmRzT2JqYwAAAAEAAAAAAABSY3QxAAAABAAAAABUb3AgbG9uZwAAAAAAAAAATGVmdGxvbmcAAAAAAAAAAEJ0b21sb25nAAAAFAAAAABSZ2h0bG9uZwAAABQAAAAGc2xpY2VzVmxMcwAAAAFPYmpjAAAAAQAAAAAABXNsaWNlAAAAEgAAAAdzbGljZUlEbG9uZwAAAAAAAAAHZ3JvdXBJRGxvbmcAAAAAAAAABm9yaWdpbmVudW0AAAAMRVNsaWNlT3JpZ2luAAAADWF1dG9HZW5lcmF0ZWQAAAAAVHlwZWVudW0AAAAKRVNsaWNlVHlwZQAAAABJbWcgAAAABmJvdW5kc09iamMAAAABAAAAAAAAUmN0MQAAAAQAAAAAVG9wIGxvbmcAAAAAAAAAAExlZnRsb25nAAAAAAAAAABCdG9tbG9uZwAAABQAAAAAUmdodGxvbmcAAAAUAAAAA3VybFRFWFQAAAABAAAAAAAAbnVsbFRFWFQAAAABAAAAAAAATXNnZVRFWFQAAAABAAAAAAAGYWx0VGFnVEVYVAAAAAEAAAAAAA5jZWxsVGV4dElzSFRNTGJvb2wBAAAACGNlbGxUZXh0VEVYVAAAAAEAAAAAAAlob3J6QWxpZ25lbnVtAAAAD0VTbGljZUhvcnpBbGlnbgAAAAdkZWZhdWx0AAAACXZlcnRBbGlnbmVudW0AAAAPRVNsaWNlVmVydEFsaWduAAAAB2RlZmF1bHQAAAALYmdDb2xvclR5cGVlbnVtAAAAEUVTbGljZUJHQ29sb3JUeXBlAAAAAE5vbmUAAAAJdG9wT3V0c2V0bG9uZwAAAAAAAAAKbGVmdE91dHNldGxvbmcAAAAAAAAADGJvdHRvbU91dHNldGxvbmcAAAAAAAAAC3JpZ2h0T3V0c2V0bG9uZwAAAAAAOEJJTQQRAAAAAAABAQA4QklNBBQAAAAAAAQAAAAFOEJJTQQMAAAAAAO7AAAAAQAAABQAAAAUAAAAPAAABLAAAAOfABgAAf/Y/+AAEEpGSUYAAQIBAEgASAAA/+0ADEFkb2JlX0NNAAL/7gAOQWRvYmUAZIAAAAAB/9sAhAAMCAgICQgMCQkMEQsKCxEVDwwMDxUYExMVExMYEQwMDAwMDBEMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMAQ0LCw0ODRAODhAUDg4OFBQODg4OFBEMDAwMDBERDAwMDAwMEQwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAAUABQDASIAAhEBAxEB/90ABAAC/8QBPwAAAQUBAQEBAQEAAAAAAAAAAwABAgQFBgcICQoLAQABBQEBAQEBAQAAAAAAAAABAAIDBAUGBwgJCgsQAAEEAQMCBAIFBwYIBQMMMwEAAhEDBCESMQVBUWETInGBMgYUkaGxQiMkFVLBYjM0coLRQwclklPw4fFjczUWorKDJkSTVGRFwqN0NhfSVeJl8rOEw9N14/NGJ5SkhbSVxNTk9KW1xdXl9VZmdoaWprbG1ub2N0dXZ3eHl6e3x9fn9xEAAgIBAgQEAwQFBgcHBgU1AQACEQMhMRIEQVFhcSITBTKBkRShsUIjwVLR8DMkYuFygpJDUxVjczTxJQYWorKDByY1wtJEk1SjF2RFVTZ0ZeLys4TD03Xj80aUpIW0lcTU5PSltcXV5fVWZnaGlqa2xtbm9ic3R1dnd4eXp7fH/9oADAMBAAIRAxEAPwDvL73Z32q+2yyrpeEXsLaSW2XOr/nz6lcWekx36FldTv0r1Tx6KH300jGv6RkZTHWYl7Li+doD3Mvq3OZu2u3elcx/9dX/AKvWBlF/T36ZGHfaLGnktse/Ipt/qW12KeBji7Pys/IsF1tVj6MdonbVWNu5m17WfprHfz1nvVji4eMbCPy11/c0+X1fNLja3DxcEtzL5r6fvi/mjwfJHgan7czPR+wbWftn1/su3XZO31ftu36XofZ/02z/AK2ksr12/wDOT/nB/wB5v2j7H635s+l6Prz/AKL1/wBH6qSl9qP7o+Xj/wCrf5n/ANAYvel+8fn9v/qH+f8A/Q3/0O2+sH2L7VV6Hr/tjafR+xx6uyf+1G79F9m3f6dZV3/ODb/2Q/bP2dH6X7N6PH532j7J+m9L/SbV4SkruL5I/L/h/wA7/wBQaOb55fN/1P8Amf8A04fpv/I37G/wX7K9L/rfp/6/29/8tJfMiSr/AOP8/wDL/qrZ/wAT5P5f9Rf/2QA4QklNBCEAAAAAAFUAAAABAQAAAA8AQQBkAG8AYgBlACAAUABoAG8AdABvAHMAaABvAHAAAAATAEEAZABvAGIAZQAgAFAAaABvAHQAbwBzAGgAbwBwACAANwAuADAAAAABADhCSU0EBgAAAAAABwABAAAAAQEA/+ESSGh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8APD94cGFja2V0IGJlZ2luPSfvu78nIGlkPSdXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQnPz4KPD9hZG9iZS14YXAtZmlsdGVycyBlc2M9IkNSIj8+Cjx4OnhhcG1ldGEgeG1sbnM6eD0nYWRvYmU6bnM6bWV0YS8nIHg6eGFwdGs9J1hNUCB0b29sa2l0IDIuOC4yLTMzLCBmcmFtZXdvcmsgMS41Jz4KPHJkZjpSREYgeG1sbnM6cmRmPSdodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjJyB4bWxuczppWD0naHR0cDovL25zLmFkb2JlLmNvbS9pWC8xLjAvJz4KCiA8cmRmOkRlc2NyaXB0aW9uIGFib3V0PSd1dWlkOjY0ZGIyNWFlLWI4ZjctMTFlMi1iY2RkLWQ5YTFjZDcwNjU1YycKICB4bWxuczp4YXBNTT0naHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyc+CiAgPHhhcE1NOkRvY3VtZW50SUQ+YWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOjY0ZGIyNWE5LWI4ZjctMTFlMi1iY2RkLWQ5YTFjZDcwNjU1YzwveGFwTU06RG9jdW1lbnRJRD4KIDwvcmRmOkRlc2NyaXB0aW9uPgoKPC9yZGY6UkRGPgo8L3g6eGFwbWV0YT4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCjw/eHBhY2tldCBlbmQ9J3cnPz7/7gAOQWRvYmUAZIAAAAAB/9sAhAAMCAgICQgMCQkMEQsKCxEVDwwMDxUYExMVExMYEQwMDAwMDBEMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMAQ0LCw0ODRAODhAUDg4OFBQODg4OFBEMDAwMDBERDAwMDAwMEQwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAAUABQDASIAAhEBAxEB/90ABAAC/8QBPwAAAQUBAQEBAQEAAAAAAAAAAwABAgQFBgcICQoLAQABBQEBAQEBAQAAAAAAAAABAAIDBAUGBwgJCgsQAAEEAQMCBAIFBwYIBQMMMwEAAhEDBCESMQVBUWETInGBMgYUkaGxQiMkFVLBYjM0coLRQwclklPw4fFjczUWorKDJkSTVGRFwqN0NhfSVeJl8rOEw9N14/NGJ5SkhbSVxNTk9KW1xdXl9VZmdoaWprbG1ub2N0dXZ3eHl6e3x9fn9xEAAgIBAgQEAwQFBgcHBgU1AQACEQMhMRIEQVFhcSITBTKBkRShsUIjwVLR8DMkYuFygpJDUxVjczTxJQYWorKDByY1wtJEk1SjF2RFVTZ0ZeLys4TD03Xj80aUpIW0lcTU5PSltcXV5fVWZnaGlqa2xtbm9ic3R1dnd4eXp7fH/9oADAMBAAIRAxEAPwDvLr3Z32q+2yyrpeEXsLaSW2XOr/nz6lf6T0mO/Qsrqd+leqePRQ++mkY1/SMjKY6zEvZcXztAc5l9W5zN21270rmP/rq/9XrBXRf09+mRh32ixp5LbHvyKbf6ltdingY4uz8rqGRYLra7H0Y7RO2qsbdzNr2s/TWO/nrPerHFw8Y2Eflrr+5p8vq+aXG1uHi4JbmXzX+j+/r80eD5I8DU/bmZ6P2Daz9s+v8AZduuydvq/bdv0vQ+z/ptn/W0lleu3/nJ/wA4J/yb9o+x+t+bPpej6/8AxXr/AKP1UlL7Uf3R8vH/ANW/zP8A6Axe9L94/P7f/UP8/wD+hv8A/9DtvrB9i+1Veh6/7Y2/ofscersn/tRu/RfZt3+n/sLKu/5wbf8Ash+2fs6P0v2b0ePzvtH2T9N6X+k2rwlJXcXyR+X/AA/53/qDRzfPL5v+p/zP/pw/Tf8Akb9jf4L9lel/1v0/9f7e/wDlpL5kSVf/AB/n/l/1Vs/4nyfy/wCov//Z",
+            "encoding": "base64",
+            "media_type": "image/jpeg",
+            "redacted": false,
+            "representation": "playwright-response-body-bytes",
+            "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72",
+            "state": "captured"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "response",
+          "sequence": 30,
+          "source_event_sequence": 24,
+          "step_index": 0,
+          "transaction_id": "request-4"
+        },
+        {
+          "body": {
+            "bytes": 1967,
+            "content": "Ly8gaXNvZGlzdG9yLmpzDQovLyBCb2IgSGFuc29uIDIwMjMuMTIuMDgNCi8vIEJIIDIwMjQuMDEuMjggcmVtb3ZlZCBodG1sIGluamVjdGlvbg0KDQphcHBsZXRDb3VudCA9IDA7DQoNCmNyZWF0ZUlzb0Rpc3RvcnRBcHAgPSBmdW5jdGlvbihpbnB1dFR5cGUsIGlzb0RhdGEsIGZvcm1EYXRhKSB7DQoJdmFyIGFwcCA9IChpbnB1dFR5cGUgPT0gImlzb3ZpemRpc3RvcnRpb24iID8gIklzb0Rpc3RvcnRBcHAiIDogIklzb0RpZmZyYWN0QXBwIik7DQoJdmFyIEluZm8gPSB7DQoJCQkgIGNvZGU6IG51bGwsDQoJCQkgIG1haW46ICJvcmcuYnl1Lmlzb2Rpc3RvcnQuIiArIGFwcCwNCgkJCSAgYXJnczogWyBpc29EYXRhLCBmb3JtRGF0YSwgZG9jdW1lbnQgXSwNCgkJCSAgY29yZTogIl9pc28iLC8vIk5PTkUiLC8vCQkJDQoJCQkgIHdpZHRoOiAraXNvRGF0YS5hcHBsZXR3aWR0aCwNCgkJCSAgaGVpZ2h0OiAraXNvRGF0YS5hcHBsZXR3aWR0aC8xLjYsDQoJCQkgIHJlYWR5RnVuY3Rpb246IG51bGwsDQoJCQkgIHNlcnZlclVSTDogJ2h0dHBzOi8vY2hlbWFwcHMuc3RvbGFmLmVkdS9qbW9sL2pzbW9sL3BocC9qc21vbC5waHAnLA0KCQkJICBqMnNQYXRoOiAnc3dpbmdqcy9qMnMnLA0KCQkJICBjb25zb2xlOidzeXNvdXRkaXYnLA0KCQkJICBhbGxvd2phdmFzY3JpcHQ6IHRydWUNCgkJCX0NCglpZiAoISQoIiNzeXNvdXRkaXYiKVswXSkgew0KCQkkKCJkaXYiKS5sYXN0KCkuYXBwZW5kKCc8ZGl2IHN0eWxlPSJ3aWR0aDo2MDBweDtoZWlnaHQ6MzAwcHg7Ij4nDQoJCQkJCQkrJzxkaXYgaWQ9InN5c291dGRpdiIgY29udGVudEVkaXRhYmxlPSJ0cnVlIiBzdHlsZT0iYm9yZGVyOjFweCBzb2xpZCBncmVlbjt3aWR0aDoxMDAlO2hlaWdodDo5NSU7b3ZlcmZsb3c6YXV0byI+PC9kaXY+Jw0KCQkJCQkJKyc8L2Rpdj4nKTsNCgl9DQoJdmFyIGh0bWwgPSBTd2luZ0pTLmdldEFwcGxldEh0bWwoImlzb0Rpc3RvcnQiICsgKGFwcGxldENvdW50KyspLCBJbmZvKTsJDQoJJCgkKCJwIikuZ2V0KDEpKS5iZWZvcmUoaHRtbCk7DQp9DQoNCmZldGNoSXNvRGlzdG9ydCA9IGZ1bmN0aW9uKGlucHV0VHlwZSwgY2FsbGJhY2spIHsNCgkvLyAiaXNvdml6ZGlzdG9ydGlvbiIsIGNyZWF0ZUlzb0Rpc3RvcnRBcHBsZXQNCgkvLyAiaXNvdml6ZGlmZnJhY3Rpb24iLCBjcmVhdGVJc29EaXN0b3J0QXBwbGV0DQoJdmFyIGZvcm1EYXRhID0ge307DQoJJCgiZm9ybSBpbnB1dCIpLmVhY2goZnVuY3Rpb24oaSxlKSB7DQoJCWlmIChlLnZhbHVlID09IGlucHV0VHlwZSkgew0KCQkJZS5jaGVja2VkID0gdHJ1ZTsNCgkJfQ0KCX0pOw0KCSQoImlucHV0IikuZWFjaChmdW5jdGlvbihpLGUpIHsNCgkJaWYgKGUubmFtZSAhPSAnYXBwYnRuJyAmJiAoZS50eXBlICE9ICJyYWRpbyIgJiYgZS50eXBlICE9ICJjaGVja2JveCIgfHwgZS5jaGVja2VkKSkgew0KCQkJZm9ybURhdGFbZS5uYW1lXSA9IGUudmFsdWU7CQkJDQoJCX0NCgl9KTsNCgl2YXIgZiA9ICQoImZvcm0iKTsNCiAgICB2YXIgaW5mbyA9IHsNCgkgICAgICB0eXBlOiBmLmF0dHIoIm1ldGhvZCIpLA0KCSAgICAgIHVybDogZi5hdHRyKCJhY3Rpb24iKSwNCgkgICAgICBkYXRhOiBmb3JtRGF0YSwNCgkgICAgICBkYXRhVHlwZTogInRleHQiLA0KCSAgICAgIGVuY29kZTogdHJ1ZSwNCgkgICAgfTsNCgkkLmFqYXgoaW5mbykNCgkgICAgICAuZG9uZShmdW5jdGlvbihkYXRhKXtjYWxsYmFjayhkYXRhLCBmb3JtRGF0YSl9KQ0KCSAgICAgIC5mYWlsKGZ1bmN0aW9uIChkYXRhKXthbGVydCgiZXJyb3Igc3VibWl0dGluZyBmb3JtOiAiICsgZGF0YSl9KTsNCn0NCg0KY2xpY2tJc29EaXN0b3J0ID0gZnVuY3Rpb24oKSB7DQoJZmV0Y2hJc29EaXN0b3J0KCJpc292aXpkaXN0b3J0aW9uIiwgZnVuY3Rpb24oZGF0YSwgZm9ybURhdGEpIHsgY3JlYXRlSXNvRGlzdG9ydEFwcCgiaXNvdml6ZGlzdG9ydGlvbiIsIGRhdGEsIGZvcm1EYXRhKX0pOw0KfQ0KDQo=",
+            "encoding": "base64",
+            "media_type": "text/javascript",
+            "redacted": false,
+            "representation": "playwright-response-body-bytes",
+            "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d",
+            "state": "captured"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "response",
+          "sequence": 31,
+          "source_event_sequence": 26,
+          "step_index": 0,
+          "transaction_id": "request-6"
+        },
+        {
+          "body": {
+            "bytes": 405,
+            "content": "iVBORw0KGgoAAAANSUhEUgAAAFoAAAEyBAMAAACIVtqyAAAALVBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8AAAAAAAAAAAAMxR3lAAAAD3RSTlMABw0BAwUCBgsEDAAKCQiHWYRhAAABCElEQVR4Xu3YP27CMBjGYR8h3ID2BJF6AQ+oc5bulioxe+AAjB09ICS2jlWnHIGNlSOwcgvMn+2T4HMIECe/d3qHR5aXV5Zs3kYJMWNzSaEofdZoNNtpqNHo95SwBjSadweNZjvP1mg020Gj2Q4azV8BGs27k7dGo9kOGs120Gi246X+VSCV9q1pryiD1ej/mL8fTSJ86E3mA9WVKE/WlaIMRK+T9OYrIYlnSx1EyVUHqUP7etthbUXJVVuprUbvV6csJtdzVmaXcnaHdPEa7TTa9VB7hXZSu7z0bBLzOb2do2vvJqXUlUQKjS6lLjU63KnRyziL7w9NIkw827ala42uG2k0um6mD1I/iTxORroSAAAAAElFTkSuQmCC",
+            "encoding": "base64",
+            "media_type": "image/png",
+            "redacted": false,
+            "representation": "playwright-response-body-bytes",
+            "sha256": "ac363e2b14557f2c35d0ac2dbcedd16c23705cbfbf74d37d8b02896e66f972cb",
+            "state": "captured"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "response",
+          "sequence": 32,
+          "source_event_sequence": 28,
+          "step_index": 0,
+          "transaction_id": "request-7"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-encoding",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "transfer-encoding",
+            "vary",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "script",
+          "sequence": 33,
+          "status": 200,
+          "step_index": 0,
+          "transaction_id": "request-5",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/swingjs/swingjs2.js"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "script",
+          "sequence": 34,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-5",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/swingjs/swingjs2.js"
+          }
+        },
+        {
+          "body": {
+            "limit_allocation_bytes": 1048576,
+            "message": "Body redaction exceeds the selected network body allocation budget.",
+            "observed_allocation_bytes": 6844802,
+            "reason": "body-allocation-limit",
+            "state": "unavailable"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "response",
+          "sequence": 35,
+          "source_event_sequence": 33,
+          "step_index": 0,
+          "transaction_id": "request-5"
+        }
+      ],
+      "omissions": {
+        "by_kind": [],
+        "network_transaction_range": null,
+        "network_transactions": []
+      },
+      "retained": 35
+    },
+    "limitations": [
+      "Event sequence records provider receipt order; simultaneous browser causality is not inferred.",
+      "Network content is retained only when selected; Playwright response-body bytes are API results and are not guaranteed to match wire bytes.",
+      "Request bytes are limited to what Playwright exposes; not_exposed does not establish body absence or multipart file coverage.",
+      "Network content reads settle within 5 seconds each and the observer does not request bodies from unfinished responses.",
+      "Captured response-body bytes are the result of Playwright's Response.body() API. Playwright may satisfy that API with a credentialed follow-up load of the request URL when CDP has no body, so transaction and event links do not verify that retained bytes came from the original network transaction.",
+      "Playwright scenario events do not expose request initiator stacks; receipt order does not prove causality.",
+      "Storage values are hashed only after declared-secret redaction.",
+      "Some selected network content was unavailable; per-transaction content states retain the reason."
+    ],
+    "scenario": {
+      "action_count": 1,
+      "event_families": [
+        "network",
+        "page-errors"
+      ],
+      "limits": {
+        "max_event_allocation_bytes": 4194304,
+        "max_events": 10000,
+        "max_network_body_allocation_bytes": 1048576,
+        "max_network_body_bytes": 1000000,
+        "max_network_header_allocation_bytes": 1048576,
+        "max_network_metadata_allocation_bytes": 1048576,
+        "max_network_transactions": 1024,
+        "max_total_event_allocation_bytes": 16777216
+      },
+      "network_content": {
+        "header_values": false,
+        "request_body": true,
+        "response_body": true
+      },
+      "secret_references": [],
+      "start_origin": "https://landau3.byu.edu"
+    },
+    "steps": [
+      {
+        "action": "goto_start",
+        "after_url": {
+          "origin": "https://landau3.byu.edu",
+          "query_parameter_names": [],
+          "redacted": false,
+          "url": "https://landau3.byu.edu/isodistort.php"
+        },
+        "artifacts": {
+          "accessibility": {
+            "state": "not_requested"
+          },
+          "dom": {
+            "state": "not_requested"
+          },
+          "history": {
+            "state": "not_requested"
+          },
+          "screenshot": {
+            "state": "not_requested"
+          },
+          "storage": {
+            "state": "not_requested"
+          },
+          "url": {
+            "state": "not_requested"
+          }
+        },
+        "before_url": {
+          "origin": null,
+          "query_parameter_names": [],
+          "redacted": false,
+          "url": "about:blank"
+        },
+        "completeness": {
+          "equality_eligible": true,
+          "missing_sections": [],
+          "status": "complete",
+          "truncated_sections": []
+        },
+        "elapsed_ms": 5076,
+        "error": null,
+        "event_sequence_end": 35,
+        "event_sequence_start": 1,
+        "status": "completed",
+        "step_id": "scenario_start",
+        "step_index": 0
+      },
+      {
+        "action": "wait_for_timeout",
+        "after_url": {
+          "origin": "https://landau3.byu.edu",
+          "query_parameter_names": [],
+          "redacted": false,
+          "url": "https://landau3.byu.edu/isodistort.php"
+        },
+        "artifacts": {
+          "accessibility": {
+            "state": "captured",
+            "value": {
+              "bytes": 2571,
+              "sha256": "1f2f211f1b76b17f8e97288cbb7a187b7729ff6a72119d2d917c547dff18cc42",
+              "text": "- document:\n  - link \"ISODISTORT\":\n    - /url: isodistort.php\n  - list:\n    - listitem:\n      - link \"SUITE\":\n        - /url: isotropy.php\n    - listitem:\n      - link \"HELP\":\n        - /url: isodistorthelp.php\n  - heading \"ISODISTORT\" [level=1]\n  - paragraph: Version 6.12.2, Jul 2025 Harold T. Stokes. Branton J. Campbell, and Dorian M. Hatch, Department of Physics and Astronomy, Brigham Young University, Provo, Utah, 84602, USA, branton_campbell@byu.edu\n  - paragraph: \"Description: ISODISTORT is a user-friendly internet-based tool for exploring the structural distortion modes of crystalline materials induced by irreducible representations of the parent space-group symmetry. The stand-alone ISOVIZ application further allows one to visualize and interactively manipulate the modes generated in ISODISTORT.\"\n  - paragraph:\n    - link \"Help\":\n      - /url: isodistorthelp.php\n    - text: \",\"\n    - link \"Tutorials\":\n      - /url: isodistorttutorials.php\n    - text: \",\"\n    - link \"Version History\":\n      - /url: isodistortversions.php\n  - paragraph:\n    - link \"Legacy copy of ISODISTORT version 5.6.1, August 2013\":\n      - /url: isodistort_version5.6.1/isodistort.php\n  - text: \"Begin by entering the structure of parent phase:\"\n  - link:\n    - /url: isodistorthelp.php#parent\n    - img\n  - list:\n    - paragraph:\n      - link \"Get started quickly with a cubic perovskite parent.\":\n        - /url: isodistortparent.html\n    - paragraph\n    - text: \"Import parent structure from a CIF structure file:\"\n    - button \"OK\"\n    - button \"Choose File\"\n    - text: If you don't have a parent CIF, create one using\n    - link \"ISOCIF\":\n      - /url: isocif.php\n    - text: .\n  - text: \"Alternatively, you can begin with a previously-saved distortion:\"\n  - link:\n    - /url: isodistorthelp.php#parent\n    - img\n  - list:\n    - paragraph:\n      - link \"Get started quickly with a distorted perovskite example.\":\n        - /url: isodistortdistortion.html\n      - text: (Select this link and click \"OK\" on the next page to test your Java installation.)\n    - paragraph\n    - text: \"Import an ISODISTORT distortion file:\"\n    - button \"OK\"\n    - button \"Choose File\"\n  - paragraph:\n    - text: \"How to cite ISODISTORT (cite both of the following): H. T. Stokes, D. M. Hatch, and B. J. Campbell, ISODISTORT, ISOTROPY Software Suite, iso.byu.edu. B. J. Campbell, H. T. Stokes, D. E. Tanner, and D. M. Hatch, \\\"ISODISPLACE: An Internet Tool for Exploring Structural Distortions.\\\"\"\n    - link \"J. Appl. Cryst. 39, 607-614 (2006)\":\n      - /url: 2006 Campbell.pdf\n    - text: ."
+            }
+          },
+          "dom": {
+            "state": "captured",
+            "value": {
+              "bytes": 3914,
+              "sha256": "618225a496a6b702730487f0f4fa1e3e284a2f656cad3c7e1036e7b70b6d00d0",
+              "text": "<!DOCTYPE html><html lang=\"en\"><head>\n<meta charset=\"utf-8\">\n<title>ISODISTORT</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<meta name=\"description\" content=\"\">\n<meta name=\"author\" content=\"\">\n<link rel=\"stylesheet\" href=\"bootstrap.css\">\n<link rel=\"stylesheet\" href=\"docs.css\">\n<style>\n  body {\n\tpadding-top: 0px;\n  }\n  div.pad {\n\tpadding-right: 50px;\n\tpadding-left: 50px;\n  }\n</style>\n</head>\n<body>\n<div class=\"navbar navbar-static-top\">\n  <div class=\"navbar-inner\">\n     <div class=\"container\">\n       <a class=\"btn btn-navbar\" data-toggle=\"collapse\" data-target=\".nav-collapse\">\n         <span class=\"icon-bar\"></span>\n         <span class=\"icon-bar\"></span>\n\t <span class=\"icon-bar\"></span>\n       </a>\n       <a class=\"brand\" href=\"isodistort.php\">ISODISTORT</a>\n      <div class=\"nav-collapse\">\n        <ul class=\"nav\">\n         <li><a href=\"isotropy.php\">SUITE</a></li>\n                   <li><a href=\"isodistorthelp.php\" target=\"_blank\">HELP</a></li>\n\t         </ul>\n      </div>\n    </div>\n  </div>\n</div>\n<div class=\"pad\">\n\n<h1>ISODISTORT</h1>\n\n<p>Version 6.12.2, Jul 2025\n\n<br>Harold T. Stokes. Branton J. Campbell, and Dorian M. Hatch,\nDepartment of Physics and Astronomy, Brigham\nYoung University, Provo, Utah, 84602, USA, branton_campbell@byu.edu\n\n</p><p><b>Description:</b> \nISODISTORT is a user-friendly internet-based tool for exploring the structural distortion modes\nof crystalline materials induced by irreducible representations of the parent space-group symmetry.  \nThe stand-alone ISOVIZ application further allows one to visualize and interactively manipulate the modes generated in ISODISTORT.</p>\n\n<p>\n<a href=\"isodistorthelp.php\" target=\"_blank\"><b>Help</b></a>,\n<a href=\"isodistorttutorials.php\" target=\"_blank\"><b>Tutorials</b></a>,  \n<a href=\"isodistortversions.php\" target=\"_blank\"><b>Version History</b></a>\n</p>\n\n<p>\n<a href=\"isodistort_version5.6.1/isodistort.php\"><b>Legacy copy\nof ISODISTORT version 5.6.1, August 2013</b></a>\n</p>\n\n<div class=\"well\">\n<b>Begin by entering the structure of parent phase</b>: <a href=\"isodistorthelp.php#parent\" target=\"_blank\"><img src=\"help.jpg\"></a>\n\n<ul>\n<p><br><a href=\"isodistortparent.html\">Get started quickly with a\ncubic perovskite parent.</a>\n\n</p><p></p><form action=\"isodistortuploadfile.php\" method=\"POST\" enctype=\"multipart/form-data\">\nImport parent structure from a CIF structure file:\n<input type=\"hidden\" name=\"input\" value=\"uploadparentcif\">\n<input class=\"btn btn-primary\" type=\"submit\" value=\"OK\">\n<input name=\"toProcess\" type=\"file\" size=\"30\">\n</form>\n\nIf you don't have a parent CIF, create\none using <a href=\"isocif.php\">ISOCIF</a>.\n\n</ul>\n</div>\n\n<div class=\"well\">\n<b>Alternatively, you can begin with a previously-saved distortion:</b>\n<a href=\"isodistorthelp.php#parent\" target=\"_blank\"><img src=\"help.jpg\"></a>\n\n<ul>\n\n<p><br><a href=\"isodistortdistortion.html\">\nGet started quickly with a distorted perovskite example.</a>\n(Select this link and click \"OK\" on the next page to test your Java\ninstallation.)\n\n</p><p></p><form action=\"isodistortuploadfile.php\" method=\"POST\" enctype=\"multipart/form-data\">\nImport an ISODISTORT distortion file:\n<input type=\"hidden\" name=\"input\" value=\"distort\">\n<input type=\"hidden\" name=\"origintype\" value=\"dfile\">\n<input class=\"btn btn-primary\" type=\"submit\" value=\"OK\">\n<input name=\"toProcess\" type=\"file\" size=\"30\">\n</form>\n\n</ul>\n</div>\n\n<p>\n<b>How to cite ISODISTORT</b> (cite both of the following):<br>\nH. T. Stokes, D. M. Hatch, and B. J. Campbell, ISODISTORT, ISOTROPY Software Suite, iso.byu.edu.<br>\nB. J. Campbell, H. T. Stokes, D. E. Tanner, and D. M. Hatch, \n\"ISODISPLACE: An Internet Tool for Exploring Structural Distortions.\"\n<a href=\"2006 Campbell.pdf\" target=\"_blank\"><i>J. Appl. Cryst.</i> <b>39</b>, 607-614 (2006)</a>.\n</p>\n\n</div>\n<script src=\"swingjs/swingjs2.js\"></script>\n<script src=\"isodistort.js\"></script>\n\n\n</body></html>"
+            }
+          },
+          "history": {
+            "state": "not_requested"
+          },
+          "screenshot": {
+            "state": "not_requested"
+          },
+          "storage": {
+            "state": "not_requested"
+          },
+          "url": {
+            "state": "captured",
+            "value": {
+              "origin": "https://landau3.byu.edu",
+              "query_parameter_names": [],
+              "redacted": false,
+              "url": "https://landau3.byu.edu/isodistort.php"
+            }
+          }
+        },
+        "before_url": {
+          "origin": "https://landau3.byu.edu",
+          "query_parameter_names": [],
+          "redacted": false,
+          "url": "https://landau3.byu.edu/isodistort.php"
+        },
+        "completeness": {
+          "equality_eligible": true,
+          "missing_sections": [],
+          "status": "complete",
+          "truncated_sections": []
+        },
+        "elapsed_ms": 1232,
+        "error": null,
+        "event_sequence_end": 35,
+        "event_sequence_start": 36,
+        "status": "completed",
+        "step_id": "initial-load",
+        "step_index": 1
+      }
+    ]
+  },
+  "operation": "capture_browser_scenario",
+  "parameters": {
+    "actions": [
+      {
+        "action": "wait_for_timeout",
+        "duration_ms": 1200,
+        "step_id": "initial-load"
+      }
+    ],
+    "browser": {
+      "executable_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+      "headless": true,
+      "mode": "launch"
+    },
+    "capture": {
+      "after_each_step": [],
+      "at_end": [
+        "url",
+        "dom",
+        "accessibility"
+      ],
+      "events": [
+        "network",
+        "page-errors"
+      ],
+      "limits": {
+        "max_event_allocation_bytes": 4194304,
+        "max_events": 10000,
+        "max_network_body_allocation_bytes": 1048576,
+        "max_network_body_bytes": 1000000,
+        "max_network_header_allocation_bytes": 1048576,
+        "max_network_metadata_allocation_bytes": 1048576,
+        "max_network_transactions": 1024,
+        "max_total_event_allocation_bytes": 16777216
+      },
+      "network": {
+        "header_values": false,
+        "request_body": true,
+        "response_body": true
+      }
+    },
+    "environment": {
+      "color_scheme": "light",
+      "locale": "en-US",
+      "reduced_motion": "reduce",
+      "service_workers": "block",
+      "timezone": "UTC",
+      "viewport": {
+        "device_scale_factor": 1,
+        "height": 720,
+        "width": 1280
+      }
+    },
+    "scenario_sha256": "2df68ca48df0fc7395d3a96a8b9b3540031c01aa96cf59dac89c9b8c0e612e39",
+    "secrets": [],
+    "start_url": {
+      "query": [],
+      "url": "https://landau3.byu.edu/isodistort.php"
+    },
+    "storage": {
+      "cookies": [],
+      "local_storage": [],
+      "session_storage": []
+    }
+  },
+  "predicate_type": "rea.browser-scenario-capture",
+  "provider": {
+    "id": "rea-playwright-browser-scenario",
+    "name": "REA Playwright browser scenario capture provider",
+    "version": "1"
+  },
+  "raw_result": null,
+  "relationship_coverage": null,
+  "subject": null
+}

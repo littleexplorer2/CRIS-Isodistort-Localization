@@ -1,0 +1,14 @@
+{
+  "command": [
+    "../isodata/iso"
+  ],
+  "cwd": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/8a69195a-4f22-4574-b980-451275c41fb5/work",
+  "isodata": "../isodata/",
+  "input_mode": "stdin",
+  "input_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/8a69195a-4f22-4574-b980-451275c41fb5/input.dat",
+  "stdout_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/8a69195a-4f22-4574-b980-451275c41fb5/stdout.txt",
+  "stderr_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/8a69195a-4f22-4574-b980-451275c41fb5/stderr.txt",
+  "result_path": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/8a69195a-4f22-4574-b980-451275c41fb5/process.json",
+  "timeout_seconds": 30,
+  "max_output_bytes": 20971520
+}

@@ -1,0 +1,19 @@
+{
+  "status": "completed_uninterpreted",
+  "exit_code": 0,
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+  "command": [
+    "../isodata/findsym",
+    "../input.dat"
+  ],
+  "cwd": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/0538df13-283f-4680-89b2-5ad58feb1c96/work",
+  "isodata": "../isodata/",
+  "environment_overrides": {
+    "ISODATA": "../isodata/",
+    "TMPDIR": "/mnt/c/Users/devou/OneDrive/Desktop/CRIS_REA/runs/0538df13-283f-4680-89b2-5ad58feb1c96/work",
+    "LC_ALL": "C"
+  },
+  "pid": 777,
+  "duration_seconds": 0.313621
+}

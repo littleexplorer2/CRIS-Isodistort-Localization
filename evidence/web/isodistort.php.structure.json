@@ -1,0 +1,113 @@
+{
+  "forms": [
+    {
+      "attributes": {
+        "action": "isodistortuploadfile.php",
+        "method": "POST",
+        "enctype": "multipart/form-data"
+      },
+      "controls": [
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "input",
+          "value": "uploadparentcif"
+        },
+        {
+          "tag": "input",
+          "class": "btn btn-primary",
+          "type": "submit",
+          "value": "OK"
+        },
+        {
+          "tag": "input",
+          "name": "toProcess",
+          "type": "file",
+          "size": "30"
+        }
+      ]
+    },
+    {
+      "attributes": {
+        "action": "isodistortuploadfile.php",
+        "method": "POST",
+        "enctype": "multipart/form-data"
+      },
+      "controls": [
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "input",
+          "value": "distort"
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "origintype",
+          "value": "dfile"
+        },
+        {
+          "tag": "input",
+          "class": "btn btn-primary",
+          "type": "submit",
+          "value": "OK"
+        },
+        {
+          "tag": "input",
+          "name": "toProcess",
+          "type": "file",
+          "size": "30"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "class": "brand",
+      "href": "isodistort.php"
+    },
+    {
+      "href": "isotropy.php"
+    },
+    {
+      "href": "isodistorthelp.php",
+      "target": "_blank"
+    },
+    {
+      "href": "isodistorthelp.php",
+      "target": "_blank"
+    },
+    {
+      "href": "isodistorttutorials.php",
+      "target": "_blank"
+    },
+    {
+      "href": "isodistortversions.php",
+      "target": "_blank"
+    },
+    {
+      "href": "isodistort_version5.6.1/isodistort.php"
+    },
+    {
+      "href": "isodistorthelp.php#parent",
+      "target": "_blank"
+    },
+    {
+      "href": "isodistortparent.html"
+    },
+    {
+      "href": "isocif.php"
+    },
+    {
+      "href": "isodistorthelp.php#parent",
+      "target": "_blank"
+    },
+    {
+      "href": "isodistortdistortion.html"
+    },
+    {
+      "href": "2006 Campbell.pdf",
+      "target": "_blank"
+    }
+  ]
+}

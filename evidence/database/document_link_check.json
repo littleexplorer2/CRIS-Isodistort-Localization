@@ -1,0 +1,41 @@
+{
+  "document": "docs/DATABASE_FORMATS.md",
+  "local_links": [
+    {
+      "target": "../evidence/database/inventory.json",
+      "exists": true,
+      "inside_project": true
+    },
+    {
+      "target": "../tools/inspect_databases.py",
+      "exists": true,
+      "inside_project": true
+    },
+    {
+      "target": "../evidence/database/official/sources.json",
+      "exists": true,
+      "inside_project": true
+    },
+    {
+      "target": "../evidence/native/static/init_constants_.asm.txt",
+      "exists": true,
+      "inside_project": true
+    },
+    {
+      "target": "../evidence/database/constant_sign_mask.json",
+      "exists": true,
+      "inside_project": true
+    },
+    {
+      "target": "../evidence/native/static/constant_.asm.txt",
+      "exists": true,
+      "inside_project": true
+    },
+    {
+      "target": "../evidence/database/verification.json",
+      "exists": true,
+      "inside_project": true
+    }
+  ],
+  "passed": true
+}

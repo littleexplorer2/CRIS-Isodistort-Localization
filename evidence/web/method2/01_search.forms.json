@@ -1,0 +1,3106 @@
+[
+  {
+    "attributes": {
+      "action": "isodistortform.php",
+      "method": "POST"
+    },
+    "inputs": [
+      {
+        "class": "btn btn-primary",
+        "type": "submit",
+        "value": "Change"
+      },
+      {
+        "type": "hidden",
+        "name": "input",
+        "value": "changesearch"
+      },
+      {
+        "type": "hidden",
+        "name": "spacegroup",
+        "value": "221 Pm-3m      Oh-1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesm",
+        "value": "a(b)c               "
+      },
+      {
+        "type": "hidden",
+        "name": "settingcell",
+        "value": "1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingorigin",
+        "value": "2"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesh",
+        "value": "h"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxeso",
+        "value": "abc                 "
+      },
+      {
+        "type": "hidden",
+        "name": "settingssg",
+        "value": "standard"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsetting",
+        "value": "323"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsettingstring",
+        "value": ""
+      },
+      {
+        "type": "hidden",
+        "name": "lattparam",
+        "value": "a=4.2"
+      },
+      {
+        "type": "hidden",
+        "name": "dlattparam",
+        "value": "   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wycount",
+        "value": "  3"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer001",
+        "value": "1627"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber001",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype001",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff001",
+        "value": "1b (1/2,1/2,1/2)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam001",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc001",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer002",
+        "value": "1626"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber002",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype002",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff002",
+        "value": "1a (0,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam002",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc002",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer003",
+        "value": "1629"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber003",
+        "value": " 4"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype003",
+        "value": " 3"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff003",
+        "value": "3d (1/2,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam003",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc003",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "irrepcount",
+        "value": "1"
+      },
+      {
+        "type": "checkbox",
+        "name": "includestrain",
+        "value": "true",
+        "checked": null
+      },
+      {
+        "type": "checkbox",
+        "name": "includedisplaciveall",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includedisplacivenone",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includedisplacive001",
+        "value": "true",
+        "checked": null
+      },
+      {
+        "type": "checkbox",
+        "name": "includedisplacive002",
+        "value": "true",
+        "checked": null
+      },
+      {
+        "type": "checkbox",
+        "name": "includedisplacive003",
+        "value": "true",
+        "checked": null
+      },
+      {
+        "type": "checkbox",
+        "name": "includescalarall",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includescalarnone",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includescalar001",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includescalar002",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includescalar003",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includemagneticall",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includemagneticnone",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includemagnetic001",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includemagnetic002",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includemagnetic003",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includerotationalall",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includerotationalnone",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includerotational001",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includerotational002",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "includerotational003",
+        "value": "true"
+      }
+    ],
+    "selects": []
+  },
+  {
+    "attributes": {
+      "action": "isodistortform.php",
+      "method": "POST",
+      "target": "_blank"
+    },
+    "inputs": [
+      {
+        "class": "btn btn-primary",
+        "type": "submit",
+        "value": "OK"
+      },
+      {
+        "type": "hidden",
+        "name": "input",
+        "value": "isosubgroup"
+      },
+      {
+        "type": "hidden",
+        "name": "spacegroup",
+        "value": "221 Pm-3m      Oh-1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesm",
+        "value": "a(b)c               "
+      },
+      {
+        "type": "hidden",
+        "name": "settingcell",
+        "value": "1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingorigin",
+        "value": "2"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesh",
+        "value": "h"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxeso",
+        "value": "abc                 "
+      },
+      {
+        "type": "hidden",
+        "name": "settingssg",
+        "value": "standard"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsetting",
+        "value": "323"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsettingstring",
+        "value": ""
+      },
+      {
+        "type": "hidden",
+        "name": "lattparam",
+        "value": "a=4.2"
+      },
+      {
+        "type": "hidden",
+        "name": "dlattparam",
+        "value": "   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wycount",
+        "value": "  3"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer001",
+        "value": "1627"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber001",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype001",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff001",
+        "value": "1b (1/2,1/2,1/2)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam001",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc001",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer002",
+        "value": "1626"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber002",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype002",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff002",
+        "value": "1a (0,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam002",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc002",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer003",
+        "value": "1629"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber003",
+        "value": " 4"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype003",
+        "value": " 3"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff003",
+        "value": "3d (1/2,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam003",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc003",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive001",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive002",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive003",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includestrain",
+        "value": "true"
+      },
+      {
+        "type": "checkbox",
+        "name": "isosystem1",
+        "value": "1 1 *triclinic"
+      },
+      {
+        "type": "checkbox",
+        "name": "isosystem2",
+        "value": "2 3 *monoclinic"
+      },
+      {
+        "type": "checkbox",
+        "name": "isosystem3",
+        "value": "4 7 *orthorhombic"
+      },
+      {
+        "type": "checkbox",
+        "name": "isosystem4",
+        "value": "8 9 *tetragonal"
+      },
+      {
+        "type": "checkbox",
+        "name": "isosystem5",
+        "value": "10 10 *trigonal"
+      },
+      {
+        "type": "checkbox",
+        "name": "isosystem6",
+        "value": "11 11 *hexagonal"
+      },
+      {
+        "type": "checkbox",
+        "name": "isosystem7",
+        "value": "12 14 *cubic"
+      },
+      {
+        "type": "checkbox",
+        "name": "maximal",
+        "value": "yes"
+      }
+    ],
+    "selects": [
+      {
+        "name": "isosubgroup",
+        "options": [
+          {
+            "text": "no choice"
+          },
+          {
+            "text": "  1 P1         C1-1    "
+          },
+          {
+            "text": "  2 P-1        Ci-1    "
+          },
+          {
+            "text": "  5 C2         C2-3    "
+          },
+          {
+            "text": "  6 Pm         Cs-1    "
+          },
+          {
+            "text": "  8 Cm         Cs-3    "
+          },
+          {
+            "text": " 10 P2/m       C2h-1   "
+          },
+          {
+            "text": " 11 P2_1/m     C2h-2   "
+          },
+          {
+            "text": " 12 C2/m       C2h-3   "
+          },
+          {
+            "text": " 13 P2/c       C2h-4   "
+          },
+          {
+            "text": " 14 P2_1/c     C2h-5   "
+          },
+          {
+            "text": " 15 C2/c       C2h-6   "
+          },
+          {
+            "text": " 23 I222       D2-8    "
+          },
+          {
+            "text": " 24 I2_12_12_1 D2-9    "
+          },
+          {
+            "text": " 38 Amm2       C2v-14  "
+          },
+          {
+            "text": " 42 Fmm2       C2v-18  "
+          },
+          {
+            "text": " 44 Imm2       C2v-20  "
+          },
+          {
+            "text": " 47 Pmmm       D2h-1   "
+          },
+          {
+            "text": " 51 Pmma       D2h-5   "
+          },
+          {
+            "text": " 53 Pmna       D2h-7   "
+          },
+          {
+            "text": " 55 Pbam       D2h-9   "
+          },
+          {
+            "text": " 57 Pbcm       D2h-11  "
+          },
+          {
+            "text": " 59 Pmmn       D2h-13  "
+          },
+          {
+            "text": " 61 Pbca       D2h-15  "
+          },
+          {
+            "text": " 62 Pnma       D2h-16  "
+          },
+          {
+            "text": " 63 Cmcm       D2h-17  "
+          },
+          {
+            "text": " 64 Cmca       D2h-18  "
+          },
+          {
+            "text": " 65 Cmmm       D2h-19  "
+          },
+          {
+            "text": " 67 Cmma       D2h-21  "
+          },
+          {
+            "text": " 69 Fmmm       D2h-23  "
+          },
+          {
+            "text": " 71 Immm       D2h-25  "
+          },
+          {
+            "text": " 72 Ibam       D2h-26  "
+          },
+          {
+            "text": " 73 Ibca       D2h-27  "
+          },
+          {
+            "text": " 74 Imma       D2h-28  "
+          },
+          {
+            "text": " 99 P4mm       C4v-1   "
+          },
+          {
+            "text": "115 P-4m2      D2d-5   "
+          },
+          {
+            "text": "121 I-42m      D2d-11  "
+          },
+          {
+            "text": "123 P4/mmm     D4h-1   "
+          },
+          {
+            "text": "127 P4/mbm     D4h-5   "
+          },
+          {
+            "text": "129 P4/nmm     D4h-7   "
+          },
+          {
+            "text": "131 P4_2/mmc   D4h-9   "
+          },
+          {
+            "text": "139 I4/mmm     D4h-17  "
+          },
+          {
+            "text": "140 I4/mcm     D4h-18  "
+          },
+          {
+            "text": "146 R3         C3-4    "
+          },
+          {
+            "text": "148 R-3        C3i-2   "
+          },
+          {
+            "text": "155 R32        D3-7    "
+          },
+          {
+            "text": "160 R3m        C3v-5   "
+          },
+          {
+            "text": "166 R-3m       D3d-5   "
+          },
+          {
+            "text": "167 R-3c       D3d-6   "
+          },
+          {
+            "text": "199 I2_13      T-5     "
+          },
+          {
+            "text": "204 Im-3       Th-5    "
+          },
+          {
+            "text": "205 Pa-3       Th-6    "
+          },
+          {
+            "text": "206 Ia-3       Th-7    "
+          },
+          {
+            "text": "217 I-43m      Td-3    "
+          },
+          {
+            "text": "221 Pm-3m      Oh-1    "
+          },
+          {
+            "text": "223 Pm-3n      Oh-3    "
+          },
+          {
+            "text": "225 Fm-3m      Oh-5    "
+          },
+          {
+            "text": "229 Im-3m      Oh-9    "
+          }
+        ]
+      },
+      {
+        "name": "isolattice",
+        "options": [
+          {
+            "text": "no choice"
+          },
+          {
+            "value": " 10 12396 12398 12399 12407 12414 12417 12418 12420 12422 12424 *conventional lattice selected: (1,0,0),(0,1,0),(0,0,1)",
+            "text": "(1,0,0),(0,1,0),(0,0,1)"
+          },
+          {
+            "value": "  3 12404 12413 12419 *conventional lattice selected: (-1,0,1),(0,1,-1),(-1,-1,-1)",
+            "text": "(-1,0,1),(0,1,-1),(-1,-1,-1)"
+          },
+          {
+            "value": " 16 12405 12406 12415 12416 12421 12423 12559 12563 12567 12571 12576 12577 12595 12601 12614 12615 *conventional lattice selected: (-1,1,0),(-1,-1,0),(0,0,1)",
+            "text": "(-1,1,0),(-1,-1,0),(0,0,1)"
+          },
+          {
+            "value": " 67 12425 12429 12462 12463 12464 12495 12501 12502 12505 12506 12507 12508 12524 12525 12526 12530 12531 12532 12545 12551 12552 12555 12556 12557 12558 12560 12561 12562 12564 12565 12566 12568 12569 12570 12572 12573 12574 12578 12580 12581 12583 12584 12585 12587 12596 12597 12598 12599 12600 12602 12603 12604 12605 12606 12616 12619 12620 12622 12623 12624 12628 12629 12630 12631 12634 12635 12636 *conventional lattice selected: (2,0,0),(0,2,0),(0,0,2)",
+            "text": "(2,0,0),(0,2,0),(0,0,2)"
+          },
+          {
+            "value": " 16 12427 12428 12431 12432 12433 12434 12437 12438 12439 12440 12448 12449 12450 12451 12483 12533 *conventional lattice selected: (-1,0,1),(-1,0,-1),(0,-2,0)",
+            "text": "(-1,0,1),(-1,0,-1),(0,-2,0)"
+          },
+          {
+            "value": "  3 12430 12436 12447 *conventional lattice selected: (1,0,-1),(0,-1,1),(-2,-2,-2)",
+            "text": "(1,0,-1),(0,-1,1),(-2,-2,-2)"
+          },
+          {
+            "value": "  3 12435 12441 12452 *conventional lattice selected: (0,1,1),(1,0,1),(1,1,0)",
+            "text": "(0,1,1),(1,0,1),(1,1,0)"
+          },
+          {
+            "value": "  7 12459 12484 12485 12521 12527 12534 12535 *conventional lattice selected: (1,0,0),(0,0,1),(0,-2,0)",
+            "text": "(1,0,0),(0,0,1),(0,-2,0)"
+          },
+          {
+            "value": " 24 12460 12461 12486 12487 12488 12489 12490 12492 12493 12494 12522 12523 12528 12529 12536 12537 12538 12539 12540 12542 12543 12544 12575 12613 *conventional lattice selected: (2,0,0),(0,2,0),(0,0,1)",
+            "text": "(2,0,0),(0,2,0),(0,0,1)"
+          },
+          {
+            "value": "  2 12491 12541 *conventional lattice selected: (2,2,0),(-2,2,0),(0,0,1)",
+            "text": "(2,2,0),(-2,2,0),(0,0,1)"
+          },
+          {
+            "value": "  6 12496 12497 12498 12546 12547 12548 *conventional lattice selected: (-2,0,2),(0,2,-2),(-2,-2,-2)",
+            "text": "(-2,0,2),(0,2,-2),(-2,-2,-2)"
+          },
+          {
+            "value": " 10 12499 12500 12503 12504 12549 12550 12553 12554 12625 12626 *conventional lattice selected: (2,0,2),(2,0,-2),(0,2,0)",
+            "text": "(2,0,2),(2,0,-2),(0,2,0)"
+          },
+          {
+            "value": "  5 12579 12582 12617 12618 12621 *conventional lattice selected: (-2,0,2),(0,-2,-2),(1,-1,1)",
+            "text": "(-2,0,2),(0,-2,-2),(1,-1,1)"
+          },
+          {
+            "value": "  4 12586 12627 12632 12633 *conventional lattice selected: (0,-2,0),(2,0,2),(-1,1,1)",
+            "text": "(0,-2,0),(2,0,2),(-1,1,1)"
+          },
+          {
+            "value": "  3 12588 12637 12638 *conventional lattice selected: (-1,1,1),(1,-1,1),(1,1,-1)",
+            "text": "(-1,1,1),(1,-1,1),(1,1,-1)"
+          }
+        ]
+      },
+      {
+        "name": "isoplattice",
+        "options": [
+          {
+            "text": "no choice"
+          },
+          {
+            "value": " 19 12396 12398 12399 12404 12405 12406 12407 12413 12414 12415 12416 12417 12418 12419 12420 12421 12422 12423 12424 *primitive lattice selected: (1,0,0),(0,1,0),(0,0,1)",
+            "text": "(1,0,0),(0,1,0),(0,0,1)"
+          },
+          {
+            "value": " 22 12425 12427 12428 12429 12430 12431 12432 12433 12434 12435 12436 12437 12438 12439 12440 12441 12447 12448 12449 12450 12451 12452 *primitive lattice selected: (0,1,1),(1,0,1),(1,1,0)",
+            "text": "(0,1,1),(1,0,1),(1,1,0)"
+          },
+          {
+            "value": "  9 12459 12483 12484 12485 12521 12527 12533 12534 12535 *primitive lattice selected: (1,0,0),(0,0,1),(0,-2,0)",
+            "text": "(1,0,0),(0,0,1),(0,-2,0)"
+          },
+          {
+            "value": " 24 12460 12461 12486 12487 12488 12489 12490 12491 12492 12493 12494 12522 12523 12528 12529 12536 12537 12538 12539 12540 12541 12542 12543 12544 *primitive lattice selected: (2,0,0),(0,2,0),(0,0,1)",
+            "text": "(2,0,0),(0,2,0),(0,0,1)"
+          },
+          {
+            "value": " 37 12462 12463 12464 12495 12496 12497 12498 12499 12500 12501 12502 12503 12504 12505 12506 12507 12508 12524 12525 12526 12530 12531 12532 12545 12546 12547 12548 12549 12550 12551 12552 12553 12554 12555 12556 12557 12558 *primitive lattice selected: (0,-2,0),(-2,0,0),(0,0,-2)",
+            "text": "(0,-2,0),(-2,0,0),(0,0,-2)"
+          },
+          {
+            "value": " 12 12559 12563 12567 12571 12575 12576 12577 12595 12601 12613 12614 12615 *primitive lattice selected: (1,-1,0),(1,1,0),(0,0,1)",
+            "text": "(1,-1,0),(1,1,0),(0,0,1)"
+          },
+          {
+            "value": " 56 12560 12561 12562 12564 12565 12566 12568 12569 12570 12572 12573 12574 12578 12579 12580 12581 12582 12583 12584 12585 12586 12587 12588 12596 12597 12598 12599 12600 12602 12603 12604 12605 12606 12616 12617 12618 12619 12620 12621 12622 12623 12624 12625 12626 12627 12628 12629 12630 12631 12632 12633 12634 12635 12636 12637 12638 *primitive lattice selected: (-1,1,-1),(1,-1,-1),(-1,-1,1)",
+            "text": "(-1,1,-1),(1,-1,-1),(-1,-1,1)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "attributes": {
+      "action": "isodistortform.php",
+      "method": "POST",
+      "target": "_blank"
+    },
+    "inputs": [
+      {
+        "class": "btn btn-primary",
+        "type": "submit",
+        "value": "OK"
+      },
+      {
+        "type": "hidden",
+        "name": "input",
+        "value": "kvector"
+      },
+      {
+        "type": "hidden",
+        "name": "spacegroup",
+        "value": "221 Pm-3m      Oh-1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesm",
+        "value": "a(b)c               "
+      },
+      {
+        "type": "hidden",
+        "name": "settingcell",
+        "value": "1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingorigin",
+        "value": "2"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesh",
+        "value": "h"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxeso",
+        "value": "abc                 "
+      },
+      {
+        "type": "hidden",
+        "name": "settingssg",
+        "value": "standard"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsetting",
+        "value": "323"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsettingstring",
+        "value": ""
+      },
+      {
+        "type": "hidden",
+        "name": "lattparam",
+        "value": "a=4.2"
+      },
+      {
+        "type": "hidden",
+        "name": "dlattparam",
+        "value": "   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wycount",
+        "value": "  3"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer001",
+        "value": "1627"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber001",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype001",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff001",
+        "value": "1b (1/2,1/2,1/2)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam001",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc001",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer002",
+        "value": "1626"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber002",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype002",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff002",
+        "value": "1a (0,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam002",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc002",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer003",
+        "value": "1629"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber003",
+        "value": " 4"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype003",
+        "value": " 3"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff003",
+        "value": "3d (1/2,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam003",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc003",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive001",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive002",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive003",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includestrain",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "irrepcount",
+        "value": "1"
+      },
+      {
+        "type": "text",
+        "name": "kparam11",
+        "class": "span1",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "name": "kparam21",
+        "class": "span1",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "name": "kparam31",
+        "class": "span1",
+        "size": "5"
+      },
+      {
+        "type": "text",
+        "name": "nmodstar1",
+        "size": "2",
+        "maxlength": "2",
+        "class": "span1",
+        "value": "0"
+      }
+    ],
+    "selects": [
+      {
+        "name": "kvec1",
+        "options": [
+          {
+            "value": " 1 *GM, k12 (0,0,0)",
+            "text": "GM, k12 (0,0,0)"
+          },
+          {
+            "value": " 2 *DT, k8 (0,b,0)",
+            "text": "DT, k8 (0,b,0)"
+          },
+          {
+            "value": " 3 *LD, k9 (a,a,a)",
+            "text": "LD, k9 (a,a,a)"
+          },
+          {
+            "value": " 4 *SM, k4 (a,a,0)",
+            "text": "SM, k4 (a,a,0)"
+          },
+          {
+            "value": " 5 *R, k13 (1/2,1/2,1/2)",
+            "text": "R, k13 (1/2,1/2,1/2)"
+          },
+          {
+            "value": " 6 *X, k10 (0,1/2,0)",
+            "text": "X, k10 (0,1/2,0)"
+          },
+          {
+            "value": " 7 *M, k11 (1/2,1/2,0)",
+            "text": "M, k11 (1/2,1/2,0)"
+          },
+          {
+            "value": " 8 *S, k5 (a,1/2,a)",
+            "text": "S, k5 (a,1/2,a)"
+          },
+          {
+            "value": " 9 *T, k7 (1/2,1/2,g)",
+            "text": "T, k7 (1/2,1/2,g)"
+          },
+          {
+            "value": "10 *Z, k6 (a,1/2,0)",
+            "text": "Z, k6 (a,1/2,0)"
+          },
+          {
+            "value": "11 *C, k3 (a,a,g)",
+            "text": "C, k3 (a,a,g)"
+          },
+          {
+            "value": "12 *A, k1 (a,b,0)",
+            "text": "A, k1 (a,b,0)"
+          },
+          {
+            "value": "13 *B, k2 (a,1/2,g)",
+            "text": "B, k2 (a,1/2,g)"
+          },
+          {
+            "value": "14 *GP, k0 (a,b,g)",
+            "text": "GP, k0 (a,b,g)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "attributes": {
+      "action": "isodistortform.php",
+      "method": "POST"
+    },
+    "inputs": [
+      {
+        "type": "hidden",
+        "name": "input",
+        "value": "changesearch"
+      },
+      {
+        "type": "hidden",
+        "name": "spacegroup",
+        "value": "221 Pm-3m      Oh-1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesm",
+        "value": "a(b)c               "
+      },
+      {
+        "type": "hidden",
+        "name": "settingcell",
+        "value": "1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingorigin",
+        "value": "2"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesh",
+        "value": "h"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxeso",
+        "value": "abc                 "
+      },
+      {
+        "type": "hidden",
+        "name": "settingssg",
+        "value": "standard"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsetting",
+        "value": "323"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsettingstring",
+        "value": ""
+      },
+      {
+        "type": "hidden",
+        "name": "lattparam",
+        "value": "a=4.2"
+      },
+      {
+        "type": "hidden",
+        "name": "dlattparam",
+        "value": "   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wycount",
+        "value": "  3"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer001",
+        "value": "1627"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber001",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype001",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff001",
+        "value": "1b (1/2,1/2,1/2)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam001",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc001",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer002",
+        "value": "1626"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber002",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype002",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff002",
+        "value": "1a (0,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam002",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc002",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer003",
+        "value": "1629"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber003",
+        "value": " 4"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype003",
+        "value": " 3"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff003",
+        "value": "3d (1/2,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam003",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc003",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive001",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive002",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive003",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includestrain",
+        "value": "true"
+      },
+      {
+        "type": "text",
+        "name": "irrepcount",
+        "value": "1",
+        "class": "span1",
+        "size": "3"
+      },
+      {
+        "class": "btn btn-primary",
+        "type": "submit",
+        "value": "Change"
+      }
+    ],
+    "selects": []
+  },
+  {
+    "attributes": {
+      "action": "isodistortform.php",
+      "method": "POST",
+      "target": "_blank"
+    },
+    "inputs": [
+      {
+        "class": "btn btn-primary",
+        "type": "submit",
+        "value": "OK"
+      },
+      {
+        "type": "hidden",
+        "name": "input",
+        "value": "parentbasis"
+      },
+      {
+        "type": "hidden",
+        "name": "spacegroup",
+        "value": "221 Pm-3m      Oh-1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesm",
+        "value": "a(b)c               "
+      },
+      {
+        "type": "hidden",
+        "name": "settingcell",
+        "value": "1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingorigin",
+        "value": "2"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesh",
+        "value": "h"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxeso",
+        "value": "abc                 "
+      },
+      {
+        "type": "hidden",
+        "name": "settingssg",
+        "value": "standard"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsetting",
+        "value": "323"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsettingstring",
+        "value": ""
+      },
+      {
+        "type": "hidden",
+        "name": "lattparam",
+        "value": "a=4.2"
+      },
+      {
+        "type": "hidden",
+        "name": "dlattparam",
+        "value": "   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wycount",
+        "value": "  3"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer001",
+        "value": "1627"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber001",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype001",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff001",
+        "value": "1b (1/2,1/2,1/2)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam001",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc001",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer002",
+        "value": "1626"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber002",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype002",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff002",
+        "value": "1a (0,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam002",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc002",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer003",
+        "value": "1629"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber003",
+        "value": " 4"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype003",
+        "value": " 3"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff003",
+        "value": "3d (1/2,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam003",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc003",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive001",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive002",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive003",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includestrain",
+        "value": "true"
+      },
+      {
+        "type": "radio",
+        "name": "latticetype",
+        "value": "direct",
+        "checked": null
+      },
+      {
+        "type": "radio",
+        "name": "centering",
+        "value": "d",
+        "checked": null
+      },
+      {
+        "type": "radio",
+        "name": "centering",
+        "value": "P"
+      },
+      {
+        "type": "radio",
+        "name": "centering",
+        "value": "A"
+      },
+      {
+        "type": "radio",
+        "name": "centering",
+        "value": "B"
+      },
+      {
+        "type": "radio",
+        "name": "centering",
+        "value": "C"
+      },
+      {
+        "type": "radio",
+        "name": "centering",
+        "value": "I"
+      },
+      {
+        "type": "radio",
+        "name": "centering",
+        "value": "F"
+      },
+      {
+        "type": "radio",
+        "name": "centering",
+        "value": "R"
+      },
+      {
+        "type": "radio",
+        "name": "latticetype",
+        "value": "reciprocal"
+      },
+      {
+        "type": "text",
+        "name": "basis11",
+        "class": "span1",
+        "size": "3",
+        "value": "1"
+      },
+      {
+        "type": "text",
+        "name": "basis12",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "basis13",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "basis21",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "basis22",
+        "class": "span1",
+        "size": "3",
+        "value": "1"
+      },
+      {
+        "type": "text",
+        "name": "basis23",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "basis31",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "basis32",
+        "class": "span1",
+        "size": "3",
+        "value": "0"
+      },
+      {
+        "type": "text",
+        "name": "basis33",
+        "class": "span1",
+        "size": "3",
+        "value": "1"
+      }
+    ],
+    "selects": [
+      {
+        "name": "subgroupsym",
+        "options": [
+          {
+            "value": "0",
+            "text": "Not selected"
+          },
+          {
+            "text": "  1 P1         C1-1    "
+          },
+          {
+            "text": "  2 P-1        Ci-1    "
+          },
+          {
+            "text": "  3 P2         C2-1    "
+          },
+          {
+            "text": "  4 P2_1       C2-2    "
+          },
+          {
+            "text": "  5 C2         C2-3    "
+          },
+          {
+            "text": "  6 Pm         Cs-1    "
+          },
+          {
+            "text": "  7 Pc         Cs-2    "
+          },
+          {
+            "text": "  8 Cm         Cs-3    "
+          },
+          {
+            "text": "  9 Cc         Cs-4    "
+          },
+          {
+            "text": " 10 P2/m       C2h-1   "
+          },
+          {
+            "text": " 11 P2_1/m     C2h-2   "
+          },
+          {
+            "text": " 12 C2/m       C2h-3   "
+          },
+          {
+            "text": " 13 P2/c       C2h-4   "
+          },
+          {
+            "text": " 14 P2_1/c     C2h-5   "
+          },
+          {
+            "text": " 15 C2/c       C2h-6   "
+          },
+          {
+            "text": " 16 P222       D2-1    "
+          },
+          {
+            "text": " 17 P222_1     D2-2    "
+          },
+          {
+            "text": " 18 P2_12_12   D2-3    "
+          },
+          {
+            "text": " 19 P2_12_12_1 D2-4    "
+          },
+          {
+            "text": " 20 C222_1     D2-5    "
+          },
+          {
+            "text": " 21 C222       D2-6    "
+          },
+          {
+            "text": " 22 F222       D2-7    "
+          },
+          {
+            "text": " 23 I222       D2-8    "
+          },
+          {
+            "text": " 24 I2_12_12_1 D2-9    "
+          },
+          {
+            "text": " 25 Pmm2       C2v-1   "
+          },
+          {
+            "text": " 26 Pmc2_1     C2v-2   "
+          },
+          {
+            "text": " 27 Pcc2       C2v-3   "
+          },
+          {
+            "text": " 28 Pma2       C2v-4   "
+          },
+          {
+            "text": " 29 Pca2_1     C2v-5   "
+          },
+          {
+            "text": " 30 Pnc2       C2v-6   "
+          },
+          {
+            "text": " 31 Pmn2_1     C2v-7   "
+          },
+          {
+            "text": " 32 Pba2       C2v-8   "
+          },
+          {
+            "text": " 33 Pna2_1     C2v-9   "
+          },
+          {
+            "text": " 34 Pnn2       C2v-10  "
+          },
+          {
+            "text": " 35 Cmm2       C2v-11  "
+          },
+          {
+            "text": " 36 Cmc2_1     C2v-12  "
+          },
+          {
+            "text": " 37 Ccc2       C2v-13  "
+          },
+          {
+            "text": " 38 Amm2       C2v-14  "
+          },
+          {
+            "text": " 39 Abm2       C2v-15  "
+          },
+          {
+            "text": " 40 Ama2       C2v-16  "
+          },
+          {
+            "text": " 41 Aba2       C2v-17  "
+          },
+          {
+            "text": " 42 Fmm2       C2v-18  "
+          },
+          {
+            "text": " 43 Fdd2       C2v-19  "
+          },
+          {
+            "text": " 44 Imm2       C2v-20  "
+          },
+          {
+            "text": " 45 Iba2       C2v-21  "
+          },
+          {
+            "text": " 46 Ima2       C2v-22  "
+          },
+          {
+            "text": " 47 Pmmm       D2h-1   "
+          },
+          {
+            "text": " 48 Pnnn       D2h-2   "
+          },
+          {
+            "text": " 49 Pccm       D2h-3   "
+          },
+          {
+            "text": " 50 Pban       D2h-4   "
+          },
+          {
+            "text": " 51 Pmma       D2h-5   "
+          },
+          {
+            "text": " 52 Pnna       D2h-6   "
+          },
+          {
+            "text": " 53 Pmna       D2h-7   "
+          },
+          {
+            "text": " 54 Pcca       D2h-8   "
+          },
+          {
+            "text": " 55 Pbam       D2h-9   "
+          },
+          {
+            "text": " 56 Pccn       D2h-10  "
+          },
+          {
+            "text": " 57 Pbcm       D2h-11  "
+          },
+          {
+            "text": " 58 Pnnm       D2h-12  "
+          },
+          {
+            "text": " 59 Pmmn       D2h-13  "
+          },
+          {
+            "text": " 60 Pbcn       D2h-14  "
+          },
+          {
+            "text": " 61 Pbca       D2h-15  "
+          },
+          {
+            "text": " 62 Pnma       D2h-16  "
+          },
+          {
+            "text": " 63 Cmcm       D2h-17  "
+          },
+          {
+            "text": " 64 Cmca       D2h-18  "
+          },
+          {
+            "text": " 65 Cmmm       D2h-19  "
+          },
+          {
+            "text": " 66 Cccm       D2h-20  "
+          },
+          {
+            "text": " 67 Cmma       D2h-21  "
+          },
+          {
+            "text": " 68 Ccca       D2h-22  "
+          },
+          {
+            "text": " 69 Fmmm       D2h-23  "
+          },
+          {
+            "text": " 70 Fddd       D2h-24  "
+          },
+          {
+            "text": " 71 Immm       D2h-25  "
+          },
+          {
+            "text": " 72 Ibam       D2h-26  "
+          },
+          {
+            "text": " 73 Ibca       D2h-27  "
+          },
+          {
+            "text": " 74 Imma       D2h-28  "
+          },
+          {
+            "text": " 75 P4         C4-1    "
+          },
+          {
+            "text": " 76 P4_1       C4-2    "
+          },
+          {
+            "text": " 77 P4_2       C4-3    "
+          },
+          {
+            "text": " 78 P4_3       C4-4    "
+          },
+          {
+            "text": " 79 I4         C4-5    "
+          },
+          {
+            "text": " 80 I4_1       C4-6    "
+          },
+          {
+            "text": " 81 P-4        S4-1    "
+          },
+          {
+            "text": " 82 I-4        S4-2    "
+          },
+          {
+            "text": " 83 P4/m       C4h-1   "
+          },
+          {
+            "text": " 84 P4_2/m     C4h-2   "
+          },
+          {
+            "text": " 85 P4/n       C4h-3   "
+          },
+          {
+            "text": " 86 P4_2/n     C4h-4   "
+          },
+          {
+            "text": " 87 I4/m       C4h-5   "
+          },
+          {
+            "text": " 88 I4_1/a     C4h-6   "
+          },
+          {
+            "text": " 89 P422       D4-1    "
+          },
+          {
+            "text": " 90 P42_12     D4-2    "
+          },
+          {
+            "text": " 91 P4_122     D4-3    "
+          },
+          {
+            "text": " 92 P4_12_12   D4-4    "
+          },
+          {
+            "text": " 93 P4_222     D4-5    "
+          },
+          {
+            "text": " 94 P4_22_12   D4-6    "
+          },
+          {
+            "text": " 95 P4_322     D4-7    "
+          },
+          {
+            "text": " 96 P4_32_12   D4-8    "
+          },
+          {
+            "text": " 97 I422       D4-9    "
+          },
+          {
+            "text": " 98 I4_122     D4-10   "
+          },
+          {
+            "text": " 99 P4mm       C4v-1   "
+          },
+          {
+            "text": "100 P4bm       C4v-2   "
+          },
+          {
+            "text": "101 P4_2cm     C4v-3   "
+          },
+          {
+            "text": "102 P4_2nm     C4v-4   "
+          },
+          {
+            "text": "103 P4cc       C4v-5   "
+          },
+          {
+            "text": "104 P4nc       C4v-6   "
+          },
+          {
+            "text": "105 P4_2mc     C4v-7   "
+          },
+          {
+            "text": "106 P4_2bc     C4v-8   "
+          },
+          {
+            "text": "107 I4mm       C4v-9   "
+          },
+          {
+            "text": "108 I4cm       C4v-10  "
+          },
+          {
+            "text": "109 I4_1md     C4v-11  "
+          },
+          {
+            "text": "110 I4_1cd     C4v-12  "
+          },
+          {
+            "text": "111 P-42m      D2d-1   "
+          },
+          {
+            "text": "112 P-42c      D2d-2   "
+          },
+          {
+            "text": "113 P-42_1m    D2d-3   "
+          },
+          {
+            "text": "114 P-42_1c    D2d-4   "
+          },
+          {
+            "text": "115 P-4m2      D2d-5   "
+          },
+          {
+            "text": "116 P-4c2      D2d-6   "
+          },
+          {
+            "text": "117 P-4b2      D2d-7   "
+          },
+          {
+            "text": "118 P-4n2      D2d-8   "
+          },
+          {
+            "text": "119 I-4m2      D2d-9   "
+          },
+          {
+            "text": "120 I-4c2      D2d-10  "
+          },
+          {
+            "text": "121 I-42m      D2d-11  "
+          },
+          {
+            "text": "122 I-42d      D2d-12  "
+          },
+          {
+            "text": "123 P4/mmm     D4h-1   "
+          },
+          {
+            "text": "124 P4/mcc     D4h-2   "
+          },
+          {
+            "text": "125 P4/nbm     D4h-3   "
+          },
+          {
+            "text": "126 P4/nnc     D4h-4   "
+          },
+          {
+            "text": "127 P4/mbm     D4h-5   "
+          },
+          {
+            "text": "128 P4/mnc     D4h-6   "
+          },
+          {
+            "text": "129 P4/nmm     D4h-7   "
+          },
+          {
+            "text": "130 P4/ncc     D4h-8   "
+          },
+          {
+            "text": "131 P4_2/mmc   D4h-9   "
+          },
+          {
+            "text": "132 P4_2/mcm   D4h-10  "
+          },
+          {
+            "text": "133 P4_2/nbc   D4h-11  "
+          },
+          {
+            "text": "134 P4_2/nnm   D4h-12  "
+          },
+          {
+            "text": "135 P4_2/mbc   D4h-13  "
+          },
+          {
+            "text": "136 P4_2/mnm   D4h-14  "
+          },
+          {
+            "text": "137 P4_2/nmc   D4h-15  "
+          },
+          {
+            "text": "138 P4_2/ncm   D4h-16  "
+          },
+          {
+            "text": "139 I4/mmm     D4h-17  "
+          },
+          {
+            "text": "140 I4/mcm     D4h-18  "
+          },
+          {
+            "text": "141 I4_1/amd   D4h-19  "
+          },
+          {
+            "text": "142 I4_1/acd   D4h-20  "
+          },
+          {
+            "text": "143 P3         C3-1    "
+          },
+          {
+            "text": "144 P3_1       C3-2    "
+          },
+          {
+            "text": "145 P3_2       C3-3    "
+          },
+          {
+            "text": "146 R3         C3-4    "
+          },
+          {
+            "text": "147 P-3        C3i-1   "
+          },
+          {
+            "text": "148 R-3        C3i-2   "
+          },
+          {
+            "text": "149 P312       D3-1    "
+          },
+          {
+            "text": "150 P321       D3-2    "
+          },
+          {
+            "text": "151 P3_112     D3-3    "
+          },
+          {
+            "text": "152 P3_121     D3-4    "
+          },
+          {
+            "text": "153 P3_212     D3-5    "
+          },
+          {
+            "text": "154 P3_221     D3-6    "
+          },
+          {
+            "text": "155 R32        D3-7    "
+          },
+          {
+            "text": "156 P3m1       C3v-1   "
+          },
+          {
+            "text": "157 P31m       C3v-2   "
+          },
+          {
+            "text": "158 P3c1       C3v-3   "
+          },
+          {
+            "text": "159 P31c       C3v-4   "
+          },
+          {
+            "text": "160 R3m        C3v-5   "
+          },
+          {
+            "text": "161 R3c        C3v-6   "
+          },
+          {
+            "text": "162 P-31m      D3d-1   "
+          },
+          {
+            "text": "163 P-31c      D3d-2   "
+          },
+          {
+            "text": "164 P-3m1      D3d-3   "
+          },
+          {
+            "text": "165 P-3c1      D3d-4   "
+          },
+          {
+            "text": "166 R-3m       D3d-5   "
+          },
+          {
+            "text": "167 R-3c       D3d-6   "
+          },
+          {
+            "text": "168 P6         C6-1    "
+          },
+          {
+            "text": "169 P6_1       C6-2    "
+          },
+          {
+            "text": "170 P6_5       C6-3    "
+          },
+          {
+            "text": "171 P6_2       C6-4    "
+          },
+          {
+            "text": "172 P6_4       C6-5    "
+          },
+          {
+            "text": "173 P6_3       C6-6    "
+          },
+          {
+            "text": "174 P-6        C3h-1   "
+          },
+          {
+            "text": "175 P6/m       C6h-1   "
+          },
+          {
+            "text": "176 P6_3/m     C6h-2   "
+          },
+          {
+            "text": "177 P622       D6-1    "
+          },
+          {
+            "text": "178 P6_122     D6-2    "
+          },
+          {
+            "text": "179 P6_522     D6-3    "
+          },
+          {
+            "text": "180 P6_222     D6-4    "
+          },
+          {
+            "text": "181 P6_422     D6-5    "
+          },
+          {
+            "text": "182 P6_322     D6-6    "
+          },
+          {
+            "text": "183 P6mm       C6v-1   "
+          },
+          {
+            "text": "184 P6cc       C6v-2   "
+          },
+          {
+            "text": "185 P6_3cm     C6v-3   "
+          },
+          {
+            "text": "186 P6_3mc     C6v-4   "
+          },
+          {
+            "text": "187 P-6m2      D3h-1   "
+          },
+          {
+            "text": "188 P-6c2      D3h-2   "
+          },
+          {
+            "text": "189 P-62m      D3h-3   "
+          },
+          {
+            "text": "190 P-62c      D3h-4   "
+          },
+          {
+            "text": "191 P6/mmm     D6h-1   "
+          },
+          {
+            "text": "192 P6/mcc     D6h-2   "
+          },
+          {
+            "text": "193 P6_3/mcm   D6h-3   "
+          },
+          {
+            "text": "194 P6_3/mmc   D6h-4   "
+          },
+          {
+            "text": "195 P23        T-1     "
+          },
+          {
+            "text": "196 F23        T-2     "
+          },
+          {
+            "text": "197 I23        T-3     "
+          },
+          {
+            "text": "198 P2_13      T-4     "
+          },
+          {
+            "text": "199 I2_13      T-5     "
+          },
+          {
+            "text": "200 Pm-3       Th-1    "
+          },
+          {
+            "text": "201 Pn-3       Th-2    "
+          },
+          {
+            "text": "202 Fm-3       Th-3    "
+          },
+          {
+            "text": "203 Fd-3       Th-4    "
+          },
+          {
+            "text": "204 Im-3       Th-5    "
+          },
+          {
+            "text": "205 Pa-3       Th-6    "
+          },
+          {
+            "text": "206 Ia-3       Th-7    "
+          },
+          {
+            "text": "207 P432       O-1     "
+          },
+          {
+            "text": "208 P4_232     O-2     "
+          },
+          {
+            "text": "209 F432       O-3     "
+          },
+          {
+            "text": "210 F4_132     O-4     "
+          },
+          {
+            "text": "211 I432       O-5     "
+          },
+          {
+            "text": "212 P4_332     O-6     "
+          },
+          {
+            "text": "213 P4_132     O-7     "
+          },
+          {
+            "text": "214 I4_132     O-8     "
+          },
+          {
+            "text": "215 P-43m      Td-1    "
+          },
+          {
+            "text": "216 F-43m      Td-2    "
+          },
+          {
+            "text": "217 I-43m      Td-3    "
+          },
+          {
+            "text": "218 P-43n      Td-4    "
+          },
+          {
+            "text": "219 F-43c      Td-5    "
+          },
+          {
+            "text": "220 I-43d      Td-6    "
+          },
+          {
+            "text": "221 Pm-3m      Oh-1    "
+          },
+          {
+            "text": "222 Pn-3n      Oh-2    "
+          },
+          {
+            "text": "223 Pm-3n      Oh-3    "
+          },
+          {
+            "text": "224 Pn-3m      Oh-4    "
+          },
+          {
+            "text": "225 Fm-3m      Oh-5    "
+          },
+          {
+            "text": "226 Fm-3c      Oh-6    "
+          },
+          {
+            "text": "227 Fd-3m      Oh-7    "
+          },
+          {
+            "text": "228 Fd-3c      Oh-8    "
+          },
+          {
+            "text": "229 Im-3m      Oh-9    "
+          },
+          {
+            "text": "230 Ia-3d      Oh-10   "
+          }
+        ]
+      },
+      {
+        "name": "pointgroupsym",
+        "options": [
+          {
+            "value": "0",
+            "text": "Not selected"
+          },
+          {
+            "value": " 1",
+            "text": "triclinic: 1     C1  "
+          },
+          {
+            "value": " 2",
+            "text": "triclinic: -1    Ci  "
+          },
+          {
+            "value": " 3",
+            "text": "monoclinic: 2     C2  "
+          },
+          {
+            "value": " 4",
+            "text": "monoclinic: m     Cs  "
+          },
+          {
+            "value": " 5",
+            "text": "monoclinic: 2/m   C2h "
+          },
+          {
+            "value": " 6",
+            "text": "orthorhombic: 222   D2  "
+          },
+          {
+            "value": " 7",
+            "text": "orthorhombic: mm2   C2v "
+          },
+          {
+            "value": " 8",
+            "text": "orthorhombic: mmm   D2h "
+          },
+          {
+            "value": " 9",
+            "text": "tetragonal: 4     C4  "
+          },
+          {
+            "value": "10",
+            "text": "tetragonal: -4    S4  "
+          },
+          {
+            "value": "11",
+            "text": "tetragonal: 4/m   C4h "
+          },
+          {
+            "value": "12",
+            "text": "tetragonal: 422   D4  "
+          },
+          {
+            "value": "13",
+            "text": "tetragonal: 4mm   C4v "
+          },
+          {
+            "value": "14",
+            "text": "tetragonal: -42m  D2d "
+          },
+          {
+            "value": "15",
+            "text": "tetragonal: 4/mmm D4h "
+          },
+          {
+            "value": "16",
+            "text": "hexagonal: 3     C3  "
+          },
+          {
+            "value": "17",
+            "text": "hexagonal: -3    C3i "
+          },
+          {
+            "value": "18",
+            "text": "hexagonal: 32    D3  "
+          },
+          {
+            "value": "19",
+            "text": "hexagonal: 3m    C3v "
+          },
+          {
+            "value": "20",
+            "text": "hexagonal: -3m   D3d "
+          },
+          {
+            "value": "21",
+            "text": "hexagonal: 6     C6  "
+          },
+          {
+            "value": "22",
+            "text": "hexagonal: -6    C3h "
+          },
+          {
+            "value": "23",
+            "text": "hexagonal: 6/m   C6h "
+          },
+          {
+            "value": "24",
+            "text": "hexagonal: 622   D6  "
+          },
+          {
+            "value": "25",
+            "text": "hexagonal: 6mm   C6v "
+          },
+          {
+            "value": "26",
+            "text": "hexagonal: -62m  D3h "
+          },
+          {
+            "value": "27",
+            "text": "hexagonal: 6/mmm D6h "
+          },
+          {
+            "value": "28",
+            "text": "cubic: 23    T   "
+          },
+          {
+            "value": "29",
+            "text": "cubic: m-3   Th  "
+          },
+          {
+            "value": "30",
+            "text": "cubic: 432   O   "
+          },
+          {
+            "value": "31",
+            "text": "cubic: -43m  Td  "
+          },
+          {
+            "value": "32",
+            "text": "cubic: m-3m  Oh  "
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "attributes": {
+      "action": "isodistortuploadfile.php",
+      "method": "POST",
+      "enctype": "multipart/form-data",
+      "target": "_blank"
+    },
+    "inputs": [
+      {
+        "class": "btn btn-primary",
+        "type": "submit",
+        "value": "OK"
+      },
+      {
+        "type": "hidden",
+        "name": "input",
+        "value": "uploadsubgroupcif"
+      },
+      {
+        "type": "hidden",
+        "name": "spacegroup",
+        "value": "221 Pm-3m      Oh-1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesm",
+        "value": "a(b)c               "
+      },
+      {
+        "type": "hidden",
+        "name": "settingcell",
+        "value": "1"
+      },
+      {
+        "type": "hidden",
+        "name": "settingorigin",
+        "value": "2"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxesh",
+        "value": "h"
+      },
+      {
+        "type": "hidden",
+        "name": "settingaxeso",
+        "value": "abc                 "
+      },
+      {
+        "type": "hidden",
+        "name": "settingssg",
+        "value": "standard"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsetting",
+        "value": "323"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsettingstring",
+        "value": ""
+      },
+      {
+        "type": "hidden",
+        "name": "lattparam",
+        "value": "a=4.2"
+      },
+      {
+        "type": "hidden",
+        "name": "dlattparam",
+        "value": "   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wycount",
+        "value": "  3"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer001",
+        "value": "1627"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber001",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype001",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff001",
+        "value": "1b (1/2,1/2,1/2)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam001",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc001",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer002",
+        "value": "1626"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber002",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype002",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff002",
+        "value": "1a (0,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam002",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc002",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer003",
+        "value": "1629"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber003",
+        "value": " 4"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype003",
+        "value": " 3"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff003",
+        "value": "3d (1/2,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam003",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc003",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive001",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive002",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive003",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includestrain",
+        "value": "true"
+      },
+      {
+        "name": "toProcess",
+        "type": "file",
+        "size": "30"
+      }
+    ],
+    "selects": []
+  },
+  {
+    "attributes": {
+      "action": "isodistortform.php",
+      "method": "POST"
+    },
+    "inputs": [
+      {
+        "class": "btn btn-primary",
+        "type": "submit",
+        "value": "Change"
+      },
+      {
+        "type": "hidden",
+        "name": "input",
+        "value": "changesearch"
+      },
+      {
+        "type": "hidden",
+        "name": "spacegroup",
+        "value": "221 Pm-3m      Oh-1"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsetting",
+        "value": "323"
+      },
+      {
+        "type": "hidden",
+        "name": "parentsettingstring",
+        "value": ""
+      },
+      {
+        "type": "hidden",
+        "name": "lattparam",
+        "value": "a=4.2"
+      },
+      {
+        "type": "hidden",
+        "name": "dlattparam",
+        "value": "   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wycount",
+        "value": "  3"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer001",
+        "value": "1627"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber001",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype001",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff001",
+        "value": "1b (1/2,1/2,1/2)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype001",
+        "value": "Sr"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam001",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc001",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer002",
+        "value": "1626"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber002",
+        "value": " 1"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype002",
+        "value": " 2"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff002",
+        "value": "1a (0,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype002",
+        "value": "Ti"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam002",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc002",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wypointer003",
+        "value": "1629"
+      },
+      {
+        "type": "hidden",
+        "name": "wynumber003",
+        "value": " 4"
+      },
+      {
+        "type": "hidden",
+        "name": "wytype003",
+        "value": " 3"
+      },
+      {
+        "type": "hidden",
+        "name": "wyckoff003",
+        "value": "3d (1/2,0,0)"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatom003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyatomtype003",
+        "value": "O"
+      },
+      {
+        "type": "hidden",
+        "name": "wyparam003",
+        "value": "   0.0000000000000000        0.0000000000000000        0.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "wyocc003",
+        "value": "   1.0000000000000000"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive001",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive002",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includedisplacive003",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "includestrain",
+        "value": "true"
+      },
+      {
+        "type": "hidden",
+        "name": "irrepcount",
+        "value": "1"
+      },
+      {
+        "type": "radio",
+        "name": "settingaxesm",
+        "value": "a(b)c",
+        "checked": null
+      },
+      {
+        "type": "radio",
+        "name": "settingaxesm",
+        "value": "c(-b)a"
+      },
+      {
+        "type": "radio",
+        "name": "settingaxesm",
+        "value": "ab(c)"
+      },
+      {
+        "type": "radio",
+        "name": "settingaxesm",
+        "value": "ba(-c)"
+      },
+      {
+        "type": "radio",
+        "name": "settingaxesm",
+        "value": "(a)bc"
+      },
+      {
+        "type": "radio",
+        "name": "settingaxesm",
+        "value": "(-a)cb"
+      },
+      {
+        "type": "radio",
+        "name": "settingcell",
+        "value": "1",
+        "checked": null
+      },
+      {
+        "type": "radio",
+        "name": "settingcell",
+        "value": "2"
+      },
+      {
+        "type": "radio",
+        "name": "settingcell",
+        "value": "3"
+      },
+      {
+        "type": "radio",
+        "name": "settingaxeso",
+        "value": "abc",
+        "checked": null
+      },
+      {
+        "type": "radio",
+        "name": "settingaxeso",
+        "value": "ba-c"
+      },
+      {
+        "type": "radio",
+        "name": "settingaxeso",
+        "value": "cab"
+      },
+      {
+        "type": "radio",
+        "name": "settingaxeso",
+        "value": "-cba"
+      },
+      {
+        "type": "radio",
+        "name": "settingaxeso",
+        "value": "bca"
+      },
+      {
+        "type": "radio",
+        "name": "settingaxeso",
+        "value": "a-cb"
+      },
+      {
+        "type": "radio",
+        "name": "settingaxesh",
+        "value": "h",
+        "checked": null
+      },
+      {
+        "type": "radio",
+        "name": "settingaxesh",
+        "value": "r"
+      },
+      {
+        "type": "radio",
+        "name": "settingorigin",
+        "value": "1"
+      },
+      {
+        "type": "radio",
+        "name": "settingorigin",
+        "value": "2",
+        "checked": null
+      },
+      {
+        "type": "radio",
+        "name": "settingssg",
+        "value": "standard",
+        "checked": null
+      },
+      {
+        "type": "radio",
+        "name": "settingssg",
+        "value": "basic"
+      },
+      {
+        "type": "checkbox",
+        "name": "parentlike",
+        "value": "true"
+      }
+    ],
+    "selects": []
+  }
+]

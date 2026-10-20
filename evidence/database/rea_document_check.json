@@ -1,0 +1,166 @@
+{
+  "created_utc": "2026-10-20T14:18:39.688682+00:00",
+  "status": "passed",
+  "documents": [
+    {
+      "document": "docs/DATABASE_FORMATS.md",
+      "sha256": "bcd2a1515e04655a6b61b378b7bd489196367611dba6f511a47d072db7ed65ca",
+      "links": [
+        {
+          "link": "../evidence/database/inventory.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../tools/inspect_databases.py",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/database/official/sources.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/static/init_constants_.asm.txt",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/database/constant_sign_mask.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/static/constant_.asm.txt",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/pseudocode/manifest.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/database/rea_readpath_review.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/rea-linux-iso-recovered/07-init-constants.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/pseudocode/init-constants.c",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/rea-linux-iso-recovered/08-constant.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/pseudocode/constant.c",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/rea-linux-iso-recovered/10-get-irrep4.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/pseudocode/get-irrep4.c",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/rea-linux-iso-recovered/11-get-irreps.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/pseudocode/get-irreps.c",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/rea-linux-iso-recovered/14-get-isotropy-file.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/pseudocode/get-isotropy-file.c",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/rea-linux-iso-recovered/15-main.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/database/verification.json",
+          "exists": true,
+          "inside_project": true
+        }
+      ],
+      "trailing_whitespace": false
+    },
+    {
+      "document": "docs/LOCAL_VALIDATION.md",
+      "sha256": "38959352f91b9c4129e600baa2ccc8c0b0dec219bc8da446a5b8a4d02f6ec6d3",
+      "links": [
+        {
+          "link": "LOCAL_CONTRACT.md",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/validation/live-http/success/summary.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/validation/live-http/success/accessibility.txt",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/validation/live-http/success/final.png",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/validation/live-http/negative/summary.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/validation/live-http/negative/accessibility.txt",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/cif-converter-positive/README.md",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/cif-converter-positive/input_manifest.json",
+          "exists": true,
+          "inside_project": true
+        },
+        {
+          "link": "../evidence/native/cif-converter-positive/verification.json",
+          "exists": true,
+          "inside_project": true
+        }
+      ],
+      "trailing_whitespace": false
+    }
+  ],
+  "scope": "link existence, project boundary and trailing whitespace; not scientific validation"
+}

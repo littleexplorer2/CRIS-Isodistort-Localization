@@ -1,0 +1,1090 @@
+{
+  "analysis_profile": null,
+  "authority": "controlled-replay",
+  "confidence": "observed",
+  "environment": {
+    "architecture": "unknown",
+    "id": "Chromium@155.0.4283.62",
+    "isolation": "process",
+    "platform": "unknown"
+  },
+  "evidence_id": "ev_6f70e9243bf29d87473062a0d6f4b56e0d19d1cbee6237698337876e728f4695",
+  "evidence_links": [],
+  "limitations": [
+    "Artifact identity is unavailable for this observation.",
+    "Event sequence records provider receipt order; simultaneous browser causality is not inferred.",
+    "Network content is retained only when selected; Playwright response-body bytes are API results and are not guaranteed to match wire bytes.",
+    "Request bytes are limited to what Playwright exposes; not_exposed does not establish body absence or multipart file coverage.",
+    "Network content reads settle within 5 seconds each and the observer does not request bodies from unfinished responses.",
+    "Playwright scenario events do not expose request initiator stacks; receipt order does not prove causality.",
+    "Storage values are hashed only after declared-secret redaction.",
+    "Some selected network content was unavailable; per-transaction content states retain the reason.",
+    "Browser host platform and architecture were not observed."
+  ],
+  "locations": [],
+  "normalized_result": {
+    "browser": {
+      "cleanup": "terminated-owned-process",
+      "mode": "launch",
+      "process_ownership": "provider-owned",
+      "product": "Chromium",
+      "version": "155.0.4283.62"
+    },
+    "completeness": {
+      "equality_eligible": false,
+      "missing_sections": [
+        "events"
+      ],
+      "status": "incomplete",
+      "truncated_sections": []
+    },
+    "duration_ms": 6593,
+    "events": {
+      "dropped": 0,
+      "items": [
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "upgrade-insecure-requests",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "document",
+          "sequence": 1,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-1",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistortparent.html"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 2,
+          "source_event_sequence": 1,
+          "step_index": 0,
+          "transaction_id": "request-1"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-encoding",
+            "content-length",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "vary",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "document",
+          "sequence": 3,
+          "status": 200,
+          "step_index": 0,
+          "transaction_id": "request-1",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistortparent.html"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "upgrade-insecure-requests",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "document",
+          "sequence": 4,
+          "status": null,
+          "step_index": 0,
+          "transaction_id": "request-1",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistortparent.html"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "content-type",
+            "origin",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "upgrade-insecure-requests",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "POST",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "document",
+          "sequence": 5,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-2",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistortform.php"
+          }
+        },
+        {
+          "body": {
+            "bytes": 921,
+            "content": "aW5wdXQ9YXV0b2xvYWRwYXJlbnQmc3BhY2Vncm91cD0yMjErUG0tM20rKysrKytPaC0xJmxhdHRwYXJhbT1hJTNENC4yJmRsYXR0cGFyYW09KysrNC4yMDAwMDAwMDAwMDAwMCsrKysrKysrNC4yMDAwMDAwMDAwMDAwMCsrKysrKysrNC4yMDAwMDAwMDAwMDAwMCsrKysrKysrOTAuMDAwMDAwMDAwMDAwMCsrKysrKysrOTAuMDAwMDAwMDAwMDAwMCsrKysrKysrOTAuMDAwMDAwMDAwMDAwMCZ3eWNvdW50PSsrMyZ3eXBvaW50ZXIwMDE9MTYyNyZ3eW51bWJlcjAwMT0rMiZ3eXR5cGUwMDE9KzEmd3lja29mZjAwMT0xYislMjgxJTJGMiUyQzElMkYyJTJDMSUyRjIlMjkmd3lhdG9tMDAxPVNyJnd5YXRvbXR5cGUwMDE9U3Imd3lwYXJhbTAwMT0rKzAuMDAwMDAwMDAwMDAwMDAwRSUyQjAwMCsrMC4wMDAwMDAwMDAwMDAwMDBFJTJCMDAwKyswLjAwMDAwMDAwMDAwMDAwMEUlMkIwMDAmd3lvY2MwMDE9KysrMS4wMDAwMDAwMDAwMDAwMCZ3eXBvaW50ZXIwMDI9MTYyNiZ3eW51bWJlcjAwMj0rMSZ3eXR5cGUwMDI9KzImd3lja29mZjAwMj0xYSslMjgwJTJDMCUyQzAlMjkmd3lhdG9tMDAyPVRpJnd5YXRvbXR5cGUwMDI9VGkmd3lwYXJhbTAwMj0rKzAuMDAwMDAwMDAwMDAwMDAwRSUyQjAwMCsrMC4wMDAwMDAwMDAwMDAwMDBFJTJCMDAwKyswLjAwMDAwMDAwMDAwMDAwMEUlMkIwMDAmd3lvY2MwMDI9KysrMS4wMDAwMDAwMDAwMDAwMCZ3eXBvaW50ZXIwMDM9MTYyOSZ3eW51bWJlcjAwMz0rNCZ3eXR5cGUwMDM9KzMmd3lja29mZjAwMz0zZCslMjgxJTJGMiUyQzAlMkMwJTI5Jnd5YXRvbTAwMz1PJnd5YXRvbXR5cGUwMDM9TyZ3eXBhcmFtMDAzPSsrMC4wMDAwMDAwMDAwMDAwMDBFJTJCMDAwKyswLjAwMDAwMDAwMDAwMDAwMEUlMkIwMDArKzAuMDAwMDAwMDAwMDAwMDAwRSUyQjAwMCZ3eW9jYzAwMz0rKysxLjAwMDAwMDAwMDAwMDAw",
+            "encoding": "base64",
+            "media_type": "application/x-www-form-urlencoded",
+            "redacted": false,
+            "representation": "browser-exposed-request-bytes",
+            "sha256": "4829e3ae45dabc93ab4e6fbfc171a2db6ac63ec8de28ed028d16b94018583fa1",
+            "state": "captured"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 6,
+          "source_event_sequence": 5,
+          "step_index": 1,
+          "transaction_id": "request-2"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "access-control-allow-origin",
+            "connection",
+            "content-encoding",
+            "content-length",
+            "content-type",
+            "date",
+            "keep-alive",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "vary",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "POST",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "document",
+          "sequence": 7,
+          "status": 200,
+          "step_index": 1,
+          "transaction_id": "request-2",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistortform.php"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "stylesheet",
+          "sequence": 8,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-3",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/bootstrap.css"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 9,
+          "source_event_sequence": 8,
+          "step_index": 1,
+          "transaction_id": "request-3"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "stylesheet",
+          "sequence": 10,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-4",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/docs.css"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 11,
+          "source_event_sequence": 10,
+          "step_index": 1,
+          "transaction_id": "request-4"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "image",
+          "sequence": 12,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-5",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/help.jpg"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 13,
+          "source_event_sequence": 12,
+          "step_index": 1,
+          "transaction_id": "request-5"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "script",
+          "sequence": 14,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-6",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/swingjs/swingjs2.js"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 15,
+          "source_event_sequence": 14,
+          "step_index": 1,
+          "transaction_id": "request-6"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "script",
+          "sequence": 16,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-7",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistort.js"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 17,
+          "source_event_sequence": 16,
+          "step_index": 1,
+          "transaction_id": "request-7"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "content-type",
+            "origin",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "upgrade-insecure-requests",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "POST",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "document",
+          "sequence": 18,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-2",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistortform.php"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-encoding",
+            "content-length",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "vary",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "stylesheet",
+          "sequence": 19,
+          "status": 200,
+          "step_index": 1,
+          "transaction_id": "request-4",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/docs.css"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "stylesheet",
+          "sequence": 20,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-4",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/docs.css"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-encoding",
+            "content-length",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "vary",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "stylesheet",
+          "sequence": 21,
+          "status": 200,
+          "step_index": 1,
+          "transaction_id": "request-3",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/bootstrap.css"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "stylesheet",
+          "sequence": 22,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-3",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/bootstrap.css"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "image",
+          "sequence": 23,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-8",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/grid-18px-masked.png"
+          }
+        },
+        {
+          "body": {
+            "state": "not_exposed"
+          },
+          "headers": {
+            "state": "not_requested"
+          },
+          "kind": "network-content",
+          "phase": "request",
+          "sequence": 24,
+          "source_event_sequence": 23,
+          "step_index": 1,
+          "transaction_id": "request-8"
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-length",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "image",
+          "sequence": 25,
+          "status": 200,
+          "step_index": 1,
+          "transaction_id": "request-5",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/help.jpg"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "image",
+          "sequence": 26,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-5",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/help.jpg"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-encoding",
+            "content-length",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "vary",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "script",
+          "sequence": 27,
+          "status": 200,
+          "step_index": 1,
+          "transaction_id": "request-7",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistort.js"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "script",
+          "sequence": 28,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-7",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/isodistort.js"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-length",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "image",
+          "sequence": 29,
+          "status": 200,
+          "step_index": 1,
+          "transaction_id": "request-8",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/grid-18px-masked.png"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "image",
+          "sequence": 30,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-8",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/grid-18px-masked.png"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-ranges",
+            "connection",
+            "content-encoding",
+            "content-type",
+            "date",
+            "etag",
+            "keep-alive",
+            "last-modified",
+            "referrer-policy",
+            "server",
+            "strict-transport-security",
+            "transfer-encoding",
+            "vary",
+            "x-content-type-options",
+            "x-frame-options"
+          ],
+          "kind": "response",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "script",
+          "sequence": 31,
+          "status": 200,
+          "step_index": 1,
+          "transaction_id": "request-6",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/swingjs/swingjs2.js"
+          }
+        },
+        {
+          "failure": null,
+          "header_names": [
+            "accept-language",
+            "referer",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile",
+            "sec-ch-ua-platform",
+            "user-agent"
+          ],
+          "kind": "request-finished",
+          "method": "GET",
+          "redirected_from_transaction_id": null,
+          "redirected_from_transaction_state": "root",
+          "resource_type": "script",
+          "sequence": 32,
+          "status": null,
+          "step_index": 1,
+          "transaction_id": "request-6",
+          "url": {
+            "origin": "https://landau3.byu.edu",
+            "query_parameter_names": [],
+            "redacted": false,
+            "url": "https://landau3.byu.edu/swingjs/swingjs2.js"
+          }
+        }
+      ],
+      "omissions": {
+        "by_kind": [],
+        "network_transaction_range": null,
+        "network_transactions": []
+      },
+      "retained": 32
+    },
+    "limitations": [
+      "Event sequence records provider receipt order; simultaneous browser causality is not inferred.",
+      "Network content is retained only when selected; Playwright response-body bytes are API results and are not guaranteed to match wire bytes.",
+      "Request bytes are limited to what Playwright exposes; not_exposed does not establish body absence or multipart file coverage.",
+      "Network content reads settle within 5 seconds each and the observer does not request bodies from unfinished responses.",
+      "Playwright scenario events do not expose request initiator stacks; receipt order does not prove causality.",
+      "Storage values are hashed only after declared-secret redaction.",
+      "Some selected network content was unavailable; per-transaction content states retain the reason."
+    ],
+    "scenario": {
+      "action_count": 1,
+      "event_families": [
+        "network",
+        "page-errors"
+      ],
+      "limits": {
+        "max_event_allocation_bytes": 4194304,
+        "max_events": 10000,
+        "max_network_body_allocation_bytes": 1048576,
+        "max_network_body_bytes": 65536,
+        "max_network_header_allocation_bytes": 1048576,
+        "max_network_metadata_allocation_bytes": 1048576,
+        "max_network_transactions": 1024,
+        "max_total_event_allocation_bytes": 16777216
+      },
+      "network_content": {
+        "header_values": false,
+        "request_body": true,
+        "response_body": false
+      },
+      "secret_references": [],
+      "start_origin": "https://landau3.byu.edu"
+    },
+    "steps": [
+      {
+        "action": "goto_start",
+        "after_url": {
+          "origin": "https://landau3.byu.edu",
+          "query_parameter_names": [],
+          "redacted": false,
+          "url": "https://landau3.byu.edu/isodistortparent.html"
+        },
+        "artifacts": {
+          "accessibility": {
+            "state": "not_requested"
+          },
+          "dom": {
+            "state": "not_requested"
+          },
+          "history": {
+            "state": "not_requested"
+          },
+          "screenshot": {
+            "state": "not_requested"
+          },
+          "storage": {
+            "state": "not_requested"
+          },
+          "url": {
+            "state": "not_requested"
+          }
+        },
+        "before_url": {
+          "origin": null,
+          "query_parameter_names": [],
+          "redacted": false,
+          "url": "about:blank"
+        },
+        "completeness": {
+          "equality_eligible": true,
+          "missing_sections": [],
+          "status": "complete",
+          "truncated_sections": []
+        },
+        "elapsed_ms": 2291,
+        "error": null,
+        "event_sequence_end": 4,
+        "event_sequence_start": 1,
+        "status": "completed",
+        "step_id": "scenario_start",
+        "step_index": 0
+      },
+      {
+        "action": "wait_for_timeout",
+        "after_url": {
+          "origin": "https://landau3.byu.edu",
+          "query_parameter_names": [],
+          "redacted": false,
+          "url": "https://landau3.byu.edu/isodistortform.php"
+        },
+        "artifacts": {
+          "accessibility": {
+            "state": "captured",
+            "value": {
+              "bytes": 18800,
+              "sha256": "8f41b840042fdf21fb5e9009c976495b95bbf4acfaef21e0bb2129573d857acd",
+              "text": "- document:\n  - link \"ISODISTORT\":\n    - /url: isodistort.php\n  - list:\n    - listitem:\n      - link \"SUITE\":\n        - /url: isotropy.php\n    - listitem:\n      - link \"HELP\":\n        - /url: isodistorthelp.php\n  - 'heading \"ISODISTORT: search\" [level=1]'\n  - paragraph: \"Space Group: 221 Pm-3m Oh-1, Lattice parameters: a=4.2 Default space-group preferences: monoclinic axes a(b)c, monoclinic cell choice 1, orthorhombic axes abc, origin choice 2, hexagonal axes, SSG standard setting Sr 1b (1/2,1/2,1/2), Ti 1a (0,0,0), O 3d (1/2,0,0)\"\n  - heading \"Types of distortions to be considered Change\" [level=3]:\n    - text: Types of distortions to be considered\n    - button \"Change\"\n    - link:\n      - /url: isodistorthelp.php#includedistortion\n      - img\n  - paragraph\n  - table:\n    - rowgroup:\n      - row \"Strain:\":\n        - cell \"Strain:\":\n          - text: \"Strain:\"\n          - checkbox [checked]\n      - 'row \"Displacive: all none Sr Ti O\"':\n        - cell \"Displacive:\"\n        - cell \"all none Sr Ti O\":\n          - text: all\n          - checkbox\n          - text: none\n          - checkbox\n          - text: Sr\n          - checkbox [checked]\n          - text: Ti\n          - checkbox [checked]\n          - text: O\n          - checkbox [checked]\n      - 'row \"Occupational: all none Sr Ti O\"':\n        - cell \"Occupational:\"\n        - cell \"all none Sr Ti O\":\n          - text: all\n          - checkbox\n          - text: none\n          - checkbox\n          - text: Sr\n          - checkbox\n          - text: Ti\n          - checkbox\n          - text: O\n          - checkbox\n      - 'row \"Magnetic: all none Sr Ti O\"':\n        - cell \"Magnetic:\"\n        - cell \"all none Sr Ti O\":\n          - text: all\n          - checkbox\n          - text: none\n          - checkbox\n          - text: Sr\n          - checkbox\n          - text: Ti\n          - checkbox\n          - text: O\n          - checkbox\n      - 'row \"Rotational: all none Sr Ti O\"':\n        - cell \"Rotational:\"\n        - cell \"all none Sr Ti O\":\n          - text: all\n          - checkbox\n          - text: none\n          - checkbox\n          - text: Sr\n          - checkbox\n          - text: Ti\n          - checkbox\n          - text: O\n          - checkbox\n  - text: \"Important: You must click on Change to implement any changes in the above type of distortions to be considered.\"\n  - paragraph\n  - 'heading \"Method 1: Search over all special k points OK\" [level=3]':\n    - text: \"Method 1: Search over all special k points\"\n    - button \"OK\"\n    - link:\n      - /url: isodistorthelp.php#isosub\n      - img\n  - paragraph:\n    - text: \"Crystal system(s): triclinic\"\n    - checkbox\n    - text: monoclinic\n    - checkbox\n    - text: orthorhombic\n    - checkbox\n    - text: tetragonal\n    - checkbox\n    - text: trigonal\n    - checkbox\n    - text: hexagonal\n    - checkbox\n    - text: cubic\n    - checkbox\n    - text: \"Space-group symmetry:\"\n    - combobox:\n      - option \"no choice\" [selected]\n      - option \"1 P1 C1-1\"\n      - option \"2 P-1 Ci-1\"\n      - option \"5 C2 C2-3\"\n      - option \"6 Pm Cs-1\"\n      - option \"8 Cm Cs-3\"\n      - option \"10 P2/m C2h-1\"\n      - option \"11 P2_1/m C2h-2\"\n      - option \"12 C2/m C2h-3\"\n      - option \"13 P2/c C2h-4\"\n      - option \"14 P2_1/c C2h-5\"\n      - option \"15 C2/c C2h-6\"\n      - option \"23 I222 D2-8\"\n      - option \"24 I2_12_12_1 D2-9\"\n      - option \"38 Amm2 C2v-14\"\n      - option \"42 Fmm2 C2v-18\"\n      - option \"44 Imm2 C2v-20\"\n      - option \"47 Pmmm D2h-1\"\n      - option \"51 Pmma D2h-5\"\n      - option \"53 Pmna D2h-7\"\n      - option \"55 Pbam D2h-9\"\n      - option \"57 Pbcm D2h-11\"\n      - option \"59 Pmmn D2h-13\"\n      - option \"61 Pbca D2h-15\"\n      - option \"62 Pnma D2h-16\"\n      - option \"63 Cmcm D2h-17\"\n      - option \"64 Cmca D2h-18\"\n      - option \"65 Cmmm D2h-19\"\n      - option \"67 Cmma D2h-21\"\n      - option \"69 Fmmm D2h-23\"\n      - option \"71 Immm D2h-25\"\n      - option \"72 Ibam D2h-26\"\n      - option \"73 Ibca D2h-27\"\n      - option \"74 Imma D2h-28\"\n      - option \"99 P4mm C4v-1\"\n      - option \"115 P-4m2 D2d-5\"\n      - option \"121 I-42m D2d-11\"\n      - option \"123 P4/mmm D4h-1\"\n      - option \"127 P4/mbm D4h-5\"\n      - option \"129 P4/nmm D4h-7\"\n      - option \"131 P4_2/mmc D4h-9\"\n      - option \"139 I4/mmm D4h-17\"\n      - option \"140 I4/mcm D4h-18\"\n      - option \"146 R3 C3-4\"\n      - option \"148 R-3 C3i-2\"\n      - option \"155 R32 D3-7\"\n      - option \"160 R3m C3v-5\"\n      - option \"166 R-3m D3d-5\"\n      - option \"167 R-3c D3d-6\"\n      - option \"199 I2_13 T-5\"\n      - option \"204 Im-3 Th-5\"\n      - option \"205 Pa-3 Th-6\"\n      - option \"206 Ia-3 Th-7\"\n      - option \"217 I-43m Td-3\"\n      - option \"221 Pm-3m Oh-1\"\n      - option \"223 Pm-3n Oh-3\"\n      - option \"225 Fm-3m Oh-5\"\n      - option \"229 Im-3m Oh-9\"\n    - text: \"Conventional lattice:\"\n    - combobox:\n      - option \"no choice\" [selected]\n      - option \"(1,0,0),(0,1,0),(0,0,1)\"\n      - option \"(-1,0,1),(0,1,-1),(-1,-1,-1)\"\n      - option \"(-1,1,0),(-1,-1,0),(0,0,1)\"\n      - option \"(2,0,0),(0,2,0),(0,0,2)\"\n      - option \"(-1,0,1),(-1,0,-1),(0,-2,0)\"\n      - option \"(1,0,-1),(0,-1,1),(-2,-2,-2)\"\n      - option \"(0,1,1),(1,0,1),(1,1,0)\"\n      - option \"(1,0,0),(0,0,1),(0,-2,0)\"\n      - option \"(2,0,0),(0,2,0),(0,0,1)\"\n      - option \"(2,2,0),(-2,2,0),(0,0,1)\"\n      - option \"(-2,0,2),(0,2,-2),(-2,-2,-2)\"\n      - option \"(2,0,2),(2,0,-2),(0,2,0)\"\n      - option \"(-2,0,2),(0,-2,-2),(1,-1,1)\"\n      - option \"(0,-2,0),(2,0,2),(-1,1,1)\"\n      - option \"(-1,1,1),(1,-1,1),(1,1,-1)\"\n    - text: \"Primitive lattice:\"\n    - combobox:\n      - option \"no choice\" [selected]\n      - option \"(1,0,0),(0,1,0),(0,0,1)\"\n      - option \"(0,1,1),(1,0,1),(1,1,0)\"\n      - option \"(1,0,0),(0,0,1),(0,-2,0)\"\n      - option \"(2,0,0),(0,2,0),(0,0,1)\"\n      - option \"(0,-2,0),(-2,0,0),(0,0,-2)\"\n      - option \"(1,-1,0),(1,1,0),(0,0,1)\"\n      - option \"(-1,1,-1),(1,-1,-1),(-1,-1,1)\"\n    - text: Maximal subgroups only\n    - checkbox\n  - 'heading \"Method 2: General method - search over specific k points OK\" [level=3]':\n    - text: \"Method 2: General method - search over specific k points\"\n    - button \"OK\"\n    - link:\n      - /url: isodistorthelp.php#kpoint\n      - img\n  - paragraph:\n    - text: \"Specify k point:\"\n    - combobox:\n      - option \"GM, k12 (0,0,0)\" [selected]\n      - option \"DT, k8 (0,b,0)\"\n      - option \"LD, k9 (a,a,a)\"\n      - option \"SM, k4 (a,a,0)\"\n      - option \"R, k13 (1/2,1/2,1/2)\"\n      - option \"X, k10 (0,1/2,0)\"\n      - option \"M, k11 (1/2,1/2,0)\"\n      - option \"S, k5 (a,1/2,a)\"\n      - option \"T, k7 (1/2,1/2,g)\"\n      - option \"Z, k6 (a,1/2,0)\"\n      - option \"C, k3 (a,a,g)\"\n      - option \"A, k1 (a,b,0)\"\n      - option \"B, k2 (a,1/2,g)\"\n      - option \"GP, k0 (a,b,g)\"\n    - text: a=\n    - textbox\n    - text: b=\n    - textbox\n    - text: g=\n    - textbox\n    - text: \"# of independent incommensurate modulations=\"\n    - textbox: \"0\"\n  - paragraph\n  - text: \"Change number of superposed IRs:\"\n  - textbox: \"1\"\n  - button \"Change\"\n  - link:\n    - /url: isodistorthelp.php#coupledir\n    - img\n  - text: \"Important: You must click on Change to implement any changes in the number of superposed IRs.\"\n  - 'heading \"Method 3: Search over arbitrary k points for specified space group and lattice OK\" [level=3]':\n    - text: \"Method 3: Search over arbitrary k points for specified space group and lattice\"\n    - button \"OK\"\n    - link:\n      - /url: isodistorthelp.php#method3\n      - img\n  - paragraph:\n    - text: \"Select either space group symmetry:\"\n    - combobox:\n      - option \"Not selected\" [selected]\n      - option \"1 P1 C1-1\"\n      - option \"2 P-1 Ci-1\"\n      - option \"3 P2 C2-1\"\n      - option \"4 P2_1 C2-2\"\n      - option \"5 C2 C2-3\"\n      - option \"6 Pm Cs-1\"\n      - option \"7 Pc Cs-2\"\n      - option \"8 Cm Cs-3\"\n      - option \"9 Cc Cs-4\"\n      - option \"10 P2/m C2h-1\"\n      - option \"11 P2_1/m C2h-2\"\n      - option \"12 C2/m C2h-3\"\n      - option \"13 P2/c C2h-4\"\n      - option \"14 P2_1/c C2h-5\"\n      - option \"15 C2/c C2h-6\"\n      - option \"16 P222 D2-1\"\n      - option \"17 P222_1 D2-2\"\n      - option \"18 P2_12_12 D2-3\"\n      - option \"19 P2_12_12_1 D2-4\"\n      - option \"20 C222_1 D2-5\"\n      - option \"21 C222 D2-6\"\n      - option \"22 F222 D2-7\"\n      - option \"23 I222 D2-8\"\n      - option \"24 I2_12_12_1 D2-9\"\n      - option \"25 Pmm2 C2v-1\"\n      - option \"26 Pmc2_1 C2v-2\"\n      - option \"27 Pcc2 C2v-3\"\n      - option \"28 Pma2 C2v-4\"\n      - option \"29 Pca2_1 C2v-5\"\n      - option \"30 Pnc2 C2v-6\"\n      - option \"31 Pmn2_1 C2v-7\"\n      - option \"32 Pba2 C2v-8\"\n      - option \"33 Pna2_1 C2v-9\"\n      - option \"34 Pnn2 C2v-10\"\n      - option \"35 Cmm2 C2v-11\"\n      - option \"36 Cmc2_1 C2v-12\"\n      - option \"37 Ccc2 C2v-13\"\n      - option \"38 Amm2 C2v-14\"\n      - option \"39 Abm2 C2v-15\"\n      - option \"40 Ama2 C2v-16\"\n      - option \"41 Aba2 C2v-17\"\n      - option \"42 Fmm2 C2v-18\"\n      - option \"43 Fdd2 C2v-19\"\n      - option \"44 Imm2 C2v-20\"\n      - option \"45 Iba2 C2v-21\"\n      - option \"46 Ima2 C2v-22\"\n      - option \"47 Pmmm D2h-1\"\n      - option \"48 Pnnn D2h-2\"\n      - option \"49 Pccm D2h-3\"\n      - option \"50 Pban D2h-4\"\n      - option \"51 Pmma D2h-5\"\n      - option \"52 Pnna D2h-6\"\n      - option \"53 Pmna D2h-7\"\n      - option \"54 Pcca D2h-8\"\n      - option \"55 Pbam D2h-9\"\n      - option \"56 Pccn D2h-10\"\n      - option \"57 Pbcm D2h-11\"\n      - option \"58 Pnnm D2h-12\"\n      - option \"59 Pmmn D2h-13\"\n      - option \"60 Pbcn D2h-14\"\n      - option \"61 Pbca D2h-15\"\n      - option \"62 Pnma D2h-16\"\n      - option \"63 Cmcm D2h-17\"\n      - option \"64 Cmca D2h-18\"\n      - option \"65 Cmmm D2h-19\"\n      - option \"66 Cccm D2h-20\"\n      - option \"67 Cmma D2h-21\"\n      - option \"68 Ccca D2h-22\"\n      - option \"69 Fmmm D2h-23\"\n      - option \"70 Fddd D2h-24\"\n      - option \"71 Immm D2h-25\"\n      - option \"72 Ibam D2h-26\"\n      - option \"73 Ibca D2h-27\"\n      - option \"74 Imma D2h-28\"\n      - option \"75 P4 C4-1\"\n      - option \"76 P4_1 C4-2\"\n      - option \"77 P4_2 C4-3\"\n      - option \"78 P4_3 C4-4\"\n      - option \"79 I4 C4-5\"\n      - option \"80 I4_1 C4-6\"\n      - option \"81 P-4 S4-1\"\n      - option \"82 I-4 S4-2\"\n      - option \"83 P4/m C4h-1\"\n      - option \"84 P4_2/m C4h-2\"\n      - option \"85 P4/n C4h-3\"\n      - option \"86 P4_2/n C4h-4\"\n      - option \"87 I4/m C4h-5\"\n      - option \"88 I4_1/a C4h-6\"\n      - option \"89 P422 D4-1\"\n      - option \"90 P42_12 D4-2\"\n      - option \"91 P4_122 D4-3\"\n      - option \"92 P4_12_12 D4-4\"\n      - option \"93 P4_222 D4-5\"\n      - option \"94 P4_22_12 D4-6\"\n      - option \"95 P4_322 D4-7\"\n      - option \"96 P4_32_12 D4-8\"\n      - option \"97 I422 D4-9\"\n      - option \"98 I4_122 D4-10\"\n      - option \"99 P4mm C4v-1\"\n      - option \"100 P4bm C4v-2\"\n      - option \"101 P4_2cm C4v-3\"\n      - option \"102 P4_2nm C4v-4\"\n      - option \"103 P4cc C4v-5\"\n      - option \"104 P4nc C4v-6\"\n      - option \"105 P4_2mc C4v-7\"\n      - option \"106 P4_2bc C4v-8\"\n      - option \"107 I4mm C4v-9\"\n      - option \"108 I4cm C4v-10\"\n      - option \"109 I4_1md C4v-11\"\n      - option \"110 I4_1cd C4v-12\"\n      - option \"111 P-42m D2d-1\"\n      - option \"112 P-42c D2d-2\"\n      - option \"113 P-42_1m D2d-3\"\n      - option \"114 P-42_1c D2d-4\"\n      - option \"115 P-4m2 D2d-5\"\n      - option \"116 P-4c2 D2d-6\"\n      - option \"117 P-4b2 D2d-7\"\n      - option \"118 P-4n2 D2d-8\"\n      - option \"119 I-4m2 D2d-9\"\n      - option \"120 I-4c2 D2d-10\"\n      - option \"121 I-42m D2d-11\"\n      - option \"122 I-42d D2d-12\"\n      - option \"123 P4/mmm D4h-1\"\n      - option \"124 P4/mcc D4h-2\"\n      - option \"125 P4/nbm D4h-3\"\n      - option \"126 P4/nnc D4h-4\"\n      - option \"127 P4/mbm D4h-5\"\n      - option \"128 P4/mnc D4h-6\"\n      - option \"129 P4/nmm D4h-7\"\n      - option \"130 P4/ncc D4h-8\"\n      - option \"131 P4_2/mmc D4h-9\"\n      - option \"132 P4_2/mcm D4h-10\"\n      - option \"133 P4_2/nbc D4h-11\"\n      - option \"134 P4_2/nnm D4h-12\"\n      - option \"135 P4_2/mbc D4h-13\"\n      - option \"136 P4_2/mnm D4h-14\"\n      - option \"137 P4_2/nmc D4h-15\"\n      - option \"138 P4_2/ncm D4h-16\"\n      - option \"139 I4/mmm D4h-17\"\n      - option \"140 I4/mcm D4h-18\"\n      - option \"141 I4_1/amd D4h-19\"\n      - option \"142 I4_1/acd D4h-20\"\n      - option \"143 P3 C3-1\"\n      - option \"144 P3_1 C3-2\"\n      - option \"145 P3_2 C3-3\"\n      - option \"146 R3 C3-4\"\n      - option \"147 P-3 C3i-1\"\n      - option \"148 R-3 C3i-2\"\n      - option \"149 P312 D3-1\"\n      - option \"150 P321 D3-2\"\n      - option \"151 P3_112 D3-3\"\n      - option \"152 P3_121 D3-4\"\n      - option \"153 P3_212 D3-5\"\n      - option \"154 P3_221 D3-6\"\n      - option \"155 R32 D3-7\"\n      - option \"156 P3m1 C3v-1\"\n      - option \"157 P31m C3v-2\"\n      - option \"158 P3c1 C3v-3\"\n      - option \"159 P31c C3v-4\"\n      - option \"160 R3m C3v-5\"\n      - option \"161 R3c C3v-6\"\n      - option \"162 P-31m D3d-1\"\n      - option \"163 P-31c D3d-2\"\n      - option \"164 P-3m1 D3d-3\"\n      - option \"165 P-3c1 D3d-4\"\n      - option \"166 R-3m D3d-5\"\n      - option \"167 R-3c D3d-6\"\n      - option \"168 P6 C6-1\"\n      - option \"169 P6_1 C6-2\"\n      - option \"170 P6_5 C6-3\"\n      - option \"171 P6_2 C6-4\"\n      - option \"172 P6_4 C6-5\"\n      - option \"173 P6_3 C6-6\"\n      - option \"174 P-6 C3h-1\"\n      - option \"175 P6/m C6h-1\"\n      - option \"176 P6_3/m C6h-2\"\n      - option \"177 P622 D6-1\"\n      - option \"178 P6_122 D6-2\"\n      - option \"179 P6_522 D6-3\"\n      - option \"180 P6_222 D6-4\"\n      - option \"181 P6_422 D6-5\"\n      - option \"182 P6_322 D6-6\"\n      - option \"183 P6mm C6v-1\"\n      - option \"184 P6cc C6v-2\"\n      - option \"185 P6_3cm C6v-3\"\n      - option \"186 P6_3mc C6v-4\"\n      - option \"187 P-6m2 D3h-1\"\n      - option \"188 P-6c2 D3h-2\"\n      - option \"189 P-62m D3h-3\"\n      - option \"190 P-62c D3h-4\"\n      - option \"191 P6/mmm D6h-1\"\n      - option \"192 P6/mcc D6h-2\"\n      - option \"193 P6_3/mcm D6h-3\"\n      - option \"194 P6_3/mmc D6h-4\"\n      - option \"195 P23 T-1\"\n      - option \"196 F23 T-2\"\n      - option \"197 I23 T-3\"\n      - option \"198 P2_13 T-4\"\n      - option \"199 I2_13 T-5\"\n      - option \"200 Pm-3 Th-1\"\n      - option \"201 Pn-3 Th-2\"\n      - option \"202 Fm-3 Th-3\"\n      - option \"203 Fd-3 Th-4\"\n      - option \"204 Im-3 Th-5\"\n      - option \"205 Pa-3 Th-6\"\n      - option \"206 Ia-3 Th-7\"\n      - option \"207 P432 O-1\"\n      - option \"208 P4_232 O-2\"\n      - option \"209 F432 O-3\"\n      - option \"210 F4_132 O-4\"\n      - option \"211 I432 O-5\"\n      - option \"212 P4_332 O-6\"\n      - option \"213 P4_132 O-7\"\n      - option \"214 I4_132 O-8\"\n      - option \"215 P-43m Td-1\"\n      - option \"216 F-43m Td-2\"\n      - option \"217 I-43m Td-3\"\n      - option \"218 P-43n Td-4\"\n      - option \"219 F-43c Td-5\"\n      - option \"220 I-43d Td-6\"\n      - option \"221 Pm-3m Oh-1\"\n      - option \"222 Pn-3n Oh-2\"\n      - option \"223 Pm-3n Oh-3\"\n      - option \"224 Pn-3m Oh-4\"\n      - option \"225 Fm-3m Oh-5\"\n      - option \"226 Fm-3c Oh-6\"\n      - option \"227 Fd-3m Oh-7\"\n      - option \"228 Fd-3c Oh-8\"\n      - option \"229 Im-3m Oh-9\"\n      - option \"230 Ia-3d Oh-10\"\n    - text: \"or point group (crystal class):\"\n    - combobox:\n      - option \"Not selected\" [selected]\n      - 'option \"triclinic: 1 C1\"'\n      - 'option \"triclinic: -1 Ci\"'\n      - 'option \"monoclinic: 2 C2\"'\n      - 'option \"monoclinic: m Cs\"'\n      - 'option \"monoclinic: 2/m C2h\"'\n      - 'option \"orthorhombic: 222 D2\"'\n      - 'option \"orthorhombic: mm2 C2v\"'\n      - 'option \"orthorhombic: mmm D2h\"'\n      - 'option \"tetragonal: 4 C4\"'\n      - 'option \"tetragonal: -4 S4\"'\n      - 'option \"tetragonal: 4/m C4h\"'\n      - 'option \"tetragonal: 422 D4\"'\n      - 'option \"tetragonal: 4mm C4v\"'\n      - 'option \"tetragonal: -42m D2d\"'\n      - 'option \"tetragonal: 4/mmm D4h\"'\n      - 'option \"hexagonal: 3 C3\"'\n      - 'option \"hexagonal: -3 C3i\"'\n      - 'option \"hexagonal: 32 D3\"'\n      - 'option \"hexagonal: 3m C3v\"'\n      - 'option \"hexagonal: -3m D3d\"'\n      - 'option \"hexagonal: 6 C6\"'\n      - 'option \"hexagonal: -6 C3h\"'\n      - 'option \"hexagonal: 6/m C6h\"'\n      - 'option \"hexagonal: 622 D6\"'\n      - 'option \"hexagonal: 6mm C6v\"'\n      - 'option \"hexagonal: -62m D3h\"'\n      - 'option \"hexagonal: 6/mmm D6h\"'\n      - 'option \"cubic: 23 T\"'\n      - 'option \"cubic: m-3 Th\"'\n      - 'option \"cubic: 432 O\"'\n      - 'option \"cubic: -43m Td\"'\n      - 'option \"cubic: m-3m Oh\"'\n    - radio [checked]\n    - text: Specify a real-space sublattice of the parent lattice with Default\n    - radio [checked]\n    - text: P\n    - radio\n    - text: A\n    - radio\n    - text: B\n    - radio\n    - text: C\n    - radio\n    - text: I\n    - radio\n    - text: F\n    - radio\n    - text: R\n    - radio\n    - text: centering.\n    - radio\n    - text: \"Specify a primitive reciprocal-space superlattice Choose a representative basis: a' =\"\n    - textbox: \"1\"\n    - text: a +\n    - textbox: \"0\"\n    - text: b +\n    - textbox: \"0\"\n    - text: c b' =\n    - textbox: \"0\"\n    - text: a +\n    - textbox: \"1\"\n    - text: b +\n    - textbox: \"0\"\n    - text: c c' =\n    - textbox: \"0\"\n    - text: a +\n    - textbox: \"0\"\n    - text: b +\n    - textbox: \"1\"\n    - text: c\n  - 'heading \"Method 4: Mode decomposition of a distorted structure OK\" [level=3]':\n    - text: \"Method 4: Mode decomposition of a distorted structure\"\n    - button \"OK\"\n    - link:\n      - /url: isodistorthelp.php#method4\n      - img\n  - paragraph:\n    - text: \"Upload distorted structure from CIF file:\"\n    - button \"Choose File\"\n  - heading \"Space-Group Preferences Change\" [level=3]:\n    - text: Space-Group Preferences\n    - button \"Change\"\n    - link:\n      - /url: isodistorthelp.php#settings\n      - img\n  - paragraph:\n    - text: \"These preferences apply to subsequent distortions but do not affect your parent structure): Monoclinic axes: a(b)c\"\n    - radio [checked]\n    - text: c(-b)a\n    - radio\n    - text: ab(c)\n    - radio\n    - text: ba(-c)\n    - radio\n    - text: (a)bc\n    - radio\n    - text: (-a)cb\n    - radio\n    - text: \"Monoclinic cell choice: 1\"\n    - radio [checked]\n    - text: \"2\"\n    - radio\n    - text: \"3\"\n    - radio\n    - text: \"Orthorhombic axes: abc\"\n    - radio [checked]\n    - text: ba-c\n    - radio\n    - text: cab\n    - radio\n    - text: \"-cba\"\n    - radio\n    - text: bca\n    - radio\n    - text: a-cb\n    - radio\n    - text: \"Trigonal axes: hexagonal\"\n    - radio [checked]\n    - text: rhombohedral\n    - radio\n    - text: \"Origin choice: 1\"\n    - radio\n    - text: \"2\"\n    - radio [checked]\n    - text: \"Superspace group setting: standard (IT-C)\"\n    - radio [checked]\n    - text: basic (IT-A)\n    - radio\n    - text: \"Note for superspace groups: If the standard setting is selected, none of the other setting selections will apply.\"\n    - checkbox\n    - text: Employ parent-like basis vectors (smallest supercell whose basis vectors are parallel to conventional parent basis vectors)\n  - text: \"Important: You must click on Change to implement any changes in the above preferences.\""
+            }
+          },
+          "dom": {
+            "state": "captured",
+            "value": {
+              "bytes": 47603,
+              "sha256": "d1c90f3d086fc6286231b15a20f2f2d3d786567d726935f6a302be043279558c",
+              "text": "<!DOCTYPE html><html lang=\"en\"><head>\n<meta charset=\"utf-8\">\n<title>ISODISTORT: search</title>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<meta name=\"description\" content=\"\">\n<meta name=\"author\" content=\"\">\n<link rel=\"stylesheet\" href=\"bootstrap.css\">\n<link rel=\"stylesheet\" href=\"docs.css\">\n<style>\n  body {\n\tpadding-top: 0px;\n  }\n  div.pad {\n\tpadding-right: 50px;\n\tpadding-left: 50px;\n  }\n</style>\n</head>\n<body>\n<div class=\"navbar navbar-static-top\">\n  <div class=\"navbar-inner\">\n     <div class=\"container\">\n       <a class=\"btn btn-navbar\" data-toggle=\"collapse\" data-target=\".nav-collapse\">\n         <span class=\"icon-bar\"></span>\n         <span class=\"icon-bar\"></span>\n\t <span class=\"icon-bar\"></span>\n       </a>\n       <a class=\"brand\" href=\"isodistort.php\">ISODISTORT</a>\n      <div class=\"nav-collapse\">\n        <ul class=\"nav\">\n         <li><a href=\"isotropy.php\">SUITE</a></li>\n                   <li><a href=\"isodistorthelp.php\" target=\"_blank\">HELP</a></li>\n\t         </ul>\n      </div>\n    </div>\n  </div>\n</div>\n<div class=\"pad\">\n<h1>ISODISTORT: search</h1><p>\nSpace Group: 221 Pm-3m      Oh-1,\nLattice parameters: a=4.2<br>\nDefault space-group preferences: monoclinic axes a(b)c, monoclinic cell choice 1, orthorhombic axes abc, origin choice 2, hexagonal axes, SSG standard setting<br>\nSr 1b (1/2,1/2,1/2),\nTi 1a (0,0,0),\nO 3d (1/2,0,0)<br>\n</p><div class=\"well\">\n<form action=\"isodistortform.php\" method=\"POST\">\n<h3>Types of distortions to be considered\n<input class=\"btn btn-primary\" type=\"submit\" value=\"Change\">\n<a href=\"isodistorthelp.php#includedistortion\" target=\"_blank\"><img src=\"help.jpg\"></a></h3><p>\n<input type=\"hidden\" name=\"input\" value=\"changesearch\">\n<input type=\"hidden\" name=\"spacegroup\" value=\"221 Pm-3m      Oh-1\">\n<input type=\"hidden\" name=\"settingaxesm\" value=\"a(b)c               \">\n<input type=\"hidden\" name=\"settingcell\" value=\"1\">\n<input type=\"hidden\" name=\"settingorigin\" value=\"2\">\n<input type=\"hidden\" name=\"settingaxesh\" value=\"h\">\n<input type=\"hidden\" name=\"settingaxeso\" value=\"abc                 \">\n<input type=\"hidden\" name=\"settingssg\" value=\"standard\">\n<input type=\"hidden\" name=\"parentsetting\" value=\"323\">\n<input type=\"hidden\" name=\"parentsettingstring\" value=\"\">\n<input type=\"hidden\" name=\"lattparam\" value=\"a=4.2\">\n<input type=\"hidden\" name=\"dlattparam\" value=\"   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000\">\n<input type=\"hidden\" name=\"wycount\" value=\"  3\">\n<input type=\"hidden\" name=\"wypointer001\" value=\"1627\">\n<input type=\"hidden\" name=\"wynumber001\" value=\" 2\">\n<input type=\"hidden\" name=\"wytype001\" value=\" 1\">\n<input type=\"hidden\" name=\"wyckoff001\" value=\"1b (1/2,1/2,1/2)\">\n<input type=\"hidden\" name=\"wyatom001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyatomtype001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyparam001\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc001\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer002\" value=\"1626\">\n<input type=\"hidden\" name=\"wynumber002\" value=\" 1\">\n<input type=\"hidden\" name=\"wytype002\" value=\" 2\">\n<input type=\"hidden\" name=\"wyckoff002\" value=\"1a (0,0,0)\">\n<input type=\"hidden\" name=\"wyatom002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyatomtype002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyparam002\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc002\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer003\" value=\"1629\">\n<input type=\"hidden\" name=\"wynumber003\" value=\" 4\">\n<input type=\"hidden\" name=\"wytype003\" value=\" 3\">\n<input type=\"hidden\" name=\"wyckoff003\" value=\"3d (1/2,0,0)\">\n<input type=\"hidden\" name=\"wyatom003\" value=\"O\">\n<input type=\"hidden\" name=\"wyatomtype003\" value=\"O\">\n<input type=\"hidden\" name=\"wyparam003\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc003\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"irrepcount\" value=\"1\">\n</p><table>\n<tbody><tr><td>Strain: <input type=\"checkbox\" name=\"includestrain\" value=\"true\" checked=\"\"></td></tr>\n<tr><td valign=\"TOP\">Displacive: </td>\n<td>all<input type=\"checkbox\" name=\"includedisplaciveall\" value=\"true\">\nnone<input type=\"checkbox\" name=\"includedisplacivenone\" value=\"true\">\nSr<input type=\"checkbox\" name=\"includedisplacive001\" value=\"true\" checked=\"\">\nTi<input type=\"checkbox\" name=\"includedisplacive002\" value=\"true\" checked=\"\">\nO<input type=\"checkbox\" name=\"includedisplacive003\" value=\"true\" checked=\"\"></td></tr>\n<tr><td valign=\"TOP\">Occupational:</td>\n<td>all<input type=\"checkbox\" name=\"includescalarall\" value=\"true\">\nnone<input type=\"checkbox\" name=\"includescalarnone\" value=\"true\">\nSr<input type=\"checkbox\" name=\"includescalar001\" value=\"true\">\nTi<input type=\"checkbox\" name=\"includescalar002\" value=\"true\">\nO<input type=\"checkbox\" name=\"includescalar003\" value=\"true\"></td></tr>\n<tr><td valign=\"TOP\">Magnetic: </td>\n<td>all<input type=\"checkbox\" name=\"includemagneticall\" value=\"true\">\nnone<input type=\"checkbox\" name=\"includemagneticnone\" value=\"true\">\nSr<input type=\"checkbox\" name=\"includemagnetic001\" value=\"true\">\nTi<input type=\"checkbox\" name=\"includemagnetic002\" value=\"true\">\nO<input type=\"checkbox\" name=\"includemagnetic003\" value=\"true\"></td></tr>\n<tr><td valign=\"TOP\">Rotational: </td>\n<td>all<input type=\"checkbox\" name=\"includerotationalall\" value=\"true\">\nnone<input type=\"checkbox\" name=\"includerotationalnone\" value=\"true\">\nSr<input type=\"checkbox\" name=\"includerotational001\" value=\"true\">\nTi<input type=\"checkbox\" name=\"includerotational002\" value=\"true\">\nO<input type=\"checkbox\" name=\"includerotational003\" value=\"true\"></td></tr>\n</tbody></table>\n</form>\n<b>Important: You must click on Change to implement any changes in the above type of distortions to be considered.</b>\n</div>\n<div class=\"well\">\n<p></p><form action=\"isodistortform.php\" method=\"POST\" target=\"_blank\">\n<h3>Method 1: Search over all special <i>k</i> points\n<input class=\"btn btn-primary\" type=\"submit\" value=\"OK\">\n<a href=\"isodistorthelp.php#isosub\" target=\"_blank\"><img src=\"help.jpg\"></a></h3><p><br>\n<input type=\"hidden\" name=\"input\" value=\"isosubgroup\">\n<input type=\"hidden\" name=\"spacegroup\" value=\"221 Pm-3m      Oh-1\">\n<input type=\"hidden\" name=\"settingaxesm\" value=\"a(b)c               \">\n<input type=\"hidden\" name=\"settingcell\" value=\"1\">\n<input type=\"hidden\" name=\"settingorigin\" value=\"2\">\n<input type=\"hidden\" name=\"settingaxesh\" value=\"h\">\n<input type=\"hidden\" name=\"settingaxeso\" value=\"abc                 \">\n<input type=\"hidden\" name=\"settingssg\" value=\"standard\">\n<input type=\"hidden\" name=\"parentsetting\" value=\"323\">\n<input type=\"hidden\" name=\"parentsettingstring\" value=\"\">\n<input type=\"hidden\" name=\"lattparam\" value=\"a=4.2\">\n<input type=\"hidden\" name=\"dlattparam\" value=\"   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000\">\n<input type=\"hidden\" name=\"wycount\" value=\"  3\">\n<input type=\"hidden\" name=\"wypointer001\" value=\"1627\">\n<input type=\"hidden\" name=\"wynumber001\" value=\" 2\">\n<input type=\"hidden\" name=\"wytype001\" value=\" 1\">\n<input type=\"hidden\" name=\"wyckoff001\" value=\"1b (1/2,1/2,1/2)\">\n<input type=\"hidden\" name=\"wyatom001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyatomtype001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyparam001\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc001\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer002\" value=\"1626\">\n<input type=\"hidden\" name=\"wynumber002\" value=\" 1\">\n<input type=\"hidden\" name=\"wytype002\" value=\" 2\">\n<input type=\"hidden\" name=\"wyckoff002\" value=\"1a (0,0,0)\">\n<input type=\"hidden\" name=\"wyatom002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyatomtype002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyparam002\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc002\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer003\" value=\"1629\">\n<input type=\"hidden\" name=\"wynumber003\" value=\" 4\">\n<input type=\"hidden\" name=\"wytype003\" value=\" 3\">\n<input type=\"hidden\" name=\"wyckoff003\" value=\"3d (1/2,0,0)\">\n<input type=\"hidden\" name=\"wyatom003\" value=\"O\">\n<input type=\"hidden\" name=\"wyatomtype003\" value=\"O\">\n<input type=\"hidden\" name=\"wyparam003\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc003\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"includedisplacive001\" value=\"true\">\n<input type=\"hidden\" name=\"includedisplacive002\" value=\"true\">\n<input type=\"hidden\" name=\"includedisplacive003\" value=\"true\">\n<input type=\"hidden\" name=\"includestrain\" value=\"true\">\nCrystal system(s):\ntriclinic<input type=\"checkbox\" name=\"isosystem1\" value=\"1 1 *triclinic\">&nbsp;&nbsp;\nmonoclinic<input type=\"checkbox\" name=\"isosystem2\" value=\"2 3 *monoclinic\">&nbsp;&nbsp;\northorhombic<input type=\"checkbox\" name=\"isosystem3\" value=\"4 7 *orthorhombic\">&nbsp;&nbsp;\ntetragonal<input type=\"checkbox\" name=\"isosystem4\" value=\"8 9 *tetragonal\">&nbsp;&nbsp;\ntrigonal<input type=\"checkbox\" name=\"isosystem5\" value=\"10 10 *trigonal\">&nbsp;&nbsp;\nhexagonal<input type=\"checkbox\" name=\"isosystem6\" value=\"11 11 *hexagonal\">&nbsp;&nbsp;\ncubic<input type=\"checkbox\" name=\"isosystem7\" value=\"12 14 *cubic\"><br>\nSpace-group symmetry:<select name=\"isosubgroup\">\n<option>no choice</option>\n<option>  1 P1         C1-1    </option>\n<option>  2 P-1        Ci-1    </option>\n<option>  5 C2         C2-3    </option>\n<option>  6 Pm         Cs-1    </option>\n<option>  8 Cm         Cs-3    </option>\n<option> 10 P2/m       C2h-1   </option>\n<option> 11 P2_1/m     C2h-2   </option>\n<option> 12 C2/m       C2h-3   </option>\n<option> 13 P2/c       C2h-4   </option>\n<option> 14 P2_1/c     C2h-5   </option>\n<option> 15 C2/c       C2h-6   </option>\n<option> 23 I222       D2-8    </option>\n<option> 24 I2_12_12_1 D2-9    </option>\n<option> 38 Amm2       C2v-14  </option>\n<option> 42 Fmm2       C2v-18  </option>\n<option> 44 Imm2       C2v-20  </option>\n<option> 47 Pmmm       D2h-1   </option>\n<option> 51 Pmma       D2h-5   </option>\n<option> 53 Pmna       D2h-7   </option>\n<option> 55 Pbam       D2h-9   </option>\n<option> 57 Pbcm       D2h-11  </option>\n<option> 59 Pmmn       D2h-13  </option>\n<option> 61 Pbca       D2h-15  </option>\n<option> 62 Pnma       D2h-16  </option>\n<option> 63 Cmcm       D2h-17  </option>\n<option> 64 Cmca       D2h-18  </option>\n<option> 65 Cmmm       D2h-19  </option>\n<option> 67 Cmma       D2h-21  </option>\n<option> 69 Fmmm       D2h-23  </option>\n<option> 71 Immm       D2h-25  </option>\n<option> 72 Ibam       D2h-26  </option>\n<option> 73 Ibca       D2h-27  </option>\n<option> 74 Imma       D2h-28  </option>\n<option> 99 P4mm       C4v-1   </option>\n<option>115 P-4m2      D2d-5   </option>\n<option>121 I-42m      D2d-11  </option>\n<option>123 P4/mmm     D4h-1   </option>\n<option>127 P4/mbm     D4h-5   </option>\n<option>129 P4/nmm     D4h-7   </option>\n<option>131 P4_2/mmc   D4h-9   </option>\n<option>139 I4/mmm     D4h-17  </option>\n<option>140 I4/mcm     D4h-18  </option>\n<option>146 R3         C3-4    </option>\n<option>148 R-3        C3i-2   </option>\n<option>155 R32        D3-7    </option>\n<option>160 R3m        C3v-5   </option>\n<option>166 R-3m       D3d-5   </option>\n<option>167 R-3c       D3d-6   </option>\n<option>199 I2_13      T-5     </option>\n<option>204 Im-3       Th-5    </option>\n<option>205 Pa-3       Th-6    </option>\n<option>206 Ia-3       Th-7    </option>\n<option>217 I-43m      Td-3    </option>\n<option>221 Pm-3m      Oh-1    </option>\n<option>223 Pm-3n      Oh-3    </option>\n<option>225 Fm-3m      Oh-5    </option>\n<option>229 Im-3m      Oh-9    </option>\n</select>\nConventional lattice:<select name=\"isolattice\">\n<option>no choice</option>\n<option value=\" 10 12396 12398 12399 12407 12414 12417 12418 12420 12422 12424 *conventional lattice selected: (1,0,0),(0,1,0),(0,0,1)\">(1,0,0),(0,1,0),(0,0,1)</option>\n<option value=\"  3 12404 12413 12419 *conventional lattice selected: (-1,0,1),(0,1,-1),(-1,-1,-1)\">(-1,0,1),(0,1,-1),(-1,-1,-1)</option>\n<option value=\" 16 12405 12406 12415 12416 12421 12423 12559 12563 12567 12571 12576 12577 12595 12601 12614 12615 *conventional lattice selected: (-1,1,0),(-1,-1,0),(0,0,1)\">(-1,1,0),(-1,-1,0),(0,0,1)</option>\n<option value=\" 67 12425 12429 12462 12463 12464 12495 12501 12502 12505 12506 12507 12508 12524 12525 12526 12530 12531 12532 12545 12551 12552 12555 12556 12557 12558 12560 12561 12562 12564 12565 12566 12568 12569 12570 12572 12573 12574 12578 12580 12581 12583 12584 12585 12587 12596 12597 12598 12599 12600 12602 12603 12604 12605 12606 12616 12619 12620 12622 12623 12624 12628 12629 12630 12631 12634 12635 12636 *conventional lattice selected: (2,0,0),(0,2,0),(0,0,2)\">(2,0,0),(0,2,0),(0,0,2)</option>\n<option value=\" 16 12427 12428 12431 12432 12433 12434 12437 12438 12439 12440 12448 12449 12450 12451 12483 12533 *conventional lattice selected: (-1,0,1),(-1,0,-1),(0,-2,0)\">(-1,0,1),(-1,0,-1),(0,-2,0)</option>\n<option value=\"  3 12430 12436 12447 *conventional lattice selected: (1,0,-1),(0,-1,1),(-2,-2,-2)\">(1,0,-1),(0,-1,1),(-2,-2,-2)</option>\n<option value=\"  3 12435 12441 12452 *conventional lattice selected: (0,1,1),(1,0,1),(1,1,0)\">(0,1,1),(1,0,1),(1,1,0)</option>\n<option value=\"  7 12459 12484 12485 12521 12527 12534 12535 *conventional lattice selected: (1,0,0),(0,0,1),(0,-2,0)\">(1,0,0),(0,0,1),(0,-2,0)</option>\n<option value=\" 24 12460 12461 12486 12487 12488 12489 12490 12492 12493 12494 12522 12523 12528 12529 12536 12537 12538 12539 12540 12542 12543 12544 12575 12613 *conventional lattice selected: (2,0,0),(0,2,0),(0,0,1)\">(2,0,0),(0,2,0),(0,0,1)</option>\n<option value=\"  2 12491 12541 *conventional lattice selected: (2,2,0),(-2,2,0),(0,0,1)\">(2,2,0),(-2,2,0),(0,0,1)</option>\n<option value=\"  6 12496 12497 12498 12546 12547 12548 *conventional lattice selected: (-2,0,2),(0,2,-2),(-2,-2,-2)\">(-2,0,2),(0,2,-2),(-2,-2,-2)</option>\n<option value=\" 10 12499 12500 12503 12504 12549 12550 12553 12554 12625 12626 *conventional lattice selected: (2,0,2),(2,0,-2),(0,2,0)\">(2,0,2),(2,0,-2),(0,2,0)</option>\n<option value=\"  5 12579 12582 12617 12618 12621 *conventional lattice selected: (-2,0,2),(0,-2,-2),(1,-1,1)\">(-2,0,2),(0,-2,-2),(1,-1,1)</option>\n<option value=\"  4 12586 12627 12632 12633 *conventional lattice selected: (0,-2,0),(2,0,2),(-1,1,1)\">(0,-2,0),(2,0,2),(-1,1,1)</option>\n<option value=\"  3 12588 12637 12638 *conventional lattice selected: (-1,1,1),(1,-1,1),(1,1,-1)\">(-1,1,1),(1,-1,1),(1,1,-1)</option>\n</select>\nPrimitive lattice:<select name=\"isoplattice\">\n<option>no choice</option>\n<option value=\" 19 12396 12398 12399 12404 12405 12406 12407 12413 12414 12415 12416 12417 12418 12419 12420 12421 12422 12423 12424 *primitive lattice selected: (1,0,0),(0,1,0),(0,0,1)\">(1,0,0),(0,1,0),(0,0,1)</option>\n<option value=\" 22 12425 12427 12428 12429 12430 12431 12432 12433 12434 12435 12436 12437 12438 12439 12440 12441 12447 12448 12449 12450 12451 12452 *primitive lattice selected: (0,1,1),(1,0,1),(1,1,0)\">(0,1,1),(1,0,1),(1,1,0)</option>\n<option value=\"  9 12459 12483 12484 12485 12521 12527 12533 12534 12535 *primitive lattice selected: (1,0,0),(0,0,1),(0,-2,0)\">(1,0,0),(0,0,1),(0,-2,0)</option>\n<option value=\" 24 12460 12461 12486 12487 12488 12489 12490 12491 12492 12493 12494 12522 12523 12528 12529 12536 12537 12538 12539 12540 12541 12542 12543 12544 *primitive lattice selected: (2,0,0),(0,2,0),(0,0,1)\">(2,0,0),(0,2,0),(0,0,1)</option>\n<option value=\" 37 12462 12463 12464 12495 12496 12497 12498 12499 12500 12501 12502 12503 12504 12505 12506 12507 12508 12524 12525 12526 12530 12531 12532 12545 12546 12547 12548 12549 12550 12551 12552 12553 12554 12555 12556 12557 12558 *primitive lattice selected: (0,-2,0),(-2,0,0),(0,0,-2)\">(0,-2,0),(-2,0,0),(0,0,-2)</option>\n<option value=\" 12 12559 12563 12567 12571 12575 12576 12577 12595 12601 12613 12614 12615 *primitive lattice selected: (1,-1,0),(1,1,0),(0,0,1)\">(1,-1,0),(1,1,0),(0,0,1)</option>\n<option value=\" 56 12560 12561 12562 12564 12565 12566 12568 12569 12570 12572 12573 12574 12578 12579 12580 12581 12582 12583 12584 12585 12586 12587 12588 12596 12597 12598 12599 12600 12602 12603 12604 12605 12606 12616 12617 12618 12619 12620 12621 12622 12623 12624 12625 12626 12627 12628 12629 12630 12631 12632 12633 12634 12635 12636 12637 12638 *primitive lattice selected: (-1,1,-1),(1,-1,-1),(-1,-1,1)\">(-1,1,-1),(1,-1,-1),(-1,-1,1)</option>\n</select>\nMaximal subgroups only<input type=\"checkbox\" name=\"maximal\" value=\"yes\">\n</p></form>\n</div>\n<div class=\"well\">\n<form action=\"isodistortform.php\" method=\"POST\" target=\"_blank\">\n<h3>Method 2: General method - search over specific <i>k</i> points\n<input class=\"btn btn-primary\" type=\"submit\" value=\"OK\">\n<a href=\"isodistorthelp.php#kpoint\" target=\"_blank\"><img src=\"help.jpg\"></a></h3><p><br>\n<input type=\"hidden\" name=\"input\" value=\"kvector\">\n<input type=\"hidden\" name=\"spacegroup\" value=\"221 Pm-3m      Oh-1\">\n<input type=\"hidden\" name=\"settingaxesm\" value=\"a(b)c               \">\n<input type=\"hidden\" name=\"settingcell\" value=\"1\">\n<input type=\"hidden\" name=\"settingorigin\" value=\"2\">\n<input type=\"hidden\" name=\"settingaxesh\" value=\"h\">\n<input type=\"hidden\" name=\"settingaxeso\" value=\"abc                 \">\n<input type=\"hidden\" name=\"settingssg\" value=\"standard\">\n<input type=\"hidden\" name=\"parentsetting\" value=\"323\">\n<input type=\"hidden\" name=\"parentsettingstring\" value=\"\">\n<input type=\"hidden\" name=\"lattparam\" value=\"a=4.2\">\n<input type=\"hidden\" name=\"dlattparam\" value=\"   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000\">\n<input type=\"hidden\" name=\"wycount\" value=\"  3\">\n<input type=\"hidden\" name=\"wypointer001\" value=\"1627\">\n<input type=\"hidden\" name=\"wynumber001\" value=\" 2\">\n<input type=\"hidden\" name=\"wytype001\" value=\" 1\">\n<input type=\"hidden\" name=\"wyckoff001\" value=\"1b (1/2,1/2,1/2)\">\n<input type=\"hidden\" name=\"wyatom001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyatomtype001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyparam001\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc001\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer002\" value=\"1626\">\n<input type=\"hidden\" name=\"wynumber002\" value=\" 1\">\n<input type=\"hidden\" name=\"wytype002\" value=\" 2\">\n<input type=\"hidden\" name=\"wyckoff002\" value=\"1a (0,0,0)\">\n<input type=\"hidden\" name=\"wyatom002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyatomtype002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyparam002\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc002\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer003\" value=\"1629\">\n<input type=\"hidden\" name=\"wynumber003\" value=\" 4\">\n<input type=\"hidden\" name=\"wytype003\" value=\" 3\">\n<input type=\"hidden\" name=\"wyckoff003\" value=\"3d (1/2,0,0)\">\n<input type=\"hidden\" name=\"wyatom003\" value=\"O\">\n<input type=\"hidden\" name=\"wyatomtype003\" value=\"O\">\n<input type=\"hidden\" name=\"wyparam003\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc003\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"includedisplacive001\" value=\"true\">\n<input type=\"hidden\" name=\"includedisplacive002\" value=\"true\">\n<input type=\"hidden\" name=\"includedisplacive003\" value=\"true\">\n<input type=\"hidden\" name=\"includestrain\" value=\"true\">\n<input type=\"hidden\" name=\"irrepcount\" value=\"1\">\nSpecify <i>k</i> point:\n<select name=\"kvec1\">\n<option value=\" 1 *GM, k12 (0,0,0)\">GM, k12 (0,0,0)</option>\n<option value=\" 2 *DT, k8 (0,b,0)\">DT, k8 (0,b,0)</option>\n<option value=\" 3 *LD, k9 (a,a,a)\">LD, k9 (a,a,a)</option>\n<option value=\" 4 *SM, k4 (a,a,0)\">SM, k4 (a,a,0)</option>\n<option value=\" 5 *R, k13 (1/2,1/2,1/2)\">R, k13 (1/2,1/2,1/2)</option>\n<option value=\" 6 *X, k10 (0,1/2,0)\">X, k10 (0,1/2,0)</option>\n<option value=\" 7 *M, k11 (1/2,1/2,0)\">M, k11 (1/2,1/2,0)</option>\n<option value=\" 8 *S, k5 (a,1/2,a)\">S, k5 (a,1/2,a)</option>\n<option value=\" 9 *T, k7 (1/2,1/2,g)\">T, k7 (1/2,1/2,g)</option>\n<option value=\"10 *Z, k6 (a,1/2,0)\">Z, k6 (a,1/2,0)</option>\n<option value=\"11 *C, k3 (a,a,g)\">C, k3 (a,a,g)</option>\n<option value=\"12 *A, k1 (a,b,0)\">A, k1 (a,b,0)</option>\n<option value=\"13 *B, k2 (a,1/2,g)\">B, k2 (a,1/2,g)</option>\n<option value=\"14 *GP, k0 (a,b,g)\">GP, k0 (a,b,g)</option>\n</select>\na=<input type=\"text\" name=\"kparam11\" class=\"span1\" size=\"5\">\nb=<input type=\"text\" name=\"kparam21\" class=\"span1\" size=\"5\">\ng=<input type=\"text\" name=\"kparam31\" class=\"span1\" size=\"5\">\n# of independent incommensurate modulations=<input type=\"text\" name=\"nmodstar1\" size=\"2\" maxlength=\"2\" class=\"span1\" value=\"0\">\n</p></form>\n<p></p><form action=\"isodistortform.php\" method=\"POST\">\n<input type=\"hidden\" name=\"input\" value=\"changesearch\">\n<input type=\"hidden\" name=\"spacegroup\" value=\"221 Pm-3m      Oh-1\">\n<input type=\"hidden\" name=\"settingaxesm\" value=\"a(b)c               \">\n<input type=\"hidden\" name=\"settingcell\" value=\"1\">\n<input type=\"hidden\" name=\"settingorigin\" value=\"2\">\n<input type=\"hidden\" name=\"settingaxesh\" value=\"h\">\n<input type=\"hidden\" name=\"settingaxeso\" value=\"abc                 \">\n<input type=\"hidden\" name=\"settingssg\" value=\"standard\">\n<input type=\"hidden\" name=\"parentsetting\" value=\"323\">\n<input type=\"hidden\" name=\"parentsettingstring\" value=\"\">\n<input type=\"hidden\" name=\"lattparam\" value=\"a=4.2\">\n<input type=\"hidden\" name=\"dlattparam\" value=\"   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000\">\n<input type=\"hidden\" name=\"wycount\" value=\"  3\">\n<input type=\"hidden\" name=\"wypointer001\" value=\"1627\">\n<input type=\"hidden\" name=\"wynumber001\" value=\" 2\">\n<input type=\"hidden\" name=\"wytype001\" value=\" 1\">\n<input type=\"hidden\" name=\"wyckoff001\" value=\"1b (1/2,1/2,1/2)\">\n<input type=\"hidden\" name=\"wyatom001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyatomtype001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyparam001\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc001\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer002\" value=\"1626\">\n<input type=\"hidden\" name=\"wynumber002\" value=\" 1\">\n<input type=\"hidden\" name=\"wytype002\" value=\" 2\">\n<input type=\"hidden\" name=\"wyckoff002\" value=\"1a (0,0,0)\">\n<input type=\"hidden\" name=\"wyatom002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyatomtype002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyparam002\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc002\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer003\" value=\"1629\">\n<input type=\"hidden\" name=\"wynumber003\" value=\" 4\">\n<input type=\"hidden\" name=\"wytype003\" value=\" 3\">\n<input type=\"hidden\" name=\"wyckoff003\" value=\"3d (1/2,0,0)\">\n<input type=\"hidden\" name=\"wyatom003\" value=\"O\">\n<input type=\"hidden\" name=\"wyatomtype003\" value=\"O\">\n<input type=\"hidden\" name=\"wyparam003\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc003\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"includedisplacive001\" value=\"true\">\n<input type=\"hidden\" name=\"includedisplacive002\" value=\"true\">\n<input type=\"hidden\" name=\"includedisplacive003\" value=\"true\">\n<input type=\"hidden\" name=\"includestrain\" value=\"true\">\nChange number of superposed IRs:\n<input type=\"text\" name=\"irrepcount\" value=\"1\" class=\"span1\" size=\"3\">\n<input class=\"btn btn-primary\" type=\"submit\" value=\"Change\">\n<a href=\"isodistorthelp.php#coupledir\" target=\"_blank\"><img src=\"help.jpg\"></a>\n</form>\n<b>Important: You must click on Change to implement any changes in the number of superposed IRs.</b>\n</div>\n<div class=\"well\">\n<form action=\"isodistortform.php\" method=\"POST\" target=\"_blank\">\n<h3>Method 3: Search over arbitrary <i>k</i> points for specified space group and lattice\n<input class=\"btn btn-primary\" type=\"submit\" value=\"OK\">\n<a href=\"isodistorthelp.php#method3\" target=\"_blank\"><img src=\"help.jpg\"></a></h3><p><br>\n<input type=\"hidden\" name=\"input\" value=\"parentbasis\">\n<input type=\"hidden\" name=\"spacegroup\" value=\"221 Pm-3m      Oh-1\">\n<input type=\"hidden\" name=\"settingaxesm\" value=\"a(b)c               \">\n<input type=\"hidden\" name=\"settingcell\" value=\"1\">\n<input type=\"hidden\" name=\"settingorigin\" value=\"2\">\n<input type=\"hidden\" name=\"settingaxesh\" value=\"h\">\n<input type=\"hidden\" name=\"settingaxeso\" value=\"abc                 \">\n<input type=\"hidden\" name=\"settingssg\" value=\"standard\">\n<input type=\"hidden\" name=\"parentsetting\" value=\"323\">\n<input type=\"hidden\" name=\"parentsettingstring\" value=\"\">\n<input type=\"hidden\" name=\"lattparam\" value=\"a=4.2\">\n<input type=\"hidden\" name=\"dlattparam\" value=\"   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000\">\n<input type=\"hidden\" name=\"wycount\" value=\"  3\">\n<input type=\"hidden\" name=\"wypointer001\" value=\"1627\">\n<input type=\"hidden\" name=\"wynumber001\" value=\" 2\">\n<input type=\"hidden\" name=\"wytype001\" value=\" 1\">\n<input type=\"hidden\" name=\"wyckoff001\" value=\"1b (1/2,1/2,1/2)\">\n<input type=\"hidden\" name=\"wyatom001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyatomtype001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyparam001\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc001\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer002\" value=\"1626\">\n<input type=\"hidden\" name=\"wynumber002\" value=\" 1\">\n<input type=\"hidden\" name=\"wytype002\" value=\" 2\">\n<input type=\"hidden\" name=\"wyckoff002\" value=\"1a (0,0,0)\">\n<input type=\"hidden\" name=\"wyatom002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyatomtype002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyparam002\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc002\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer003\" value=\"1629\">\n<input type=\"hidden\" name=\"wynumber003\" value=\" 4\">\n<input type=\"hidden\" name=\"wytype003\" value=\" 3\">\n<input type=\"hidden\" name=\"wyckoff003\" value=\"3d (1/2,0,0)\">\n<input type=\"hidden\" name=\"wyatom003\" value=\"O\">\n<input type=\"hidden\" name=\"wyatomtype003\" value=\"O\">\n<input type=\"hidden\" name=\"wyparam003\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc003\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"includedisplacive001\" value=\"true\">\n<input type=\"hidden\" name=\"includedisplacive002\" value=\"true\">\n<input type=\"hidden\" name=\"includedisplacive003\" value=\"true\">\n<input type=\"hidden\" name=\"includestrain\" value=\"true\">\nSelect either space group symmetry:\n<select name=\"subgroupsym\">\n<option value=\"0\">Not selected</option>\n<option>  1 P1         C1-1    </option>\n<option>  2 P-1        Ci-1    </option>\n<option>  3 P2         C2-1    </option>\n<option>  4 P2_1       C2-2    </option>\n<option>  5 C2         C2-3    </option>\n<option>  6 Pm         Cs-1    </option>\n<option>  7 Pc         Cs-2    </option>\n<option>  8 Cm         Cs-3    </option>\n<option>  9 Cc         Cs-4    </option>\n<option> 10 P2/m       C2h-1   </option>\n<option> 11 P2_1/m     C2h-2   </option>\n<option> 12 C2/m       C2h-3   </option>\n<option> 13 P2/c       C2h-4   </option>\n<option> 14 P2_1/c     C2h-5   </option>\n<option> 15 C2/c       C2h-6   </option>\n<option> 16 P222       D2-1    </option>\n<option> 17 P222_1     D2-2    </option>\n<option> 18 P2_12_12   D2-3    </option>\n<option> 19 P2_12_12_1 D2-4    </option>\n<option> 20 C222_1     D2-5    </option>\n<option> 21 C222       D2-6    </option>\n<option> 22 F222       D2-7    </option>\n<option> 23 I222       D2-8    </option>\n<option> 24 I2_12_12_1 D2-9    </option>\n<option> 25 Pmm2       C2v-1   </option>\n<option> 26 Pmc2_1     C2v-2   </option>\n<option> 27 Pcc2       C2v-3   </option>\n<option> 28 Pma2       C2v-4   </option>\n<option> 29 Pca2_1     C2v-5   </option>\n<option> 30 Pnc2       C2v-6   </option>\n<option> 31 Pmn2_1     C2v-7   </option>\n<option> 32 Pba2       C2v-8   </option>\n<option> 33 Pna2_1     C2v-9   </option>\n<option> 34 Pnn2       C2v-10  </option>\n<option> 35 Cmm2       C2v-11  </option>\n<option> 36 Cmc2_1     C2v-12  </option>\n<option> 37 Ccc2       C2v-13  </option>\n<option> 38 Amm2       C2v-14  </option>\n<option> 39 Abm2       C2v-15  </option>\n<option> 40 Ama2       C2v-16  </option>\n<option> 41 Aba2       C2v-17  </option>\n<option> 42 Fmm2       C2v-18  </option>\n<option> 43 Fdd2       C2v-19  </option>\n<option> 44 Imm2       C2v-20  </option>\n<option> 45 Iba2       C2v-21  </option>\n<option> 46 Ima2       C2v-22  </option>\n<option> 47 Pmmm       D2h-1   </option>\n<option> 48 Pnnn       D2h-2   </option>\n<option> 49 Pccm       D2h-3   </option>\n<option> 50 Pban       D2h-4   </option>\n<option> 51 Pmma       D2h-5   </option>\n<option> 52 Pnna       D2h-6   </option>\n<option> 53 Pmna       D2h-7   </option>\n<option> 54 Pcca       D2h-8   </option>\n<option> 55 Pbam       D2h-9   </option>\n<option> 56 Pccn       D2h-10  </option>\n<option> 57 Pbcm       D2h-11  </option>\n<option> 58 Pnnm       D2h-12  </option>\n<option> 59 Pmmn       D2h-13  </option>\n<option> 60 Pbcn       D2h-14  </option>\n<option> 61 Pbca       D2h-15  </option>\n<option> 62 Pnma       D2h-16  </option>\n<option> 63 Cmcm       D2h-17  </option>\n<option> 64 Cmca       D2h-18  </option>\n<option> 65 Cmmm       D2h-19  </option>\n<option> 66 Cccm       D2h-20  </option>\n<option> 67 Cmma       D2h-21  </option>\n<option> 68 Ccca       D2h-22  </option>\n<option> 69 Fmmm       D2h-23  </option>\n<option> 70 Fddd       D2h-24  </option>\n<option> 71 Immm       D2h-25  </option>\n<option> 72 Ibam       D2h-26  </option>\n<option> 73 Ibca       D2h-27  </option>\n<option> 74 Imma       D2h-28  </option>\n<option> 75 P4         C4-1    </option>\n<option> 76 P4_1       C4-2    </option>\n<option> 77 P4_2       C4-3    </option>\n<option> 78 P4_3       C4-4    </option>\n<option> 79 I4         C4-5    </option>\n<option> 80 I4_1       C4-6    </option>\n<option> 81 P-4        S4-1    </option>\n<option> 82 I-4        S4-2    </option>\n<option> 83 P4/m       C4h-1   </option>\n<option> 84 P4_2/m     C4h-2   </option>\n<option> 85 P4/n       C4h-3   </option>\n<option> 86 P4_2/n     C4h-4   </option>\n<option> 87 I4/m       C4h-5   </option>\n<option> 88 I4_1/a     C4h-6   </option>\n<option> 89 P422       D4-1    </option>\n<option> 90 P42_12     D4-2    </option>\n<option> 91 P4_122     D4-3    </option>\n<option> 92 P4_12_12   D4-4    </option>\n<option> 93 P4_222     D4-5    </option>\n<option> 94 P4_22_12   D4-6    </option>\n<option> 95 P4_322     D4-7    </option>\n<option> 96 P4_32_12   D4-8    </option>\n<option> 97 I422       D4-9    </option>\n<option> 98 I4_122     D4-10   </option>\n<option> 99 P4mm       C4v-1   </option>\n<option>100 P4bm       C4v-2   </option>\n<option>101 P4_2cm     C4v-3   </option>\n<option>102 P4_2nm     C4v-4   </option>\n<option>103 P4cc       C4v-5   </option>\n<option>104 P4nc       C4v-6   </option>\n<option>105 P4_2mc     C4v-7   </option>\n<option>106 P4_2bc     C4v-8   </option>\n<option>107 I4mm       C4v-9   </option>\n<option>108 I4cm       C4v-10  </option>\n<option>109 I4_1md     C4v-11  </option>\n<option>110 I4_1cd     C4v-12  </option>\n<option>111 P-42m      D2d-1   </option>\n<option>112 P-42c      D2d-2   </option>\n<option>113 P-42_1m    D2d-3   </option>\n<option>114 P-42_1c    D2d-4   </option>\n<option>115 P-4m2      D2d-5   </option>\n<option>116 P-4c2      D2d-6   </option>\n<option>117 P-4b2      D2d-7   </option>\n<option>118 P-4n2      D2d-8   </option>\n<option>119 I-4m2      D2d-9   </option>\n<option>120 I-4c2      D2d-10  </option>\n<option>121 I-42m      D2d-11  </option>\n<option>122 I-42d      D2d-12  </option>\n<option>123 P4/mmm     D4h-1   </option>\n<option>124 P4/mcc     D4h-2   </option>\n<option>125 P4/nbm     D4h-3   </option>\n<option>126 P4/nnc     D4h-4   </option>\n<option>127 P4/mbm     D4h-5   </option>\n<option>128 P4/mnc     D4h-6   </option>\n<option>129 P4/nmm     D4h-7   </option>\n<option>130 P4/ncc     D4h-8   </option>\n<option>131 P4_2/mmc   D4h-9   </option>\n<option>132 P4_2/mcm   D4h-10  </option>\n<option>133 P4_2/nbc   D4h-11  </option>\n<option>134 P4_2/nnm   D4h-12  </option>\n<option>135 P4_2/mbc   D4h-13  </option>\n<option>136 P4_2/mnm   D4h-14  </option>\n<option>137 P4_2/nmc   D4h-15  </option>\n<option>138 P4_2/ncm   D4h-16  </option>\n<option>139 I4/mmm     D4h-17  </option>\n<option>140 I4/mcm     D4h-18  </option>\n<option>141 I4_1/amd   D4h-19  </option>\n<option>142 I4_1/acd   D4h-20  </option>\n<option>143 P3         C3-1    </option>\n<option>144 P3_1       C3-2    </option>\n<option>145 P3_2       C3-3    </option>\n<option>146 R3         C3-4    </option>\n<option>147 P-3        C3i-1   </option>\n<option>148 R-3        C3i-2   </option>\n<option>149 P312       D3-1    </option>\n<option>150 P321       D3-2    </option>\n<option>151 P3_112     D3-3    </option>\n<option>152 P3_121     D3-4    </option>\n<option>153 P3_212     D3-5    </option>\n<option>154 P3_221     D3-6    </option>\n<option>155 R32        D3-7    </option>\n<option>156 P3m1       C3v-1   </option>\n<option>157 P31m       C3v-2   </option>\n<option>158 P3c1       C3v-3   </option>\n<option>159 P31c       C3v-4   </option>\n<option>160 R3m        C3v-5   </option>\n<option>161 R3c        C3v-6   </option>\n<option>162 P-31m      D3d-1   </option>\n<option>163 P-31c      D3d-2   </option>\n<option>164 P-3m1      D3d-3   </option>\n<option>165 P-3c1      D3d-4   </option>\n<option>166 R-3m       D3d-5   </option>\n<option>167 R-3c       D3d-6   </option>\n<option>168 P6         C6-1    </option>\n<option>169 P6_1       C6-2    </option>\n<option>170 P6_5       C6-3    </option>\n<option>171 P6_2       C6-4    </option>\n<option>172 P6_4       C6-5    </option>\n<option>173 P6_3       C6-6    </option>\n<option>174 P-6        C3h-1   </option>\n<option>175 P6/m       C6h-1   </option>\n<option>176 P6_3/m     C6h-2   </option>\n<option>177 P622       D6-1    </option>\n<option>178 P6_122     D6-2    </option>\n<option>179 P6_522     D6-3    </option>\n<option>180 P6_222     D6-4    </option>\n<option>181 P6_422     D6-5    </option>\n<option>182 P6_322     D6-6    </option>\n<option>183 P6mm       C6v-1   </option>\n<option>184 P6cc       C6v-2   </option>\n<option>185 P6_3cm     C6v-3   </option>\n<option>186 P6_3mc     C6v-4   </option>\n<option>187 P-6m2      D3h-1   </option>\n<option>188 P-6c2      D3h-2   </option>\n<option>189 P-62m      D3h-3   </option>\n<option>190 P-62c      D3h-4   </option>\n<option>191 P6/mmm     D6h-1   </option>\n<option>192 P6/mcc     D6h-2   </option>\n<option>193 P6_3/mcm   D6h-3   </option>\n<option>194 P6_3/mmc   D6h-4   </option>\n<option>195 P23        T-1     </option>\n<option>196 F23        T-2     </option>\n<option>197 I23        T-3     </option>\n<option>198 P2_13      T-4     </option>\n<option>199 I2_13      T-5     </option>\n<option>200 Pm-3       Th-1    </option>\n<option>201 Pn-3       Th-2    </option>\n<option>202 Fm-3       Th-3    </option>\n<option>203 Fd-3       Th-4    </option>\n<option>204 Im-3       Th-5    </option>\n<option>205 Pa-3       Th-6    </option>\n<option>206 Ia-3       Th-7    </option>\n<option>207 P432       O-1     </option>\n<option>208 P4_232     O-2     </option>\n<option>209 F432       O-3     </option>\n<option>210 F4_132     O-4     </option>\n<option>211 I432       O-5     </option>\n<option>212 P4_332     O-6     </option>\n<option>213 P4_132     O-7     </option>\n<option>214 I4_132     O-8     </option>\n<option>215 P-43m      Td-1    </option>\n<option>216 F-43m      Td-2    </option>\n<option>217 I-43m      Td-3    </option>\n<option>218 P-43n      Td-4    </option>\n<option>219 F-43c      Td-5    </option>\n<option>220 I-43d      Td-6    </option>\n<option>221 Pm-3m      Oh-1    </option>\n<option>222 Pn-3n      Oh-2    </option>\n<option>223 Pm-3n      Oh-3    </option>\n<option>224 Pn-3m      Oh-4    </option>\n<option>225 Fm-3m      Oh-5    </option>\n<option>226 Fm-3c      Oh-6    </option>\n<option>227 Fd-3m      Oh-7    </option>\n<option>228 Fd-3c      Oh-8    </option>\n<option>229 Im-3m      Oh-9    </option>\n<option>230 Ia-3d      Oh-10   </option>\n</select>\nor point group (crystal class):\n<select name=\"pointgroupsym\">\n<option value=\"0\">Not selected</option>\n<option value=\" 1\">triclinic: 1     C1  </option>\n<option value=\" 2\">triclinic: -1    Ci  </option>\n<option value=\" 3\">monoclinic: 2     C2  </option>\n<option value=\" 4\">monoclinic: m     Cs  </option>\n<option value=\" 5\">monoclinic: 2/m   C2h </option>\n<option value=\" 6\">orthorhombic: 222   D2  </option>\n<option value=\" 7\">orthorhombic: mm2   C2v </option>\n<option value=\" 8\">orthorhombic: mmm   D2h </option>\n<option value=\" 9\">tetragonal: 4     C4  </option>\n<option value=\"10\">tetragonal: -4    S4  </option>\n<option value=\"11\">tetragonal: 4/m   C4h </option>\n<option value=\"12\">tetragonal: 422   D4  </option>\n<option value=\"13\">tetragonal: 4mm   C4v </option>\n<option value=\"14\">tetragonal: -42m  D2d </option>\n<option value=\"15\">tetragonal: 4/mmm D4h </option>\n<option value=\"16\">hexagonal: 3     C3  </option>\n<option value=\"17\">hexagonal: -3    C3i </option>\n<option value=\"18\">hexagonal: 32    D3  </option>\n<option value=\"19\">hexagonal: 3m    C3v </option>\n<option value=\"20\">hexagonal: -3m   D3d </option>\n<option value=\"21\">hexagonal: 6     C6  </option>\n<option value=\"22\">hexagonal: -6    C3h </option>\n<option value=\"23\">hexagonal: 6/m   C6h </option>\n<option value=\"24\">hexagonal: 622   D6  </option>\n<option value=\"25\">hexagonal: 6mm   C6v </option>\n<option value=\"26\">hexagonal: -62m  D3h </option>\n<option value=\"27\">hexagonal: 6/mmm D6h </option>\n<option value=\"28\">cubic: 23    T   </option>\n<option value=\"29\">cubic: m-3   Th  </option>\n<option value=\"30\">cubic: 432   O   </option>\n<option value=\"31\">cubic: -43m  Td  </option>\n<option value=\"32\">cubic: m-3m  Oh  </option>\n</select>\n<br><input type=\"radio\" name=\"latticetype\" value=\"direct\" checked=\"\"> Specify a real-space sublattice of the parent lattice with\nDefault<input type=\"radio\" name=\"centering\" value=\"d\" checked=\"\">\nP<input type=\"radio\" name=\"centering\" value=\"P\">\nA<input type=\"radio\" name=\"centering\" value=\"A\">\nB<input type=\"radio\" name=\"centering\" value=\"B\">\nC<input type=\"radio\" name=\"centering\" value=\"C\">\nI<input type=\"radio\" name=\"centering\" value=\"I\">\nF<input type=\"radio\" name=\"centering\" value=\"F\">\nR<input type=\"radio\" name=\"centering\" value=\"R\"> centering.\n<br><input type=\"radio\" name=\"latticetype\" value=\"reciprocal\"> Specify a primitive reciprocal-space superlattice\n<br>Choose a representative basis:\n<br>a' = <input type=\"text\" name=\"basis11\" class=\"span1\" size=\"3\" value=\"1\">a + <input type=\"text\" name=\"basis12\" class=\"span1\" size=\"3\" value=\"0\">b + <input type=\"text\" name=\"basis13\" class=\"span1\" size=\"3\" value=\"0\">c\n<br>b' = <input type=\"text\" name=\"basis21\" class=\"span1\" size=\"3\" value=\"0\">a + <input type=\"text\" name=\"basis22\" class=\"span1\" size=\"3\" value=\"1\">b + <input type=\"text\" name=\"basis23\" class=\"span1\" size=\"3\" value=\"0\">c\n<br>c' = <input type=\"text\" name=\"basis31\" class=\"span1\" size=\"3\" value=\"0\">a + <input type=\"text\" name=\"basis32\" class=\"span1\" size=\"3\" value=\"0\">b + <input type=\"text\" name=\"basis33\" class=\"span1\" size=\"3\" value=\"1\">c\n</p></form>\n</div>\n<div class=\"well\">\n<form action=\"isodistortuploadfile.php\" method=\"POST\" enctype=\"multipart/form-data\" target=\"_blank\">\n<h3>Method 4: Mode decomposition of a distorted structure\n<input class=\"btn btn-primary\" type=\"submit\" value=\"OK\">\n<a href=\"isodistorthelp.php#method4\" target=\"_blank\"><img src=\"help.jpg\"></a></h3><p><br>\n<input type=\"hidden\" name=\"input\" value=\"uploadsubgroupcif\">\n<input type=\"hidden\" name=\"spacegroup\" value=\"221 Pm-3m      Oh-1\">\n<input type=\"hidden\" name=\"settingaxesm\" value=\"a(b)c               \">\n<input type=\"hidden\" name=\"settingcell\" value=\"1\">\n<input type=\"hidden\" name=\"settingorigin\" value=\"2\">\n<input type=\"hidden\" name=\"settingaxesh\" value=\"h\">\n<input type=\"hidden\" name=\"settingaxeso\" value=\"abc                 \">\n<input type=\"hidden\" name=\"settingssg\" value=\"standard\">\n<input type=\"hidden\" name=\"parentsetting\" value=\"323\">\n<input type=\"hidden\" name=\"parentsettingstring\" value=\"\">\n<input type=\"hidden\" name=\"lattparam\" value=\"a=4.2\">\n<input type=\"hidden\" name=\"dlattparam\" value=\"   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000\">\n<input type=\"hidden\" name=\"wycount\" value=\"  3\">\n<input type=\"hidden\" name=\"wypointer001\" value=\"1627\">\n<input type=\"hidden\" name=\"wynumber001\" value=\" 2\">\n<input type=\"hidden\" name=\"wytype001\" value=\" 1\">\n<input type=\"hidden\" name=\"wyckoff001\" value=\"1b (1/2,1/2,1/2)\">\n<input type=\"hidden\" name=\"wyatom001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyatomtype001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyparam001\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc001\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer002\" value=\"1626\">\n<input type=\"hidden\" name=\"wynumber002\" value=\" 1\">\n<input type=\"hidden\" name=\"wytype002\" value=\" 2\">\n<input type=\"hidden\" name=\"wyckoff002\" value=\"1a (0,0,0)\">\n<input type=\"hidden\" name=\"wyatom002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyatomtype002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyparam002\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc002\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer003\" value=\"1629\">\n<input type=\"hidden\" name=\"wynumber003\" value=\" 4\">\n<input type=\"hidden\" name=\"wytype003\" value=\" 3\">\n<input type=\"hidden\" name=\"wyckoff003\" value=\"3d (1/2,0,0)\">\n<input type=\"hidden\" name=\"wyatom003\" value=\"O\">\n<input type=\"hidden\" name=\"wyatomtype003\" value=\"O\">\n<input type=\"hidden\" name=\"wyparam003\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc003\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"includedisplacive001\" value=\"true\">\n<input type=\"hidden\" name=\"includedisplacive002\" value=\"true\">\n<input type=\"hidden\" name=\"includedisplacive003\" value=\"true\">\n<input type=\"hidden\" name=\"includestrain\" value=\"true\">\nUpload distorted structure from CIF file: \n<input name=\"toProcess\" type=\"file\" size=\"30\">\n</p></form>\n</div>\n<div class=\"well\">\n<form action=\"isodistortform.php\" method=\"POST\">\n<h3>Space-Group Preferences\n<input class=\"btn btn-primary\" type=\"submit\" value=\"Change\">\n<a href=\"isodistorthelp.php#settings\" target=\"_blank\"><img src=\"help.jpg\"></a></h3><p><br>\n<input type=\"hidden\" name=\"input\" value=\"changesearch\">\n<input type=\"hidden\" name=\"spacegroup\" value=\"221 Pm-3m      Oh-1\">\n<input type=\"hidden\" name=\"parentsetting\" value=\"323\">\n<input type=\"hidden\" name=\"parentsettingstring\" value=\"\">\n<input type=\"hidden\" name=\"lattparam\" value=\"a=4.2\">\n<input type=\"hidden\" name=\"dlattparam\" value=\"   4.2000000000000002        4.2000000000000002        4.2000000000000002        90.000000000000000        90.000000000000000        90.000000000000000\">\n<input type=\"hidden\" name=\"wycount\" value=\"  3\">\n<input type=\"hidden\" name=\"wypointer001\" value=\"1627\">\n<input type=\"hidden\" name=\"wynumber001\" value=\" 2\">\n<input type=\"hidden\" name=\"wytype001\" value=\" 1\">\n<input type=\"hidden\" name=\"wyckoff001\" value=\"1b (1/2,1/2,1/2)\">\n<input type=\"hidden\" name=\"wyatom001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyatomtype001\" value=\"Sr\">\n<input type=\"hidden\" name=\"wyparam001\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc001\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer002\" value=\"1626\">\n<input type=\"hidden\" name=\"wynumber002\" value=\" 1\">\n<input type=\"hidden\" name=\"wytype002\" value=\" 2\">\n<input type=\"hidden\" name=\"wyckoff002\" value=\"1a (0,0,0)\">\n<input type=\"hidden\" name=\"wyatom002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyatomtype002\" value=\"Ti\">\n<input type=\"hidden\" name=\"wyparam002\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc002\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"wypointer003\" value=\"1629\">\n<input type=\"hidden\" name=\"wynumber003\" value=\" 4\">\n<input type=\"hidden\" name=\"wytype003\" value=\" 3\">\n<input type=\"hidden\" name=\"wyckoff003\" value=\"3d (1/2,0,0)\">\n<input type=\"hidden\" name=\"wyatom003\" value=\"O\">\n<input type=\"hidden\" name=\"wyatomtype003\" value=\"O\">\n<input type=\"hidden\" name=\"wyparam003\" value=\"   0.0000000000000000        0.0000000000000000        0.0000000000000000\">\n<input type=\"hidden\" name=\"wyocc003\" value=\"   1.0000000000000000\">\n<input type=\"hidden\" name=\"includedisplacive001\" value=\"true\">\n<input type=\"hidden\" name=\"includedisplacive002\" value=\"true\">\n<input type=\"hidden\" name=\"includedisplacive003\" value=\"true\">\n<input type=\"hidden\" name=\"includestrain\" value=\"true\">\n<input type=\"hidden\" name=\"irrepcount\" value=\"1\">\nThese preferences apply to subsequent distortions but do not affect your parent structure):<br>\nMonoclinic axes:\na(b)c<input type=\"radio\" name=\"settingaxesm\" value=\"a(b)c\" checked=\"\">\nc(-b)a<input type=\"radio\" name=\"settingaxesm\" value=\"c(-b)a\">\nab(c)<input type=\"radio\" name=\"settingaxesm\" value=\"ab(c)\">\nba(-c)<input type=\"radio\" name=\"settingaxesm\" value=\"ba(-c)\">\n(a)bc<input type=\"radio\" name=\"settingaxesm\" value=\"(a)bc\">\n(-a)cb<input type=\"radio\" name=\"settingaxesm\" value=\"(-a)cb\"><br>\nMonoclinic cell choice:\n1<input type=\"radio\" name=\"settingcell\" value=\"1\" checked=\"\">\n2<input type=\"radio\" name=\"settingcell\" value=\"2\">\n3<input type=\"radio\" name=\"settingcell\" value=\"3\"><br>\nOrthorhombic axes:\nabc<input type=\"radio\" name=\"settingaxeso\" value=\"abc\" checked=\"\">\nba-c<input type=\"radio\" name=\"settingaxeso\" value=\"ba-c\">\ncab<input type=\"radio\" name=\"settingaxeso\" value=\"cab\">\n-cba<input type=\"radio\" name=\"settingaxeso\" value=\"-cba\">\nbca<input type=\"radio\" name=\"settingaxeso\" value=\"bca\">\na-cb<input type=\"radio\" name=\"settingaxeso\" value=\"a-cb\"><br>\nTrigonal axes:\nhexagonal<input type=\"radio\" name=\"settingaxesh\" value=\"h\" checked=\"\">\nrhombohedral<input type=\"radio\" name=\"settingaxesh\" value=\"r\"><br>\nOrigin choice:\n1<input type=\"radio\" name=\"settingorigin\" value=\"1\">\n2<input type=\"radio\" name=\"settingorigin\" value=\"2\" checked=\"\"><br>\nSuperspace group setting:\nstandard (IT-C)<input type=\"radio\" name=\"settingssg\" value=\"standard\" checked=\"\">\nbasic (IT-A)<input type=\"radio\" name=\"settingssg\" value=\"basic\"><br>\nNote for superspace groups: If the standard setting is selected, none of the other setting selections will apply.<br>\n<input type=\"checkbox\" name=\"parentlike\" value=\"true\">\nEmploy parent-like basis vectors (smallest supercell whose basis vectors are parallel to conventional parent basis vectors)\n</p></form>\n<b>Important: You must click on Change to implement any changes in the above preferences.</b>\n</div>\n</div>\n<script src=\"swingjs/swingjs2.js\"></script>\n<script src=\"isodistort.js\"></script>\n\n\n</body></html>"
+            }
+          },
+          "history": {
+            "state": "not_requested"
+          },
+          "screenshot": {
+            "state": "not_requested"
+          },
+          "storage": {
+            "state": "not_requested"
+          },
+          "url": {
+            "state": "captured",
+            "value": {
+              "origin": "https://landau3.byu.edu",
+              "query_parameter_names": [],
+              "redacted": false,
+              "url": "https://landau3.byu.edu/isodistortform.php"
+            }
+          }
+        },
+        "before_url": {
+          "origin": "https://landau3.byu.edu",
+          "query_parameter_names": [],
+          "redacted": false,
+          "url": "https://landau3.byu.edu/isodistortparent.html"
+        },
+        "completeness": {
+          "equality_eligible": true,
+          "missing_sections": [],
+          "status": "complete",
+          "truncated_sections": []
+        },
+        "elapsed_ms": 4046,
+        "error": null,
+        "event_sequence_end": 32,
+        "event_sequence_start": 5,
+        "status": "completed",
+        "step_id": "wait-autoload",
+        "step_index": 1
+      }
+    ]
+  },
+  "operation": "capture_browser_scenario",
+  "parameters": {
+    "actions": [
+      {
+        "action": "wait_for_timeout",
+        "duration_ms": 4000,
+        "step_id": "wait-autoload"
+      }
+    ],
+    "browser": {
+      "executable_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+      "headless": true,
+      "mode": "launch"
+    },
+    "capture": {
+      "after_each_step": [],
+      "at_end": [
+        "url",
+        "dom",
+        "accessibility"
+      ],
+      "events": [
+        "network",
+        "page-errors"
+      ],
+      "limits": {
+        "max_event_allocation_bytes": 4194304,
+        "max_events": 10000,
+        "max_network_body_allocation_bytes": 1048576,
+        "max_network_body_bytes": 65536,
+        "max_network_header_allocation_bytes": 1048576,
+        "max_network_metadata_allocation_bytes": 1048576,
+        "max_network_transactions": 1024,
+        "max_total_event_allocation_bytes": 16777216
+      },
+      "network": {
+        "header_values": false,
+        "request_body": true,
+        "response_body": false
+      }
+    },
+    "environment": {
+      "color_scheme": "light",
+      "locale": "en-US",
+      "reduced_motion": "reduce",
+      "service_workers": "block",
+      "timezone": "UTC",
+      "viewport": {
+        "device_scale_factor": 1,
+        "height": 720,
+        "width": 1280
+      }
+    },
+    "scenario_sha256": "3671ce1979501a131991aba5cf1824b3586e4d990c8f642cc27be65b1264ffaa",
+    "secrets": [],
+    "start_url": {
+      "query": [],
+      "url": "https://landau3.byu.edu/isodistortparent.html"
+    },
+    "storage": {
+      "cookies": [],
+      "local_storage": [],
+      "session_storage": []
+    }
+  },
+  "predicate_type": "rea.browser-scenario-capture",
+  "provider": {
+    "id": "rea-playwright-browser-scenario",
+    "name": "REA Playwright browser scenario capture provider",
+    "version": "1"
+  },
+  "raw_result": null,
+  "relationship_coverage": null,
+  "subject": null
+}

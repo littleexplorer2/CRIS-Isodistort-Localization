@@ -1,0 +1,1025 @@
+
+vendor/isobyu/iso:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+Disassembly of section .plt:
+
+Disassembly of section .text:
+
+000000000041c3b4 <get_isotropy_file_>:
+  41c3b4:	41 57                	push   r15
+  41c3b6:	41 56                	push   r14
+  41c3b8:	41 55                	push   r13
+  41c3ba:	41 54                	push   r12
+  41c3bc:	55                   	push   rbp
+  41c3bd:	53                   	push   rbx
+  41c3be:	48 81 ec 48 02 00 00 	sub    rsp,0x248
+  41c3c5:	49 89 d5             	mov    r13,rdx
+  41c3c8:	48 89 cb             	mov    rbx,rcx
+  41c3cb:	4c 89 44 24 08       	mov    QWORD PTR [rsp+0x8],r8
+  41c3d0:	4c 8b b4 24 98 02 00 	mov    r14,QWORD PTR [rsp+0x298]
+  41c3d7:	00 
+  41c3d8:	8b 07                	mov    eax,DWORD PTR [rdi]
+  41c3da:	8d 90 e0 b1 ff ff    	lea    edx,[rax-0x4e20]
+  41c3e0:	3d 20 4e 00 00       	cmp    eax,0x4e20
+  41c3e5:	0f 4f c2             	cmovg  eax,edx
+  41c3e8:	41 c7 01 00 00 00 00 	mov    DWORD PTR [r9],0x0
+  41c3ef:	83 3d aa 3a 29 00 00 	cmp    DWORD PTR [rip+0x293aaa],0x0        # 6afea0 <__isotropy_module_MOD_superspace>
+  41c3f6:	0f 85 b7 00 00 00    	jne    41c4b3 <get_isotropy_file_+0xff>
+  41c3fc:	48 89 fd             	mov    rbp,rdi
+  41c3ff:	4d 89 cc             	mov    r12,r9
+  41c402:	48 98                	cdqe
+  41c404:	4c 8d 78 ff          	lea    r15,[rax-0x1]
+  41c408:	48 8d 15 71 56 a8 00 	lea    rdx,[rip+0xa85671]        # ea1a80 <common_little_>
+  41c40f:	0f b7 8c 42 6e 6f 2d 	movzx  ecx,WORD PTR [rdx+rax*2+0x2d6f6e]
+  41c416:	00 
+  41c417:	0f bf f9             	movsx  edi,cx
+  41c41a:	89 bc 24 34 02 00 00 	mov    DWORD PTR [rsp+0x234],edi
+  41c421:	48 0f bf c9          	movsx  rcx,cx
+  41c425:	48 8d 3d d4 69 9f 00 	lea    rdi,[rip+0x9f69d4]        # e12e00 <common_space_>
+  41c42c:	48 0f be 8c 0f e3 1f 	movsx  rcx,BYTE PTR [rdi+rcx*1+0x61fe3]
+  41c433:	06 00 
+  41c435:	48 0f be bc 02 33 c3 	movsx  rdi,BYTE PTR [rdx+rax*1+0x36c333]
+  41c43c:	36 00 
+  41c43e:	48 8d 0c 49          	lea    rcx,[rcx+rcx*2]
+  41c442:	48 8d 0c c9          	lea    rcx,[rcx+rcx*8]
+  41c446:	48 01 d1             	add    rcx,rdx
+  41c449:	0f be 8c 0f d6 c0 2f 	movsx  ecx,BYTE PTR [rdi+rcx*1+0x2fc0d6]
+  41c450:	00 
+  41c451:	89 8c 24 30 02 00 00 	mov    DWORD PTR [rsp+0x230],ecx
+  41c458:	0f be 94 02 f7 9a 36 	movsx  edx,BYTE PTR [rdx+rax*1+0x369af7]
+  41c45f:	00 
+  41c460:	89 94 24 24 02 00 00 	mov    DWORD PTR [rsp+0x224],edx
+  41c467:	8b 06                	mov    eax,DWORD PTR [rsi]
+  41c469:	83 f8 01             	cmp    eax,0x1
+  41c46c:	74 6e                	je     41c4dc <get_isotropy_file_+0x128>
+  41c46e:	83 f8 02             	cmp    eax,0x2
+  41c471:	0f 84 54 06 00 00    	je     41cacb <get_isotropy_file_+0x717>
+  41c477:	8d 48 fd             	lea    ecx,[rax-0x3]
+  41c47a:	83 f9 01             	cmp    ecx,0x1
+  41c47d:	0f 86 e2 09 00 00    	jbe    41ce65 <get_isotropy_file_+0xab1>
+  41c483:	83 f8 05             	cmp    eax,0x5
+  41c486:	0f 85 80 10 00 00    	jne    41d50c <get_isotropy_file_+0x1158>
+  41c48c:	48 8b 84 24 80 02 00 	mov    rax,QWORD PTR [rsp+0x280]
+  41c493:	00 
+  41c494:	3b 10                	cmp    edx,DWORD PTR [rax]
+  41c496:	0f 84 5e 0d 00 00    	je     41d1fa <get_isotropy_file_+0xe46>
+  41c49c:	83 3d e9 3b 29 00 00 	cmp    DWORD PTR [rip+0x293be9],0x0        # 6b008c <__isotropy_module_MOD_readfromcmd>
+  41c4a3:	0f 84 7f 0c 00 00    	je     41d128 <get_isotropy_file_+0xd74>
+  41c4a9:	41 c7 04 24 02 00 00 	mov    DWORD PTR [r12],0x2
+  41c4b0:	00 
+  41c4b1:	eb 05                	jmp    41c4b8 <get_isotropy_file_+0x104>
+  41c4b3:	4d 85 f6             	test   r14,r14
+  41c4b6:	7f 12                	jg     41c4ca <get_isotropy_file_+0x116>
+  41c4b8:	48 81 c4 48 02 00 00 	add    rsp,0x248
+  41c4bf:	5b                   	pop    rbx
+  41c4c0:	5d                   	pop    rbp
+  41c4c1:	41 5c                	pop    r12
+  41c4c3:	41 5d                	pop    r13
+  41c4c5:	41 5e                	pop    r14
+  41c4c7:	41 5f                	pop    r15
+  41c4c9:	c3                   	ret
+  41c4ca:	4c 89 f2             	mov    rdx,r14
+  41c4cd:	be 20 00 00 00       	mov    esi,0x20
+  41c4d2:	48 89 cf             	mov    rdi,rcx
+  41c4d5:	e8 e6 4b fe ff       	call   4010c0 <_init+0xc0>
+  41c4da:	eb dc                	jmp    41c4b8 <get_isotropy_file_+0x104>
+  41c4dc:	85 c9                	test   ecx,ecx
+  41c4de:	0f 84 e2 03 00 00    	je     41c8c6 <get_isotropy_file_+0x512>
+  41c4e4:	4d 85 f6             	test   r14,r14
+  41c4e7:	7e 30                	jle    41c519 <get_isotropy_file_+0x165>
+  41c4e9:	49 83 fe 0c          	cmp    r14,0xc
+  41c4ed:	0f 8e f1 03 00 00    	jle    41c8e4 <get_isotropy_file_+0x530>
+  41c4f3:	48 b8 69 20 20 20 20 	movabs rax,0x7878202020202069
+  41c4fa:	20 78 78 
+  41c4fd:	48 89 03             	mov    QWORD PTR [rbx],rax
+  41c500:	c7 43 08 2e 69 73 6f 	mov    DWORD PTR [rbx+0x8],0x6f73692e
+  41c507:	49 8d 56 f4          	lea    rdx,[r14-0xc]
+  41c50b:	48 8d 7b 0c          	lea    rdi,[rbx+0xc]
+  41c50f:	be 20 00 00 00       	mov    esi,0x20
+  41c514:	e8 a7 4b fe ff       	call   4010c0 <_init+0xc0>
+  41c519:	48 8d 05 59 98 18 00 	lea    rax,[rip+0x189859]        # 5a5d79 <options.981.0+0x29>
+  41c520:	48 89 44 24 18       	mov    QWORD PTR [rsp+0x18],rax
+  41c525:	c7 44 24 20 3e 00 00 	mov    DWORD PTR [rsp+0x20],0x3e
+  41c52c:	00 
+  41c52d:	48 8d 43 01          	lea    rax,[rbx+0x1]
+  41c531:	48 89 84 24 80 00 00 	mov    QWORD PTR [rsp+0x80],rax
+  41c538:	00 
+  41c539:	48 c7 84 24 88 00 00 	mov    QWORD PTR [rsp+0x88],0x5
+  41c540:	00 05 00 00 00 
+  41c545:	48 c7 44 24 58 00 00 	mov    QWORD PTR [rsp+0x58],0x0
+  41c54c:	00 00 
+  41c54e:	c7 44 24 14 ff ff ff 	mov    DWORD PTR [rsp+0x14],0xffffffff
+  41c555:	ff 
+  41c556:	48 8d 05 3a 98 18 00 	lea    rax,[rip+0x18983a]        # 5a5d97 <options.981.0+0x47>
+  41c55d:	48 89 44 24 60       	mov    QWORD PTR [rsp+0x60],rax
+  41c562:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41c569:	00 00 
+  41c56b:	c7 44 24 10 00 50 00 	mov    DWORD PTR [rsp+0x10],0x5000
+  41c572:	00 
+  41c573:	48 8d 44 24 10       	lea    rax,[rsp+0x10]
+  41c578:	48 89 44 24 08       	mov    QWORD PTR [rsp+0x8],rax
+  41c57d:	48 89 c7             	mov    rdi,rax
+  41c580:	e8 3b 4c 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41c585:	ba 04 00 00 00       	mov    edx,0x4
+  41c58a:	48 89 ee             	mov    rsi,rbp
+  41c58d:	48 8b 7c 24 08       	mov    rdi,QWORD PTR [rsp+0x8]
+  41c592:	e8 f9 ff 09 00       	call   4bc590 <_gfortran_transfer_integer_write>
+  41c597:	48 8b 7c 24 08       	mov    rdi,QWORD PTR [rsp+0x8]
+  41c59c:	e8 af 53 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41c5a1:	4c 8d 8c 24 2c 02 00 	lea    r9,[rsp+0x22c]
+  41c5a8:	00 
+  41c5a9:	48 8d 8c 24 38 02 00 	lea    rcx,[rsp+0x238]
+  41c5b0:	00 
+  41c5b1:	48 8d bc 24 30 02 00 	lea    rdi,[rsp+0x230]
+  41c5b8:	00 
+  41c5b9:	48 83 ec 08          	sub    rsp,0x8
+  41c5bd:	41 56                	push   r14
+  41c5bf:	48 8d 84 24 38 02 00 	lea    rax,[rsp+0x238]
+  41c5c6:	00 
+  41c5c7:	50                   	push   rax
+  41c5c8:	41 51                	push   r9
+  41c5ca:	4c 8d 84 24 40 02 00 	lea    r8,[rsp+0x240]
+  41c5d1:	00 
+  41c5d2:	48 89 da             	mov    rdx,rbx
+  41c5d5:	4c 89 ee             	mov    rsi,r13
+  41c5d8:	e8 48 01 07 00       	call   48c725 <get_isotropy_filename_>
+  41c5dd:	48 83 c4 20          	add    rsp,0x20
+  41c5e1:	83 bc 24 20 02 00 00 	cmp    DWORD PTR [rsp+0x220],0x0
+  41c5e8:	00 
+  41c5e9:	0f 85 0c 03 00 00    	jne    41c8fb <get_isotropy_file_+0x547>
+  41c5ef:	83 bc 24 38 02 00 00 	cmp    DWORD PTR [rsp+0x238],0x0
+  41c5f6:	00 
+  41c5f7:	0f 85 bb fe ff ff    	jne    41c4b8 <get_isotropy_file_+0x104>
+  41c5fd:	83 3d 34 38 29 00 00 	cmp    DWORD PTR [rip+0x293834],0x0        # 6afe38 <__isotropy_module_MOD_www>
+  41c604:	0f 85 2b 02 00 00    	jne    41c835 <get_isotropy_file_+0x481>
+  41c60a:	4c 8d 35 68 97 18 00 	lea    r14,[rip+0x189768]        # 5a5d79 <options.981.0+0x29>
+  41c611:	4c 89 74 24 18       	mov    QWORD PTR [rsp+0x18],r14
+  41c616:	c7 44 24 20 4e 00 00 	mov    DWORD PTR [rsp+0x20],0x4e
+  41c61d:	00 
+  41c61e:	48 8d 05 79 97 18 00 	lea    rax,[rip+0x189779]        # 5a5d9e <options.981.0+0x4e>
+  41c625:	48 89 44 24 60       	mov    QWORD PTR [rsp+0x60],rax
+  41c62a:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41c631:	00 00 
+  41c633:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41c63a:	00 
+  41c63b:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41c642:	00 
+  41c643:	48 8d 5c 24 10       	lea    rbx,[rsp+0x10]
+  41c648:	48 89 df             	mov    rdi,rbx
+  41c64b:	e8 70 4b 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41c650:	ba 3d 00 00 00       	mov    edx,0x3d
+  41c655:	48 8d 35 fc 97 18 00 	lea    rsi,[rip+0x1897fc]        # 5a5e58 <options.981.0+0x108>
+  41c65c:	48 89 df             	mov    rdi,rbx
+  41c65f:	e8 0c 03 0a 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c664:	48 89 df             	mov    rdi,rbx
+  41c667:	e8 e4 52 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41c66c:	4c 89 74 24 18       	mov    QWORD PTR [rsp+0x18],r14
+  41c671:	c7 44 24 20 51 00 00 	mov    DWORD PTR [rsp+0x20],0x51
+  41c678:	00 
+  41c679:	48 8d 35 4e 97 18 00 	lea    rsi,[rip+0x18974e]        # 5a5dce <options.981.0+0x7e>
+  41c680:	48 89 74 24 60       	mov    QWORD PTR [rsp+0x60],rsi
+  41c685:	48 c7 44 24 68 0c 00 	mov    QWORD PTR [rsp+0x68],0xc
+  41c68c:	00 00 
+  41c68e:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41c695:	00 
+  41c696:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41c69d:	00 
+  41c69e:	48 89 df             	mov    rdi,rbx
+  41c6a1:	e8 1a 4b 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41c6a6:	ba 07 00 00 00       	mov    edx,0x7
+  41c6ab:	48 8d 35 05 97 18 00 	lea    rsi,[rip+0x189705]        # 5a5db7 <options.981.0+0x67>
+  41c6b2:	48 89 df             	mov    rdi,rbx
+  41c6b5:	e8 b6 02 0a 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c6ba:	48 8d 05 bf 53 a8 00 	lea    rax,[rip+0xa853bf]        # ea1a80 <common_little_>
+  41c6c1:	4a 8d b4 f8 66 80 66 	lea    rsi,[rax+r15*8+0x668066]
+  41c6c8:	00 
+  41c6c9:	ba 08 00 00 00       	mov    edx,0x8
+  41c6ce:	48 89 df             	mov    rdi,rbx
+  41c6d1:	e8 9a 02 0a 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c6d6:	ba 0e 00 00 00       	mov    edx,0xe
+  41c6db:	48 8d 35 dd 96 18 00 	lea    rsi,[rip+0x1896dd]        # 5a5dbf <options.981.0+0x6f>
+  41c6e2:	48 89 df             	mov    rdi,rbx
+  41c6e5:	e8 86 02 0a 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c6ea:	48 63 94 24 34 02 00 	movsxd rdx,DWORD PTR [rsp+0x234]
+  41c6f1:	00 
+  41c6f2:	48 8d 05 07 67 9f 00 	lea    rax,[rip+0x9f6707]        # e12e00 <common_space_>
+  41c6f9:	48 8d b4 d0 fe 48 08 	lea    rsi,[rax+rdx*8+0x848fe]
+  41c700:	00 
+  41c701:	ba 08 00 00 00       	mov    edx,0x8
+  41c706:	48 89 df             	mov    rdi,rbx
+  41c709:	e8 62 02 0a 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c70e:	48 89 df             	mov    rdi,rbx
+  41c711:	e8 3a 52 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41c716:	4c 89 74 24 18       	mov    QWORD PTR [rsp+0x18],r14
+  41c71b:	c7 44 24 20 53 00 00 	mov    DWORD PTR [rsp+0x20],0x53
+  41c722:	00 
+  41c723:	4c 8d 3d 74 96 18 00 	lea    r15,[rip+0x189674]        # 5a5d9e <options.981.0+0x4e>
+  41c72a:	4c 89 7c 24 60       	mov    QWORD PTR [rsp+0x60],r15
+  41c72f:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41c736:	00 00 
+  41c738:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41c73f:	00 
+  41c740:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41c747:	00 
+  41c748:	48 89 df             	mov    rdi,rbx
+  41c74b:	e8 70 4a 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41c750:	ba 3b 00 00 00       	mov    edx,0x3b
+  41c755:	48 8d 35 7c 97 18 00 	lea    rsi,[rip+0x18977c]        # 5a5ed8 <options.981.0+0x188>
+  41c75c:	48 89 df             	mov    rdi,rbx
+  41c75f:	e8 0c 02 0a 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c764:	48 89 df             	mov    rdi,rbx
+  41c767:	e8 e4 51 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41c76c:	4c 89 74 24 18       	mov    QWORD PTR [rsp+0x18],r14
+  41c771:	c7 44 24 20 54 00 00 	mov    DWORD PTR [rsp+0x20],0x54
+  41c778:	00 
+  41c779:	4c 89 7c 24 60       	mov    QWORD PTR [rsp+0x60],r15
+  41c77e:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41c785:	00 00 
+  41c787:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41c78e:	00 
+  41c78f:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41c796:	00 
+  41c797:	48 89 df             	mov    rdi,rbx
+  41c79a:	e8 21 4a 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41c79f:	ba 1e 00 00 00       	mov    edx,0x1e
+  41c7a4:	48 8d 35 30 96 18 00 	lea    rsi,[rip+0x189630]        # 5a5ddb <options.981.0+0x8b>
+  41c7ab:	48 89 df             	mov    rdi,rbx
+  41c7ae:	e8 bd 01 0a 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c7b3:	48 89 df             	mov    rdi,rbx
+  41c7b6:	e8 95 51 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41c7bb:	4c 89 74 24 18       	mov    QWORD PTR [rsp+0x18],r14
+  41c7c0:	c7 44 24 20 56 00 00 	mov    DWORD PTR [rsp+0x20],0x56
+  41c7c7:	00 
+  41c7c8:	4c 89 7c 24 60       	mov    QWORD PTR [rsp+0x60],r15
+  41c7cd:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41c7d4:	00 00 
+  41c7d6:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41c7dd:	00 
+  41c7de:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41c7e5:	00 
+  41c7e6:	48 89 df             	mov    rdi,rbx
+  41c7e9:	e8 d2 49 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41c7ee:	ba 36 00 00 00       	mov    edx,0x36
+  41c7f3:	48 8d 35 1e 97 18 00 	lea    rsi,[rip+0x18971e]        # 5a5f18 <options.981.0+0x1c8>
+  41c7fa:	48 89 df             	mov    rdi,rbx
+  41c7fd:	e8 6e 01 0a 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c802:	48 89 df             	mov    rdi,rbx
+  41c805:	e8 46 51 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41c80a:	48 8d 9c 24 3f 02 00 	lea    rbx,[rsp+0x23f]
+  41c811:	00 
+  41c812:	be 01 00 00 00       	mov    esi,0x1
+  41c817:	48 89 df             	mov    rdi,rbx
+  41c81a:	e8 03 b5 02 00       	call   447d22 <readinput_>
+  41c81f:	48 89 de             	mov    rsi,rbx
+  41c822:	bf 01 00 00 00       	mov    edi,0x1
+  41c827:	e8 24 0b 0b 00       	call   4cd350 <_gfortran_string_len_trim>
+  41c82c:	48 85 c0             	test   rax,rax
+  41c82f:	0f 85 2e 02 00 00    	jne    41ca63 <get_isotropy_file_+0x6af>
+  41c835:	48 8d 05 3d 95 18 00 	lea    rax,[rip+0x18953d]        # 5a5d79 <options.981.0+0x29>
+  41c83c:	48 89 44 24 18       	mov    QWORD PTR [rsp+0x18],rax
+  41c841:	c7 44 24 20 5f 00 00 	mov    DWORD PTR [rsp+0x20],0x5f
+  41c848:	00 
+  41c849:	48 8d 05 b7 95 18 00 	lea    rax,[rip+0x1895b7]        # 5a5e07 <options.981.0+0xb7>
+  41c850:	48 89 44 24 60       	mov    QWORD PTR [rsp+0x60],rax
+  41c855:	48 c7 44 24 68 08 00 	mov    QWORD PTR [rsp+0x68],0x8
+  41c85c:	00 00 
+  41c85e:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41c865:	00 
+  41c866:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41c86d:	00 
+  41c86e:	48 8d 5c 24 10       	lea    rbx,[rsp+0x10]
+  41c873:	48 89 df             	mov    rdi,rbx
+  41c876:	e8 45 49 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41c87b:	ba 13 00 00 00       	mov    edx,0x13
+  41c880:	48 8d 35 89 95 18 00 	lea    rsi,[rip+0x189589]        # 5a5e10 <options.981.0+0xc0>
+  41c887:	48 89 df             	mov    rdi,rbx
+  41c88a:	e8 e1 00 0a 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c88f:	48 89 df             	mov    rdi,rbx
+  41c892:	e8 b9 50 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41c897:	48 8d bc 24 34 02 00 	lea    rdi,[rsp+0x234]
+  41c89e:	00 
+  41c89f:	4c 8d 8c 24 28 02 00 	lea    r9,[rsp+0x228]
+  41c8a6:	00 
+  41c8a7:	4c 8d 84 24 2c 02 00 	lea    r8,[rsp+0x22c]
+  41c8ae:	00 
+  41c8af:	48 8d 0d 6a 97 18 00 	lea    rcx,[rip+0x18976a]        # 5a6020 <options.981.0+0x2d0>
+  41c8b6:	4c 89 ea             	mov    rdx,r13
+  41c8b9:	48 89 ee             	mov    rsi,rbp
+  41c8bc:	e8 3d ae 06 00       	call   4876fe <get_isotropy_>
+  41c8c1:	e9 f2 fb ff ff       	jmp    41c4b8 <get_isotropy_file_+0x104>
+  41c8c6:	4d 85 f6             	test   r14,r14
+  41c8c9:	0f 8e e9 fb ff ff    	jle    41c4b8 <get_isotropy_file_+0x104>
+  41c8cf:	4c 89 f2             	mov    rdx,r14
+  41c8d2:	be 20 00 00 00       	mov    esi,0x20
+  41c8d7:	48 89 df             	mov    rdi,rbx
+  41c8da:	e8 e1 47 fe ff       	call   4010c0 <_init+0xc0>
+  41c8df:	e9 d4 fb ff ff       	jmp    41c4b8 <get_isotropy_file_+0x104>
+  41c8e4:	4c 89 f2             	mov    rdx,r14
+  41c8e7:	48 8d 35 7e 94 18 00 	lea    rsi,[rip+0x18947e]        # 5a5d6c <options.981.0+0x1c>
+  41c8ee:	48 89 df             	mov    rdi,rbx
+  41c8f1:	e8 4a 47 fe ff       	call   401040 <_init+0x40>
+  41c8f6:	e9 1e fc ff ff       	jmp    41c519 <get_isotropy_file_+0x165>
+  41c8fb:	48 8d 2d 77 94 18 00 	lea    rbp,[rip+0x189477]        # 5a5d79 <options.981.0+0x29>
+  41c902:	48 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],rbp
+  41c907:	c7 44 24 20 43 00 00 	mov    DWORD PTR [rsp+0x20],0x43
+  41c90e:	00 
+  41c90f:	4c 8d 2d 88 94 18 00 	lea    r13,[rip+0x189488]        # 5a5d9e <options.981.0+0x4e>
+  41c916:	4c 89 6c 24 60       	mov    QWORD PTR [rsp+0x60],r13
+  41c91b:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41c922:	00 00 
+  41c924:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41c92b:	00 
+  41c92c:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41c933:	00 
+  41c934:	48 8d 5c 24 10       	lea    rbx,[rsp+0x10]
+  41c939:	48 89 df             	mov    rdi,rbx
+  41c93c:	e8 7f 48 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41c941:	ba 3d 00 00 00       	mov    edx,0x3d
+  41c946:	48 8d 35 0b 95 18 00 	lea    rsi,[rip+0x18950b]        # 5a5e58 <options.981.0+0x108>
+  41c94d:	48 89 df             	mov    rdi,rbx
+  41c950:	e8 1b 00 0a 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c955:	48 89 df             	mov    rdi,rbx
+  41c958:	e8 f3 4f 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41c95d:	48 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],rbp
+  41c962:	c7 44 24 20 46 00 00 	mov    DWORD PTR [rsp+0x20],0x46
+  41c969:	00 
+  41c96a:	48 8d 05 34 94 18 00 	lea    rax,[rip+0x189434]        # 5a5da5 <options.981.0+0x55>
+  41c971:	48 89 44 24 60       	mov    QWORD PTR [rsp+0x60],rax
+  41c976:	48 c7 44 24 68 11 00 	mov    QWORD PTR [rsp+0x68],0x11
+  41c97d:	00 00 
+  41c97f:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41c986:	00 
+  41c987:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41c98e:	00 
+  41c98f:	48 89 df             	mov    rdi,rbx
+  41c992:	e8 29 48 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41c997:	ba 07 00 00 00       	mov    edx,0x7
+  41c99c:	48 8d 35 14 94 18 00 	lea    rsi,[rip+0x189414]        # 5a5db7 <options.981.0+0x67>
+  41c9a3:	48 89 df             	mov    rdi,rbx
+  41c9a6:	e8 c5 ff 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c9ab:	48 8d 05 ce 50 a8 00 	lea    rax,[rip+0xa850ce]        # ea1a80 <common_little_>
+  41c9b2:	4a 8d b4 f8 66 80 66 	lea    rsi,[rax+r15*8+0x668066]
+  41c9b9:	00 
+  41c9ba:	ba 08 00 00 00       	mov    edx,0x8
+  41c9bf:	48 89 df             	mov    rdi,rbx
+  41c9c2:	e8 a9 ff 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c9c7:	ba 0e 00 00 00       	mov    edx,0xe
+  41c9cc:	48 8d 35 ec 93 18 00 	lea    rsi,[rip+0x1893ec]        # 5a5dbf <options.981.0+0x6f>
+  41c9d3:	48 89 df             	mov    rdi,rbx
+  41c9d6:	e8 95 ff 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c9db:	48 63 94 24 34 02 00 	movsxd rdx,DWORD PTR [rsp+0x234]
+  41c9e2:	00 
+  41c9e3:	48 8d 05 16 64 9f 00 	lea    rax,[rip+0x9f6416]        # e12e00 <common_space_>
+  41c9ea:	48 8d b4 d0 fe 48 08 	lea    rsi,[rax+rdx*8+0x848fe]
+  41c9f1:	00 
+  41c9f2:	ba 08 00 00 00       	mov    edx,0x8
+  41c9f7:	48 89 df             	mov    rdi,rbx
+  41c9fa:	e8 71 ff 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41c9ff:	48 89 df             	mov    rdi,rbx
+  41ca02:	e8 49 4f 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41ca07:	48 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],rbp
+  41ca0c:	c7 44 24 20 48 00 00 	mov    DWORD PTR [rsp+0x20],0x48
+  41ca13:	00 
+  41ca14:	4c 89 6c 24 60       	mov    QWORD PTR [rsp+0x60],r13
+  41ca19:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41ca20:	00 00 
+  41ca22:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41ca29:	00 
+  41ca2a:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41ca31:	00 
+  41ca32:	48 89 df             	mov    rdi,rbx
+  41ca35:	e8 86 47 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41ca3a:	ba 3c 00 00 00       	mov    edx,0x3c
+  41ca3f:	48 8d 35 52 94 18 00 	lea    rsi,[rip+0x189452]        # 5a5e98 <options.981.0+0x148>
+  41ca46:	48 89 df             	mov    rdi,rbx
+  41ca49:	e8 22 ff 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41ca4e:	48 89 df             	mov    rdi,rbx
+  41ca51:	e8 fa 4e 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41ca56:	41 c7 04 24 01 00 00 	mov    DWORD PTR [r12],0x1
+  41ca5d:	00 
+  41ca5e:	e9 55 fa ff ff       	jmp    41c4b8 <get_isotropy_file_+0x104>
+  41ca63:	4c 89 74 24 18       	mov    QWORD PTR [rsp+0x18],r14
+  41ca68:	c7 44 24 20 59 00 00 	mov    DWORD PTR [rsp+0x20],0x59
+  41ca6f:	00 
+  41ca70:	48 8d 05 8a 88 18 00 	lea    rax,[rip+0x18888a]        # 5a5301 <_IO_stdin_used+0x301>
+  41ca77:	48 89 44 24 60       	mov    QWORD PTR [rsp+0x60],rax
+  41ca7c:	48 c7 44 24 68 03 00 	mov    QWORD PTR [rsp+0x68],0x3
+  41ca83:	00 00 
+  41ca85:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41ca8c:	00 
+  41ca8d:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41ca94:	00 
+  41ca95:	48 8d 5c 24 10       	lea    rbx,[rsp+0x10]
+  41ca9a:	48 89 df             	mov    rdi,rbx
+  41ca9d:	e8 1e 47 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41caa2:	ba 0c 00 00 00       	mov    edx,0xc
+  41caa7:	48 8d 35 4c 93 18 00 	lea    rsi,[rip+0x18934c]        # 5a5dfa <options.981.0+0xaa>
+  41caae:	48 89 df             	mov    rdi,rbx
+  41cab1:	e8 ba fe 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41cab6:	48 89 df             	mov    rdi,rbx
+  41cab9:	e8 92 4e 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41cabe:	41 c7 04 24 01 00 00 	mov    DWORD PTR [r12],0x1
+  41cac5:	00 
+  41cac6:	e9 ed f9 ff ff       	jmp    41c4b8 <get_isotropy_file_+0x104>
+  41cacb:	48 83 bc 24 a0 02 00 	cmp    QWORD PTR [rsp+0x2a0],0x0
+  41cad2:	00 00 
+  41cad4:	0f 8f d2 01 00 00    	jg     41ccac <get_isotropy_file_+0x8f8>
+  41cada:	48 8d bc 24 24 02 00 	lea    rdi,[rsp+0x224]
+  41cae1:	00 
+  41cae2:	48 8b 8c 24 a0 02 00 	mov    rcx,QWORD PTR [rsp+0x2a0]
+  41cae9:	00 
+  41caea:	48 8b 54 24 08       	mov    rdx,QWORD PTR [rsp+0x8]
+  41caef:	48 8d 35 2e 95 18 00 	lea    rsi,[rip+0x18952e]        # 5a6024 <options.981.0+0x2d4>
+  41caf6:	e8 fa 06 08 00       	call   49d1f5 <orderparam_label_>
+  41cafb:	83 bc 24 30 02 00 00 	cmp    DWORD PTR [rsp+0x230],0x0
+  41cb02:	00 
+  41cb03:	0f 84 bf 01 00 00    	je     41ccc8 <get_isotropy_file_+0x914>
+  41cb09:	4d 85 f6             	test   r14,r14
+  41cb0c:	7e 30                	jle    41cb3e <get_isotropy_file_+0x78a>
+  41cb0e:	49 83 fe 0c          	cmp    r14,0xc
+  41cb12:	0f 8e ce 01 00 00    	jle    41cce6 <get_isotropy_file_+0x932>
+  41cb18:	48 b8 69 20 20 20 20 	movabs rax,0x7878202020202069
+  41cb1f:	20 78 78 
+  41cb22:	48 89 03             	mov    QWORD PTR [rbx],rax
+  41cb25:	c7 43 08 2e 69 73 6f 	mov    DWORD PTR [rbx+0x8],0x6f73692e
+  41cb2c:	49 8d 56 f4          	lea    rdx,[r14-0xc]
+  41cb30:	48 8d 7b 0c          	lea    rdi,[rbx+0xc]
+  41cb34:	be 20 00 00 00       	mov    esi,0x20
+  41cb39:	e8 82 45 fe ff       	call   4010c0 <_init+0xc0>
+  41cb3e:	48 8d 05 34 92 18 00 	lea    rax,[rip+0x189234]        # 5a5d79 <options.981.0+0x29>
+  41cb45:	48 89 44 24 18       	mov    QWORD PTR [rsp+0x18],rax
+  41cb4a:	c7 44 24 20 70 00 00 	mov    DWORD PTR [rsp+0x20],0x70
+  41cb51:	00 
+  41cb52:	48 8d 43 01          	lea    rax,[rbx+0x1]
+  41cb56:	48 89 84 24 80 00 00 	mov    QWORD PTR [rsp+0x80],rax
+  41cb5d:	00 
+  41cb5e:	48 c7 84 24 88 00 00 	mov    QWORD PTR [rsp+0x88],0x5
+  41cb65:	00 05 00 00 00 
+  41cb6a:	48 c7 44 24 58 00 00 	mov    QWORD PTR [rsp+0x58],0x0
+  41cb71:	00 00 
+  41cb73:	c7 44 24 14 ff ff ff 	mov    DWORD PTR [rsp+0x14],0xffffffff
+  41cb7a:	ff 
+  41cb7b:	48 8d 05 15 92 18 00 	lea    rax,[rip+0x189215]        # 5a5d97 <options.981.0+0x47>
+  41cb82:	48 89 44 24 60       	mov    QWORD PTR [rsp+0x60],rax
+  41cb87:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41cb8e:	00 00 
+  41cb90:	c7 44 24 10 00 50 00 	mov    DWORD PTR [rsp+0x10],0x5000
+  41cb97:	00 
+  41cb98:	48 8d 44 24 10       	lea    rax,[rsp+0x10]
+  41cb9d:	48 89 44 24 08       	mov    QWORD PTR [rsp+0x8],rax
+  41cba2:	48 89 c7             	mov    rdi,rax
+  41cba5:	e8 16 46 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41cbaa:	ba 04 00 00 00       	mov    edx,0x4
+  41cbaf:	48 89 ee             	mov    rsi,rbp
+  41cbb2:	48 8b 7c 24 08       	mov    rdi,QWORD PTR [rsp+0x8]
+  41cbb7:	e8 d4 f9 09 00       	call   4bc590 <_gfortran_transfer_integer_write>
+  41cbbc:	48 8b 7c 24 08       	mov    rdi,QWORD PTR [rsp+0x8]
+  41cbc1:	e8 8a 4d 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41cbc6:	4c 8d 8c 24 2c 02 00 	lea    r9,[rsp+0x22c]
+  41cbcd:	00 
+  41cbce:	48 8d 8c 24 38 02 00 	lea    rcx,[rsp+0x238]
+  41cbd5:	00 
+  41cbd6:	48 8d bc 24 30 02 00 	lea    rdi,[rsp+0x230]
+  41cbdd:	00 
+  41cbde:	48 83 ec 08          	sub    rsp,0x8
+  41cbe2:	41 56                	push   r14
+  41cbe4:	48 8d 84 24 38 02 00 	lea    rax,[rsp+0x238]
+  41cbeb:	00 
+  41cbec:	50                   	push   rax
+  41cbed:	41 51                	push   r9
+  41cbef:	4c 8d 84 24 40 02 00 	lea    r8,[rsp+0x240]
+  41cbf6:	00 
+  41cbf7:	48 89 da             	mov    rdx,rbx
+  41cbfa:	4c 89 ee             	mov    rsi,r13
+  41cbfd:	e8 23 fb 06 00       	call   48c725 <get_isotropy_filename_>
+  41cc02:	48 83 c4 20          	add    rsp,0x20
+  41cc06:	83 bc 24 38 02 00 00 	cmp    DWORD PTR [rsp+0x238],0x0
+  41cc0d:	00 
+  41cc0e:	74 0e                	je     41cc1e <get_isotropy_file_+0x86a>
+  41cc10:	83 bc 24 20 02 00 00 	cmp    DWORD PTR [rsp+0x220],0x0
+  41cc17:	00 
+  41cc18:	0f 84 9a f8 ff ff    	je     41c4b8 <get_isotropy_file_+0x104>
+  41cc1e:	c6 03 6b             	mov    BYTE PTR [rbx],0x6b
+  41cc21:	4c 8d 8c 24 2c 02 00 	lea    r9,[rsp+0x22c]
+  41cc28:	00 
+  41cc29:	48 8d 8c 24 38 02 00 	lea    rcx,[rsp+0x238]
+  41cc30:	00 
+  41cc31:	48 8d bc 24 30 02 00 	lea    rdi,[rsp+0x230]
+  41cc38:	00 
+  41cc39:	48 83 ec 08          	sub    rsp,0x8
+  41cc3d:	41 56                	push   r14
+  41cc3f:	48 8d 84 24 38 02 00 	lea    rax,[rsp+0x238]
+  41cc46:	00 
+  41cc47:	50                   	push   rax
+  41cc48:	41 51                	push   r9
+  41cc4a:	4c 8d 84 24 40 02 00 	lea    r8,[rsp+0x240]
+  41cc51:	00 
+  41cc52:	48 89 da             	mov    rdx,rbx
+  41cc55:	4c 89 ee             	mov    rsi,r13
+  41cc58:	e8 c8 fa 06 00       	call   48c725 <get_isotropy_filename_>
+  41cc5d:	48 83 c4 20          	add    rsp,0x20
+  41cc61:	83 bc 24 20 02 00 00 	cmp    DWORD PTR [rsp+0x220],0x0
+  41cc68:	00 
+  41cc69:	0f 85 8e 00 00 00    	jne    41ccfd <get_isotropy_file_+0x949>
+  41cc6f:	83 bc 24 38 02 00 00 	cmp    DWORD PTR [rsp+0x238],0x0
+  41cc76:	00 
+  41cc77:	0f 85 3b f8 ff ff    	jne    41c4b8 <get_isotropy_file_+0x104>
+  41cc7d:	48 8d bc 24 34 02 00 	lea    rdi,[rsp+0x234]
+  41cc84:	00 
+  41cc85:	4c 8d 8c 24 28 02 00 	lea    r9,[rsp+0x228]
+  41cc8c:	00 
+  41cc8d:	4c 8d 84 24 2c 02 00 	lea    r8,[rsp+0x22c]
+  41cc94:	00 
+  41cc95:	48 8d 0d 8c 93 18 00 	lea    rcx,[rip+0x18938c]        # 5a6028 <options.981.0+0x2d8>
+  41cc9c:	4c 89 ea             	mov    rdx,r13
+  41cc9f:	48 89 ee             	mov    rsi,rbp
+  41cca2:	e8 57 aa 06 00       	call   4876fe <get_isotropy_>
+  41cca7:	e9 0c f8 ff ff       	jmp    41c4b8 <get_isotropy_file_+0x104>
+  41ccac:	48 8b 94 24 a0 02 00 	mov    rdx,QWORD PTR [rsp+0x2a0]
+  41ccb3:	00 
+  41ccb4:	be 20 00 00 00       	mov    esi,0x20
+  41ccb9:	48 8b 7c 24 08       	mov    rdi,QWORD PTR [rsp+0x8]
+  41ccbe:	e8 fd 43 fe ff       	call   4010c0 <_init+0xc0>
+  41ccc3:	e9 12 fe ff ff       	jmp    41cada <get_isotropy_file_+0x726>
+  41ccc8:	4d 85 f6             	test   r14,r14
+  41cccb:	0f 8e e7 f7 ff ff    	jle    41c4b8 <get_isotropy_file_+0x104>
+  41ccd1:	4c 89 f2             	mov    rdx,r14
+  41ccd4:	be 20 00 00 00       	mov    esi,0x20
+  41ccd9:	48 89 df             	mov    rdi,rbx
+  41ccdc:	e8 df 43 fe ff       	call   4010c0 <_init+0xc0>
+  41cce1:	e9 d2 f7 ff ff       	jmp    41c4b8 <get_isotropy_file_+0x104>
+  41cce6:	4c 89 f2             	mov    rdx,r14
+  41cce9:	48 8d 35 7c 90 18 00 	lea    rsi,[rip+0x18907c]        # 5a5d6c <options.981.0+0x1c>
+  41ccf0:	48 89 df             	mov    rdi,rbx
+  41ccf3:	e8 48 43 fe ff       	call   401040 <_init+0x40>
+  41ccf8:	e9 41 fe ff ff       	jmp    41cb3e <get_isotropy_file_+0x78a>
+  41ccfd:	48 8d 2d 75 90 18 00 	lea    rbp,[rip+0x189075]        # 5a5d79 <options.981.0+0x29>
+  41cd04:	48 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],rbp
+  41cd09:	c7 44 24 20 79 00 00 	mov    DWORD PTR [rsp+0x20],0x79
+  41cd10:	00 
+  41cd11:	4c 8d 2d 86 90 18 00 	lea    r13,[rip+0x189086]        # 5a5d9e <options.981.0+0x4e>
+  41cd18:	4c 89 6c 24 60       	mov    QWORD PTR [rsp+0x60],r13
+  41cd1d:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41cd24:	00 00 
+  41cd26:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41cd2d:	00 
+  41cd2e:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41cd35:	00 
+  41cd36:	48 8d 5c 24 10       	lea    rbx,[rsp+0x10]
+  41cd3b:	48 89 df             	mov    rdi,rbx
+  41cd3e:	e8 7d 44 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41cd43:	ba 35 00 00 00       	mov    edx,0x35
+  41cd48:	48 8d 35 01 92 18 00 	lea    rsi,[rip+0x189201]        # 5a5f50 <options.981.0+0x200>
+  41cd4f:	48 89 df             	mov    rdi,rbx
+  41cd52:	e8 19 fc 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41cd57:	48 89 df             	mov    rdi,rbx
+  41cd5a:	e8 f1 4b 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41cd5f:	48 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],rbp
+  41cd64:	c7 44 24 20 7c 00 00 	mov    DWORD PTR [rsp+0x20],0x7c
+  41cd6b:	00 
+  41cd6c:	48 8d 05 32 90 18 00 	lea    rax,[rip+0x189032]        # 5a5da5 <options.981.0+0x55>
+  41cd73:	48 89 44 24 60       	mov    QWORD PTR [rsp+0x60],rax
+  41cd78:	48 c7 44 24 68 11 00 	mov    QWORD PTR [rsp+0x68],0x11
+  41cd7f:	00 00 
+  41cd81:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41cd88:	00 
+  41cd89:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41cd90:	00 
+  41cd91:	48 89 df             	mov    rdi,rbx
+  41cd94:	e8 27 44 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41cd99:	ba 07 00 00 00       	mov    edx,0x7
+  41cd9e:	48 8d 35 12 90 18 00 	lea    rsi,[rip+0x189012]        # 5a5db7 <options.981.0+0x67>
+  41cda5:	48 89 df             	mov    rdi,rbx
+  41cda8:	e8 c3 fb 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41cdad:	48 8d 05 cc 4c a8 00 	lea    rax,[rip+0xa84ccc]        # ea1a80 <common_little_>
+  41cdb4:	4a 8d b4 f8 66 80 66 	lea    rsi,[rax+r15*8+0x668066]
+  41cdbb:	00 
+  41cdbc:	ba 08 00 00 00       	mov    edx,0x8
+  41cdc1:	48 89 df             	mov    rdi,rbx
+  41cdc4:	e8 a7 fb 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41cdc9:	ba 0e 00 00 00       	mov    edx,0xe
+  41cdce:	48 8d 35 ea 8f 18 00 	lea    rsi,[rip+0x188fea]        # 5a5dbf <options.981.0+0x6f>
+  41cdd5:	48 89 df             	mov    rdi,rbx
+  41cdd8:	e8 93 fb 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41cddd:	48 63 94 24 34 02 00 	movsxd rdx,DWORD PTR [rsp+0x234]
+  41cde4:	00 
+  41cde5:	48 8d 05 14 60 9f 00 	lea    rax,[rip+0x9f6014]        # e12e00 <common_space_>
+  41cdec:	48 8d b4 d0 fe 48 08 	lea    rsi,[rax+rdx*8+0x848fe]
+  41cdf3:	00 
+  41cdf4:	ba 08 00 00 00       	mov    edx,0x8
+  41cdf9:	48 89 df             	mov    rdi,rbx
+  41cdfc:	e8 6f fb 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41ce01:	48 89 df             	mov    rdi,rbx
+  41ce04:	e8 47 4b 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41ce09:	48 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],rbp
+  41ce0e:	c7 44 24 20 7e 00 00 	mov    DWORD PTR [rsp+0x20],0x7e
+  41ce15:	00 
+  41ce16:	4c 89 6c 24 60       	mov    QWORD PTR [rsp+0x60],r13
+  41ce1b:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41ce22:	00 00 
+  41ce24:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41ce2b:	00 
+  41ce2c:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41ce33:	00 
+  41ce34:	48 89 df             	mov    rdi,rbx
+  41ce37:	e8 84 43 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41ce3c:	ba 3c 00 00 00       	mov    edx,0x3c
+  41ce41:	48 8d 35 50 90 18 00 	lea    rsi,[rip+0x189050]        # 5a5e98 <options.981.0+0x148>
+  41ce48:	48 89 df             	mov    rdi,rbx
+  41ce4b:	e8 20 fb 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41ce50:	48 89 df             	mov    rdi,rbx
+  41ce53:	e8 f8 4a 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41ce58:	41 c7 04 24 01 00 00 	mov    DWORD PTR [r12],0x1
+  41ce5f:	00 
+  41ce60:	e9 53 f6 ff ff       	jmp    41c4b8 <get_isotropy_file_+0x104>
+  41ce65:	4d 85 f6             	test   r14,r14
+  41ce68:	7e 30                	jle    41ce9a <get_isotropy_file_+0xae6>
+  41ce6a:	49 83 fe 0c          	cmp    r14,0xc
+  41ce6e:	0f 8e 35 01 00 00    	jle    41cfa9 <get_isotropy_file_+0xbf5>
+  41ce74:	48 b8 61 20 20 20 20 	movabs rax,0x7878202020202061
+  41ce7b:	20 78 78 
+  41ce7e:	48 89 03             	mov    QWORD PTR [rbx],rax
+  41ce81:	c7 43 08 2e 69 73 6f 	mov    DWORD PTR [rbx+0x8],0x6f73692e
+  41ce88:	49 8d 56 f4          	lea    rdx,[r14-0xc]
+  41ce8c:	48 8d 7b 0c          	lea    rdi,[rbx+0xc]
+  41ce90:	be 20 00 00 00       	mov    esi,0x20
+  41ce95:	e8 26 42 fe ff       	call   4010c0 <_init+0xc0>
+  41ce9a:	48 8d 05 d8 8e 18 00 	lea    rax,[rip+0x188ed8]        # 5a5d79 <options.981.0+0x29>
+  41cea1:	48 89 44 24 18       	mov    QWORD PTR [rsp+0x18],rax
+  41cea6:	c7 44 24 20 89 00 00 	mov    DWORD PTR [rsp+0x20],0x89
+  41cead:	00 
+  41ceae:	48 8d 43 01          	lea    rax,[rbx+0x1]
+  41ceb2:	48 89 84 24 80 00 00 	mov    QWORD PTR [rsp+0x80],rax
+  41ceb9:	00 
+  41ceba:	48 c7 84 24 88 00 00 	mov    QWORD PTR [rsp+0x88],0x5
+  41cec1:	00 05 00 00 00 
+  41cec6:	48 c7 44 24 58 00 00 	mov    QWORD PTR [rsp+0x58],0x0
+  41cecd:	00 00 
+  41cecf:	c7 44 24 14 ff ff ff 	mov    DWORD PTR [rsp+0x14],0xffffffff
+  41ced6:	ff 
+  41ced7:	48 8d 05 b9 8e 18 00 	lea    rax,[rip+0x188eb9]        # 5a5d97 <options.981.0+0x47>
+  41cede:	48 89 44 24 60       	mov    QWORD PTR [rsp+0x60],rax
+  41cee3:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41ceea:	00 00 
+  41ceec:	c7 44 24 10 00 50 00 	mov    DWORD PTR [rsp+0x10],0x5000
+  41cef3:	00 
+  41cef4:	48 8d 44 24 10       	lea    rax,[rsp+0x10]
+  41cef9:	48 89 44 24 08       	mov    QWORD PTR [rsp+0x8],rax
+  41cefe:	48 89 c7             	mov    rdi,rax
+  41cf01:	e8 ba 42 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41cf06:	ba 04 00 00 00       	mov    edx,0x4
+  41cf0b:	48 89 ee             	mov    rsi,rbp
+  41cf0e:	48 8b 7c 24 08       	mov    rdi,QWORD PTR [rsp+0x8]
+  41cf13:	e8 78 f6 09 00       	call   4bc590 <_gfortran_transfer_integer_write>
+  41cf18:	48 8b 7c 24 08       	mov    rdi,QWORD PTR [rsp+0x8]
+  41cf1d:	e8 2e 4a 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41cf22:	4c 8d 8c 24 2c 02 00 	lea    r9,[rsp+0x22c]
+  41cf29:	00 
+  41cf2a:	48 8d 8c 24 38 02 00 	lea    rcx,[rsp+0x238]
+  41cf31:	00 
+  41cf32:	48 8d bc 24 30 02 00 	lea    rdi,[rsp+0x230]
+  41cf39:	00 
+  41cf3a:	48 83 ec 08          	sub    rsp,0x8
+  41cf3e:	41 56                	push   r14
+  41cf40:	48 8d 84 24 38 02 00 	lea    rax,[rsp+0x238]
+  41cf47:	00 
+  41cf48:	50                   	push   rax
+  41cf49:	41 51                	push   r9
+  41cf4b:	4c 8d 84 24 40 02 00 	lea    r8,[rsp+0x240]
+  41cf52:	00 
+  41cf53:	48 89 da             	mov    rdx,rbx
+  41cf56:	4c 89 ee             	mov    rsi,r13
+  41cf59:	e8 c7 f7 06 00       	call   48c725 <get_isotropy_filename_>
+  41cf5e:	48 83 c4 20          	add    rsp,0x20
+  41cf62:	83 bc 24 20 02 00 00 	cmp    DWORD PTR [rsp+0x220],0x0
+  41cf69:	00 
+  41cf6a:	75 54                	jne    41cfc0 <get_isotropy_file_+0xc0c>
+  41cf6c:	83 bc 24 38 02 00 00 	cmp    DWORD PTR [rsp+0x238],0x0
+  41cf73:	00 
+  41cf74:	0f 85 3e f5 ff ff    	jne    41c4b8 <get_isotropy_file_+0x104>
+  41cf7a:	48 8d bc 24 34 02 00 	lea    rdi,[rsp+0x234]
+  41cf81:	00 
+  41cf82:	4c 8d 8c 24 28 02 00 	lea    r9,[rsp+0x228]
+  41cf89:	00 
+  41cf8a:	4c 8d 84 24 2c 02 00 	lea    r8,[rsp+0x22c]
+  41cf91:	00 
+  41cf92:	48 8d 0d 8b 90 18 00 	lea    rcx,[rip+0x18908b]        # 5a6024 <options.981.0+0x2d4>
+  41cf99:	4c 89 ea             	mov    rdx,r13
+  41cf9c:	48 89 ee             	mov    rsi,rbp
+  41cf9f:	e8 5a a7 06 00       	call   4876fe <get_isotropy_>
+  41cfa4:	e9 0f f5 ff ff       	jmp    41c4b8 <get_isotropy_file_+0x104>
+  41cfa9:	4c 89 f2             	mov    rdx,r14
+  41cfac:	48 8d 35 71 8e 18 00 	lea    rsi,[rip+0x188e71]        # 5a5e24 <options.981.0+0xd4>
+  41cfb3:	48 89 df             	mov    rdi,rbx
+  41cfb6:	e8 85 40 fe ff       	call   401040 <_init+0x40>
+  41cfbb:	e9 da fe ff ff       	jmp    41ce9a <get_isotropy_file_+0xae6>
+  41cfc0:	48 8d 2d b2 8d 18 00 	lea    rbp,[rip+0x188db2]        # 5a5d79 <options.981.0+0x29>
+  41cfc7:	48 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],rbp
+  41cfcc:	c7 44 24 20 8d 00 00 	mov    DWORD PTR [rsp+0x20],0x8d
+  41cfd3:	00 
+  41cfd4:	4c 8d 2d c3 8d 18 00 	lea    r13,[rip+0x188dc3]        # 5a5d9e <options.981.0+0x4e>
+  41cfdb:	4c 89 6c 24 60       	mov    QWORD PTR [rsp+0x60],r13
+  41cfe0:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41cfe7:	00 00 
+  41cfe9:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41cff0:	00 
+  41cff1:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41cff8:	00 
+  41cff9:	48 8d 5c 24 10       	lea    rbx,[rsp+0x10]
+  41cffe:	48 89 df             	mov    rdi,rbx
+  41d001:	e8 ba 41 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41d006:	ba 3d 00 00 00       	mov    edx,0x3d
+  41d00b:	48 8d 35 46 8e 18 00 	lea    rsi,[rip+0x188e46]        # 5a5e58 <options.981.0+0x108>
+  41d012:	48 89 df             	mov    rdi,rbx
+  41d015:	e8 56 f9 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d01a:	48 89 df             	mov    rdi,rbx
+  41d01d:	e8 2e 49 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41d022:	48 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],rbp
+  41d027:	c7 44 24 20 90 00 00 	mov    DWORD PTR [rsp+0x20],0x90
+  41d02e:	00 
+  41d02f:	48 8d 05 6f 8d 18 00 	lea    rax,[rip+0x188d6f]        # 5a5da5 <options.981.0+0x55>
+  41d036:	48 89 44 24 60       	mov    QWORD PTR [rsp+0x60],rax
+  41d03b:	48 c7 44 24 68 11 00 	mov    QWORD PTR [rsp+0x68],0x11
+  41d042:	00 00 
+  41d044:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41d04b:	00 
+  41d04c:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41d053:	00 
+  41d054:	48 89 df             	mov    rdi,rbx
+  41d057:	e8 64 41 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41d05c:	ba 07 00 00 00       	mov    edx,0x7
+  41d061:	48 8d 35 4f 8d 18 00 	lea    rsi,[rip+0x188d4f]        # 5a5db7 <options.981.0+0x67>
+  41d068:	48 89 df             	mov    rdi,rbx
+  41d06b:	e8 00 f9 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d070:	48 8d 05 09 4a a8 00 	lea    rax,[rip+0xa84a09]        # ea1a80 <common_little_>
+  41d077:	4a 8d b4 f8 66 80 66 	lea    rsi,[rax+r15*8+0x668066]
+  41d07e:	00 
+  41d07f:	ba 08 00 00 00       	mov    edx,0x8
+  41d084:	48 89 df             	mov    rdi,rbx
+  41d087:	e8 e4 f8 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d08c:	ba 0e 00 00 00       	mov    edx,0xe
+  41d091:	48 8d 35 27 8d 18 00 	lea    rsi,[rip+0x188d27]        # 5a5dbf <options.981.0+0x6f>
+  41d098:	48 89 df             	mov    rdi,rbx
+  41d09b:	e8 d0 f8 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d0a0:	48 63 94 24 34 02 00 	movsxd rdx,DWORD PTR [rsp+0x234]
+  41d0a7:	00 
+  41d0a8:	48 8d 05 51 5d 9f 00 	lea    rax,[rip+0x9f5d51]        # e12e00 <common_space_>
+  41d0af:	48 8d b4 d0 fe 48 08 	lea    rsi,[rax+rdx*8+0x848fe]
+  41d0b6:	00 
+  41d0b7:	ba 08 00 00 00       	mov    edx,0x8
+  41d0bc:	48 89 df             	mov    rdi,rbx
+  41d0bf:	e8 ac f8 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d0c4:	48 89 df             	mov    rdi,rbx
+  41d0c7:	e8 84 48 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41d0cc:	48 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],rbp
+  41d0d1:	c7 44 24 20 92 00 00 	mov    DWORD PTR [rsp+0x20],0x92
+  41d0d8:	00 
+  41d0d9:	4c 89 6c 24 60       	mov    QWORD PTR [rsp+0x60],r13
+  41d0de:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41d0e5:	00 00 
+  41d0e7:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41d0ee:	00 
+  41d0ef:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41d0f6:	00 
+  41d0f7:	48 89 df             	mov    rdi,rbx
+  41d0fa:	e8 c1 40 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41d0ff:	ba 3c 00 00 00       	mov    edx,0x3c
+  41d104:	48 8d 35 8d 8d 18 00 	lea    rsi,[rip+0x188d8d]        # 5a5e98 <options.981.0+0x148>
+  41d10b:	48 89 df             	mov    rdi,rbx
+  41d10e:	e8 5d f8 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d113:	48 89 df             	mov    rdi,rbx
+  41d116:	e8 35 48 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41d11b:	41 c7 04 24 01 00 00 	mov    DWORD PTR [r12],0x1
+  41d122:	00 
+  41d123:	e9 90 f3 ff ff       	jmp    41c4b8 <get_isotropy_file_+0x104>
+  41d128:	4c 8d 2d 4a 8c 18 00 	lea    r13,[rip+0x188c4a]        # 5a5d79 <options.981.0+0x29>
+  41d12f:	4c 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],r13
+  41d134:	c7 44 24 20 9f 00 00 	mov    DWORD PTR [rsp+0x20],0x9f
+  41d13b:	00 
+  41d13c:	48 8d 2d 5b 8c 18 00 	lea    rbp,[rip+0x188c5b]        # 5a5d9e <options.981.0+0x4e>
+  41d143:	48 89 6c 24 60       	mov    QWORD PTR [rsp+0x60],rbp
+  41d148:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41d14f:	00 00 
+  41d151:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41d158:	00 
+  41d159:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41d160:	00 
+  41d161:	48 8d 5c 24 10       	lea    rbx,[rsp+0x10]
+  41d166:	48 89 df             	mov    rdi,rbx
+  41d169:	e8 52 40 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41d16e:	ba 2f 00 00 00       	mov    edx,0x2f
+  41d173:	48 8d 35 0e 8e 18 00 	lea    rsi,[rip+0x188e0e]        # 5a5f88 <options.981.0+0x238>
+  41d17a:	48 89 df             	mov    rdi,rbx
+  41d17d:	e8 ee f7 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d182:	48 8d 05 f7 48 a8 00 	lea    rax,[rip+0xa848f7]        # ea1a80 <common_little_>
+  41d189:	4a 8d b4 f8 66 80 66 	lea    rsi,[rax+r15*8+0x668066]
+  41d190:	00 
+  41d191:	ba 08 00 00 00       	mov    edx,0x8
+  41d196:	48 89 df             	mov    rdi,rbx
+  41d199:	e8 d2 f7 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d19e:	48 89 df             	mov    rdi,rbx
+  41d1a1:	e8 aa 47 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41d1a6:	4c 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],r13
+  41d1ab:	c7 44 24 20 a1 00 00 	mov    DWORD PTR [rsp+0x20],0xa1
+  41d1b2:	00 
+  41d1b3:	48 89 6c 24 60       	mov    QWORD PTR [rsp+0x60],rbp
+  41d1b8:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41d1bf:	00 00 
+  41d1c1:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41d1c8:	00 
+  41d1c9:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41d1d0:	00 
+  41d1d1:	48 89 df             	mov    rdi,rbx
+  41d1d4:	e8 e7 3f 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41d1d9:	ba 21 00 00 00       	mov    edx,0x21
+  41d1de:	48 8d 35 d3 8d 18 00 	lea    rsi,[rip+0x188dd3]        # 5a5fb8 <options.981.0+0x268>
+  41d1e5:	48 89 df             	mov    rdi,rbx
+  41d1e8:	e8 83 f7 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d1ed:	48 89 df             	mov    rdi,rbx
+  41d1f0:	e8 5b 47 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41d1f5:	e9 af f2 ff ff       	jmp    41c4a9 <get_isotropy_file_+0xf5>
+  41d1fa:	48 83 bc 24 a0 02 00 	cmp    QWORD PTR [rsp+0x2a0],0x0
+  41d201:	00 00 
+  41d203:	0f 8f 68 01 00 00    	jg     41d371 <get_isotropy_file_+0xfbd>
+  41d209:	48 8b 8c 24 a0 02 00 	mov    rcx,QWORD PTR [rsp+0x2a0]
+  41d210:	00 
+  41d211:	48 8b 54 24 08       	mov    rdx,QWORD PTR [rsp+0x8]
+  41d216:	48 8d 35 07 8e 18 00 	lea    rsi,[rip+0x188e07]        # 5a6024 <options.981.0+0x2d4>
+  41d21d:	48 8b bc 24 88 02 00 	mov    rdi,QWORD PTR [rsp+0x288]
+  41d224:	00 
+  41d225:	e8 cb ff 07 00       	call   49d1f5 <orderparam_label_>
+  41d22a:	4d 85 f6             	test   r14,r14
+  41d22d:	7e 30                	jle    41d25f <get_isotropy_file_+0xeab>
+  41d22f:	49 83 fe 0c          	cmp    r14,0xc
+  41d233:	0f 8e 54 01 00 00    	jle    41d38d <get_isotropy_file_+0xfd9>
+  41d239:	48 b8 76 20 20 20 20 	movabs rax,0x7878202020202076
+  41d240:	20 78 78 
+  41d243:	48 89 03             	mov    QWORD PTR [rbx],rax
+  41d246:	c7 43 08 2e 69 73 6f 	mov    DWORD PTR [rbx+0x8],0x6f73692e
+  41d24d:	49 8d 56 f4          	lea    rdx,[r14-0xc]
+  41d251:	48 8d 7b 0c          	lea    rdi,[rbx+0xc]
+  41d255:	be 20 00 00 00       	mov    esi,0x20
+  41d25a:	e8 61 3e fe ff       	call   4010c0 <_init+0xc0>
+  41d25f:	48 8d 05 13 8b 18 00 	lea    rax,[rip+0x188b13]        # 5a5d79 <options.981.0+0x29>
+  41d266:	48 89 44 24 18       	mov    QWORD PTR [rsp+0x18],rax
+  41d26b:	c7 44 24 20 aa 00 00 	mov    DWORD PTR [rsp+0x20],0xaa
+  41d272:	00 
+  41d273:	48 8d 43 01          	lea    rax,[rbx+0x1]
+  41d277:	48 89 84 24 80 00 00 	mov    QWORD PTR [rsp+0x80],rax
+  41d27e:	00 
+  41d27f:	48 c7 84 24 88 00 00 	mov    QWORD PTR [rsp+0x88],0x5
+  41d286:	00 05 00 00 00 
+  41d28b:	48 c7 44 24 58 00 00 	mov    QWORD PTR [rsp+0x58],0x0
+  41d292:	00 00 
+  41d294:	c7 44 24 14 ff ff ff 	mov    DWORD PTR [rsp+0x14],0xffffffff
+  41d29b:	ff 
+  41d29c:	48 8d 05 f4 8a 18 00 	lea    rax,[rip+0x188af4]        # 5a5d97 <options.981.0+0x47>
+  41d2a3:	48 89 44 24 60       	mov    QWORD PTR [rsp+0x60],rax
+  41d2a8:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41d2af:	00 00 
+  41d2b1:	c7 44 24 10 00 50 00 	mov    DWORD PTR [rsp+0x10],0x5000
+  41d2b8:	00 
+  41d2b9:	48 8d 44 24 10       	lea    rax,[rsp+0x10]
+  41d2be:	48 89 44 24 08       	mov    QWORD PTR [rsp+0x8],rax
+  41d2c3:	48 89 c7             	mov    rdi,rax
+  41d2c6:	e8 f5 3e 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41d2cb:	ba 04 00 00 00       	mov    edx,0x4
+  41d2d0:	48 89 ee             	mov    rsi,rbp
+  41d2d3:	48 8b 7c 24 08       	mov    rdi,QWORD PTR [rsp+0x8]
+  41d2d8:	e8 b3 f2 09 00       	call   4bc590 <_gfortran_transfer_integer_write>
+  41d2dd:	48 8b 7c 24 08       	mov    rdi,QWORD PTR [rsp+0x8]
+  41d2e2:	e8 69 46 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41d2e7:	48 8d 8c 24 38 02 00 	lea    rcx,[rsp+0x238]
+  41d2ee:	00 
+  41d2ef:	48 8d bc 24 30 02 00 	lea    rdi,[rsp+0x230]
+  41d2f6:	00 
+  41d2f7:	48 83 ec 08          	sub    rsp,0x8
+  41d2fb:	41 56                	push   r14
+  41d2fd:	ff b4 24 a0 02 00 00 	push   QWORD PTR [rsp+0x2a0]
+  41d304:	ff b4 24 a0 02 00 00 	push   QWORD PTR [rsp+0x2a0]
+  41d30b:	4c 8b 8c 24 a0 02 00 	mov    r9,QWORD PTR [rsp+0x2a0]
+  41d312:	00 
+  41d313:	4c 8d 84 24 40 02 00 	lea    r8,[rsp+0x240]
+  41d31a:	00 
+  41d31b:	48 89 da             	mov    rdx,rbx
+  41d31e:	4c 89 ee             	mov    rsi,r13
+  41d321:	e8 ff f3 06 00       	call   48c725 <get_isotropy_filename_>
+  41d326:	48 83 c4 20          	add    rsp,0x20
+  41d32a:	83 bc 24 20 02 00 00 	cmp    DWORD PTR [rsp+0x220],0x0
+  41d331:	00 
+  41d332:	75 70                	jne    41d3a4 <get_isotropy_file_+0xff0>
+  41d334:	83 bc 24 38 02 00 00 	cmp    DWORD PTR [rsp+0x238],0x0
+  41d33b:	00 
+  41d33c:	0f 85 76 f1 ff ff    	jne    41c4b8 <get_isotropy_file_+0x104>
+  41d342:	48 8d bc 24 34 02 00 	lea    rdi,[rsp+0x234]
+  41d349:	00 
+  41d34a:	4c 8b 8c 24 90 02 00 	mov    r9,QWORD PTR [rsp+0x290]
+  41d351:	00 
+  41d352:	4c 8b 84 24 88 02 00 	mov    r8,QWORD PTR [rsp+0x288]
+  41d359:	00 
+  41d35a:	48 8d 0d cb 8c 18 00 	lea    rcx,[rip+0x188ccb]        # 5a602c <options.981.0+0x2dc>
+  41d361:	4c 89 ea             	mov    rdx,r13
+  41d364:	48 89 ee             	mov    rsi,rbp
+  41d367:	e8 92 a3 06 00       	call   4876fe <get_isotropy_>
+  41d36c:	e9 47 f1 ff ff       	jmp    41c4b8 <get_isotropy_file_+0x104>
+  41d371:	48 8b 94 24 a0 02 00 	mov    rdx,QWORD PTR [rsp+0x2a0]
+  41d378:	00 
+  41d379:	be 20 00 00 00       	mov    esi,0x20
+  41d37e:	48 8b 7c 24 08       	mov    rdi,QWORD PTR [rsp+0x8]
+  41d383:	e8 38 3d fe ff       	call   4010c0 <_init+0xc0>
+  41d388:	e9 7c fe ff ff       	jmp    41d209 <get_isotropy_file_+0xe55>
+  41d38d:	4c 89 f2             	mov    rdx,r14
+  41d390:	48 8d 35 9a 8a 18 00 	lea    rsi,[rip+0x188a9a]        # 5a5e31 <options.981.0+0xe1>
+  41d397:	48 89 df             	mov    rdi,rbx
+  41d39a:	e8 a1 3c fe ff       	call   401040 <_init+0x40>
+  41d39f:	e9 bb fe ff ff       	jmp    41d25f <get_isotropy_file_+0xeab>
+  41d3a4:	48 8d 2d ce 89 18 00 	lea    rbp,[rip+0x1889ce]        # 5a5d79 <options.981.0+0x29>
+  41d3ab:	48 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],rbp
+  41d3b0:	c7 44 24 20 af 00 00 	mov    DWORD PTR [rsp+0x20],0xaf
+  41d3b7:	00 
+  41d3b8:	4c 8d 2d df 89 18 00 	lea    r13,[rip+0x1889df]        # 5a5d9e <options.981.0+0x4e>
+  41d3bf:	4c 89 6c 24 60       	mov    QWORD PTR [rsp+0x60],r13
+  41d3c4:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41d3cb:	00 00 
+  41d3cd:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41d3d4:	00 
+  41d3d5:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41d3dc:	00 
+  41d3dd:	48 8d 5c 24 10       	lea    rbx,[rsp+0x10]
+  41d3e2:	48 89 df             	mov    rdi,rbx
+  41d3e5:	e8 d6 3d 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41d3ea:	ba 3f 00 00 00       	mov    edx,0x3f
+  41d3ef:	48 8d 35 ea 8b 18 00 	lea    rsi,[rip+0x188bea]        # 5a5fe0 <options.981.0+0x290>
+  41d3f6:	48 89 df             	mov    rdi,rbx
+  41d3f9:	e8 72 f5 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d3fe:	48 89 df             	mov    rdi,rbx
+  41d401:	e8 4a 45 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41d406:	48 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],rbp
+  41d40b:	c7 44 24 20 b2 00 00 	mov    DWORD PTR [rsp+0x20],0xb2
+  41d412:	00 
+  41d413:	48 8d 05 8b 89 18 00 	lea    rax,[rip+0x18898b]        # 5a5da5 <options.981.0+0x55>
+  41d41a:	48 89 44 24 60       	mov    QWORD PTR [rsp+0x60],rax
+  41d41f:	48 c7 44 24 68 11 00 	mov    QWORD PTR [rsp+0x68],0x11
+  41d426:	00 00 
+  41d428:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41d42f:	00 
+  41d430:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41d437:	00 
+  41d438:	48 89 df             	mov    rdi,rbx
+  41d43b:	e8 80 3d 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41d440:	ba 07 00 00 00       	mov    edx,0x7
+  41d445:	48 8d 35 6b 89 18 00 	lea    rsi,[rip+0x18896b]        # 5a5db7 <options.981.0+0x67>
+  41d44c:	48 89 df             	mov    rdi,rbx
+  41d44f:	e8 1c f5 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d454:	48 8d 05 25 46 a8 00 	lea    rax,[rip+0xa84625]        # ea1a80 <common_little_>
+  41d45b:	4a 8d b4 f8 66 80 66 	lea    rsi,[rax+r15*8+0x668066]
+  41d462:	00 
+  41d463:	ba 08 00 00 00       	mov    edx,0x8
+  41d468:	48 89 df             	mov    rdi,rbx
+  41d46b:	e8 00 f5 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d470:	ba 0e 00 00 00       	mov    edx,0xe
+  41d475:	48 8d 35 43 89 18 00 	lea    rsi,[rip+0x188943]        # 5a5dbf <options.981.0+0x6f>
+  41d47c:	48 89 df             	mov    rdi,rbx
+  41d47f:	e8 ec f4 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d484:	48 63 94 24 34 02 00 	movsxd rdx,DWORD PTR [rsp+0x234]
+  41d48b:	00 
+  41d48c:	48 8d 05 6d 59 9f 00 	lea    rax,[rip+0x9f596d]        # e12e00 <common_space_>
+  41d493:	48 8d b4 d0 fe 48 08 	lea    rsi,[rax+rdx*8+0x848fe]
+  41d49a:	00 
+  41d49b:	ba 08 00 00 00       	mov    edx,0x8
+  41d4a0:	48 89 df             	mov    rdi,rbx
+  41d4a3:	e8 c8 f4 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d4a8:	48 89 df             	mov    rdi,rbx
+  41d4ab:	e8 a0 44 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41d4b0:	48 89 6c 24 18       	mov    QWORD PTR [rsp+0x18],rbp
+  41d4b5:	c7 44 24 20 b4 00 00 	mov    DWORD PTR [rsp+0x20],0xb4
+  41d4bc:	00 
+  41d4bd:	4c 89 6c 24 60       	mov    QWORD PTR [rsp+0x60],r13
+  41d4c2:	48 c7 44 24 68 06 00 	mov    QWORD PTR [rsp+0x68],0x6
+  41d4c9:	00 00 
+  41d4cb:	c7 44 24 10 00 10 00 	mov    DWORD PTR [rsp+0x10],0x1000
+  41d4d2:	00 
+  41d4d3:	c7 44 24 14 06 00 00 	mov    DWORD PTR [rsp+0x14],0x6
+  41d4da:	00 
+  41d4db:	48 89 df             	mov    rdi,rbx
+  41d4de:	e8 dd 3c 0a 00       	call   4c11c0 <_gfortran_st_write>
+  41d4e3:	ba 3c 00 00 00       	mov    edx,0x3c
+  41d4e8:	48 8d 35 a9 89 18 00 	lea    rsi,[rip+0x1889a9]        # 5a5e98 <options.981.0+0x148>
+  41d4ef:	48 89 df             	mov    rdi,rbx
+  41d4f2:	e8 79 f4 09 00       	call   4bc970 <_gfortran_transfer_character_write>
+  41d4f7:	48 89 df             	mov    rdi,rbx
+  41d4fa:	e8 51 44 0a 00       	call   4c1950 <_gfortran_st_write_done>
+  41d4ff:	41 c7 04 24 01 00 00 	mov    DWORD PTR [r12],0x1
+  41d506:	00 
+  41d507:	e9 ac ef ff ff       	jmp    41c4b8 <get_isotropy_file_+0x104>
+  41d50c:	be 15 00 00 00       	mov    esi,0x15
+  41d511:	48 8d 3d 26 89 18 00 	lea    rdi,[rip+0x188926]        # 5a5e3e <options.981.0+0xee>
+  41d518:	e8 97 6d 03 00       	call   4542b4 <bomb2_>
+  41d51d:	e9 96 ef ff ff       	jmp    41c4b8 <get_isotropy_file_+0x104>
+
+Disassembly of section __libc_freeres_fn:
+
+Disassembly of section .fini:
