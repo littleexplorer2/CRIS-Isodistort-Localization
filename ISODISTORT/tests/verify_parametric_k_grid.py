@@ -110,9 +110,10 @@ def input_contract(manifest):
     """Allowlist inputs; ignore all claimed orders, counts and pass statuses.
 
     Each label appears once (fixed or parametric).  ``nmod_values`` is the frozen
-    scope; ``download_nmod_values`` and ``registered_nmod_values`` partition it
-    into queries that are downloaded in this batch and queries whose official
-    output is already registered in the read-only archive reuse registry.
+    scope; ``download_nmod_values``, ``registered_nmod_values`` and optional
+    ``blocked_nmod_values`` partition it into pending downloads, existing
+    official output and paused requests. A saved error response is not an
+    archived scientific result and must not silently disappear from scope.
     """
     parents = {name: {key: row[key] for key in
                ('path', 'sha256', 'space_group_type', 'space_group_symbol')}
@@ -124,12 +125,14 @@ def input_contract(manifest):
     ):
         for query in queries:
             rows.append(dict(role=role, **{key: query[key] for key in
-                ('parent', 'k_label', 'kovalev', 'coordinates')},
+                ('id', 'parent', 'k_label', 'kovalev', 'coordinates')},
                 template=query.get('template'), values=query.get('values', {}),
                 nmod_values=query.get('nmod_values', [0, 1]),
                 download_nmod_values=query.get('download_nmod_values', [0, 1]),
-                registered_nmod_values=query.get('registered_nmod_values', [])))
-    return {'parents': parents, 'queries': rows}
+                registered_nmod_values=query.get('registered_nmod_values', []),
+                blocked_nmod_values=query.get('blocked_nmod_values', [])))
+    return {'parents': parents, 'queries': rows,
+            'query_scope': manifest.get('method2_query_scope', {'mode': 'all_labels'})}
 
 
 def digest(value):
@@ -151,6 +154,16 @@ def build_report(manifest, *, verify_parent_hashes=True):
                   arithmetic='exact rational; symbolic generic stabilizer', parents={},
                   issues=[], label_aliases=[], same_star_pairs=[])
     issues = report['issues']
+    scope = contract['query_scope']
+    scope_mode = scope.get('mode')
+    if scope_mode not in ('all_labels', 'targeted_algorithm_gaps'):
+        issues.append('Unknown Method 2 query scope')
+    if scope_mode == 'targeted_algorithm_gaps':
+        declared = scope.get('query_ids', [])
+        observed = [q['id'] for q in contract['queries']]
+        if (not declared or len(declared) != len(set(declared))
+                or Counter(observed) != Counter(declared)):
+            issues.append('Selected query IDs missing, unknown or duplicated')
     if not contract['parents']:
         issues.append('Empty parent scope')
     for query in contract['queries']:
@@ -170,7 +183,9 @@ def build_report(manifest, *, verify_parent_hashes=True):
         table = KPOINT_OFFICIAL[sg]
         queries = [q for q in contract['queries'] if q['parent'] == parent]
         labels = Counter(q['k_label'] for q in queries)
-        if set(labels) != set(table) or any(count != 1 for count in labels.values()):
+        if (not labels or not set(labels).issubset(table)
+                or (scope_mode == 'all_labels' and set(labels) != set(table))
+                or any(count != 1 for count in labels.values())):
             issues.append(f'{parent}: labels missing, unknown or duplicated')
         result = dict(centering=SETTINGS[sg][0], fixed_labels={}, parametric_labels={})
         points = {}
@@ -179,18 +194,25 @@ def build_report(manifest, *, verify_parent_hashes=True):
             if label not in table:
                 continue
             kovalev, template, names = table[label]
+            nmods = query['nmod_values']
+            valid_nmods = (bool(nmods)
+                           and all(type(n) is int and n in (0, 1) for n in nmods)
+                           and len(nmods) == len(set(nmods)))
             if (query['kovalev'] != kovalev or set(query['values']) != set(names)
                     or (query['template'] is not None and query['template'] != template)
                     or (query['role'] == 'fixed') != (not names)
-                    or query['nmod_values'] != [0, 1]):
+                    or not valid_nmods
+                    or (scope_mode == 'all_labels' and nmods != [0, 1])):
                 issues.append(f'{parent}/{label}: input/table contract mismatch')
                 continue
             download = query['download_nmod_values']
             registered = query['registered_nmod_values']
-            if (sorted(download + registered) != [0, 1]
-                    or bool(set(download) & set(registered))):
+            blocked = query['blocked_nmod_values']
+            partition = download + registered + blocked
+            if (any(type(n) is not int for n in partition)
+                    or sorted(partition) != sorted(nmods)):
                 issues.append(
-                    f'{parent}/{label}: invalid nmod download/registered partition')
+                    f'{parent}/{label}: invalid nmod download/registered/blocked partition')
             # Only exact text/integer parameters are accepted, never binary floats.
             if any(type(v) not in (str, int) for v in query['values'].values()):
                 raise ValueError('Parameters must be exact rational text or integers')
@@ -221,10 +243,12 @@ def build_report(manifest, *, verify_parent_hashes=True):
     scope_nmods = Counter()
     download_nmods = Counter()
     registered_nmods = Counter()
+    blocked_nmods = Counter()
     for query in contract['queries']:
         scope_nmods[query['role']] += len(query['nmod_values'])
         download_nmods[query['role']] += len(query['download_nmod_values'])
         registered_nmods[query['role']] += len(query['registered_nmod_values'])
+        blocked_nmods[query['role']] += len(query['blocked_nmod_values'])
     report['query_count'] = dict(
         fixed_labels=counts['fixed'],
         fixed_queries=download_nmods['fixed'],
@@ -233,9 +257,12 @@ def build_report(manifest, *, verify_parent_hashes=True):
         parametric_queries_download=download_nmods['parametric'],
         scope_queries_total=scope_nmods['fixed'] + scope_nmods['parametric'],
         registered_queries=registered_nmods['fixed'] + registered_nmods['parametric'],
+        blocked_queries=blocked_nmods['fixed'] + blocked_nmods['parametric'],
         download_queries=download_nmods['fixed'] + download_nmods['parametric'])
     report['scope_limit'] = ('Generic little co-group on each stated affine template only; '
-        'rational representatives, nmod 0/1. The nmod download/registered partition is '
+        'rational representatives and explicitly selected nmod values in 0/1. '
+        'This does not certify that the selected samples cover every algorithm branch. '
+        'The nmod download/registered/blocked partition is '
         'bookkeeping for the finite batch; no physical-mode, nmod-equivalence, '
         'full Brillouin-zone or Method 3/4 completeness certification.')
     report['verdict'] = 'fail' if issues else 'pass'

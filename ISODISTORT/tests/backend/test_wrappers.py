@@ -98,6 +98,187 @@ def test_wsl_stream_decoder_separates_linux_output_from_windows_diagnostics():
     assert decoded == "Access is denied.\nError code: Wsl/E_ACCESSDENIED"
     assert _is_wsl_access_denied(decoded)
 
+
+def test_wsl_mixed_diagnostic_keeps_linux_error():
+    """A complete Windows warning must not change decoding of the next writer."""
+    windows = "wsl: service warning\r\n"
+    linux = "cat: missing input: No such file or directory\n"
+    raw = windows.encode("utf-16-le") + linux.encode("utf-8")
+    assert _decode_process_output(raw) == windows.strip() + "\n" + linux.strip()
+
+
+@pytest.mark.parametrize("encoding", ["utf-16-le", "utf-16-be"])
+def test_wsl_legacy_records_decode_each_writer_independently(encoding):
+    first = "wsl: service warning\r\r\n"
+    linux = "cat: missing \N{GREEK SMALL LETTER MU} input\n"
+    last = "wsl: exit status\n"
+    raw = first.encode(encoding) + linux.encode("utf-8") + last.encode(encoding)
+    assert _decode_process_output(raw) == first.strip() + "\n" + linux.strip() + "\n" + last.strip()
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        (b"", ""),
+        ("no error \N{GREEK SMALL LETTER MU}\n".encode(), "no error \N{GREEK SMALL LETTER MU}"),
+        ("Access denied".encode("utf-16-le"), "Access denied"),
+        ("Access denied".encode("utf-16-be"), "Access denied"),
+        (b"\xff\xfe" + "拒绝访问\r\nError code: 1\r\n".encode("utf-16-le"), "拒绝访问\nError code: 1"),
+        (b"\xfe\xff" + "拒绝访问\r\nError code: 1\r\n".encode("utf-16-be"), "拒绝访问\nError code: 1"),
+        (b"invalid \xff\n", r"invalid \xff"),
+        (b"\xff\xfeA\x00\xfd", r"A\xfd"),
+        (b"unknown\x00format", r"unknown\x00format"),
+    ],
+)
+def test_wsl_diagnostic_decoder_declared_formats_and_visible_invalid_bytes(raw, expected):
+    assert _decode_process_output(raw) == expected
+
+
+def test_wsl_bomless_localized_diagnostic_is_not_guessed_as_ascii_utf16():
+    raw = "中文".encode("utf-16-le")
+    assert _decode_process_output(raw) == raw.decode("utf-8", errors="backslashreplace")
+
+
+@pytest.mark.parametrize("raw", [b"basis\xff 1", b"b\x00a\x00s\x00i\x00s\x00", b"1\x002"])
+def test_wsl_invalid_success_stdout_never_reaches_scientific_parser(monkeypatch, raw):
+    monkeypatch.setattr(
+        module, "_run_captured_command",
+        lambda args, **kwargs: subprocess.CompletedProcess(args, 0, raw, b"transport detail\n"),
+    )
+    wrapper = object.__new__(BaseWrapper)
+    wrapper._init_runtime_state()
+    wrapper._mode = "wsl"
+    wrapper.cfg = SimpleNamespace(timeout=1)
+    monkeypatch.setattr(wrapper, "_stage_text", lambda *_args: "/var/tmp/id-12345678/in")
+    monkeypatch.setattr(wrapper, "_wsl_bin_path", lambda _path: "/opt/isobyu/iso")
+    monkeypatch.setattr(wrapper, "_isodata_path", lambda: "/var/tmp/id-12345678/data/")
+    with pytest.raises(_basics_WrapperRunError, match="Unsupported WSL stdout encoding") as error:
+        # Parsers only receive this return value on success.
+        wrapper.run_stdin(Path("iso"), "QUIT")
+    assert isinstance(error.value.__cause__, UnicodeError)
+    assert "transport detail" in str(error.value)
+
+
+def test_wsl_failure_retains_stdout_service_error(monkeypatch):
+    service_error = "Error code: Wsl/Service/WSL_E_DISTRO_NOT_FOUND"
+    monkeypatch.setattr(
+        module, "_run_captured_command",
+        lambda args, **kwargs: subprocess.CompletedProcess(
+            args, 17, service_error.encode("utf-16-le"), b"",
+        ),
+    )
+    wrapper = object.__new__(BaseWrapper)
+    wrapper._init_runtime_state()
+    wrapper._mode = "wsl"
+    wrapper.cfg = SimpleNamespace(timeout=1)
+    monkeypatch.setattr(wrapper, "_stage_text", lambda *_args: "/var/tmp/id-12345678/in")
+    monkeypatch.setattr(wrapper, "_wsl_bin_path", lambda _path: "/opt/isobyu/iso")
+    monkeypatch.setattr(wrapper, "_isodata_path", lambda: "/var/tmp/id-12345678/data/")
+    with pytest.raises(_basics_WrapperRunError, match="WSL_E_DISTRO_NOT_FOUND") as error:
+        wrapper.run_stdin(Path("iso"), "QUIT")
+    assert "17" in str(error.value)
+
+
+def test_wsl_requests_utf8_only_in_child_environment(monkeypatch):
+    monkeypatch.setenv("WSL_UTF8", "0")
+    monkeypatch.setenv("LC_ALL", "unchanged-locale")
+
+    class Process:
+        def __init__(self, args, **kwargs):
+            assert args[:4] == ["wsl.exe", "-e", "sh", "-c"]
+            assert kwargs.get("env", {}).get("WSL_UTF8") == "1"
+            assert kwargs["env"]["LC_ALL"] == "unchanged-locale"
+            kwargs["stdout"].write(b"  basis 1 0 0\n")
+            kwargs["stderr"].write(b"wsl: warning\r\n")
+            kwargs["stdout"].flush()
+            kwargs["stderr"].flush()
+
+        def wait(self, timeout):
+            return 0
+
+    monkeypatch.setattr(module.subprocess, "Popen", Process)
+    wrapper = object.__new__(BaseWrapper)
+    wrapper._init_runtime_state()
+    wrapper._mode = "wsl"
+    wrapper.cfg = SimpleNamespace(timeout=1)
+    result = wrapper._wsl("fixture")
+    assert result.stdout == "basis 1 0 0"
+    assert result.stderr == "wsl: warning"
+    assert os.environ["WSL_UTF8"] == "0"
+    assert os.environ["LC_ALL"] == "unchanged-locale"
+
+
+def test_wsl_path_and_cleanup_use_same_child_encoding_contract(monkeypatch):
+    calls = []
+
+    class Process:
+        def __init__(self, args, **kwargs):
+            assert kwargs["env"]["WSL_UTF8"] == "1"
+            calls.append(args)
+            if args[1] == "wslpath":
+                kwargs["stdout"].write(b"/mnt/e/test\n")
+            else:
+                kwargs["stdout"].write(b"Error code: Wsl/Service/EXAMPLE\n")
+            kwargs["stdout"].flush()
+
+        def wait(self, timeout):
+            return 0 if len(calls) == 1 else 3
+
+    monkeypatch.setattr(module.subprocess, "Popen", Process)
+    wrapper = object.__new__(BaseWrapper)
+    wrapper._init_runtime_state()
+    wrapper._mode = "wsl"
+    assert wrapper._win_to_wsl("E:\\test") == "/mnt/e/test"
+    with pytest.raises(_basics_WrapperRunError, match="Wsl/Service/EXAMPLE"):
+        module._remove_wsl_workspace("/var/tmp/id-12345678", 1)
+    assert len(calls) == 2
+
+
+def test_native_transport_keeps_environment_and_stdout_contract(monkeypatch):
+    monkeypatch.setenv("WSL_UTF8", "0")
+
+    class Process:
+        def __init__(self, args, **kwargs):
+            assert args[:2] == ["sh", "-c"]
+            assert kwargs["env"] is None
+            kwargs["stdout"].write("  \N{GREEK SMALL LETTER MU} 1 0 0\r\n".encode())
+            kwargs["stderr"].write(b"native diagnostic\r\n")
+            kwargs["stdout"].flush()
+            kwargs["stderr"].flush()
+
+        def wait(self, timeout):
+            return 0
+
+    monkeypatch.setattr(module.subprocess, "Popen", Process)
+    wrapper = object.__new__(BaseWrapper)
+    wrapper._init_runtime_state()
+    wrapper._mode = "native"
+    wrapper.cfg = SimpleNamespace(timeout=1)
+    result = wrapper._wsl("fixture")
+    assert result.stdout == "  \N{GREEK SMALL LETTER MU} 1 0 0\n"
+    assert result.stderr == "native diagnostic\n"
+    assert os.environ["WSL_UTF8"] == "0"
+
+
+@pytest.mark.skipif(os.name != "nt", reason="real WSL transport requires Windows")
+def test_real_wsl_utf8_transport_preserves_program_text_and_error(monkeypatch):
+    """Exercise transport with a shell only, without scientific inputs/databases."""
+    monkeypatch.setenv("WSL_UTF8", "0")
+    wrapper = object.__new__(BaseWrapper)
+    wrapper._init_runtime_state()
+    wrapper._mode = "wsl"
+    wrapper.cfg = SimpleNamespace(timeout=20)
+    stdout = "basis \N{GREEK SMALL LETTER MU} 1 -0.5 0"
+    success = wrapper._wsl("printf '%s\\n' " + shlex.quote(stdout))
+    assert success.returncode == 0
+    assert success.stdout == stdout
+    failure = wrapper._wsl("cat /proc/cris-no-such-file-91307082")
+    assert failure.returncode != 0
+    assert "cat: /proc/cris-no-such-file-91307082:" in failure.stderr
+    assert "\x00" not in failure.stderr and "\ufffd" not in failure.stderr
+    assert os.environ["WSL_UTF8"] == "0"
+
+
 def test_wsl_workspace_reports_onedrive_process_restriction(monkeypatch):
     wrapper = object.__new__(BaseWrapper)
     wrapper._init_runtime_state()

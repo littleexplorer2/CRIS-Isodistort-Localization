@@ -12,7 +12,10 @@ import re
 import logging
 import threading
 import uuid
+from collections import Counter
+from collections.abc import Callable
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 
 import numpy as np
@@ -389,10 +392,10 @@ def _api_set_types(session: WebSession, data: dict) -> dict:
     session.distortion_types = list(data["types"])
     scope = data.get("scope")
     if scope is not None:
-        session.distortion_scope = copy.deepcopy(scope)
         # 同步到底层 IsoDistort（模式计算按作用域过滤）
-        session.iso.set_distortion_scope(session.distortion_scope)
+        session.iso.set_distortion_scope(scope)
     session.iso.set_distortion_types(session.distortion_types)
+    session.distortion_scope = copy.deepcopy(session.iso.distortion_scope)
     # Every result below the Types panel depends on these selections.
     # Clear both the web-owned tables and all derived engine state so a
     # later click cannot reuse a path computed under the previous scope.
@@ -435,11 +438,8 @@ def _api_subgroups(session: WebSession, data: dict) -> dict:
             k_parameters=group.get("params"),
             generate_if_missing=gen,
         )
-        session.iso.set_subgroup_candidates(subs)
-        session.method2_subgroups = list(subs)
-        return {"subgroups": _subgroup_rows(subs)}
     # 兼容旧版单 k 点（可带 ir 参数）路径
-    if data.get("ir"):
+    elif data.get("ir"):
         subs = session.iso.list_subgroups_at(
             data["k"], data["ir"],
             k_parameters=data.get("params"),
@@ -454,6 +454,11 @@ def _api_subgroups(session: WebSession, data: dict) -> dict:
         )
     session.iso.set_subgroup_candidates(subs)
     session.method2_subgroups = list(subs)
+    # A successfully committed query, including an empty one, replaces the
+    # previous selection. Other Method pools remain available for explicit
+    # source selection; their earlier computed modes are not this query's result.
+    session.method2 = None
+    session.iso.clear_selected_modes()
     return {"subgroups": _subgroup_rows(subs)}
 
 
@@ -578,6 +583,9 @@ def _api_method4(session: WebSession, data: dict) -> dict:
     content = data.get("content", "")
     if not content.strip():
         raise ValueError("Daughter CIF 内容为空 / daughter CIF content is empty")
+    expected_nmod = None
+    if "nmod" in data:
+        expected_nmod = validate_modulation_count(nonnegative_integer(data["nmod"], "nmod"))
     path = _write_upload(data.get("filename", "daughter.cif"), content)
     try:
         result = session.iso.search_method_4(
@@ -585,6 +593,7 @@ def _api_method4(session: WebSession, data: dict) -> dict:
             atom_matching_method=data.get("atom_matching_method", "nearest-site"),
             robust_distance_threshold=float(data.get("robust_distance_threshold", 0.25)),
             provided_origin_shift=data.get("provided_origin_shift"),
+            number_of_independent_modulations=expected_nmod,
         )
     finally:
         _discard_upload(path)
@@ -647,10 +656,9 @@ def _subgroups_for_method(session: WebSession, method: int) -> list:
         return [item.subgroup for item in session.method1]
     if method == 3:
         return [item.subgroup for item in session.method3]
-    subs = list(session.method2_subgroups)
-    if not subs and session.method2 is not None:
-        subs = [session.method2.subgroup]
-    return subs
+    # The mode result can originate from any Method. It cannot fill an empty
+    # Method-2 query pool or relabel another Method's selection as Method 2.
+    return list(session.method2_subgroups)
 
 
 @dataclass(frozen=True)
@@ -738,23 +746,46 @@ def _api_method1_options(session: WebSession, _data: dict) -> dict:
     return {"options": session.iso.method1_options()}
 
 
+class _ActionPolicy(Enum):
+    """Indivisible session, rollback and revision contracts for one action."""
+
+    # Queries and runtime cache management run on the locked live engine.
+    # They neither publish session state nor advance its revision.
+    LIVE = "live"
+    # Clone the current engine; commit only after response validation succeeds.
+    TRANSACTION = "transaction"
+    # A new parent can recover a retired engine and supersede any old revision.
+    REPLACE_PARENT = "replace_parent"
+
+
+@dataclass(frozen=True)
+class _ActionSpec:
+    handler: Callable[[WebSession, dict], dict]
+    policy: _ActionPolicy
+
+    def __post_init__(self) -> None:
+        if not callable(self.handler):
+            raise TypeError("ActionSpec handler must be callable")
+        if not isinstance(self.policy, _ActionPolicy):
+            raise TypeError("ActionSpec requires an explicit supported action policy")
+
+
 _ACTIONS = {
-    "load_cif": _api_load_cif,
-    "set_types": _api_set_types,
-    "method1": _api_method1,
-    "subgroups": _api_subgroups,
-    "method2": _api_method2,
-    "method3": _api_method3,
-    "method4": _api_method4,
-    "isotropy_cache": lambda session, _data: _api_isotropy_cache_list(session),
-    "isotropy_cache/delete": _api_isotropy_cache_delete,
-    "kpoints": _api_kpoints,
-    "irreps": _api_irreps,
-    "method1_options": _api_method1_options,
+    "load_cif": _ActionSpec(_api_load_cif, _ActionPolicy.REPLACE_PARENT),
+    "set_types": _ActionSpec(_api_set_types, _ActionPolicy.TRANSACTION),
+    "method1": _ActionSpec(_api_method1, _ActionPolicy.TRANSACTION),
+    "subgroups": _ActionSpec(_api_subgroups, _ActionPolicy.TRANSACTION),
+    "method2": _ActionSpec(_api_method2, _ActionPolicy.TRANSACTION),
+    "method3": _ActionSpec(_api_method3, _ActionPolicy.TRANSACTION),
+    "method4": _ActionSpec(_api_method4, _ActionPolicy.TRANSACTION),
+    "isotropy_cache": _ActionSpec(
+        lambda session, _data: _api_isotropy_cache_list(session), _ActionPolicy.LIVE,
+    ),
+    "isotropy_cache/delete": _ActionSpec(_api_isotropy_cache_delete, _ActionPolicy.LIVE),
+    "kpoints": _ActionSpec(_api_kpoints, _ActionPolicy.LIVE),
+    "irreps": _ActionSpec(_api_irreps, _ActionPolicy.LIVE),
+    "method1_options": _ActionSpec(_api_method1_options, _ActionPolicy.LIVE),
 }
-_MUTATIONS = frozenset({
-    "load_cif", "set_types", "method1", "subgroups", "method2", "method3", "method4",
-})
 
 
 def execute(action: str, data: dict | None = None, *, revision=None) -> dict:
@@ -762,22 +793,29 @@ def execute(action: str, data: dict | None = None, *, revision=None) -> dict:
     global _SESSION
     if action not in _ACTIONS:
         raise ValueError(f"Unknown action: {action}")
+    spec = _ACTIONS[action]
+    if not isinstance(spec, _ActionSpec):
+        raise TypeError(f"Action {action!r} requires an ActionSpec with an explicit policy")
     values = action_input(action, data)
     if action in ("subgroups", "method2"):
         _require_single_method2_component(values)
     with _SESSION_LOCK:
-        if action != "load_cif":
+        if spec.policy is not _ActionPolicy.REPLACE_PARENT:
             _assert_current_revision(revision)
-        if action not in _MUTATIONS:
-            result = _ACTIONS[action](_SESSION, values) or {}
+        if spec.policy is _ActionPolicy.LIVE:
+            result = spec.handler(_SESSION, values) or {}
+            result["revision"] = _SESSION.revision
             result.setdefault("ok", True)
             result = response_data(result)
         else:
             previous = _SESSION
-            staged = previous.stage(replace_parent=action == "load_cif")
+            staged = previous.stage(
+                replace_parent=spec.policy is _ActionPolicy.REPLACE_PARENT,
+            )
             try:
-                result = _ACTIONS[action](staged, values) or {}
+                result = spec.handler(staged, values) or {}
                 staged.revision = previous.revision + 1
+                result["revision"] = staged.revision
                 result["state"] = _state_summary(staged)
                 result.setdefault("ok", True)
                 result = response_data(result)
@@ -831,9 +869,11 @@ def export_archive(values: dict[str, list[str]]) -> Download:
     if compute not in ("0", "false", "no", "1", "true", "yes"):
         raise ValueError("compute_modes must be 0/1, false/true or no/yes")
     compute_missing_modes = any(fmt != "cif" for fmt in formats) and compute in ("1", "true", "yes")
-    indices_raw = query_value(values, "indices", "").strip()
+    indices_raw = query_value(values, "indices")
     wanted = None
-    if indices_raw:
+    if indices_raw is not None:
+        # Omission selects the whole pool; an explicitly empty selection is
+        # invalid and must never widen the request into an all-candidate export.
         wanted = {nonnegative_integer(item.strip(), "indices", text=True)
                   for item in indices_raw.split(",")}
     worker = None
@@ -845,8 +885,27 @@ def export_archive(values: dict[str, list[str]]) -> Download:
             if live_iso.structure is None:
                 raise FileNotFoundError("load a parent CIF first")
             subgroups = _subgroups_for_method(_SESSION, method)
+            counts = Counter(sg.index for sg in subgroups)
             if wanted is not None:
+                missing = wanted - counts.keys()
+                if missing:
+                    raise ValueError(
+                        f"Subgroup indices not found in Method {method} candidate pool: "
+                        + ", ".join(str(index) for index in sorted(missing))
+                    )
+                # Keep the pool's order and complete candidate objects. The
+                # indices select a set within this locked revision, not a new
+                # scientific identity or a replacement calculation input.
                 subgroups = [sg for sg in subgroups if sg.index in wanted]
+            ambiguous = [
+                index for index, count in counts.items()
+                if count > 1 and (wanted is None or index in wanted)
+            ]
+            if ambiguous:
+                raise ValueError(
+                    f"Ambiguous subgroup indices in Method {method} candidate pool: "
+                    + ", ".join(str(index) for index in sorted(ambiguous))
+                )
             if not subgroups:
                 raise FileNotFoundError(f"no Method {method} subgroups; run that Method first")
             job = _EXPORT_JOBS.start(job_id, revision=_SESSION.revision,

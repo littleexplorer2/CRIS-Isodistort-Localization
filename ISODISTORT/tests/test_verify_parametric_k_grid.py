@@ -92,12 +92,13 @@ def manifest():
 def test_frozen_input_scope_and_derived_evidence(manifest):
     report = audit.build_report(manifest)
     assert report['verdict'] == 'pass', report['issues']
-    assert report['query_count']['download_queries'] == 99
+    assert report['query_count']['download_queries'] == 5
     assert report['query_count']['registered_queries'] == 3
-    assert report['query_count']['parametric_queries_download'] == 68
-    assert report['query_count']['parametric_queries_total'] == 70
-    assert report['query_count']['scope_queries_total'] == 102
-    assert report['query_count']['parametric_labels_total'] == 35
+    assert report['query_count']['blocked_queries'] == 1
+    assert report['query_count']['parametric_queries_download'] == 5
+    assert report['query_count']['parametric_queries_total'] == 8
+    assert report['query_count']['scope_queries_total'] == 9
+    assert report['query_count']['parametric_labels_total'] == 4
     assert report['label_aliases'] == report['same_star_pairs'] == []
     assert len(audit.POINT_GROUP) == 16
     for left, right in product(audit.POINT_GROUP, repeat=2):
@@ -108,7 +109,8 @@ def test_frozen_input_scope_and_derived_evidence(manifest):
             assert query[key] == entry[key]
         download = query.get('download_nmod_values', query['nmod_values'])
         registered = query.get('registered_nmod_values', [])
-        assert sorted(download + registered) == query['nmod_values']
+        blocked = query.get('blocked_nmod_values', [])
+        assert sorted(download + registered + blocked) == query['nmod_values']
         assert not set(download) & set(registered)
         assert entry['frozen_archived_value'] == bool(registered)
 
@@ -119,8 +121,14 @@ def test_registered_nmod0_queries_are_the_only_archive_reuse_queries(manifest):
             registered[query['id']] = query['registered_nmod_values']
     assert registered == {'M2P-EU-LD': [0], 'M2P-ND-Y': [0], 'M2F-C4310-X': [0]}
     for query in manifest['method2_fixed_k_queries']['queries'] + manifest['method2_parametric']['queries']:
-        if query['id'] in registered:
+        if query['id'] == 'M2F-C4310-X':
+            assert query['nmod_values'] == [0]
+            assert query['download_nmod_values'] == []
+        elif query['id'] in registered:
             assert query['download_nmod_values'] == [1]
+        elif query['id'] == 'M2P-ND-GP':
+            assert query['download_nmod_values'] == [0]
+            assert query['blocked_nmod_values'] == [1]
         else:
             assert query.get('download_nmod_values', query['nmod_values']) == [0, 1]
 
@@ -135,7 +143,7 @@ def test_input_drift_fails_closed(manifest, mutation):
     changed = deepcopy(manifest)
     rows = changed['method2_parametric']['queries']
     if mutation == 'coordinate':
-        rows[0]['coordinates'][0] = '0'
+        rows[0]['coordinates'][0] = '7/13'
     elif mutation == 'missing':
         rows.pop()
     elif mutation == 'duplicate':
@@ -155,9 +163,45 @@ def test_unsupported_setting_and_float_parameters_rejected(manifest):
     with pytest.raises(ValueError, match='setting'):
         audit.build_report(changed)
     changed = deepcopy(manifest)
-    changed['method2_parametric']['queries'][0]['values']['a'] = 0.1666666666666
+    values = changed['method2_parametric']['queries'][0]['values']
+    values[next(iter(values))] = 0.1666666666666
     with pytest.raises(ValueError, match='exact rational'):
         audit.build_report(changed)
+
+
+def test_subset_requires_explicit_scope_and_cannot_silently_drop_queries(manifest):
+    changed = deepcopy(manifest)
+    changed.pop('method2_query_scope')
+    assert audit.build_report(changed)['verdict'] == 'fail'
+    changed['method2_query_scope'] = {'mode': 'unknown'}
+    assert audit.build_report(changed)['verdict'] == 'fail'
+    changed = deepcopy(manifest)
+    changed['method2_query_scope']['query_ids'].pop()
+    assert audit.build_report(changed)['verdict'] == 'fail'
+
+
+@pytest.mark.parametrize('nmods', [[], [0, 0], [False], [2]])
+def test_invalid_selected_nmod_scope_is_rejected(manifest, nmods):
+    changed = deepcopy(manifest)
+    changed['method2_fixed_k_queries']['queries'][0]['nmod_values'] = nmods
+    assert audit.build_report(changed)['verdict'] == 'fail'
+
+
+@pytest.mark.parametrize('mutation', ['missing', 'overlap', 'duplicate', 'boolean'])
+def test_blocked_queries_must_be_a_disjoint_explicit_partition(manifest, mutation):
+    changed = deepcopy(manifest)
+    query = next(q for q in changed['method2_parametric']['queries']
+                 if q.get('blocked_nmod_values'))
+    if mutation == 'missing':
+        query.pop('blocked_nmod_values')
+    elif mutation == 'overlap':
+        query['download_nmod_values'].append(1)
+    elif mutation == 'duplicate':
+        query['blocked_nmod_values'] = [1, 1]
+    else:
+        query['blocked_nmod_values'] = [True]
+    assert audit.build_report(changed)['verdict'] == 'fail'
+
 
 def test_old_method3_command_cannot_resume_contaminated_checkpoints(capsys):
     assert retired.main(['--resume', '--dry-run']) == 2

@@ -1,0 +1,371 @@
+{
+  "schema": "method2-targeted-evidence/v1",
+  "at": "2026-10-20T12:53:52.101300+00:00",
+  "authority": "user narrowed Method2 downloads to missing algorithm evidence and requested prior/new conversation results in checklist",
+  "selection_status": "frozen_plan_only",
+  "scientific_acceptance": "not_run",
+  "input_manifest": "ISODISTORT/docs/manifests/official_output_download_manifest.json",
+  "rationale": "ISODISTORT/docs/reference_library/notes/METHOD2_TARGETED_EVIDENCE_20261020.md",
+  "counts": {
+    "method2_queries": 9,
+    "download_queries": 5,
+    "registered_queries": 3,
+    "page_status": {
+      "complete": 6,
+      "missing": 2,
+      "response_error": 1
+    },
+    "existing_method2_candidate_dirs": 94,
+    "missing_known_result_pages": 0,
+    "blocked_queries": 1,
+    "new_page_sets_completed": 3,
+    "list_queries_remaining": 2
+  },
+  "gaps": [
+    {
+      "id": "positive_nmod_centered",
+      "observable": "I-lattice positive nmod query, harmonic selection and result identity",
+      "existing_evidence_limit": "No registered positive-nmod official candidate",
+      "capabilities": [
+        "C05",
+        "C13",
+        "C18",
+        "C19"
+      ],
+      "query_ids": [
+        "M2P-EU-LD-NMOD0",
+        "M2P-EU-LD-NMOD1"
+      ],
+      "status": "reference_lists_available_identity_and_numerics_not_validated",
+      "acceptance_gate": "Actual lists/candidates must contain the intended observable; compare only after independent local outputs are frozen. Do not infer coverage from star size alone."
+    },
+    {
+      "id": "positive_nmod_primitive",
+      "observable": "P-lattice positive nmod with fixed half-coordinate",
+      "existing_evidence_limit": "No registered positive-nmod official candidate",
+      "capabilities": [
+        "C05",
+        "C13",
+        "C18",
+        "C19"
+      ],
+      "query_ids": [
+        "M2P-ND-Y-NMOD0",
+        "M2P-ND-Y-NMOD1"
+      ],
+      "status": "reference_lists_available_identity_and_numerics_not_validated",
+      "acceptance_gate": "Actual lists/candidates must contain the intended observable; compare only after independent local outputs are frozen. Do not infer coverage from star size alone."
+    },
+    {
+      "id": "paired_nmod_control",
+      "observable": "same parent/k/parameters with distinct nmod requests",
+      "existing_evidence_limit": "existing two parametric queries have nmod0 only",
+      "capabilities": [
+        "C13",
+        "C19"
+      ],
+      "query_ids": [
+        "M2P-EU-LD-NMOD0",
+        "M2P-EU-LD-NMOD1",
+        "M2P-ND-Y-NMOD0",
+        "M2P-ND-Y-NMOD1"
+      ],
+      "status": "reference_lists_available_identity_and_numerics_not_validated",
+      "acceptance_gate": "Actual lists/candidates must contain the intended observable; compare only after independent local outputs are frozen. Do not infer coverage from star size alone."
+    },
+    {
+      "id": "two_parameter_k",
+      "observable": "rank-two affine parameter conversion and primary-k selection",
+      "existing_evidence_limit": "existing dedicated Method2 parameter queries have one parameter",
+      "capabilities": [
+        "C05",
+        "C13"
+      ],
+      "query_ids": [
+        "M2P-C4310-B-NMOD0",
+        "M2P-C4310-B-NMOD1"
+      ],
+      "status": "planned_not_validated",
+      "acceptance_gate": "Actual lists/candidates must contain the intended observable; compare only after independent local outputs are frozen. Do not infer coverage from star size alone."
+    },
+    {
+      "id": "eight_arm_star",
+      "observable": "eight-arm primary star and real conjugate pairing",
+      "existing_evidence_limit": "existing Method2 LD/Y/X have two/four/two arms",
+      "capabilities": [
+        "C05",
+        "C19"
+      ],
+      "query_ids": [
+        "M2P-C4310-B-NMOD0",
+        "M2P-C4310-B-NMOD1"
+      ],
+      "status": "planned_not_validated",
+      "acceptance_gate": "Actual lists/candidates must contain the intended observable; compare only after independent local outputs are frozen. Do not infer coverage from star size alone."
+    },
+    {
+      "id": "repeated_physical_orbits_parametric",
+      "observable": "distinct physical orbits sharing a Wyckoff letter in parametric modes",
+      "existing_evidence_limit": "4310 existing Method2 X uses special-k route; EuAl4/NdNiO2 do not supply this combined witness",
+      "capabilities": [
+        "C04",
+        "C07",
+        "C13"
+      ],
+      "query_ids": [
+        "M2P-C4310-B-NMOD0",
+        "M2P-C4310-B-NMOD1"
+      ],
+      "status": "planned_not_validated",
+      "acceptance_gate": "Actual lists/candidates must contain the intended observable; compare only after independent local outputs are frozen. Do not infer coverage from star size alone."
+    },
+    {
+      "id": "three_parameter_k",
+      "observable": "rank-three affine parameter conversion and generic-k selection",
+      "existing_evidence_limit": "no dedicated three-parameter Method2 query",
+      "capabilities": [
+        "C05",
+        "C13"
+      ],
+      "query_ids": [
+        "M2P-ND-GP-NMOD0",
+        "M2P-ND-GP-NMOD1"
+      ],
+      "status": "partial_reference_available_positive_nmod_blocked",
+      "acceptance_gate": "Actual lists/candidates must contain the intended observable; compare only after independent local outputs are frozen. Do not infer coverage from star size alone."
+    },
+    {
+      "id": "sixteen_arm_star",
+      "observable": "sixteen-arm general primary star and phase mapping",
+      "existing_evidence_limit": "no dedicated general-k Method2 query",
+      "capabilities": [
+        "C05",
+        "C19"
+      ],
+      "query_ids": [
+        "M2P-ND-GP-NMOD0",
+        "M2P-ND-GP-NMOD1"
+      ],
+      "status": "partial_reference_available_positive_nmod_blocked",
+      "acceptance_gate": "Actual lists/candidates must contain the intended observable; compare only after independent local outputs are frozen. Do not infer coverage from star size alone."
+    },
+    {
+      "id": "existing_special_k_method2_control",
+      "observable": "special-k Method2 query context and exports",
+      "existing_evidence_limit": "reference already available; do not download",
+      "capabilities": [
+        "C13"
+      ],
+      "query_ids": [
+        "M2F-C4310-X-NMOD0"
+      ],
+      "status": "reference_available_identity_audit_pending",
+      "acceptance_gate": "Actual lists/candidates must contain the intended observable; compare only after independent local outputs are frozen. Do not infer coverage from star size alone."
+    }
+  ],
+  "new_queries_in_order": [
+    "M2P-EU-LD-NMOD1",
+    "M2P-ND-Y-NMOD1",
+    "M2P-C4310-B-NMOD0",
+    "M2P-C4310-B-NMOD1",
+    "M2P-ND-GP-NMOD0"
+  ],
+  "existing_query_ids": [
+    "M2F-C4310-X-NMOD0",
+    "M2P-EU-LD-NMOD0",
+    "M2P-ND-Y-NMOD0"
+  ],
+  "retired_query_ids": [
+    "M2F-EU-GM-NMOD0",
+    "M2F-EU-GM-NMOD1",
+    "M2F-EU-X-NMOD0",
+    "M2F-EU-X-NMOD1",
+    "M2F-EU-M-NMOD0",
+    "M2F-EU-M-NMOD1",
+    "M2F-EU-N-NMOD0",
+    "M2F-EU-N-NMOD1",
+    "M2F-EU-P-NMOD0",
+    "M2F-EU-P-NMOD1",
+    "M2F-ND-GM-NMOD0",
+    "M2F-ND-GM-NMOD1",
+    "M2F-ND-M-NMOD0",
+    "M2F-ND-M-NMOD1",
+    "M2F-ND-X-NMOD0",
+    "M2F-ND-X-NMOD1",
+    "M2F-ND-A-NMOD0",
+    "M2F-ND-A-NMOD1",
+    "M2F-ND-R-NMOD0",
+    "M2F-ND-R-NMOD1",
+    "M2F-ND-Z-NMOD0",
+    "M2F-ND-Z-NMOD1",
+    "M2F-C4310-GM-NMOD0",
+    "M2F-C4310-GM-NMOD1",
+    "M2F-C4310-X-NMOD1",
+    "M2F-C4310-M-NMOD0",
+    "M2F-C4310-M-NMOD1",
+    "M2F-C4310-N-NMOD0",
+    "M2F-C4310-N-NMOD1",
+    "M2F-C4310-P-NMOD0",
+    "M2F-C4310-P-NMOD1",
+    "M2P-EU-A-NMOD0",
+    "M2P-EU-A-NMOD1",
+    "M2P-EU-B-NMOD0",
+    "M2P-EU-B-NMOD1",
+    "M2P-EU-C-NMOD0",
+    "M2P-EU-C-NMOD1",
+    "M2P-EU-DT-NMOD0",
+    "M2P-EU-DT-NMOD1",
+    "M2P-EU-GP-NMOD0",
+    "M2P-EU-GP-NMOD1",
+    "M2P-EU-Q-NMOD0",
+    "M2P-EU-Q-NMOD1",
+    "M2P-EU-SM-NMOD0",
+    "M2P-EU-SM-NMOD1",
+    "M2P-EU-W-NMOD0",
+    "M2P-EU-W-NMOD1",
+    "M2P-EU-Y-NMOD0",
+    "M2P-EU-Y-NMOD1",
+    "M2P-C4310-A-NMOD0",
+    "M2P-C4310-A-NMOD1",
+    "M2P-C4310-C-NMOD0",
+    "M2P-C4310-C-NMOD1",
+    "M2P-C4310-DT-NMOD0",
+    "M2P-C4310-DT-NMOD1",
+    "M2P-C4310-GP-NMOD0",
+    "M2P-C4310-GP-NMOD1",
+    "M2P-C4310-LD-NMOD0",
+    "M2P-C4310-LD-NMOD1",
+    "M2P-C4310-Q-NMOD0",
+    "M2P-C4310-Q-NMOD1",
+    "M2P-C4310-SM-NMOD0",
+    "M2P-C4310-SM-NMOD1",
+    "M2P-C4310-W-NMOD0",
+    "M2P-C4310-W-NMOD1",
+    "M2P-C4310-Y-NMOD0",
+    "M2P-C4310-Y-NMOD1",
+    "M2P-ND-B-NMOD0",
+    "M2P-ND-B-NMOD1",
+    "M2P-ND-C-NMOD0",
+    "M2P-ND-C-NMOD1",
+    "M2P-ND-D-NMOD0",
+    "M2P-ND-D-NMOD1",
+    "M2P-ND-DT-NMOD0",
+    "M2P-ND-DT-NMOD1",
+    "M2P-ND-E-NMOD0",
+    "M2P-ND-E-NMOD1",
+    "M2P-ND-F-NMOD0",
+    "M2P-ND-F-NMOD1",
+    "M2P-ND-LD-NMOD0",
+    "M2P-ND-LD-NMOD1",
+    "M2P-ND-S-NMOD0",
+    "M2P-ND-S-NMOD1",
+    "M2P-ND-SM-NMOD0",
+    "M2P-ND-SM-NMOD1",
+    "M2P-ND-T-NMOD0",
+    "M2P-ND-T-NMOD1",
+    "M2P-ND-U-NMOD0",
+    "M2P-ND-U-NMOD1",
+    "M2P-ND-V-NMOD0",
+    "M2P-ND-V-NMOD1",
+    "M2P-ND-W-NMOD0",
+    "M2P-ND-W-NMOD1"
+  ],
+  "retirement_meaning": "not required in this finite batch; no newly identified marginal algorithm witness; not a claim of equivalent behavior or validation",
+  "existing_special_k_shared_evidence": {
+    "registry": "ISODISTORT/docs/manifests/official_archive_reuse_20261019.json",
+    "method1_candidates": 330,
+    "role": "shared scientific-output reference only; never Method2 query-completeness evidence"
+  },
+  "excluded_claims": [
+    "all-k correctness",
+    "minimal test set",
+    "all OPD/rational denominators covered",
+    "nmod2/3 correctness",
+    "irrational superspace completeness",
+    "coupled IR correctness",
+    "Method3/4 acceptance"
+  ],
+  "sources_reviewed": [
+    {
+      "path": "ISODISTORT/docs/reference_library/latex/unsupported_algorithm_proofs.tex",
+      "sections": [
+        "sec:lattice",
+        "sec:grid-duality",
+        "thm:harmonics",
+        "sec:micro",
+        "sec:validation"
+      ],
+      "role": "project mathematical contracts, not production certification"
+    },
+    {
+      "url": "https://iso.byu.edu/isodistorthelp.php",
+      "section": "Method 2 / Incommensurate modulations",
+      "accessed": "2026-10-20",
+      "role": "official behavior statement only"
+    },
+    {
+      "url": "https://iso.byu.edu/isodistortversions.php",
+      "section": "Version 6.3.0 August 2016",
+      "accessed": "2026-10-20",
+      "role": "independent modulation semantics, not a proof"
+    }
+  ],
+  "audited_source_signatures": [
+    {
+      "path": "ISODISTORT/backend/method2/search.py",
+      "bytes": 8937,
+      "sha256": "8c665180f09e8033855919f01a173941c2b54da3ab87fa192e254f4cb975f715"
+    },
+    {
+      "path": "ISODISTORT/backend/method2/superspace.py",
+      "bytes": 159346,
+      "sha256": "a2d929bac532231a99872ad0edd383e816af387725ba83d1bee1c137b123af8f"
+    },
+    {
+      "path": "ISODISTORT/backend/models/phase_path.py",
+      "bytes": 6800,
+      "sha256": "8e0bc2fdba9147005fa51407b6b87e9af2266fb92b1eec83a762dc85b15e5b9a"
+    },
+    {
+      "path": "ISODISTORT/backend/tables/kpoints_official.py",
+      "bytes": 9179,
+      "sha256": "3b3d90161e6425184fa53b95014f090645286ad27e1bc4e634ecf876ffcea42b"
+    },
+    {
+      "path": "ISODISTORT/application/session/core_api.py",
+      "bytes": 195367,
+      "sha256": "a46cf7af72b7eb657588195f4af1954e623ad1ba746684e808e14aaad5cf496f"
+    },
+    {
+      "path": "ISODISTORT/tests/verify_parametric_k_grid.py",
+      "bytes": 14414,
+      "sha256": "5396f40a1203d7521e50be9007012f3d0bc0b428d8c748e6b8bc4993d83f7dc0"
+    }
+  ],
+  "geometry_check": {
+    "path": "ISODISTORT/output/validation/method2_context_20261020/grid-report.json",
+    "bytes": 4477,
+    "sha256": "c4001175b87d0ce7388837b2107ba918cd3e7dc03b1f14a595a9d3b23bb43a0a",
+    "result": "pass",
+    "arithmetic": "Fraction exact, zero tolerance",
+    "scientific_modes_computed": false,
+    "scope": "Independent rational geometry and task partition only; no website nmod acceptance proof"
+  },
+  "blocked_query_ids": [
+    "M2P-ND-GP-NMOD1"
+  ],
+  "page_sets_completed_query_ids": [
+    "M2F-C4310-X-NMOD0",
+    "M2P-EU-LD-NMOD0",
+    "M2P-EU-LD-NMOD1",
+    "M2P-ND-GP-NMOD0",
+    "M2P-ND-Y-NMOD0",
+    "M2P-ND-Y-NMOD1"
+  ],
+  "website_response_review": {
+    "source": "ISODISTORT/output/validation/method2_context_20261020/page_registration.json",
+    "query": "M2P-ND-GP-NMOD1",
+    "status": "error_response_not_a_valid_ir_list",
+    "implication": "Prior rational geometric audit did not validate website nmod1 input processing; no replacement parameter is inferred."
+  }
+}

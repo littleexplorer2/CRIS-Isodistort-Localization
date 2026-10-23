@@ -35,8 +35,9 @@
 
 ## 完成标准
 
-- 修改代码或配置后，从 CRIS 根目录运行
-  `.\.venv\Scripts\python.exe -m pytest ISOVIZ_INPUT\tests_dev -q --tb=line`；
+- 修改代码或配置后，从 CRIS 根目录运行受影响范围的 pytest；完整套件命令为
+  `.\.venv\Scripts\python.exe -m pytest ISOVIZ_INPUT\tests_dev -q --tb=line`，
+  启动频率和用户选择统一遵守根 `AGENTS.md` 的“回归与验证频率”；
   模块、入口、资源或打包变更必须验证入口与 wheel，依赖 `requirements-dev.txt`，
   构建测试必须在测试临时目录中进行。
 - 默认门槛是 CSV 可解析、匹配报告正确、临时 `.isoviz` 可写、启动器路径可解析；

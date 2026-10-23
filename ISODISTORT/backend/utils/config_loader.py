@@ -163,6 +163,9 @@ class Config:
         """
         value = self._cfg["runtime"].get(key, default)
         try:
+            # YAML switches are not counts; False must not become unlimited.
+            if isinstance(value, bool):
+                raise ValueError("boolean is not an integer limit")
             parsed = int(value)
         except (TypeError, ValueError) as exc:
             raise ValueError(
@@ -236,6 +239,9 @@ class Config:
         else:
             raise KeyError(f"missing defaults.{key}")
         try:
+            # A logical switch has no length/angle/residual scale.
+            if isinstance(raw, bool):
+                raise ValueError("boolean is not a numerical tolerance")
             value = float(raw)
         except (TypeError, ValueError) as exc:
             raise ValueError(

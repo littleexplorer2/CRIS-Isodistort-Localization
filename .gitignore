@@ -12,6 +12,7 @@ __pycache__/
 .Python
 
 # Test, coverage, type-checking, and lint caches
+/.regression_validation_counter.json
 /.pytest_cache/
 **/.pytest_cache/
 /.ruff_cache/

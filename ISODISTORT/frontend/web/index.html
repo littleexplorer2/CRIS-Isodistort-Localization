@@ -322,20 +322,107 @@ let nsupValue = 1;
 let nmodValue = 0;
 let genDbValue = false;  // 缺失时在线生成子群数据库（对应官网 Generate isotropy subgroups）
 const METHOD2_COUPLED_UNSUPPORTED = "Multiple superposed IR components are not yet supported locally. Choose one component or use the official ISODISTORT website; independent single-IR subgroup tables cannot be combined.";
+const responseContexts = new WeakMap();
+const latestRequests = new Map();
+const resultRevisions = {1: null, 2: null, 3: null, 4: null};
+const resultQueryPaths = {1: "/api/method1", 2: "/api/subgroups", 3: "/api/method3", 4: "/api/method4"};
+let selectedModeContext = null;
+let parentUploadRequest = 0;
+let parentUploadQueue = Promise.resolve();
+let contextGeneration = 0;
 
 /* ================= 通用 ================= */
-function acceptResponseState(data) {
-  if (!data || !data.state) return;
-  STATE = data.state;
-  if (data.stale_context) {
-    // This tab's row indices belong to an older shared context.  Discard
-    // them before adopting the current revision returned by the server.
-    clearComputedResults();
-    renderStatusBar(STATE);
-    renderTypes();
-  }
+function currentRevision() {
+  return STATE && Number.isInteger(STATE.revision) ? STATE.revision : null;
 }
-async function api(path, body) {
+function requestIsCurrent(context) {
+  return !!context
+    && latestRequests.get(context.key) === context.request
+    && (!context.queryKey || latestRequests.get(context.queryKey) === context.queryRequest);
+}
+function responseIsCurrent(data) {
+  const context = data && responseContexts.get(data);
+  return requestIsCurrent(context) && context.accepted
+    && (context.localFailure ? (context.localFailureOwner
+      ? context.localFailureOwner() : context.generation === contextGeneration)
+      : context.path === "/api/space_groups" || context.revision === currentRevision());
+}
+function modeBasisIsCurrent(context = selectedModeContext) {
+  return context === selectedModeContext && requestIsCurrent(context)
+    && context.accepted && context.generation === contextGeneration;
+}
+function acceptResponseState(data, context) {
+  const previous = currentRevision();
+  const revision = data.state ? data.state.revision
+    : data.revision !== undefined ? data.revision : context.revision;
+  context.revision = revision;
+  if (previous !== null && revision !== null && revision < previous) return false;
+  if (revision !== previous && !data.state && context.path !== "/api/space_groups") {
+    // A read in another tab's context cannot supply rows for this tab's state.
+    // Obtain the corresponding state, then let the user retry the read.
+    void refreshStatus();
+    return false;
+  }
+  if (data.state && revision !== previous) {
+    const preservesCandidates = data.ok && context.mutation
+      && context.baseRevision === previous && revision === previous + 1
+      && !["/api/load_cif", "/api/set_types"].includes(context.path);
+    if (preservesCandidates) {
+      // The server retains each Method's candidate pool across these actions.
+      // A pool replaced by this action must wait for its own accepted payload.
+      const replaced = [1, 2, 3].find(method => resultQueryPaths[method] === context.path);
+      if (replaced) {
+        // A committed old query still replaces its server pool, but cannot
+        // erase the feedback/busy view of the newer query.
+        clearResultTable(replaced, latestRequests.get(context.key) !== context.request);
+      }
+      const decomposesBasis = context.path === resultQueryPaths[4];
+      clearModes(decomposesBasis, decomposesBasis && !requestIsCurrent(context));
+      for (const method of [1, 2, 3]) {
+        if (resultRevisions[method] === previous) resultRevisions[method] = revision;
+      }
+    } else {
+      clearComputedResults();
+    }
+    STATE = data.state;
+    renderSessionState(STATE);
+    if (!preservesCandidates && STATE.structure) {
+      void refreshKpoints();
+      void loadMethod1Options();
+    }
+  }
+  // Another local transaction may already have delivered this error's state.
+  // In the same input generation the current request still needs its error;
+  // responseIsCurrent separately rejects obsolete requests/query dependencies.
+  return !!(data.ok || context.baseRevision === previous
+    || (data.state && revision === previous && context.generation === contextGeneration));
+}
+function beginResponseContext(path, mutation = false, queryKey = null) {
+  const key = path === "/api/isotropy_cache/delete" ? "/api/isotropy_cache" : path;
+  const context = {
+    path, key, request: (latestRequests.get(key) || 0) + 1,
+    baseRevision: currentRevision(), revision: currentRevision(),
+    generation: contextGeneration,
+    queryKey, queryRequest: queryKey ? latestRequests.get(queryKey) : null,
+    mutation, accepted: false, localFailure: false,
+  };
+  latestRequests.set(key, context.request);
+  return context;
+}
+function receiveResponse(data, context) {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    context.localFailure = true;
+    data = {ok: false, error: "Invalid JSON response object."};
+  }
+  // Network/decoding failures have no server revision. Keep their local
+  // ownership checks without inventing server state or accepting old payloads.
+  context.accepted = context.localFailure
+    ? data.ok === false
+    : acceptResponseState(data, context);
+  responseContexts.set(data, context);
+  return data;
+}
+async function api(path, body, context = beginResponseContext(path, body !== undefined)) {
   const opts = { method: body !== undefined ? "POST" : "GET", headers: {} };
   if (body !== undefined) {
     const payload = { ...body };
@@ -345,9 +432,22 @@ async function api(path, body) {
     opts.headers["Content-Type"] = "application/json";
     opts.body = JSON.stringify(payload);
   }
-  const r = await fetch(path, opts);
-  const data = await r.json();
-  acceptResponseState(data);
+  let data;
+  try {
+    const r = await fetch(path, opts);
+    data = await r.json();
+  } catch (error) {
+    context.localFailure = true;
+    data = {ok: false, error: String(error)};
+  }
+  data = receiveResponse(data, context);
+  if (!context.accepted && data.ok && !data.state && body === undefined
+      && context.revision < currentRevision() && context.generation === contextGeneration
+      && latestRequests.get(context.key) === context.request) {
+    // A compatible local mutation can overtake an in-flight selector read.
+    // Retry at the current revision instead of leaving its control empty.
+    return api(path);
+  }
   return data;
 }
 function fileText(file) {
@@ -386,6 +486,10 @@ function showOk(el, msg) { el.innerHTML = `<div class="alert alert-success">${es
 function showInfo(el, msg) { el.innerHTML = `<div class="info">${esc(msg)}</div>`; }
 let exportingZip = false;
 let activeExportJobId = null;
+let cancelExportRequest = 0;
+const busyOwners = new WeakMap();
+const busyButtons = new WeakMap();
+const busyStatuses = new Set();
 
 /* ================= Busy progress (timer + striped bar) ================= */
 function fmtElapsed(sec) {
@@ -399,9 +503,17 @@ function startBusy(el, opts) {
   opts = opts || {};
   const msg = opts.message || t("st.wait");
   const buttons = (opts.buttons || []).filter(Boolean);
+  const owner = {};
+  busyOwners.set(el, owner);
+  busyStatuses.add(owner);
   const started = Date.now();
-  buttons.forEach((b) => { b.disabled = true; });
-  el.innerHTML =
+  buttons.forEach((button) => {
+    const value = busyButtons.get(button) || {count: 0, disabled: button.disabled};
+    value.count += 1;
+    busyButtons.set(button, value);
+    button.disabled = true;
+  });
+  const busyHtml =
     `<div class="busy-panel">`
     + `<div class="busy-msg">${esc(msg)}</div>`
     + `<div class="progress progress-striped active progress-info">`
@@ -410,10 +522,12 @@ function startBusy(el, opts) {
     + `<span data-role="elapsed">${esc(t("st.elapsed", "0s"))}</span>`
     + ` · ${esc(t("st.busyHint"))}</p>`
     + `</div>`;
+  el.innerHTML = busyHtml;
   const timerEl = el.querySelector("[data-role=elapsed]");
   const statusBox = document.getElementById("statusBox");
   if (statusBox) statusBox.classList.add("busy-status");
   const tick = () => {
+    if (busyOwners.get(el) !== owner) return;
     const label = t("st.elapsed", fmtElapsed((Date.now() - started) / 1000));
     if (timerEl) timerEl.textContent = label;
     if (statusBox) {
@@ -425,9 +539,20 @@ function startBusy(el, opts) {
   return {
     stop() {
       clearInterval(iv);
-      buttons.forEach((b) => { b.disabled = false; });
+      busyStatuses.delete(owner);
+      buttons.forEach((button) => {
+        const value = busyButtons.get(button);
+        if (--value.count === 0) {
+          button.disabled = value.disabled;
+          busyButtons.delete(button);
+        }
+      });
+      if (busyOwners.get(el) === owner) {
+        busyOwners.delete(el);
+        if (el.innerHTML === busyHtml) el.innerHTML = "";
+      }
       if (statusBox) {
-        statusBox.classList.remove("busy-status");
+        if (!busyStatuses.size) statusBox.classList.remove("busy-status");
         // A slower request may finish after another action has already updated
         // STATE (notably the Method-1-options request racing Types → Change).
         // Never restore the HTML snapshot captured when this request started.
@@ -481,19 +606,11 @@ function renderStatusBar(s) {
   box.innerHTML = status;
 }
 async function refreshStatus() {
-  const previousRevision = STATE && Number.isInteger(STATE.revision)
-    ? STATE.revision : null;
   const d = await api("/api/state");
-  if (previousRevision !== null && d.state
-      && Number.isInteger(d.state.revision)
-      && d.state.revision !== previousRevision) {
-    // A passive refresh must never bless result rows produced by another tab.
-    // Local mutation responses update STATE before refreshStatus is called, so
-    // a revision change observed here necessarily happened outside this page.
-    clearComputedResults();
-  }
-  STATE = d.state;
-  const s = d.state;
+  if (!responseIsCurrent(d) || !d.ok || !d.state) return;
+  renderSessionState(STATE);
+}
+function renderSessionState(s) {
   const para = document.getElementById("infoPara");
   if (!s.structure) {
     para.textContent = t("st.noStruct");
@@ -518,12 +635,17 @@ async function refreshStatus() {
   renderStatusBar(s);
   renderTypes();
 }
+function scopeSpecies(s, type) {
+  // Canonical state omits an unspecified range: the enabled type then acts
+  // on all species. An explicit empty range remains none.
+  return (s.distortion_scope || {})[type] ?? ["*"];
+}
 function formatScope(s) {
   const parts = [];
   for (const tp of TYPE_NAMES) {
     if (!s.distortion_types.includes(tp)) continue;
-    const v = (s.distortion_scope || {})[tp];
-    if (!v || !v.length) parts.push(`${tp}=none`);
+    const v = scopeSpecies(s, tp);
+    if (!v.length) parts.push(`${tp}=none`);
     else if (v.includes("*")) parts.push(`${tp}=all`);
     else parts.push(`${tp}=${v.join(",")}`);
   }
@@ -542,28 +664,39 @@ function typeLabel(tp) {
 
 /* ================= 1. 母相 CIF ================= */
 async function loadCif() {
+  const request = ++parentUploadRequest;
   const f = document.getElementById("cifFile").files[0];
   const msg = document.getElementById("cifMsg");
   if (!f) { showError(msg, t("err.noFile")); return; }
-  const content = await fileText(f);
+  let content;
+  try {
+    content = await fileText(f);
+  } catch (error) {
+    if (request === parentUploadRequest) showError(msg, String(error));
+    return;
+  }
+  if (request !== parentUploadRequest) return;
   document.getElementById("infoPara").textContent = t("web.reading");
   const d = await withBusy(
     msg, t("web.reading"), [document.getElementById("btnLoadCif")],
-    () => api("/api/load_cif", { filename: f.name, content }),
+    () => {
+      // load_cif deliberately replaces a parent regardless of its old revision.
+      // Serialize uploads and discard obsolete file reads before any POST.
+      const operation = parentUploadQueue.then(() => request === parentUploadRequest
+        ? api("/api/load_cif", { filename: f.name, content }) : null);
+      parentUploadQueue = operation.catch(() => {});
+      return operation;
+    },
   );
-  if (!d.ok) { showError(msg, d.error); document.getElementById("infoPara").textContent = "-"; return; }
+  if (request !== parentUploadRequest || !responseIsCurrent(d)) return;
+  if (!d.ok) { showError(msg, d.error); renderSessionState(STATE); return; }
   showOk(msg, t("ok.loaded"));
-  clearComputedResults();
-  await refreshStatus();
-  await refreshKpoints();
-  loadMethod1Options();   // 后台预取 Method 1 下拉数据（首次枚举较慢）
 }
 
 /* ================= 2. 畸变类型（官网 all/none/物种 复选框） ================= */
 function renderTypes() {
   const species = STATE ? (STATE.species || []) : [];
   const types = STATE ? STATE.distortion_types || [] : [];
-  const scope = STATE ? STATE.distortion_scope || {} : {};
   const box = document.getElementById("typeBox");
   let html = "";
   for (const tp of TYPE_NAMES) {
@@ -576,7 +709,7 @@ function renderTypes() {
     // 官网布局：Displacive: all[cb] none[cb] Eu[cb] Al[cb]（标签在复选框前）。
     // 与官网一致：各复选框完全独立、无任何自动联动（勾选物种不会联动 all/none，
     // 取消全部物种也不会自动勾 none）；点击 Change 提交时才按 all > none > 物种解释。
-    const sp = scope[tp] || [];
+    const sp = scopeSpecies(STATE || {}, tp);
     const active = types.includes(tp);
     // 服务器状态 -> 复选框：["*"] 渲染为全部物种逐个勾选（对齐官网默认外观：
     // 官网加载 CIF 后 Displacive 行的 Eu/Al 复选框逐个勾选、all/none 不勾）；
@@ -631,23 +764,22 @@ async function applyTypes() {
   const msg = document.getElementById("typesMsg");
   const d = await withBusy(
     msg, t("st.wait"), [document.getElementById("btnTypes")],
-    () => api("/api/set_types", { types, scope }, "POST"),
+    () => api("/api/set_types", { types, scope }),
   );
+  if (!responseIsCurrent(d)) return;
   if (!d.ok) { showError(msg, d.error); return; }
   // Use the state returned by the mutation immediately.  This also makes the
   // blue Types summary independent of a subsequent /api/state round trip.
-  STATE = d.state;
-  clearComputedResults();
   renderStatusBar(STATE);
   renderTypes();
   showOk(msg, t("ok.types"));
-  loadMethod1Options();  // Types 改变后 Method 1 空间群/格子下拉需重算
 }
 
 /* ================= 空间群下拉 ================= */
 async function refreshSpaceGroups() {
   try {
     const d = await api("/api/space_groups");
+    if (!responseIsCurrent(d) || !d.ok) return;
     spaceGroups = d.space_groups || [];
     const opt = sg => `<option value="${sg.number}">${sg.number} ${esc(sg.symbol)} ${esc(sg.schoenflies || "")}</option>`;
     document.getElementById("m3Sg").innerHTML = `<option value="">${esc(t("l.noChoice"))}</option>` + spaceGroups.map(opt).join("");
@@ -685,7 +817,8 @@ async function loadMethod1Options() {
   if (statusBox) statusBox.classList.add("busy-status");
   try {
     const d = await api("/api/method1_options");
-    if (request !== m1OptionsRequest) return;
+    if (request !== m1OptionsRequest || !responseIsCurrent(d)) return;
+    if (!d.ok) { hint.textContent = "-"; return; }
     m1Options = d.options || {};
     const sgs = m1Options.space_groups || [];
     // 序号右对齐 + 空间群符号，起始位置统一（对齐官网下拉格式）
@@ -737,28 +870,67 @@ function emptyTblState() {
 const tblState = { 1: emptyTblState(), 2: emptyTblState(), 3: emptyTblState(), 4: emptyTblState() };
 
 function clearComputedResults() {
-  m1Items = [];
-  subgroups = [];
+  ++contextGeneration;
+  for (const method of [1, 2, 3]) clearResultTable(method);
+  clearModes();
   irreps = [];
-  m3Items = [];
-  m4Items = [];
-  modes = [];
-  m4Meta = {
-    rms: null, maxAbs: null, strainApplied: null, strainRaw: null,
-    strainTensor: null, strainMultiplier: null, strainModes: [], metadata: null,
-  };
-  tblState[1] = emptyTblState();
-  tblState[2] = emptyTblState();
-  tblState[3] = emptyTblState();
-  tblState[4] = emptyTblState();
-  for (const id of ["m1Out", "subOut", "modesBox", "m3Out", "m3ModesBox", "m4Out"]) {
-    const node = document.getElementById(id);
-    if (node) node.innerHTML = "";
-  }
+  kpoints = [];
+  renderKvecBox();
   m1Options = null;
+  ++m1OptionsRequest;
+  for (const id of ["m1Sg", "m1ConvLat", "m1PrimLat"]) {
+    document.getElementById(id).innerHTML = `<option value="">—</option>`;
+  }
+  document.getElementById("m1SgHint").textContent = "-";
+}
+function clearResultTable(method, preserveDisplay = false) {
+  if (method === 1) m1Items = [];
+  if (method === 2) subgroups = [];
+  if (method === 3) m3Items = [];
+  if (method === 4) {
+    m4Items = [];
+    m4Meta = {
+      rms: null, maxAbs: null, strainApplied: null, strainRaw: null,
+      strainTensor: null, strainMultiplier: null, strainModes: [], metadata: null,
+    };
+  }
+  resultRevisions[method] = null;
+  tblState[method] = emptyTblState();
+  const node = document.getElementById({1: "m1Out", 2: "subOut", 3: "m3Out", 4: "m4Out"}[method]);
+  if (node && !preserveDisplay) node.innerHTML = "";
+}
+function invalidateResultQuery(method, dependencyKey = null) {
+  // Retire the query before replacing its view. Input edits and retries use
+  // the existing response domain, so restoring old text cannot revive results.
+  const queryKey = resultQueryPaths[method];
+  const context = beginResponseContext(queryKey, true, dependencyKey);
+  clearResultTable(method);
+  clearSelectedModes(queryKey);
+  if (selectedModeContext?.queryKey === queryKey) {
+    selectedModeContext = null;
+    clearResultTable(4);
+  }
+  return context;
+}
+function clearSelectedModes(queryKey = null) {
+  for (const id of ["modesBox", "m3ModesBox"]) {
+    const out = document.getElementById(id);
+    if (queryKey === null || responseContexts.get(out)?.queryKey === queryKey) {
+      out.innerHTML = "";
+      busyOwners.delete(out);
+      responseContexts.delete(out);
+    }
+  }
+  if (queryKey === null || responseContexts.get(modes)?.queryKey === queryKey) modes = [];
+}
+function clearModes(preserveBasis = false, preserveAmplitudeDisplay = false) {
+  clearResultTable(4, preserveAmplitudeDisplay);
+  clearSelectedModes();
+  if (!preserveBasis) selectedModeContext = null;
 }
 
 function itemsFor(method) {
+  if (resultRevisions[method] !== currentRevision()) return [];
   if (method === 1) return m1Items;
   if (method === 2) return subgroups;
   if (method === 3) return m3Items;
@@ -1054,6 +1226,7 @@ function onShowFilteredOnly(method) {
 async function runMethod1() {
   const out = document.getElementById("m1Out");
   if (!STATE || !STATE.structure) { showError(out, t("err.noCif")); return; }
+  invalidateResultQuery(1);
   const cs = [...document.querySelectorAll("#m1SysBox input:checked")].map(i => i.value);
   const sg = document.getElementById("m1Sg").value;
   const body = {
@@ -1066,10 +1239,12 @@ async function runMethod1() {
   if (lat) { body.lattice = lat.lattice; body.frame = lat.frame; body.lattice_kind = lat.kind; }
   const d = await withBusy(
     out, t("m1.wait"), [document.getElementById("btnM1")],
-    () => api("/api/method1", body, "POST"),
+    () => api("/api/method1", body),
   );
+  if (!responseIsCurrent(d)) return;
   if (!d.ok) { showError(out, d.error); return; }
   m1Items = d.candidates || [];
+  resultRevisions[1] = currentRevision();
   tblState[1] = emptyTblState();
   renderResultTable(1);
   await refreshStatus();
@@ -1078,6 +1253,7 @@ async function runMethod1() {
 async function refreshKpoints() {
   try {
     const d = await api("/api/kpoints");
+    if (!responseIsCurrent(d) || !d.ok) return;
     kpoints = d.kpoints || [];
   } catch (e) {
     kpoints = [];
@@ -1098,15 +1274,12 @@ function renderKvecBox() {
     const idx = i + 1;
     html += `<div class="kvec-row">
       ${t("l.kvec", idx)} <select id="kvec_${idx}" class="span3" onchange="onKpChange(${idx})">${kpOptionsHtml(0)}</select>
-      <span>a=<input id="p_a_${idx}" class="span1" size="4"> b=<input id="p_b_${idx}" class="span1" size="4"> g=<input id="p_g_${idx}" class="span1" size="4"></span>
+      <span>a=<input id="p_a_${idx}" class="span1" size="4" oninput="onKpChange(${idx})"> b=<input id="p_b_${idx}" class="span1" size="4" oninput="onKpChange(${idx})"> g=<input id="p_g_${idx}" class="span1" size="4" oninput="onKpChange(${idx})"></span>
       <div id="kvec_param_note_${idx}" class="muted-hint" style="margin:2px 0 6px 0;"></div>
     </div>`;
   }
   box.innerHTML = html;
   for (let i = 1; i <= n; i++) onKpChange(i);
-  subgroups = [];
-  modes = [];
-  document.getElementById("subOut").innerHTML = "";
 }
 function selectedKp(i) {
   const el = document.getElementById("kvec_" + i);
@@ -1125,7 +1298,7 @@ function collectParams(i) {
   return vals.some(v => !v) ? null : vals;
 }
 function onKpChange(i) {
-  document.getElementById("subOut").innerHTML = "";
+  invalidateResultQuery(2);
   const note = document.getElementById("kvec_param_note_" + i);
   if (!note) return;
   const kp = selectedKp(i);
@@ -1160,6 +1333,7 @@ async function loadGenDbCache() {
   list.innerHTML = `<div class="muted-hint">…</div>`;
   try {
     const d = await api("/api/isotropy_cache");
+    if (!responseIsCurrent(d)) return;
     if (!d.ok) throw new Error(d.error || "failed");
     const entries = d.entries || [];
     status.textContent = entries.length
@@ -1205,6 +1379,7 @@ async function deleteSelectedGenDb() {
   const status = document.getElementById("genDbManageStatus");
   try {
     const d = await api("/api/isotropy_cache/delete", { names });
+    if (!responseIsCurrent(d)) return;
     if (!d.ok) throw new Error(d.error || "delete failed");
     status.textContent = t("m2.genDbDeleted", (d.deleted || []).length);
     const entries = d.entries || [];
@@ -1229,10 +1404,9 @@ function gotoOfficialSite() {
 }
 async function enumSubgroups() {
   const out = document.getElementById("subOut");
+  invalidateResultQuery(2);
   const n = Math.max(1, nsupValue);
   if (n > 1) {
-    subgroups = [];
-    modes = [];
     showError(out, METHOD2_COUPLED_UNSUPPORTED);
     return;
   }
@@ -1249,12 +1423,13 @@ async function enumSubgroups() {
   try {
     d = await withBusy(
       out, msg, [document.getElementById("btnM2"), document.getElementById("btnLocalCompute")],
-      () => api("/api/subgroups", { nsup: n, kpoints: groups, generate: gen }, "POST"),
+      () => api("/api/subgroups", { nsup: n, kpoints: groups, generate: gen }),
     );
   } catch (e) {
     showError(out, String(e));
     return;
   }
+  if (!responseIsCurrent(d)) return;
   if (!d.ok) {
     out.innerHTML = `<div class="alert alert-error">${esc(d.error)}</div>`
       + (gen ? `<div class="muted-hint" style="margin-top:6px;">${esc(t("m2.gotoOfficial"))}: `
@@ -1276,6 +1451,7 @@ async function enumSubgroups() {
     return;
   }
   subgroups = merged;
+  resultRevisions[2] = currentRevision();
   tblState[2] = emptyTblState();
   renderResultTable(2);
   await refreshStatus();
@@ -1297,12 +1473,18 @@ function applyNsup() {
 }
 function applyNmod() {
   const raw = document.getElementById("nmod").value.trim();
-  const n = parseInt(raw, 10);
-  if (!Number.isInteger(n) || n < 0 || n > 3) {
+  const n = Number(raw);
+  // Match the workflow's complete ASCII integer grammar; do not truncate a
+  // dimension such as 1.9 or interpret exponent/hexadecimal notation.
+  if (!/^[0-9]+$/.test(raw) || !Number.isSafeInteger(n) || n < 0 || n > 3) {
     showError(document.getElementById("subOut"), t("err.badNmod"));
     return;
   }
-  nmodValue = n;
+  if (n !== nmodValue) {
+    beginResponseContext("/api/method2");
+    clearModes();
+    nmodValue = n;
+  }
   showOk(document.getElementById("subOut"), t("ok.nmod", n));
 }
 
@@ -1315,7 +1497,17 @@ async function computeModes(idx, source) {
     : source === "method3" ? (m3Items || [])
     : (m1Items || []);
   const sg = pool.find(s => s.index === idx);
+  const method = {method1: 1, subgroups: 2, method3: 3}[source];
+  if (!sg || resultRevisions[method] !== currentRevision()) {
+    showError(out, "This candidate table is no longer current. Run the search again.");
+    return;
+  }
 
+  const context = beginResponseContext(
+    "/api/method2", true, resultQueryPaths[method],
+  );
+  clearModes();
+  responseContexts.set(out, context);
   const d = await withBusy(
     out, t("st.wait"), [],
     () => api("/api/method2", {
@@ -1324,8 +1516,9 @@ async function computeModes(idx, source) {
       nsup: source === "subgroups" ? nsupValue : 1,
       nmod: nmodValue,
       source: source,
-    }, "POST"),
+    }, context),
   );
+  if (!responseIsCurrent(d)) return;
   if (!d.ok) {
     showError(out, String(d.error || ""));
     await refreshStatus();
@@ -1338,6 +1531,9 @@ async function computeModes(idx, source) {
     if (source === "subgroups") renderResultTable(2);
   }
   modes = d.modes || [];
+  responseContexts.set(modes, context);
+  selectedModeContext = context;
+  responseContexts.set(out, context);
   const rows = modes.map(m => {
     const shown = m.pretty_label || m.irrep_label;
     let cell = esc(shown);
@@ -1384,9 +1580,8 @@ function collectBasis() {
 }
 async function runMethod3() {
   const out = document.getElementById("m3Out");
-  const modesOut = document.getElementById("m3ModesBox");
   if (!STATE || !STATE.structure) { showError(out, t("err.noCif")); return; }
-  if (modesOut) modesOut.innerHTML = "";
+  invalidateResultQuery(3);
   const sg = document.getElementById("m3Sg").value;
   const pg = document.getElementById("m3Pg").value;
   const centEl = document.querySelector("input[name='m3Cent']:checked");
@@ -1409,8 +1604,10 @@ async function runMethod3() {
     showError(out, (err && err.message) ? err.message : String(err));
     return;
   }
+  if (!responseIsCurrent(d)) return;
   if (!d || !d.ok) { showError(out, (d && d.error) ? d.error : "Method 3 failed"); return; }
   m3Items = d.candidates || [];
+  resultRevisions[3] = currentRevision();
   tblState[3] = emptyTblState();
   renderResultTable(3);
   const dl = document.getElementById("dlMethod");
@@ -1421,10 +1618,16 @@ async function runMethod3() {
 }
 
 async function runMethod4() {
+  const context = invalidateResultQuery(4, "/api/method2");
+  const basis = selectedModeContext;
+  const revision = currentRevision();
   const f = document.getElementById("dauFile").files[0];
   const out = document.getElementById("m4Out");
   if (!f) { showError(out, t("err.noFile")); return; }
-  const content = await fileText(f);
+  if (!modeBasisIsCurrent(basis)) {
+    showError(out, "Compute modes for the current candidate and nmod before uploading a daughter.");
+    return;
+  }
   const originRaw = ["m4OriginX", "m4OriginY", "m4OriginZ"]
     .map((id) => document.getElementById(id).value.trim());
   const providedOrigin = originRaw.some((value) => value !== "")
@@ -1432,15 +1635,26 @@ async function runMethod4() {
   if (providedOrigin && providedOrigin.some((value) => !Number.isFinite(value))) {
     showError(out, "Origin shift must contain finite numbers."); return;
   }
+  const body = {
+    filename: f.name,
+    atom_matching_method: document.getElementById("m4Matching").value,
+    robust_distance_threshold: Number(document.getElementById("m4Threshold").value),
+    provided_origin_shift: providedOrigin,
+    nmod: nmodValue,
+  };
+  try {
+    body.content = await fileText(f);
+  } catch (error) {
+    if (requestIsCurrent(context) && modeBasisIsCurrent(basis)
+        && revision === currentRevision()) showError(out, String(error));
+    return;
+  }
+  if (!requestIsCurrent(context) || !modeBasisIsCurrent(basis) || revision !== currentRevision()) return;
   const d = await withBusy(
     out, t("st.wait"), [document.getElementById("btnM4")],
-    () => api("/api/method4", {
-      filename: f.name, content,
-      atom_matching_method: document.getElementById("m4Matching").value,
-      robust_distance_threshold: Number(document.getElementById("m4Threshold").value),
-      provided_origin_shift: providedOrigin,
-    }, "POST"),
+    () => api("/api/method4", body, context),
   );
+  if (!responseIsCurrent(d) || !modeBasisIsCurrent(basis)) return;
   if (!d.ok) { showError(out, d.error); return; }
   m4Items = Object.entries(d.amplitudes || {}).map(([mode, As]) => ({
     mode,
@@ -1459,6 +1673,7 @@ async function runMethod4() {
     strainModes: d.strain_modes || [],
     metadata: d.metadata || null,
   };
+  resultRevisions[4] = currentRevision();
   tblState[4] = emptyTblState();
   renderResultTable(4);
 }
@@ -1503,6 +1718,7 @@ async function downloadAll() {
   if (!items.length) { showError(out, t("dist.noMethod")); return; }
   const idxs = items.filter((it) => itemMatches(methodNum, it)).map((it) => it.index);
   if (!idxs.length) { showError(out, t("dist.noMethod")); return; }
+  const exportContext = beginResponseContext("/api/download_all");
   const needModes = fmts.some((f) => f !== "cif");
   const selected = items.filter((it) => idxs.includes(it.index));
   const hasParam = selected.some(candidateHasParametricK);
@@ -1519,6 +1735,10 @@ async function downloadAll() {
   exportingZip = true;
   const jobId = crypto.randomUUID();
   activeExportJobId = jobId;
+  // A submitted ZIP keeps its snapshot across later input changes. Matching
+  // terminal progress retires cancellation, but body decoding may still fail.
+  exportContext.localFailureOwner = () => exportingZip
+    && (activeExportJobId === jobId || activeExportJobId === null);
   const waitMsg = (hasParam && needModes)
     ? `${t("dist.zipWait")} ${t("dist.zipParamNote")}`
     : t("dist.zipWait");
@@ -1534,6 +1754,15 @@ async function downloadAll() {
   progressNode.textContent = "Preparing export snapshot…";
   let finalExportProgress = null;
   const renderProgress = (p) => {
+    // A terminal job cannot be cancelled while its response/body is in transit.
+    // Both polling and the download response retire the same ownership token.
+    if (p.job_id === jobId && p.active === false
+        && ["complete", "cancelled", "failed"].includes(p.phase)
+        && activeExportJobId === jobId) {
+      activeExportJobId = null;
+      cancelBtn.disabled = true;
+      cancelBtn.style.display = "none";
+    }
     const current = p.position ? ` · candidate ${p.position}/${p.total}` : "";
     const identity = p.irrep_label
       ? ` · ${p.irrep_label}/${p.opd_symbol || "-"}`
@@ -1562,13 +1791,16 @@ async function downloadAll() {
     const r = await fetch(exportUrl);
     const ct = (r.headers.get("content-type") || "").toLowerCase();
     if (!r.ok || ct.includes("application/json")) {
-      let msg = t("dist.zipFail");
+      let data;
       try {
-        const d = await r.json();
-        acceptResponseState(d);
-        if (d && d.error) msg = d.error;
-      } catch (e) { /* keep default */ }
-      showError(out, msg);
+        data = await r.json();
+      } catch (_error) {
+        exportContext.localFailure = true;
+        data = {ok: false, error: t("dist.zipFail")};
+      }
+      data = receiveResponse(data, exportContext);
+      if (!responseIsCurrent(data)) return;
+      showError(out, data.error || t("dist.zipFail"));
       return;
     }
     const status = JSON.parse(decodeURIComponent(r.headers.get("X-ISODISTORT-Export") || "null"));
@@ -1601,7 +1833,11 @@ async function downloadAll() {
         : t("dist.zipDone", requested),
     );
   } catch (err) {
-    showError(out, (err && err.message) ? err.message : t("dist.zipFail"));
+    exportContext.localFailure = true;
+    const data = receiveResponse({
+      ok: false, error: (err && err.message) ? err.message : t("dist.zipFail"),
+    }, exportContext);
+    if (responseIsCurrent(data)) showError(out, data.error);
   } finally {
     clearInterval(progressTimer);
     if (finalExportProgress) renderProgress(finalExportProgress);
@@ -1613,6 +1849,11 @@ async function downloadAll() {
   }
 }
 async function cancelExport() {
+  const jobId = activeExportJobId;
+  if (!exportingZip || !jobId) return;
+  const request = ++cancelExportRequest;
+  const ownsProgress = () => exportingZip && activeExportJobId === jobId
+    && request === cancelExportRequest;
   const button = document.getElementById("btnCancelExport");
   const progressNode = document.getElementById("exportProgress");
   button.disabled = true;
@@ -1620,14 +1861,27 @@ async function cancelExport() {
     const response = await fetch("/api/export_cancel", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ job_id: activeExportJobId }),
+      body: JSON.stringify({ job_id: jobId }),
     });
+    if (!ownsProgress()) return;
     const data = await response.json();
+    if (!ownsProgress()) return;
+    if (!response.ok || !data || data.ok !== true) {
+      throw new Error((data && data.error) || "Cancellation request failed.");
+    }
+    if (typeof data.cancellation_requested !== "boolean") {
+      throw new Error("Invalid cancellation response.");
+    }
     progressNode.textContent = data.cancellation_requested
       ? "Cancellation requested; the current candidate will finish safely before the partial ZIP is published."
-      : "No export is currently running.";
+      : "Cancellation was not accepted; retry while the export remains active.";
+    // False may precede job registration while the export waits for the session
+    // lock. Only matching terminal progress retires this job; allow a retry.
+    button.disabled = data.cancellation_requested;
   } catch (error) {
+    if (!ownsProgress()) return;
     progressNode.textContent = String(error && error.message ? error.message : error);
+    button.disabled = false;
   }
 }
 function downloadFilteredTable(csv) {
@@ -1752,7 +2006,6 @@ function renderAll() {
   renderPgSelect();
   renderTypes();
   onGenDbChange();
-  refreshStatus();
 }
 function renderSysBox() {
   document.getElementById("m1SysBox").innerHTML = CRYSTAL_SYSTEMS.map(cs =>
@@ -1831,8 +2084,7 @@ function startHeartbeat() {
   await loadMessages();
   renderAll();
   await refreshSpaceGroups();
-  await refreshKpoints();
-  loadMethod1Options();
+  await refreshStatus();
 })();
 </script>
 </body>

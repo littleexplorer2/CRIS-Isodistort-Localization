@@ -90,6 +90,7 @@
 - `tests/validation/` 的单对与批量比较共用同一比较器；只读取已冻结的本地输出和
   参考输入，不创建或重写输入目录。严格模式必须同时满足语义、参考哈希和字节条件；
   空批次、解析失败与非有限容差不得报告科学验证通过。比较结果只覆盖声明的比较域。
-- 修改代码或计算配置后必须先运行相关 pytest；交付前从 CRIS 根目录运行完整
-  `.\run_cris.ps1 -m pytest ISODISTORT\tests -q --tb=line`。
-  官网差分与长时命令以 `docs/MANUAL_VALIDATION.md` 为准。
+- 修改代码或计算配置后必须先运行受影响范围的 pytest。完整套件
+  `.\run_cris.ps1 -m pytest ISODISTORT\tests -q --tb=line` 从 CRIS 根目录运行，
+  启动频率和用户选择统一遵守根 `AGENTS.md` 的“回归与验证频率”。
+  官网差分与长时命令以 `docs/MANUAL_VALIDATION.md` 为准，全量批次同样受根频率规则约束。

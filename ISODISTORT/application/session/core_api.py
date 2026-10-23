@@ -25,7 +25,7 @@ import json
 import re
 import threading
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import asdict, replace
 from fractions import Fraction
 from pathlib import Path
@@ -752,31 +752,46 @@ class IsoDistort:
             return []
         return sorted({s.species_string for s in self.structure})
 
-    def set_distortion_scope(self, scope: dict | None) -> None:
+    def set_distortion_scope(self, scope: Mapping | None) -> None:
         """
         设置各畸变类型的作用域物种（官网 Displacive/Occupational/Magnetic/
         Rotational 行内的 all/none/Eu/Al 复选框）。
 
         Args:
             scope: {类型名: "*"（全部）或 ["Eu", "Al", ...]}；
-                不在 scope 中的类型默认作用于全部物种
+                不在 scope 中的类型默认作用于全部物种。空列表保留为 none；
+                None 表示未指定。启用或计算需要物种的类型时，不允许使用
+                空作用域。非法显式值拒绝，校验全部通过后才替换当前范围。
         """
-        self.distortion_scope = {}
-        if not scope:
+        if scope is None:
+            self.distortion_scope = {}
             return
+        if not isinstance(scope, Mapping):
+            raise ValueError("scope must be a mapping of distortion types to species")
+        parsed = {}
         valid = set(DISTORTION_TYPES)
         for tp, val in scope.items():
             if tp not in valid:
+                raise ValueError(f"unsupported scope distortion type: {tp}")
+            if val is None:
                 continue
             if isinstance(val, str) and val.strip().lower() in ("*", "all", "全部"):
-                self.distortion_scope[tp] = ["*"]
-            elif isinstance(val, (list, tuple)):
-                species = [str(s) for s in val if str(s) != "*"]
-                self.distortion_scope[tp] = species if species else ["*"]
+                parsed[tp] = ["*"]
+            elif isinstance(val, (list, tuple)) and all(
+                isinstance(species, str) and species for species in val
+            ):
+                parsed[tp] = ["*"] if "*" in val else list(val)
+            else:
+                raise ValueError(f"scope.{tp} must be a list or tuple of species, '*' or None")
+        self.distortion_scope = parsed
 
     def set_distortion_types(self, distortion_types) -> None:
         """设置当前考虑的畸变类型（对齐官网 Types 面板复选框）。"""
-        self.distortion_types = normalize_distortion_types(distortion_types)
+        selected = normalize_distortion_types(distortion_types)
+        for type_name in selected:
+            if type_name != "strain":
+                self._scope_species(type_name)
+        self.distortion_types = selected
 
     def _iso_kpoint_raw(self, k_point_label: str):
         """iso 原始 k 点信息（未应用官网显示覆盖）。"""
@@ -880,9 +895,16 @@ class IsoDistort:
         all_species = set(self.species())
         source = self.distortion_scope if scope is None else scope
         val = source.get(type_name)
-        if not val or "*" in val:
+        if val is None or "*" in val or (type_name == "strain" and not val):
             return all_species
-        return {s for s in val if s in all_species}
+        # Before a parent is loaded, a nonempty declaration can be configured
+        # but its intersection with the parent species is not yet knowable.
+        selected = set(val)
+        if getattr(self, "structure", None) is not None:
+            selected.intersection_update(all_species)
+        if not selected and type_name != "strain":
+            raise ValueError(f"{type_name} scope is empty; select species or disable the type")
+        return selected
 
     def _letters_for_species(self, species_set) -> list[str]:
         """物种集合对应的 Wyckoff 位置字母（去重）。"""
@@ -1902,6 +1924,20 @@ class IsoDistort:
     def _mode_session_key(self, mode: DistortionMode) -> str:
         return str(getattr(mode, "amplitude_key", "") or mode.irrep_label)
 
+    def _require_current_mode_context(self):
+        """Reject reuse of a committed basis after its scientific inputs change."""
+        selected = self._selected_subgroup
+        context = self._mode_cache_key
+        if selected is None or context is None:
+            raise RuntimeError("No committed displacement calculation context")
+        current_context = self._mode_context_key(
+            selected, self.number_of_independent_modulations,
+            self.distortion_types, self.distortion_scope,
+        )
+        if context != current_context:
+            raise RuntimeError("Scientific context changed after mode calculation")
+        return selected, context
+
     def displacement_snapshot(self) -> DisplacementSnapshot:
         """Capture selected, qualified modes without exposing mutable caches.
 
@@ -1910,16 +1946,9 @@ class IsoDistort:
         """
         from backend.export import subgroup_identity
 
-        selected = self._selected_subgroup
-        context = self._mode_cache_key
-        if selected is None or context is None or not self.mode_displacements_sc:
+        if not self.mode_displacements_sc:
             raise RuntimeError("No committed supercell displacement result")
-        current_context = self._mode_context_key(
-            selected, self.number_of_independent_modulations,
-            self.distortion_types, self.distortion_scope,
-        )
-        if context != current_context:
-            raise RuntimeError("Scientific context changed after mode calculation")
+        selected, context = self._require_current_mode_context()
         modes = [mode for mode in self.distortion_modes
                  if self._mode_session_key(mode) in self.mode_displacements_sc]
         failures = self._mode_identity_failures(modes)
@@ -4073,18 +4102,27 @@ class IsoDistort:
                         distorted_cif_path: str | Path,
                         atom_matching_method: str = "nearest-site",
                         robust_distance_threshold: float = 0.25,
-                        provided_origin_shift: list[float] | None = None):
+                        provided_origin_shift: list[float] | None = None,
+                        *,
+                        number_of_independent_modulations: int | None = None):
         """
         Method 4: Mode decomposition of a distorted structure.
 
         要求已经通过 Method 2 或 select_path 计算出可用模式。
         畸变结构可以是母相的超胞（官网 Method 4 的常规情形）：原子数
         不一致时自动把母相与模式位移提升到畸变结构的超胞坐标系再分解。
+        可选 number_of_independent_modulations 只核对已有模式基的 nmod，
+        不修改或重新计算模式；省略时仍核对完整模式计算上下文。
         """
         if self.structure is None:
             raise RuntimeError("请先加载母相结构 (load_structure)")
         if not self.mode_displacements and not self.mode_displacements_sc:
             raise RuntimeError("请先通过 select_path 或 search_method_2 计算模式")
+        self._require_current_mode_context()
+        if number_of_independent_modulations is not None:
+            expected_nmod = validate_modulation_count(number_of_independent_modulations)
+            if expected_nmod != self.number_of_independent_modulations:
+                raise ValueError("Requested nmod differs from the committed mode basis; recompute modes")
 
         distorted_structure = read_cif(distorted_cif_path)
         parent, mode_disp = self._method4_reference_modes(distorted_structure)

@@ -116,7 +116,8 @@
         "ISODISTORT/backend/export/isodistort_cif.py"
       ],
       "implementation_status": "conditional_or_not_audited",
-      "qualification": "轨道-稳定子证明；全部标准字母/数据库条目未逐一核验。"
+      "qualification": "轨道-稳定子证明；全部标准字母/数据库条目未逐一核验。",
+      "targeted_evidence_plan": "notes/METHOD2_TARGETED_EVIDENCE_20261020.md"
     },
     {
       "id": "C05",
@@ -148,7 +149,8 @@
       ],
       "implementation_status": "conditional_or_not_audited",
       "qualification": "证明倒易作用和相位阶数；必须使用真正平移格。",
-      "input_scope_audit": "2026-10-17: exact dual-lattice and symbolic generic little co-group audit; no production-mode or infinite-scope certification."
+      "input_scope_audit": "2026-10-17: exact dual-lattice and symbolic generic little co-group audit; no production-mode or infinite-scope certification.",
+      "targeted_evidence_plan": "notes/METHOD2_TARGETED_EVIDENCE_20261020.md"
     },
     {
       "id": "C06",
@@ -199,7 +201,8 @@
         "ISODISTORT/backend/method2/distortion_mapper.py"
       ],
       "implementation_status": "conditional_or_not_audited",
-      "qualification": "证明完全可约、字符投影、最小二乘；重复实例列不由子空间唯一决定。"
+      "qualification": "证明完全可约、字符投影、最小二乘；重复实例列不由子空间唯一决定。",
+      "targeted_evidence_plan": "notes/METHOD2_TARGETED_EVIDENCE_20261020.md"
     },
     {
       "id": "C08",
@@ -341,7 +344,8 @@
       ],
       "implementation_status": "conditional_or_not_audited",
       "qualification": "直和的稳定子交已证明；随机 OPD 采样不是穷尽。",
-      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md"
+      "architecture_contract": "notes/ARCHITECTURE_CONTRACTS_20261019.md",
+      "targeted_evidence_plan": "notes/METHOD2_TARGETED_EVIDENCE_20261020.md"
     },
     {
       "id": "C14",
@@ -471,7 +475,8 @@
         "ISODISTORT/backend/method2/superspace.py"
       ],
       "implementation_status": "conditional_or_not_audited",
-      "qualification": "证明截面相容与微观表示合同；完整分类依赖已发表算法和正确数据表。"
+      "qualification": "证明截面相容与微观表示合同；完整分类依赖已发表算法和正确数据表。",
+      "targeted_evidence_plan": "notes/METHOD2_TARGETED_EVIDENCE_20261020.md"
     },
     {
       "id": "C19",
@@ -496,7 +501,8 @@
         "ISODISTORT/backend/method2/superspace.py"
       ],
       "implementation_status": "conditional_or_not_audited",
-      "qualification": "有限商特征标与谐波封闭有证明；任意截断没有无条件误差保证。"
+      "qualification": "有限商特征标与谐波封闭有证明；任意截断没有无条件误差保证。",
+      "targeted_evidence_plan": "notes/METHOD2_TARGETED_EVIDENCE_20261020.md"
     },
     {
       "id": "C20",
@@ -669,9 +675,11 @@
   ],
   "implementation_audit": "audit/implementation_audit.json",
   "architecture_revision": {
-    "date": "2026-10-19",
+    "date": "2026-10-20",
     "proof": "notes/ARCHITECTURE_CONTRACTS_20261019.md",
-    "scope": "Module paths and added architecture contracts; prior scientific qualifications remain unchanged."
+    "scope": "Module paths and architecture contracts, including unified query/result ownership, selected-basis provenance through Method 4, strict scope and numeric-configuration domains, current transport errors, authoritative empty candidate pools, complete export selection, cancellation ownership, action policies and WSL text transport; prior scientific qualifications remain unchanged.",
+    "engineering_evidence": "ISODISTORT/output/validation/architecture_loop_20261020",
+    "qualification": "Program invariants and targeted engineering checks; not new independent scientific acceptance."
   },
   "test_layout_revision": {
     "date": "2026-10-19",

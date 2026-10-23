@@ -16,6 +16,7 @@ class _SessionIsoStub:
         self.mode_occupancies = {"old-occ": object()}
         self.distorted_structure = [object()]
         self.scope = None
+        self.distortion_scope = {}
         self.types = None
         self.selected_modes_cleared = False
 
@@ -31,6 +32,7 @@ class _SessionIsoStub:
 
     def set_distortion_scope(self, scope):
         self.scope = scope
+        self.distortion_scope = copy.deepcopy(scope)
 
     def set_distortion_types(self, types):
         self.types = list(types)

@@ -24767,6 +24767,511 @@
       "path": "output_compare/NdNiO2 own.cif/官网/Method4/P03/topas.str",
       "bytes": 21648,
       "sha256": "c8652b6487cf9fadea363c016b74f10a0ae5db9aec4bd2a3647135e961f8029c"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod0_LD2 - ISODISTORT_ order parameter direction.html",
+      "bytes": 6720,
+      "sha256": "eca861c70fffc39d4b211585a4aea3ab269dcf0d3d0f1ba35b40aeea7e5b1f2c"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod0_LD2 - ISODISTORT_ order parameter direction_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod0_LD2 - ISODISTORT_ order parameter direction_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod0_LD2 - ISODISTORT_ order parameter direction_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod0_LD2 - ISODISTORT_ order parameter direction_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod0_LD2 - ISODISTORT_ order parameter direction_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod0_LD5 - ISODISTORT_ order parameter direction.html",
+      "bytes": 10401,
+      "sha256": "7b0227be0580f68b46689570b8e36af083973169f6dec2280ec2ae69a5c5bd29"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod0_LD5 - ISODISTORT_ order parameter direction_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod0_LD5 - ISODISTORT_ order parameter direction_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod0_LD5 - ISODISTORT_ order parameter direction_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod0_LD5 - ISODISTORT_ order parameter direction_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod0_LD5 - ISODISTORT_ order parameter direction_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod0_Y2 - ISODISTORT_ order parameter direction.html",
+      "bytes": 9535,
+      "sha256": "b2e4069793134e8fedf51fe208f166b82303a0de33522d033e2031900f9bcb93"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod0_Y2 - ISODISTORT_ order parameter direction_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod0_Y2 - ISODISTORT_ order parameter direction_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod0_Y2 - ISODISTORT_ order parameter direction_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod0_Y2 - ISODISTORT_ order parameter direction_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod0_Y2 - ISODISTORT_ order parameter direction_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod0_Y3 - ISODISTORT_ order parameter direction.html",
+      "bytes": 9535,
+      "sha256": "bd03d4bab6e1734331dc6e3e5300f09be07e4f374b6abd05abe179aaf3a01f06"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod0_Y3 - ISODISTORT_ order parameter direction_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod0_Y3 - ISODISTORT_ order parameter direction_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod0_Y3 - ISODISTORT_ order parameter direction_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod0_Y3 - ISODISTORT_ order parameter direction_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod0_Y3 - ISODISTORT_ order parameter direction_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod0_Y4 - ISODISTORT_ order parameter direction.html",
+      "bytes": 9537,
+      "sha256": "f9b2cc16a2411148a0f940effaba352aa2a2c1ca301884fe7260191c4f71a2c7"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod0_Y4 - ISODISTORT_ order parameter direction_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod0_Y4 - ISODISTORT_ order parameter direction_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod0_Y4 - ISODISTORT_ order parameter direction_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod0_Y4 - ISODISTORT_ order parameter direction_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod0_Y4 - ISODISTORT_ order parameter direction_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/3. LD_g1-6_nmod1 - ISODISTORT_ irreducible representation.html",
+      "bytes": 5879,
+      "sha256": "65bceabb20632da302793f5a8f0f59d2c551fcdc1d4c49f2aeac6cee014c55aa"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/3. LD_g1-6_nmod1 - ISODISTORT_ irreducible representation_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/3. LD_g1-6_nmod1 - ISODISTORT_ irreducible representation_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/3. LD_g1-6_nmod1 - ISODISTORT_ irreducible representation_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/3. LD_g1-6_nmod1 - ISODISTORT_ irreducible representation_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/3. LD_g1-6_nmod1 - ISODISTORT_ irreducible representation_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.1 LD_g1-6_nmod1_LD1 - ISODISTORT_ order parameter direction.html",
+      "bytes": 6945,
+      "sha256": "7d8d02e048969972e7be9a7804662bf5e474a852e0ad88bcf133f5e11c6caacf"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.1 LD_g1-6_nmod1_LD1 - ISODISTORT_ order parameter direction_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.1 LD_g1-6_nmod1_LD1 - ISODISTORT_ order parameter direction_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.1 LD_g1-6_nmod1_LD1 - ISODISTORT_ order parameter direction_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.1 LD_g1-6_nmod1_LD1 - ISODISTORT_ order parameter direction_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.1 LD_g1-6_nmod1_LD1 - ISODISTORT_ order parameter direction_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod1_LD2 - ISODISTORT_ order parameter direction.html",
+      "bytes": 6945,
+      "sha256": "001cafba69197cb984facd5e68f6edd5599563266c66db6fb8f0da1c54188c98"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod1_LD2 - ISODISTORT_ order parameter direction_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod1_LD2 - ISODISTORT_ order parameter direction_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod1_LD2 - ISODISTORT_ order parameter direction_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod1_LD2 - ISODISTORT_ order parameter direction_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod1_LD2 - ISODISTORT_ order parameter direction_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod1_LD5 - ISODISTORT_ order parameter direction.html",
+      "bytes": 9023,
+      "sha256": "3539fb6c7bfc7957a0488617934d4d5689faca8d3b6bfaa9e7d50332d21049a6"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod1_LD5 - ISODISTORT_ order parameter direction_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod1_LD5 - ISODISTORT_ order parameter direction_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod1_LD5 - ISODISTORT_ order parameter direction_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod1_LD5 - ISODISTORT_ order parameter direction_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod1_LD5 - ISODISTORT_ order parameter direction_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. GP_a1-6-b1-4-g1-3_nmod0 - ISODISTORT_ irreducible representation.html",
+      "bytes": 5927,
+      "sha256": "6b9ac72022c13b2fa97490002337fedf8afb79f9f68736a0f730040b93e5c18f"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. GP_a1-6-b1-4-g1-3_nmod0 - ISODISTORT_ irreducible representation_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. GP_a1-6-b1-4-g1-3_nmod0 - ISODISTORT_ irreducible representation_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. GP_a1-6-b1-4-g1-3_nmod0 - ISODISTORT_ irreducible representation_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. GP_a1-6-b1-4-g1-3_nmod0 - ISODISTORT_ irreducible representation_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. GP_a1-6-b1-4-g1-3_nmod0 - ISODISTORT_ irreducible representation_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. GP_a1-6-b1-4-g1-3_nmod1 - ISODISTORT_ irreducible representation.html",
+      "bytes": 2248,
+      "sha256": "d9fe9394ef7409ef2df2a3ce2fe4347206927871c1ee52487a151750cb53fc10"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. GP_a1-6-b1-4-g1-3_nmod1 - ISODISTORT_ irreducible representation_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. GP_a1-6-b1-4-g1-3_nmod1 - ISODISTORT_ irreducible representation_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. GP_a1-6-b1-4-g1-3_nmod1 - ISODISTORT_ irreducible representation_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. GP_a1-6-b1-4-g1-3_nmod1 - ISODISTORT_ irreducible representation_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. Y_a1-3_nmod1 - ISODISTORT_ irreducible representation.html",
+      "bytes": 5948,
+      "sha256": "d53266bc2a899aee6e7339d168b24455455ec4b1d40c91ffe9bc79515292fc30"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. Y_a1-3_nmod1 - ISODISTORT_ irreducible representation_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. Y_a1-3_nmod1 - ISODISTORT_ irreducible representation_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. Y_a1-3_nmod1 - ISODISTORT_ irreducible representation_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. Y_a1-3_nmod1 - ISODISTORT_ irreducible representation_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/3. Y_a1-3_nmod1 - ISODISTORT_ irreducible representation_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.1 GP_a1-6-b1-4-g1-3_nmod0_GP1 - ISODISTORT_ order parameter direction.html",
+      "bytes": 126263,
+      "sha256": "12c4bfef659c25cfbb5dab137f700b7390988e09c5685124f6021d2a115f7080"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.1 GP_a1-6-b1-4-g1-3_nmod0_GP1 - ISODISTORT_ order parameter direction_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.1 GP_a1-6-b1-4-g1-3_nmod0_GP1 - ISODISTORT_ order parameter direction_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.1 GP_a1-6-b1-4-g1-3_nmod0_GP1 - ISODISTORT_ order parameter direction_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.1 GP_a1-6-b1-4-g1-3_nmod0_GP1 - ISODISTORT_ order parameter direction_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.1 GP_a1-6-b1-4-g1-3_nmod0_GP1 - ISODISTORT_ order parameter direction_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.1 Y_a1-3_nmod1_Y1 - ISODISTORT_ order parameter direction.html",
+      "bytes": 6993,
+      "sha256": "cbe00c4c9d3339a2a41be35b8d80c6f265dc05cd7bc77aa039d7c8e3f26c1de5"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.1 Y_a1-3_nmod1_Y1 - ISODISTORT_ order parameter direction_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.1 Y_a1-3_nmod1_Y1 - ISODISTORT_ order parameter direction_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.1 Y_a1-3_nmod1_Y1 - ISODISTORT_ order parameter direction_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.1 Y_a1-3_nmod1_Y1 - ISODISTORT_ order parameter direction_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.1 Y_a1-3_nmod1_Y1 - ISODISTORT_ order parameter direction_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod1_Y2 - ISODISTORT_ order parameter direction.html",
+      "bytes": 7005,
+      "sha256": "530e3abe670ccf521d80390df21d899bede2d03c3c50952c8bb809afb21bbde2"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod1_Y2 - ISODISTORT_ order parameter direction_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod1_Y2 - ISODISTORT_ order parameter direction_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod1_Y2 - ISODISTORT_ order parameter direction_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod1_Y2 - ISODISTORT_ order parameter direction_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod1_Y2 - ISODISTORT_ order parameter direction_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod1_Y3 - ISODISTORT_ order parameter direction.html",
+      "bytes": 6993,
+      "sha256": "24ab9ebe590e0ee530d8dc405af5b8408fadc6a61ca121e7c000eb1c6ecab0b3"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod1_Y3 - ISODISTORT_ order parameter direction_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod1_Y3 - ISODISTORT_ order parameter direction_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod1_Y3 - ISODISTORT_ order parameter direction_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod1_Y3 - ISODISTORT_ order parameter direction_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod1_Y3 - ISODISTORT_ order parameter direction_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod1_Y4 - ISODISTORT_ order parameter direction.html",
+      "bytes": 7005,
+      "sha256": "7b7afd78f3bb1baf9b67d40a8a8c819144a6b6db8e45ca66719afb5d2674f00f"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod1_Y4 - ISODISTORT_ order parameter direction_files/bootstrap.css",
+      "bytes": 99896,
+      "sha256": "e34b370a0a666b945d9838538b04ab111ff321bfe171c7a6722c08e0062e7681"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod1_Y4 - ISODISTORT_ order parameter direction_files/docs.css",
+      "bytes": 264,
+      "sha256": "0ab9dc5c7ecb9fe578cdf30f19e3542b22f115801dc8dafa247c55b46d3843a4"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod1_Y4 - ISODISTORT_ order parameter direction_files/help.jpg",
+      "bytes": 9264,
+      "sha256": "f3288517fd26561b7ba25c72bac690e62bda0ac0fe8f624bfaad1bed427ccb72"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod1_Y4 - ISODISTORT_ order parameter direction_files/isodistort.js.download",
+      "bytes": 1967,
+      "sha256": "7cbff80027215bb4c0df6645df64c97a1ff1c298cd57280946319b7d8ae89f5d"
+    },
+    {
+      "path": "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod1_Y4 - ISODISTORT_ order parameter direction_files/swingjs2.js.download",
+      "bytes": 641699,
+      "sha256": "bd9d60a2ecf6dccb42db58af387b72a61771323f15147b22745913cb63d7725d"
     }
   ],
   "candidates": [
@@ -49847,5 +50352,37 @@
       "sha256": "6d1aeee476ba1dfcfdc4d11158ac909ba1f4f55e6a188657db6a7e86f2314532",
       "bytes": 10981
     }
-  ]
+  ],
+  "supplement_20261020": {
+    "at": "2026-10-20T12:47:53.351456+00:00",
+    "added_pages": [
+      "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod0_LD2 - ISODISTORT_ order parameter direction.html",
+      "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod0_LD5 - ISODISTORT_ order parameter direction.html",
+      "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod0_Y2 - ISODISTORT_ order parameter direction.html",
+      "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod0_Y3 - ISODISTORT_ order parameter direction.html",
+      "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod0_Y4 - ISODISTORT_ order parameter direction.html"
+    ],
+    "new_file_records": 30,
+    "candidate_identities_changed": false
+  },
+  "supplement_context_20261020": {
+    "at": "2026-10-20T15:46:53.376128+00:00",
+    "pages": [
+      "webpage_info/EuAl4 Parent.cif/3. LD_g1-6_nmod1 - ISODISTORT_ irreducible representation.html",
+      "webpage_info/EuAl4 Parent.cif/4.1 LD_g1-6_nmod1_LD1 - ISODISTORT_ order parameter direction.html",
+      "webpage_info/EuAl4 Parent.cif/4.2 LD_g1-6_nmod1_LD2 - ISODISTORT_ order parameter direction.html",
+      "webpage_info/EuAl4 Parent.cif/4.3 LD_g1-6_nmod1_LD5 - ISODISTORT_ order parameter direction.html",
+      "webpage_info/NdNiO2 own.cif/3. GP_a1-6-b1-4-g1-3_nmod0 - ISODISTORT_ irreducible representation.html",
+      "webpage_info/NdNiO2 own.cif/3. GP_a1-6-b1-4-g1-3_nmod1 - ISODISTORT_ irreducible representation.html",
+      "webpage_info/NdNiO2 own.cif/3. Y_a1-3_nmod1 - ISODISTORT_ irreducible representation.html",
+      "webpage_info/NdNiO2 own.cif/4.1 GP_a1-6-b1-4-g1-3_nmod0_GP1 - ISODISTORT_ order parameter direction.html",
+      "webpage_info/NdNiO2 own.cif/4.1 Y_a1-3_nmod1_Y1 - ISODISTORT_ order parameter direction.html",
+      "webpage_info/NdNiO2 own.cif/4.2 Y_a1-3_nmod1_Y2 - ISODISTORT_ order parameter direction.html",
+      "webpage_info/NdNiO2 own.cif/4.3 Y_a1-3_nmod1_Y3 - ISODISTORT_ order parameter direction.html",
+      "webpage_info/NdNiO2 own.cif/4.4 Y_a1-3_nmod1_Y4 - ISODISTORT_ order parameter direction.html"
+    ],
+    "normal_pages": 11,
+    "error_responses": 1,
+    "originals_modified": false
+  }
 }

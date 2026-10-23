@@ -1,10 +1,10 @@
 {
   "schema": "official-output-download-manifest/v3",
   "status": "frozen",
-  "revision": 1,
+  "revision": 3,
   "batch_id": "20261019-official-rebuild-v1",
-  "frozen_at": "2026-10-19",
-  "authority": "user requested full reset, content inventory, all k points with nmod 0/1, preserve and organize official files",
+  "frozen_at": "2026-10-20T15:46:53.376128+00:00",
+  "authority": "2026-10-20 user requested targeted algorithm-gap downloads instead of all k labels; retain all official originals",
   "previous_freezes": "all revoked; records retained only in history/reset-records-20261019.zip",
   "parents": {
     "EuAl4 Parent.cif": {
@@ -55,258 +55,6 @@
   "method2_fixed_k_queries": {
     "queries": [
       {
-        "id": "M2F-EU-GM",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "GM",
-        "kovalev": "k14",
-        "coordinates": [
-          "0",
-          "0",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "GM",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2F-EU-X",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "X",
-        "kovalev": "k13",
-        "coordinates": [
-          "1/2",
-          "1/2",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "X",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2F-EU-M",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "M",
-        "kovalev": "k15",
-        "coordinates": [
-          "1",
-          "1",
-          "1"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "M",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2F-EU-N",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "N",
-        "kovalev": "k11",
-        "coordinates": [
-          "1/2",
-          "0",
-          "1/2"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "N",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2F-EU-P",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "P",
-        "kovalev": "k12",
-        "coordinates": [
-          "1/2",
-          "1/2",
-          "1/2"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "P",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2F-ND-GM",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "GM",
-        "kovalev": "k17",
-        "coordinates": [
-          "0",
-          "0",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "GM",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2F-ND-M",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "M",
-        "kovalev": "k18",
-        "coordinates": [
-          "1/2",
-          "1/2",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "M",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2F-ND-X",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "X",
-        "kovalev": "k15",
-        "coordinates": [
-          "0",
-          "1/2",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "X",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2F-ND-A",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "A",
-        "kovalev": "k20",
-        "coordinates": [
-          "1/2",
-          "1/2",
-          "1/2"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "A",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2F-ND-R",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "R",
-        "kovalev": "k16",
-        "coordinates": [
-          "0",
-          "1/2",
-          "1/2"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "R",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2F-ND-Z",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "Z",
-        "kovalev": "k19",
-        "coordinates": [
-          "0",
-          "0",
-          "1/2"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "Z",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2F-C4310-GM",
-        "parent": "4310_tetra.cif",
-        "k_label": "GM",
-        "kovalev": "k14",
-        "coordinates": [
-          "0",
-          "0",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "GM",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
         "id": "M2F-C4310-X",
         "parent": "4310_tetra.cif",
         "k_label": "X",
@@ -317,391 +65,25 @@
           "0"
         ],
         "nmod_values": [
-          0,
-          1
+          0
         ],
         "k_token": "X",
         "registered_nmod_values": [
           0
         ],
-        "download_nmod_values": [
-          1
-        ]
-      },
-      {
-        "id": "M2F-C4310-M",
-        "parent": "4310_tetra.cif",
-        "k_label": "M",
-        "kovalev": "k15",
-        "coordinates": [
-          "1",
-          "1",
-          "1"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "M",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2F-C4310-N",
-        "parent": "4310_tetra.cif",
-        "k_label": "N",
-        "kovalev": "k11",
-        "coordinates": [
-          "1/2",
-          "0",
-          "1/2"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "N",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2F-C4310-P",
-        "parent": "4310_tetra.cif",
-        "k_label": "P",
-        "kovalev": "k12",
-        "coordinates": [
-          "1/2",
-          "1/2",
-          "1/2"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "P",
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
+        "download_nmod_values": [],
+        "coverage_gap_ids": [
+          "existing_special_k_method2_control"
         ]
       }
     ],
     "nmod_values": [
-      0,
-      1
+      0
     ]
   },
   "method2_parametric": {
     "status": "frozen",
     "queries": [
-      {
-        "id": "M2P-EU-A",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "A",
-        "kovalev": "k3",
-        "coordinates": [
-          "1/6",
-          "1/6",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "A_a1-6-g1-3",
-        "template": [
-          "a",
-          "a",
-          "g"
-        ],
-        "values": {
-          "a": "1/6",
-          "g": "1/3"
-        },
-        "little_group_order": 2,
-        "generic_little_group_order": 2,
-        "general_position": true,
-        "star_size": 8,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-EU-B",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "B",
-        "kovalev": "k1",
-        "coordinates": [
-          "1/6",
-          "0",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "B_a1-6-g1-3",
-        "template": [
-          "a",
-          "0",
-          "g"
-        ],
-        "values": {
-          "a": "1/6",
-          "g": "1/3"
-        },
-        "little_group_order": 2,
-        "generic_little_group_order": 2,
-        "general_position": true,
-        "star_size": 8,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-EU-C",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "C",
-        "kovalev": "k2",
-        "coordinates": [
-          "1/6",
-          "1/4",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "C_a1-6-b1-4",
-        "template": [
-          "a",
-          "b",
-          "0"
-        ],
-        "values": {
-          "a": "1/6",
-          "b": "1/4"
-        },
-        "little_group_order": 2,
-        "generic_little_group_order": 2,
-        "general_position": true,
-        "star_size": 8,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-EU-DT",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "DT",
-        "kovalev": "k7",
-        "coordinates": [
-          "1/6",
-          "1/6",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "DT_a1-6",
-        "template": [
-          "a",
-          "a",
-          "0"
-        ],
-        "values": {
-          "a": "1/6"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-EU-GP",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "GP",
-        "kovalev": "k0",
-        "coordinates": [
-          "1/6",
-          "1/4",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "GP_a1-6-b1-4-g1-3",
-        "template": [
-          "a",
-          "b",
-          "g"
-        ],
-        "values": {
-          "a": "1/6",
-          "b": "1/4",
-          "g": "1/3"
-        },
-        "little_group_order": 1,
-        "generic_little_group_order": 1,
-        "general_position": true,
-        "star_size": 16,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-EU-Q",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "Q",
-        "kovalev": "k5",
-        "coordinates": [
-          "1/2",
-          "1/4",
-          "1/2"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "Q_b1-4",
-        "template": [
-          "1/2",
-          "b",
-          "1/2"
-        ],
-        "values": {
-          "b": "1/4"
-        },
-        "little_group_order": 2,
-        "generic_little_group_order": 2,
-        "general_position": true,
-        "star_size": 8,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-EU-SM",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "SM",
-        "kovalev": "k6",
-        "coordinates": [
-          "1/6",
-          "0",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "SM_a1-6",
-        "template": [
-          "a",
-          "0",
-          "0"
-        ],
-        "values": {
-          "a": "1/6"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-EU-W",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "W",
-        "kovalev": "k9",
-        "coordinates": [
-          "1/2",
-          "1/2",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "W_g1-3",
-        "template": [
-          "1/2",
-          "1/2",
-          "g"
-        ],
-        "values": {
-          "g": "1/3"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-EU-Y",
-        "parent": "EuAl4 Parent.cif",
-        "k_label": "Y",
-        "kovalev": "k8",
-        "coordinates": [
-          "1/6",
-          "5/6",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "Y_a1-6",
-        "template": [
-          "a",
-          "-a+1",
-          "0"
-        ],
-        "values": {
-          "a": "1/6"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
       {
         "id": "M2P-EU-LD",
         "parent": "EuAl4 Parent.cif",
@@ -734,810 +116,10 @@
         ],
         "download_nmod_values": [
           1
-        ]
-      },
-      {
-        "id": "M2P-C4310-A",
-        "parent": "4310_tetra.cif",
-        "k_label": "A",
-        "kovalev": "k3",
-        "coordinates": [
-          "1/6",
-          "1/6",
-          "1/3"
         ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "A_a1-6-g1-3",
-        "template": [
-          "a",
-          "a",
-          "g"
-        ],
-        "values": {
-          "a": "1/6",
-          "g": "1/3"
-        },
-        "little_group_order": 2,
-        "generic_little_group_order": 2,
-        "general_position": true,
-        "star_size": 8,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-C4310-B",
-        "parent": "4310_tetra.cif",
-        "k_label": "B",
-        "kovalev": "k1",
-        "coordinates": [
-          "1/6",
-          "0",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "B_a1-6-g1-3",
-        "template": [
-          "a",
-          "0",
-          "g"
-        ],
-        "values": {
-          "a": "1/6",
-          "g": "1/3"
-        },
-        "little_group_order": 2,
-        "generic_little_group_order": 2,
-        "general_position": true,
-        "star_size": 8,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-C4310-C",
-        "parent": "4310_tetra.cif",
-        "k_label": "C",
-        "kovalev": "k2",
-        "coordinates": [
-          "1/6",
-          "1/4",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "C_a1-6-b1-4",
-        "template": [
-          "a",
-          "b",
-          "0"
-        ],
-        "values": {
-          "a": "1/6",
-          "b": "1/4"
-        },
-        "little_group_order": 2,
-        "generic_little_group_order": 2,
-        "general_position": true,
-        "star_size": 8,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-C4310-DT",
-        "parent": "4310_tetra.cif",
-        "k_label": "DT",
-        "kovalev": "k7",
-        "coordinates": [
-          "1/6",
-          "1/6",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "DT_a1-6",
-        "template": [
-          "a",
-          "a",
-          "0"
-        ],
-        "values": {
-          "a": "1/6"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-C4310-GP",
-        "parent": "4310_tetra.cif",
-        "k_label": "GP",
-        "kovalev": "k0",
-        "coordinates": [
-          "1/6",
-          "1/4",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "GP_a1-6-b1-4-g1-3",
-        "template": [
-          "a",
-          "b",
-          "g"
-        ],
-        "values": {
-          "a": "1/6",
-          "b": "1/4",
-          "g": "1/3"
-        },
-        "little_group_order": 1,
-        "generic_little_group_order": 1,
-        "general_position": true,
-        "star_size": 16,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-C4310-LD",
-        "parent": "4310_tetra.cif",
-        "k_label": "LD",
-        "kovalev": "k10",
-        "coordinates": [
-          "0",
-          "0",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "LD_g1-3",
-        "template": [
-          "0",
-          "0",
-          "g"
-        ],
-        "values": {
-          "g": "1/3"
-        },
-        "little_group_order": 8,
-        "generic_little_group_order": 8,
-        "general_position": true,
-        "star_size": 2,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-C4310-Q",
-        "parent": "4310_tetra.cif",
-        "k_label": "Q",
-        "kovalev": "k5",
-        "coordinates": [
-          "1/2",
-          "1/4",
-          "1/2"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "Q_b1-4",
-        "template": [
-          "1/2",
-          "b",
-          "1/2"
-        ],
-        "values": {
-          "b": "1/4"
-        },
-        "little_group_order": 2,
-        "generic_little_group_order": 2,
-        "general_position": true,
-        "star_size": 8,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-C4310-SM",
-        "parent": "4310_tetra.cif",
-        "k_label": "SM",
-        "kovalev": "k6",
-        "coordinates": [
-          "1/6",
-          "0",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "SM_a1-6",
-        "template": [
-          "a",
-          "0",
-          "0"
-        ],
-        "values": {
-          "a": "1/6"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-C4310-W",
-        "parent": "4310_tetra.cif",
-        "k_label": "W",
-        "kovalev": "k9",
-        "coordinates": [
-          "1/2",
-          "1/2",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "W_g1-3",
-        "template": [
-          "1/2",
-          "1/2",
-          "g"
-        ],
-        "values": {
-          "g": "1/3"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-C4310-Y",
-        "parent": "4310_tetra.cif",
-        "k_label": "Y",
-        "kovalev": "k8",
-        "coordinates": [
-          "1/6",
-          "5/6",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "Y_a1-6",
-        "template": [
-          "a",
-          "-a+1",
-          "0"
-        ],
-        "values": {
-          "a": "1/6"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-B",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "B",
-        "kovalev": "k3",
-        "coordinates": [
-          "0",
-          "1/4",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "B_b1-4-g1-3",
-        "template": [
-          "0",
-          "b",
-          "g"
-        ],
-        "values": {
-          "b": "1/4",
-          "g": "1/3"
-        },
-        "little_group_order": 2,
-        "generic_little_group_order": 2,
-        "general_position": true,
-        "star_size": 8,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-C",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "C",
-        "kovalev": "k5",
-        "coordinates": [
-          "1/6",
-          "1/6",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "C_a1-6-g1-3",
-        "template": [
-          "a",
-          "a",
-          "g"
-        ],
-        "values": {
-          "a": "1/6",
-          "g": "1/3"
-        },
-        "little_group_order": 2,
-        "generic_little_group_order": 2,
-        "general_position": true,
-        "star_size": 8,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-D",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "D",
-        "kovalev": "k1",
-        "coordinates": [
-          "1/6",
-          "1/4",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "D_a1-6-b1-4",
-        "template": [
-          "a",
-          "b",
-          "0"
-        ],
-        "values": {
-          "a": "1/6",
-          "b": "1/4"
-        },
-        "little_group_order": 2,
-        "generic_little_group_order": 2,
-        "general_position": true,
-        "star_size": 8,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-DT",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "DT",
-        "kovalev": "k8",
-        "coordinates": [
-          "0",
-          "1/4",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "DT_b1-4",
-        "template": [
-          "0",
-          "b",
-          "0"
-        ],
-        "values": {
-          "b": "1/4"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-E",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "E",
-        "kovalev": "k2",
-        "coordinates": [
-          "1/6",
-          "1/4",
-          "1/2"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "E_a1-6-b1-4",
-        "template": [
-          "a",
-          "b",
-          "1/2"
-        ],
-        "values": {
-          "a": "1/6",
-          "b": "1/4"
-        },
-        "little_group_order": 2,
-        "generic_little_group_order": 2,
-        "general_position": true,
-        "star_size": 8,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-F",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "F",
-        "kovalev": "k4",
-        "coordinates": [
-          "1/6",
-          "1/2",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "F_a1-6-g1-3",
-        "template": [
-          "a",
-          "1/2",
-          "g"
-        ],
-        "values": {
-          "a": "1/6",
-          "g": "1/3"
-        },
-        "little_group_order": 2,
-        "generic_little_group_order": 2,
-        "general_position": true,
-        "star_size": 8,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-GP",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "GP",
-        "kovalev": "k0",
-        "coordinates": [
-          "1/6",
-          "1/4",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "GP_a1-6-b1-4-g1-3",
-        "template": [
-          "a",
-          "b",
-          "g"
-        ],
-        "values": {
-          "a": "1/6",
-          "b": "1/4",
-          "g": "1/3"
-        },
-        "little_group_order": 1,
-        "generic_little_group_order": 1,
-        "general_position": true,
-        "star_size": 16,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-LD",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "LD",
-        "kovalev": "k13",
-        "coordinates": [
-          "0",
-          "0",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "LD_g1-3",
-        "template": [
-          "0",
-          "0",
-          "g"
-        ],
-        "values": {
-          "g": "1/3"
-        },
-        "little_group_order": 8,
-        "generic_little_group_order": 8,
-        "general_position": true,
-        "star_size": 2,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-S",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "S",
-        "kovalev": "k11",
-        "coordinates": [
-          "1/6",
-          "1/6",
-          "1/2"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "S_a1-6",
-        "template": [
-          "a",
-          "a",
-          "1/2"
-        ],
-        "values": {
-          "a": "1/6"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-SM",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "SM",
-        "kovalev": "k10",
-        "coordinates": [
-          "1/6",
-          "1/6",
-          "0"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "SM_a1-6",
-        "template": [
-          "a",
-          "a",
-          "0"
-        ],
-        "values": {
-          "a": "1/6"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-T",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "T",
-        "kovalev": "k7",
-        "coordinates": [
-          "1/6",
-          "1/2",
-          "1/2"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "T_a1-6",
-        "template": [
-          "a",
-          "1/2",
-          "1/2"
-        ],
-        "values": {
-          "a": "1/6"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-U",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "U",
-        "kovalev": "k9",
-        "coordinates": [
-          "0",
-          "1/4",
-          "1/2"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "U_b1-4",
-        "template": [
-          "0",
-          "b",
-          "1/2"
-        ],
-        "values": {
-          "b": "1/4"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-V",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "V",
-        "kovalev": "k14",
-        "coordinates": [
-          "1/2",
-          "1/2",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "V_g1-3",
-        "template": [
-          "1/2",
-          "1/2",
-          "g"
-        ],
-        "values": {
-          "g": "1/3"
-        },
-        "little_group_order": 8,
-        "generic_little_group_order": 8,
-        "general_position": true,
-        "star_size": 2,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
-        ]
-      },
-      {
-        "id": "M2P-ND-W",
-        "parent": "NdNiO2 own.cif",
-        "k_label": "W",
-        "kovalev": "k12",
-        "coordinates": [
-          "0",
-          "1/2",
-          "1/3"
-        ],
-        "nmod_values": [
-          0,
-          1
-        ],
-        "k_token": "W_g1-3",
-        "template": [
-          "0",
-          "1/2",
-          "g"
-        ],
-        "values": {
-          "g": "1/3"
-        },
-        "little_group_order": 4,
-        "generic_little_group_order": 4,
-        "general_position": true,
-        "star_size": 4,
-        "registered_nmod_values": [],
-        "download_nmod_values": [
-          0,
-          1
+        "coverage_gap_ids": [
+          "positive_nmod_centered",
+          "paired_nmod_control"
         ]
       },
       {
@@ -1572,7 +154,102 @@
         ],
         "download_nmod_values": [
           1
+        ],
+        "coverage_gap_ids": [
+          "positive_nmod_primitive",
+          "paired_nmod_control"
         ]
+      },
+      {
+        "id": "M2P-C4310-B",
+        "parent": "4310_tetra.cif",
+        "k_label": "B",
+        "kovalev": "k1",
+        "coordinates": [
+          "1/6",
+          "0",
+          "1/3"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "k_token": "B_a1-6-g1-3",
+        "template": [
+          "a",
+          "0",
+          "g"
+        ],
+        "values": {
+          "a": "1/6",
+          "g": "1/3"
+        },
+        "little_group_order": 2,
+        "generic_little_group_order": 2,
+        "general_position": true,
+        "star_size": 8,
+        "registered_nmod_values": [],
+        "download_nmod_values": [
+          0,
+          1
+        ],
+        "coverage_gap_ids": [
+          "two_parameter_k",
+          "eight_arm_star",
+          "repeated_physical_orbits_parametric"
+        ],
+        "parent_preflight": {
+          "input": "experiment_data/4310_tetra.cif",
+          "space_group": "139 I4/mmm",
+          "lattice": "a=b=3.85160, c=27.96700 angstrom",
+          "dropdown": "B, k1 (a,0,g)",
+          "a": "1/6",
+          "b": "",
+          "g": "1/3",
+          "reject_context": "B, k3 (0,b,g) belongs to the saved #123 context, not this #139 query"
+        }
+      },
+      {
+        "id": "M2P-ND-GP",
+        "parent": "NdNiO2 own.cif",
+        "k_label": "GP",
+        "kovalev": "k0",
+        "coordinates": [
+          "1/6",
+          "1/4",
+          "1/3"
+        ],
+        "nmod_values": [
+          0,
+          1
+        ],
+        "k_token": "GP_a1-6-b1-4-g1-3",
+        "template": [
+          "a",
+          "b",
+          "g"
+        ],
+        "values": {
+          "a": "1/6",
+          "b": "1/4",
+          "g": "1/3"
+        },
+        "little_group_order": 1,
+        "generic_little_group_order": 1,
+        "general_position": true,
+        "star_size": 16,
+        "registered_nmod_values": [],
+        "download_nmod_values": [
+          0
+        ],
+        "coverage_gap_ids": [
+          "three_parameter_k",
+          "sixteen_arm_star"
+        ],
+        "blocked_nmod_values": [
+          1
+        ],
+        "blocked_reason": "Saved response says C not GP; submitted parameters absent, review before retry"
       }
     ],
     "representative_values": {
@@ -1600,14 +277,56 @@
   },
   "scientific_validation_status": "not_run",
   "counts": {
-    "method2_queries": 102,
+    "method2_queries": 9,
+    "download_queries": 5,
+    "registered_queries": 3,
     "page_status": {
-      "missing": 99,
-      "complete": 1,
-      "partial": 2
+      "complete": 6,
+      "missing": 2,
+      "response_error": 1
     },
     "existing_method2_candidate_dirs": 94,
-    "missing_known_result_pages": 5
+    "missing_known_result_pages": 0,
+    "blocked_queries": 1,
+    "new_page_sets_completed": 3,
+    "list_queries_remaining": 2
   },
-  "scope_limits": "finite labels/representatives only; Method3/4 inventory is not independent input or proof of coverage"
+  "scope_limits": "Targeted finite diagnostic evidence, not minimum-set proof or all-k/algorithm coverage. Availability is not numerical acceptance. nmod=1 at rational controls is a website-response probe, not proof of irrational superspace support. nmod=2/3, coupled IRs and unsupported physical types are outside this batch. Method3/4 scope remains pending.",
+  "method2_query_scope": {
+    "mode": "targeted_algorithm_gaps",
+    "query_ids": [
+      "M2P-EU-LD",
+      "M2P-ND-Y",
+      "M2P-C4310-B",
+      "M2P-ND-GP",
+      "M2F-C4310-X"
+    ]
+  },
+  "method2_selection": {
+    "coverage_record": "ISODISTORT/docs/manifests/method2_algorithm_coverage_20261020.json",
+    "download_order": [
+      "M2P-EU-LD-NMOD1",
+      "M2P-ND-Y-NMOD1",
+      "M2P-C4310-B-NMOD0",
+      "M2P-C4310-B-NMOD1",
+      "M2P-ND-GP-NMOD0"
+    ],
+    "previous_full_scope": {
+      "archive": "ISODISTORT/docs/history/method2-targeted-before-20261020.zip",
+      "sha256": "c692330a6351d6aab7be3a2c8c80298855b935ab92fee702e6457286c43edbaf",
+      "entry": "ISODISTORT/docs/manifests/official_output_download_manifest.json",
+      "queries": 102,
+      "retired_from_required_scope": 93
+    },
+    "not_selected_policy": "not_required_in_current_targeted_batch; not missing downloads and not scientifically validated",
+    "expansion_gate": "Add a query only for an explicitly identified uncovered observable or counterexample after reviewing the selected real lists.",
+    "list_download_order": [
+      "M2P-C4310-B-NMOD0",
+      "M2P-C4310-B-NMOD1"
+    ],
+    "blocked_query_ids": [
+      "M2P-ND-GP-NMOD1"
+    ],
+    "context_review": "ISODISTORT/output/validation/method2_context_20261020/page_registration.json"
+  }
 }

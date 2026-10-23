@@ -33,9 +33,15 @@ from backend.utils import WrapperRunError, WrapperTimeoutError, get_config
 
 
 _WSL_WORKSPACE_RE = re.compile(r"/var/tmp/id-[A-Za-z0-9]{8}\Z")
+_UTF16_ASCII_RECORDS = (
+    (re.compile(rb"(?:[\t\r\x20-\x7e]\x00)*(?:\n\x00|\Z)"), "utf-16-le"),
+    (re.compile(rb"(?:\x00[\t\r\x20-\x7e])*(?:\x00\n|\Z)"), "utf-16-be"),
+)
 
 
-def _run_captured_command(args: list[str], *, timeout: float) -> subprocess.CompletedProcess[bytes]:
+def _run_captured_command(
+    args: list[str], *, timeout: float, env: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess[bytes]:
     """Capture a process without waiting for descendants to close output pipes.
 
     Windows ``run(PIPE, timeout=...)`` calls an unbounded ``communicate`` after
@@ -49,6 +55,7 @@ def _run_captured_command(args: list[str], *, timeout: float) -> subprocess.Comp
     with tempfile.TemporaryFile(mode="w+b") as stdout, tempfile.TemporaryFile(mode="w+b") as stderr:
         process = subprocess.Popen(  # noqa: S603 - caller constructs the argv
             args, stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr,
+            env=env,
         )
         try:
             returncode = process.wait(timeout=timeout)
@@ -69,32 +76,76 @@ def _run_captured_command(args: list[str], *, timeout: float) -> subprocess.Comp
         return subprocess.CompletedProcess(args, returncode, *captured)
 
 
+def _run_wsl_command(args: list[str], *, timeout: float) -> subprocess.CompletedProcess[bytes]:
+    """Use WSL's declared encoding; leave the parent and Linux locale unchanged.
+
+    WSL 0.64.0 introduced WSL_UTF8=1 for the Windows client's stdout/stderr:
+    https://github.com/microsoft/WSL/discussions/8641
+    This also prevents UTF-16 client warnings and UTF-8 Linux errors from
+    sharing an unframed byte stream. Only wsl.exe launches use this adapter.
+    """
+    env = os.environ.copy()
+    env["WSL_UTF8"] = "1"
+    return _run_captured_command(args, timeout=timeout, env=env)
+
+
 def _remove_wsl_workspace(path: str, timeout: float) -> None:
     """Remove only one mktemp-owned short directory, never its symlink targets."""
     if not _WSL_WORKSPACE_RE.fullmatch(path):
         raise ValueError(f"Refusing to remove an unowned WSL workspace: {path!r}")
-    result = _run_captured_command(
+    result = _run_wsl_command(
         ["wsl.exe", "-e", "sh", "-c", f"rm -rf -- {shlex.quote(path)}"],
         timeout=timeout,
     )
     if result.returncode != 0:
-        raise WrapperRunError("wsl", result.returncode, _decode_process_output(result.stderr))
+        detail = "\n".join(
+            part for raw in (result.stdout, result.stderr)
+            if (part := _decode_process_output(raw))
+        )
+        raise WrapperRunError("wsl", result.returncode, detail)
 
 
-def _decode_process_output(raw: bytes) -> str:
-    """Decode Linux UTF-8 output and UTF-16LE diagnostics emitted by wsl.exe."""
+def _decode_process_output(raw: bytes, *, diagnostic: bool = True) -> str:
+    """Decode declared UTF-8 output, with bounded legacy diagnostic support.
+
+    Success stdout is scientific/program text: no encoding inference, NUL
+    deletion or replacement characters are allowed. Its existing outer-space
+    trimming contract is retained.
+
+    Diagnostic fallback supports BOM-declared UTF-16 streams and independent
+    ASCII UTF-16LE/BE records terminated by an encoded LF (or stream end).
+    Such records occur in redirected legacy WSL service messages. Matching
+    their exact byte grammar, rather than a whole-stream NUL ratio, keeps a
+    following UTF-8 Linux error readable. Arbitrary mid-line/interleaved or
+    localized BOM-less UTF-16 is ambiguous and is not guessed: remaining bytes
+    use UTF-8 with visible escapes. This fallback never feeds success stdout.
+    """
     if not raw:
         return ""
+    if not diagnostic:
+        decoded = raw.decode("utf-8")
+        if "\x00" in decoded:
+            raise UnicodeError("WSL stdout contains NUL bytes; UTF-8 text is required")
+        return decoded.strip()
     if raw.startswith((b"\xff\xfe", b"\xfe\xff")):
-        decoded = raw.decode("utf-16", errors="replace")
-        return decoded.replace("\r\r\n", "\n").replace("\r\n", "\n").strip("\x00\r\n ")
-    # Redirected wsl.exe service errors and proxy warnings normally have no
-    # BOM, but contain a NUL after almost every ASCII byte.
-    odd_bytes = raw[1::2]
-    if odd_bytes and odd_bytes.count(0) / len(odd_bytes) >= 0.4:
-        decoded = raw.decode("utf-16-le", errors="replace")
-        return decoded.replace("\r\r\n", "\n").replace("\r\n", "\n").strip("\x00\r\n ")
-    return raw.decode("utf-8", errors="replace").strip()
+        decoded = raw.decode("utf-16", errors="backslashreplace")
+    else:
+        parts = []
+        position = 0
+        while position < len(raw):
+            for pattern, encoding in _UTF16_ASCII_RECORDS:
+                match = pattern.match(raw, position)
+                if match is not None and match.end() > position:
+                    parts.append(match.group().decode(encoding))
+                    position = match.end()
+                    break
+            else:
+                end = raw.find(b"\n", position)
+                end = len(raw) if end < 0 else end + 1
+                parts.append(raw[position:end].decode("utf-8", errors="backslashreplace"))
+                position = end
+        decoded = "".join(parts)
+    return decoded.replace("\x00", r"\x00").replace("\r\r\n", "\n").replace("\r\n", "\n").strip()
 
 
 def _wsl_result_detail(result: subprocess.CompletedProcess[str]) -> str:
@@ -239,7 +290,7 @@ class BaseWrapper:
         )
         result = self._wsl(command)
         if result.returncode != 0:
-            raise WrapperRunError("wsl", result.returncode, "Cannot clone generated ISO cache: " + result.stderr)
+            raise WrapperRunError("wsl", result.returncode, "Cannot clone generated ISO cache: " + _wsl_result_detail(result))
 
     # ================================================================
     # 平台与环境初始化
@@ -353,14 +404,28 @@ class BaseWrapper:
                 # 不使用 check=True：调用方需读取 returncode 决定如何处理。
                 # S603/S607：命令由内部构造，路径均经 shlex.quote 转义；
                 # 依赖 PATH 定位 wsl.exe 是刻意行为。
-                raw_result = _run_captured_command(
+                raw_result = _run_wsl_command(
                     ["wsl.exe", "-e", "sh", "-c", command],  # noqa: S607
                     timeout=timeout,
                 )
+                try:
+                    stdout = _decode_process_output(
+                        raw_result.stdout or b"", diagnostic=raw_result.returncode != 0,
+                    )
+                except UnicodeError as exc:
+                    detail = "\n".join(
+                        part for raw in (raw_result.stdout, raw_result.stderr)
+                        if (part := _decode_process_output(raw or b""))
+                    )
+                    raise WrapperRunError(
+                        "wsl", raw_result.returncode,
+                        "Unsupported WSL stdout encoding: UTF-8 text is required "
+                        "(WSL_UTF8=1 support is required).\n" + detail,
+                    ) from exc
                 result = subprocess.CompletedProcess(
                     args=raw_result.args,
                     returncode=raw_result.returncode,
-                    stdout=_decode_process_output(raw_result.stdout or b""),
+                    stdout=stdout,
                     stderr=_decode_process_output(raw_result.stderr or b""),
                 )
             else:
@@ -406,7 +471,7 @@ class BaseWrapper:
         )
         result = self._wsl(cmd)
         if result.returncode != 0:
-            raise WrapperRunError("wsl", result.returncode, result.stderr)
+            raise WrapperRunError("wsl", result.returncode, _wsl_result_detail(result))
 
     def _ensure_writable_isodata(self) -> None:
         """Switch this wrapper to a private disposable ISODATA copy.
@@ -470,14 +535,14 @@ class BaseWrapper:
         abs_path = os.path.abspath(win_path)
         try:
             # 依赖 PATH 定位 wsl.exe；参数为绝对路径，无注入面
-            result = _run_captured_command(
+            result = _run_wsl_command(
                 ["wsl.exe", "wslpath", "-a", abs_path],  # noqa: S607
                 timeout=30,
             )
-            wsl_path = _decode_process_output(result.stdout)
+            wsl_path = _decode_process_output(result.stdout, diagnostic=False)
             if result.returncode == 0 and wsl_path:
                 return wsl_path
-        except (subprocess.SubprocessError, OSError):
+        except (subprocess.SubprocessError, OSError, UnicodeError):
             pass
         # 手动拼接：C:\xxx -> /mnt/c/xxx
         path = Path(abs_path)
@@ -528,7 +593,7 @@ class BaseWrapper:
             )
             result = self._wsl(cmd)
             if result.returncode != 0:
-                raise WrapperRunError("wsl", result.returncode, result.stderr)
+                raise WrapperRunError("wsl", result.returncode, _wsl_result_detail(result))
             return wsl_dst
         finally:
             try:
@@ -592,7 +657,7 @@ class BaseWrapper:
         result = self._wsl(full_cmd, timeout=timeout)
 
         if result.returncode != 0:
-            raise WrapperRunError(binary_path.name, result.returncode, result.stderr)
+            raise WrapperRunError(binary_path.name, result.returncode, _wsl_result_detail(result))
         return result.stdout
 
     def _isodata_path(self) -> str:

@@ -94,6 +94,48 @@ def test_crystallographic_tolerances_have_explicit_units_and_roles():
         < cfg.symmetry_cartesian_tolerance_angstrom
     )
 
+
+@pytest.mark.parametrize("key", [
+    "symmetry_cartesian_tolerance_angstrom", "symmetry_angle_tolerance_degrees",
+    "affine_exact_cartesian_tolerance_angstrom", "fractional_coordinate_tolerance",
+    "lattice_tolerance", "eps", "position_tolerance",
+])
+@pytest.mark.parametrize("value", [True, False])
+def test_config_numeric_tolerances_reject_boolean_switches(key, value):
+    cfg = object.__new__(Config)
+    cfg._cfg = {"defaults": {key: value}}
+    with pytest.raises(ValueError, match="finite positive number"):
+        getattr(cfg, key)
+
+
+@pytest.mark.parametrize("key", [
+    "method3_max_parametric_values", "method3_max_backend_queries",
+    "method3_max_quotient_order", "method3_max_coupled_states",
+])
+@pytest.mark.parametrize("value", [True, False])
+def test_config_integer_limits_reject_boolean_switches(key, value):
+    cfg = object.__new__(Config)
+    cfg._cfg = {"runtime": {key: value}}
+    with pytest.raises(ValueError, match="integer"):
+        getattr(cfg, key)
+
+
+@pytest.mark.parametrize("value,expected", [(1, 1.0), (0.125, 0.125), ("1e-3", 0.001)])
+def test_config_numeric_tolerances_preserve_explicit_values(value, expected):
+    cfg = object.__new__(Config)
+    cfg._cfg = {"defaults": {"position_tolerance": value, "lattice_tolerance": value}}
+    # Both legacy fallback routes preserve the supplied numeric value.
+    assert cfg.symmetry_cartesian_tolerance_angstrom == expected
+    assert cfg.position_tolerance == expected
+    assert cfg.eps == expected
+
+
+@pytest.mark.parametrize("value,expected", [(0, 0), ("0", 0), (4, 4), ("4", 4), (4.0, 4)])
+def test_config_integer_limits_preserve_explicit_values(value, expected):
+    cfg = object.__new__(Config)
+    cfg._cfg = {"runtime": {"method3_max_backend_queries": value}}
+    assert cfg.method3_max_backend_queries == expected
+
 # --- from test_parent_header.py ---
 
 def test_format_fixed_coord_fractions():

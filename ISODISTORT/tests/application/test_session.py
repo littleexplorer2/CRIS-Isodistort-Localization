@@ -94,7 +94,7 @@ from tests.support_backend_method3 import _i4mmm_parent
 from tests.support_backend_method3 import _method3_route
 from tests.support_backend_method4 import _parent
 from tests.support_paths import TESTS_ROOT
-from types import SimpleNamespace
+from types import MappingProxyType, SimpleNamespace
 from unittest.mock import Mock
 import application.session.publication as publication_module
 import contextlib
@@ -3199,6 +3199,184 @@ def test_action_snapshot_preserves_internal_aliases_and_new_state(monkeypatch):
     assert session.subgroups[0].index == 0
     assert session.additional_scientific_state["values"] == [1]
     assert snapshot._iso is not session._iso
+
+def _mode_context_review_session():
+    """Pure state fixture; no scientific runtime or structure solver."""
+    session = object.__new__(core_api.IsoDistort)
+
+    class SyntheticStructure(list):
+        lattice = SimpleNamespace(matrix=np.eye(3), volume=1)
+
+    session.structure = SyntheticStructure([
+        SimpleNamespace(species_string="H"), SimpleNamespace(species_string="He"),
+    ])
+    session.symmetry_info = {"space_group_number": 1}
+    session.distortion_types = ["displacive"]
+    session.distortion_scope = {"displacive": ["H"]}
+    session.number_of_independent_modulations = 0
+    session.mode_displacements = {}
+    session.mode_displacements_sc = {"H-only": np.array([[1., 0., 0.], [0., 0., 0.]])}
+    session._selected_subgroup = SubgroupInfo(index=0, space_group_number=1, parent_sg=1)
+    session._supercell_for_subgroup = lambda _sg: session.structure
+    session._mode_cache_key = session._mode_context_key(
+        session._selected_subgroup, 0, session.distortion_types,
+    )
+    return session
+
+
+@pytest.mark.parametrize("scope,expected", [
+    (None, {"H", "He"}), ({}, {"H", "He"}),
+    ({"occupational": []}, {"H", "He"}),
+    ({"displacive": "*"}, {"H", "He"}),
+    ({"displacive": "all"}, {"H", "He"}),
+    ({"displacive": ["*"]}, {"H", "He"}),
+    ({"displacive": ["He"]}, {"He"}),
+    ({"displacive": ["He", "absent-species"]}, {"He"}),
+    ({"displacive": None}, {"H", "He"}),
+    ({"displacive": ("He",)}, {"He"}),
+    (MappingProxyType({"displacive": ["He"]}), {"He"}),
+    ({"displacive": " ALL "}, {"H", "He"}),
+])
+def test_scope_missing_all_and_selected_species_remain_distinct(scope, expected):
+    session = _mode_context_review_session()
+    session.set_distortion_scope(scope)
+    session.set_distortion_types(["displacive"])
+    assert session._scope_species("displacive") == expected
+
+
+@pytest.mark.parametrize("scope", [False, 0, 0.0, "", [], (), set(), "all", True, 1, ["He"]])
+def test_scope_rejects_nonmapping_without_resetting_existing_selection(scope):
+    session = _mode_context_review_session()
+    previous = session.distortion_scope
+    with pytest.raises(ValueError, match="scope"):
+        session.set_distortion_scope(scope)
+    assert session.distortion_scope is previous
+    assert session.distortion_scope == {"displacive": ["H"]}
+
+
+@pytest.mark.parametrize("invalid", [
+    "He", True, False, 0, 1.2, {}, {"H": 1}, "", set(),
+    ["H", 1], ["H", ""], ["H", None], ["*", False],
+])
+def test_scope_rejects_invalid_explicit_value_without_partial_commit(invalid):
+    session = _mode_context_review_session()
+    previous = session.distortion_scope
+    # The valid first field must not become visible when the later field fails.
+    with pytest.raises(ValueError, match="scope"):
+        session.set_distortion_scope({"displacive": ["He"], "magnetic": invalid})
+    assert session.distortion_scope is previous
+    assert session.distortion_scope == {"displacive": ["H"]}
+
+
+def test_scope_rejects_unknown_type_without_replacing_selection():
+    session = _mode_context_review_session()
+    previous = session.distortion_scope
+    with pytest.raises(ValueError, match="scope"):
+        session.set_distortion_scope({"displacive": ["He"], "not-a-distortion-type": ["H"]})
+    assert session.distortion_scope is previous
+
+
+@pytest.mark.parametrize("selected", [["He"], ["absent-species"]])
+def test_scope_configuration_defers_parent_species_intersection_until_loaded(selected):
+    session = _mode_context_review_session()
+    parent = session.structure
+    session.structure = None
+    session.set_distortion_scope({"displacive": selected})
+    session.set_distortion_types(["displacive"])
+    assert session.distortion_scope == {"displacive": selected}
+    assert session.distortion_types == ["displacive"]
+    # No loader or scientific identification is run; only parent availability changes.
+    session.structure = parent
+    if selected == ["He"]:
+        assert session._scope_species("displacive") == {"He"}
+    else:
+        with pytest.raises(ValueError, match="scope.*empty"):
+            session._scope_species("displacive")
+
+
+def test_scope_configuration_rejects_explicit_empty_even_before_parent_load():
+    session = _mode_context_review_session()
+    session.structure = None
+    session.set_distortion_scope({"displacive": []})
+    with pytest.raises(ValueError, match="scope.*empty"):
+        session.set_distortion_types(["displacive"])
+
+
+@pytest.mark.parametrize("selected_scope", [[], ["absent-species"]])
+def test_explicit_empty_scope_never_expands_to_all_species(selected_scope):
+    session = _mode_context_review_session()
+    session.set_distortion_scope({"displacive": selected_scope, "occupational": [], "strain": []})
+    assert session.distortion_scope["displacive"] == selected_scope
+    with pytest.raises(ValueError, match="empty.*scope|scope.*empty"):
+        session._scope_species("displacive")
+    session.set_distortion_types(["strain"])
+    with pytest.raises(ValueError, match="empty.*scope|scope.*empty"):
+        session.set_distortion_types(["displacive"])
+    assert session.distortion_types == ["strain"]
+    assert session.distortion_scope["occupational"] == []
+    assert session._scope_species("strain") == {"H", "He"}
+
+
+@pytest.mark.parametrize("changed", ["scope", "nmod", "types", "candidate", "missing-key", "missing-selection"])
+def test_method4_rejects_stale_mode_context_before_reading_daughter(monkeypatch, changed):
+    session = _mode_context_review_session()
+    if changed == "scope":
+        session.set_distortion_scope({"displacive": ["He"]})
+    elif changed == "nmod":
+        session.number_of_independent_modulations = 1
+    elif changed == "types":
+        session.set_distortion_types(["strain"])
+    elif changed == "candidate":
+        session._selected_subgroup = replace(session._selected_subgroup, irrep_label="different")
+    elif changed == "missing-key":
+        session._mode_cache_key = None
+    else:
+        session._selected_subgroup = None
+    monkeypatch.setattr(core_api, "read_cif", lambda _path: pytest.fail("stale basis read daughter"))
+    with pytest.raises(RuntimeError, match="context changed|No committed"):
+        session.search_method_4(Path("not-read.cif"))
+
+
+@pytest.mark.parametrize("expected", [True, 1.5, "1", -1, 4, 1])
+def test_method4_checks_expected_nmod_without_changing_basis(monkeypatch, expected):
+    session = _mode_context_review_session()
+    previous_key = session._mode_cache_key
+    monkeypatch.setattr(core_api, "read_cif", lambda _path: pytest.fail("invalid nmod read daughter"))
+    error_type = NotImplementedError if expected == 4 else (ValueError, TypeError)
+    with pytest.raises(error_type, match="modulation|nmod"):
+        session.search_method_4(Path("not-read.cif"), number_of_independent_modulations=expected)
+    assert session.number_of_independent_modulations == 0
+    assert session._mode_cache_key == previous_key
+
+
+@pytest.mark.parametrize("committed_nmod", [0, 1, 3])
+@pytest.mark.parametrize("with_expectation", [False, True])
+def test_method4_accepts_repeated_daughters_with_same_committed_basis(monkeypatch, committed_nmod, with_expectation):
+    session = _mode_context_review_session()
+    session.number_of_independent_modulations = committed_nmod
+    session._mode_cache_key = session._mode_context_key(
+        session._selected_subgroup, committed_nmod, session.distortion_types,
+    )
+    calls = []
+
+    class DecomposerStub:
+        def method_4_decompose(self, parent, daughter, modes, query):
+            calls.append((parent, daughter, modes))
+            return SimpleNamespace(amplitudes={}, rms_residual=0)
+
+    monkeypatch.setattr(core_api, "ModeDecomposer", DecomposerStub)
+    monkeypatch.setattr(core_api, "read_cif", lambda _path: session.structure)
+    monkeypatch.setattr(core_api, "read_cif_space_group_number", lambda _path: 1)
+    previous_key = session._mode_cache_key
+    kwargs = {"number_of_independent_modulations": committed_nmod} if with_expectation else {}
+    for filename in ("first.cif", "second.cif"):
+        session.search_method_4(Path(filename), **kwargs)
+    assert len(calls) == 2
+    assert session._mode_cache_key == previous_key
+    assert session.number_of_independent_modulations == committed_nmod
+    for _basis_parent, _daughter, modes in calls:
+        np.testing.assert_array_equal(modes["H-only"], [[1, 0, 0], [0, 0, 0]])
+
 
 def _calculated_session():
     # Independent P1 full microscopic basis on an oblique lattice. These are

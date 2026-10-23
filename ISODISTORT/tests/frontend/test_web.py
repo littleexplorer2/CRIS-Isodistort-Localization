@@ -13,6 +13,7 @@ from tests.support_application_session import _wsl_wsl_available
 from tests.support_frontend_web import _SessionIsoStub
 from tests.support_paths import TESTS_ROOT
 from types import SimpleNamespace
+from dataclasses import replace
 import copy
 import html
 import json
@@ -37,6 +38,1429 @@ DATA_DIR = experiment_data_dir()
 CIFS_DIR = TESTS_ROOT / "cifs_30"
 
 MATCH_TOL = 1e-6
+
+
+def _run_page_javascript(scenario: str) -> None:
+    """Execute production page functions with controlled network/file timing."""
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("Node is required to execute asynchronous browser contracts")
+    source = (_PROJECT_ROOT / "frontend" / "web" / "index.html").read_text(encoding="utf-8")
+    script = source.split("<script>", 1)[1].split("</script>", 1)[0]
+    script = script.split("/* ================= 初始化", 1)[0]
+    harness = r"""
+const assert = require('node:assert/strict');
+const nodes = {}, pending = [], readers = [], errors = [];
+const document = {
+  getElementById: id => nodes[id] ||= {
+    value: '', checked: false, files: [], style: {}, textContent: '', innerHTML: '',
+    classList: {add() {}, remove() {}}, querySelector() {return null;},
+    querySelectorAll() {return [];}, scrollIntoView() {},
+  },
+  querySelectorAll: () => [],
+  querySelector: () => null,
+};
+const window = {crypto: null, location: {href: 'http://localhost/'}};
+const crypto = {randomUUID: () => '00000000-0000-4000-8000-000000000001'};
+const setInterval = () => 1, clearInterval = () => {};
+class FileReader {
+  readAsText(file) {readers.push({reader: this, file});}
+}
+function fetch(path, opts) {
+  return new Promise((resolve, reject) => pending.push({path, opts, resolve, reject}));
+}
+function reply(path, data) {
+  const index = pending.findIndex(request => request.path === path);
+  assert.notEqual(index, -1, `Missing pending request ${path}`);
+  pending.splice(index, 1)[0].resolve({json: async () => data});
+}
+function readFile(name) {
+  const item = readers.find(item => item.file.name === name);
+  assert.ok(item, `Missing file read ${name}`);
+  item.reader.result = name;
+  item.reader.onload();
+}
+async function flush() {for (let i = 0; i < 12; i++) await Promise.resolve();}
+function state(revision) {
+  return {revision, structure: null, distortion_types: ['displacive'],
+    distortion_scope: {}, species: [], subgroups: 0, modes: []};
+}
+"""
+    setup = r"""
+const productionRenderTypes = renderTypes;
+renderTypes = () => {};
+renderStatusBar = s => {nodes.currentRevision = s && s.revision;};
+renderResultTable = () => {};
+const productionRenderKvecBox = renderKvecBox;
+renderKvecBox = () => {};
+selectedLattice = () => null;
+showError = (_node, error) => errors.push(error);
+STATE = state(7);
+(async () => {
+"""
+    completed = subprocess.run(
+        [node, "-"], input=harness + script + setup + scenario
+        + "\n})().then(() => {scenarioFinished = true;}).catch(error => {"
+        "scenarioFinished = true; console.error(error); process.exitCode = 1;});"
+        "\nlet scenarioFinished = false;\nprocess.on('beforeExit', () => {"
+        "if (!scenarioFinished) {console.error('Scenario did not finish'); process.exitCode = 1;}});",
+        text=True, capture_output=True, timeout=10,
+    )
+    assert completed.returncode == 0, completed.stderr
+
+
+@pytest.mark.parametrize("scope,active,selected,summary", [
+    ({}, True, ["Eu", "Al"], "displacive=all"),
+    ({"strain": []}, True, ["Eu", "Al"], "displacive=all"),
+    ({"displacive": ["*"]}, True, ["Eu", "Al"], "displacive=all"),
+    ({"displacive": ["Eu"]}, True, ["Eu"], "displacive=Eu"),
+    ({"displacive": []}, False, [], "-"),
+    ({}, False, [], "-"),
+])
+def test_canonical_scope_display_and_submission_agree(scope, active, selected, summary):
+    _run_page_javascript(f"""
+STATE.species = ['Eu', 'Al'];
+STATE.distortion_types = {json.dumps(['displacive'] if active else [])};
+STATE.distortion_scope = {json.dumps(scope)};
+const expectedSelected = {json.dumps(selected)}, expectedSummary = {json.dumps(summary)};
+""" + r"""
+productionRenderTypes();
+const box = document.getElementById('typeBox');
+const inputs = [...box.innerHTML.matchAll(/<input\b([^>]*)>/g)].map(match => {
+  const attributes = Object.fromEntries([...match[1].matchAll(/([\w-]+)="([^"]*)"/g)]
+    .map(attribute => [attribute[1], attribute[2]]));
+  return {attributes, checked: /\bchecked\b/.test(match[1]),
+    dataset: {species: attributes['data-species']}};
+});
+const displacive = inputs.filter(input => input.attributes['data-tp'] === 'displacive');
+assert.deepEqual(displacive.filter(input => input.checked && input.dataset.species)
+  .map(input => input.dataset.species), expectedSelected);
+assert.equal(displacive.find(input => input.attributes['data-role'] === 'none').checked, false);
+assert.equal(formatScope(STATE), expectedSummary);
+// Read the actual rendered controls back through the production submit adapter.
+box.querySelector = selector => inputs.find(input =>
+  [...selector.matchAll(/\[([\w-]+)="([^"]*)"\]/g)]
+    .every(attribute => input.attributes[attribute[1]] === attribute[2])) || null;
+box.querySelectorAll = selector => inputs.filter(input => input.checked
+  && input.dataset.species
+  && input.attributes['data-tp'] === selector.match(/data-tp="([^"]*)"/)[1]);
+const submission = collectTypesAndScope();
+assert.deepEqual(submission.types, STATE.distortion_types);
+assert.deepEqual(submission.scope.displacive,
+  expectedSelected.length === STATE.species.length ? ['*'] : expectedSelected);
+""")
+
+
+@pytest.mark.parametrize("scenario", [
+    pytest.param(r"""
+const old = refreshStatus();
+const upload = api('/api/load_cif', {filename: 'new.cif', content: 'new'});
+reply('/api/load_cif', {ok: true, state: state(9)});
+await upload;
+subgroups = [{index: 4, marker: 'new'}];
+reply('/api/state', {ok: true, state: state(7)});
+await old;
+assert.equal(STATE.revision, 9, 'Delayed state must not roll revision backward');
+assert.equal(subgroups[0].marker, 'new', 'Delayed refresh must not erase current rows');
+""", id="delayed-state"),
+    pytest.param(r"""
+STATE.structure = {};
+const old = runMethod1();
+const upload = api('/api/load_cif', {filename: 'new.cif', content: 'new'});
+reply('/api/load_cif', {ok: true, state: state(9)});
+await upload;
+reply('/api/method1', {ok: true, state: state(8), candidates: [{marker: 'old'}]});
+await flush();
+assert.equal(STATE.revision, 9);
+assert.deepEqual(m1Items, [], 'Old parent candidate rows must not reappear');
+assert.equal(pending.length, 0, 'Discarded result must not launch follow-up refresh');
+await old;
+""", id="delayed-result"),
+    pytest.param(r"""
+selectedKp = () => ({label: 'GM'});
+collectParams = () => [];
+const old = enumSubgroups();
+const upload = api('/api/load_cif', {filename: 'new.cif', content: 'new'});
+reply('/api/load_cif', {ok: true, state: state(9)});
+await upload;
+const out = document.getElementById('subOut');
+out.innerHTML = 'current parent results';
+reply('/api/subgroups', {ok: false, error: 'old failure', state: state(7)});
+await old;
+assert.equal(out.innerHTML, 'current parent results', 'Old errors must not overwrite new UI');
+assert.equal(STATE.revision, 9);
+""", id="delayed-error"),
+    pytest.param(r"""
+const old = refreshKpoints();
+const upload = api('/api/load_cif', {filename: 'new.cif', content: 'new'});
+reply('/api/load_cif', {ok: true, state: state(9)});
+await upload;
+kpoints = [{label: 'new'}];
+reply('/api/kpoints', {ok: true, revision: 7, kpoints: [{label: 'old'}]});
+await old;
+assert.equal(kpoints[0].label, 'new', 'Old query payload needs its own revision guard');
+""", id="delayed-read"),
+    pytest.param(r"""
+document.getElementById('dauFile').files = [{name: 'daughter.cif'}];
+refreshStatus = async () => {};
+subgroups = [{index: 4}]; resultRevisions[2] = 7;
+const basis = computeModes(4, 'subgroups');
+reply('/api/method2', {ok: true, state: state(8), modes: []});
+await basis;
+const old = runMethod4();
+const upload = api('/api/load_cif', {filename: 'new.cif', content: 'new'});
+reply('/api/load_cif', {ok: true, state: state(9)});
+await upload;
+readFile('daughter.cif');
+await flush();
+assert.ok(!pending.some(request => request.path === '/api/method4'),
+  'A daughter chosen under the old parent must not be submitted under the new parent');
+""", id="daughter-read-context"),
+    pytest.param(r"""
+refreshStatus = async () => {};
+refreshKpoints = async () => {};
+loadMethod1Options = async () => {};
+document.getElementById('cifFile').files = [{name: 'old.cif'}];
+const old = loadCif();
+document.getElementById('cifFile').files = [{name: 'new.cif'}];
+const current = loadCif();
+readFile('new.cif');
+await flush();
+assert.equal(JSON.parse(pending[0].opts.body).filename, 'new.cif');
+reply('/api/load_cif', {ok: true, state: state(8)});
+await current;
+readFile('old.cif');
+await flush();
+assert.equal(pending.length, 0, 'Superseded parent file read must not replace new input');
+await old;
+""", id="parent-read-intent"),
+    pytest.param(r"""
+const old = refreshKpoints();
+const current = refreshKpoints();
+const newer = pending.splice(1, 1)[0];
+newer.resolve({json: async () => ({ok: true, revision: 7, kpoints: [{label: 'new'}]})});
+await current;
+reply('/api/kpoints', {ok: true, revision: 7, kpoints: [{label: 'old'}]});
+await old;
+assert.equal(kpoints[0].label, 'new', 'Same revision does not imply same request intent');
+""", id="same-revision-read-order"),
+    pytest.param(r"""
+const query = refreshKpoints();
+reply('/api/kpoints', {ok: true, revision: 8, kpoints: [{label: 'foreign'}]});
+await query;
+assert.deepEqual(kpoints, [], 'A newer read alone cannot authorize its foreign payload');
+assert.equal(STATE.revision, 7);
+reply('/api/state', {ok: true, state: state(8)});
+await flush();
+assert.equal(STATE.revision, 8);
+assert.deepEqual(kpoints, []);
+""", id="foreign-read-context"),
+    pytest.param(r"""
+STATE.structure = {};
+const old = runMethod1();
+const upload = api('/api/load_cif', {filename: 'new.cif', content: 'new'});
+reply('/api/load_cif', {ok: true, state: state(9)});
+await upload;
+m1Items = [{marker: 'current'}];
+document.getElementById('m1Out').innerHTML = 'current results';
+reply('/api/method1', {ok: false, stale_context: true, error: 'stale', state: state(9)});
+await old;
+assert.equal(document.getElementById('m1Out').innerHTML, 'current results');
+assert.equal(m1Items[0].marker, 'current');
+assert.deepEqual(errors, [], 'A late conflict must not erase an accepted success');
+""", id="conflict-after-current-success"),
+    pytest.param(r"""
+STATE.structure = {};
+let release;
+const gap = new Promise(resolve => {release = resolve;});
+const realBusy = withBusy;
+withBusy = async (...args) => {const data = await realBusy(...args); await gap; return data;};
+const old = runMethod1();
+reply('/api/method1', {ok: true, state: state(8), candidates: [{index: 0, marker: 'old'}]});
+await flush();
+assert.equal(STATE.revision, 8);
+const upload = api('/api/load_cif', {filename: 'new.cif', content: 'new'});
+reply('/api/load_cif', {ok: true, state: state(9)});
+await upload;
+release();
+await old;
+assert.deepEqual(m1Items, [], 'Acceptance must be rechecked after the caller await');
+assert.equal(pending.length, 0);
+""", id="consumer-await-gap"),
+    pytest.param(r"""
+refreshStatus = async () => {};
+STATE.structure = {};
+const action = runMethod1();
+reply('/api/method1', {ok: true, state: state(8), candidates: [{index: 3}]});
+await action;
+assert.equal(resultRevisions[1], 8);
+assert.equal(itemsFor(1)[0].index, 3);
+const select = computeModes(3, 'method1');
+assert.equal(JSON.parse(pending[0].opts.body).revision, 8);
+reply('/api/method2', {ok: true, state: state(9), modes: []});
+await select;
+assert.equal(resultRevisions[1], 9, 'Compatible local selection retains the candidate pool');
+assert.equal(itemsFor(1)[0].index, 3);
+const remote = api('/api/state');
+reply('/api/state', {ok: true, state: state(10)});
+await remote;
+assert.deepEqual(itemsFor(1), [], 'Another tab cannot bless this tab candidate indices');
+await computeModes(3, 'method1');
+assert.equal(pending.length, 0, 'A stale candidate click cannot start computation');
+""", id="candidate-ownership"),
+    pytest.param(r"""
+refreshStatus = async () => {};
+refreshKpoints = async () => {};
+loadMethod1Options = async () => {};
+document.getElementById('cifFile').files = [{name: 'old.cif'}];
+const old = loadCif();
+readFile('old.cif');
+await flush();
+document.getElementById('cifFile').files = [{name: 'new.cif'}];
+const current = loadCif();
+readFile('new.cif');
+await flush();
+assert.equal(pending.length, 1);
+assert.equal(JSON.parse(pending[0].opts.body).filename, 'old.cif');
+reply('/api/load_cif', {ok: true, state: state(8)});
+await flush();
+assert.equal(pending.length, 1, 'New parent POST waits for the prior parent to finish');
+assert.equal(JSON.parse(pending[0].opts.body).filename, 'new.cif');
+reply('/api/load_cif', {ok: true, state: state(9)});
+await Promise.all([old, current]);
+assert.equal(STATE.revision, 9);
+assert.equal(document.getElementById('btnLoadCif').disabled, undefined);
+""", id="parent-post-order"),
+    pytest.param(r"""
+selectedKp = () => ({label: 'GM'});
+collectParams = () => [];
+const old = enumSubgroups();
+const upload = api('/api/load_cif', {filename: 'new.cif', content: 'new'});
+reply('/api/load_cif', {ok: true, state: state(9)});
+await upload;
+const out = document.getElementById('subOut');
+out.innerHTML = 'current results';
+pending.shift().reject(new Error('old transport error'));
+await old;
+assert.equal(out.innerHTML, 'current results');
+assert.deepEqual(errors, []);
+""", id="transport-error-ownership"),
+    pytest.param(r"""
+const request = refreshKpoints();
+const action = api('/api/method1', {});
+reply('/api/method1', {ok: true, state: state(8), candidates: []});
+await action;
+reply('/api/kpoints', {ok: true, revision: 7, kpoints: [{label: 'old'}]});
+await flush();
+assert.equal(pending.length, 1, 'An overtaken selector is retried at the new revision');
+reply('/api/kpoints', {ok: true, revision: 8, kpoints: [{label: 'current'}]});
+await request;
+assert.equal(kpoints[0].label, 'current');
+""", id="selector-retry-after-local-mutation"),
+    pytest.param(r"""
+selectedDownloadFormats = () => ['cif'];
+document.getElementById('dlMethod').value = '1';
+m1Items = [{index: 1}]; resultRevisions[1] = 7;
+const download = downloadAll();
+reply('/api/export_status', {export: {}});
+const request = pending.shift();
+assert.equal(request.path.pathname, '/api/download_all');
+request.resolve({ok: false, headers: {get: () => 'application/json'},
+  json: async () => ({ok: false, stale_context: true, state: state(8), error: 'stale export'})});
+await flush();
+reply('/api/export_status', {export: {}});
+await download;
+assert.equal(STATE.revision, 8);
+assert.deepEqual(m1Items, []);
+assert.deepEqual(errors, ['stale export']);
+""", id="download-conflict-state"),
+    pytest.param(r"""
+selectedDownloadFormats = () => ['cif'];
+document.getElementById('dlMethod').value = '1';
+m1Items = [{index: 1}]; resultRevisions[1] = 7;
+const download = downloadAll();
+reply('/api/export_status', {export: {}});
+const request = pending.shift();
+const upload = api('/api/load_cif', {filename: 'new.cif', content: 'new'});
+reply('/api/load_cif', {ok: true, state: state(9)});
+await upload;
+document.getElementById('distOut').innerHTML = 'current export information';
+request.resolve({ok: false, headers: {get: () => 'application/json'},
+  json: async () => ({ok: false, state: state(7), error: 'old export error'})});
+await flush();
+reply('/api/export_status', {export: {}});
+await download;
+assert.equal(STATE.revision, 9);
+assert.equal(document.getElementById('distOut').innerHTML, 'current export information');
+assert.deepEqual(errors, []);
+""", id="delayed-download-error"),
+    pytest.param(r"""
+document.querySelectorAll = selector => selector === '.genDbCb:checked' ? [{value: 'removed'}] : [];
+const listing = loadGenDbCache();
+const deletion = deleteSelectedGenDb();
+reply('/api/isotropy_cache/delete', {ok: true, revision: 7, entries: [], deleted: ['removed']});
+await deletion;
+const currentList = document.getElementById('genDbList').innerHTML;
+reply('/api/isotropy_cache', {ok: true, revision: 7, entries: [{name: 'removed'}]});
+await listing;
+assert.equal(document.getElementById('genDbList').innerHTML, currentList,
+  'A cache read preceding deletion must not republish the removed entry');
+""", id="cache-read-after-deletion"),
+])
+def test_async_responses_preserve_current_scientific_context(scenario):
+    _run_page_javascript(scenario)
+
+
+_METHOD2_QUERY_SETUP = r"""
+refreshStatus = async () => {};
+selectedDownloadFormats = () => ['cif'];
+document.getElementById('dlMethod').value = '2';
+kpoints = [
+  {label: 'Q', parameters: ['a', 'b', 'g'], coordinates: ['a', 'b', 'g']},
+  {label: 'R', parameters: [], coordinates: [0, 0, 0]},
+];
+productionRenderKvecBox();
+document.getElementById('kvec_1').value = '0';
+for (const letter of ['a', 'b', 'g']) document.getElementById('p_' + letter + '_1').value = '1/6';
+const oldCandidate = {index: 4, k_point_label: 'Q', irrep_label: 'Q1', opd_symbol: 'P1'};
+subgroups = [oldCandidate]; resultRevisions[2] = 7;
+document.getElementById('subOut').innerHTML = 'old Q candidates';
+function changeK(value) {
+  document.getElementById('kvec_1').value = value;
+  onKpChange(1);
+}
+function editParameter(letter, value) {
+  const markup = document.getElementById('kvecBox').innerHTML;
+  const input = markup.match(new RegExp('<input\\b[^>]*\\bid="p_' + letter + '_1"[^>]*>'));
+  assert.ok(input, 'Production parameter input must exist');
+  const handler = input[0].match(/\boninput="([^"]+)"/);
+  assert.ok(handler, 'Parameter editing must invalidate immediately, without waiting for blur');
+  document.getElementById('p_' + letter + '_1').value = value;
+  eval(handler[1]);
+}
+function prepareZip() {
+  document.createElement = () => ({click() {}, remove() {}});
+  document.body = {appendChild() {}};
+  URL.createObjectURL = () => 'blob:test'; URL.revokeObjectURL = () => {};
+}
+function completeZip(request, jobId) {
+  const status = {job_id: jobId, active: false, phase: 'complete',
+    successful: 1, total: 1, ineligible: 0, failed: 0};
+  request.resolve({ok: true,
+    headers: {get: name => name.toLowerCase() === 'content-type'
+      ? 'application/zip' : encodeURIComponent(JSON.stringify(status))},
+    blob: async () => ({})});
+}
+"""
+
+
+@pytest.mark.parametrize("change", [
+    pytest.param("changeK('1');", id="k-change"),
+    pytest.param("changeK('1'); changeK('0');", id="k-change-back"),
+    *[
+        pytest.param(
+            f"editParameter('{letter}', {json.dumps(value)});"
+            + (f"editParameter('{letter}', '1/6');" if change_back else ""),
+            id=f"{letter}-{name}",
+        )
+        for letter in ("a", "b", "g")
+        for name, value, change_back in (
+            ("changed", "1/3", False), ("empty", "", False),
+            ("invalid", "invalid", False), ("changed-back", "1/3", True),
+        )
+    ],
+])
+def test_method2_query_edit_invalidates_candidate_actions(change):
+    _run_page_javascript(_METHOD2_QUERY_SETUP + change + r"""
+assert.deepEqual(itemsFor(2), [], 'Edited query must retire its prior candidate pool');
+assert.equal(resultRevisions[2], null);
+assert.equal(document.getElementById('subOut').innerHTML, '');
+let tableDownloads = 0;
+downloadText = () => {tableDownloads += 1;};
+downloadFilteredTable(false);
+await computeModes(4, 'subgroups');
+await downloadAll();
+assert.equal(tableDownloads, 0);
+assert.equal(pending.length, 0, 'No candidate or export request may use the retired pool');
+""")
+
+
+@pytest.mark.parametrize("response_kind", ["success", "error", "network-error", "consumer-gap"])
+@pytest.mark.parametrize("operation", ["query", "modes"])
+def test_method2_query_edit_rejects_inflight_results(operation, response_kind):
+    _run_page_javascript(_METHOD2_QUERY_SETUP + f"""
+const operationKind = {json.dumps(operation)};
+const responseKind = {json.dumps(response_kind)};
+""" + r"""
+let release;
+if (responseKind === 'consumer-gap') {
+  const gap = new Promise(resolve => {release = resolve;});
+  const realBusy = withBusy;
+  withBusy = async (...args) => {const data = await realBusy(...args); await gap; return data;};
+}
+const operation = operationKind === 'query' ? enumSubgroups() : computeModes(4, 'subgroups');
+const request = pending.shift();
+assert.equal(request.path, operationKind === 'query' ? '/api/subgroups' : '/api/method2');
+const success = {ok: true, state: state(8), subgroups: [oldCandidate], modes: []};
+if (responseKind === 'consumer-gap') {
+  request.resolve({json: async () => success});
+  await flush();
+}
+changeK('1');
+changeK('0');
+document.getElementById('subOut').innerHTML = 'current draft';
+document.getElementById('modesBox').innerHTML = 'current mode area';
+if (responseKind === 'consumer-gap') release();
+else if (responseKind === 'network-error') request.reject(new Error('obsolete network failure'));
+else request.resolve({json: async () => responseKind === 'success'
+  ? success : {ok: false, state: state(7), error: 'obsolete query failure'}});
+await operation;
+assert.deepEqual(itemsFor(2), []);
+assert.equal(document.getElementById('subOut').innerHTML, 'current draft');
+// Revision acceptance may clear mode results, but no old payload/error may reappear.
+assert.ok(!document.getElementById('modesBox').innerHTML.includes('Q1'));
+assert.deepEqual(errors, []);
+assert.equal(pending.length, 0, 'Rejected results must not initiate a follow-up refresh');
+if (['success', 'consumer-gap'].includes(responseKind)) assert.equal(STATE.revision, 8);
+""")
+
+
+def test_method2_new_query_retires_hidden_pool_even_on_failure():
+    _run_page_javascript(_METHOD2_QUERY_SETUP + r"""
+const operation = enumSubgroups();
+assert.deepEqual(itemsFor(2), [], 'A new search must not leave a hidden downloadable old pool');
+reply('/api/subgroups', {ok: false, state: state(7), error: 'query failed'});
+await operation;
+assert.deepEqual(itemsFor(2), []);
+await downloadAll();
+assert.equal(pending.length, 0);
+""")
+
+
+@pytest.mark.parametrize("source", ["method1", "method3", "subgroups"])
+def test_method2_query_edit_preserves_only_unrelated_mode_results(source):
+    _run_page_javascript(_METHOD2_QUERY_SETUP + f"const source = {json.dumps(source)};\n" + r"""
+m1Items = [{...oldCandidate}]; resultRevisions[1] = 7;
+m3Items = [{...oldCandidate}]; resultRevisions[3] = 7;
+const selection = computeModes(4, source);
+reply('/api/method2', {ok: true, state: state(8), modes: []});
+await selection;
+const output = document.getElementById(source === 'method3' ? 'm3ModesBox' : 'modesBox');
+const currentModes = output.innerHTML;
+assert.ok(currentModes.includes('Q1'));
+m4Items = [{mode: 'independent'}]; resultRevisions[4] = 8;
+changeK('1');
+assert.equal(output.innerHTML, source === 'subgroups' ? '' : currentModes);
+assert.equal(itemsFor(1).length, 1);
+assert.equal(itemsFor(3).length, 1);
+assert.equal(itemsFor(4).length, source === 'subgroups' ? 0 : 1);
+assert.deepEqual(itemsFor(2), []);
+""")
+
+
+@pytest.mark.parametrize("source", ["method1", "method3"])
+def test_method2_query_edit_preserves_unrelated_inflight_mode_selection(source):
+    _run_page_javascript(_METHOD2_QUERY_SETUP + f"const source = {json.dumps(source)};\n" + r"""
+m1Items = [{...oldCandidate}]; resultRevisions[1] = 7;
+m3Items = [{...oldCandidate}]; resultRevisions[3] = 7;
+const selection = computeModes(4, source);
+changeK('1');
+reply('/api/method2', {ok: true, state: state(8), modes: []});
+await selection;
+const output = document.getElementById(source === 'method3' ? 'm3ModesBox' : 'modesBox');
+assert.ok(output.innerHTML.includes('Q1'));
+assert.equal(itemsFor(1).length, 1);
+assert.equal(itemsFor(3).length, 1);
+assert.deepEqual(itemsFor(2), []);
+""")
+
+
+def test_method2_new_query_uses_edited_parameters_without_sending_drafts():
+    _run_page_javascript(_METHOD2_QUERY_SETUP + r"""
+editParameter('a', '');
+editParameter('b', 'draft');
+editParameter('g', '1/3');
+assert.equal(pending.length, 0, 'Draft edits must not initiate scientific requests');
+editParameter('a', '1/5');
+editParameter('b', '1/7');
+const search = enumSubgroups();
+const request = pending.shift();
+assert.deepEqual(JSON.parse(request.opts.body).kpoints,
+  [{k: 'Q', params: ['1/5', '1/7', '1/3']}]);
+request.resolve({json: async () => ({ok: true, state: state(8), subgroups: [oldCandidate]})});
+await search;
+assert.equal(itemsFor(2).length, 1);
+assert.equal(resultRevisions[2], 8);
+""")
+
+
+def test_method2_new_query_and_selection_enable_current_export():
+    _run_page_javascript(_METHOD2_QUERY_SETUP + r"""
+changeK('1');
+const search = enumSubgroups();
+const request = pending.shift();
+assert.deepEqual(JSON.parse(request.opts.body).kpoints, [{k: 'R', params: null}]);
+const currentCandidate = {...oldCandidate, k_point_label: 'R', irrep_label: 'R1'};
+request.resolve({json: async () => ({ok: true, state: state(8), subgroups: [currentCandidate]})});
+await search;
+assert.equal(itemsFor(2)[0].irrep_label, 'R1');
+const selection = computeModes(4, 'subgroups');
+reply('/api/method2', {ok: true, state: state(9), modes: []});
+await selection;
+assert.equal(resultRevisions[2], 9);
+prepareZip();
+const download = downloadAll();
+reply('/api/export_status', {export: {}});
+const downloadRequest = pending.shift();
+assert.equal(downloadRequest.path.searchParams.get('revision'), '9');
+completeZip(downloadRequest, activeExportJobId);
+await download;
+assert.equal(pending.length, 0);
+""")
+
+
+def test_method2_query_edit_preserves_already_dispatched_export_snapshot():
+    _run_page_javascript(_METHOD2_QUERY_SETUP + r"""
+prepareZip();
+const download = downloadAll();
+reply('/api/export_status', {export: {}});
+const request = pending.shift();
+const jobId = activeExportJobId;
+assert.equal(request.path.searchParams.get('revision'), '7');
+changeK('1');
+assert.deepEqual(itemsFor(2), []);
+assert.equal(activeExportJobId, jobId, 'An existing export keeps its original snapshot ownership');
+completeZip(request, jobId);
+await download;
+assert.equal(pending.length, 0);
+assert.deepEqual(errors, []);
+assert.match(document.getElementById('distOut').innerHTML, /dist.zipDone/);
+""")
+
+
+@pytest.mark.parametrize("earlier_operation", ["query", "modes"])
+def test_method2_new_query_shows_current_revision_conflict(earlier_operation):
+    _run_page_javascript(_METHOD2_QUERY_SETUP + f"""
+const earlierOperation = {json.dumps(earlier_operation)};
+""" + r"""
+const earlier = earlierOperation === 'query' ? enumSubgroups() : computeModes(4, 'subgroups');
+const earlierRequest = pending.shift();
+changeK('1');
+const current = enumSubgroups();
+const currentRequest = pending.shift();
+assert.equal(JSON.parse(currentRequest.opts.body).revision, 7);
+earlierRequest.resolve({json: async () => ({
+  ok: true, state: state(8), subgroups: [oldCandidate], modes: [],
+})});
+await earlier;
+assert.equal(STATE.revision, 8);
+currentRequest.resolve({json: async () => ({
+  ok: false, stale_context: true, state: state(8), error: 'Current query must retry.',
+})});
+await current;
+assert.deepEqual(itemsFor(2), []);
+assert.match(document.getElementById('subOut').innerHTML, /Current query must retry\./,
+  'A still-current request must show its conflict even if another local reply already accepted that revision');
+assert.equal(pending.length, 0);
+""")
+
+
+@pytest.mark.parametrize("obsolete_by", ["request", "query-dependency", "older-revision", "parent"])
+def test_method2_query_edit_keeps_obsolete_conflicts_rejected(obsolete_by):
+    _run_page_javascript(_METHOD2_QUERY_SETUP + f"""
+const obsoleteBy = {json.dumps(obsolete_by)};
+""" + r"""
+const earlier = obsoleteBy === 'query-dependency'
+  ? computeModes(4, 'subgroups') : enumSubgroups();
+const earlierRequest = pending.shift();
+if (obsoleteBy === 'parent') {
+  const parent = api('/api/load_cif', {filename: 'new.cif', content: 'new'});
+  reply('/api/load_cif', {ok: true, state: state(8)});
+  await parent;
+} else {
+  changeK('1');
+  const current = enumSubgroups();
+  reply('/api/subgroups', {ok: true, state: state(8),
+    subgroups: [{...oldCandidate, k_point_label: 'R', irrep_label: 'R1'}]});
+  await current;
+}
+document.getElementById('subOut').innerHTML = 'current candidate feedback';
+document.getElementById('modesBox').innerHTML = 'current mode feedback';
+earlierRequest.resolve({json: async () => ({
+  ok: false, stale_context: true,
+  state: state(obsoleteBy === 'older-revision' ? 7 : 8), error: 'Obsolete conflict.',
+})});
+await earlier;
+assert.equal(STATE.revision, 8);
+assert.equal(document.getElementById('subOut').innerHTML, 'current candidate feedback');
+assert.equal(document.getElementById('modesBox').innerHTML, 'current mode feedback');
+assert.deepEqual(errors, []);
+assert.equal(pending.length, 0);
+""")
+
+
+_REPLACEMENT_QUERY_SETUP = _METHOD2_QUERY_SETUP + r"""
+STATE.structure = {};
+renderSessionState = () => {};
+const queryState = revision => ({...state(revision), structure: {}});
+m1Items = [{...oldCandidate}]; resultRevisions[1] = 7;
+m3Items = [{...oldCandidate}]; resultRevisions[3] = 7;
+const startQuery = method => method === 1 ? runMethod1() : runMethod3();
+const queryPath = method => '/api/method' + method;
+const sourceFor = method => method === 2 ? 'subgroups' : 'method' + method;
+"""
+
+
+@pytest.mark.parametrize("method", [1, 3])
+@pytest.mark.parametrize("failure", ["server-error", "network-error"])
+def test_replacement_query_failure_retires_hidden_candidates(method, failure):
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + f"""
+const method = {method}, failure = {json.dumps(failure)};
+""" + r"""
+document.getElementById('dlMethod').value = String(method);
+const operation = startQuery(method);
+const request = pending.shift();
+assert.deepEqual(itemsFor(method), [], 'A replacement search must immediately retire its prior pool');
+assert.equal(resultRevisions[method], null);
+if (failure === 'network-error') request.reject(new Error('replacement network failure'));
+else request.resolve({json: async () => ({ok: false, state: queryState(7), error: 'replacement failed'})});
+await operation;
+assert.deepEqual(itemsFor(method), []);
+assert.ok(errors.some(error => String(error).includes('replacement')));
+const otherMethod = method === 1 ? 3 : 1;
+assert.equal(itemsFor(otherMethod).length, 1);
+assert.equal(itemsFor(2).length, 1);
+let tableDownloads = 0;
+downloadText = () => {tableDownloads += 1;};
+downloadFilteredTable(false);
+await computeModes(4, sourceFor(method));
+await downloadAll();
+assert.equal(tableDownloads, 0);
+assert.equal(pending.length, 0, 'Failed replacement must not leave any old candidate action available');
+""")
+
+
+@pytest.mark.parametrize("method", [1, 3])
+@pytest.mark.parametrize("earlier_operation", ["query", "modes"])
+@pytest.mark.parametrize("response_kind", ["success", "error", "network-error", "consumer-gap"])
+def test_replacement_query_rejects_obsolete_responses(method, earlier_operation, response_kind):
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + f"""
+const method = {method}, earlierOperation = {json.dumps(earlier_operation)};
+const responseKind = {json.dumps(response_kind)};
+""" + r"""
+let release;
+const realBusy = withBusy;
+if (responseKind === 'consumer-gap') {
+  const gap = new Promise(resolve => {release = resolve;});
+  withBusy = async (...args) => {const data = await realBusy(...args); await gap; return data;};
+}
+const earlier = earlierOperation === 'query'
+  ? startQuery(method) : computeModes(4, sourceFor(method));
+const earlierRequest = pending.shift();
+const oldSuccess = {ok: true, state: queryState(8), candidates: [oldCandidate], modes: []};
+if (responseKind === 'consumer-gap') {
+  earlierRequest.resolve({json: async () => oldSuccess});
+  await flush();
+  withBusy = realBusy;
+}
+const current = startQuery(method);
+const currentRequest = pending.shift();
+const out = document.getElementById(method === 1 ? 'm1Out' : 'm3Out');
+out.innerHTML = 'new search progress';
+if (responseKind === 'consumer-gap') release();
+else if (responseKind === 'network-error') earlierRequest.reject(new Error('obsolete failure'));
+else earlierRequest.resolve({json: async () => responseKind === 'success'
+  ? oldSuccess : {ok: false, state: queryState(7), error: 'obsolete failure'}});
+await earlier;
+assert.deepEqual(itemsFor(method), []);
+assert.equal(out.innerHTML, 'new search progress', 'Old responses cannot erase the new query view');
+const modesOut = document.getElementById(method === 1 ? 'modesBox' : 'm3ModesBox');
+assert.ok(!modesOut.innerHTML.includes('Q1'));
+assert.deepEqual(errors, []);
+currentRequest.resolve({json: async () => ({
+  ok: false, state: queryState(STATE.revision), error: 'current failure',
+})});
+await current;
+assert.deepEqual(itemsFor(method), []);
+assert.deepEqual(errors, ['current failure']);
+assert.equal(pending.length, 0);
+""")
+
+
+@pytest.mark.parametrize("method", [1, 3])
+@pytest.mark.parametrize("mode_method", [1, 2, 3])
+def test_replacement_query_invalidates_only_its_own_mode_results(method, mode_method):
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + f"""
+const method = {method}, modeMethod = {mode_method};
+""" + r"""
+const selection = computeModes(4, sourceFor(modeMethod));
+reply('/api/method2', {ok: true, state: queryState(8), modes: []});
+await selection;
+const output = document.getElementById(modeMethod === 3 ? 'm3ModesBox' : 'modesBox');
+const oldModeDisplay = output.innerHTML;
+assert.ok(oldModeDisplay.includes('Q1'));
+m4Items = [{mode: 'independent'}]; resultRevisions[4] = 8;
+const replacement = startQuery(method);
+reply(queryPath(method), {ok: false, state: queryState(8), error: 'replacement failed'});
+await replacement;
+assert.equal(output.innerHTML, method === modeMethod ? '' : oldModeDisplay);
+assert.deepEqual(itemsFor(method), []);
+for (const other of [1, 2, 3, 4].filter(value => value !== method)) {
+  assert.equal(itemsFor(other).length, other === 4 && method === modeMethod ? 0 : 1);
+}
+""")
+
+
+@pytest.mark.parametrize("method", [1, 3])
+def test_replacement_query_success_restores_selection_and_download(method):
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + f"const method = {method};\n" + r"""
+const search = startQuery(method);
+reply(queryPath(method), {ok: true, state: queryState(8),
+  candidates: [{...oldCandidate, index: 9}]});
+await search;
+assert.equal(itemsFor(method)[0].index, 9);
+assert.equal(resultRevisions[method], 8);
+const selection = computeModes(9, sourceFor(method));
+reply('/api/method2', {ok: true, state: queryState(9), modes: []});
+await selection;
+document.getElementById('dlMethod').value = String(method);
+let tableText = null;
+downloadText = text => {tableText = text;};
+downloadFilteredTable(false);
+assert.ok(tableText.includes('9'));
+prepareZip();
+const download = downloadAll();
+reply('/api/export_status', {export: {}});
+const request = pending.shift();
+assert.equal(request.path.searchParams.get('method'), String(method));
+assert.equal(request.path.searchParams.get('revision'), '9');
+completeZip(request, activeExportJobId);
+await download;
+assert.deepEqual(errors, []);
+assert.equal(pending.length, 0);
+""")
+
+
+@pytest.mark.parametrize("method", [1, 3])
+def test_replacement_query_does_not_reassign_dispatched_export(method):
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + f"const method = {method};\n" + r"""
+document.getElementById('dlMethod').value = String(method);
+prepareZip();
+const download = downloadAll();
+reply('/api/export_status', {export: {}});
+const downloadRequest = pending.shift(), jobId = activeExportJobId;
+const replacement = startQuery(method);
+reply(queryPath(method), {ok: false, state: queryState(7), error: 'replacement failed'});
+await replacement;
+assert.deepEqual(itemsFor(method), []);
+assert.equal(activeExportJobId, jobId);
+completeZip(downloadRequest, jobId);
+await download;
+assert.match(document.getElementById('distOut').innerHTML, /dist.zipDone/);
+assert.equal(pending.length, 0);
+""")
+
+
+@pytest.mark.parametrize("failure", [
+    "no-file", "invalid-origin", "file-read", "server-error", "network-error",
+])
+def test_method4_replacement_failure_retires_old_amplitudes(failure):
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + f"const failure = {json.dumps(failure)};\n" + r"""
+const basis = computeModes(4, 'subgroups');
+reply('/api/method2', {ok: true, state: queryState(8), modes: []});
+await basis;
+m4Items = [{mode: 'old-daughter', As: 1, Ap: 1, raw: 1, normfactor: 1}];
+resultRevisions[4] = 8;
+m4Meta.rms = 42;
+document.getElementById('dlMethod').value = '4';
+document.getElementById('dauFile').files = failure === 'no-file' ? [] : [{name: 'new-daughter.cif'}];
+if (failure === 'invalid-origin') document.getElementById('m4OriginX').value = 'invalid';
+const operation = runMethod4();
+assert.deepEqual(itemsFor(4), [], 'A new daughter submission must retire its old amplitudes before file I/O');
+assert.equal(m4Meta.rms, null);
+if (failure === 'file-read') readers[0].reader.onerror(new Error('controlled read failure'));
+else if (!['no-file', 'invalid-origin'].includes(failure)) {
+  readFile('new-daughter.cif');
+  await flush();
+  const request = pending.shift();
+  if (failure === 'network-error') request.reject(new Error('controlled network failure'));
+  else request.resolve({json: async () => ({ok: false, state: queryState(8), error: 'controlled failure'})});
+}
+await operation;
+let downloads = 0;
+downloadText = () => {downloads += 1;};
+downloadFilteredTable(false);
+assert.equal(downloads, 0);
+assert.deepEqual(itemsFor(4), []);
+assert.equal(pending.length, 0);
+for (const method of [1, 2, 3]) assert.equal(itemsFor(method).length, 1);
+""")
+
+
+@pytest.mark.parametrize("source", ["method1", "subgroups", "method3"])
+@pytest.mark.parametrize("response_kind", ["success", "error", "network-error", "consumer-gap"])
+def test_nmod_change_rejects_obsolete_mode_responses(source, response_kind):
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + f"""
+const source = {json.dumps(source)}, responseKind = {json.dumps(response_kind)};
+""" + r"""
+let release;
+if (responseKind === 'consumer-gap') {
+  const gap = new Promise(resolve => {release = resolve;});
+  const realBusy = withBusy;
+  withBusy = async (...args) => {const data = await realBusy(...args); await gap; return data;};
+}
+const operation = computeModes(4, source);
+const request = pending.shift();
+assert.equal(JSON.parse(request.opts.body).nmod, 0);
+const oldSuccess = {ok: true, state: queryState(8), modes: [{
+  irrep_label: 'old-nmod-zero', mode_type: 'displacive', opd_symbol: 'P1',
+  wyckoff_sites: [], n_representatives: 1,
+}]};
+if (responseKind === 'consumer-gap') {
+  request.resolve({json: async () => oldSuccess});
+  await flush();
+}
+document.getElementById('nmod').value = '1';
+applyNmod();
+document.getElementById('nmod').value = '0';
+applyNmod();
+if (responseKind === 'consumer-gap') release();
+else if (responseKind === 'network-error') request.reject(new Error('obsolete nmod failure'));
+else request.resolve({json: async () => responseKind === 'success'
+  ? oldSuccess : {ok: false, state: queryState(7), error: 'obsolete nmod failure'}});
+await operation;
+const out = document.getElementById(source === 'method3' ? 'm3ModesBox' : 'modesBox');
+assert.ok(!out.innerHTML.includes('old-nmod-zero'), 'Changing nmod back must not revive an obsolete mode request');
+assert.deepEqual(errors, []);
+assert.equal(pending.length, 0);
+for (const method of [1, 2, 3]) assert.equal(itemsFor(method).length, 1);
+""")
+
+
+def test_nmod_applied_value_preserves_candidates_and_new_mode_request():
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + r"""
+const original = computeModes(4, 'subgroups');
+reply('/api/method2', {ok: true, state: queryState(8), modes: []});
+await original;
+assert.ok(document.getElementById('modesBox').innerHTML.includes('Q1'));
+document.getElementById('nmod').value = '0';
+applyNmod();
+assert.ok(document.getElementById('modesBox').innerHTML.includes('Q1'), 'Applying the same value keeps the same basis');
+document.getElementById('nmod').value = '1';
+applyNmod();
+assert.equal(document.getElementById('modesBox').innerHTML, '');
+for (const method of [1, 2, 3]) assert.equal(itemsFor(method).length, 1);
+const current = computeModes(4, 'subgroups');
+const request = pending.shift();
+assert.equal(JSON.parse(request.opts.body).nmod, 1);
+request.resolve({json: async () => ({ok: true, state: queryState(9), modes: []})});
+await current;
+assert.ok(document.getElementById('modesBox').innerHTML.includes('Q1'));
+""")
+
+
+def test_method4_rejects_basis_after_failed_mode_selection():
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + r"""
+const basis = computeModes(4, 'subgroups');
+reply('/api/method2', {ok: true, state: queryState(8), modes: []});
+await basis;
+const failedSelection = computeModes(4, 'method1');
+reply('/api/method2', {ok: false, state: queryState(8), error: 'new candidate failed'});
+await failedSelection;
+document.getElementById('dauFile').files = [{name: 'daughter.cif'}];
+await runMethod4();
+assert.equal(readers.length, 0, 'Hidden earlier basis cannot authorize daughter file processing');
+assert.equal(pending.length, 0);
+assert.ok(errors.some(error => String(error).includes('Compute modes')));
+""")
+
+
+@pytest.mark.parametrize("boundary", ["file-read", "response", "consumer-gap"])
+@pytest.mark.parametrize("change", ["nmod", "mode-selection", "source-query", "parent"])
+def test_method4_requires_same_confirmed_basis_across_awaits(boundary, change):
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + f"""
+const boundary = {json.dumps(boundary)}, change = {json.dumps(change)};
+""" + r"""
+const basis = computeModes(4, 'subgroups');
+reply('/api/method2', {ok: true, state: queryState(8), modes: []});
+await basis;
+let release;
+if (boundary === 'consumer-gap') {
+  const gap = new Promise(resolve => {release = resolve;});
+  const realBusy = withBusy;
+  withBusy = async (...args) => {const data = await realBusy(...args); await gap; return data;};
+}
+document.getElementById('dauFile').files = [{name: 'daughter.cif'}];
+const decomposition = runMethod4();
+let request;
+if (boundary !== 'file-read') {
+  readFile('daughter.cif');
+  await flush();
+  request = pending.shift();
+  assert.equal(JSON.parse(request.opts.body).nmod, 0);
+}
+if (boundary === 'consumer-gap') {
+  request.resolve({json: async () => ({
+    ok: true, state: queryState(9), amplitudes: {'obsolete-daughter': 1},
+  })});
+  await flush();
+}
+let selection, selectionRequest;
+if (change === 'nmod') {
+  document.getElementById('nmod').value = '1'; applyNmod();
+} else if (change === 'mode-selection') {
+  selection = computeModes(4, 'method1');
+  selectionRequest = pending.shift();
+} else if (change === 'source-query') {
+  changeK('1');
+} else {
+  const parent = api('/api/load_cif', {filename: 'new.cif', content: 'new'});
+  reply('/api/load_cif', {ok: true, state: queryState(10)});
+  await parent;
+}
+if (boundary === 'file-read') readFile('daughter.cif');
+else if (boundary === 'consumer-gap') release();
+else request.resolve({json: async () => ({
+  ok: true, state: queryState(9), amplitudes: {'obsolete-daughter': 1},
+})});
+await decomposition;
+assert.deepEqual(itemsFor(4), [], 'A daughter result must belong to the still-confirmed mode basis');
+assert.ok(!document.getElementById('m4Out').innerHTML.includes('obsolete-daughter'));
+assert.ok(!pending.some(item => item.path === '/api/method4'));
+if (selection) {
+  selectionRequest.resolve({json: async () => ({
+    ok: false, state: queryState(STATE.revision), error: 'controlled selection end',
+  })});
+  await selection;
+}
+// A parent replacement can request fresh selector metadata; settle those reads.
+for (const item of pending.splice(0)) item.resolve({json: async () => ({ok: false})});
+await flush();
+""")
+
+
+def test_method4_reuses_confirmed_basis_for_repeated_daughters():
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + r"""
+document.getElementById('nmod').value = '1'; applyNmod();
+const basis = computeModes(4, 'subgroups');
+reply('/api/method2', {ok: true, state: queryState(8), modes: []});
+await basis;
+for (const [number, revision] of [[1, 9], [2, 10]]) {
+  const name = 'daughter' + number + '.cif';
+  document.getElementById('dauFile').files = [{name}];
+  const decomposition = runMethod4();
+  readFile(name);
+  await flush();
+  const request = pending.shift();
+  assert.equal(JSON.parse(request.opts.body).nmod, 1);
+  request.resolve({json: async () => ({
+    ok: true, state: queryState(revision), amplitudes: {current: number},
+    parent_cell_amplitudes: {current: number}, raw_coefficients: {current: number},
+    mode_normfactors: {current: 1},
+  })});
+  await decomposition;
+  assert.equal(itemsFor(4)[0].As, number);
+}
+let text = '';
+downloadText = value => {text = value;};
+document.getElementById('dlMethod').value = '4';
+downloadFilteredTable(false);
+assert.ok(text.includes('current'));
+assert.deepEqual(errors, []);
+""")
+
+
+def test_method4_obsolete_completion_keeps_current_submission_error():
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + r"""
+showError = (out, error) => {errors.push(error); out.innerHTML = String(error);};
+const basis = computeModes(4, 'subgroups');
+reply('/api/method2', {ok: true, state: queryState(8), modes: []});
+await basis;
+document.getElementById('dauFile').files = [{name: 'old-daughter.cif'}];
+const old = runMethod4();
+readFile('old-daughter.cif'); await flush();
+const oldRequest = pending.shift();
+document.getElementById('dauFile').files = [];
+await runMethod4();
+assert.equal(document.getElementById('m4Out').innerHTML, 'err.noFile');
+oldRequest.resolve({json: async () => ({
+  ok: true, state: queryState(9), amplitudes: {'old-daughter': 1},
+})});
+await old;
+assert.deepEqual(itemsFor(4), []);
+assert.equal(document.getElementById('m4Out').innerHTML, 'err.noFile',
+  'A committed obsolete decomposition cannot erase the current submission error');
+""")
+
+
+def test_nmod_change_preserves_already_dispatched_export():
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + r"""
+prepareZip();
+document.getElementById('dlMethod').value = '2';
+const download = downloadAll();
+reply('/api/export_status', {export: {}});
+const request = pending.shift(), jobId = activeExportJobId;
+assert.equal(request.path.searchParams.get('nmod'), '0');
+document.getElementById('nmod').value = '1'; applyNmod();
+assert.equal(activeExportJobId, jobId);
+assert.equal(itemsFor(2).length, 1);
+completeZip(request, jobId);
+await download;
+assert.deepEqual(errors, []);
+assert.match(document.getElementById('distOut').innerHTML, /dist.zipDone/);
+""")
+
+
+@pytest.mark.parametrize("failure", ["network", "json", "null-json"])
+def test_current_local_failure_survives_compatible_revision_advance(failure):
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + f"const failure = {json.dumps(failure)};\n" + r"""
+const earlier = computeModes(4, 'method3');
+const modeRequest = pending.shift();
+const current = runMethod1();
+const queryRequest = pending.shift();
+modeRequest.resolve({json: async () => ({ok: true, state: queryState(8), modes: []})});
+await earlier;
+assert.equal(STATE.revision, 8);
+if (failure === 'network') queryRequest.reject(new Error('current transport failure'));
+else queryRequest.resolve({json: async () => {
+  if (failure === 'json') throw new SyntaxError('current invalid JSON');
+  return null;
+}});
+await current;
+assert.equal(STATE.revision, 8, 'Local failures must not fabricate or roll back server state');
+assert.deepEqual(itemsFor(1), []);
+assert.equal(errors.length, 1, 'A current local failure must be explained after compatible state advances');
+assert.equal(pending.length, 0);
+""")
+
+
+@pytest.mark.parametrize("superseded_by", ["request", "query", "parent"])
+@pytest.mark.parametrize("failure", ["network", "json", "null-json"])
+def test_obsolete_local_failures_remain_rejected(superseded_by, failure):
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + f"""
+const supersededBy = {json.dumps(superseded_by)}, failure = {json.dumps(failure)};
+""" + r"""
+const old = supersededBy === 'query' ? computeModes(4, 'method1') : runMethod1();
+const request = pending.shift();
+if (supersededBy === 'parent') {
+  const parent = api('/api/load_cif', {filename: 'new.cif', content: 'new'});
+  reply('/api/load_cif', {ok: true, state: state(9)});
+  await parent;
+} else {
+  const current = runMethod1();
+  reply('/api/method1', {ok: true, state: queryState(8), candidates: [{...oldCandidate, index: 9}]});
+  await current;
+}
+document.getElementById('m1Out').innerHTML = 'current result';
+document.getElementById('modesBox').innerHTML = 'current modes';
+if (failure === 'network') request.reject(new Error('obsolete transport failure'));
+else request.resolve({json: async () => {
+  if (failure === 'json') throw new SyntaxError('obsolete invalid JSON');
+  return null;
+}});
+await old;
+assert.deepEqual(errors, [], 'A local error still requires current request, query and parent ownership');
+assert.equal(document.getElementById('m1Out').innerHTML, 'current result');
+assert.equal(document.getElementById('modesBox').innerHTML, 'current modes');
+assert.equal(pending.length, 0);
+""")
+
+
+@pytest.mark.parametrize("change", ["compatible", "parent", "request", "job"])
+@pytest.mark.parametrize("failure", ["network", "json", "null-json", "blob"])
+def test_download_local_failure_keeps_snapshot_job_ownership(change, failure):
+    _run_page_javascript(_REPLACEMENT_QUERY_SETUP + f"""
+const change = {json.dumps(change)}, failure = {json.dumps(failure)};
+""" + r"""
+const download = downloadAll();
+reply('/api/export_status', {export: {}});
+const request = pending.shift();
+const jobId = activeExportJobId;
+const action = change === 'parent'
+  ? api('/api/load_cif', {filename: 'new.cif', content: 'new'})
+  : api('/api/method1', {});
+reply(change === 'parent' ? '/api/load_cif' : '/api/method1',
+  {ok: true, state: state(8), candidates: []});
+await action;
+document.getElementById('distOut').innerHTML = 'current export view';
+if (change === 'request') beginResponseContext('/api/download_all');
+if (change === 'job') activeExportJobId = 'different-job';
+if (failure === 'network') request.reject(new Error('download transport failure'));
+else if (failure === 'blob') request.resolve({
+  ok: true,
+  headers: {get: name => name.toLowerCase() === 'content-type'
+    ? 'application/zip' : encodeURIComponent(JSON.stringify({
+      job_id: jobId, active: false, phase: 'complete',
+      successful: 1, total: 1, ineligible: 0, failed: 0,
+    }))},
+  blob: async () => { throw new Error('download body failed'); },
+});
+else request.resolve({ok: false, headers: {get: () => 'application/json'},
+  json: async () => {
+    if (failure === 'json') throw new SyntaxError('invalid download JSON');
+    return null;
+  }});
+await flush();
+if (failure !== 'blob') reply('/api/export_status', {export: {}});
+await download;
+assert.equal(STATE.revision, 8);
+const obsolete = change === 'request' || change === 'job';
+assert.equal(errors.length, obsolete ? 0 : 1,
+  'A current snapshot job retains local failure feedback across parent changes');
+if (obsolete) assert.equal(document.getElementById('distOut').innerHTML, 'current export view');
+""")
+
+
+@pytest.mark.parametrize("raw,expected", [
+    pytest.param("0", 0, id="zero"),
+    pytest.param("1", 1, id="one"),
+    pytest.param("2", 2, id="two"),
+    pytest.param("3", 3, id="maximum"),
+    pytest.param("003", 3, id="leading-zeroes"),
+    pytest.param(" 1 ", 1, id="surrounding-whitespace"),
+    pytest.param("1.9", None, id="decimal"),
+    pytest.param("1.0", None, id="integer-with-decimal-point"),
+    pytest.param("1e0", None, id="exponent"),
+    pytest.param("0x1", None, id="hexadecimal"),
+    pytest.param("2oops", None, id="partial-number"),
+    pytest.param("+1", None, id="plus-sign"),
+    pytest.param("-0", None, id="negative-zero"),
+    pytest.param("-1", None, id="negative"),
+    pytest.param("", None, id="empty"),
+    pytest.param(" ", None, id="blank"),
+    pytest.param("NaN", None, id="nan"),
+    pytest.param("Infinity", None, id="infinite"),
+    pytest.param("１", None, id="non-ascii-digit"),
+    pytest.param("4", None, id="unsupported-dimension"),
+    pytest.param("9007199254740993", None, id="unsafe-integer"),
+])
+def test_nmod_input_contract(raw, expected):
+    _run_page_javascript(
+        "nmodValue = 2;\n"
+        f"document.getElementById('nmod').value = {json.dumps(raw)};\n"
+        "applyNmod();\n"
+        + (
+            "assert.equal(nmodValue, 2, 'Rejected text must retain the previous request');\n"
+            "assert.deepEqual(errors, ['err.badNmod']);\n"
+            if expected is None else
+            f"assert.equal(nmodValue, {expected});\nassert.deepEqual(errors, []);\n"
+        )
+    )
+
+
+@pytest.mark.parametrize("scenario", [
+    pytest.param(r"""
+exportingZip = true; activeExportJobId = 'old-job';
+const operation = cancelExport();
+assert.equal(JSON.parse(pending[0].opts.body).job_id, 'old-job');
+activeExportJobId = 'new-job';
+document.getElementById('exportProgress').textContent = 'new job: 2 / 10';
+document.getElementById('btnCancelExport').disabled = false;
+pending.shift().resolve({ok: true, json: async () => ({ok: true, cancellation_requested: true})});
+await operation;
+assert.equal(document.getElementById('exportProgress').textContent, 'new job: 2 / 10');
+assert.equal(document.getElementById('btnCancelExport').disabled, false);
+""", id="newer-job-success"),
+    pytest.param(r"""
+exportingZip = true; activeExportJobId = 'old-job';
+const operation = cancelExport();
+activeExportJobId = 'new-job';
+document.getElementById('exportProgress').textContent = 'new cancellation pending';
+document.getElementById('btnCancelExport').disabled = true;
+pending.shift().resolve({ok: true, json: async () => ({ok: true, cancellation_requested: false})});
+await operation;
+assert.equal(document.getElementById('exportProgress').textContent, 'new cancellation pending');
+assert.equal(document.getElementById('btnCancelExport').disabled, true,
+  'An older false response must not restore the new job cancellation button');
+""", id="newer-job-unaccepted-cancellation"),
+    pytest.param(r"""
+exportingZip = true; activeExportJobId = 'old-job';
+const operation = cancelExport();
+exportingZip = false; activeExportJobId = null;
+document.getElementById('exportProgress').textContent = 'complete: 10 / 10';
+pending.shift().resolve({ok: true, json: async () => ({ok: true, cancellation_requested: false})});
+await operation;
+assert.equal(document.getElementById('exportProgress').textContent, 'complete: 10 / 10');
+assert.equal(document.getElementById('btnCancelExport').disabled, true);
+""", id="completed-job"),
+    pytest.param(r"""
+exportingZip = true; activeExportJobId = 'old-job';
+const operation = cancelExport();
+exportingZip = false;
+document.getElementById('exportProgress').textContent = 'complete';
+pending.shift().resolve({ok: true, json: async () => ({ok: true, cancellation_requested: true})});
+await operation;
+assert.equal(document.getElementById('exportProgress').textContent, 'complete');
+""", id="completed-before-id-cleanup"),
+    pytest.param(r"""
+exportingZip = true; activeExportJobId = 'old-job';
+const operation = cancelExport();
+activeExportJobId = 'new-job';
+document.getElementById('exportProgress').textContent = 'new job';
+document.getElementById('btnCancelExport').disabled = false;
+pending.shift().reject(new Error('old network failure'));
+await operation;
+assert.equal(document.getElementById('exportProgress').textContent, 'new job');
+assert.equal(document.getElementById('btnCancelExport').disabled, false);
+""", id="newer-job-network-error"),
+    pytest.param(r"""
+exportingZip = true; activeExportJobId = 'old-job';
+let release;
+const parsed = new Promise(resolve => {release = resolve;});
+const operation = cancelExport();
+pending.shift().resolve({ok: true, json: () => parsed});
+await flush();
+activeExportJobId = 'new-job';
+document.getElementById('exportProgress').textContent = 'new job';
+document.getElementById('btnCancelExport').disabled = false;
+release({ok: true, cancellation_requested: true});
+await operation;
+assert.equal(document.getElementById('exportProgress').textContent, 'new job');
+assert.equal(document.getElementById('btnCancelExport').disabled, false);
+""", id="newer-job-during-json-read"),
+    pytest.param(r"""
+exportingZip = true; activeExportJobId = 'same-job';
+const first = cancelExport();
+const second = cancelExport();
+const earlier = pending.shift(), later = pending.shift();
+later.resolve({ok: true, json: async () => ({ok: true, cancellation_requested: true})});
+await second;
+const text = document.getElementById('exportProgress').textContent;
+earlier.reject(new Error('earlier error'));
+await first;
+assert.match(text, /^Cancellation requested/);
+assert.equal(document.getElementById('exportProgress').textContent, text);
+assert.equal(document.getElementById('btnCancelExport').disabled, true);
+""", id="same-job-request-order"),
+    pytest.param(r"""
+activeExportJobId = null; exportingZip = false;
+document.getElementById('exportProgress').textContent = 'idle';
+document.getElementById('btnCancelExport').disabled = false;
+await cancelExport();
+assert.equal(pending.length, 0);
+assert.equal(document.getElementById('exportProgress').textContent, 'idle');
+assert.equal(document.getElementById('btnCancelExport').disabled, false);
+""", id="no-active-job"),
+])
+def test_cancel_export_response_ownership(scenario):
+    _run_page_javascript(scenario)
+
+
+@pytest.mark.parametrize("outcome", ["cancelled", "not-accepted", "http-error", "network-error", "malformed"])
+def test_cancel_export_current_job_outcomes(outcome):
+    response = {
+        "cancelled": "request.resolve({ok: true, json: async () => ({ok: true, cancellation_requested: true})});",
+        "not-accepted": "request.resolve({ok: true, json: async () => ({ok: true, cancellation_requested: false})});",
+        "http-error": "request.resolve({ok: false, json: async () => ({ok: false, error: 'server failure'})});",
+        "network-error": "request.reject(new Error('network failure'));",
+        "malformed": "request.resolve({ok: true, json: async () => ({ok: true, cancellation_requested: 'yes'})});",
+    }[outcome]
+    assertion = {
+        "cancelled": "assert.match(text, /^Cancellation requested/); assert.equal(button.disabled, true);",
+        "not-accepted": "assert.match(text, /Cancellation was not accepted.*retry/i); assert.equal(button.disabled, false);",
+        "http-error": "assert.equal(text, 'server failure'); assert.equal(button.disabled, false);",
+        "network-error": "assert.equal(text, 'network failure'); assert.equal(button.disabled, false);",
+        "malformed": "assert.match(text, /Invalid cancellation response/); assert.equal(button.disabled, false);",
+    }[outcome]
+    _run_page_javascript(r"""
+exportingZip = true; activeExportJobId = 'current-job';
+const operation = cancelExport();
+const request = pending.shift();
+assert.equal(JSON.parse(request.opts.body).job_id, 'current-job');
+""" + response + r"""
+await operation;
+const text = document.getElementById('exportProgress').textContent;
+const button = document.getElementById('btnCancelExport');
+assert.equal(activeExportJobId, 'current-job');
+""" + assertion)
+
+
+def test_cancel_export_before_job_start_remains_retryable():
+    _run_page_javascript(r"""
+selectedDownloadFormats = () => ['cif'];
+document.getElementById('dlMethod').value = '1';
+m1Items = [{index: 1}]; resultRevisions[1] = 7;
+document.createElement = () => ({click() {}, remove() {}});
+document.body = {appendChild() {}};
+URL.createObjectURL = () => 'blob:test'; URL.revokeObjectURL = () => {};
+const download = downloadAll();
+const initialPoll = pending.shift();
+const downloadRequest = pending.shift();
+const jobId = activeExportJobId;
+const earlyCancellation = cancelExport();
+pending.shift().resolve({ok: true,
+  json: async () => ({ok: true, cancellation_requested: false})});
+await earlyCancellation;
+initialPoll.resolve({json: async () => ({export: {
+  job_id: jobId, active: true, phase: 'exporting', total: 1,
+  successful: 0, ineligible: 0, failed: 0,
+}})});
+await flush();
+assert.equal(activeExportJobId, jobId);
+assert.match(document.getElementById('exportProgress').textContent, /^exporting/);
+assert.equal(document.getElementById('btnCancelExport').disabled, false,
+  'A cancellation rejected before job registration must allow retry after the same job starts');
+const retry = cancelExport();
+const retryRequest = pending.shift();
+assert.equal(JSON.parse(retryRequest.opts.body).job_id, jobId);
+retryRequest.resolve({ok: true,
+  json: async () => ({ok: true, cancellation_requested: true})});
+await retry;
+assert.match(document.getElementById('exportProgress').textContent, /^Cancellation requested/);
+assert.equal(document.getElementById('btnCancelExport').disabled, true);
+const status = {job_id: jobId, active: false, phase: 'cancelled',
+  successful: 0, total: 1, ineligible: 0, failed: 0};
+downloadRequest.resolve({ok: true,
+  headers: {get: name => name.toLowerCase() === 'content-type'
+    ? 'application/zip' : encodeURIComponent(JSON.stringify(status))},
+  blob: async () => ({})});
+await download;
+assert.equal(activeExportJobId, null);
+""")
+
+
+@pytest.mark.parametrize("cancellation_accepted", [True, False])
+@pytest.mark.parametrize("terminal_source", ["download-response", "progress-poll"])
+def test_export_terminal_status_retires_cancellation_before_blob_read(terminal_source, cancellation_accepted):
+    _run_page_javascript(r"""
+selectedDownloadFormats = () => ['cif'];
+document.getElementById('dlMethod').value = '1';
+m1Items = [{index: 1}]; resultRevisions[1] = 7;
+document.createElement = () => ({click() {}, remove() {}});
+document.body = {appendChild() {}};
+URL.createObjectURL = () => 'blob:test'; URL.revokeObjectURL = () => {};
+const download = downloadAll();
+const initialPoll = pending.shift();
+const downloadRequest = pending.shift();
+const jobId = activeExportJobId;
+const cancellation = cancelExport();
+const cancelRequest = pending.shift();
+let finishBlob;
+const blob = new Promise(resolve => {finishBlob = resolve;});
+const status = {job_id: jobId, active: false, phase: 'complete',
+  successful: 1, total: 1, ineligible: 0, failed: 0};
+const response = {ok: true,
+  headers: {get: name => name.toLowerCase() === 'content-type'
+    ? 'application/zip' : encodeURIComponent(JSON.stringify(status))},
+  blob: () => blob};
+initialPoll.resolve({json: async () => ({export: POLL ? status : {}})});
+if (!POLL) downloadRequest.resolve(response);
+await flush();
+const finishedText = document.getElementById('exportProgress').textContent;
+assert.match(finishedText, /^complete/);
+cancelRequest.resolve({ok: true, json: async () => ({ok: true, cancellation_requested: ACCEPTED})});
+await cancellation;
+assert.equal(document.getElementById('exportProgress').textContent, finishedText,
+  'Cancellation must not overwrite a terminal job while its ZIP body is still downloading');
+assert.equal(document.getElementById('btnCancelExport').style.display, 'none');
+assert.equal(document.getElementById('btnCancelExport').disabled, true);
+if (POLL) downloadRequest.resolve(response);
+finishBlob({});
+await download;
+assert.equal(activeExportJobId, null);
+""".replace("POLL", "true" if terminal_source == "progress-poll" else "false")
+       .replace("ACCEPTED", str(cancellation_accepted).lower()))
+
 
 def _official_select_options(cif_name: str, select_name: str) -> list[dict]:
     """Read an archived official selector for regression comparison only."""
@@ -115,6 +1539,44 @@ def _post(port: int, path: str, payload: dict | None = None) -> dict:
     with urllib.request.urlopen(req) as resp:  # noqa: S310
         return json.loads(resp.read().decode("utf-8"))
 
+
+@pytest.mark.parametrize("provided,nmod", [
+    (False, None), (True, 0), (True, 1), (True, 3),
+    (True, True), (True, "1"), (True, 1.5), (True, -1), (True, 4),
+])
+def test_method4_http_forwards_expected_nmod_without_recomputing_basis(server, monkeypatch, provided, nmod):
+    calls, uploads = [], []
+
+    class ModeEngine(_SessionIsoStub):
+        def search_method_4(self, **kwargs):
+            calls.append(kwargs)
+            raise ValueError("controlled scientific boundary; no decomposition executed")
+
+    live = workflow_service._SESSION
+    live._iso = ModeEngine()
+    live.revision = 7
+    monkeypatch.setattr(
+        workflow_service, "_write_upload",
+        lambda *_args: uploads.append("daughter") or Path("unused-daughter.cif"),
+    )
+    monkeypatch.setattr(workflow_service, "_discard_upload", lambda _path: uploads.append("discarded"))
+    payload = {"revision": 7, "content": "synthetic transport payload, never parsed"}
+    if provided:
+        payload["nmod"] = nmod
+    result = _post(server.port, "/api/method4", payload)
+    assert result["ok"] is False
+    valid = not provided or type(nmod) is int and 0 <= nmod <= 3
+    if valid:
+        assert len(calls) == 1
+        assert calls[0]["number_of_independent_modulations"] == nmod
+        assert uploads == ["daughter", "discarded"]
+        assert "controlled scientific boundary" in result["error"]
+    else:
+        assert calls == [] and uploads == []
+        assert "nmod" in result["error"] or "modulation" in result["error"]
+    assert workflow_service._SESSION is live and live.revision == 7
+
+
 # --- from test_web_server.py ---
 
 def test_index_served(server):
@@ -164,10 +1626,10 @@ def test_index_served(server):
     assert "dist.zipWait" in body
     assert "function startBusy" in body
     assert "function renderStatusBar" in body
-    assert "STATE = d.state" in body
-    assert "A passive refresh must never bless result rows produced by another tab" in body
+    assert body.count("STATE = data.state") == 1
+    assert "function responseIsCurrent(data)" in body
     assert "payload.revision = STATE.revision" in body
-    assert "acceptResponseState(data)" in body
+    assert "acceptResponseState(data, context)" in body
     assert "clearComputedResults();" in body
     assert "&revision=${encodeURIComponent(STATE.revision)}" in body
     assert "knownRouteText" in body
@@ -563,7 +2025,10 @@ def test_unencodable_action_response_cannot_commit_over_http(server, monkeypatch
         staged.distortion_types = ["strain"]
         return {"diagnostic": bad_value}
 
-    monkeypatch.setitem(workflow_service._ACTIONS, "set_types", invalid_response)
+    monkeypatch.setitem(
+        workflow_service._ACTIONS, "set_types",
+        replace(workflow_service._ACTIONS["set_types"], handler=invalid_response),
+    )
     result = _post(server.port, "/api/set_types", {"types": ["strain"], "revision": 7})
     assert result["ok"] is False
     assert workflow_service._SESSION is live
@@ -789,6 +2254,40 @@ def test_export_blank_and_duplicate_query_fields_are_rejected_over_http(server, 
     assert workflow_service._SESSION is live
     assert live.revision == 7 and live._iso is None
 
+
+@pytest.mark.parametrize("method", [1, 2, 3])
+@pytest.mark.parametrize("indices", ["1,999", ""])
+def test_export_invalid_candidate_selection_fails_before_job_or_snapshot(server, method, indices):
+    class LiveIso:
+        structure = object()
+
+        def snapshot_for_export(self):
+            raise AssertionError("Invalid candidate selection must not start scientific work")
+
+    live = workflow_service._SESSION
+    live.revision = 7
+    live._iso = LiveIso()
+    subgroup = SimpleNamespace(index=1)
+    live.method1 = [SimpleNamespace(subgroup=subgroup)]
+    live.method2_subgroups = [subgroup]
+    live.method3 = [SimpleNamespace(subgroup=subgroup)]
+    before = workflow_service.export_progress_snapshot()
+    query = urllib.parse.urlencode({
+        "method": method, "formats": "cif", "revision": 7, "indices": indices,
+    })
+    with pytest.raises(urllib.error.HTTPError) as caught:
+        urllib.request.urlopen(f"http://127.0.0.1:{server.port}/api/download_all?{query}")
+    assert caught.value.code == 400
+    data = json.loads(caught.value.read())
+    assert data["ok"] is False
+    if indices:
+        assert data["error"] == f"Subgroup indices not found in Method {method} candidate pool: 999"
+    else:
+        assert "indices" in data["error"]
+    assert workflow_service._SESSION is live and live.revision == 7
+    assert workflow_service.export_progress_snapshot() == before
+
+
 def test_download_all_passes_nmod_without_mutating_cached_mode_context(server):
     seen: dict = {}
 
@@ -929,6 +2428,8 @@ const itemsFor = () => [{index: 0}, {index: 1}, {index: 2}];
 const itemMatches = () => true, candidateHasParametricK = () => false;
 const selectedDownloadFormats = () => ['cif'];
 const startBusy = () => ({stop() {}});
+const beginResponseContext = () => ({});
+const receiveResponse = data => data, responseIsCurrent = () => true;
 const showOk = (_out, text) => successes.push(text);
 const showError = (_out, text) => errors.push(text);
 const setInterval = () => 1, clearInterval = () => {};

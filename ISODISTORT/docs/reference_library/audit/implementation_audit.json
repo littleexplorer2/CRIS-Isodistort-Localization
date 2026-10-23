@@ -767,9 +767,11 @@
   },
   "evidence_directory": "ISODISTORT/output/validation/theory_design_audit_20261015",
   "architecture_revision": {
-    "date": "2026-10-19",
+    "date": "2026-10-20",
     "proof": "notes/ARCHITECTURE_CONTRACTS_20261019.md",
-    "scope": "Module paths and added architecture contracts; prior scientific qualifications remain unchanged."
+    "scope": "Module paths and architecture contracts, including unified query/result ownership, selected-basis provenance through Method 4, strict scope and numeric-configuration domains, current transport errors, authoritative empty candidate pools, complete export selection, cancellation ownership, action policies and WSL text transport; prior scientific qualifications remain unchanged.",
+    "engineering_evidence": "ISODISTORT/output/validation/architecture_loop_20261020",
+    "qualification": "Program invariants and targeted engineering checks; not new independent scientific acceptance."
   },
   "test_layout_revision": {
     "date": "2026-10-19",

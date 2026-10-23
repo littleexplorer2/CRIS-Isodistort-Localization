@@ -1,8 +1,68 @@
 # 说明性文档可恢复归档
 
+## 2026-10-20：Method 2 母相上下文及新增列表登记前快照
+
+[method2-context-before-20261020.zip](method2-context-before-20261020.zip)
+保存第 9 版冻结记录及修订前清单、计划、报告、索引、机器记录和定向审计脚本，共 14 个文件。
+ZIP SHA-256：`2ab2fa7b1ae73f4c85a639492bad54ded9d9ef829e58a7918dc1a9bdf46c9281`。
+条目名为原仓库相对路径；`_RECOVERY_SHA256.json` 保存原路径、长度和 SHA-256。
+已校验 ZIP CRC 及逐项解压字节。恢复到新的空目录后按该索引验证，
+不要覆盖当前记录；旧“6 个待下载查询”状态由后继记录取代，不能沿用为当前状态。
+官网页面及资源原件没有被改写或删除。
+
+## 2026-10-20：Method 2 定向下载范围修订前快照
+
+[method2-targeted-before-20261020.zip](method2-targeted-before-20261020.zip)
+保存原 102 查询清单、14 个改动前的说明/manifest/索引/审计脚本文件及第 8 版冻结记录。
+ZIP SHA-256：`c692330a6351d6aab7be3a2c8c80298855b935ab92fee702e6457286c43edbaf`。
+条目名是原仓库相对路径；`_RECOVERY_SHA256.json` 保存原路径、长度、SHA-256。
+已逐项读取解压字节并比对哈希，CRC 检查通过。恢复时解压到新的空目录，
+按 `_RECOVERY_SHA256.json` 校验，不能覆盖当前记录或复活旧下载范围/运行签名。
+当前范围只由 [下载清单](../DOWNLOAD_CHECKLIST.md) 及后继冻结记录决定。
+
 当前待办见 [开发计划](../DEVELOPMENT_PLAN.md)。这里保存精简前工作树的完整原始字节，
 包括当时未提交的文档修改；压缩文件是历史快照，不作为当前执行计划。
 机器 manifest、原始官网资料与机器验证产物未被本次压缩改写。
+
+## 2026-10-20：连续修复与架构复审前的记录
+
+[architecture-loop-before-20261020.zip](architecture-loop-before-20261020.zip)
+保存当时工作树中的 ISODISTORT README、计划、报告、本索引、架构合同、能力映射、
+实现审计及第 7 版冻结记录，共 8 个文件，另附 `_SHA256.json`。
+SHA-256：`18ab5b243671ab7f088ceb0d9c4fc6004f261b65434e6ed94e5ea7a621653cb5`。
+条目名为仓库相对路径，已核对 ZIP CRC 与每项恢复字节/SHA-256。
+恢复时使用下文 Python 方法解压到独立目录；不要覆盖当前记录或把旧检查结果当作
+新源码的全量验证结果。
+
+## 2026-10-20：Method 2 查询归属修复前的记录
+
+[method2-query-before-20261020.zip](method2-query-before-20261020.zip)
+保存当时工作树中的 ISODISTORT README、计划、报告、本索引、架构合同、能力映射、
+实现审计及第 6 版冻结记录，共 8 个文件，另附 `_SHA256.json`。
+SHA-256：`a311a113b71fc8c1f0dedd76021ce76e4f99f96fd296653f6ef586803647f01c`。
+条目名为仓库相对路径；ZIP CRC 及每项恢复字节/SHA-256 均已核对。
+按下文 Python 方法恢复到独立目录，不要覆盖当前文档。该快照保存修前计划与证据，
+不代表修后源码已经完成全量或科学验证。
+
+## 2026-10-20：三个已复现问题修复前的记录
+
+[architecture-bugs-before-20261020.zip](architecture-bugs-before-20261020.zip)
+保存当时工作树中的 ISODISTORT README、计划、报告、本索引、架构合同、能力映射、
+实现审计及第 5 版冻结记录，共 8 个文件，另附 `_SHA256.json`。
+SHA-256：`a80879d7c05a205e6c3abe14472b26adb3d776dc89d09acf092ca260c629e592`。
+条目名为仓库相对路径，已逐条解压到内存核对字节/SHA-256，并通过 ZIP CRC 检查。
+按下文 Python 方法恢复到独立目录，对照 `_SHA256.json`，不要覆盖当前文件；
+归档保留旧待办状态与证据，不作为新源码的验证结论。
+
+## 2026-10-20：剩余架构修改前的支撑记录
+
+[architecture-followup-before-20261020.zip](architecture-followup-before-20261020.zip)
+保存修订前的 ISODISTORT README、开发计划、验证报告、本索引、架构合同、
+能力映射、实现审计及第 4 版清单冻结记录，共 8 个原始文件，另附 `_SHA256.json`。
+SHA-256：`c65c83b359070f0b8bce50d9dd322dc587bc8347d64163af08099153125fd116`。
+ZIP 条目名为仓库相对路径；创建后已逐条解压到内存核对字节与 SHA-256，CRC 自检通过。
+按下文 Python 恢复方法解压到独立目录，并对照 `_SHA256.json`；不要覆盖当前文档。
+这些记录保留当时的延期事项和旧验证边界，不代表修改后源码已完成全量验证。
 
 ## 2026-10-09 快照
 
